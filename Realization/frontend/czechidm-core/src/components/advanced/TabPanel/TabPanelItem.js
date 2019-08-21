@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import classnames from 'classnames';
 //
@@ -10,10 +11,6 @@ import * as Basic from '../../basic';
  * @author Radek Tomiška
  */
 export default class TabPanelItem extends Basic.AbstractContextComponent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   render() {
     const { className, to, active, icon, iconColor, showLoading, ...others } = this.props;

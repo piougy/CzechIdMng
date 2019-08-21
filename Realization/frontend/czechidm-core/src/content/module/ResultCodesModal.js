@@ -1,11 +1,13 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import Immutable from 'immutable';
+//
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { BackendModuleManager, DataManager } from '../../redux';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import Immutable from 'immutable';
 
 /**
  * Modal window for result codes
@@ -75,7 +77,8 @@ class ResultCodesModal extends Basic.AbstractContent {
   sortByStatusEnum(one, two) {
     if (one < two) {
       return -1;
-    } else if (one > two) {
+    }
+    if (one > two) {
       return 1;
     }
     return 0;
@@ -100,16 +103,15 @@ class ResultCodesModal extends Basic.AbstractContent {
       // Sort by status code number
       if (parseInt(one.statusCode, 10) > parseInt(two.statusCode, 10)) {
         return 1;
-      } else if (parseInt(one.statusCode, 10) < parseInt(two.statusCode, 10)) {
+      }
+      if (parseInt(one.statusCode, 10) < parseInt(two.statusCode, 10)) {
         return -1;
       }
       // Then sort by code
       return this.sortByStatusEnum(one.statusEnum, two.statusEnum);
     });
 
-    _statusEnum = _statusEnum.sort((one, two) => {
-      return this.sortByStatusEnum(one, two);
-    });
+    _statusEnum = _statusEnum.sort((one, two) => this.sortByStatusEnum(one, two));
 
     return (
       <Basic.Modal
@@ -134,7 +136,7 @@ class ResultCodesModal extends Basic.AbstractContent {
                 title={this.i18n('button.refresh')}
                 showLoading={showLoading} />
             </div>
-            <div className="clearfix"></div>
+            <div className="clearfix" />
           </div>
           <Basic.Collapse in={filterOpened}>
             <div>
@@ -145,7 +147,7 @@ class ResultCodesModal extends Basic.AbstractContent {
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('filter.text.placeholder')}
-                        options={_statusEnum.toArray().map(value => { return {value, niceLabel: value}; })}
+                        options={ _statusEnum.toArray().map(value => ({ value, niceLabel: value })) }
                         searchable />
                     </Basic.Col>
                     <Basic.Col lg={ 6 } className="text-right">
@@ -164,7 +166,7 @@ class ResultCodesModal extends Basic.AbstractContent {
           noData={this.i18n('component.basic.Table.noData')}
           hover={ false }
           condensed
-          rowClass={({ rowIndex, data }) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+          rowClass={({ rowIndex, data }) => Utils.Ui.getRowClass(data[rowIndex]) }
           showLoading={ showLoading }>
           <Basic.Column
             property="statusCode"

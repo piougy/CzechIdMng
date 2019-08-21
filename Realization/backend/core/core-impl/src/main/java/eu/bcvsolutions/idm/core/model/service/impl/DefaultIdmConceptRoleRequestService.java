@@ -27,6 +27,7 @@ import org.springframework.util.ObjectUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -67,7 +68,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConceptRoleRequestRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
@@ -134,8 +137,18 @@ public class DefaultIdmConceptRoleRequestService extends
 			return entity;
 		}
 
+		// We can delete the concept if we have UPDATE permission on request
+		Set<BasePermission> permissionsForRequest = Sets.newHashSet(); 
+		for (BasePermission p : permission) {
+			if (p.equals(IdmBasePermission.DELETE)) {
+				permissionsForRequest.add(IdmBasePermission.UPDATE);
+			} else {
+				permissionsForRequest.add(p);
+			}
+		}
+		
 		// We have rights on the concept, when we have rights on whole request
-		if (getAuthorizationManager().evaluate(entity.getRoleRequest(), permission)) {
+		if (getAuthorizationManager().evaluate(entity.getRoleRequest(), permissionsForRequest.toArray(new BasePermission[0]))) {
 			return entity;
 		}
 

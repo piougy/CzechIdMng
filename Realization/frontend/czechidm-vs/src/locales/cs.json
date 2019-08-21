@@ -35,6 +35,11 @@
       },
       "creator": {
         "label": "Vytvořil"
+      },
+      "roleRequest": {
+        "implementer": {
+            "label": "Žadatel, který vytvořil žádost o změnou rolí"
+        }
       }
     }
   },

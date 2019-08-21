@@ -1,8 +1,9 @@
-import React, { PropTypes } from 'react';
-import Well from '../../basic/Well/Well';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Cropper from 'react-cropper';
 //
 import * as Basic from '../../basic';
+import Well from '../../basic/Well/Well';
 
 /**
 * Component for image crop

@@ -1,7 +1,8 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import { TreeNodeManager, SecurityManager, DataManager } from '../../../redux/';
+import { TreeNodeManager, SecurityManager, DataManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import EntityInfo from '../EntityInfo/EntityInfo';
 

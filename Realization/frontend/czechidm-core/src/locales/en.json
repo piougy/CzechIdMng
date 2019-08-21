@@ -351,6 +351,11 @@
           },
           "from": "of"
         },
+        "select": {
+          "remove": "Clear selection",
+          "add": "Select record",
+          "addAll": "Select records"
+        },
         "noData": "No results found"
       },
       "ProgressBar": {
@@ -913,7 +918,9 @@
       "DELETE": "Delete",
       "EXECUTE": "Execute",
       "PASSWORDCHANGE": "Password change",
-      "CHANGEPERMISSION": "Change roles"
+      "CHANGEPERMISSION": "Change roles",
+      "MANUALLYDISABLE": "Deactivate user manually",
+      "MANUALLYENABLE": "Activate user manually"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -4898,6 +4905,11 @@
             "help": "Creates (or updates) configured role attributes."
           }
         }
+      },
+      "core-identity-contract-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected contracted positions.",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {
@@ -5944,7 +5956,7 @@
     },
     "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
       "title": "Form definition has wrong type",
-      "message": "Form definition id [{{formDefinitionId}}], has not type. Correct type: [{{dtoType}}]."
+      "message": "Form definition configured in value generator, has wrong type. Correct type: [{{entityType}}]. Configure default value generator properly."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
       "title": "Login cannot be empty",

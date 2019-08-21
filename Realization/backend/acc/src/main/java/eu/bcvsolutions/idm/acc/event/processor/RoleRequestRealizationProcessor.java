@@ -85,6 +85,7 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 				IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, event, IdmIdentityRoleDto.class);
 		Set<UUID> removedIdentityAccounts = this.getSetProperty(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM,
 				event, UUID.class);
+		boolean skipProvisioning = this.getBooleanProperty(ProvisioningService.SKIP_PROVISIONING, event.getProperties());
 
 		Set<UUID> accountsForProvisioning = Sets.newHashSet();
 
@@ -123,6 +124,11 @@ public class RoleRequestRealizationProcessor extends CoreEventProcessor<IdmRoleR
 		
 		// Init context in identity DTO and set ID of role-request to it.
 		initContext(identity, request);
+		
+		// Skip provisionig
+		if (skipProvisioning) {
+			return new DefaultEventResult<>(event, this);
+		}
 		
 		// Provisioning for modified account
 		accountsForProvisioning.forEach(accountId -> {

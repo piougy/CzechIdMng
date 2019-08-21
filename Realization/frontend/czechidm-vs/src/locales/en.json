@@ -35,6 +35,11 @@
       },
       "creator": {
         "label": "Creator"
+      },
+      "roleRequest": {
+        "implementer": {
+            "label": "The applicant, that created request to change of assigned roles"
+        }
       }
     }
   },

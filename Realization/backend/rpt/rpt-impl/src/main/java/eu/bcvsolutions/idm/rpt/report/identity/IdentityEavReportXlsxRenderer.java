@@ -97,12 +97,12 @@ public class IdentityEavReportXlsxRenderer extends AbstractXlsxRenderer
 		cell = row.createCell(6);
 		cell.setCellValue(item.isDisabled());
 		cell = row.createCell(7);
-		if(!item.getFormValue().isEmpty()){
-			String val = item.getFormValue().get(0);
-			item.getFormValue().remove(0);
+		if (!item.getFormValues().isEmpty()) {
+			String val = item.getFormValues().get(0);
+			item.getFormValues().remove(0);
 			cell.setCellValue(val);
 		}
-		if(!item.getFormValue().isEmpty()){
+		if (!item.getFormValues().isEmpty()) {
 			return createRow(item, rowNum,sheet);
 		}
 		return rowNum;

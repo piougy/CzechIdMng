@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import _ from 'lodash';
 //
@@ -12,10 +13,6 @@ import Icon from '../Icon/Icon';
  */
 export default class BasicTooltip extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   /**
    * Shows tooltip
    */
@@ -27,7 +24,7 @@ export default class BasicTooltip extends AbstractComponent {
   }
 
   render() {
-    const { id, rendered, children, value, delayShow, placement, trigger, showLoading, ...others } = this.props;
+    const { id, rendered, children, value, delayShow, placement, trigger, showLoading } = this.props;
     if (!rendered || !children) {
       return null;
     }
@@ -35,7 +32,7 @@ export default class BasicTooltip extends AbstractComponent {
     if (!_id) {
       _id = _.uniqueId('tooltip_');
     }
-
+    //
     return (
       <OverlayTrigger
         ref="popover"

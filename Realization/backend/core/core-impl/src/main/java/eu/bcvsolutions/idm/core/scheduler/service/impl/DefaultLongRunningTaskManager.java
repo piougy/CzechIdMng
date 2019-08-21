@@ -175,8 +175,8 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
-		// persist LRT
-		taskExecutor.validate(persistTask(taskExecutor, OperationState.CREATED));
+		// persist LRT as running => prevent to scheduler process the created tasks 
+		taskExecutor.validate(persistTask(taskExecutor, OperationState.RUNNING));
 		//
 		LongRunningFutureTask<V> longRunnigFutureTask = new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(taskExecutor));
 		// execute - after original transaction is commited

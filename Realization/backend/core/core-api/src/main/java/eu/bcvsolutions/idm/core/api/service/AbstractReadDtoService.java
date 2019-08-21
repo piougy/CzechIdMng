@@ -386,7 +386,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Transactional(readOnly = true)
 	public Set<String> getPermissions(Serializable id) {
 		E entity = getEntity(id);
-		Assert.notNull(entity);
+		Assert.notNull(entity, String.format("Entity [%s] not found", id));
 		//
 		return getPermissions(entity);
 	}

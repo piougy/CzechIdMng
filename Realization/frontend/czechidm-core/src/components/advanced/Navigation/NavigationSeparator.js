@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 //
 import * as Basic from '../../basic';
 
@@ -9,12 +10,8 @@ import * as Basic from '../../basic';
  */
 export default class NavigationSeperator extends Basic.AbstractContextComponent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   render() {
-    const { text, ...others } = this.props;
+    const { text } = this.props;
     return (
       <li className="nav-separator">
         { text }

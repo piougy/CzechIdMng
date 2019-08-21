@@ -14,10 +14,6 @@ import AbstractIcon from './AbstractIcon';
  */
 export default class MainContractIcon extends AbstractIcon {
 
-  constructor(props) {
-    super(props);
-  }
-
   renderIcon() {
     return (
       <span className="fa-layers fa-fw" title={ i18n('entity.IdentityContract.main.help') }>

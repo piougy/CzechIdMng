@@ -9,7 +9,6 @@ import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponen
 import ApiOperationTypeEnum from '../../../enums/ApiOperationTypeEnum';
 import Loading from '../Loading/Loading';
 
-
 /**
  * Abstract form component
  *

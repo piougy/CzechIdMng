@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 
@@ -156,7 +157,12 @@ class Pagination extends AbstractContextComponent {
       const active = currentPage === page;
       pages.push(
         <li key={`page-${page}`} className={active ? 'active' : ''}>
-          <a href="#" onClick={this.setPage.bind(this, page)} title={this.i18n(active ? '' : 'component.basic.Table.Pagination.page.select', { page: page + 1 })}>{ page + 1 }</a>
+          <a
+            href="#"
+            onClick={this.setPage.bind(this, page)}
+            title={this.i18n(active ? '' : 'component.basic.Table.Pagination.page.select', { page: page + 1 })}>
+            { page + 1 }
+          </a>
         </li>
       );
     }
@@ -217,13 +223,13 @@ class Pagination extends AbstractContextComponent {
     }
     return (
       <form onSubmit={this._submitChangedPage.bind(this)}>
-        {this.i18n('component.basic.Table.Pagination.page.title')}
+        { this.i18n('component.basic.Table.Pagination.page.title') }
         <input
           type="text"
           className="form-control"
           value={changePage}
           onChange={this._changePage.bind(this)}/>
-        {this.i18n('component.basic.Table.Pagination.from')} { maxPage + 1 }
+        { `${ this.i18n('component.basic.Table.Pagination.from')} ${ maxPage + 1 }` }
       </form>
     );
   }
@@ -247,11 +253,10 @@ class Pagination extends AbstractContextComponent {
         maxRecord = total;
       }
     }
-    const sizes = [];
-    sizeOptions.map(availableSize => {
-      sizes.push(<option key={`size-${availableSize}`} value={availableSize}>{availableSize}</option>);
-    });
-
+    const sizes = sizeOptions.map(availableSize => (
+      <option key={`size-${availableSize}`} value={availableSize}>{availableSize}</option>
+    ));
+    //
     return (
       <div>
         <div className="record-info">
@@ -329,7 +334,7 @@ Pagination.propTypes = {
   /**
    * Available Page sizes
    */
-  sizeOptions: PropTypes.array,
+  sizeOptions: PropTypes.arrayOf(PropTypes.number),
   showPageSize: PropTypes.bool
 };
 

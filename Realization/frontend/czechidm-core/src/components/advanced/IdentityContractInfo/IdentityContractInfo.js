@@ -1,9 +1,10 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Utils from '../../../utils';
 import * as Basic from '../../basic';
-import { IdentityContractManager } from '../../../redux/';
+import { IdentityContractManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import DateValue from '../DateValue/DateValue';
 import EntityInfo from '../EntityInfo/EntityInfo';

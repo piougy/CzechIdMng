@@ -1,10 +1,11 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Joi from 'joi';
 import moment from 'moment';
+import Datetime from 'react-datetime';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
-import Datetime from 'react-datetime';
 import LocalizationService from '../../../services/LocalizationService';
 import Button from '../Button/Button';
 import Icon from '../Icon/Icon';

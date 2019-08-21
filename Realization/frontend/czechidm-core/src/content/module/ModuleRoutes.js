@@ -16,13 +16,13 @@ export default class ModuleRoutes extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader({ icon: 'fa:puzzle-piece' }) }
 
         <Advanced.TabPanel position="top" parentId="modules" params={ this.props.params }>
           { this.props.children }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

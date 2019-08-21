@@ -163,6 +163,9 @@ public class SysProvisioningArchiveControllerRestTest extends AbstractReadWriteD
 		SysProvisioningArchiveDto operationTwo = createDto(prepareDto(system));
 		createAttribute(operationTwo.getId(), attributeOne, true);
 		createAttribute(operationTwo.getId(), attributeTwo, false);
+		SysProvisioningArchiveDto operation = prepareDto(system);
+		operation.setOperationType(ProvisioningEventType.DELETE);
+		SysProvisioningArchiveDto operationThree = createDto(operation);
 		// empty
 		SysProvisioningArchiveDto operationEmpty = createDto(prepareDto(system));
 		//
@@ -177,9 +180,10 @@ public class SysProvisioningArchiveControllerRestTest extends AbstractReadWriteD
 		filter.setEmptyProvisioning(Boolean.FALSE);
 		results = find(filter);
 		//
-		Assert.assertEquals(2, results.size());
+		Assert.assertEquals(3, results.size());
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationTwo.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationThree.getId())));
 	}
 	
 	private SysProvisioningAttribute createAttribute(UUID provisioningId, String name, boolean removed) {

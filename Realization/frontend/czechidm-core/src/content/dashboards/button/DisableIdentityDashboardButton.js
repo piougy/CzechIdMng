@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
+import * as Utils from '../../../utils';
 import { IdentityManager } from '../../../redux';
 
 const identityManager = new IdentityManager();
@@ -24,7 +25,7 @@ class DisableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardB
     //
     return !identity.disabled
       && userContext.id !== identity.id
-      && identityManager.canSave(identity, permissions);
+      && Utils.Permission.hasPermission(permissions, 'MANUALLYDISABLE');
   }
 
   getLabel() {

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Tab, Tabs } from 'react-bootstrap';
 import classnames from 'classnames';
 import _ from 'lodash';
@@ -13,10 +14,6 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
  * @author Radek Tomiška
  */
 export default class BasicTabs extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   _getRenderedChildren(children) {
     return children.filter(child => {

@@ -1,5 +1,6 @@
-import React, { PropTypes } from 'react';
-
+import React from 'react';
+import PropTypes from 'prop-types';
+//
 import UiUtils from '../../../utils/UiUtils';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Tooltip from '../Tooltip/Tooltip';
@@ -11,10 +12,6 @@ import Tooltip from '../Tooltip/Tooltip';
  * @author Radek Tomiška
  */
 class ShortText extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { text, value, maxLength, cutPointEnd, cutChar, className, rendered, style } = this.props;

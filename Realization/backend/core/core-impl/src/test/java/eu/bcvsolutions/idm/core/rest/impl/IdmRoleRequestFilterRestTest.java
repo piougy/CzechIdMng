@@ -29,7 +29,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
- * Controller tests
+ * Controller tests.
+ * 
+ * FIXME: move all tests to IdmRoleRequestControllerRestTest. Use {@link #find(org.springframework.util.MultiValueMap)} method.
  *
  * @author Kolychev Artem
  */
@@ -111,42 +113,6 @@ public class IdmRoleRequestFilterRestTest extends AbstractReadWriteDtoController
 				.getResponse()
 				.getContentAsString();
 		return toDtos(response);
-	}
-
-	@Test
-	public void filterNullResult() throws Exception {
-
-		URIBuilder baseUrlBuilder = this.getBaseUrlBuilder();
-		baseUrlBuilder.addParameter(URL_PARAM_APPLICANT, "not-exist-name");
-
-		List<IdmRoleRequestDto> idmRolesRequestDto = new ArrayList<>();
-		roleRequestService.saveAll(idmRolesRequestDto);
-		List<IdmRoleRequestDto> results = sendReqest(baseUrlBuilder);
-		Assert.assertTrue(results.isEmpty());
-	}
-
-	@Test
-	public void filterOneState() throws Exception {
-
-		List<IdmRoleRequestDto> roleRequestDtos = new ArrayList<>();
-		URIBuilder baseUrlBuilder = this.getBaseUrlBuilder();
-
-		IdmRoleRequestDto requestDto = this.prepareDto();
-		roleRequestDtos.add(requestDto);
-		requestDto.setState(RoleRequestState.EXECUTED);
-		baseUrlBuilder.addParameter(URL_PARAM_STATES, requestDto.getState().name());
-		baseUrlBuilder.addParameter(URL_PARAM_APPLICANTS, requestDto.getApplicant().toString());
-
-		IdmRoleRequestDto requestDtoTwo = this.prepareDto();
-		roleRequestDtos.add(requestDtoTwo);
-		requestDtoTwo.setState(RoleRequestState.CANCELED);
-		baseUrlBuilder.addParameter(URL_PARAM_APPLICANTS, requestDtoTwo.getApplicant().toString());
-
-		roleRequestService.saveAll(roleRequestDtos);
-
-		List<IdmRoleRequestDto> results = sendReqest(baseUrlBuilder);
-		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(requestDto.getId(), results.get(0).getId());
 	}
 
 	@Test

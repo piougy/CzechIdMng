@@ -93,6 +93,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import io.swagger.annotations.Api;
@@ -333,7 +334,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_MANUALLYENABLE + "')")
 	@RequestMapping(value = "/{backendId}/enable", method = RequestMethod.PATCH)
 	@ApiOperation(
 			value = "Activate identity", 
@@ -342,9 +343,9 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_MANUALLYENABLE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_MANUALLYENABLE, description = "") })
 				},
 			notes = "Enable manually disabled identity. Identity will have automatically recounted state assigned by their contract state." )
 	public ResponseEntity<?> enable(
@@ -354,7 +355,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return new ResponseEntity<>(toResource(identityService.enable(identity.getId(), IdmBasePermission.UPDATE)), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(identityService.enable(identity.getId(), IdentityBasePermission.MANUALLYENABLE)), HttpStatus.OK);
 	}
 	
 	/**
@@ -363,7 +364,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_MANUALLYDISABLE + "')")
 	@RequestMapping(value = "/{backendId}/disable", method = RequestMethod.PATCH)
 	@ApiOperation(
 			value = "Disable identity", 
@@ -372,9 +373,9 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_MANUALLYDISABLE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_UPDATE, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_MANUALLYDISABLE, description = "") })
 				},
 			notes = "Disable identity manually. This identity will be disabled even with valid contracts."
 					+ " Identity can be enabled manually again only. See 'enable' method." )
@@ -385,7 +386,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		return new ResponseEntity<>(toResource(identityService.disable(identity.getId(), IdmBasePermission.UPDATE)), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(identityService.disable(identity.getId(), IdentityBasePermission.MANUALLYDISABLE)), HttpStatus.OK);
 	}
 
 	@Override

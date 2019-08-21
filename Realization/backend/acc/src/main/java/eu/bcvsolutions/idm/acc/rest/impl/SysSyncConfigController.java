@@ -272,7 +272,7 @@ public class SysSyncConfigController
 
 	@Override
 	protected SysSyncConfigFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SysSyncConfigFilter filter = new SysSyncConfigFilter();
+		SysSyncConfigFilter filter = new SysSyncConfigFilter(parameters);
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		return filter;
 	}

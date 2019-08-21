@@ -1,5 +1,6 @@
 import React from 'react';
 //
+import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Domain from '../../domain';
 import { SecurityManager } from '../../redux';
@@ -12,11 +13,6 @@ import ContractSlices from './ContractSlices';
  * @author Radek Tomiška
  */
 export default class IdentityContracts extends Advanced.AbstractTableContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
-
 
   getContentKey() {
     return 'content.identity.identityContracts';
@@ -35,7 +31,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
     const forceSearchParameters = new Domain.SearchParameters().setFilter('identity', entityId);
     //
     return (
-      <div>
+      <Basic.Div>
         { this.renderContentHeader({ style: { marginBottom: 0 } }) }
 
         <ContractTable
@@ -48,7 +44,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
           rendered={SecurityManager.hasAuthority('CONTRACTSLICE_READ')}
           params={{ entityId }}
           reloadExternal={ this.reload.bind(this) }/>
-      </div>
+      </Basic.Div>
     );
   }
 }

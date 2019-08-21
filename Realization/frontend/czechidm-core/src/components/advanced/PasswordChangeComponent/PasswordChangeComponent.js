@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -277,7 +278,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     //
     const allOnlyWarningClassNames = classnames(
       'form-group',
-      { 'hidden': passwordChangeType !== IdentityManager.idm || SecurityManager.isAdmin(userContext) }
+      { hidden: passwordChangeType !== IdentityManager.idm || SecurityManager.isAdmin(userContext) }
     );
     //
     // if current user is admin, old password is never required

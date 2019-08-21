@@ -1,8 +1,9 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { NotificationTemplateManager, SecurityManager } from '../../../redux/';
+import { NotificationTemplateManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new NotificationTemplateManager();
@@ -17,10 +18,6 @@ const manager = new NotificationTemplateManager();
  */
 export class NotificationTemplateInfo extends AbstractEntityInfo {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return manager;
   }
@@ -29,7 +26,7 @@ export class NotificationTemplateInfo extends AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_TEMPLATE_READ']})) {
+    if (!SecurityManager.hasAccess({ type: 'HAS_ANY_AUTHORITY', authorities: ['NOTIFICATION_TEMPLATE_READ']})) {
       return false;
     }
     return true;

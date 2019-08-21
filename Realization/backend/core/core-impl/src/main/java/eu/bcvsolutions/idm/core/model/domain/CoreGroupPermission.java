@@ -34,7 +34,9 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE,
 			IdentityBasePermission.PASSWORDCHANGE,
-			IdentityBasePermission.CHANGEPERMISSION),
+			IdentityBasePermission.CHANGEPERMISSION,
+			IdentityBasePermission.MANUALLYDISABLE,
+			IdentityBasePermission.MANUALLYENABLE),
 	PROFILE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -355,6 +357,8 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
 	public static final String IDENTITY_PASSWORDCHANGE = "IDENTITY" + BasePermission.SEPARATOR + "PASSWORDCHANGE";
 	public static final String IDENTITY_CHANGEPERMISSION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEPERMISSION";
+	public static final String IDENTITY_MANUALLYDISABLE = "IDENTITY" + BasePermission.SEPARATOR + "MANUALLYDISABLE";
+	public static final String IDENTITY_MANUALLYENABLE = "IDENTITY" + BasePermission.SEPARATOR + "MANUALLYENABLE";
 	//
 	public static final String PROFILE_ADMIN = "PROFILE" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String PROFILE_COUNT = "PROFILE" + BasePermission.SEPARATOR + "COUNT";

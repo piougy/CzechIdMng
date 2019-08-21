@@ -219,6 +219,9 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     if (!permission.name) {
       _permission = this._getUniqueBasePermissions(this.props.allAuthorities).get(permission);
     }
+    if (!_permission) {
+      return permission;
+    }
     //
     return this.i18n(`${_permission.module ? _permission.module : 'core'}:permission.base.${_permission.name}`, { defaultValue: _permission.name });
   }

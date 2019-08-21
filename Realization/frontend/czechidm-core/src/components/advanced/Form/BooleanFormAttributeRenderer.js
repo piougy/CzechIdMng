@@ -48,7 +48,7 @@ export default class BooleanFormAttributeRenderer extends AbstractFormAttributeR
 
   renderSingleInput(originalValues) {
     const { values, validationErrors, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <Basic.Checkbox

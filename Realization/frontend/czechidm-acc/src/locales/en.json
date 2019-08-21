@@ -611,8 +611,8 @@
         },
         "emptyProvisioning": {
           "placeholder": "All operations ...",
-          "yes": "Exclude empty provisioning (with attributes)",
-          "no": "Empty provisioning provisioning only (without atributes)"
+          "yes": "Empty provisioning provisioning only (without atributes)",
+          "no": "Exclude empty provisioning (with attributes)"
         }
       }
     },
@@ -931,7 +931,10 @@
       "linkedAction": "Linked",
       "unlinkedAction": "Not linked",
       "missingEntityAction": "Missing entity",
-      "missingAccountAction": "Missing account"
+      "missingAccountAction": "Missing account",
+      "button": {
+        "lastSyncLog": "Go to the last synchronization log."
+      }
     },
     "SynchronizationLog": {
       "running": "Running",
@@ -1303,6 +1306,7 @@
       "SYNCHRONIZATION": "Synchronization",
       "TREEACCOUNT": "Tree accounts",
       "IDENTITYACCOUNT": "Identity accounts",
+      "IDENTITYROLEACCOUNT": "Assigned identity role accounts",
       "CONTRACTACCOUNT": "Accounts for contractual relationships",
       "CONTRACTSLICEACCOUNT": "Accounts for time slices of contractual relationships",
       "PROVISIONINGBREAK": "Provisioning - brake",
@@ -1530,6 +1534,11 @@
             "label": "System",
             "placeholder": "All systems or select ...",
             "help": "Delete operations with given system only."
+          },
+          "emptyprovisioning": {
+            "label": "Empty provisioning operations only (without atributes)",
+            "placeholder": "All operations ...",
+            "help": "Delete provisioning operations only without attributes. Operation with DELETE type is not considered as empty (even haven't attributes)."
           }
         }
       },

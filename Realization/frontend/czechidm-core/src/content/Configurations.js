@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -196,7 +197,6 @@ class Configurations extends Advanced.AbstractTableContent {
       } else {
         this.refs.form.processEnded();
         this.addError(error);
-        return;
       }
     } else {
       this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
@@ -290,7 +290,7 @@ class Configurations extends Advanced.AbstractTableContent {
       isSecured,
       showPrefixWarning
     } = this.state;
-    const render = detail.show || detail.addMore ? true : false;
+    const render = !!(detail.show || detail.addMore);
     //
     return (
       <Basic.Div>
@@ -337,29 +337,29 @@ class Configurations extends Advanced.AbstractTableContent {
               [
                 <span>
                   <span style={{ marginRight: 3 }}>
-                  <Basic.Button
-                    level="success"
-                    key="add_button"
-                    className="btn-xs"
-                    onClick={this.showDetail.bind(this, { public: true })}
-                    rendered={ manager.canSave() }>
-                    <Basic.Icon type="fa" icon="plus"/>
-                    {' '}
-                    {this.i18n('button.add')}
-                  </Basic.Button>
-                </span>
-                <span>
-                  <Basic.Button
-                    level="success"
-                    key="addMore_button"
-                    className="btn-xs"
-                    onClick={ this.showAddMore.bind(this, { public: true }) }
-                    rendered={ manager.canSave() }>
-                    <Basic.Icon type="fa" icon="plus"/>
-                    {' '}
-                    {this.i18n('button.addMore')}
-                  </Basic.Button>
-                </span>
+                    <Basic.Button
+                      level="success"
+                      key="add_button"
+                      className="btn-xs"
+                      onClick={this.showDetail.bind(this, { public: true })}
+                      rendered={ manager.canSave() }>
+                      <Basic.Icon type="fa" icon="plus"/>
+                      {' '}
+                      {this.i18n('button.add')}
+                    </Basic.Button>
+                  </span>
+                  <span>
+                    <Basic.Button
+                      level="success"
+                      key="addMore_button"
+                      className="btn-xs"
+                      onClick={ this.showAddMore.bind(this, { public: true }) }
+                      rendered={ manager.canSave() }>
+                      <Basic.Icon type="fa" icon="plus"/>
+                      {' '}
+                      {this.i18n('button.addMore')}
+                    </Basic.Button>
+                  </span>
                 </span>
               ]
             }
@@ -369,13 +369,11 @@ class Configurations extends Advanced.AbstractTableContent {
               header=""
               className="detail-button"
               cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                  );
-                }
+                ({ rowIndex, data }) => (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                )
               }/>
             <Advanced.Column property="name" sort width={ 250 }/>
             <Advanced.Column property="value" sort/>
@@ -386,14 +384,20 @@ class Configurations extends Advanced.AbstractTableContent {
 
         <Basic.Modal
           bsSize="large"
-          show={detail.show}
-          onHide={this.closeDetail.bind(this)}
+          show={ detail.show }
+          onHide={ this.closeDetail.bind(this) }
           backdrop="static"
-          keyboard={!_showLoading}>
+          keyboard={ !_showLoading }>
 
-          <form onSubmit={this.save.bind(this)}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
+          <form onSubmit={ this.save.bind(this) }>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('create.header') }
+              rendered={ detail.entity.id === undefined }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('edit.header', { name: detail.entity.name }) }
+              rendered={ detail.entity.id !== undefined }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
@@ -401,7 +405,7 @@ class Configurations extends Advanced.AbstractTableContent {
                 showLoading={ _showLoading }
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.Alert
-                  text={<span dangerouslySetInnerHTML={{ __html: this.i18n('nameDoesntContainPrefixAlert', {prefix: IDM_CONFIGURATION_PREFIX})}}/>}
+                  text={ this.i18n('nameDoesntContainPrefixAlert', { prefix: IDM_CONFIGURATION_PREFIX, escape: false }) }
                   level="warning"
                   rendered={showPrefixWarning}/>
                 <Basic.TextField
@@ -409,7 +413,7 @@ class Configurations extends Advanced.AbstractTableContent {
                   label={this.i18n('entity.Configuration.name')}
                   onChange={this._changeName.bind(this)}
                   required
-                  helpBlock={<span dangerouslySetInnerHTML={{ __html: this.i18n('guarded', { guarded: ConfigurationManager.GUARDED_PROPERTY_NAMES.join(', ') }) }}/>}/>
+                  helpBlock={ this.i18n('guarded', { guarded: ConfigurationManager.GUARDED_PROPERTY_NAMES.join(', '), escape: false }) }/>
                 <Basic.TextField
                   type={isGuarded ? 'password' : 'text'}
                   ref="value"
@@ -470,7 +474,7 @@ class Configurations extends Advanced.AbstractTableContent {
                   label={this.i18n('addMore.configurationArea.header')}
                   required
                   helpBlock={this.i18n('addMore.configurationArea.helpBlock')}
-                  />
+                />
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -510,15 +514,13 @@ class Configurations extends Advanced.AbstractTableContent {
               className="edit-button"
               width={ 20 }
               cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Basic.Button
-                      title={this.i18n('button.edit')}
-                      className="btn-xs"
-                      icon={'fa:pencil'}
-                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                  );
-                }
+                ({ rowIndex, data }) => (
+                  <Basic.Button
+                    title={this.i18n('button.edit')}
+                    className="btn-xs"
+                    icon="fa:pencil"
+                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
+                )
               }/>
             <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width={ 250 }/>
             <Basic.Column property="value" header={this.i18n('entity.Configuration.value')} />
@@ -541,7 +543,7 @@ class Configurations extends Advanced.AbstractTableContent {
           <Basic.Panel rendered={ !render }>
             <Basic.Table
               data={ environmentConfigurations }
-              header={ this.i18n('fromEnvironment', { escape: false } ) }
+              header={ this.i18n('fromEnvironment', { escape: false }) }
               showLoading={ _environmentConfigurationsShowLoading }
               noData={ this.i18n('component.basic.Table.noData') }>
               <Basic.Column property="name" header={ this.i18n('entity.Configuration.name') } width={ 150 }/>

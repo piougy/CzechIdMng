@@ -17,19 +17,16 @@ const accountManager = new AccountManager();
  */
 class PasswordChangeAccounts extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   componentDidMount() {
     super.componentDidMount();
     //
     const { entityId } = this.props.params;
-    const defaultSearchParameters = accountManager.getDefaultSearchParameters()
-                                      .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
-                                      .setFilter('ownership', true)
-                                      .setFilter('supportChangePassword', true)
-                                      .setFilter('identity', entityId);
+    const defaultSearchParameters = accountManager
+      .getDefaultSearchParameters()
+      .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
+      .setFilter('ownership', true)
+      .setFilter('supportChangePassword', true)
+      .setFilter('identity', entityId);
     this.context.store.dispatch(accountManager.fetchEntities(defaultSearchParameters, `${entityId}-accounts`));
   }
 
@@ -78,7 +75,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
             passwordChangeType={ passwordChangeType }
             requireOldPassword={ requireOldPassword }
             accountOptions={ options }/>
-          }
+        }
       </div>
     );
   }

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Select from 'react-select';
 import _ from 'lodash';
 import * as Basic from '../../basic';
@@ -25,7 +26,7 @@ class CreatableSelectBox extends Basic.EnumSelectBox {
   getValue() {
     const { options } = this.state;
     const values = [];
-    options.forEach( option => {
+    options.forEach(option => {
       values.push(option.value);
     });
     return values;

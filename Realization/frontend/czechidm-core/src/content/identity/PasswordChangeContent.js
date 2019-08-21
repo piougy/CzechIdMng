@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
@@ -28,7 +29,6 @@ class PasswordChangeContent extends Basic.AbstractContent {
     const options = [
       { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
     ];
-
     return (
       <PasswordChangeForm
         userContext={userContext}

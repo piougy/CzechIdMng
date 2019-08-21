@@ -27,6 +27,8 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
 /**
  * Permissions to form attributes by code list definition.
  * 
+ * Note: AttribuTte ... I know, but it's too late :(
+ * 
  * @author Radek Tomiška
  * @since 9.4.0
  */

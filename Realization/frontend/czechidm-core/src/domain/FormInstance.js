@@ -89,7 +89,7 @@ export default class FormInstance {
     const values = this.getValues();
     const properties = {};
     values.forEach(value => {
-      // TODO: multiple properties are not solved now ... array, some separator?
+      // TODO: multiple properties are not solved now ... Task on BE is map<string, string> array, some separator?
       properties[value._embedded.formAttribute.code] = value.value;
     });
     //
@@ -154,13 +154,16 @@ export default class FormInstance {
     }
     // convert properties to form values
     const formValues = _.keys(properties).map(parameterName => {
+      // value is used as fallback in renderers in concrete value by persistent type is not filled
+      const value = properties[parameterName];
+      //
       return {
         _embedded: {
           formAttribute: {
             code: parameterName
           }
         },
-        value: properties[parameterName] // value is used as fallback in renderers in concrete value by persistent type is not filled
+        value
       };
     });
     //

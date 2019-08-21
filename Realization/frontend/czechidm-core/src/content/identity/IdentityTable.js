@@ -244,13 +244,11 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             header=""
             className="detail-button"
             cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.DetailButton
-                    title={ this.i18n('button.detail') }
-                    onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <Advanced.DetailButton
+                  title={ this.i18n('button.detail') }
+                  onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
+              )
             }
             rendered={ showDetailButton }/>
           <Advanced.Column
@@ -258,11 +256,9 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             property="username"
             sort
             cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.EntityInfo entityType="identity" entityIdentifier={ data[rowIndex].id } entity={ data[rowIndex] } face="popover"/>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <Advanced.EntityInfo entityType="identity" entityIdentifier={ data[rowIndex].id } entity={ data[rowIndex] } face="popover"/>
+              )
             }
             rendered={ _.includes(columns, 'entityInfo') }/>
           <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
@@ -278,7 +274,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="externalCode" sort width="10%" face="text" rendered={ _.includes(columns, 'externalCode') }/>
           <Advanced.Column property="email" width="15%" face="text" sort rendered={ _.includes(columns, 'email') }/>
           <Advanced.Column property="disabled" face="bool" sort width={ 100 } rendered={ _.includes(columns, 'disabled') }/>
-          <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width="100px" rendered={ _.includes(columns, 'state') }/>
+          <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width={ 100 } rendered={ _.includes(columns, 'state') }/>
           <Advanced.Column property="description" sort face="text" rendered={ _.includes(columns, 'description') } maxLength={ 30 }/>
         </Advanced.Table>
       </div>

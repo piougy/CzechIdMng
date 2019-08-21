@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import uuid from 'uuid';
@@ -229,10 +230,10 @@ class RoleTable extends Advanced.AbstractTableContent {
             ref="table"
             uiKey={ uiKey }
             manager={ roleManager }
-            rowClass={ ({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); } }
+            rowClass={ ({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }
             filterOpened={ filterOpened }
             forceSearchParameters={ forceSearchParameters }
-            showRowSelection={ SecurityManager.hasAuthority('ROLE_DELETE') }
+            showRowSelection
             style={ !_showTree ? {} : { borderLeft: '1px solid #ddd' } }
             showLoading={ showLoading }
             filter={

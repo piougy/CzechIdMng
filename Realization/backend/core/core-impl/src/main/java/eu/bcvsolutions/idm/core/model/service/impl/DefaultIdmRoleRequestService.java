@@ -32,6 +32,7 @@ import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -161,7 +162,7 @@ public class DefaultIdmRoleRequestService
 	@Autowired
 	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
 			IdmConceptRoleRequestService conceptRoleRequestService, IdmIdentityRoleService identityRoleService,
-			IdmIdentityService identityService, ObjectMapper objectMapper, SecurityService securityService,
+			IdmIdentityService identityService, @Qualifier("objectMapper") ObjectMapper objectMapper, SecurityService securityService,
 			ApplicationContext applicationContext, WorkflowProcessInstanceService workflowProcessInstanceService,
 			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager);
@@ -974,6 +975,12 @@ public class DefaultIdmRoleRequestService
 	@Override
 	@Transactional
 	public IdmRoleRequestDto executeConceptsImmediate(UUID applicant, List<IdmConceptRoleRequestDto> concepts) {
+		return this.executeConceptsImmediate(applicant, concepts, null);
+	}
+	
+	@Override
+	@Transactional
+	public IdmRoleRequestDto executeConceptsImmediate(UUID applicant, List<IdmConceptRoleRequestDto> concepts, Map<String, Serializable> additionalProperties) {
 		if (concepts == null || concepts.isEmpty()) {
 			LOG.debug("No concepts are given, request for applicant [{}] will be not executed, returning null.", applicant);
 			//
@@ -996,8 +1003,13 @@ public class DefaultIdmRoleRequestService
 		//
 		// start event with skip check authorities
 		RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+		
 		requestEvent.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
 		requestEvent.setPriority(PriorityType.IMMEDIATE); // execute request synchronously (asynchronicity schould be added from outside).
+		// Add additional properties
+		if (additionalProperties != null) {
+			requestEvent.getProperties().putAll(additionalProperties);
+		}
 		//
 		return startRequestInternal(requestEvent);
 	}

@@ -10,6 +10,8 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
@@ -29,6 +32,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncLog_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
@@ -50,7 +54,7 @@ public class DefaultSysSyncConfigService
 		implements SysSyncConfigService {
 
 	private final SysSyncConfigRepository repository;
-	private final SysSyncLogService synchronizationLogService;
+	private final SysSyncLogService syncLogService;
 
 	@Autowired
 	public DefaultSysSyncConfigService(SysSyncConfigRepository repository, SysSyncLogService synchronizationLogService) {
@@ -59,7 +63,7 @@ public class DefaultSysSyncConfigService
 		Assert.notNull(synchronizationLogService);
 		//
 		this.repository = repository;
-		this.synchronizationLogService = synchronizationLogService;
+		this.syncLogService = synchronizationLogService;
 	}
 
 	@Override
@@ -76,6 +80,34 @@ public class DefaultSysSyncConfigService
 			}
 		}
 		return super.saveInternal(dto);
+	}
+	
+	@Override
+	protected AbstractSysSyncConfigDto toDto(SysSyncConfig entity, AbstractSysSyncConfigDto dto,
+			SysSyncConfigFilter filter) {
+		AbstractSysSyncConfigDto result = super.toDto(entity, dto, filter);
+		// If filter has set "Include last sync log", then we try to find last created
+		// log and add it to the sync configuration DTO (for show statistics and results
+		// in the table of sync -> UX)
+		if (filter != null && filter.getIncludeLastLog() != null && filter.getIncludeLastLog()) {
+			Assert.notNull(result.getId());
+
+			SysSyncLogFilter syncLogFilter = new SysSyncLogFilter();
+			syncLogFilter.setSynchronizationConfigId(result.getId());
+			List<SysSyncLogDto> logs = syncLogService
+					.find(syncLogFilter, new PageRequest(0, 1, Direction.DESC, SysSyncLog_.created.getName()))
+					.getContent();
+			if (!logs.isEmpty()) {
+				result.setLastSyncLog(logs.get(0));
+			}
+		}
+
+		return result;
+	}
+	
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return true;
 	}
 
 	@Override
@@ -108,8 +140,8 @@ public class DefaultSysSyncConfigService
 		// remove all synchronization logs
 		SysSyncLogFilter filter = new SysSyncLogFilter();
 		filter.setSynchronizationConfigId(synchronizationConfig.getId());
-		synchronizationLogService.find(filter, null).forEach(log -> {
-			synchronizationLogService.delete(log);
+		syncLogService.find(filter, null).forEach(log -> {
+			syncLogService.delete(log);
 		});
 		//
 		super.deleteInternal(synchronizationConfig);

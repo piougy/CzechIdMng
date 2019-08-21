@@ -1033,6 +1033,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Method for resolve unlinked situation for one item.
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void resolveUnlinkedSituation(SynchronizationUnlinkedActionType action, SynchronizationContext context) {
 
@@ -1051,20 +1052,29 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			initSyncActionLog(SynchronizationActionType.UNLINKED, OperationResultType.IGNORE, logItem, log, actionLogs);
 			return;
 		case LINK:
-			// Create idm account
+			// Create IdM account
 			doCreateLink(entity, false, context);
 			initSyncActionLog(SynchronizationActionType.LINK, OperationResultType.SUCCESS, logItem, log, actionLogs);
 			return;
 		case LINK_AND_UPDATE_ACCOUNT:
-			// Create idm account
+			// Create IdM account
 			doCreateLink(entity, true, context);
 			initSyncActionLog(SynchronizationActionType.LINK_AND_UPDATE_ACCOUNT, OperationResultType.SUCCESS, logItem,
 					log, actionLogs);
 			return;
 		case LINK_AND_UPDATE_ENTITY:
-			// Create idm account
-			doCreateLink(entity, false, context);
+			// Could be update of entity skipped? 
+			context.addSkipEntityUpdate(skipEntityUpdate(entity, context));
+			// Update entity without provisioning
+			context.addSkipProvisioning(true);
 			doUpdateEntity(context);
+			context.addSkipProvisioning(false);
+			// Get updated entity from context
+			if (context.getEntityDto() != null) {
+				entity = (DTO) context.getEntityDto();
+			}
+			// Create IdM account
+			doCreateLink(entity, true, context);
 			initSyncActionLog(SynchronizationActionType.LINK_AND_UPDATE_ENTITY, OperationResultType.SUCCESS, logItem,
 					log, actionLogs);
 			return;
@@ -1274,7 +1284,12 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		AccAccountDto account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
-		UUID entityId = getEntityByAccount(account.getId());
+		
+		// Find entity ID, first try entity ID in the context then load by account
+		UUID entityId = context.getEntityId();
+		if (entityId == null && account != null) {
+			 entityId = getEntityByAccount(account.getId());
+		}
 		DTO entity = null;
 		if (entityId != null) {
 			entity = this.getService().get(entityId);
@@ -1296,11 +1311,12 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			}
 
 			SystemEntityType entityType = context.getEntityType();
-			if (this.isProvisioningImplemented(entityType, logItem)) {
+			if (this.isProvisioningImplemented(entityType, logItem) && !context.isSkipProvisioning()) {
 				// Call provisioning for this entity
 				callProvisioningForEntity(entity, entityType, logItem);
 			}
-
+			// Add updated entity to the context
+			context.addEntityDto(entity);
 			return;
 		} else {
 			addToItemLog(logItem, "Warning! - Entity-account relation (with ownership = true) was not found!");
@@ -2421,5 +2437,16 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		SysSyncActionLogFilter actionFilter = new SysSyncActionLogFilter();
 		actionFilter.setSynchronizationLogId(syncLogId);
 		return new ArrayList<>(syncActionLogService.find(actionFilter, null).getContent());
+	}
+
+	/**
+	 * Skip entity update
+	 * 
+	 * @param entity
+	 * @param context
+	 * @return
+	 */
+	protected boolean skipEntityUpdate(DTO entity, SynchronizationContext context) {
+		return false;
 	}
 }

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import _ from 'lodash';
@@ -40,9 +41,9 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
       rendered,
       showLoading,
       _showLoading,
-       _workPosition,
-       showLink
-     } = this.props;
+      _workPosition,
+      showLink
+    } = this.props;
     //
     if (!rendered || !identity) {
       return null;
@@ -66,7 +67,7 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
       );
     } else {
       _workPosition.path.forEach(treeNode => {
-        if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ']})) {
+        if (!SecurityManager.hasAccess({ type: 'HAS_ANY_AUTHORITY', authorities: ['TREETYPE_READ']})) {
           items.push(
             <li key={ `op-s-${ treeNode.id }` }>
               { this.treeNodeManager.getNiceLabel(treeNode) }

@@ -165,9 +165,12 @@ public class SysProvisioningOperationControllerRestTest extends AbstractReadWrit
 		SysProvisioningOperationDto operationTwo = createDto(prepareDto(system));
 		createAttribute(operationTwo.getId(), attributeOne, true);
 		createAttribute(operationTwo.getId(), attributeTwo, false);
+		SysProvisioningOperationDto operation = prepareDto(system);
+		operation.setOperationType(ProvisioningEventType.DELETE);
+		SysProvisioningOperationDto operationThree = createDto(operation);
 		// empty
 		SysProvisioningOperationDto operationEmpty = createDto(prepareDto(system));
-		SysProvisioningOperationDto operation = prepareDto(system);
+		operation = prepareDto(system);
 		operation.setResult(new OperationResult(OperationState.NOT_EXECUTED));
 		operation.getResult().setCode(AccResultCode.PROVISIONING_SYSTEM_READONLY.name());
 		SysProvisioningOperationDto operationReadOnly = createDto(operation);
@@ -194,9 +197,10 @@ public class SysProvisioningOperationControllerRestTest extends AbstractReadWrit
 		filter.setEmptyProvisioning(Boolean.FALSE);
 		results = find(filter);
 		//
-		Assert.assertEquals(2, results.size());
+		Assert.assertEquals(3, results.size());
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationTwo.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(operationThree.getId())));
 	}
 	
 	@Override

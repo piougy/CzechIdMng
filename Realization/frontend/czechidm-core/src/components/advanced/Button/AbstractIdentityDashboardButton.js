@@ -112,7 +112,7 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
         style={{ height: 50, marginRight: 3, minWidth: 150 }}
         title={ this.getTitle() }
         titlePlacement="bottom"
-        rendered={ this.isRendered() === true ? true : false }
+        rendered={ this.isRendered() === true }
         showLoading={ this.isShowLoading() }
         showLoadingIcon>
         { this.renderContent() }

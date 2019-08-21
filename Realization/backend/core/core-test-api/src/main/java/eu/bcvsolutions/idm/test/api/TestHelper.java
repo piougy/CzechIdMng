@@ -568,15 +568,24 @@ public interface TestHelper {
 	 * @param id
 	 */
 	void deleteIdentityContact(UUID id);
+	
+	/**
+	 * Creates identity contract's guarantee
+	 *
+	 * @param identityContract
+	 * @param guarantee
+	 * @return
+	 */
+	IdmContractGuaranteeDto createContractGuarantee(IdmIdentityContractDto identityContract, IdmIdentityDto guarantee);
 
 	/**
 	 * Creates identity contract's guarantee
 	 *
 	 * @param identityContractId
-	 * @param identityId
+	 * @param guaranteeId
 	 * @return
 	 */
-	IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId);
+	IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID guaranteeId);
 	
 	/**
 	 * Create contact position with random work position (tree node)
@@ -858,9 +867,13 @@ public interface TestHelper {
 	 * @param value
 	 * @return
 	 */
-	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(UUID automaticRoleId,
-			AutomaticRoleAttributeRuleComparison comparsion, AutomaticRoleAttributeRuleType type, String attrName,
-			UUID formAttrId, String value);
+	IdmAutomaticRoleAttributeRuleDto createAutomaticRoleRule(
+			UUID automaticRoleId,
+			AutomaticRoleAttributeRuleComparison comparsion, 
+			AutomaticRoleAttributeRuleType type, 
+			String attrName,
+			UUID formAttrId, 
+			String value);
 	
 	/**
 	 * Creates automatic roles by tree structure without recursion.

@@ -13,18 +13,15 @@ const identityManager = new IdentityManager();
  */
 class Audit extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.audit';
   }
 
   showDetail(revId, entityIde) {
+    // FIXME: where is this method used?
     // TODO: this.context.router.push set only rev id, fetchEntity isn't necessary. this.props.params not working.
     this.context.store.dispatch(identityManager.fetchEntity(entityIde, null, (identity) => {
-      this.context.router.push('/identity/' + identity.username + '/revision/' + revId);
+      this.context.router.push(`/identity/${ encodeURIComponent(identity.username) }/revision/${ revId }`);
     }));
   }
 

@@ -11,10 +11,6 @@ import * as Basic from '../../basic';
  */
 export default class IdentityIcon extends AbstractIcon {
 
-  constructor(props) {
-    super(props);
-  }
-
   renderIcon() {
     const { identity } = this.props;
     if (!identity || !identity.disabled) {

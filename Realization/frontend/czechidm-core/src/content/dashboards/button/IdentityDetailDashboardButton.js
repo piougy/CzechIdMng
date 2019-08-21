@@ -13,10 +13,6 @@ const identityManager = new IdentityManager();
  */
 class IdentityDetailDashboardButton extends Advanced.AbstractIdentityDashboardButton {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getIcon() {
     return 'fa:angle-double-right';
   }

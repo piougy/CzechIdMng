@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.model.event.processor.AbstractWorkflowEventProce
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(IdentityContractEnableProcessor.PROCESSOR_NAME)
 @Description("HR process - enable identity's contract process. The processes is started"
 		+ " for contracts that are both valid (meaning validFrom and validTill and disabled state) and"
 		+ " not excluded.")

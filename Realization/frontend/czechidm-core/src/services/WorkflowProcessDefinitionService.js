@@ -2,6 +2,7 @@ import * as Utils from '../utils';
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
+import AuthenticateService from './AuthenticateService';
 
 class WorkflowProcessDefinitionService extends AbstractService {
 
@@ -75,6 +76,14 @@ class WorkflowProcessDefinitionService extends AbstractService {
       .then(blob => {
         cb(blob);
       });
+  }
+
+  /**
+   * Generate and download diagram of process as XML file
+   */
+  getProcessDefinitionUrl(definitionId) {
+    return RestApiService.getUrl(this.getApiPath() +
+        `/${encodeURIComponent(definitionId)}/definition?cidmst=${AuthenticateService.getTokenCIDMST()}`);
   }
 }
 

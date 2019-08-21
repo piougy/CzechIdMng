@@ -53,6 +53,10 @@
 				<key>operationState</key>
 				<value>EXECUTED</value>
 			</parameter>
+			<parameter>
+				<key>emptyProvisioning</key>
+				<value>true</value>
+			</parameter>
 		</parameters>
 		
 		<triggers>

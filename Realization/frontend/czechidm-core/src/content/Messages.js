@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
@@ -11,10 +12,6 @@ import { HelpContent } from '../domain';
  * @author Radek Tomiška
  */
 class Messages extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   componentDidMount() {
     this.selectNavigationItem('messages');
@@ -36,7 +33,9 @@ class Messages extends Basic.AbstractContent {
     let helpContent = new HelpContent();
     helpContent = helpContent.setHeader(
       <span>
-        <Basic.Icon value="envelope"/> { this.i18n('help.header') }
+        <Basic.Icon value="envelope"/>
+        {' '}
+        { this.i18n('help.header') }
       </span>
     );
     helpContent = helpContent.setBody(this.i18n('help.body', { escape: false }));
@@ -52,7 +51,7 @@ class Messages extends Basic.AbstractContent {
     } else {
       for (let i = 0; i < this.props.messages.length; i++) {
         const m = this.getFlashManager().createMessage(this.props.messages[i]);
-        const key = 'flash-message-' + m.id;
+        const key = `flash-message-${ m.id }`;
         messages.push(
           <Basic.FlashMessage
             key={key}
@@ -74,11 +73,15 @@ class Messages extends Basic.AbstractContent {
           isEmpty
           ||
           (
-            this.props.maxHistory === messages.length
+            this.props.maxHistory <= messages.length
             ?
-            <small> (posledních {this.props.maxHistory})</small>
+            <small>
+              { ` (${ this.props.maxHistory }+)` }
+            </small>
             :
-            <small> ({messages.length})</small>
+            <small>
+              { ` (${ messages.length })` }
+            </small>
           )
         }
       </span>
@@ -108,8 +111,8 @@ class Messages extends Basic.AbstractContent {
 }
 
 Messages.propTypes = {
-  maxHistory: React.PropTypes.number,
-  messages: React.PropTypes.array
+  maxHistory: PropTypes.number,
+  messages: PropTypes.arrayOf(PropTypes.object)
 };
 Messages.defaultProps = {
   maxHistory: 100,

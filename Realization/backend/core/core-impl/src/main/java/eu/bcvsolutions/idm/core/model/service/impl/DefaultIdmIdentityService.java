@@ -139,12 +139,20 @@ public class DefaultIdmIdentityService
 	}
 	
 	@Override
+	@Transactional
+	public IdmIdentityDto saveInternal(IdmIdentityDto identity) {
+		Assert.notNull(identity);
+		//
+		if (identity.getState() == null) {
+			identity.setState(evaluateState(identity));
+		}
+		return super.saveInternal(identity);
+	}
+	
+	@Override
 	protected IdmIdentity toEntity(IdmIdentityDto dto, IdmIdentity entity) {
 		IdmIdentity identity = super.toEntity(dto, entity);
-		if (identity != null) {
-			if (identity.getState() == null) {
-				identity.setState(evaluateState(dto));
-			}
+		if (identity != null && identity.getState() != null) {
 			identity.setDisabled(identity.getState().isDisabled()); // redundant attribute for queries
 		}
 		return identity;

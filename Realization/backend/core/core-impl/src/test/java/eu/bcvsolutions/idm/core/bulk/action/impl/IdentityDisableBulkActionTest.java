@@ -23,7 +23,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDisableBulkAction;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
@@ -32,6 +31,7 @@ import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogServi
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.evaluator.task.SelfLongRunningTaskEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
@@ -54,7 +54,7 @@ public class IdentityDisableBulkActionTest extends AbstractBulkActionTest {
 	
 	@Before
 	public void login() {
-		loginIdentity = this.createUserWithAuthorities(IdmBasePermission.UPDATE, IdmBasePermission.READ);
+		loginIdentity = this.createUserWithAuthorities(IdentityBasePermission.MANUALLYDISABLE, IdmBasePermission.READ);
 		loginAsNoAdmin(loginIdentity.getUsername());
 	}
 	
@@ -202,7 +202,7 @@ public class IdentityDisableBulkActionTest extends AbstractBulkActionTest {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		
 		IdmRoleDto createRole = getHelper().createRole();
-		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdmBasePermission.UPDATE);
+		getHelper().createBasePolicy(createRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ, IdentityBasePermission.MANUALLYDISABLE);
 		
 		getHelper().createIdentityRole(identity, createRole);
 		loginAsNoAdmin(identity.getUsername());

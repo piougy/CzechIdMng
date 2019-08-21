@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import * as Basic from '../components/basic';
@@ -12,10 +13,6 @@ const securityManager = new SecurityManager();
  * @author Radek Tomiška
  */
 class Login extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.login';

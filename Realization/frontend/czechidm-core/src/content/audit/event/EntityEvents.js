@@ -10,10 +10,6 @@ import EntityEventTable from './EntityEventTable';
  */
 export default class EntityEvents extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.entityEvents';
   }

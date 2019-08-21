@@ -13,6 +13,7 @@ class Identities extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.identityManager = new IdentityManager();
   }
 
@@ -26,9 +27,8 @@ class Identities extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader() }
-
         <Basic.Panel>
           <IdentityTable
             uiKey="identity-table"
@@ -36,8 +36,7 @@ class Identities extends Basic.AbstractContent {
             filterOpened
             showRowSelection />
         </Basic.Panel>
-
-      </div>
+      </Basic.Div>
     );
   }
 }

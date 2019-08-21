@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityEnableBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
@@ -39,7 +40,7 @@ public class IdentityEnableBulkActionTest extends AbstractBulkActionTest {
 	
 	@Before
 	public void login() {
-		IdmIdentityDto adminIdentity = this.createUserWithAuthorities(IdmBasePermission.UPDATE, IdmBasePermission.READ);
+		IdmIdentityDto adminIdentity = this.createUserWithAuthorities(IdentityBasePermission.MANUALLYENABLE, IdmBasePermission.READ);
 		loginAsNoAdmin(adminIdentity.getUsername());
 	}
 	

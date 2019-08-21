@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import _ from 'lodash';
 //
@@ -21,10 +22,6 @@ export const TYPE_COMPONENT = 'component';
  * @author Radek Tomiška
  */
 export default class Icon extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   /**
    * Returns resolved type and icon from given parameters
@@ -84,7 +81,11 @@ export default class Icon extends AbstractComponent {
         );
       }
       return (
-        <span title="Icon not found in component library"> { _icon } </span>
+        <span title="Icon not found in component library">
+          {' '}
+          { _icon }
+          {' '}
+        </span>
       );
     }
     // Basic icon will be rendered
@@ -113,11 +114,11 @@ export default class Icon extends AbstractComponent {
       );
     } else {
       classNames = classnames(
-        { 'glyphicon': _type === TYPE_GLYPHICON},
-        { ['glyphicon-' + _icon]: _type === TYPE_GLYPHICON},
-        { 'fa': _type === TYPE_FONT_AWESOME},
-        { ['fa-' + _icon]: _type === TYPE_FONT_AWESOME},
-        { 'disabled': disabled === true },
+        { glyphicon: _type === TYPE_GLYPHICON},
+        { [`glyphicon-${ _icon}`]: _type === TYPE_GLYPHICON},
+        { fa: _type === TYPE_FONT_AWESOME},
+        { [`fa-${ _icon}`]: _type === TYPE_FONT_AWESOME},
+        { disabled: disabled === true },
         className,
       );
     }
@@ -126,7 +127,12 @@ export default class Icon extends AbstractComponent {
       _style.color = color;
     }
     return (
-      <span title={ title } className={ classNames } aria-hidden="true" style={ _style } onClick={ onClick }></span>
+      <span
+        title={ title }
+        className={ classNames }
+        aria-hidden="true"
+        style={ _style }
+        onClick={ onClick } />
     );
   }
 }

@@ -46,7 +46,7 @@ import eu.bcvsolutions.idm.core.model.event.processor.AbstractWorkflowEventProce
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(IdentityContractEndProcessor.PROCESSOR_NAME)
 @Description("HR process - end or delete of identity's contract process. The processes is started"
 		+ " for contracts that are not valid (meaning validFrom and validTill or disabled by state) and deleted.")
 public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor<IdmIdentityContractDto>
@@ -143,7 +143,7 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 		}
 		//
 		// remove all contract roles
-		if(!contract.isValidNowOrInFuture()) {
+		if (!contract.isValidNowOrInFuture()) {
 			List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
 			for(IdmIdentityRoleDto identityRole : identityRoleService.findAllByContract(contract.getId())) {
 				if (identityRole.getDirectRole() != null) {

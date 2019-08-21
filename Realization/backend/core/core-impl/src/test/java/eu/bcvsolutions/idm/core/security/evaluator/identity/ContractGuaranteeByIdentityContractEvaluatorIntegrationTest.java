@@ -39,7 +39,7 @@ public class ContractGuaranteeByIdentityContractEvaluatorIntegrationTest extends
 		List<IdmContractGuaranteeDto> guarantees = null;
 		IdmRoleDto role = getHelper().createRole();
 		
-		IdmContractGuaranteeDto guaranteeOne = getHelper().createContractGuarantee(primeContract.getId(), getHelper().createIdentity().getId());
+		IdmContractGuaranteeDto guaranteeOne = getHelper().createContractGuarantee(primeContract, getHelper().createIdentity());
 		getHelper().createContractGuarantee(otherContract.getId(), getHelper().createIdentity().getId()); // other
 		
 		getHelper().createIdentityRole(identity, role);

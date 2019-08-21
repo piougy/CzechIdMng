@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { SynchronizationConfigManager, SystemManager } from '../../redux';
+import { Basic, Domain, Managers, Utils, Advanced} from 'czechidm-core';
 import uuid from 'uuid';
+import { SynchronizationConfigManager, SystemManager } from '../../redux';
+import SyncStatistic from '../sync/SyncStatistic';
+import SyncResult from '../sync/SyncResult';
 
 const uiKey = 'system-synchronization-configs-table';
 const manager = new SynchronizationConfigManager();
@@ -46,6 +48,11 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     }
   }
 
+  _redirectToLastLog(entity) {
+    const systemId = this.props.params.entityId;
+    this.context.router.push(`system/${systemId}/synchronization-logs/${entity.lastSyncLog.id}/detail`);
+  }
+
   _startSynchronization(bulkActionValue, sync, event) {
     if (event) {
       event.preventDefault();
@@ -82,7 +89,6 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     }, () => {
       // Rejected
     });
-    return;
   }
 
   _cancelSynchronization(sync, event) {
@@ -120,7 +126,6 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     }, () => {
       // Rejected
     });
-    return;
   }
 
   _getBulkActions() {
@@ -131,9 +136,84 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     return actions;
   }
 
+  _renderActionButtons(entity) {
+    const results = [];
+    results.push(
+      <Basic.Button
+        ref="logButton"
+        type="button"
+        rendered={ Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_READ']) }
+        style={{ marginRight: 2 }}
+        title={ this.i18n('acc:entity.SynchronizationConfig.button.lastSyncLog') }
+        titlePlacement="bottom"
+        onClick={ this._redirectToLastLog.bind(this, entity) }
+        disabled={ !entity.lastSyncLog }
+        className="btn-xs"
+        icon="fa:list-alt"/>
+    );
+    if (entity.running) {
+      results.push(
+        <Basic.Button
+          ref="cancelButton"
+          type="button"
+          level="danger"
+          rendered={ Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_UPDATE']) }
+          style={{ marginRight: 2 }}
+          title={ this.i18n('button.cancel') }
+          titlePlacement="bottom"
+          onClick={ this._cancelSynchronization.bind(this, entity) }
+          className="btn-xs"
+          icon="fa:remove"/>
+      );
+    } else {
+      results.push(
+        <Basic.Button
+          ref="startButton"
+          type="button"
+          level="success"
+          rendered={ Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_CREATE']) }
+          style={{ marginRight: 2 }}
+          title={ this.i18n('button.start') }
+          titlePlacement="bottom"
+          onClick={ this._startSynchronization.bind(this, null, entity) }
+          disabled={ !entity.enabled }
+          className="btn-xs"
+          icon="fa:play"/>
+      );
+    }
+
+    return results;
+  }
+
+  _renderResultCell(rowIndex, data) {
+    const actions = [];
+    const sync = data[rowIndex];
+    if (!sync || !sync.lastSyncLog || !sync.lastSyncLog.syncActionLogs) {
+      return actions;
+    }
+    const log = sync.lastSyncLog;
+    return (
+      <SyncResult log={log}/>
+    );
+  }
+
+  _renderStatisticCell(rowIndex, data) {
+    const actions = [];
+    const sync = data[rowIndex];
+    if (!sync || !sync.lastSyncLog || !sync.lastSyncLog.syncActionLogs) {
+      return actions;
+    }
+    const log = sync.lastSyncLog;
+    return (
+      <SyncStatistic log={log}/>
+    );
+  }
+
   render() {
     const { entityId } = this.props.params;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
+    const forceSearchParameters = new Domain.SearchParameters()
+      .setFilter('systemId', entityId)
+      .setFilter('includeLastLog', true);
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
@@ -146,8 +226,16 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
             uiKey={ uiKey }
             manager={ this.getManager() }
             forceSearchParameters={ forceSearchParameters }
-            className="no-margin"
-            rowClass={ ({rowIndex, data}) => { return !(data[rowIndex].enabled) ? 'disabled' : ''; } }
+            rowClass={({rowIndex, data}) => {
+              if (!(data[rowIndex].enabled)) {
+                return 'disabled';
+              }
+              if (data[rowIndex].lastSyncLog && data[rowIndex].lastSyncLog.containsError) {
+                return 'danger';
+              }
+              return '';
+            }
+            }
             showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
             actions={ this._getBulkActions() }
             buttons={
@@ -168,27 +256,22 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
               header=""
               className="detail-button"
               cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.DetailButton
-                      title={ this.i18n('button.detail') }
-                      style={{ marginRight: 2 }}
-                      onClick={ this.showDetail.bind(this, data[rowIndex], false) }/>
-
-                  );
-                }
+                ({ rowIndex, data }) => (
+                  <Advanced.DetailButton
+                    title={ this.i18n('button.detail') }
+                    style={{ marginRight: 2 }}
+                    onClick={ this.showDetail.bind(this, data[rowIndex], false) }/>
+                )
               }/>
             <Advanced.Column
               property=""
               header={ this.i18n('acc:entity.SynchronizationConfig.running') }
               cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Basic.Icon
-                      value={ data[rowIndex].running ? 'fa:check-square-o' : 'fa:square-o'}
-                      disabled/>
-                  );
-                }
+                ({ rowIndex, data }) => (
+                  <Basic.Icon
+                    value={ data[rowIndex].running ? 'fa:check-square-o' : 'fa:square-o'}
+                    disabled/>
+                )
               }/>
             <Advanced.Column
               property="name"
@@ -196,54 +279,38 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
               header={ this.i18n('acc:entity.SynchronizationConfig.name') }
               sort/>
             <Advanced.Column
+              rendered={false}
               property="reconciliation"
               face="boolean"
               header={ this.i18n('acc:entity.SynchronizationConfig.reconciliation.label') }
               sort/>
             <Advanced.Column
+              rendered={false}
               property="enabled"
               face="boolean"
               header={ this.i18n('acc:entity.SynchronizationConfig.enabled') }
               sort/>
+            <Advanced.Column
+              property="syncActionLogs"
+              header={this.i18n('acc:entity.SynchronizationLog.results')}
+              cell={
+                ({ rowIndex, data }) => this._renderResultCell(rowIndex, data)
+              }
+            />
+            <Advanced.Column
+              property="statistic"
+              header={this.i18n('acc:entity.SynchronizationLog.statistic.label')}
+              cell={
+                ({ rowIndex, data }) => this._renderStatisticCell(rowIndex, data)
+              }
+            />
             <Advanced.Column
               property=""
               header=""
               width={ 55 }
               className="detail-button"
               cell={
-                ({ rowIndex, data }) => {
-                  const entity = data[rowIndex];
-                  //
-                  if (entity.running) {
-                    return (
-                      <Basic.Button
-                        ref="cancelButton"
-                        type="button"
-                        level="danger"
-                        rendered={ Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_UPDATE']) }
-                        style={{ marginRight: 2 }}
-                        title={ this.i18n('button.cancel') }
-                        titlePlacement="bottom"
-                        onClick={ this._cancelSynchronization.bind(this, entity) }
-                        className="btn-xs"
-                        icon="fa:remove"/>
-                    );
-                  }
-                  return (
-                    <Basic.Button
-                      ref="startButton"
-                      type="button"
-                      level="success"
-                      rendered={ Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_CREATE']) }
-                      style={{ marginRight: 2 }}
-                      title={ this.i18n('button.start') }
-                      titlePlacement="bottom"
-                      onClick={ this._startSynchronization.bind(this, null, entity) }
-                      disabled={ !entity.enabled }
-                      className="btn-xs"
-                      icon="fa:play"/>
-                  );
-                }
+                ({ rowIndex, data }) => this._renderActionButtons(data[rowIndex])
               }/>
           </Advanced.Table>
         </Basic.Panel>

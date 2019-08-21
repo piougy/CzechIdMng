@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Immutable from 'immutable';
 import _ from 'lodash';
@@ -76,7 +77,7 @@ class Table extends AbstractComponent {
           }
         });
       }
-      properties.map(property => {
+      properties.forEach(property => {
         children.push(
           <DefaultCell property={ property } data={ data }/>
         );
@@ -221,8 +222,9 @@ class Table extends AbstractComponent {
   }
 
   _incrementData() {
+    const { showMax } = this.state;
     this.setState({
-      showMax: this.state.showMax + FE_PAGE_SIZE
+      showMax: showMax + FE_PAGE_SIZE
     });
   }
 
@@ -289,19 +291,25 @@ class Table extends AbstractComponent {
 
   renderRow(columns, rowIndex) {
     const { onRowClick, onRowDoubleClick, showRowSelection, rowClass, isRowSelectedCb } = this.props;
-    const key = 'row-' + rowIndex;
+    const key = `row-${ rowIndex }`;
     return (
-       <Row
-         key={key}
-         data={this.props.data}
-         columns={columns}
-         rowIndex={rowIndex}
-         showRowSelection={showRowSelection}
-         onRowSelect={showRowSelection ? this.selectRow.bind(this) : null}
-         selected={isRowSelectedCb === null ? this.state.selectedRows.has(this.getIdentifier(rowIndex)) : isRowSelectedCb(this.getIdentifier(rowIndex))}
-         onClick={onRowClick}
-         onDoubleClick={onRowDoubleClick}
-         rowClass={rowClass}/>
+      <Row
+        key={key}
+        data={this.props.data}
+        columns={ columns }
+        rowIndex={ rowIndex }
+        showRowSelection={ showRowSelection }
+        onRowSelect={ showRowSelection ? this.selectRow.bind(this) : null }
+        selected={
+          isRowSelectedCb === null
+          ?
+          this.state.selectedRows.has(this.getIdentifier(rowIndex))
+          :
+          isRowSelectedCb(this.getIdentifier(rowIndex))
+        }
+        onClick={ onRowClick }
+        onDoubleClick={ onRowDoubleClick }
+        rowClass={ rowClass }/>
     );
   }
 
@@ -331,7 +339,7 @@ class Table extends AbstractComponent {
     const body = this.renderBody(columns);
     const footer = this.renderFooter();
     const classNamesTable = classNames(
-      { 'table': true },
+      { table: true },
       { 'table-hover': hover},
       { 'table-condensed': condensed },
       { 'table-no-header': noHeader }
@@ -341,7 +349,7 @@ class Table extends AbstractComponent {
     if (!data || data.length === 0) {
       if (showLoading) {
         content.push(
-          <tr key={ `row-show-loading` }>
+          <tr key="row-show-loading">
             <td colSpan={ columns.length }>
               <Loading showLoading className="static"/>
             </td>
@@ -349,7 +357,7 @@ class Table extends AbstractComponent {
         );
       } else {
         content.push(
-          <tr key={ `row-no-data` }>
+          <tr key="row-no-data">
             <td colSpan={ columns.length }>
               <Alert text={ noData } className="no-data"/>
             </td>
@@ -390,7 +398,7 @@ Table.propTypes = {
   /**
    * input data as array of json objects
    */
-  data: PropTypes.array,
+  data: PropTypes.arrayOf(PropTypes.object),
   /**
    * Table Header
    */

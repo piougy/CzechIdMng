@@ -18,10 +18,6 @@ const identityManager = new IdentityManager();
  */
 class IdentityEvents extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return identityManager;
   }
@@ -49,7 +45,7 @@ class IdentityEvents extends Basic.AbstractContent {
             uiKey="identity-entity-state-table"
             filterOpened={false}
             forceSearchParameters={ forceSearchParameters }
-            columns= { _.difference(EntityStateTable.defaultProps.columns, ['ownerType', 'ownerId']) }/>
+            columns={ _.difference(EntityStateTable.defaultProps.columns, ['ownerType', 'ownerId']) }/>
         </Basic.Panel>
 
         <Basic.ContentHeader text={ this.i18n('event.header') } style={{ marginBottom: 0 }} rendered={ false }/>
@@ -58,7 +54,7 @@ class IdentityEvents extends Basic.AbstractContent {
             uiKey="identity-entity-event-table"
             filterOpened={false}
             forceSearchParameters={ forceSearchParameters }
-            columns= { _.difference(EntityEventTable.defaultProps.columns, ['ownerType', 'ownerId']) }
+            columns={ _.difference(EntityEventTable.defaultProps.columns, ['ownerType', 'ownerId']) }
             showDeleteAllButton={ false }
             className="no-margin"/>
         </Basic.Panel>

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
@@ -12,15 +13,13 @@ const uiKeyAuthorities = 'identity-authorities';
 const identityManager = new IdentityManager();
 
 /**
- * Identity's authorities
+ * Identity's authorities.
+ *
+ * TODO: orchestrate with some menu / detail. Available just on url /identity/username/authorities
  *
  * @author Radek Tomiška
  */
 class IdentityAuthorities extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.identity.authorities';
@@ -48,9 +47,18 @@ class IdentityAuthorities extends Basic.AbstractContent {
           { this.i18n('help.body.checkbox.title', { escape: false }) }
         </div>
         <ul>
-          <li><Basic.Icon value="fa:square-o"/> { this.i18n('help.body.checkbox.none', { escape: false }) }</li>
-          <li><Basic.Icon value="fa:minus-square-o"/> { this.i18n('help.body.checkbox.some', { escape: false }) }</li>
-          <li><Basic.Icon value="fa:check-square-o"/> { this.i18n('help.body.checkbox.all', { escape: false }) }</li>
+          <li>
+            <Basic.Icon value="fa:square-o" style={{ marginRight: 5 }}/>
+            { this.i18n('help.body.checkbox.none', { escape: false }) }
+          </li>
+          <li>
+            <Basic.Icon value="fa:minus-square-o" style={{ marginRight: 5 }}/>
+            { this.i18n('help.body.checkbox.some', { escape: false }) }
+          </li>
+          <li>
+            <Basic.Icon value="fa:check-square-o" style={{ marginRight: 5 }}/>
+            { this.i18n('help.body.checkbox.all', { escape: false }) }
+          </li>
         </ul>
       </div>
     );
@@ -68,7 +76,7 @@ class IdentityAuthorities extends Basic.AbstractContent {
 
         <Basic.Panel className="no-border">
           <Basic.PanelHeader help={ this.getHelp() } style={{ marginBottom: 15 }}>
-            <h3><span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/></h3>
+            <h3>{ this.i18n('header', { escape: false }) }</h3>
           </Basic.PanelHeader>
 
           <AuthoritiesPanel authorities={authorities} />
@@ -81,7 +89,7 @@ class IdentityAuthorities extends Basic.AbstractContent {
 
 IdentityAuthorities.propTypes = {
   _showLoading: PropTypes.bool,
-  authorities: PropTypes.arrayOf(React.PropTypes.object)
+  authorities: PropTypes.arrayOf(PropTypes.object)
 };
 IdentityAuthorities.defaultProps = {
   _showLoading: true,

@@ -319,6 +319,8 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 		}
 		//
 		IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
+		Assert.assertNotNull(taskDto);
+		Assert.assertNotNull(taskDto.getCount());
 		Assert.assertEquals(3, taskDto.getCount().intValue());
 		Assert.assertEquals(1, taskDto.getSuccessItemCount().intValue());
 		Assert.assertEquals(1, taskDto.getFailedItemCount().intValue());

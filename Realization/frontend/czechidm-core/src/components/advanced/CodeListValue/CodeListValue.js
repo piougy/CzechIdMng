@@ -26,9 +26,7 @@ export class CodeListValue extends Basic.AbstractContextComponent {
     if (!options || !value) {
       return value;
     }
-    const item = options.find(i => {
-      return i.code === value;
-    });
+    const item = options.find(i => i.code === value);
     if (!item) {
       return value;
     }

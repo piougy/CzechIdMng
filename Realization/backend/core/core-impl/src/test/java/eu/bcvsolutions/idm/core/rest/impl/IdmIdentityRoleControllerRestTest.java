@@ -8,14 +8,18 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * Controller tests
@@ -91,7 +95,8 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		IdmIdentityRoleDto automaticIdentityRole = new IdmIdentityRoleDto();
 		automaticIdentityRole.setIdentityContract(contract.getId());
 		automaticIdentityRole.setRole(getHelper().createRole().getId());
-		automaticIdentityRole.setAutomaticRole(getHelper().createAutomaticRole(getHelper().createRole().getId()).getId());
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(getHelper().createRole().getId());
+		automaticIdentityRole.setAutomaticRole(automaticRole.getId());
 		IdmIdentityRoleDto automatic = createDto(automaticIdentityRole);
 		//
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
@@ -107,6 +112,14 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		//
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getId().equals(normal.getId())));
+		//
+		// find by automatic role
+		filter.setAutomaticRole(null);
+		filter.setAutomaticRoleId(automaticRole.getId());
+		results = find(filter);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getId().equals(automatic.getId())));
 	}
 	
 	@Test
@@ -129,6 +142,14 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getId().equals(normal.getId())));
 		//
 		filter.setDirectRole(Boolean.FALSE);
+		results = find(filter);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getId().equals(notDirect.getId())));
+		//
+		// find by direct role
+		filter.setDirectRole(null);
+		filter.setDirectRoleId(normal.getId());
 		results = find(filter);
 		//
 		Assert.assertEquals(1, results.size());
@@ -166,6 +187,79 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		List<IdmIdentityRoleDto> results = find(filter);
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createIdentityRole.getId())));
+	}
+	
+	@Test
+	public void testFindByRoleId() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmIdentityRoleDto createIdentityRole = getHelper().createIdentityRole(identity, roleOne);
+		getHelper().createIdentityRole(identity, roleTwo);
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setRoleId(roleOne.getId());
+		List<IdmIdentityRoleDto> results = find(filter);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createIdentityRole.getId())));
+	}
+	
+	@Test
+	public void testFindByRoleCatalogueId() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmRoleCatalogueDto roleCatalogueOne = getHelper().createRoleCatalogue();
+		getHelper().createRoleCatalogueRole(roleOne, roleCatalogueOne);
+		IdmRoleCatalogueDto roleCatalogueTwo = getHelper().createRoleCatalogue();
+		getHelper().createRoleCatalogueRole(roleTwo, roleCatalogueTwo);
+		IdmIdentityRoleDto createIdentityRole = getHelper().createIdentityRole(identity, roleOne);
+		getHelper().createIdentityRole(identity, roleTwo);
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setRoleCatalogueId(roleCatalogueOne.getId());
+		List<IdmIdentityRoleDto> results = find(filter);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createIdentityRole.getId())));
+	}
+	
+	@Test
+	public void testFindValidRoles() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityRoleDto validRole = getHelper().createIdentityRole(identity, getHelper().createRole()); // valid
+		getHelper().createIdentityRole(identity, getHelper().createRole(), null, LocalDate.now().minusDays(2)); // inValidByDate
+		IdmIdentityContractDto invalidContract = getHelper().createIdentityContact(identity, null, null, LocalDate.now().minusDays(2));
+		getHelper().createIdentityRole(invalidContract, getHelper().createRole()); // inValidByContract
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identity.getId());
+		filter.setValid(Boolean.TRUE);
+		List<IdmIdentityRoleDto> results = find(filter);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getId().equals(validRole.getId())));
+	}
+	
+	@Test
+	public void testFindByRoleComposition() {
+		IdmRoleDto roleOne = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmRoleDto roleThree = getHelper().createRole();
+		//
+		IdmRoleCompositionDto roleCompositionOne = getHelper().createRoleComposition(roleOne, roleTwo);
+		getHelper().createRoleComposition(roleTwo, roleThree);
+		//
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityRoleDto directRole = getHelper().createIdentityRole(identity, roleOne);
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identity.getId());
+		filter.setRoleCompositionId(roleCompositionOne.getId());
+		List<IdmIdentityRoleDto> results = find(filter);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getDirectRole().equals(directRole.getId())
+				&& ir.getRole().equals(roleTwo.getId())));
 	}
 	
 	@Test

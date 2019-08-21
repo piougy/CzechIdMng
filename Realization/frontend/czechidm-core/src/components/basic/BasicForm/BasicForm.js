@@ -1,10 +1,15 @@
 import React from 'react';
+import merge from 'object-assign';
+//
 import AbstractForm from '../AbstractForm/AbstractForm';
 import Button from '../Button/Button';
 import ApiOperationTypeEnum from '../../../enums/ApiOperationTypeEnum';
-import merge from 'object-assign';
 
-
+/**
+ * Basic form component
+ *
+ * @author Vít Švanda
+ */
 class BasicForm extends AbstractForm {
 
   constructor(props) {

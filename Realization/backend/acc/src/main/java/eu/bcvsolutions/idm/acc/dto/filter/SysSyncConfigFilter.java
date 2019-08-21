@@ -18,6 +18,8 @@ public class SysSyncConfigFilter extends DataFilter {
 
 	public static final String PARAMETER_SYSTEM_ID = "systemId";
 	public static final String PARAMETER_NAME = "name";
+	public static final String PARAMETER_INCLUDE_LAST_LOG = "includeLastLog";
+	
 	
 	public SysSyncConfigFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -45,6 +47,14 @@ public class SysSyncConfigFilter extends DataFilter {
 
 	public void setName(String name) {
 		data.set(PARAMETER_NAME, name);
+	}
+	
+	public Boolean getIncludeLastLog() {
+		return getParameterConverter().toBoolean(data, PARAMETER_INCLUDE_LAST_LOG);
+	}
+
+	public void setIncludeLastLog(Boolean includeLastLog) {
+		data.set(PARAMETER_INCLUDE_LAST_LOG, includeLastLog);
 	}
 
 }

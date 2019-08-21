@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.vs.rest.impl;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,10 +27,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
@@ -61,6 +69,10 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 
 	@Autowired
 	private VsSystemImplementerService requestImplementerService;
+	@Autowired
+	private IdmRoleRequestService rolerequestService;
+	@Autowired
+	private IdmIdentityService identityService;
 
 	@Autowired
 	public VsRequestController(VsRequestService service) {
@@ -124,7 +136,32 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_READ, description = "") }) })
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		return super.get(backendId);
+		VsRequestDto request = this.getDto(backendId);
+		if (request == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
+
+		UUID roleRequestId = request.getRoleRequestId();
+		if (roleRequestId != null) {
+			IdmRoleRequestDto roleRequestDto = rolerequestService.get(roleRequestId);
+			if (roleRequestDto != null) {
+
+				UUID roleRequestCreatorId = roleRequestDto.getCreatorId();
+				if (roleRequestCreatorId != null) {
+					IdmIdentityDto roleRequestCreator = identityService.get(roleRequestCreatorId);
+					roleRequestDto.getEmbedded().put(Auditable.PROPERTY_CREATOR, roleRequestCreator);
+				}
+
+				request.getEmbedded().put(IdmConceptRoleRequestService.ROLE_REQUEST_FIELD, roleRequestDto);
+			}
+		}
+		
+		ResourceSupport resource = toResource(request);
+		if (resource == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		//
+		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 
 	@ResponseBody
@@ -236,6 +273,12 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 	@Override
 	public VsRequestDto getDto(Serializable backendId) {
 		VsRequestDto requestDto = super.getDto(backendId);
+
+		// Request was not found
+		if (requestDto == null) {
+			return null;
+		}
+
 		// Add list of implementers
 		addImplementers(requestDto);
 

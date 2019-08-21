@@ -14,10 +14,6 @@ import Icon from '../Icon/Icon';
  */
 export default class ValueDecorator extends AbstractContextComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   /**
    * react-select method
    */
@@ -103,15 +99,16 @@ export default class ValueDecorator extends AbstractContextComponent {
     }
     //
     return (
-			<span className="Select-value-icon"
-				aria-hidden="true"
-				onMouseDown={ this.onRemove.bind(this) }
-				onTouchEnd={ this.handleTouchEndRemove.bind(this) }
-				onTouchStart={ this.handleTouchStart.bind(this) }
-				onTouchMove={ this.handleTouchMove.bind(this) }>
-				&times;
-			</span>
-		);
+      <span
+        className="Select-value-icon"
+        aria-hidden="true"
+        onMouseDown={ this.onRemove.bind(this) }
+        onTouchEnd={ this.handleTouchEndRemove.bind(this) }
+        onTouchStart={ this.handleTouchStart.bind(this) }
+        onTouchMove={ this.handleTouchMove.bind(this) }>
+        &times;
+      </span>
+    );
   }
 
   render() {
@@ -121,13 +118,13 @@ export default class ValueDecorator extends AbstractContextComponent {
       <div
         className={ classNames('Select-value', this.props.value.className) }
         style={ this.props.value.style }
-				title={ this.props.value.title }>
+        title={ this.props.value.title }>
         { this.renderRemoveIcon() }
         <span className="Select-value-label">
           { this.renderIcon(value) }
           { children }
         </span>
       </div>
-		);
+    );
   }
 }

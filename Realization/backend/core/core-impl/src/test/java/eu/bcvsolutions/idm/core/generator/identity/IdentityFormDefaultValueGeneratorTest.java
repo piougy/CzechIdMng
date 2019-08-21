@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
@@ -31,7 +33,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 /**
  * Tests for {@link IdentityFormDefaultValueGenerator}
  *
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest {
@@ -119,6 +121,58 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 		ValueGeneratorDto generator = getGenerator();
 		this.createGenerator(getDtoType(), getGeneratorType(),
 				this.createConfiguration(generator.getFormDefinition(), null), 1, null);
+
+		// generate and check values after
+		identity = identityService.save(identity);
+		eavs = identity.getEavs();
+		assertFalse(eavs.isEmpty());
+
+		// get newly generated eav only for given form definition
+		IdmFormInstanceDto generatedEav = eavs.stream().filter(eav -> eav.getFormDefinition().getCode().equals(formDefinition.getCode())).findFirst().orElse(null);
+		assertNotNull(generatedEav);
+
+		// check values
+		List<IdmFormValueDto> values = generatedEav.getValues().stream().filter(val -> val.getFormAttribute().equals(att1.getId())).collect(Collectors.toList());
+		assertEquals(1, values.size());
+		IdmFormValueDto value = values.get(0);
+		assertEquals(attrDefaultValue1, value.getValue().toString());
+
+		values = generatedEav.getValues().stream().filter(val -> val.getFormAttribute().equals(att2.getId())).collect(Collectors.toList());
+		assertEquals(1, values.size());
+		value = values.get(0);
+		assertEquals(attrDefaultValue2, value.getValue().toString());
+	}
+
+	@Test
+	public void testOnlySpecificFormDefinition() {
+		// prepare identity
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(getHelper().createName());
+		
+		// prepare new form definition
+		IdmFormDefinitionDto formDefinition = createFormDefinition();
+		
+		// prepare form attribute 1
+		String attrCode1 = getHelper().createName();
+		String attrDefaultValue1 = "true";
+		IdmFormAttributeDto att1 = createAttribute(attrCode1, attrDefaultValue1, PersistentType.BOOLEAN, formDefinition.getId());
+
+		// prepare form attribute 2
+		String attrCode2 = getHelper().createName();
+		String attrDefaultValue2 = "A";
+		IdmFormAttributeDto att2 = createAttribute(attrCode2, attrDefaultValue2, PersistentType.CHAR, formDefinition.getId());
+
+		// check eav before
+		List<IdmFormInstanceDto> eavs = identity.getEavs();
+		assertTrue(eavs.isEmpty());
+
+		// create generator
+		ValueGeneratorDto generator = getGenerator();
+		this.createGenerator(getDtoType(), getGeneratorType(),
+				this.createConfiguration(generator.getFormDefinition(),
+						ImmutableMap.of(
+								IdentityFormDefaultValueGenerator.FORM_DEFINITION_UUID, formDefinition.getId().toString())),
+				1, null);
 
 		// generate and check values after
 		identity = identityService.save(identity);

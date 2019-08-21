@@ -74,19 +74,27 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     if (entityFormData.role && entityFormData.role.identityRoleAttributeDefinition) {
       selectedRole = entityFormData.role;
       selectedIdentityRole = entityFormData;
-      this.context.store.dispatch(roleManager.fetchAttributeFormDefinition(entityFormData.role.id, `${uiKeyRoleAttributeFormDefinition}-${entityFormData.role.id}`, (json, error) => {
-        this.handleError(error);
-      }));
+      this.context.store.dispatch(roleManager.fetchAttributeFormDefinition(
+        entityFormData.role.id,
+        `${uiKeyRoleAttributeFormDefinition}-${entityFormData.role.id}`,
+        (json, error) => {
+          this.handleError(error);
+        }
+      ));
 
-      if (selectedIdentityRole.id && selectedIdentityRole.operation !== 'ADD' ) {
+      if (selectedIdentityRole.id && selectedIdentityRole.operation !== 'ADD') {
         // Form definition will be loaded from identityRole only if selectedIdentityRole is identity-role not concept
         if (selectedIdentityRole.state === undefined) {
-          this.context.store.dispatch(identityRoleManager.fetchFormInstances(selectedIdentityRole.id, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`, (formInstances, error) => {
-            if (error) {
-              this.addErrorMessage({ hidden: true, level: 'info' }, error);
-              this.setState({ error });
+          this.context.store.dispatch(identityRoleManager.fetchFormInstances(
+            selectedIdentityRole.id,
+            `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`,
+            (formInstances, error) => {
+              if (error) {
+                this.addErrorMessage({ hidden: true, level: 'info' }, error);
+                this.setState({ error });
+              }
             }
-          }));
+          ));
         }
       } else {
         selectedIdentityRole = null;
@@ -116,8 +124,9 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     if (this.refs.role) {
       entityFormData.role = this.refs.role.getValue();
     }
-
-    this.setState({entity: entityFormData});
+    if (this.props.entity) {
+      this.setState({entity: entityFormData});
+    }
 
     return true;
   }
@@ -126,9 +135,11 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     if (!_.isArray(originalValue) || originalValue.length === 1) {
       selectedRole = _.isArray(originalValue) ? originalValue[0] : originalValue;
       if (selectedRole.identityRoleAttributeDefinition) {
-        this.context.store.dispatch(roleManager.fetchAttributeFormDefinition(selectedRole.id, `${uiKeyRoleAttributeFormDefinition}-${selectedRole.id}`, (json, error) => {
-          this.handleError(error);
-        }));
+        this.context.store.dispatch(
+          roleManager.fetchAttributeFormDefinition(selectedRole.id, `${uiKeyRoleAttributeFormDefinition}-${selectedRole.id}`, (json, error) => {
+            this.handleError(error);
+          })
+        );
       }
     } else {
       selectedRole = null;
@@ -171,9 +182,11 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     } = this.props;
     const { environment } = this.state;
     const entity = this.state.entity ? this.state.entity : this.props.entity;
+
     if (!entity) {
       return null;
     }
+    const added = entity.operation === 'ADD';
 
     let _formInstance = null;
     let _showEAV = false;
@@ -194,7 +207,6 @@ export class RoleConceptDetail extends Basic.AbstractContent {
         _formInstance = instance;
       });
     }
-    const added = entity.operation === 'ADD';
 
     return (
       <Basic.AbstractForm
@@ -232,7 +244,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           returnProperty={false}
           readOnly={!added || readOnly || !Utils.Entity.isNew(entity)}
           onChange={this._onChangeSelectOfContract.bind(this)}
-          niceLabel={ (contract) => { return identityContractManager.getNiceLabel(contract, false); }}
+          niceLabel={ (contract) => identityContractManager.getNiceLabel(contract, false)}
           required
           useFirst/>
         <Basic.LabelWrapper
@@ -298,8 +310,10 @@ function select(state) {
 
   const identityRoleAttributeDefinition = selectedRole.identityRoleAttributeDefinition;
   return {
-    _identityRoleFormInstance: selectedIdentityRole ? DataManager.getData(state, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`) : null,
-    _identityRoleAttributeDefinition: identityRoleAttributeDefinition ? DataManager.getData(state, `${uiKeyRoleAttributeFormDefinition}-${selectedRole.id}`) : null,
+    _identityRoleFormInstance:
+      selectedIdentityRole ? DataManager.getData(state, `${uiKeyIdentityRoleFormInstance}-${selectedIdentityRole.id}`) : null,
+    _identityRoleAttributeDefinition:
+      identityRoleAttributeDefinition ? DataManager.getData(state, `${uiKeyRoleAttributeFormDefinition}-${selectedRole.id}`) : null,
   };
 }
 

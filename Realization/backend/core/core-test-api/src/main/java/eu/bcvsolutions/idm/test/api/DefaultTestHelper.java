@@ -557,6 +557,14 @@ public class DefaultTestHelper implements TestHelper {
 	public void deleteIdentityContact(UUID id) {
 		identityContractService.deleteById(id);
 	}
+	
+	@Override
+	public IdmContractGuaranteeDto createContractGuarantee(IdmIdentityContractDto identityContract, IdmIdentityDto guarantee) {
+		Assert.notNull(identityContract);
+		Assert.notNull(guarantee);
+		//
+		return createContractGuarantee(identityContract.getId(), guarantee.getId());
+	}
 
 	@Override
 	public IdmContractGuaranteeDto createContractGuarantee(UUID identityContractId, UUID identityId) {

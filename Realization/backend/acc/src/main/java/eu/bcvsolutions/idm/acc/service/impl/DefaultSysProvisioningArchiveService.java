@@ -234,7 +234,16 @@ public class DefaultSysProvisioningArchiveService
 			//
 			Predicate provisioningPredicate = builder.exists(subquery); // has attributes
 			if (emptyProvisioning) {
-				provisioningPredicate = builder.not(provisioningPredicate); // empty
+				provisioningPredicate = builder.and(
+						builder.not(provisioningPredicate), // empty
+						builder.notEqual(root.get(SysProvisioningArchive_.operationType), ProvisioningEventType.DELETE) // delete operations are not considered as empty
+				);
+			} else {
+				// delete operations are not considered as empty or filled => show all time
+				provisioningPredicate = builder.or(
+						provisioningPredicate,
+						builder.equal(root.get(SysProvisioningArchive_.operationType), ProvisioningEventType.DELETE)
+				);
 			}
 			predicates.add(provisioningPredicate);
 		}

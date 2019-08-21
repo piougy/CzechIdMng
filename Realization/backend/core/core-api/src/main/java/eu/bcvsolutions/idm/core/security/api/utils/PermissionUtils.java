@@ -103,6 +103,7 @@ public abstract class PermissionUtils {
 			}
 			// Base permission may be child from IdmBasePermission or from IdentityBasePermission
 			BasePermission permission = EnumUtils.getEnum(IdmBasePermission.class, authority);
+			// FIXME: support custom module!
 			if (permission == null) {
 				permission = EnumUtils.getEnum(IdentityBasePermission.class, authority);
 			}

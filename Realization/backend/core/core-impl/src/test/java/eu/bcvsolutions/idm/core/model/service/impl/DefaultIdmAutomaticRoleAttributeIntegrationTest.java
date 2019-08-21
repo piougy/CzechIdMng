@@ -942,6 +942,38 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	}
 	
 	@Test
+	public void testAutomaticRoleContractState() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity.getId());
+		//
+		IdmRoleDto role = getHelper().createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+		getHelper().createAutomaticRoleRule(
+				automaticRole.getId(), 
+				AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.CONTRACT, 
+				IdmIdentityContract_.state.getName(), 
+				null, 
+				ContractState.EXCLUDED.name());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		primeContract.setState(ContractState.EXCLUDED);
+		primeContract = identityContractService.save(primeContract);
+		
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		primeContract.setState(null);
+		primeContract = identityContractService.save(primeContract);
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
 	public void testAutomaticRoleContractMainAttribute() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		//

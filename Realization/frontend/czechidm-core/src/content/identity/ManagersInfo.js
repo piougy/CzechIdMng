@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
 //
@@ -19,6 +20,7 @@ class ManagersInfo extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.identityManager = new IdentityManager();
   }
 
@@ -28,7 +30,11 @@ class ManagersInfo extends Basic.AbstractContextComponent {
       // load managers by Tree
       const uiKeyId = `${uiKey}-${identityContractId}`;
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKeyId)) {
-        const searchParameters = new SearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('managersFor', managersFor).setFilter('managersByContract', identityContractId).setFilter('includeGuarantees', true);
+        const searchParameters = new SearchParameters()
+          .setName(SearchParameters.NAME_AUTOCOMPLETE)
+          .setFilter('managersFor', managersFor)
+          .setFilter('managersByContract', identityContractId)
+          .setFilter('includeGuarantees', true);
         this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, uiKeyId));
       }
     }
@@ -50,21 +56,26 @@ class ManagersInfo extends Basic.AbstractContextComponent {
       return null;
     }
     const managers = this.getAllManagers();
+    const content = [];
+    for (let i = 0; i < managers.length; i++) {
+      const identity = managers[i];
+      //
+      content.push(
+        <Advanced.EntityInfo
+          entityType="identity"
+          entity={ identity }
+          entityIdentifier={ identity.username }
+          face="popover"
+          style={{ marginRight: 0 }}/>
+      );
+      if (i < managers.length - 1) {
+        content.push(<span>, </span>);
+      }
+    }
     //
     return (
       <span>
-        {
-          managers.map(identity => {
-            return (
-              <Advanced.EntityInfo
-                entityType="identity"
-                entity={ identity }
-                entityIdentifier={ identity.username }
-                face="popover"
-                style={{ marginRight: 0 }}/>
-            );
-          })
-        }
+        { content }
         {
           !_showLoading
           ||
@@ -75,7 +86,7 @@ class ManagersInfo extends Basic.AbstractContextComponent {
           ||
           <small title={ this.i18n('entity.IdentityContract.managers.total') } style={{ whiteSpace: 'nowrap' }}>
             <a href="#" onClick={ (event) => { event.preventDefault(); detailLink(); } }>
-              ... ({ _ui.total })
+              { `... (${ _ui.total })` }
             </a>
           </small>
         }

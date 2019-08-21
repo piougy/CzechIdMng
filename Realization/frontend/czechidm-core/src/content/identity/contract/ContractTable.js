@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
 import _ from 'lodash';
@@ -88,8 +89,8 @@ export class ContractTable extends Advanced.AbstractTableContent {
           uiKey={ this.getUiKey() }
           manager={ this.getManager() }
           forceSearchParameters={ forceSearchParameters }
-          rowClass={({rowIndex, data}) => { return data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); }}
-          showRowSelection={ SecurityManager.hasAuthority('IDENTITYCONTRACT_DELETE') }
+          rowClass={({rowIndex, data}) => (data[rowIndex].state ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex])) }
+          showRowSelection
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this) },
@@ -101,11 +102,15 @@ export class ContractTable extends Advanced.AbstractTableContent {
                 level="success"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, {}) }
-                rendered={ showAddButton && this._getIdentityIdentifier() && SecurityManager.hasAuthority('IDENTITYCONTRACT_CREATE') }>
-                <Basic.Icon value="fa:plus"/>
-                {' '}
-                {this.i18n('button.add')}
-              </Basic.Button>
+                icon="fa:plus"
+                text={ this.i18n('button.add') }
+                rendered={
+                  showAddButton
+                  &&
+                  this._getIdentityIdentifier()
+                  &&
+                  SecurityManager.hasAuthority('IDENTITYCONTRACT_CREATE')
+                } />
             ]
           }
           _searchParameters={ this.getSearchParameters() }
@@ -114,11 +119,9 @@ export class ContractTable extends Advanced.AbstractTableContent {
             className="detail-button"
             rendered={ showDetailButton }
             cell={
-              ({rowIndex, data}) => {
-                return (
-                  <Advanced.DetailButton onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
-                );
-              }
+              ({rowIndex, data}) => (
+                <Advanced.DetailButton onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
+              )
             }/>
           <Advanced.Column
             property="main"
@@ -139,23 +142,21 @@ export class ContractTable extends Advanced.AbstractTableContent {
             width={ 350 }
             rendered={ _.includes(columns, 'workPosition') }
             cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <span>
-                    {
-                      data[rowIndex]._embedded && data[rowIndex]._embedded.workPosition
-                      ?
-                      <Advanced.EntityInfo
-                        entity={ data[rowIndex]._embedded.workPosition }
-                        entityType="treeNode"
-                        entityIdentifier={ data[rowIndex].workPosition }
-                        face="popover" />
-                      :
-                      null
-                    }
-                  </span>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <span>
+                  {
+                    data[rowIndex]._embedded && data[rowIndex]._embedded.workPosition
+                    ?
+                    <Advanced.EntityInfo
+                      entity={ data[rowIndex]._embedded.workPosition }
+                      entityType="treeNode"
+                      entityIdentifier={ data[rowIndex].workPosition }
+                      face="popover" />
+                    :
+                    null
+                  }
+                </span>
+              )
             }
           />
           <Basic.Column
@@ -163,14 +164,12 @@ export class ContractTable extends Advanced.AbstractTableContent {
             header={ <span title={this.i18n('entity.IdentityContract.managers.title')}>{this.i18n('entity.IdentityContract.managers.label')}</span> }
             rendered={ _.includes(columns, 'guarantee') }
             cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <ManagersInfo
-                    managersFor={ data[rowIndex].identity }
-                    identityContractId={ data[rowIndex].id }
-                    detailLink={ this.showGuarantees.bind(this, data[rowIndex]) }/>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <ManagersInfo
+                  managersFor={ data[rowIndex].identity }
+                  identityContractId={ data[rowIndex].id }
+                  detailLink={ this.showGuarantees.bind(this, data[rowIndex]) }/>
+              )
             }
           />
           <Advanced.Column

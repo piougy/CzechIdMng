@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
@@ -121,22 +122,32 @@ class IdentityDashboard extends Basic.AbstractContent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.PageHeader>
           {
             _imageUrl
             ?
-            <img src={ _imageUrl } className="img-circle img-thumbnail" style={{ height: 40, padding: 0 }} />
+            <img src={ _imageUrl } alt="profile" className="img-circle img-thumbnail" style={{ height: 40, padding: 0 }} />
             :
             <Basic.Icon icon="component:identity" identity={ identity } />
           }
           {' '}
-          { identityManager.getNiceLabel(identity) } <small> { this.isDashboard() ? this.i18n('content.identity.dashboard.header') : this.i18n('navigation.menu.profile.label') }</small>
+          { identityManager.getNiceLabel(identity) }
+          <small>
+            {' '}
+            {
+              this.isDashboard()
+              ?
+              this.i18n('content.identity.dashboard.header')
+              :
+              this.i18n('navigation.menu.profile.label')
+            }
+          </small>
         </Basic.PageHeader>
 
         <OrganizationPosition identity={ identityIdentifier } showLink={ false }/>
 
-        <div style={{ paddingBottom: 15 }}>
+        <Basic.Div style={{ paddingBottom: 15 }}>
           {
             componentService
               .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE)
@@ -151,7 +162,7 @@ class IdentityDashboard extends Basic.AbstractContent {
                 );
               })
           }
-        </div>
+        </Basic.Div>
         {
           componentService
             .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE)
@@ -167,7 +178,7 @@ class IdentityDashboard extends Basic.AbstractContent {
               );
             })
         }
-      </div>
+      </Basic.Div>
     );
   }
 }

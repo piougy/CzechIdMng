@@ -381,7 +381,12 @@
           },
           "from": "z"
         },
-        "noData": "Nenalezeny žádné záznamy"
+        "noData": "Nenalezeny žádné záznamy",
+        "select": {
+          "remove": "Zrušit výběr",
+          "add": "Vybrat záznam",
+          "addAll": "Vybrat záznamy"
+        }
       },
       "ProgressBar": {
         "start": "Zpracovávám",
@@ -944,7 +949,9 @@
       "DELETE": "Mazání",
       "EXECUTE": "Spouštění",
       "PASSWORDCHANGE": "Změna hesla",
-      "CHANGEPERMISSION": "Změna rolí"
+      "CHANGEPERMISSION": "Změna rolí",
+      "MANUALLYDISABLE": "Manuální deaktivace uživatele",
+      "MANUALLYENABLE": "Manuální aktivace uživatele"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -4948,6 +4955,11 @@
             "help": "Vytvoří (či aktializuje) nakonfigurované attributy role."
           }
         }
+      },
+      "core-identity-contract-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané pracovněprávní vztahy.",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {
@@ -5162,7 +5174,7 @@
         "icon": "component:automatic-role"
       },
       "core-process-automatic-role-attribute-long-running-task": {
-        "label": "Přepočítat automatickou roli dle atribute",
+        "label": "Přepočítat automatickou roli dle atributu",
         "help": "Přepočítá přiřazené role uživatelům dle zadané automatické role dle atributu.",
         "icon": "component:automatic-role",
         "attributes": {
@@ -5993,8 +6005,8 @@
       "message": "Formulářový atribut pro definici [{{formDefinitionCode}}] s kódem [{{formAttributeCode}}] nebyl nalezen."
     },
     "GENERATOR_FORM_DEFINITION_BAD_TYPE": {
-      "title": "Definice má špatný typ",
-      "message": "Formulářová definice id [{{formDefinitionId}}], má špatný typ. Správný typ: [{{dtoType}}]."
+      "title": "Definice  má špatný typ",
+      "message": "Formulářová definice nakonfiguravaná pro generátory hodnot, má špatný typ. Správný typ: [{{entityType}}]. Opravte konfiguraci generátoru defaulních hodnot."
     },
     "IDMIDENTITY_USERNAME_NOTEMPTY": {
       "title": "Uživatelské jméno nemůže být prázdné",

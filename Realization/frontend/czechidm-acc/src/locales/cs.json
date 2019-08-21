@@ -611,8 +611,8 @@
         },
         "emptyProvisioning": {
           "placeholder": "Všechny operace ...",
-          "yes": "Bez prázdného provisioningu (s atributy)",
-          "no": "Pouze prázdný provisioning (bez atributů)"
+          "yes": "Pouze prázdný provisioning (bez atributů)",
+          "no": "Bez prázdného provisioningu (s atributy)"
         }
       }
     },
@@ -932,7 +932,10 @@
       "linkedAction": "Vazba existuje",
       "unlinkedAction": "Vazba neexistuje",
       "missingEntityAction": "Entita neexistuje",
-      "missingAccountAction": "Účet neexistuje"
+      "missingAccountAction": "Účet neexistuje",
+      "button": {
+        "lastSyncLog": "Přejít na poslední log synchronizace."
+      }
     },
     "SynchronizationLog": {
       "running": "Spuštěna",
@@ -1304,6 +1307,7 @@
       "SYNCHRONIZATION": "Synchronizace",
       "TREEACCOUNT": "Účty pro prvky stromu",
       "IDENTITYACCOUNT": "Účty pro identity",
+      "IDENTITYROLEACCOUNT": "Účty pro přiřazené role",
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
       "CONTRACTSLICEACCOUNT": "Účty pro časové řezy vztahů identity",
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
@@ -1532,6 +1536,11 @@
             "label": "Systém",
             "placeholder": "Všechny systémy či vyberte ...",
             "help": "Smazat pouze operace na zadaném systému."
+          },
+          "emptyprovisioning": {
+            "label": "Pouze prázdný provisioning (bez atributů)",
+            "placeholder": "Všechny operace ...",
+            "help": "Smazat pouze prázdné operace bez atributů. Operace pro mazání účtu není považována za prázdnou operaci (ikdyž neobsahuje atributy)."
           }
         }
       },

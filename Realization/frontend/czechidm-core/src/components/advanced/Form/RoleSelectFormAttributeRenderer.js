@@ -45,7 +45,7 @@ export default class RoleSelectFormAttributeRenderer extends SelectBoxFormAttrib
     // set search name into force search parameters
     let forceSearchParameters = null;
     if (component.searchName) {
-      forceSearchParameters = new SearchParameters('can-be-requested');
+      forceSearchParameters = new SearchParameters(component.searchName);
     }
     //
     return (

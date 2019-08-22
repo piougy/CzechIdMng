@@ -145,7 +145,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
       const _formInstance = new FormInstance(formInstance.formDefinition, formInstance.values, formInstance.validationErrors);
       result.push(
         <Advanced.EavForm
-          key={ _.uniqueId(`${rowIndex}-${value.id}`) }
+          key={ `${rowIndex}-${value.id}` }
           ref="eavForm"
           formInstance={ _formInstance }
           readOnly

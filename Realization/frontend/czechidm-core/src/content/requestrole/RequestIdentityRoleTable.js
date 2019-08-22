@@ -437,7 +437,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       result.push(
         <div onClick={ !value._removed ? this._showDetail.bind(this, value, true, false) : null }>
           <Advanced.EavForm
-            key={ _.uniqueId(`${rowIndex}-${value.id}`) }
+            key={ `${rowIndex}-${value.id}` }
             ref="eavForm"
             formInstance={ _formInstance }
             validationErrors={ formInstance.validationErrors }

@@ -203,6 +203,14 @@ public class DefaultSysProvisioningOperationService
 		if (resultState != null) {
 			predicates.add(builder.equal(root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), resultState));
 		}
+		
+		// Is not in this operation state
+		OperationState notInState = filter.getNotInState();
+		if (notInState != null) {
+			predicates.add(builder.notEqual(
+					root.get(SysProvisioningOperation_.result).get(OperationResultDto.PROPERTY_STATE), notInState));
+		}
+		
 		// Batch ID
 		UUID batchId = filter.getBatchId();
 		if (batchId != null) {

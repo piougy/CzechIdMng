@@ -38,6 +38,7 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	public static final String PARAMETER_ATTRIBUTE_REMOVED = "attributeRemoved"; // list - OR
 	public static final String PARAMETER_EMPTY_PROVISIONING = "emptyProvisioning"; // provisioning attributes are empty
 	public static final String PARAMETER_ROLE_REQUEST_ID = "roleRequestId";
+	public static final String PARAMETER_NOT_IN_STATE = "notInState";
 
 	public SysProvisioningOperationFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -94,11 +95,20 @@ public class SysProvisioningOperationFilter extends DataFilter {
 	public OperationState getResultState() {
 		return getParameterConverter().toEnum(data, PARAMETER_RESULT_STATE, OperationState.class);
 	}
+	
 
 	public void setResultState(OperationState resultState) {
 		data.set(PARAMETER_RESULT_STATE, resultState);
 	}
 
+	public OperationState getNotInState() {
+		return getParameterConverter().toEnum(data, PARAMETER_NOT_IN_STATE, OperationState.class);
+	}
+	
+	public void setNotInState(OperationState resultState) {
+		data.set(PARAMETER_NOT_IN_STATE, resultState);
+	}
+	
 	public UUID getEntityIdentifier() {
 		try {
 			return getParameterConverter().toUuid(data, PARAMETER_ENTITY_IDENTIFIER);

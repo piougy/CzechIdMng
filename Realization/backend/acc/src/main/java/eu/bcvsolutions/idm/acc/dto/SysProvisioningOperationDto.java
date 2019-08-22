@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
@@ -51,6 +52,9 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	private String systemEntityUid;
 	// ID of request, without DB relation on the request -> Request can be null or doesn't have to exists 
 	private UUID roleRequestId;
+	@JsonIgnore
+	// Internal attribute, not persisted - for mark if is operation original provisioning or retry attempt.
+	private boolean synchronousProvisioning = false;
 
 	public ProvisioningEventType getOperationType() {
 		return operationType;
@@ -166,10 +170,20 @@ public class SysProvisioningOperationDto extends AbstractDto implements Provisio
 	public void setSystemEntityUid(String systemEntityUid) {
 		this.systemEntityUid = systemEntityUid;
 	}
+	
+	public boolean isSynchronousProvisioning() {
+		return synchronousProvisioning;
+	}
+
+	public void setSynchronousProvisioning(boolean synchronousProvisioning) {
+		this.synchronousProvisioning = synchronousProvisioning;
+	}
 
 
-	
-	
+
+
+
+
 	/**
 	 * New {@link SysProvisioningOperationDto} builder.
 	 * 

@@ -1136,7 +1136,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	public void tesSkipMergeValueIfTwoContractsExcluded() {
+	public void testSkipMergeValueIfTwoContractsExcluded() {
 		SysSystemDto system = helper.createSystem("test_resource");
 		SysSystemMappingDto mapping = helper.createMapping(system);
 		IdmRoleDto roleOne = helper.createRole();

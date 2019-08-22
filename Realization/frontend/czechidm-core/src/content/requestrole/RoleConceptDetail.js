@@ -233,7 +233,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           onChange={ this._onChangeSelectOfRole.bind(this) }
           label={ this.i18n('entity.IdentityRole.role') }
           ref="role"
-          forceSearchParameters={ new SearchParameters().setFilter('environment', environment) }/>
+          forceSearchParameters={ new SearchParameters('can-be-requested').setFilter('environment', environment) }/>
         <Basic.SelectBox
           ref="identityContract"
           manager={ identityContractManager }

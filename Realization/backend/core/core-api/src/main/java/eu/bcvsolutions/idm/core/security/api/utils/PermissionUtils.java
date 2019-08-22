@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.security.api.utils;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,12 +7,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.util.ObjectUtils;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -91,9 +90,10 @@ public abstract class PermissionUtils {
 	 * @return BasePermission list 
 	 */
 	public static Collection<BasePermission> toPermissions(Collection<String> authorities) {
-		if (authorities == null) {
+		if (CollectionUtils.isEmpty(authorities)) {
 			return Collections.<BasePermission>emptySet();
 		}
+		Set<String> resolvedPermissions = new HashSet<>();
 		Set<BasePermission> result = new HashSet<>();
 		for (String authority : authorities) {
 			if (authority.contains(BasePermission.SEPARATOR)) {
@@ -101,17 +101,19 @@ public abstract class PermissionUtils {
 				// permission is on last place
 				authority = split[split.length - 1];
 			}
-			// Base permission may be child from IdmBasePermission or from IdentityBasePermission
-			BasePermission permission = EnumUtils.getEnum(IdmBasePermission.class, authority);
-			// FIXME: support custom module!
+			if (resolvedPermissions.contains(authority)) {
+				continue;
+			}
+			final String rawPermission = authority;
+			// Base permission may be child from IdmBasePermission
+			BasePermission permission = EnumUtils.getEnum(IdmBasePermission.class, rawPermission);
+			// but can be registered dynamically in custom module => new BasePermission is created
 			if (permission == null) {
-				permission = EnumUtils.getEnum(IdentityBasePermission.class, authority);
+				permission = (BasePermission) () -> rawPermission;
 			}
 			//
-			if (permission == null) {
-				throw new CoreException(MessageFormat.format("For permission {0} was not found enum!", authority));
-			}
 			result.add(permission);
+			resolvedPermissions.add(permission.getName());
 		}
 		return result;
 	}

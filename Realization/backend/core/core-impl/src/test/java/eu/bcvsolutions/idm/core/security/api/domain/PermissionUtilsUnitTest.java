@@ -109,12 +109,23 @@ public class PermissionUtilsUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testToPermissions() {
-		Set<String> pelMel = Sets.newHashSet(CoreGroupPermission.AUTHORIZATIONPOLICY_AUTOCOMPLETE, IdmBasePermission.CREATE.getName());
+		Assert.assertTrue(PermissionUtils.toPermissions(null).isEmpty());
+		Assert.assertTrue(PermissionUtils.toPermissions(Sets.newHashSet()).isEmpty());
+		//
+		Set<String> pelMel = Sets.newHashSet(
+				CoreGroupPermission.AUTHORIZATIONPOLICY_AUTOCOMPLETE, 
+				CoreGroupPermission.IDENTITY_AUTOCOMPLETE, 
+				IdmBasePermission.CREATE.getName(),
+				"IDENTITY_CUSTOM",
+				RoleBasePermission.CANBEREQUESTED.getName(),
+				CoreGroupPermission.ROLE_CANBEREQUESTED);
 		//
 		Collection<BasePermission> permissions = PermissionUtils.toPermissions(pelMel);
 		//
-		Assert.assertEquals(2, permissions.size());
-		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.CREATE)));
-		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE)));
+		Assert.assertEquals(4, permissions.size());
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.getName().equals(IdmBasePermission.CREATE.getName())));
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.getName().equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.getName().equals(RoleBasePermission.CANBEREQUESTED.getName())));
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.getName().equals("CUSTOM")));
 	}
 }

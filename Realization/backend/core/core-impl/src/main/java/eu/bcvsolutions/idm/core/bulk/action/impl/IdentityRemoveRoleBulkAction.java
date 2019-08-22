@@ -276,7 +276,7 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 				ROLE_CODE, 
 				ROLE_CODE, 
 				PersistentType.UUID);
-		roles.setFaceType(BaseFaceType.ROLE_SELECT);
+		roles.setFaceType(BaseFaceType.ROLE_CAN_BE_REQUESTED_SELECT);
 		roles.setMultiple(true);
 		roles.setRequired(true);
 		return roles;

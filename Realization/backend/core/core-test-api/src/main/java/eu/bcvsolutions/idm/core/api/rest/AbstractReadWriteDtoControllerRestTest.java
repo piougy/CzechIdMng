@@ -953,8 +953,28 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * @param filter
 	 * @return
 	 */
+	public List<DTO> find(String searchName, DataFilter filter, Authentication authentication) {
+		return find(searchName, toQueryParams(filter), authentication);
+	}
+	
+	/**
+	 * Find dtos by given filter. DataFilter should be fully implemented - only properties mapped in DATA will be used.
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	public List<DTO> find(String searchName, DataFilter filter) {
+		return find(searchName, filter, null);
+	}
+	
+	/**
+	 * Find dtos by given filter. DataFilter should be fully implemented - only properties mapped in DATA will be used.
+	 * 
+	 * @param filter
+	 * @return
+	 */
 	public List<DTO> find(DataFilter filter) {
-		return find(toQueryParams(filter));
+		return find(null, filter);
 	}
 	
 	/**
@@ -1024,16 +1044,24 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		throw new CoreException("Controller [" + clazz + "] doeasn't have default mapping, cannot be tested by this abstraction.");
 	}
 	
+	protected String getFindUrl(String searchName) {
+		if (StringUtils.isEmpty(searchName)) {
+			// quick alias endpoint on base url
+			return getBaseUrl(); 
+		}
+		return String.format("%s%s/%s", getBaseUrl(), "/search", searchName); 
+	}
+	
 	protected String getFindQuickUrl() {
-		return String.format("%s%s", getBaseUrl(), "/search/quick"); 
+		return getFindUrl("quick");
 	}
 	
 	protected String getAutocompleteUrl() {
-		return String.format("%s%s", getBaseUrl(), "/search/autocomplete"); 
+		return getFindUrl("autocomplete");
 	}
 	
 	protected String getCountUrl() {
-		return String.format("%s%s", getBaseUrl(), "/search/count"); 
+		return getFindUrl("count");
 	}
 	
 	protected String getDetailUrl(Serializable backendId) {
@@ -1147,13 +1175,15 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	/**
 	 * Find dtos
 	 * 
+	 * @param searchName [optional] quick alias is used as default
 	 * @param parameters
+	 * @param authentication [optional] admin authentication is used as default
 	 * @return
 	 */
-	protected List<DTO> find(MultiValueMap<String, String> parameters) {
+	protected List<DTO> find(String searchName, MultiValueMap<String, String> parameters, Authentication authentication) {
 		try {
-			String response = getMockMvc().perform(get(getBaseUrl())
-	        		.with(authentication(getAdminAuthentication()))
+			String response = getMockMvc().perform(get(getFindUrl(searchName))
+	        		.with(authentication(authentication == null ? getAdminAuthentication() : authentication))
 	        		.params(parameters)
 	                .contentType(TestHelper.HAL_CONTENT_TYPE))
 					.andExpect(status().isOk())
@@ -1166,6 +1196,27 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to find entities", ex);
 		}
+	}
+	
+	/**
+	 * Find dtos
+	 * 
+	 * @param searchName [optional] quick alias is used as default
+	 * @param parameters
+	 * @return
+	 */
+	protected List<DTO> find(String searchName, MultiValueMap<String, String> parameters) {
+		return find(searchName, parameters, null);
+	}
+	
+	/**
+	 * Find dtos
+	 * 
+	 * @param parameters
+	 * @return
+	 */
+	protected List<DTO> find(MultiValueMap<String, String> parameters) {
+		return find(null, parameters);
 	}
 	
 	/**
@@ -1175,21 +1226,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * @return
 	 */
 	protected List<DTO> findQuick(MultiValueMap<String, String> parameters) {
-		try {
-			String response = getMockMvc().perform(get(getFindQuickUrl())
-	        		.with(authentication(getAdminAuthentication()))
-	        		.params(parameters)
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-					.andExpect(status().isOk())
-	                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andReturn()
-	                .getResponse()
-	                .getContentAsString();
-			//
-			return toDtos(response);
-		} catch (Exception ex) {
-			throw new RuntimeException("Failed to find entities", ex);
-		}
+		return find("quick", parameters);
 	}
 	
 	/**
@@ -1199,21 +1236,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * @return
 	 */
 	protected List<DTO> autocomplete(MultiValueMap<String, String> parameters) {
-		try {
-			String response = getMockMvc().perform(get(getAutocompleteUrl())
-	        		.with(authentication(getAdminAuthentication()))
-	        		.params(parameters)
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-					.andExpect(status().isOk())
-	                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andReturn()
-	                .getResponse()
-	                .getContentAsString();
-			//
-			return toDtos(response);
-		} catch (Exception ex) {
-			throw new RuntimeException("Failed to find entities", ex);
-		}
+		return find("autocomplete", parameters);
 	}
 	
 	/**

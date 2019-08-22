@@ -291,6 +291,16 @@ module.exports = {
       manager: require('./src/redux').RoleManager
     },
     {
+      id: 'role-can-be-requested-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'UUID',
+      faceType: 'ROLE-CAN-BE-REQUESTED-SELECT',
+      component: require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.ROLE-SELECT',
+      manager: require('./src/redux').RoleManager,
+      searchName: 'can-be-requested'
+    },
+    {
       id: 'form-definition-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'UUID',

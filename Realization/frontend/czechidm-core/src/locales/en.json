@@ -920,7 +920,8 @@
       "PASSWORDCHANGE": "Password change",
       "CHANGEPERMISSION": "Change roles",
       "MANUALLYDISABLE": "Deactivate user manually",
-      "MANUALLYENABLE": "Activate user manually"
+      "MANUALLYENABLE": "Activate user manually",
+      "CANBEREQUESTED": "Can be requested"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",

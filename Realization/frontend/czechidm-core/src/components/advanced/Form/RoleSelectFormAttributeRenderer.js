@@ -1,5 +1,6 @@
 import React from 'react';
 //
+import SearchParameters from '../../../domain/SearchParameters';
 import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
 import SelectBoxFormAttributeRenderer from './SelectBoxFormAttributeRenderer';
 import RoleSelect from '../RoleSelect/RoleSelect';
@@ -38,14 +39,21 @@ export default class RoleSelectFormAttributeRenderer extends SelectBoxFormAttrib
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values, uiKey, validationErrors, className, style } = this.props;
+    const { attribute, values, uiKey, validationErrors, className, style, component } = this.props;
     const showOriginalValue = originalValues ? true : false;
+    //
+    // set search name into force search parameters
+    let forceSearchParameters = null;
+    if (component.searchName) {
+      forceSearchParameters = new SearchParameters('can-be-requested');
+    }
     //
     return (
       <RoleSelect
         ref={ AbstractFormAttributeRenderer.INPUT }
         uiKey={ uiKey || `form-attribute-${attribute.code}` }
         manager={ this.getManager() }
+        forceSearchParameters={ forceSearchParameters }
         header={ this.getLabel(null, showOriginalValue) }
         label={ this.getLabel(null, showOriginalValue) }
         placeholder={ this.getPlaceholder() }

@@ -951,7 +951,8 @@
       "PASSWORDCHANGE": "Změna hesla",
       "CHANGEPERMISSION": "Změna rolí",
       "MANUALLYDISABLE": "Manuální deaktivace uživatele",
-      "MANUALLYENABLE": "Manuální aktivace uživatele"
+      "MANUALLYENABLE": "Manuální aktivace uživatele",
+      "CANBEREQUESTED": "O roli lze žádat"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",

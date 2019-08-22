@@ -10,7 +10,7 @@ public interface BasePermission {
 	/**
 	 * Is used for joining permission to authority
 	 */
-	public static final String SEPARATOR = "_";
+	String SEPARATOR = "_";
 
 	/**
 	 * Permission identifier
@@ -22,7 +22,9 @@ public interface BasePermission {
 	/**
 	 * Permission is defined in module
 	 * 
-	 * @return
+	 * @return {@code null} as default. Module is needed for localization on FE mainly.
 	 */
-	String getModule();
+	default String getModule() {
+		return null;
+	}
 }

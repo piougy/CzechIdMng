@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.RoleBasePermission;
 
 /**
  * Aggregate base permission. Name can't contain character '_' - its used for joining to authority name.
@@ -76,7 +77,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE),
+			IdmBasePermission.DELETE,
+			RoleBasePermission.CANBEREQUESTED),
 	ROLECATALOGUE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -438,6 +440,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLE_CREATE = "ROLE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLE_UPDATE = "ROLE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";
+	public static final String ROLE_CANBEREQUESTED = "ROLE" + BasePermission.SEPARATOR + "CANBEREQUESTED";
 	//
 	public static final String ROLECATALOGUE_COUNT = "ROLECATALOGUE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String ROLECATALOGUE_AUTOCOMPLETE = "ROLECATALOGUE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";

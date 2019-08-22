@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
-import { RoleManager, ConfigurationManager } from '../../../redux';
+import { RoleManager, ConfigurationManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
 import Tree from '../Tree/Tree';
@@ -84,6 +84,10 @@ export class RoleInfo extends AbstractEntityInfo {
   }
 
   _renderPopover() {
+    if (!SecurityManager.hasAuthority('ROLE_AUTOCOMPLETE')) {
+      return super._renderPopover();
+    }
+    //
     const _entity = this.getEntity();
     //
     return (
@@ -95,7 +99,7 @@ export class RoleInfo extends AbstractEntityInfo {
         className="role-info-tree"
         bodyClassName="role-info-tree-body"
         onChange={ () => false }
-        nodeIcon={ ({ node }) => this.props.showIcon ? this.getEntityIcon(node) : null }
+        nodeIcon={ ({ node }) => (this.props.showIcon ? this.getEntityIcon(node) : null) }
         nodeStyle={{ paddingLeft: 0 }}
         nodeIconClassName={ null }
         nodeContent={ ({ node }) => {

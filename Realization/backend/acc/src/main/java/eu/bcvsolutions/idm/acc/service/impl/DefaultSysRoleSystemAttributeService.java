@@ -495,6 +495,6 @@ public class DefaultSysRoleSystemAttributeService extends
 						AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ONLY_EVICTED, Boolean.TRUE //
 				)); //
 		// Execute recalculation LRT
-		longRunningTaskManager.execute(attributeControlledValueRecalculationTask);
+		longRunningTaskManager.executeSync(attributeControlledValueRecalculationTask);
 	}
 }

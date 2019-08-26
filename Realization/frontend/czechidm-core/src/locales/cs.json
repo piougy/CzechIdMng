@@ -5755,7 +5755,7 @@
     },
     "GROOVY_SCRIPT_EXCEPTION": {
       "title": "Chyba ve scriptu",
-      "message": "Script obsahuje následující chyby: [{{errors}}]."
+      "message": "Script obsahuje následující chyby: [{{message}}]."
     },
     "GROOVY_SCRIPT_INVALID_CATEGORY": {
       "title": "Špatná kategorie pro script",

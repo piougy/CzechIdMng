@@ -55,12 +55,14 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -110,6 +112,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private SchedulerManager schedulerManager;
 	@Autowired private SysProvisioningAttributeRepository provisioningAttributeRepository;
+	@Autowired private IdmIdentityService identitySerivce;
 	//
 	private SysProvisioningOperationService provisioningOperationService;
 	private ProvisioningExecutor provisioningExecutor;
@@ -660,6 +663,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		operation.getResult().setState(OperationState.EXECUTED);
 		operation = provisioningOperationService.save(operation);
+		// Account cannot exist now
+		TestResource resource = getHelper().findResource(uid);
+		Assert.assertNull(resource);
 		//
 		// retry - expected success now
 		retryProvisioningTaskExecutor = new RetryProvisioningTaskExecutor();
@@ -668,7 +674,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		Assert.assertFalse(systemEntity.isWish());
-		TestResource resource = getHelper().findResource(uid);
+		resource = getHelper().findResource(uid);
 		Assert.assertNotNull(resource);
 		Assert.assertEquals(firstname, resource.getFirstname());
 		batch = provisioningBatchService.get(batch.getId());
@@ -777,6 +783,49 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		filter.setEmptyProvisioning(Boolean.FALSE);
 		//
 		Assert.assertFalse(provisioningOperationService.find(filter, null).getContent().isEmpty());
+	}
+	
+	@Test
+	public void testNotExecutedOperationOnDisabledSystem() {
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		system.setReadonly(true);
+		system = systemService.save(system);
+
+		IdmRoleDto role = getHelper().createRole();
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+		getHelper().createRoleSystem(role, system);
+		getHelper().assignRoles(contract, role);
+
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemId(system.getId());
+
+		List<SysProvisioningOperationDto> provisionings = provisioningOperationService.find(filter, null).getContent();
+		assertEquals(1, provisionings.size());
+		assertEquals(OperationState.NOT_EXECUTED, provisionings.get(0).getResultState());
+		String uid = provisionings.get(0).getSystemEntityUid();
+		
+		// Account cannot exist now
+		TestResource resource = getHelper().findResource(uid);
+		Assert.assertNull(resource);
+		
+		// Set system as enabled.
+		system.setReadonly(false);
+		system = systemService.save(system);
+		
+		// Execute the provisioning -> System is enabled now, but in provisioning queue
+		// is active operation -> so next provisioning cannot be executed!
+		identitySerivce.save(identity);
+
+		// Account cannot exist now
+		resource = getHelper().findResource(uid);
+		Assert.assertNull(resource);
+
+		provisionings = provisioningOperationService.find(filter, null).getContent();
+		assertEquals(2, provisionings.size());
+		assertEquals(OperationState.NOT_EXECUTED, provisionings.get(0).getResultState());
+		assertEquals(OperationState.NOT_EXECUTED, provisionings.get(1).getResultState());
+
 	}
 	
 	/**

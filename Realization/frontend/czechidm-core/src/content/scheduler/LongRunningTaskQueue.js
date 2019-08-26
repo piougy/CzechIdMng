@@ -167,7 +167,8 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
                       entityIdentifier={ data[rowIndex][property] }
                       entity={ data[rowIndex]._embedded[property] }
                       face="popover"
-                      showEntityType={ false }/>
+                      showEntityType={ false }
+                      showIcon/>
                   );
                 }
               }

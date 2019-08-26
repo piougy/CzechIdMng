@@ -116,7 +116,7 @@ public class DefaultIdmLongRunningTaskService
 		}
 		DateTime till = filter.getTill();
 		if (till != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(IdmLongRunningTask_.created), till.plusDays(1)));
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmLongRunningTask_.created), till));
 		}
 		OperationState operationState = filter.getOperationState();
 		if (operationState != null) {

@@ -1,5 +1,10 @@
 package eu.bcvsolutions.idm.core.scheduler.rest.impl;
 
+import java.util.List;
+
+import org.joda.time.DateTime;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
 
 /**
@@ -48,5 +54,42 @@ public class IdmLongRunningTaskControllerRestTest extends AbstractReadWriteDtoCo
 	@Override
 	protected boolean isReadOnly() {
 		return true;
+	}
+	
+	@Test
+	public void testFindByCreated() {
+		String mockInstanceId = getHelper().createName();
+		IdmLongRunningTaskDto task = prepareDto();
+		task.setInstanceId(mockInstanceId);
+		IdmLongRunningTaskDto taskOne = createDto(task);
+		//
+		getHelper().waitForResult(null, 1, 1); // created is filled automatically
+		DateTime middle = DateTime.now();
+		getHelper().waitForResult(null, 1, 1);
+		//
+		task = prepareDto();
+		task.setInstanceId(mockInstanceId);
+		IdmLongRunningTaskDto taskTwo = createDto(task);
+		
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setInstanceId(mockInstanceId);
+		//
+		filter.setFrom(middle);
+		List<IdmLongRunningTaskDto> results = find(filter);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskTwo.getId())));
+		//
+		filter.setFrom(null);
+		filter.setTill(middle);
+		results = find(filter);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskOne.getId())));
+		//
+		filter.setFrom(taskOne.getCreated());
+		filter.setTill(taskTwo.getCreated());
+		results = find(filter);
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskOne.getId())));
+		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskTwo.getId())));
 	}
 }

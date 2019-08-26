@@ -10,6 +10,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -143,29 +144,31 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 	}
 
 	@Test
-	public void datesFilterTest(){
-		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		String expectedResult = "TEST_SUCCESS_05_M";
+	@Transactional
+	public void datesFilterTest() {
 		// set tasks
-		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
+		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor("one");
 		assertNull(taskExecutor.getLongRunningTaskId());
 		manager.executeSync(taskExecutor);
 		IdmLongRunningTaskDto task1 = service.get(taskExecutor.getLongRunningTaskId());
 
-		LongRunningTaskExecutor<String> taskExecutor2 = new TestSimpleLongRunningTaskExecutor(expectedResult);
+		getHelper().waitForResult(null, 1, 1); // created is filled automatically
+		
+		LongRunningTaskExecutor<String> taskExecutor2 = new TestSimpleLongRunningTaskExecutor("two");
 		assertNull(taskExecutor2.getLongRunningTaskId());
 		manager.executeSync(taskExecutor2);
 		IdmLongRunningTaskDto task2 = service.get(taskExecutor2.getLongRunningTaskId());
-		task2.setCreated(task1.getCreated());
-		service.save(task2);
-
+		//
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setTaskType(TestSimpleLongRunningTaskExecutor.class.getCanonicalName());
+		//
 		filter.setFrom(task1.getCreated());
 		Page<IdmLongRunningTaskDto> result = service.find(filter, null);
-		assertEquals("Wrong From Date",2, result.getTotalElements());
+		assertEquals("Wrong From Date", 2, result.getTotalElements());
 
-		filter.setTill(task1.getModified());
+		filter.setTill(task2.getCreated());
 		result = service.find(filter, null);
-		assertEquals("Wrong Till Date",2, result.getTotalElements());
+		assertEquals("Wrong Till Date", 2, result.getTotalElements());
 	}
 
 	@Test

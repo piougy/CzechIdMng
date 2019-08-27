@@ -20,8 +20,8 @@ public interface IdmConceptRoleRequestService
 		extends ReadWriteDtoService<IdmConceptRoleRequestDto, IdmConceptRoleRequestFilter>,
 		AuthorizableService<IdmConceptRoleRequestDto> {
 
-	public static final String IDENTITY_CONTRACT_FIELD = "identityContract";
-	public static final String ROLE_REQUEST_FIELD = "roleRequest";
+	String IDENTITY_CONTRACT_FIELD = "identityContract";
+	String ROLE_REQUEST_FIELD = "roleRequest";
 
 	void addToLog(Loggable logItem, String text);
 

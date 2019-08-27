@@ -231,11 +231,11 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 					String message = null;
 					if (concept.getState().isTerminatedState()) {
 						message = MessageFormat.format(
-								"Role tree node [{0}] (reqested in concept [{1}]) was deleted (not from this role request)!",
+								"Automatic role [{0}] (reqested in concept [{1}]) was deleted (not from this role request)!",
 								getAutomaticRoleId(), concept.getId());
 					} else {
 						message = MessageFormat.format(
-								"Request change in concept [{0}], was not executed, because requested RoleTreeNode [{1}] was deleted (not from this role request)!",
+								"Request change in concept [{0}], was not executed, because requested automatic role [{1}] was deleted (not from this role request)!",
 								concept.getId(), getAutomaticRoleId());
 						concept.setState(RoleRequestState.CANCELED);
 					}

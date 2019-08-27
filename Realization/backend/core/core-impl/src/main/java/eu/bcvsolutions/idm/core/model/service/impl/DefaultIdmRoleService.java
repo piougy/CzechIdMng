@@ -271,7 +271,10 @@ public class DefaultIdmRoleService
 	
 	@Override
 	public String findAssignRoleWorkflowDefinition(UUID roleId){
-		Assert.notNull(roleId, "Role ID is required!");
+		if (roleId == null) {
+			// role can be removed in the mean time
+			return null;
+		}
 		
 		String key =  configurationService.getValue(WF_BY_ROLE_PRIORITY_PREFIX + this.get(roleId).getPriority());
 		return Strings.isNullOrEmpty(key) ? null : key;

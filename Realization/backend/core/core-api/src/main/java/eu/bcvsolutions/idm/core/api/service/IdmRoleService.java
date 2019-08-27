@@ -44,7 +44,6 @@ public interface IdmRoleService extends
 	 */
 	String findAssignRoleWorkflowDefinition(UUID roleId);
 
-
 	/**
 	 * Find workflow definition key for change assigned Role on Identity
 	 * 

@@ -171,7 +171,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
-                <Basic.Row rendered={ SecurityManager.hasAllAuthorities(['TREE_TYPE_AUTOCOMPLETE', 'TREE_NODE_AUTOCOMPLETE'])}>
+                <Basic.Row rendered={ SecurityManager.hasAllAuthorities(['TREETYPE_AUTOCOMPLETE', 'TREENODE_AUTOCOMPLETE'])}>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TreeNodeSelect
                       ref="treeNodeId"

@@ -951,7 +951,8 @@
       "PASSWORDCHANGE": "Změna hesla",
       "CHANGEPERMISSION": "Změna rolí",
       "MANUALLYDISABLE": "Manuální deaktivace uživatele",
-      "MANUALLYENABLE": "Manuální aktivace uživatele"
+      "MANUALLYENABLE": "Manuální aktivace uživatele",
+      "CANBEREQUESTED": "O roli lze žádat"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -5754,7 +5755,7 @@
     },
     "GROOVY_SCRIPT_EXCEPTION": {
       "title": "Chyba ve scriptu",
-      "message": "Script obsahuje následující chyby: [{{errors}}]."
+      "message": "Script obsahuje následující chyby: [{{message}}]."
     },
     "GROOVY_SCRIPT_INVALID_CATEGORY": {
       "title": "Špatná kategorie pro script",

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -32,7 +33,9 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -78,12 +81,16 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 			// if form definition is empty ... we disable all
 			return builder.disjunction();
 		}
-		predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.id), formDefinition.getId()));
+		// prevent to generate cross joins by default
+		Join<T, IdmFormAttribute> eavAttr = root.join(AbstractFormValue_.formAttribute);
+		Join<IdmFormAttribute, IdmFormDefinition> extDef = eavAttr.join(IdmFormAttribute_.formDefinition);
+		//
+		predicates.add(builder.equal(extDef.get(IdmFormDefinition_.id), formDefinition.getId()));
 		//
 		// by form attributes
 		Set<String> formAttributes = getFormAttributes(policy);
 		if (!formAttributes.isEmpty()) {
-			predicates.add(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.code).in(formAttributes));
+			predicates.add(eavAttr.get(IdmFormAttribute_.code).in(formAttributes));
 		}
 		//
 		// by self

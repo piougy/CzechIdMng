@@ -1235,25 +1235,24 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(formInstance, "Form instnace if mandatory!");
 		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
 		Assert.notNull(formDefinition);
-
-		List<IdmFormValueDto> values = formInstance.getValues();
-
+		//
 		formDefinition
-		.getFormAttributes()
-		.stream()
-		.forEach(formAttribute -> { //
-			boolean valueExists = values //
-					.stream() //
-					.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
-					.findFirst() //
-					.isPresent();
-			if (!valueExists) {
-				ArrayList<IdmFormValueDto> newValues = Lists.newArrayList(values);
-				IdmFormValueDto deletedValue = new IdmFormValueDto(formAttribute);
-				newValues.add(deletedValue);
-				formInstance.setValues(newValues);
-			}
-		});
+			.getFormAttributes()
+			.stream()
+			.forEach(formAttribute -> { //
+				List<IdmFormValueDto> values = formInstance.getValues();
+				boolean valueExists = values //
+						.stream() //
+						.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
+						.findFirst() //
+						.isPresent();
+				if (!valueExists) {
+					ArrayList<IdmFormValueDto> newValues = Lists.newArrayList(values);
+					IdmFormValueDto deletedValue = new IdmFormValueDto(formAttribute);
+					newValues.add(deletedValue);
+					formInstance.setValues(newValues);
+				}
+			});
 	}
 
 	private IdmRoleRequestService getIdmRoleRequestService() {

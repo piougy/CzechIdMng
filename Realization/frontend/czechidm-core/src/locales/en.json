@@ -920,7 +920,8 @@
       "PASSWORDCHANGE": "Password change",
       "CHANGEPERMISSION": "Change roles",
       "MANUALLYDISABLE": "Deactivate user manually",
-      "MANUALLYENABLE": "Activate user manually"
+      "MANUALLYENABLE": "Activate user manually",
+      "CANBEREQUESTED": "Can be requested"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -5704,7 +5705,7 @@
     },
     "GROOVY_SCRIPT_EXCEPTION": {
       "title": "Error in script",
-      "message": "Script contains following errors: [{{errors}}]."
+      "message": "Script contains following errors: [{{message}}]."
     },
     "GROOVY_SCRIPT_INVALID_CATEGORY": {
       "title": "Wrong category for script",

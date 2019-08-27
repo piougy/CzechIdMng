@@ -56,6 +56,10 @@ This setup has to be done for modules **core-api**, **core-impl** and other opti
 
 Note: If you don't set metamodel generation, you will see Java problems like `ExampleProduct_` cannot be resolved to a variable.
 
+### Ignore warnings in generated classes in Eclipse
+
+Go to `Project` -> `Properties` -> `Java Build Path` -> `Source` -> set `Ignore optional compile problems` to `Yes`.
+
 [Other IDEs](https://docs.jboss.org/hibernate/jpamodelgen/1.0/reference/en-US/html_single/#d0e319)
 
 ### Setup jpa metamodel generation in IntelliJ Idea

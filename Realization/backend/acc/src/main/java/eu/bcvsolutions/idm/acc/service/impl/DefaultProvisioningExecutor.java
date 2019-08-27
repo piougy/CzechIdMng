@@ -113,8 +113,9 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		if (!system.isQueue()) {
 			if (provisioningOperationService.isNew(provisioningOperation)) {
 				// In sync mode, we need to save operation now (for request and system state)
-				SysProvisioningOperationDto provisioningOperationSaved = persistOperation(provisioningOperation);
-				provisioningOperation.setId(provisioningOperationSaved.getId());
+				provisioningOperation = persistOperation(provisioningOperation);
+				// We need to mark DTO, because in the executeInternal we need to make check on NOT_EXECUTED state.
+				provisioningOperation.setSynchronousProvisioning(true);
 			}
 			entityEventManager.publishEvent(provisioningOperation);
 			return;
@@ -152,11 +153,15 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(provisioningOperation.getSystemEntity());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
 		//
+		boolean checkNotExecuted = provisioningOperation.isSynchronousProvisioning();
 		if (provisioningOperationService.isNew(provisioningOperation)) {
 			provisioningOperation = persistOperation(provisioningOperation);
-			if (OperationState.NOT_EXECUTED == provisioningOperation.getResult().getState()) {
-				return provisioningOperation;
-			}
+			checkNotExecuted = true;
+		}
+		if (checkNotExecuted
+				&& provisioningOperation.getResult() != null
+				&& OperationState.NOT_EXECUTED == provisioningOperation.getResult().getState()) {
+			return provisioningOperation;
 		}
 		//
 		CoreEvent<SysProvisioningOperationDto> event = new CoreEvent<SysProvisioningOperationDto>(provisioningOperation.getOperationType(), provisioningOperation);
@@ -301,6 +306,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			provisioningOperation.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 		} else {
 			SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+			filter.setNotInState(OperationState.CREATED);
 			filter.setBatchId(batch.getId());
 			List<SysProvisioningOperationDto> activeOperations = provisioningOperationService
 					.find(filter, new PageRequest(0, 1, new Sort(Direction.DESC, SysProvisioningOperation_.created.getName())))

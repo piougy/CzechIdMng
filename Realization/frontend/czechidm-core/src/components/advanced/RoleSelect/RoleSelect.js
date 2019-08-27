@@ -472,7 +472,10 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     const showTree = SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
     //
     // FIXME: merge force search parameters into catalogue table
-    const _tableForceSearchParameters = new SearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('roleCatalogue', roleCatalogue);
+    let _tableForceSearchParameters = new SearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE).setFilter('roleCatalogue', roleCatalogue);
+    if (forceSearchParameters) {
+      _tableForceSearchParameters = _tableForceSearchParameters.setName(forceSearchParameters.getName());
+    }
     //
     // TODO: add onRowClick={this._onRowClick.bind(this)}
     return (

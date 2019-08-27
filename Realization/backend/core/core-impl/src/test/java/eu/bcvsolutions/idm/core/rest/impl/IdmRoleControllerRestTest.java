@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -20,6 +21,11 @@ import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.RoleBasePermission;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleCanBeRequestedEvaluator;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
@@ -193,5 +199,40 @@ public class IdmRoleControllerRestTest extends AbstractReadWriteDtoControllerRes
 				.anyMatch(ir -> { 
 					return ir.getSuperior().equals(roleTwo.getId()) && ir.getSub().equals(roleFive.getId());
 				}));
+	}
+	
+	@Test
+	public void testFindCanBeRequestedRoles() throws Exception {
+		String description = getHelper().createName();
+		IdmRoleDto role = prepareDto();
+		role.setDescription(description);
+		role.setCanBeRequested(true);
+		IdmRoleDto roleOne = createDto(role); 
+		role = prepareDto();
+		role.setDescription(description);
+		role.setCanBeRequested(false);
+		IdmRoleDto roleTwo = createDto(role); // other
+		//
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto assignedRole = getHelper().createRole();
+		//
+		getHelper().createIdentityRole(identity, assignedRole);
+		//
+		// create authorization policy - assign to role
+		getHelper().createAuthorizationPolicy(
+				assignedRole.getId(),
+				CoreGroupPermission.ROLE,
+				IdmRole.class,
+				RoleCanBeRequestedEvaluator.class,
+				RoleBasePermission.CANBEREQUESTED);
+		//
+		IdmRoleFilter filter = new IdmRoleFilter();
+		filter.setText(description);
+		List<IdmRoleDto> roles = find("can-be-requested", filter, getAuthentication(identity.getUsername()));
+		//
+		Assert.assertFalse(roles.isEmpty());
+		Assert.assertTrue(roles.stream().allMatch(r -> r.isCanBeRequested()));
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
+		Assert.assertFalse(roles.stream().anyMatch(r -> r.getId().equals(roleTwo.getId())));
 	}
 }

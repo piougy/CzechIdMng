@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -11,6 +12,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,8 +56,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -80,6 +85,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 public class DefaultSysRoleSystemAttributeService extends
 		AbstractReadWriteDtoService<SysRoleSystemAttributeDto, SysRoleSystemAttribute, SysRoleSystemAttributeFilter>
 		implements SysRoleSystemAttributeService {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(SysRoleSystemAttributeService.class);
 
 	@Autowired
 	private GroovyScriptService groovyScriptService;
@@ -162,19 +169,39 @@ public class DefaultSysRoleSystemAttributeService extends
 			systemAttributeMappingService.createExtendedAttributeDefinition(dto, entityType);
 		}
 
+		Object newControlledValue = null;
 		// We will do script validation (on compilation errors), before save
 		if (dto.getTransformScript() != null) {
 			groovyScriptService.validateScript(dto.getTransformScript());
+			// We have to evaluated script value, because validate of script is not sufficient
+			newControlledValue = systemAttributeMappingService.transformValueToResource(null, null, dto, null);
 		}
 
 		// Save history of controlled value (if definition changed)
 		if (!this.isNew(dto)) {
 
 			SysRoleSystemAttributeDto oldRoleAttribute = this.get(dto.getId());
-			// We predicate only static script (none input variables, only system)!
-			Object oldControlledValue = systemAttributeMappingService.transformValueToResource(null, null,
-					oldRoleAttribute, null);
-			Object newControlledValue = systemAttributeMappingService.transformValueToResource(null, null, dto, null);
+
+			Object oldControlledValue = null;
+			try {
+				// We predicate only static script (none input variables, only system)!
+				oldControlledValue = systemAttributeMappingService.transformValueToResource(null, null,
+						oldRoleAttribute, null);
+			} catch (ResultCodeException ex) {
+				// If Groovy script exception occurred (for old value), then we need to continue
+				// with save the attribute.
+				ResultModels resultModels = ex.getError();
+				if (resultModels != null && resultModels.getError() != null && CoreResultCode.GROOVY_SCRIPT_EXCEPTION
+						.name().equals(resultModels.getError().getStatusEnum())) {
+					LOG.warn(MessageFormat.format(
+							"Old value for role-system-attribute {0} cannot be evalued. Historic value will be not persist!",
+							oldRoleAttribute.getId()), ex);
+					oldControlledValue = null;
+				} else {
+					throw ex;
+				}
+			}
+			newControlledValue = systemAttributeMappingService.transformValueToResource(null, null, dto, null);
 
 			// Check if parent attribute changed, if yes then old value is added to history
 			// and new parent attribute is evicted
@@ -240,7 +267,7 @@ public class DefaultSysRoleSystemAttributeService extends
 			// Attribute changed, so we need evict the cache
 			systemAttributeMapping.setEvictControlledValuesCache(true);
 			systemAttributeMapping = systemAttributeMappingService.save(systemAttributeMapping);
-			
+
 			super.delete(roleSystemAttribute, permission);
 			
 			// If is mapped attribute marks as evicted, then we will start LRT for recalculation controlled values
@@ -495,6 +522,6 @@ public class DefaultSysRoleSystemAttributeService extends
 						AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ONLY_EVICTED, Boolean.TRUE //
 				)); //
 		// Execute recalculation LRT
-		longRunningTaskManager.execute(attributeControlledValueRecalculationTask);
+		longRunningTaskManager.executeSync(attributeControlledValueRecalculationTask);
 	}
 }

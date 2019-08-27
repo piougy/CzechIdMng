@@ -47,6 +47,7 @@ export default class RoleIdentities extends Basic.AbstractContent {
           filterOpened={ false }
           forceSearchParameters={ forceSearchParameters }
           showAddButton={ false }
+          showRowSelection
           columns={ columns }
           className="no-margin"/>
       </div>

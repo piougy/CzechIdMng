@@ -33,7 +33,7 @@ public class SubordinatesEvaluatorIntegrationTest extends AbstractIntegrationTes
 		IdmIdentityDto subordinateOne = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityDto subordinateTwo = getHelper().createIdentity((GuardedString) null); // other
 		IdmIdentityDto managerOne = getHelper().createIdentity();
-		IdmIdentityDto managerTwo = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto managerTwo = getHelper().createIdentity();
 		getHelper().createContractGuarantee(getHelper().getPrimeContract(subordinateOne), managerOne);
 		getHelper().createContractGuarantee(getHelper().getPrimeContract(subordinateTwo), managerTwo);
 		//
@@ -41,6 +41,7 @@ public class SubordinatesEvaluatorIntegrationTest extends AbstractIntegrationTes
 		IdmRoleDto roleOne = getHelper().createRole();
 		//
 		getHelper().createIdentityRole(managerOne, roleOne);
+		getHelper().createIdentityRole(managerTwo, roleOne);
 		//
 		// check - read without policy
 		try {			
@@ -48,6 +49,9 @@ public class SubordinatesEvaluatorIntegrationTest extends AbstractIntegrationTes
 			//
 			subordinates = identityService.find(null, IdmBasePermission.READ).getContent();
 			Assert.assertTrue(subordinates.isEmpty());	
+			//
+			Set<String> permissions = identityService.getPermissions(subordinateOne);
+			Assert.assertTrue(permissions.isEmpty());
 		} finally {
 			logout();
 		}
@@ -97,6 +101,20 @@ public class SubordinatesEvaluatorIntegrationTest extends AbstractIntegrationTes
 			Assert.assertEquals(2, permissions.size());
 			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.name())));
 			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.UPDATE.name())));
+		} finally {
+			logout();
+		}
+		//
+		// check - by other manager
+		try {			
+			getHelper().login(managerTwo.getUsername(), managerTwo.getPassword());
+			//
+			subordinates = identityService.find(null, IdmBasePermission.READ).getContent();
+			Assert.assertEquals(1, subordinates.size());	
+			Assert.assertEquals(subordinateTwo.getId(), subordinates.get(0).getId());
+			//
+			Set<String> permissions = identityService.getPermissions(subordinateOne);
+			Assert.assertTrue(permissions.isEmpty());
 		} finally {
 			logout();
 		}

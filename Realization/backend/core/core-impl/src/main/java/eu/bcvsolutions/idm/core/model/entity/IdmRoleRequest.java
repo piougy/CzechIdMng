@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_idm_role_request_app_id", columnList = "applicant_id"),
 		@Index(name = "idx_idm_role_request_state", columnList = "state")
 })
-public class IdmRoleRequest extends AbstractEntity{
+public class IdmRoleRequest extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;
 

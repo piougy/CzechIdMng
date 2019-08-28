@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl.hr;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
@@ -35,6 +38,8 @@ public class HrEnableContractProcess extends AbstractHrProcess {
 
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdentityContractEnableProcessor identityContractEnableProcessor;
+	
+	Set<UUID> cache = new HashSet<>();
 
 	public HrEnableContractProcess() {
 	}

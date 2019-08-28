@@ -60,6 +60,7 @@ public class HrEndContractProcess extends AbstractHrProcess {
 	public Page<IdmIdentityContractDto> getItemsToProcess(Pageable pageable) {
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setValid(Boolean.FALSE);
+		//
 		return identityContractService.find(filter, pageable);
 	}
 

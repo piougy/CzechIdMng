@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -18,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -68,7 +71,14 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 	@Override
 	public Boolean process() {
 		// found all IdmAutomaticRoleAttributeDto for process
-		Page<IdmAutomaticRoleAttributeDto> toProcessOthers= automaticRoleAttributeService.findAllToProcess(null, new PageRequest(0, DEFAULT_PAGE_SIZE_ROLE));
+		Page<IdmAutomaticRoleAttributeDto> toProcessOthers = automaticRoleAttributeService.findAllToProcess(
+				null, 
+				new PageRequest(
+						0, 
+						DEFAULT_PAGE_SIZE_ROLE,
+						new Sort(Direction.ASC, AbstractEntity_.id.getName())
+				)
+		);
 		boolean canContinue = true;
 		//
 		this.counter = 0L;

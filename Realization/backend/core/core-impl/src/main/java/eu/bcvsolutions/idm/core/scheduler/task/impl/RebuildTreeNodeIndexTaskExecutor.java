@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -16,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
@@ -79,7 +82,14 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 			count = treeNodeRepository.findByTreeType_Id(treeType.getId(), new PageRequest(0, 1)).getTotalElements();
 			counter = 0L;
 			boolean canContinue = true;
-			Page<IdmTreeNode> roots = treeNodeRepository.findRoots(treeType.getId(), new PageRequest(0, 100));
+			Page<IdmTreeNode> roots = treeNodeRepository.findRoots(
+					treeType.getId(), 
+					new PageRequest(
+							0, 
+							100,
+							new Sort(Direction.ASC, AbstractEntity_.id.getName())
+					)
+			);
 			while (canContinue) {
 				canContinue = processChildren(roots.getContent());
 				if (!canContinue) {

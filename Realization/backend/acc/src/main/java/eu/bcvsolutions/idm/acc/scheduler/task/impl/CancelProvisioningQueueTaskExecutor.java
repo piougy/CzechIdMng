@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +49,7 @@ public class CancelProvisioningQueueTaskExecutor
 
 	@Override
 	public Page<SysProvisioningOperationDto> getItemsToProcess(Pageable pageable) {
-		return provisioningOperationService.find(filter, null);
+		return provisioningOperationService.find(filter, new PageRequest(0, pageable.getPageSize())); // new pageable is given => records are deleted and we need the first page all time
 	}
 
 	@Override

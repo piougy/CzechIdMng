@@ -19,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -33,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -113,6 +117,9 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		Assert.notNull(dto);
 		//
 		Page<IdmProcessedTaskItemDto> p = getItemFromQueue(dto.getId());
+		
+		// if(dto.getId().equals(UUID.fromString("")))
+		
 		return p.getTotalElements() > 0;
 	}
 
@@ -183,12 +190,16 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	private void executeProcess() {
 		Set<UUID> processedRefs = new HashSet<>();
 		//
-		int page = 0;
 		boolean canContinue = true;
 		boolean dryRun = longRunningTaskService.get(this.getLongRunningTaskId()).isDryRun();
+		Pageable pageable = new PageRequest(
+				0, 
+				PAGE_SIZE, 
+				new Sort(Direction.ASC, AbstractEntity_.id.getName())
+		);
 		//
 		do {
-			Page<DTO> candidates = this.getItemsToProcess(new PageRequest(page, PAGE_SIZE));
+			Page<DTO> candidates = this.getItemsToProcess(pageable);
 			//
 			if (count == null) {
 				count = candidates.getTotalElements();
@@ -216,7 +227,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
  				}
 			}
 			canContinue &= candidates.hasNext();			
-			++page;
+			pageable = candidates.nextPageable();
 			//
 		} while (canContinue);
 		//

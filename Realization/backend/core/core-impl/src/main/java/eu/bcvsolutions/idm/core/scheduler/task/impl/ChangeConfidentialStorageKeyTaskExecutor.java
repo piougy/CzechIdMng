@@ -10,12 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfidentialStorageValueDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -81,7 +84,13 @@ public class ChangeConfidentialStorageKeyTaskExecutor extends AbstractSchedulabl
 		counter = 0L;
 		//
 		do {
-			Page<IdmConfidentialStorageValueDto> values = confidetialStorageValueService.find(new PageRequest(page, PAGE_SIZE));
+			Page<IdmConfidentialStorageValueDto> values = confidetialStorageValueService.find(
+					new PageRequest(
+							page, 
+							PAGE_SIZE, 
+							new Sort(Direction.ASC, AbstractEntity_.id.getName())
+					)
+			);
 			//
 			if (count == null) {
 				count = values.getTotalElements();

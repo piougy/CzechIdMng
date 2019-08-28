@@ -118,8 +118,6 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		//
 		Page<IdmProcessedTaskItemDto> p = getItemFromQueue(dto.getId());
 		
-		// if(dto.getId().equals(UUID.fromString("")))
-		
 		return p.getTotalElements() > 0;
 	}
 

@@ -400,6 +400,7 @@ public class DefaultIdmRoleRequestService
 	@Transactional
 	public boolean startApprovalProcess(IdmRoleRequestDto request, boolean checkRight,
 			EntityEvent<IdmRoleRequestDto> event, String wfDefinition) {
+		
 		// If is request marked as executed immediately, then we will check right
 		// and do realization immediately (without start approval process)
 		if (request.isExecuteImmediately()) {
@@ -416,30 +417,35 @@ public class DefaultIdmRoleRequestService
 			request.getConceptRoles().stream().filter(concept -> {
 				return RoleRequestState.IN_PROGRESS == concept.getState();
 			}).forEach(concept -> {
-				concept.setState(RoleRequestState.APPROVED);
-				conceptRoleRequestService.save(concept);
+				if (!cancelInvalidConcept(concept, request)) {
+					concept.setState(RoleRequestState.APPROVED);
+					conceptRoleRequestService.save(concept);
+				} else {
+					// save request log, after concept was canceled
+					this.save(request);
+				}
 			});
 
 			// Execute request immediately
 			return true;
-		} else {
-			IdmIdentityDto applicant = identityService.get(request.getApplicant());
-
-			Map<String, Object> variables = new HashMap<>();
-			// Minimize size of DTO persisting to WF
-			IdmRoleRequestDto eventRequest = event.getContent();
-			trimRequest(eventRequest);
-			variables.put(EntityEvent.EVENT_PROPERTY, event);
-
-			ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,
-					IdmIdentity.class.getSimpleName(), applicant.getUsername(), applicant.getId().toString(),
-					variables);
-			// We have to refresh request (maybe was changed in WF process)
-			request = this.get(request.getId());
-			request.setWfProcessId(processInstance.getProcessInstanceId());
-			this.save(request);
 		}
+		
+		IdmIdentityDto applicant = identityService.get(request.getApplicant());
+		Map<String, Object> variables = new HashMap<>();
+		IdmRoleRequestDto eventRequest = event.getContent();
+		// Minimize size of DTO persisting to WF;
+		trimRequest(eventRequest);
+		event.setContent(eventRequest);
+		variables.put(EntityEvent.EVENT_PROPERTY, event);
 
+		ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinition,
+				IdmIdentity.class.getSimpleName(), applicant.getUsername(), applicant.getId().toString(),
+				variables);
+		// We have to refresh request (maybe was changed in WF process)
+		IdmRoleRequestDto requestAfterWf = this.get(eventRequest.getId());
+		requestAfterWf.setWfProcessId(processInstance.getProcessInstanceId());
+		this.save(requestAfterWf);
+		
 		return false;
 	}
 
@@ -506,7 +512,11 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			createAssignedRole(concept, request, requestEvent);
+			if (!cancelInvalidConcept(concept, request)) {
+				// assign new role
+				createAssignedRole(concept, request, requestEvent);
+			}
+			
 			flushHibernateSession();
 		});
 
@@ -519,7 +529,10 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			updateAssignedRole(concept, request, requestEvent);
+			if (!cancelInvalidConcept(concept, request)) {
+				updateAssignedRole(concept, request, requestEvent);
+			}
+			
 			flushHibernateSession();
 		});
 		
@@ -532,7 +545,10 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			removeAssignedRole(concept, request, requestEvent);
+			if (!cancelInvalidConcept(concept, request)) {
+				removeAssignedRole(concept, request, requestEvent);
+			}
+			
 			flushHibernateSession();
 		});
 		
@@ -545,6 +561,7 @@ public class DefaultIdmRoleRequestService
 		Assert.notNull(request);
 
 		List<IdmConceptRoleRequestDto> conceptRoles = request.getConceptRoles();
+		
 		conceptRoles.forEach(concept -> {
 			List<InvalidFormAttributeDto> validationResults = conceptRoleRequestService.validateFormAttributes(concept);
 			if (validationResults != null && !validationResults.isEmpty()) {
@@ -833,6 +850,10 @@ public class DefaultIdmRoleRequestService
 		// We don't want calculate incompatible roles for ended or disapproved concepts
 		List<IdmConceptRoleRequestDto> conceptsForCheck = concepts //
 				.stream() //
+				.filter(concept -> {
+					// role can be deleted in the mean time
+					return concept.getRole() != null;
+				})
 				.filter(concept -> //
 				RoleRequestState.CONCEPT == concept.getState() //
 						|| RoleRequestState.IN_PROGRESS == concept.getState()
@@ -1054,7 +1075,7 @@ public class DefaultIdmRoleRequestService
 	 * @param accounts
 	 */
 	private void removeAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
-			EntityEvent<IdmRoleRequestDto> requestEvent) {
+			EntityEvent<IdmRoleRequestDto> requestEvent) {		
 		Assert.notNull(concept.getIdentityRole(), "IdentityRole is mandatory for delete!");
 		IdmIdentityRoleDto identityRole = DtoUtils.getEmbedded(concept, IdmConceptRoleRequest_.identityRole.getName(), IdmIdentityRoleDto.class, (IdmIdentityRoleDto)null);
 		if (identityRole == null) {
@@ -1369,8 +1390,10 @@ public class DefaultIdmRoleRequestService
 		temp.setEavs(concept.getEavs());
 		// Other way how to get eavs. But this way is to slow.
 //		tempIdentityRole.setEavs(Lists.newArrayList(conceptRoleRequestService.getRoleAttributeValues(concept, false)));
-
-		temp.setIdentityContractDto(identityContract);
+		if (identityContract != null) {
+			// contract cen be deleted in the mean time
+			temp.setIdentityContractDto(identityContract);
+		}
 		// Created is set to now (with founded duplicity, this will be marked as duplicated)
 		temp.setCreated(DateTime.now());
 		return temp;
@@ -1382,7 +1405,12 @@ public class DefaultIdmRoleRequestService
 		for (IdmConceptRoleRequestDto conceptOne : concepts) {
 			// Only add or modification will be processed
 			if (conceptOne.getOperation() == ConceptRoleRequestOperation.REMOVE) {
-				conceptOne.setDuplicate(Boolean.FALSE); // REMOVE concept can be duplicated
+				conceptOne.setDuplicate(Boolean.FALSE); // REMOVE concept can't be duplicated
+				continue;
+			}
+			// role and contract can be removed in the mean time
+			if (conceptOne.getRole() == null || conceptOne.getIdentityContract() == null) {
+				conceptOne.setDuplicate(Boolean.FALSE);
 				continue;
 			}
 
@@ -1434,5 +1462,43 @@ public class DefaultIdmRoleRequestService
 				conceptOne.setDuplicate(Boolean.FALSE);
 			}
 		}
+	}
+	
+	/**
+	 * Check and cancel invalid concept => concept is canceled, when required entities as role, contract
+	 * or assigned role is removed in the mean time in other session.
+	 * 
+	 * @param concept
+	 * @param request
+	 * @return true, if concept is canceled
+	 */
+	private boolean cancelInvalidConcept(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request) {
+		String message = null;
+		if (concept.getIdentityRole() == null 
+				&& ConceptRoleRequestOperation.ADD != concept.getOperation()) { // identity role is not given for ADD
+			message = MessageFormat.format(
+					"Request change in concept [{0}], was not executed, because assigned role was deleted before (not from this role request)!",
+					concept.getId());
+		} else if (concept.getIdentityContract() == null) {
+			message = MessageFormat.format(
+					"Request change in concept [{0}], was not executed, because identity contract was deleted before (not from this role request)!",
+					concept.getId());
+		} else if (concept.getRole() == null
+				&& ConceptRoleRequestOperation.REMOVE != concept.getOperation()) { // role is optional in DELETE
+			message = MessageFormat.format(
+					"Request change in concept [{0}], was not executed, because requested role was deleted (not from this role request)!",
+					concept.getId());
+		}
+		
+		if (message != null) {
+			addToLog(request, message);
+			conceptRoleRequestService.addToLog(concept, message);
+			// Cancel concept and WF
+			concept = conceptRoleRequestService.cancel(concept);
+			
+			return true;
+		}
+		// concept is valid
+		return false;
 	}
 }

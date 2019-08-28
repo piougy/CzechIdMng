@@ -411,7 +411,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           showLoading={ showLoadingActions }
           onClick={ this._showDetail.bind(this, data[rowIndex], true, false) }
           className="btn-xs"
-          disabled={ readOnly || !manualRole }
+          disabled={ readOnly || !manualRole || !value.role || !value.identityContract }
           role="group"
           title={ this.i18n('button.edit') }
           titlePlacement="bottom"
@@ -588,7 +588,12 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                 ({ rowIndex, data }) => {
                   const role = data[rowIndex]._embedded.role;
                   if (!role) {
-                    return '';
+                    return (
+                      <Basic.Label
+                        level="default"
+                        value={ this.i18n('label.removed') }
+                        title={ this.i18n('content.audit.revision.deleted') }/>
+                    );
                   }
                   return (
                     <Advanced.EntityInfo
@@ -641,7 +646,12 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                 ({rowIndex, data}) => {
                   const contract = data[rowIndex]._embedded.identityContract;
                   if (!contract) {
-                    return '';
+                    return (
+                      <Basic.Label
+                        level="default"
+                        value={ this.i18n('label.removed') }
+                        title={ this.i18n('content.audit.revision.deleted') }/>
+                    );
                   }
                   return (
                     <Advanced.IdentityContractInfo

@@ -70,7 +70,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmConceptRoleRequestRepository
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
-import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;

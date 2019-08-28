@@ -9,6 +9,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -38,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestByIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
@@ -94,6 +97,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private IdmRoleFormAttributeService roleFormAttributeService;
 	@Autowired
 	private AttachmentManager attachmentManager;
+	@Autowired
+	private Executor executor;
 	//
 	private IdmRoleDto roleA;
 
@@ -146,7 +151,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	}
 
 	@Test
-	@Transactional()
+	@Transactional
 	public void addPermissionViaRoleRequestTest() {
 		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
@@ -192,7 +197,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	}
 
 	@Test
-	@Transactional()
+	@Transactional
 	public void changePermissionViaRoleRequestTest() {
 		this.addPermissionViaRoleRequestTest();
 		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
@@ -232,7 +237,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	}
 
 	@Test
-	@Transactional()
+	@Transactional
 	public void removePermissionViaRoleRequestTest() {
 		this.addPermissionViaRoleRequestTest();
 		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
@@ -265,7 +270,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	}
 
 	@Test(expected = RoleRequestException.class)
-	@Transactional()
+	@Transactional
 	public void noSameApplicantExceptionTest() {
 		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityDto testB = identityService.getByUsername(USER_TEST_B);
@@ -291,7 +296,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	}
 
 	@Test(expected = RoleRequestException.class)
-	@Transactional()
+	@Transactional
 	public void notRightForExecuteImmediatelyExceptionTest() {
 		this.logout();
 		// Log as user without right for immediately execute role request (without
@@ -697,6 +702,51 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		Assert.assertEquals(1, request.getConceptRoles().size());
 		Assert.assertEquals(subRolesCount + 1, identityRoleService.findAllByIdentity(identity.getId()).size());
 	}
+	
+	@Test
+	public void testExecuteConcurentRoleRequests() {
+		// prepare two requests with assigned roles
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+		IdmRoleDto role = getHelper().createRole();
+		//
+		for (int i = 0; i < 10; i++) {
+			getHelper().createIdentityRole(contract, role);
+		}
+		//
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
+		Assert.assertEquals(10, assignedRoles.size());
+		//
+		IdmRoleRequestDto requestOne = createDeleteRoleRequest(contract, assignedRoles);
+		IdmRoleRequestDto requestTwo = createDeleteRoleRequest(contract, assignedRoles);
+		//
+		// execute request in two threads
+		FutureTask<?> taskOne = new FutureTask<Boolean>(() -> { 
+			roleRequestService.startRequest(requestOne.getId(), false);
+			return true; 
+		});
+		FutureTask<?> taskTwo = new FutureTask<Boolean>(() -> { 
+			roleRequestService.startRequest(requestTwo.getId(), false);
+			return true; 
+		});
+		executor.execute(taskOne);
+		executor.execute(taskTwo);
+		//
+		while (true) {
+			if (taskOne.isDone() && taskTwo.isDone()){
+				break;
+			}
+		}
+		//
+		IdmRoleRequestDto executedRequestOne = roleRequestService.get(requestOne, new IdmRoleRequestFilter(true));
+		IdmRoleRequestDto executedRequestTwo = roleRequestService.get(requestTwo, new IdmRoleRequestFilter(true));
+		// one of request ends with exception, but can be read => referential integrity is ok
+		Assert.assertTrue(executedRequestOne.getState().isTerminatedState());
+		Assert.assertTrue(executedRequestTwo.getState().isTerminatedState());
+		//
+		assignedRoles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
+		Assert.assertTrue(assignedRoles.isEmpty());
+	}
 
 	private IdmAttachmentDto prepareAttachment(String content) {
 		IdmAttachmentDto attachment = new IdmAttachmentDto();
@@ -705,5 +755,28 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		attachment.setInputData(IOUtils.toInputStream(content));
 		//
 		return attachment;
+	}
+	
+	public IdmRoleRequestDto createDeleteRoleRequest(IdmIdentityContractDto contract, List<IdmIdentityRoleDto> assignedRoles) {
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setApplicant(contract.getIdentity());
+		roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
+		roleRequest.setExecuteImmediately(true);
+		roleRequest = roleRequestService.save(roleRequest);
+		//
+		for (IdmIdentityRoleDto assignedRole : assignedRoles) {
+			
+			IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+			conceptRoleRequest.setRoleRequest(roleRequest.getId());
+			conceptRoleRequest.setIdentityContract(contract.getId());
+			conceptRoleRequest.setValidFrom(contract.getValidFrom());
+			conceptRoleRequest.setValidTill(contract.getValidTill());
+			conceptRoleRequest.setRole(assignedRole.getRole());
+			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
+			conceptRoleRequest.setIdentityRole(assignedRole.getId());
+			//
+			conceptRoleRequestService.save(conceptRoleRequest);
+		}
+		return roleRequest;
 	}
 }

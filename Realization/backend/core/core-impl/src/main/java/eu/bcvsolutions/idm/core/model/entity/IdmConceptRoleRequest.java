@@ -15,6 +15,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.joda.time.LocalDate;
@@ -53,6 +55,7 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	
 	@Audited
 	@ManyToOne(optional = true)
+	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "identity_contract_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
@@ -64,6 +67,7 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	
 	@Audited
 	@ManyToOne(optional = true)
+	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
@@ -71,6 +75,7 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	
 	@Audited
 	@ManyToOne(optional = true)
+	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "identity_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
@@ -78,6 +83,7 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	
 	@Audited
 	@ManyToOne(optional = true)
+	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "automatic_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )

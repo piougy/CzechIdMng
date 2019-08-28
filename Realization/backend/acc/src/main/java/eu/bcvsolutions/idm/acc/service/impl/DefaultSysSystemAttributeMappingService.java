@@ -761,8 +761,9 @@ public class DefaultSysSystemAttributeMappingService extends
 	}
 
 	@Override
-	public List<Serializable> recalculateAttributeControlledValues(UUID systemId, SystemEntityType entityType,
+	public synchronized List<Serializable> recalculateAttributeControlledValues(UUID systemId, SystemEntityType entityType,
 			String schemaAttributeName, SysSystemAttributeMappingDto attributeMapping) {
+		
 		// Computes values
 		List<Serializable> controlledAttributeValues = this.getControlledAttributeValues(systemId, entityType,
 				schemaAttributeName);

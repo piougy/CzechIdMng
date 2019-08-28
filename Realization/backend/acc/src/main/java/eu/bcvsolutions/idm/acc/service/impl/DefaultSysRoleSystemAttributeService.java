@@ -44,10 +44,8 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
-import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
-import eu.bcvsolutions.idm.acc.scheduler.task.impl.AttributeControlledValuesRecalculationTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
@@ -66,12 +64,10 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -86,7 +82,7 @@ public class DefaultSysRoleSystemAttributeService extends
 		AbstractReadWriteDtoService<SysRoleSystemAttributeDto, SysRoleSystemAttribute, SysRoleSystemAttributeFilter>
 		implements SysRoleSystemAttributeService {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(SysRoleSystemAttributeService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultSysRoleSystemAttributeService.class);
 
 	@Autowired
 	private GroovyScriptService groovyScriptService;
@@ -108,8 +104,6 @@ public class DefaultSysRoleSystemAttributeService extends
 	private RequestManager requestManager;
 	@Autowired
 	private SysAttributeControlledValueService attributeControlledValueService;
-	@Autowired
-	private LongRunningTaskManager longRunningTaskManager;
 
 	@Autowired
 	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
@@ -125,6 +119,8 @@ public class DefaultSysRoleSystemAttributeService extends
 		
 		// If is mapped attribute marks as evicted, then we will start LRT for recalculation controlled values
 		if (!systemAttributeMappingService.isNew(attributeMappingDto) && attributeMappingDto.isEvictControlledValuesCache() == true) {
+			// Since 9.7.5 is recalculation is disabled ... caused many problem because is async and is call redundantly when are attributes changed in some bulk operations (WF ...).
+			// Attribute is marks as evicted now only and will be recalculated during first provisioning.
 			recalculationOfControlledValues(attributeMappingDto);
 		}
 		
@@ -273,6 +269,9 @@ public class DefaultSysRoleSystemAttributeService extends
 			// If is mapped attribute marks as evicted, then we will start LRT for recalculation controlled values
 			if (!systemAttributeMappingService.isNew(systemAttributeMapping) && systemAttributeMapping.isEvictControlledValuesCache()) {
 				// Recalculate controlled values
+				
+				// Since 9.7.5 is recalculation is disabled ... caused many problem because is async and is call redundantly when are attributes changed in some bulk operations (WF ...).
+				// Attribute is marks as evicted now only and will be recalculated during first provisioning.
 				recalculationOfControlledValues(systemAttributeMapping);
 			}
 			return;
@@ -504,24 +503,27 @@ public class DefaultSysRoleSystemAttributeService extends
 	/**
 	 * Recalculation of controlled values (starts LRT AttributeControlledValuesRecalculationTaskExecutor)
 	 * 
+	 * Since 9.7.5 is recalculation is disabled ... caused many problem because is async and is call redundantly when are attributes changed in some bulk operations (WF ...).
+	 * Attribute is marks as evicted now only and will be recalculated during first provisioning.
+	 * 
 	 * @param attributeMappingDto
 	 */
 	private void recalculationOfControlledValues(SysSystemAttributeMappingDto attributeMappingDto) {
-		SysSystemMappingDto systemMappingDto = systemMappingService.get(attributeMappingDto.getSystemMapping());
-		SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMappingDto,
-				SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
-
-		// Init LRT
-		AttributeControlledValuesRecalculationTaskExecutor attributeControlledValueRecalculationTask = AutowireHelper
-				.createBean(AttributeControlledValuesRecalculationTaskExecutor.class);
-		attributeControlledValueRecalculationTask
-				.init(ImmutableMap.of(AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_SYSTEM_UUID,
-						objectClassDto.getSystem(), //
-						AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ENTITY_TYPE,
-						systemMappingDto.getEntityType(), //
-						AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ONLY_EVICTED, Boolean.TRUE //
-				)); //
-		// Execute recalculation LRT
-		longRunningTaskManager.executeSync(attributeControlledValueRecalculationTask);
+//		SysSystemMappingDto systemMappingDto = systemMappingService.get(attributeMappingDto.getSystemMapping());
+//		SysSchemaObjectClassDto objectClassDto = DtoUtils.getEmbedded(systemMappingDto,
+//				SysSystemMapping_.objectClass, SysSchemaObjectClassDto.class);
+//
+//		// Init LRT
+//		AttributeControlledValuesRecalculationTaskExecutor attributeControlledValueRecalculationTask = AutowireHelper
+//				.createBean(AttributeControlledValuesRecalculationTaskExecutor.class);
+//		attributeControlledValueRecalculationTask
+//				.init(ImmutableMap.of(AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_SYSTEM_UUID,
+//						objectClassDto.getSystem(), //
+//						AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ENTITY_TYPE,
+//						systemMappingDto.getEntityType(), //
+//						AttributeControlledValuesRecalculationTaskExecutor.PARAMETER_ONLY_EVICTED, Boolean.TRUE //
+//				)); //
+//		// Execute recalculation LRT
+//		longRunningTaskManager.execute(attributeControlledValueRecalculationTask);
 	}
 }

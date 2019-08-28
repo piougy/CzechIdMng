@@ -1,14 +1,15 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
@@ -21,7 +22,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysAttributeControlledValueFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.scheduler.task.impl.AttributeControlledValuesRecalculationTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysAttributeControlledValueService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
@@ -30,16 +30,14 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -72,7 +70,7 @@ public class DefaultSysRoleSystemAttributeServiceTest extends AbstractIntegratio
 	@Autowired
 	private SysAttributeControlledValueService attributeControlledValueService;
 	@Autowired
-	private IdmLongRunningTaskService longRunningTaskService;
+	private IdmIdentityService identityService;
 	
 
 	@Test
@@ -101,7 +99,6 @@ public class DefaultSysRoleSystemAttributeServiceTest extends AbstractIntegratio
 	public void testArchiveControledValuesAfterRoleIsDeleted() {
 		// prepare mapped attribute with controled value 
 		IdmRoleDto role = helper.createRole();
-		DateTime from = DateTime.now(); // preparation for LRT filter
 		SysSystemDto system = helper.createTestResourceSystem(true);
 		systemService.generateSchema(system);
 		//
@@ -151,10 +148,28 @@ public class DefaultSysRoleSystemAttributeServiceTest extends AbstractIntegratio
 		//
 		// assign role to identity
 		IdmIdentityDto identity = helper.createIdentity();
-		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
-		//
+		
+		attributeMapping = systemAttributeMappingService.get(attributeMapping.getId());
+		Assert.assertTrue(attributeMapping.isEvictControlledValuesCache());
+		
+		IdmRoleRequestDto request = helper.createRoleRequest(identity, role);
+		request = helper.executeRequest(request, false, true);
+		UUID identityRoleId = request.getConceptRoles().get(0).getIdentityRole();
+		
+		IdmIdentityRoleDto identityRole = identityRoleService.get(identityRoleId);
+		
 		List<AccAccountDto> accounts = accountService.getAccounts(system.getId(), identity.getId());
 		Assert.assertEquals(1, accounts.size());
+		// Account was created, provisioning was finished, but attribute was still not
+		// recalculated, because provisioning for create of account doesn't need a
+		// controlled values, so attribute is not recalculated now.
+		attributeMapping = systemAttributeMappingService.get(attributeMapping.getId());
+		Assert.assertTrue(attributeMapping.isEvictControlledValuesCache());
+		// Execute update provisioning -> executes recalculation of the attribute
+		identityService.save(identity);
+		
+		attributeMapping = systemAttributeMappingService.get(attributeMapping.getId());
+		Assert.assertFalse(attributeMapping.isEvictControlledValuesCache());
 		//
 		// find controlled values
 		SysAttributeControlledValueFilter valueFilter = new SysAttributeControlledValueFilter();
@@ -172,15 +187,6 @@ public class DefaultSysRoleSystemAttributeServiceTest extends AbstractIntegratio
 					((ResultCodeException) ex).getError().getError().getStatusEnum());
 		}
 		//
-		// check long running task is ended correctly
-		IdmLongRunningTaskFilter taskFilter = new IdmLongRunningTaskFilter();
-		taskFilter.setTaskType(AttributeControlledValuesRecalculationTaskExecutor.class.getCanonicalName());
-		taskFilter.setFrom(from);
-		//
-		List<IdmLongRunningTaskDto> executedTasks = longRunningTaskService.find(taskFilter, null).getContent();
-		int executedTasksSize = executedTasks.size();
-		Assert.assertFalse(executedTasks.isEmpty());
-		Assert.assertTrue(executedTasks.stream().allMatch(t -> t.getResultState() == OperationState.EXECUTED));
 		controlledValues = attributeControlledValueService.find(valueFilter, null).getContent();
 		Assert.assertEquals(1, controlledValues.size());
 		Assert.assertEquals(valueOne, controlledValues.get(0).getValue());
@@ -189,10 +195,14 @@ public class DefaultSysRoleSystemAttributeServiceTest extends AbstractIntegratio
 		// remove assigned role and remove role with controller values
 		identityRoleService.delete(identityRole);
 		roleService.delete(role);
-		//
-		executedTasks = longRunningTaskService.find(taskFilter, null).getContent();
-		Assert.assertTrue(executedTasksSize < executedTasks.size());
-		Assert.assertTrue(executedTasks.stream().allMatch(t -> t.getResultState() == OperationState.EXECUTED));
+		
+		attributeMapping = systemAttributeMappingService.get(attributeMapping.getId());
+		Assert.assertTrue(attributeMapping.isEvictControlledValuesCache());
+		// Manual recalculation of the attribute
+		systemAttributeMappingService.recalculateAttributeControlledValues(system.getId(), SystemEntityType.IDENTITY, attributeName, attributeMapping);
+		// Attribute must be recalculated now
+		attributeMapping = systemAttributeMappingService.get(attributeMapping.getId());
+		Assert.assertFalse(attributeMapping.isEvictControlledValuesCache());
 		//
 		controlledValues = attributeControlledValueService.find(valueFilter, null).getContent();
 		Assert.assertEquals(1, controlledValues.size());

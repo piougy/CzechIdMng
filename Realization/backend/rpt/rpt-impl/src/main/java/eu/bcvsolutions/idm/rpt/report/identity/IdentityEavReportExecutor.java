@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -62,8 +63,12 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 	public static final String PARAMETER_FORM_DEFINITION = "FORM-DEFINITION";
 	public static final String PARAMETER_FORM_ATTRIBUTE = "EAV";
 	//
-	@Autowired private IdmIdentityService identityService;
-	@Autowired private FormService formService;
+	@Autowired
+	private IdmIdentityService identityService;
+	@Autowired
+	private FormService formService;
+	@Autowired
+	private PrivateIdentityConfiguration identityConfiguration;
 
 	@Override
 	protected IdmAttachmentDto generateData(RptReportDto report) {
@@ -88,24 +93,27 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 						formInstance.toSinglePersistentValue(IdmIdentityFilter.PARAMETER_DISABLED);
 				String disabled = disabledSerializable != null ? disabledSerializable.toString() : null;
 
-				UUID definitionUUID = UUID.fromString(formInstance.toSinglePersistentValue(PARAMETER_FORM_DEFINITION).toString());
+				UUID definitionUUID =
+						UUID.fromString(formInstance.toSinglePersistentValue(PARAMETER_FORM_DEFINITION).toString());
 				IdmFormDefinitionDto definition = formService.getDefinition(definitionUUID);
 				//
-				if (!definition.getType().equals(IdmIdentity.class.getName())){
+				if (!definition.getType().equals(IdmIdentity.class.getName())) {
 					throw new ResultCodeException(RptResultCode.REPORT_WRONG_DEFINITION,
 							ImmutableMap.of(
-									"firstType", definition.getType(), 
+									"firstType", definition.getType(),
 									"secondType", IdmIdentity.class.getName())
-							);
+					);
 				}
 				//
 				String eavCode = (String) formInstance.toMultiValueMap().getFirst(PARAMETER_FORM_ATTRIBUTE);
 				if (eavCode == null) {
-					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code", "null"));
+					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code",
+							"null"));
 				}
 				IdmFormAttributeDto formAttribute = definition.getMappedAttributeByCode(eavCode);
 				if (formAttribute == null) {
-					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code", eavCode));
+					throw new ResultCodeException(RptResultCode.REPORT_NO_FORM_ATTRIBUTE, ImmutableMap.of("code",
+							eavCode));
 				}
 				//				
 				IdmIdentityFilter identityFilter = new IdmIdentityFilter();
@@ -114,7 +122,7 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 				}
 				// find a first page of identities
 				Pageable pageable = new PageRequest(0, 100, new Sort(Direction.ASC, IdmIdentity_.username.getName()));
-				
+
 				do {
 					Page<IdmIdentityDto> identities =
 							identityService.find(identityFilter, pageable, IdmBasePermission.READ);
@@ -123,10 +131,10 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 						// report extends long running task - show progress by count and counter lrt attributes
 						count = identities.getTotalElements();
 					}
-					
+
 					//
 					boolean canContinue = true;
-					for (Iterator<IdmIdentityDto> i = identities.iterator(); i.hasNext() && canContinue;) {
+					for (Iterator<IdmIdentityDto> i = identities.iterator(); i.hasNext() && canContinue; ) {
 						writeValues(i.next(), formAttribute, eavValue, jGenerator);
 						canContinue = updateState();
 						if (!canContinue) {
@@ -151,9 +159,10 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 		}
 	}
 
-	private boolean writeValues(IdmIdentityDto identity, IdmFormAttributeDto formAttribute, String eavValue, JsonGenerator jGenerator) throws IOException {
+	private boolean writeValues(IdmIdentityDto identity, IdmFormAttributeDto formAttribute, String eavValue,
+								JsonGenerator jGenerator) throws IOException {
 		boolean ret = true;
-		List<IdmFormValueDto> formValues = formService.getValues(identity, formAttribute); // FIXME: IdmBasePermission.READ should be added?
+		List<IdmFormValueDto> formValues = formService.getValues(identity, formAttribute, identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.READ : null);
 		//
 		if (formValues.isEmpty()) {
 			count--;

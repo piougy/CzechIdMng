@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -32,28 +33,40 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
+import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.dto.RptIdentityWithFormValueDto;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Report test
- * 
+ *
  * @author Marek Klement
  * @author Radek Tomiška
  */
 @Transactional
 public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private IdentityEavReportExecutor reportExecutor;
-	@Autowired private IdentityEavReportXlsxRenderer xlsxRenderer;
-	@Autowired private IdmIdentityService identityService;
-	@Autowired private AttachmentManager attachmentManager;
-	@Autowired private LoginService loginService;
-	@Autowired private FormService formService;
+	@Autowired
+	private IdentityEavReportExecutor reportExecutor;
+	@Autowired
+	private PrivateIdentityConfiguration identityConfiguration;
+	@Autowired
+	private IdentityEavReportXlsxRenderer xlsxRenderer;
+	@Autowired
+	private IdmIdentityService identityService;
+	@Autowired
+	private AttachmentManager attachmentManager;
+	@Autowired
+	private LoginService loginService;
+	@Autowired
+	private FormService formService;
 	@Qualifier("objectMapper")
 	@Autowired
 	private ObjectMapper mapper;
@@ -116,10 +129,11 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		// generate report
 		report = reportExecutor.generate(report);
 		Assert.assertNotNull(report.getData());
-		
+
 		List<RptIdentityWithFormValueDto> identities = mapper.readValue(
-				attachmentManager.getAttachmentData(report.getData()), 
-				new TypeReference<List<RptIdentityWithFormValueDto>>(){});
+				attachmentManager.getAttachmentData(report.getData()),
+				new TypeReference<List<RptIdentityWithFormValueDto>>() {
+				});
 		//
 		// test
 		assertEquals(1, identities.size());
@@ -129,7 +143,7 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		//
 		attachmentManager.deleteAttachments(report);
 	}
-	
+
 	@Test
 	public void testReportWithValueSpecified() throws IOException {
 		// prepare test identities
@@ -173,10 +187,11 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		// generate report
 		report = reportExecutor.generate(report);
 		Assert.assertNotNull(report.getData());
-		
+
 		List<RptIdentityWithFormValueDto> identities = mapper.readValue(
-				attachmentManager.getAttachmentData(report.getData()), 
-				new TypeReference<List<RptIdentityWithFormValueDto>>(){});
+				attachmentManager.getAttachmentData(report.getData()),
+				new TypeReference<List<RptIdentityWithFormValueDto>>() {
+				});
 		//
 		// test
 		assertEquals(1, identities.size());
@@ -185,8 +200,115 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		Assert.assertNotNull(xlsxRenderer.render(report));
 		//
 		attachmentManager.deleteAttachments(report);
+
+
 	}
-	
+
+	@Test
+	public void testAuthorizationPolicies() throws IOException {
+		getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, true);
+		try {
+			Assert.assertTrue(identityConfiguration.isFormAttributesSecured());
+			//
+			GuardedString pwdOne = new GuardedString("check");
+			GuardedString pwdTwo = new GuardedString("check2");
+			// prepare test identities
+			IdmIdentityDto identityOne = getHelper().createIdentity(pwdOne);
+			IdmIdentityDto identityTwo = getHelper().createIdentity(pwdTwo);
+			//
+			// assign role with no policy
+			IdmRoleDto role = getHelper().createRole();
+			getHelper().createIdentityRole(identityOne, role);
+
+			// assign role with read policy
+			IdmRoleDto roleRead = getHelper().createRole();
+			getHelper().createAuthorizationPolicy(
+					roleRead.getId(),
+					CoreGroupPermission.IDENTITY,
+					IdmIdentity.class,
+					BasePermissionEvaluator.class,
+					IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
+			getHelper().createIdentityRole(identityTwo, roleRead);
+
+			//
+			// prepare report filter
+			RptReportDto report = new RptReportDto(UUID.randomUUID());
+			report.setExecutorName(reportExecutor.getName());
+			IdmFormDto filter = new IdmFormDto();
+			IdmFormDefinitionDto definition = reportExecutor.getFormDefinition();
+			//
+			IdmFormValueDto disabled =
+					new IdmFormValueDto(definition.getMappedAttributeByCode(IdmIdentityFilter.PARAMETER_DISABLED));
+			disabled.setValue(false);
+			//
+			IdmFormValueDto formDefinitionAttribute =
+					new IdmFormValueDto(definition.getMappedAttributeByCode(IdentityEavReportExecutor.PARAMETER_FORM_DEFINITION));
+			IdmFormDefinitionDto definitionAttribute = formService.getDefinition(IdmIdentityDto.class);
+			formDefinitionAttribute.setValue(definitionAttribute.getId());
+			//
+			IdmFormValueDto eavName =
+					new IdmFormValueDto(definition.getMappedAttributeByCode(IdentityEavReportExecutor.PARAMETER_FORM_ATTRIBUTE));
+			String code = getHelper().createName();
+			createFormAttribute(code, definitionAttribute.getId());
+			eavName.setValue(code);
+			// add all attributes
+			filter.getValues().add(disabled);
+			filter.getValues().add(formDefinitionAttribute);
+			filter.getValues().add(eavName);
+			filter.setFormDefinition(definition.getId());
+			report.setFilter(filter);
+			// set eav to identity
+			List<String> values = new ArrayList<>();
+			String testValue = getHelper().createName();
+			values.add(testValue);
+			//
+			formService.saveValues(
+					identityOne,
+					definitionAttribute,
+					code,
+					Lists.newArrayList(values));
+
+			loginService.logout();
+			loginService.login(new LoginDto(identityOne.getUsername(), pwdOne));
+
+			// generate report
+			report = reportExecutor.generate(report);
+
+			Assert.assertNotNull(report.getData());
+
+			List<RptIdentityWithFormValueDto> identities = mapper.readValue(
+					attachmentManager.getAttachmentData(report.getData()),
+					new TypeReference<List<RptIdentityWithFormValueDto>>() {
+					});
+			//
+			// test
+			assertEquals(0, identities.size());
+
+			loginService.logout();
+			loginService.login(new LoginDto(identityTwo.getUsername(), pwdTwo));
+
+			getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED,
+					false);
+			Assert.assertFalse(identityConfiguration.isFormAttributesSecured());
+
+			report = reportExecutor.generate(report);
+
+			Assert.assertNotNull(report.getData());
+
+			List<RptIdentityWithFormValueDto> identitiesAgain = mapper.readValue(
+					attachmentManager.getAttachmentData(report.getData()),
+					new TypeReference<List<RptIdentityWithFormValueDto>>() {
+					});
+			//
+			// test
+			assertEquals(1, identitiesAgain.size());
+			attachmentManager.deleteAttachments(report);
+		} finally {
+			loginService.logout();
+		}
+
+	}
+
 	@Test(expected = ResultCodeException.class)
 	public void testWrongAttribute() throws IOException {
 		// prepare report filter
@@ -210,7 +332,7 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		// generate report
 		reportExecutor.generate(report);
 	}
-	
+
 	@Test(expected = ResultCodeException.class)
 	public void testEmptyAttribute() throws IOException {
 		// prepare report filter
@@ -230,7 +352,7 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 		// generate report
 		reportExecutor.generate(report);
 	}
-	
+
 	@Test(expected = ResultCodeException.class)
 	public void testWrongDefinition() throws IOException {
 		// prepare report filter

@@ -393,7 +393,9 @@ class SelectBox extends AbstractFormComponent {
   }
 
   focus() {
-    this.refs.selectComponent.focus();
+    if (this.refs.selectComponent) {
+      this.refs.selectComponent.focus();
+    }
   }
 
   itemRenderer(item, input) {

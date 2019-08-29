@@ -780,9 +780,9 @@
       "CONCEPT": "Koncept",
       "EXECUTED": "Provedeno",
       "CANCELED": "Zrušeno",
-      "APPROVED": "Zpracovává se",
+      "APPROVED": "Schváleno",
       "DISAPPROVED": "Zamítnuto",
-      "IN_PROGRESS": "Schvalování",
+      "IN_PROGRESS": "Zpracovává se",
       "EXCEPTION": "Chyba",
       "DUPLICATED": "Duplicitní"
     },

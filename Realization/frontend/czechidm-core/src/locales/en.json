@@ -749,9 +749,9 @@
       "CONCEPT": "Concept",
       "EXECUTED": "Executed",
       "CANCELED": "Canceled",
-      "APPROVED": "In progress",
+      "APPROVED": "Approved",
       "DISAPPROVED": "Disapproved",
-      "IN_PROGRESS": "Approving",
+      "IN_PROGRESS": "In progress",
       "EXCEPTION": "Exception",
       "DUPLICATED": "Duplicated"
     },

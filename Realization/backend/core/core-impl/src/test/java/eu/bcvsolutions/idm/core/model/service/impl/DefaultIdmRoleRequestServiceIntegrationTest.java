@@ -740,12 +740,12 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		//
 		IdmRoleRequestDto executedRequestOne = roleRequestService.get(requestOne, new IdmRoleRequestFilter(true));
 		IdmRoleRequestDto executedRequestTwo = roleRequestService.get(requestTwo, new IdmRoleRequestFilter(true));
-		// one of request ends with exception, but can be read => referential integrity is ok
+		// Both of requests ends with exception, but can be read => referential integrity is ok
 		Assert.assertTrue(executedRequestOne.getState().isTerminatedState());
 		Assert.assertTrue(executedRequestTwo.getState().isTerminatedState());
 		//
 		assignedRoles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
-		Assert.assertTrue(assignedRoles.isEmpty());
+		Assert.assertEquals(10, assignedRoles.size());
 	}
 
 	private IdmAttachmentDto prepareAttachment(String content) {

@@ -2092,6 +2092,10 @@
         "createRequest":{
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost o změnu rolí. Spustí případné schvalovací procesy."
+        },
+        "saveConcept":{
+          "label": "Uložit koncept",
+          "tooltip": "Uloží koncept žádosti. Žádost nebude podána."
         }
       },
       "confirm-incompatible-role": {
@@ -2210,6 +2214,10 @@
         "createRequest":{
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost. Spustí případné schvalovací procesy."
+        },
+        "saveConcept":{
+          "label": "Uložit koncept",
+          "tooltip": "Uloží koncept žádosti. Žádost nebude podána."
         },
         "previewDetailByRequest":{
           "label": "Zobrazit náhled",

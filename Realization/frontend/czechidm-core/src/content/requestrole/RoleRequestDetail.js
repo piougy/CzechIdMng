@@ -434,11 +434,12 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 onClick={this.save.bind(this, false)}
                 disabled={!isEditable}
                 rendered={ request && roleRequestManager.canSave(request, _permissions)}
-                level="success"
+                level="default"
                 type="submit"
                 showLoading={ showLoading || _incompatibleRolesLoading }
+                title={this.i18n('button.saveConcept.tooltip')}
                 style={{ marginRight: 3 }}>
-                {this.i18n('button.save')}
+                {this.i18n('button.saveConcept.label')}
               </Basic.Button>
               <Basic.Button
                 level="success"

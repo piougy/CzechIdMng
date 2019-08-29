@@ -2043,6 +2043,10 @@
         "createRequest":{
           "label": "Submit a request",
           "tooltip": "Start request for change assigned roles."
+        },
+        "saveConcept":{
+          "label": "Save concept",
+          "tooltip": "Save the concept of this request. Request will be not started."
         }
       },
       "confirm-incompatible-role": {
@@ -2162,6 +2166,10 @@
          "createRequest":{
            "label": "Submit a request",
            "tooltip": "Start request"
+         },
+         "saveConcept":{
+           "label": "Save concept",
+           "tooltip": "Save the concept of this request. Request will be not started."
          },
          "previewDetailByRequest":{
            "label": "Show preview",

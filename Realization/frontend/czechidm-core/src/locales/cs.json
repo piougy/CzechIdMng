@@ -916,7 +916,15 @@
     },
     "DateFaceEnum": {
       "TODAY": "Dnes",
+      "YESTERDAY": "Včera",
+      "THIS_WEEK": "Tento týden",
       "THIS_MONTH": "Tento měsíc",
+      "LAST_WEEK": "Minulý týden",
+      "LAST_TWO_WEEKS": "Poslední 2 týdny",
+      "LAST_SEVEN_DAYS": "Posledních 7 dní",
+      "LAST_MONTH": "Minulý měsíc",
+      "LAST_THIRTY_DAYS": "Posledních 30 dní",
+      "THIS_YEAR": "Tento rok",
       "BETWEEN": "Mezi"
     }
   },

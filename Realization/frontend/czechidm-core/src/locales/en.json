@@ -885,7 +885,15 @@
     },
     "DateFaceEnum": {
       "TODAY": "Today",
+      "YESTERDAY": "Yesterday",
+      "THIS_WEEK": "This week",
       "THIS_MONTH": "This month",
+      "LAST_WEEK": "Last week",
+      "LAST_TWO_WEEKS": "Last 2 weeks",
+      "LAST_SEVEN_DAYS": "Last 7 days",
+      "LAST_MONTH": "Last month",
+      "LAST_THIRTY_DAYS": "Last 30 days",
+      "THIS_YEAR": "This year",
       "BETWEEN": "Between"
     }
   },

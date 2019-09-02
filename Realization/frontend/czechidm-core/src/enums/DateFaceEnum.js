@@ -21,5 +21,13 @@ export default class DateFaceEnum extends AbstractEnum {
 }
 
 DateFaceEnum.TODAY = Symbol('today');
+DateFaceEnum.YESTERDAY = Symbol('yesterday');
+DateFaceEnum.THIS_WEEK = Symbol('thisWeek');
+DateFaceEnum.LAST_WEEK = Symbol('lastWeek');
+DateFaceEnum.LAST_TWO_WEEKS = Symbol('lastTwoWeeks');
+DateFaceEnum.LAST_SEVEN_DAYS = Symbol('lastSevenDays');
 DateFaceEnum.THIS_MONTH = Symbol('thisMonth');
+DateFaceEnum.LAST_MONTH = Symbol('lastMonth');
+DateFaceEnum.LAST_THIRTY_DAYS = Symbol('lastThirtyDays');
+DateFaceEnum.THIS_YEAR = Symbol('thisYear');
 DateFaceEnum.BETWEEN = Symbol('between');

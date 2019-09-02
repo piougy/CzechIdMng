@@ -80,9 +80,49 @@ export default class FilterDate extends Basic.AbstractFormComponent {
         resultValue[tillProperty] = this._getValue(mode, moment().endOf('day'));
         break;
       }
+      case DateFaceEnum.findKeyBySymbol(DateFaceEnum.YESTERDAY): {
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('day').subtract(1, 'days'));
+        resultValue[tillProperty] = this._getValue(mode, moment().endOf('day').subtract(1, 'days'));
+        break;
+      }
+      case DateFaceEnum.findKeyBySymbol(DateFaceEnum.THIS_WEEK): {
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('week'));
+        resultValue[tillProperty] = this._getValue(mode, moment().endOf('week'));
+        break;
+      }
+      case DateFaceEnum.findKeyBySymbol(DateFaceEnum.LAST_WEEK): {
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('week').subtract(1, 'weeks'));
+        resultValue[tillProperty] = this._getValue(mode, moment().endOf('week').subtract(1, 'weeks'));
+        break;
+      }
+      case DateFaceEnum.findKeyBySymbol(DateFaceEnum.LAST_TWO_WEEKS): {
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('day').subtract(2, 'weeks'));
+        resultValue[tillProperty] = this._getValue(mode, moment().endOf('day'));
+        break;
+      }
+      case DateFaceEnum.findKeyBySymbol(DateFaceEnum.LAST_SEVEN_DAYS): {
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('day').subtract(1, 'weeks'));
+        resultValue[tillProperty] = this._getValue(mode, moment().endOf('day'));
+        break;
+      }
       case DateFaceEnum.findKeyBySymbol(DateFaceEnum.THIS_MONTH): {
         resultValue[fromProperty] = this._getValue(mode, moment().startOf('month'));
         resultValue[tillProperty] = this._getValue(mode, moment().endOf('month'));
+        break;
+      }
+      case DateFaceEnum.findKeyBySymbol(DateFaceEnum.LAST_MONTH): {
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('month').subtract(1, 'months'));
+        resultValue[tillProperty] = this._getValue(mode, moment().endOf('month').subtract(1, 'months'));
+        break;
+      }
+      case DateFaceEnum.findKeyBySymbol(DateFaceEnum.LAST_THIRTY_DAYS): {
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('day').subtract(1, 'months'));
+        resultValue[tillProperty] = this._getValue(mode, moment().endOf('day'));
+        break;
+      }
+      case DateFaceEnum.findKeyBySymbol(DateFaceEnum.THIS_YEAR): {
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('year').subtract(1, 'years'));
+        resultValue[tillProperty] = this._getValue(mode, moment().endOf('year').subtract(1, 'years'));
         break;
       }
       case DateFaceEnum.findKeyBySymbol(DateFaceEnum.BETWEEN): {

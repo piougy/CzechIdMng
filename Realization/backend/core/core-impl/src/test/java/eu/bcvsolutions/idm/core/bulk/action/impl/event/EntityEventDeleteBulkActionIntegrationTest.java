@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,9 +19,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
-import eu.bcvsolutions.idm.core.bulk.action.impl.event.EntityEventDeleteBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent;
-import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
  * Delete entity events from queue integration test

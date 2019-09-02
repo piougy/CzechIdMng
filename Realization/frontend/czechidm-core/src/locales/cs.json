@@ -3286,7 +3286,24 @@
       "identities": {
         "username": "Uživatelské jméno",
         "modifier": "Upravil",
-        "identityId": "Id identity"
+        "identityId": "Id identity",
+        "entityType": "Typ entity"
+      }
+    },
+    "entityStates": {
+      "header": "Správa událostí",
+      "title": "Správa událostí",
+      "label": "$t(content.entityStates.title)",
+      "filter": {
+        "text": {
+          "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity či události (like)"
+        },
+        "ownerType": {
+          "placeholder": "$t(entity.EntityState.ownerType.label)"
+        },
+        "ownerId": {
+          "placeholder": "$t(entity.EntityState.ownerId.label) (uuid)"
+        }
       }
     },
     "entityEvents": {
@@ -4915,6 +4932,11 @@
       "core-entity-event-delete-bulk-action": {
         "label": "Odebrat",
         "help": "Odstraní vybrané události.",
+        "icon": "fa:trash"
+      },
+      "core-entity-state-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané stavy.",
         "icon": "fa:trash"
       },
       "core-code-list-delete-bulk-action": {

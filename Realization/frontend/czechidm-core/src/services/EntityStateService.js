@@ -12,6 +12,10 @@ export default class EntityStateService extends AbstractService {
     return '/entity-states';
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';

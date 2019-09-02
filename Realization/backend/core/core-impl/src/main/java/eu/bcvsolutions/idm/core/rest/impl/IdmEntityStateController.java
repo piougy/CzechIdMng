@@ -1,18 +1,24 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -29,6 +35,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import io.swagger.annotations.Api;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 /**
  * Entity states
@@ -95,9 +108,86 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
 						ImmutableMap.of("entityClass", filter.getOwnerType(), "identifier", ownerId));
 			}
 		} else {
-			filter.setOwnerId(getParameterConverter().toUuid(parameters, "ownerId"));
+			try {
+				UUID uuid = getParameterConverter().toUuid(parameters, "ownerId");
+				filter.setOwnerId(uuid);
+			} catch (IllegalArgumentException e) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, "UUID [%s] is not valid",
+						ImmutableMap.of("uuid", parameters.getFirst("ownerId")));
+			}
 		}
 		filter.setEventId(getParameterConverter().toUuid(parameters, "eventId"));
 		return filter;
 	}
+
+    /**
+     * Get available bulk actions for entity state
+     *
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
+    @PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
+    @ApiOperation(
+            value = "Get available bulk actions",
+            nickname = "availableBulkAction",
+            tags = {IdmEntityStateController.TAG},
+            authorizations = {
+                    @Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+                            @AuthorizationScope(scope = IdmGroupPermission.APP_ADMIN, description = "")}),
+                    @Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+                            @AuthorizationScope(scope = IdmGroupPermission.APP_ADMIN, description = "")})
+            })
+    public List<IdmBulkActionDto> getAvailableBulkActions() {
+        return super.getAvailableBulkActions();
+    }
+
+    /**
+     * Process bulk action for entity state
+     *
+     * @param bulkAction
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
+    @ApiOperation(
+            value = "Process bulk action for entity state",
+            nickname = "bulkAction",
+            response = IdmBulkActionDto.class,
+            tags = {IdmEntityStateController.TAG},
+            authorizations = {
+                    @Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+                            @AuthorizationScope(scope = IdmGroupPermission.APP_ADMIN, description = "")}),
+                    @Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+                            @AuthorizationScope(scope = IdmGroupPermission.APP_ADMIN, description = "")})
+            })
+    public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+        return super.bulkAction(bulkAction);
+    }
+
+    /**
+     * Prevalidate bulk action for entity state
+     *
+     * @param bulkAction
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
+    @ApiOperation(
+            value = "Prevalidate bulk action for entity state",
+            nickname = "prevalidateBulkAction",
+            response = IdmBulkActionDto.class,
+            tags = {IdmEntityStateController.TAG},
+            authorizations = {
+                    @Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+                            @AuthorizationScope(scope = IdmGroupPermission.APP_ADMIN, description = "")}),
+                    @Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+                            @AuthorizationScope(scope = IdmGroupPermission.APP_ADMIN, description = "")})
+            })
+    public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+        return super.prevalidateBulkAction(bulkAction);
+    }
+
 }

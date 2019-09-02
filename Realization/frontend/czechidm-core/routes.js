@@ -908,7 +908,12 @@ module.exports = {
           path: 'identity-password-change',
           component: require('./src/content/audit/identity/AuditIdentityPasswordChangeContent'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
-        }
+        },
+        {
+          path: 'entity-states',
+          component: require('./src/content/audit/event/EntityStates'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ', 'APP_ADMIN'] } ]
+        },
       ]
     },
     {

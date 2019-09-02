@@ -784,6 +784,15 @@ module.exports = {
                     authorities: ['AUDIT_READ']
                   }
                 ]
+              },
+              {
+                id: 'entity-states',
+                labelKey: 'content.entityStates.header',
+                order: 56,
+                icon: '',
+                type: 'TAB',
+                path: '/audit/entity-states',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
               }
             ]
           },

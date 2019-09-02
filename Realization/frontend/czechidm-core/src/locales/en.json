@@ -3235,7 +3235,24 @@
       "identities": {
         "username": "Login",
         "modifier": "Modifier",
-        "identityId": "Identity Id"
+        "identityId": "Identity Id",
+        "entityType": "Entity type"
+      }
+    },
+    "entityStates": {
+      "header": "Entity states",
+      "title": "Entity states",
+      "label": "$t(content.entityStates.title)",
+      "filter": {
+        "text": {
+          "placeholder": "$t(entity.EntityState.ownerType.label) / Entity or event identifier (like)"
+        },
+        "ownerType": {
+          "placeholder": "$t(entity.EntityState.ownerType.label)"
+        },
+        "ownerId": {
+          "placeholder": "$t(entity.EntityState.ownerId.label) (uuid)"
+        }
       }
     },
     "entityEvents": {
@@ -4865,6 +4882,11 @@
       "core-entity-event-delete-bulk-action": {
         "label": "Remove",
         "help": "Remove selected events.",
+        "icon": "fa:trash"
+      },
+      "core-entity-state-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected states.",
         "icon": "fa:trash"
       },
       "core-code-list-delete-bulk-action": {

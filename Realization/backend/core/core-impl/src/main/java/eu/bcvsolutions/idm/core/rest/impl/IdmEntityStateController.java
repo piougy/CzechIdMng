@@ -111,9 +111,8 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
 			try {
 				UUID uuid = getParameterConverter().toUuid(parameters, "ownerId");
 				filter.setOwnerId(uuid);
-			} catch (IllegalArgumentException e) {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, "UUID [%s] is not valid",
-						ImmutableMap.of("uuid", parameters.getFirst("ownerId")));
+			} catch (ClassCastException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
 			}
 		}
 		filter.setEventId(getParameterConverter().toUuid(parameters, "eventId"));

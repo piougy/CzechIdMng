@@ -3291,12 +3291,12 @@
       }
     },
     "entityStates": {
-      "header": "Správa událostí",
-      "title": "Správa událostí",
+      "header": "Stavy entit",
+      "title": "Stavy entit",
       "label": "$t(content.entityStates.title)",
       "filter": {
         "text": {
-          "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity či události (like)"
+          "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity (like)"
         },
         "ownerType": {
           "placeholder": "$t(entity.EntityState.ownerType.label)"
@@ -4515,13 +4515,14 @@
         "label": "Typ entity"
       },
       "ownerId": {
-        "label": "Identifikátor entity"
+        "label": "Entita"
       },
       "result": {
         "label": "Výsledek"
       },
       "event": {
-        "label": "Event"
+        "label": "Událost",
+        "title": "Identifikátor události"
       },
       "instanceId": {
         "label": "$t(entity.LongRunningTask.instanceId.label)",

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -23,7 +24,7 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
       filterOpened: props.filterOpened,
       detail: {
         show: false,
-        entity: null
+        entity: {}
       }
     };
   }
@@ -93,9 +94,9 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
                       tillProperty="createdTill"
                       ref="createdTill"/>
                   </Basic.Col>
-                  <div className="col-lg-4 text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  <Basic.Col lg={ 4 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
+                  </Basic.Col>
                 </Basic.Row>
                 <Basic.Row rendered={ _.includes(columns, 'ownerType') }>
                   <Basic.Col lg={ 4 }>
@@ -178,7 +179,8 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
                     entityIdentifier={ data[rowIndex][property] }
                     entity={ data[rowIndex]._embedded[property] }
                     face="popover"
-                    showEntityType={ false }/>
+                    showEntityType={ false }
+                    showIcon/>
                 );
               }
             }/>
@@ -208,12 +210,9 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
             property="event"
             rendered={_.includes(columns, 'event')}
             cell={
-              ({rowIndex, data, property}) =>
-                // TODO: info card?
-                (
-                  <Advanced.UuidInfo value={ data[rowIndex][property] }/>
-                )
-
+              ({rowIndex, data, property}) => (
+                <Advanced.UuidInfo value={ data[rowIndex][property] }/>
+              )
             }/>
         </Advanced.Table>
 
@@ -269,7 +268,7 @@ EntityStateTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : null
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }
 

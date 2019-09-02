@@ -22,12 +22,14 @@ class EntityStates extends Basic.AbstractContent {
   render() {
     return (
       <div>
-        <EntityStateTable
-          uiKey="entity-states"
-          filterOpened
-          showFilter
-          show
-          showRowSelection={SecurityManager.hasAuthority('APP_ADMIN')}/>
+        {this.renderPageHeader()}
+
+        <Basic.Panel>
+          <EntityStateTable
+            uiKey="entity-states-table"
+            filterOpened
+            showRowSelection/>
+        </Basic.Panel>
       </div>
     );
   }

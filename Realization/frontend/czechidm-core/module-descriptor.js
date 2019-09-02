@@ -784,15 +784,6 @@ module.exports = {
                     authorities: ['AUDIT_READ']
                   }
                 ]
-              },
-              {
-                id: 'entity-states',
-                labelKey: 'content.entityStates.header',
-                order: 56,
-                icon: '',
-                type: 'TAB',
-                path: '/audit/entity-states',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
               }
             ]
           },
@@ -823,6 +814,14 @@ module.exports = {
                 authorities: ['APP_ADMIN']
               }
             ]
+          },
+          {
+            id: 'entity-states',
+            labelKey: 'content.entityStates.label',
+            titleKey: 'content.entityStates.title',
+            order: 150,
+            path: '/audit/entity-states',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
           },
           {
             id: 'audit-notification',

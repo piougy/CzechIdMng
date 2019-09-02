@@ -3245,7 +3245,7 @@
       "label": "$t(content.entityStates.title)",
       "filter": {
         "text": {
-          "placeholder": "$t(entity.EntityState.ownerType.label) / Entity or event identifier (like)"
+          "placeholder": "$t(entity.EntityState.ownerType.label) / Entity identifier (like)"
         },
         "ownerType": {
           "placeholder": "$t(entity.EntityState.ownerType.label)"
@@ -4465,13 +4465,14 @@
         "label": "Entity type"
       },
       "ownerId": {
-        "label": "Entity identifier"
+        "label": "Entity"
       },
       "result": {
         "label": "Result"
       },
       "event": {
-        "label": "Event"
+        "label": "Event",
+        "title": "Event identifier"
       },
       "instanceId": {
         "label": "$t(entity.LongRunningTask.instanceId.label)",

@@ -5870,7 +5870,7 @@
     },
     "FILTER_IMPLEMENTATION_NOT_FOUND": {
       "title": "Filter nebyl nalezen",
-      "message": "Filter [{{filter}}] pro atribut [{{property}}] nebyl nalezen. Opravte konfigurační atribut [{{repairProperty}}]."
+      "message": "Filter [{{implementation}}] pro atribut [{{propertyName}}] nebyl nalezen. Opravte konfigurační atribut [{{configurationProperty}}]."
     },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Definici formuláře nelze aktualizovat",

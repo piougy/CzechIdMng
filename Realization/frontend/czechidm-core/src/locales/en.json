@@ -5820,7 +5820,7 @@
     },
     "FILTER_IMPLEMENTATION_NOT_FOUND": {
       "title": "Filter not found",
-      "message": "Filter [{{filter}}] for attribute [{{property}}] not found. Fix configuration property [{{repairProperty}}]."
+      "message": "Filter [{{implementation}}] for attribute [{{propertyName}}] not found. Fix configuration property [{{configurationProperty}}]."
     },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Can not update form definition",

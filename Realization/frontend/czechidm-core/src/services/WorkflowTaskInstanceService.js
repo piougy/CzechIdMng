@@ -35,7 +35,7 @@ class WorkflowTaskInstanceService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('taskName');
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('taskCreated', 'desc');
   }
 }
 

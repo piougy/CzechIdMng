@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../components/basic';
+import * as Domain from '../../domain';
 import { WorkflowTaskInstanceManager } from '../../redux';
 import TaskInstanceTable from './TaskInstanceTable';
 
@@ -31,7 +32,7 @@ class TaskInstancesView extends Basic.AbstractContent {
   }
 
   render() {
-    const searchParameters = this.workflowTaskInstanceManager.getDefaultSearchParameters();
+    const searchParameters = new Domain.SearchParameters();
     return (
       <div>
         <Helmet title={this.i18n('title')} />

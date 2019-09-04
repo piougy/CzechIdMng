@@ -18,11 +18,12 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 @SuppressWarnings("deprecation")
 public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTaskInstanceDto, WorkflowFilterDto> {
 
-	public static final String WORKFLOW_DECISION = "decision";
-	public static final String FORM_PROPERTY_TOOLTIP_KEY = "tooltip";
-	public static final String FORM_PROPERTY_PLACEHOLDER_KEY = "placeholder";
-	public static final String WORKFLOW_DECISION_APPROVE = "approve";
-	public static final String WORKFLOW_DECISION_DISAPPROVE = "disapprove";
+	String WORKFLOW_DECISION = "decision";
+	String FORM_PROPERTY_TOOLTIP_KEY = "tooltip";
+	String FORM_PROPERTY_PLACEHOLDER_KEY = "placeholder";
+	String WORKFLOW_DECISION_APPROVE = "approve";
+	String WORKFLOW_DECISION_DISAPPROVE = "disapprove";
+	String SORT_BY_TASK_CREATED = "taskCreated";
 
 	/**
 	 * Complete task

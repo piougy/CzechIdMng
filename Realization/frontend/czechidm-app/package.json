@@ -112,7 +112,8 @@
     "stringify": "5.1.0",
     "uuid": "2.0.1",
     "vinyl-fs": "3.0.2",
-    "zxcvbn": "4.4.1"
+    "zxcvbn": "4.4.1",
+    "sha1": "1.1.1"
   },
   "devDependencies": {
     "JSONPath": "0.11.2",

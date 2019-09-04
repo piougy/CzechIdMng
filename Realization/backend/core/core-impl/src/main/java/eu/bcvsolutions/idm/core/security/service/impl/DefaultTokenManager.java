@@ -12,6 +12,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
@@ -86,7 +88,8 @@ public class DefaultTokenManager implements TokenManager {
 			throw new ResultCodeException(CoreResultCode.TOKEN_NOT_FOUND);
 		}
 		if (token.isDisabled()) {
-			throw new ResultCodeException(CoreResultCode.AUTHORITIES_CHANGED);
+			// FE need to check if this exception is for actual logged user (has same hash of token). Token must be included in the exception!
+			throw new ResultCodeException(CoreResultCode.AUTHORITIES_CHANGED, ImmutableMap.of("token", token.getToken()));
 		}
 		if (token.getExpiration() != null && token.getExpiration().isBefore(DateTime.now())) {
 			throw new ResultCodeException(CoreResultCode.AUTH_EXPIRED);

@@ -1,11 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import { routeActions } from 'react-router-redux';
-// import moment from 'moment';
-// api
+import sha1 from 'sha1';
 import { LocalizationService, AuthenticateService } from '../../services';
-// import SecurityManager from '../Security/SecurityManager';
-// import SettingManager from '../data/SettingManager';
 
 /*
  * action types
@@ -245,6 +242,21 @@ export default class FlashMessagesManager {
           , this.getServerUnavailableTimeout());
       // TODO: module defined exception handlers
       } else if (this._isLoginError(error)) {
+
+        // If authorities changed exception occurred, but token in the exception is
+        // different then tokne in userContext, then we donť want make a logout (user
+        // could be different (logout/login)). From same reason we will not show exception (maybe is current user different).
+        if (error.statusEnum === 'AUTHORITIES_CHANGED') {
+          if (error.parameters && error.parameters.token) {
+            const currentToken = AuthenticateService.getTokenCIDMST();
+            // Make SHA1 hash from token
+            const currentTokenHash = sha1(currentToken);
+            const tokenFromErrorHash = error.parameters.token;
+            if (tokenFromErrorHash !== currentTokenHash) {
+              return;
+            }
+          }
+        }
         this._logoutImmediatelly(); // we dont want to propagate LOGOUT dispatch event ... we want propagate new event:
         dispatch({
           type: 'RECEIVE_LOGIN_EXPIRED'
@@ -282,6 +294,7 @@ export default class FlashMessagesManager {
     if (!error.statusEnum) {
       return false;
     }
+
     if (error.statusEnum === 'XSRF'
         || error.statusEnum === 'LOG_IN'
         || error.statusEnum === 'AUTH_EXPIRED'

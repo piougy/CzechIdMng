@@ -37,9 +37,6 @@ let stompClient = null;
  */
 export default class SecurityManager {
 
-  constructor() {
-  }
-
   /**
    * If authentication token's expiration time has been extended or modified,
    * it is stored in AuthenticateService#lastToken. The method checks if

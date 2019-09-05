@@ -318,7 +318,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               hidden={ !showRequestDetail }
               ref="form"
               data={requestForForm}
-              showLoading={showLoading}
+              showLoading={showLoading && showRequestDetail }
               style={{ padding: '15px 15px 0 15px', display: (showRequestDetail ? null : 'none') }}>
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
@@ -385,6 +385,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               </Basic.ContentHeader>
               <RequestIdentityRoleTable
                 request={request}
+                showLoading={showLoading}
                 showEnvironment={showEnvironment}
                 incompatibleRoles={ _incompatibleRoles }
                 readOnly={!isEditable || !roleRequestManager.canSave(request, _permissions) || !canExecute}
@@ -398,10 +399,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <Basic.AbstractForm
                 readOnly
                 ref="formLog"
-                data={request}
-                showLoading={showLoading}>
+                data={request}>
                 <Basic.ScriptArea
                   ref="log"
+                  showLoading={showLoading}
                   hidden={!_adminMode}
                   mode="sqlserver"
                   height="15em"
@@ -411,10 +412,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <Basic.AbstractForm
                 readOnly
                 ref="formSystemStateLog"
-                data={{systemStateLog}}
-                showLoading={showLoading}>
+                data={{systemStateLog}}>
                 <Basic.ScriptArea
                   ref="systemStateLog"
+                  showLoading={showLoading}
                   hidden={!_adminMode || !systemStateLog}
                   mode="sqlserver"
                   height="15em"

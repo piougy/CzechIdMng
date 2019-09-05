@@ -59,8 +59,6 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
             {this._getApplicantAndRequester(task)}
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
-        </Basic.Panel>
-        <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>
             {this._getFormDataComponents(task)}
           </Basic.AbstractForm>

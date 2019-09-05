@@ -432,6 +432,11 @@ export default class EntityManager {
         if (cb) {
           cb(permissions);
         }
+      })
+      .catch(error => {
+        if (cb) {
+          cb(null, error);
+        }
       });
     };
   }

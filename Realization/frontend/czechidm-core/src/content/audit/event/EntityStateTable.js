@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -23,13 +24,13 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
       filterOpened: props.filterOpened,
       detail: {
         show: false,
-        entity: null
+        entity: {}
       }
     };
   }
 
   getContentKey() {
-    return 'content.entityEvents';
+    return 'content.entityStates';
   }
 
   getManager() {
@@ -65,7 +66,8 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
       rendered,
       showFilter,
       showToolbar,
-      className
+      className,
+      showRowSelection
     } = this.props;
     const { filterOpened, detail } = this.state;
     //
@@ -85,21 +87,16 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className={ _.includes(columns, 'ownerType') ? '' : 'last' }>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.DateTimePicker
+                  <Basic.Col lg={ 8 }>
+                    <Advanced.Filter.FilterDate
                       mode="datetime"
-                      ref="createdFrom"
-                      placeholder={this.i18n('filter.dateFrom.placeholder')}/>
+                      fromProperty="createdFrom"
+                      tillProperty="createdTill"
+                      ref="createdTill"/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.DateTimePicker
-                      mode="datetime"
-                      ref="createdTill"
-                      placeholder={this.i18n('filter.dateTill.placeholder')}/>
+                  <Basic.Col lg={ 4 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
-                  <div className="col-lg-4 text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
                 </Basic.Row>
                 <Basic.Row rendered={ _.includes(columns, 'ownerType') }>
                   <Basic.Col lg={ 4 }>
@@ -107,10 +104,6 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
                       ref="text"
                       placeholder={ this.i18n('filter.text.placeholder') }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 8 }>
-                  </Basic.Col>
-                </Basic.Row>
-                <Basic.Row className="last" rendered={ _.includes(columns, 'ownerType') }>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="ownerType"
@@ -121,8 +114,6 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
                       ref="ownerId"
                       placeholder={ this.i18n('filter.ownerId.placeholder') }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
@@ -132,20 +123,19 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
           forceSearchParameters={_forceSearchParameters}
           _searchParameters={ this.getSearchParameters() }
           showToolbar={ showToolbar }
-          className={ className }>
+          className={ className }
+          showRowSelection={ showRowSelection }>
           <Advanced.Column
             property=""
             header=""
             rendered={ false }
             className="detail-button"
             cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Advanced.DetailButton
-                    title={this.i18n('button.detail')}
-                    onClick={() => this.showDetail(data[rowIndex])}/>
-                );
-              }
+              ({rowIndex, data}) => (
+                <Advanced.DetailButton
+                  title={this.i18n('button.detail')}
+                  onClick={() => this.showDetail(data[rowIndex])}/>
+              )
             }/>
           <Advanced.Column
             property="result"
@@ -165,14 +155,12 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
             rendered={_.includes(columns, 'ownerType')}
             width={ 200 }
             cell={
-              ({ rowIndex, data, property }) => {
-                return (
-                  <span title={data[rowIndex][property]}>
-                    { Utils.Ui.getSimpleJavaType(data[rowIndex][property]) }
-                  </span>
-                );
-              }}
-            />
+              ({rowIndex, data, property}) => (
+                <span title={data[rowIndex][property]}>
+                  { Utils.Ui.getSimpleJavaType(data[rowIndex][property]) }
+                </span>
+              )}
+          />
           <Advanced.Column
             property="ownerId"
             rendered={_.includes(columns, 'ownerId')}
@@ -191,7 +179,8 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
                     entityIdentifier={ data[rowIndex][property] }
                     entity={ data[rowIndex]._embedded[property] }
                     face="popover"
-                    showEntityType={ false }/>
+                    showEntityType={ false }
+                    showIcon/>
                 );
               }
             }/>
@@ -221,12 +210,9 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
             property="event"
             rendered={_.includes(columns, 'event')}
             cell={
-              ({ rowIndex, data, property }) => {
-                // TODO: info card?
-                return (
-                  <Advanced.UuidInfo value={ data[rowIndex][property] }/>
-                );
-              }
+              ({rowIndex, data, property}) => (
+                <Advanced.UuidInfo value={ data[rowIndex][property] }/>
+              )
             }/>
         </Advanced.Table>
 
@@ -282,7 +268,7 @@ EntityStateTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : null
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }
 

@@ -32,6 +32,10 @@ export default class RestApiService {
   }
 
   static processHeaders(response) {
+    // Only tokens from success responses will be set to userContext
+    if (response.status >= 400) {
+      return response;
+    }
     AuthenticateService.setTokenCIDMST(response.headers.get('CIDMST'));
     return response;
   }

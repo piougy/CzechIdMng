@@ -780,9 +780,9 @@
       "CONCEPT": "Koncept",
       "EXECUTED": "Provedeno",
       "CANCELED": "Zrušeno",
-      "APPROVED": "Zpracovává se",
+      "APPROVED": "Schváleno",
       "DISAPPROVED": "Zamítnuto",
-      "IN_PROGRESS": "Schvalování",
+      "IN_PROGRESS": "Zpracovává se",
       "EXCEPTION": "Chyba",
       "DUPLICATED": "Duplicitní"
     },
@@ -916,7 +916,15 @@
     },
     "DateFaceEnum": {
       "TODAY": "Dnes",
+      "YESTERDAY": "Včera",
+      "THIS_WEEK": "Tento týden",
       "THIS_MONTH": "Tento měsíc",
+      "LAST_WEEK": "Minulý týden",
+      "LAST_TWO_WEEKS": "Poslední 2 týdny",
+      "LAST_SEVEN_DAYS": "Posledních 7 dní",
+      "LAST_MONTH": "Minulý měsíc",
+      "LAST_THIRTY_DAYS": "Posledních 30 dní",
+      "THIS_YEAR": "Tento rok",
       "BETWEEN": "Mezi"
     }
   },
@@ -2092,6 +2100,10 @@
         "createRequest":{
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost o změnu rolí. Spustí případné schvalovací procesy."
+        },
+        "saveConcept":{
+          "label": "Uložit koncept",
+          "tooltip": "Uloží koncept žádosti. Žádost nebude podána."
         }
       },
       "confirm-incompatible-role": {
@@ -2210,6 +2222,10 @@
         "createRequest":{
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost. Spustí případné schvalovací procesy."
+        },
+        "saveConcept":{
+          "label": "Uložit koncept",
+          "tooltip": "Uloží koncept žádosti. Žádost nebude podána."
         },
         "previewDetailByRequest":{
           "label": "Zobrazit náhled",
@@ -3278,7 +3294,24 @@
       "identities": {
         "username": "Uživatelské jméno",
         "modifier": "Upravil",
-        "identityId": "Id identity"
+        "identityId": "Id identity",
+        "entityType": "Typ entity"
+      }
+    },
+    "entityStates": {
+      "header": "Stavy entit",
+      "title": "Stavy entit",
+      "label": "$t(content.entityStates.title)",
+      "filter": {
+        "text": {
+          "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity (like)"
+        },
+        "ownerType": {
+          "placeholder": "$t(entity.EntityState.ownerType.label)"
+        },
+        "ownerId": {
+          "placeholder": "$t(entity.EntityState.ownerId.label) (uuid)"
+        }
       }
     },
     "entityEvents": {
@@ -4490,13 +4523,14 @@
         "label": "Typ entity"
       },
       "ownerId": {
-        "label": "Identifikátor entity"
+        "label": "Entita"
       },
       "result": {
         "label": "Výsledek"
       },
       "event": {
-        "label": "Event"
+        "label": "Událost",
+        "title": "Identifikátor události"
       },
       "instanceId": {
         "label": "$t(entity.LongRunningTask.instanceId.label)",
@@ -4907,6 +4941,11 @@
       "core-entity-event-delete-bulk-action": {
         "label": "Odebrat",
         "help": "Odstraní vybrané události.",
+        "icon": "fa:trash"
+      },
+      "core-entity-state-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané stavy.",
         "icon": "fa:trash"
       },
       "core-code-list-delete-bulk-action": {
@@ -5839,7 +5878,7 @@
     },
     "FILTER_IMPLEMENTATION_NOT_FOUND": {
       "title": "Filter nebyl nalezen",
-      "message": "Filter [{{filter}}] pro atribut [{{property}}] nebyl nalezen. Opravte konfigurační atribut [{{repairProperty}}]."
+      "message": "Filter [{{implementation}}] pro atribut [{{propertyName}}] nebyl nalezen. Opravte konfigurační atribut [{{configurationProperty}}]."
     },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Definici formuláře nelze aktualizovat",

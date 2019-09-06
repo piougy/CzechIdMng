@@ -749,9 +749,9 @@
       "CONCEPT": "Concept",
       "EXECUTED": "Executed",
       "CANCELED": "Canceled",
-      "APPROVED": "In progress",
+      "APPROVED": "Approved",
       "DISAPPROVED": "Disapproved",
-      "IN_PROGRESS": "Approving",
+      "IN_PROGRESS": "In progress",
       "EXCEPTION": "Exception",
       "DUPLICATED": "Duplicated"
     },
@@ -885,7 +885,15 @@
     },
     "DateFaceEnum": {
       "TODAY": "Today",
+      "YESTERDAY": "Yesterday",
+      "THIS_WEEK": "This week",
       "THIS_MONTH": "This month",
+      "LAST_WEEK": "Last week",
+      "LAST_TWO_WEEKS": "Last 2 weeks",
+      "LAST_SEVEN_DAYS": "Last 7 days",
+      "LAST_MONTH": "Last month",
+      "LAST_THIRTY_DAYS": "Last 30 days",
+      "THIS_YEAR": "This year",
       "BETWEEN": "Between"
     }
   },
@@ -2043,6 +2051,10 @@
         "createRequest":{
           "label": "Submit a request",
           "tooltip": "Start request for change assigned roles."
+        },
+        "saveConcept":{
+          "label": "Save concept",
+          "tooltip": "Save the concept of this request. Request will be not started."
         }
       },
       "confirm-incompatible-role": {
@@ -2162,6 +2174,10 @@
          "createRequest":{
            "label": "Submit a request",
            "tooltip": "Start request"
+         },
+         "saveConcept":{
+           "label": "Save concept",
+           "tooltip": "Save the concept of this request. Request will be not started."
          },
          "previewDetailByRequest":{
            "label": "Show preview",
@@ -3227,7 +3243,24 @@
       "identities": {
         "username": "Login",
         "modifier": "Modifier",
-        "identityId": "Identity Id"
+        "identityId": "Identity Id",
+        "entityType": "Entity type"
+      }
+    },
+    "entityStates": {
+      "header": "Entity states",
+      "title": "Entity states",
+      "label": "$t(content.entityStates.title)",
+      "filter": {
+        "text": {
+          "placeholder": "$t(entity.EntityState.ownerType.label) / Entity identifier (like)"
+        },
+        "ownerType": {
+          "placeholder": "$t(entity.EntityState.ownerType.label)"
+        },
+        "ownerId": {
+          "placeholder": "$t(entity.EntityState.ownerId.label) (uuid)"
+        }
       }
     },
     "entityEvents": {
@@ -4440,13 +4473,14 @@
         "label": "Entity type"
       },
       "ownerId": {
-        "label": "Entity identifier"
+        "label": "Entity"
       },
       "result": {
         "label": "Result"
       },
       "event": {
-        "label": "Event"
+        "label": "Event",
+        "title": "Event identifier"
       },
       "instanceId": {
         "label": "$t(entity.LongRunningTask.instanceId.label)",
@@ -4857,6 +4891,11 @@
       "core-entity-event-delete-bulk-action": {
         "label": "Remove",
         "help": "Remove selected events.",
+        "icon": "fa:trash"
+      },
+      "core-entity-state-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected states.",
         "icon": "fa:trash"
       },
       "core-code-list-delete-bulk-action": {
@@ -5789,7 +5828,7 @@
     },
     "FILTER_IMPLEMENTATION_NOT_FOUND": {
       "title": "Filter not found",
-      "message": "Filter [{{filter}}] for attribute [{{property}}] not found. Fix configuration property [{{repairProperty}}]."
+      "message": "Filter [{{implementation}}] for attribute [{{propertyName}}] not found. Fix configuration property [{{configurationProperty}}]."
     },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Can not update form definition",

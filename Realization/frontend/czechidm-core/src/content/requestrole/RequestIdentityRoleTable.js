@@ -459,7 +459,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       request,
       identityId,
       showRowSelection,
-      showEnvironment
+      showEnvironment,
     } = this.props;
     const {
       showChangesOnly,
@@ -503,6 +503,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                 <Basic.Button
                   level="success"
                   className="btn-xs"
+                  showLoading={showLoading}
                   disabled={readOnly}
                   onClick={this._addConcept.bind(this)}
                   icon="fa:plus"
@@ -510,6 +511,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                 <Basic.Button
                   level="success"
                   className="btn-xs"
+                  showLoading={showLoading}
                   disabled={ readOnly }
                   onClick={ this._showRoleByIdentitySelect.bind(this) }
                   icon="fa:plus"
@@ -523,6 +525,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
             uiKey="request-identity-role-table"
             hover={ false }
             manager={requestIdentityRoleManager}
+            showLoading={showLoading}
             showRowSelection={ showRowSelection ? this._showRowSelection.bind(this) : false}
             actions={
               [{

@@ -816,6 +816,14 @@ module.exports = {
             ]
           },
           {
+            id: 'entity-states',
+            labelKey: 'content.entityStates.label',
+            titleKey: 'content.entityStates.title',
+            order: 150,
+            path: '/audit/entity-states',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
+          },
+          {
             id: 'audit-notification',
             labelKey: 'navigation.menu.notifications.label',
             titleKey: 'navigation.menu.notifications.title',

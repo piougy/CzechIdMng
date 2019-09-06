@@ -24,10 +24,6 @@ const requestManager = new RequestManager();
  */
 class RequestDetail extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return requestItemManager;
   }
@@ -65,10 +61,9 @@ class RequestDetail extends Advanced.AbstractTableContent {
    */
   _initComponent(props) {
     const { entityId} = props;
-    const _entityId = entityId ? entityId : props.params.entityId;
+    const _entityId = entityId || props.params.entityId;
     if (!this._getIsNew(props)) {
       this.context.store.dispatch(requestManager.fetchEntity(_entityId));
-      this._reloadRequestItems({id: _entityId});
     }
   }
 
@@ -90,12 +85,10 @@ class RequestDetail extends Advanced.AbstractTableContent {
       this.context.store.dispatch(requestManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
       }));
+    } else if (startRequest) {
+      this.context.store.dispatch(requestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
     } else {
-      if (startRequest) {
-        this.context.store.dispatch(requestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
-      } else {
-        this.context.store.dispatch(requestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
-      }
+      this.context.store.dispatch(requestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
     }
   }
 
@@ -145,15 +138,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
     return false;
   }
 
-  _reloadRequestItems(_request) {
-    let forceSearchParameters = requestItemManager.getDefaultSearchParameters();
-    if (_request.id) {
-      forceSearchParameters = forceSearchParameters.setFilter('requestId', _request.id);
-    } else {
-      forceSearchParameters = forceSearchParameters.setFilter('requestId', SearchParameters.BLANK_UUID);
-    }
-  }
-
   _startRequest(idRequest, event) {
     if (event) {
       event.preventDefault();
@@ -180,7 +164,6 @@ class RequestDetail extends Advanced.AbstractTableContent {
       this.addError(ex);
       this._initComponent(this.props);
     });
-    return;
   }
 
   _renderRequestItemsTable(request, forceSearchParameters, rendered, showLoading, isEditable) {
@@ -220,7 +203,9 @@ class RequestDetail extends Advanced.AbstractTableContent {
             (!request.result.code)
             ||
             <span style={{ marginLeft: 15 }}>
-              {this.i18n('content.scheduler.all-tasks.detail.resultCode')}: { request.result.code }
+              {this.i18n('content.scheduler.all-tasks.detail.resultCode')}
+              :
+              { request.result.code }
             </span>
           }
           <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(request.result.model)} style={{ marginTop: 15 }}/>
@@ -245,12 +230,12 @@ class RequestDetail extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-        <Basic.LabelWrapper
-          readOnly
-          ref="candidates"
-          label={this.i18n('entity.Request.candicateUsers')}>
-            <Advanced.IdentitiesInfo identities={entity.candicateUsers} maxEntry={5} />
-        </Basic.LabelWrapper>
+      <Basic.LabelWrapper
+        readOnly
+        ref="candidates"
+        label={this.i18n('entity.Request.candicateUsers')}>
+        <Advanced.IdentitiesInfo identities={entity.candicateUsers} maxEntry={5} />
+      </Basic.LabelWrapper>
     );
   }
 
@@ -273,14 +258,14 @@ class RequestDetail extends Advanced.AbstractTableContent {
     return (
       <div>
         <Basic.LabelWrapper
-          rendered={(request && request.ownerId) ? true : false}
+          rendered={!!((request && request.ownerId))}
           readOnly
           ref="entity"
           label={this.i18n('entity.Request.entity')}>
           {this._renderEntityInfo(request, entityType)}
         </Basic.LabelWrapper>
         <Basic.LabelWrapper
-          rendered={(request && request.creatorId) ? true : false}
+          rendered={!!((request && request.creatorId))}
           readOnly
           ref="implementer"
           label={this.i18n('entity.Request.implementer')}>
@@ -310,7 +295,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
   /**
    * Create value (highlights changes) cell for attributes table
    */
-  _getWishValueCell( old = false, showChanges = true, { rowIndex, data}) {
+  _getWishValueCell(old = false, showChanges = true, { rowIndex, data}) {
     const entity = data[rowIndex];
     if (!entity || (!entity.value && !entity.values)) {
       return '';
@@ -357,8 +342,8 @@ class RequestDetail extends Advanced.AbstractTableContent {
       editableInStates,
       showRequestDetail,
       _permissions,
-    additionalButtons,
-    simpleMode} = this.props;
+      additionalButtons,
+      simpleMode} = this.props;
     //
     const forceSearchParameters = new SearchParameters().setFilter('requestId', _request ? _request.id : SearchParameters.BLANK_UUID);
     const request = _request;
@@ -367,20 +352,18 @@ class RequestDetail extends Advanced.AbstractTableContent {
     const showLoading = !request || _showLoading || this.state.showLoading || this.props.showLoading;
     const isEditable = request && _.includes(editableInStates, request.state);
 
-    let requestType = request ? request.requestType : null;
-    requestType = this.state.requestType ? this.state.requestType : requestType;
-
     if (this.state.showLoading || !request) {
-      return (<div>
-        <Basic.ContentHeader rendered={showRequestDetail}>
-          <Basic.Icon value="compressed"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.ContentHeader>
-        <Basic.PanelBody>
-          <Basic.Loading show isStatic style={{marginTop: '300px', marginBottom: '300px'}} />
-        </Basic.PanelBody>
-      </div>);
+      return (
+        <div>
+          <Basic.ContentHeader rendered={showRequestDetail}>
+            <Basic.Icon value="compressed"/>
+            {' '}
+            <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          </Basic.ContentHeader>
+          <Basic.PanelBody>
+            <Basic.Loading show isStatic style={{marginTop: '300px', marginBottom: '300px'}} />
+          </Basic.PanelBody>
+        </div>);
     }
 
     let isDeleteRequest = false;
@@ -442,7 +425,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
               <Basic.AbstractForm
                 readOnly
                 ref="form-wf"
-                rendered={!simpleMode && request.wfProcessId ? true : false}
+                rendered={!!(!simpleMode && request.wfProcessId)}
                 data={request}
                 showLoading={showLoading}>
                 <Basic.LabelWrapper
@@ -472,7 +455,9 @@ class RequestDetail extends Advanced.AbstractTableContent {
               }
             </div>
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link"
+              <Basic.Button
+                type="button"
+                level="link"
                 onClick={this._goBack.bind(this)}
                 showLoading={showLoading}>
                 {this.i18n('button.back')}
@@ -489,17 +474,18 @@ class RequestDetail extends Advanced.AbstractTableContent {
                 {' '}
                 { this.i18n('button.previewDetailByRequest.label') }
               </Basic.Button>
-                {' '}
+              {' '}
               <Basic.Button
                 onClick={this.save.bind(this, this, false, true)}
                 disabled={!isEditable}
                 rendered={_adminMode}
-                level="success"
+                level="default"
                 type="submit"
+                title={this.i18n('button.saveConcept.tooltip')}
                 showLoading={showLoading}>
-                {this.i18n('button.save')}
+                {this.i18n('button.saveConcept.label')}
               </Basic.Button>
-                {' '}
+              {' '}
               <Basic.Button
                 level="success"
                 disabled={!isEditable}
@@ -515,7 +501,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
                 { this.i18n('button.createRequest.label') }
               </Basic.Button>
               {additionalButtons ? ' ' : ''}
-              {additionalButtons ? additionalButtons : ''}
+              {additionalButtons || ''}
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
@@ -548,7 +534,7 @@ function select(state, component) {
   }
   return {
     _request: entity,
-    _showLoading: entity ? false : true,
+    _showLoading: !entity,
     _permissions: requestManager.getPermissions(state, null, entity)
   };
 }

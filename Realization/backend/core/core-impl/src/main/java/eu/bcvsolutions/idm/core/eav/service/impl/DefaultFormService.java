@@ -66,6 +66,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmForm;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
@@ -1127,6 +1128,11 @@ public class DefaultFormService implements FormService {
 	@SuppressWarnings({ "unchecked" })
 	public <O extends FormableEntity> FormValueService<O> getFormValueService(Class<? extends Identifiable> ownerType) {
 		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
+		if (formValueService == null) {
+			// common form
+			formValueService = (FormValueService<O>) formValueServices.getPluginFor(IdmForm.class);
+		}
+		//
 		if (formValueService == null) {
 			throw new IllegalStateException(MessageFormat.format(
 					"FormValueService for class [{0}] not found, please check configuration", ownerType));

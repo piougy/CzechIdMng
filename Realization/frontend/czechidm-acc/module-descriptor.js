@@ -205,7 +205,7 @@ module.exports = {
         parentId: 'audit',
         labelKey: 'acc:content.provisioningOperations.label',
         titleKey: 'acc:content.provisioningOperations.title',
-        order: 100,
+        order: 200,
         path: '/provisioning',
         access: [
           {

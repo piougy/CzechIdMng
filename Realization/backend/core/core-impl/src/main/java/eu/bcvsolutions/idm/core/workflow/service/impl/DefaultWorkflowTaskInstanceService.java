@@ -462,6 +462,21 @@ public class DefaultWorkflowTaskInstanceService extends
 			Assert.notNull(dto);
 			query.taskCandidateOrAssigned(String.valueOf(dto.getId()));
 		}
+		
+		if (pageable != null && pageable.getSort() != null) {
+			pageable.getSort().forEach(order -> {
+				if (SORT_BY_TASK_CREATED.equals(order.getProperty())) {
+					// Sort by key
+					query.orderByTaskCreateTime();
+					if (order.isAscending()) {
+						query.asc();
+					} else {
+						query.desc();
+					}
+				}
+			});
+
+		}
 
 		query.orderByTaskCreateTime();
 		query.desc();

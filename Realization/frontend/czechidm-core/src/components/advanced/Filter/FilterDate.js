@@ -121,8 +121,8 @@ export default class FilterDate extends Basic.AbstractFormComponent {
         break;
       }
       case DateFaceEnum.findKeyBySymbol(DateFaceEnum.THIS_YEAR): {
-        resultValue[fromProperty] = this._getValue(mode, moment().startOf('year').subtract(1, 'years'));
-        resultValue[tillProperty] = this._getValue(mode, moment().endOf('year').subtract(1, 'years'));
+        resultValue[fromProperty] = this._getValue(mode, moment().startOf('year'));
+        resultValue[tillProperty] = this._getValue(mode, moment().endOf('day'));
         break;
       }
       case DateFaceEnum.findKeyBySymbol(DateFaceEnum.BETWEEN): {

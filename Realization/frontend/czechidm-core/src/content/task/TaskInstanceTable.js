@@ -11,8 +11,6 @@ import * as Domain from '../../domain';
 * Table of tasks
 * Without given props search parameter show this table only tasks for logged identity.
 *
-* FIXME: remember filled filter (generalize AbstractTableContent ... exception now)
-*
 * @author Vít Švanda
 */
 export class TaskInstanceTable extends Advanced.AbstractTableContent {
@@ -128,13 +126,11 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
           header=""
           className="detail-button"
           cell={
-            ({ rowIndex, data }) => {
-              return (
-                <Advanced.DetailButton
-                  title={this.i18n('button.detail')}
-                  onClick={this.showDetail.bind(this, data[rowIndex])}/>
-              );
-            }
+            ({ rowIndex, data }) => (
+              <Advanced.DetailButton
+                title={this.i18n('button.detail')}
+                onClick={this.showDetail.bind(this, data[rowIndex])}/>
+            )
           }
           sort={false}/>
         <Advanced.Column
@@ -143,9 +139,19 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
           cell={this._getWfTaskCell}
           sort={false}
           rendered={_.includes(columns, 'description')}/>
-        <Advanced.Column property="taskCreated" sort face="datetime" rendered={_.includes(columns, 'created')}/>
-        <Advanced.Column property="taskAssignee" sort={false} face="text" rendered={_.includes(columns, 'taskAssignee')}
-          cell={({rowIndex, data}) => {
+        <Advanced.Column
+          property="taskCreated"
+          sort
+          face="datetime"
+          rendered={ _.includes(columns, 'created') }
+          width={ 150 }/>
+        <Advanced.Column
+          property="taskAssignee"
+          sort={ false }
+          face="text"
+          rendered={ _.includes(columns, 'taskAssignee') }
+          width={ 175 }
+          cell={ ({rowIndex, data}) => {
             const identityIds = [];
             for (const index in data[rowIndex].identityLinks) {
               if (data[rowIndex].identityLinks.hasOwnProperty(index)) {
@@ -155,8 +161,7 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
             return (
               <Advanced.IdentitiesInfo identities={identityIds} maxEntry={5} />
             );
-          }
-          }/>
+          }}/>
       </Advanced.Table>
     );
   }

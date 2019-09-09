@@ -163,7 +163,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 	}
 	
 	@Scheduled(fixedDelay = 7200000) // Every two hours
-	private void clearUnUseSubscribers() {
+	public void clearUnUseSubscribers() {
 		LOG.info("Start scheduled clearUnUseSubscribers ...");
 		this.clearUnUseSubscribers(null);
 	}

@@ -269,12 +269,14 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       return;
     }
     const formEntity = this.refs.triggerForm.getData();
+    // Whats inside formEntity
 
     if (formEntity.type === 'REPEAT') {
       const repeat = this.refs.repeat;
       const trigger = repeat.resolveIntervalToCron();
       formEntity.type = 'CRON';
       formEntity.cron = trigger;
+      formEntity.executeDate = repeat.getExecuteDateTime();
     }
 
     this.context.store.dispatch(this.getManager().createTrigger(formEntity, () => {

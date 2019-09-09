@@ -15,6 +15,7 @@ public class CronTaskTrigger extends AbstractTaskTrigger {
 	
 	@NotNull
 	private String cron;
+	private String executeDate;
 	
 	public CronTaskTrigger() {
 	}
@@ -25,9 +26,10 @@ public class CronTaskTrigger extends AbstractTaskTrigger {
 	 * @param trigger trigger
 	 * @param state state
 	 */
-	public CronTaskTrigger(String taskId, CronTrigger trigger, TaskTriggerState state) {
+	public CronTaskTrigger(String taskId, CronTrigger trigger, TaskTriggerState state, String executeDate) {
 		super(taskId, trigger, state);
 		
+		this.executeDate = executeDate;
 		cron = trigger.getCronExpression();
 	}
 	
@@ -37,5 +39,13 @@ public class CronTaskTrigger extends AbstractTaskTrigger {
 	
 	public void setCron(String cron) {
 		this.cron = cron;
+	}
+
+	public String getExecuteDate() {
+		return executeDate;
+	}
+
+	public void setExecuteDate(String executeDate) {
+		this.executeDate = executeDate;
 	}
 }

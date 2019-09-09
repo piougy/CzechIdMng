@@ -2,6 +2,9 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.UUID;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -49,10 +53,20 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		securityService.setSystemAuthentication();
 		//
 		// scheduled task is quartz reference to IdM entity
-		IdmScheduledTaskDto taskDto = getScheduledTask(context);
+		IdmScheduledTaskDto taskDto = getScheduledTask(context);  
 		//
 		// add task to queue only - quartz will start take care of the rest
-		createIdmLongRunningTask(context, taskDto);
+		String executionDate = context.getMergedJobDataMap().getString(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE);
+		if (executionDate == null) {
+			createIdmLongRunningTask(context, taskDto);
+		} else {
+			DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+			DateTime transferedDate = formatter.parseDateTime(executionDate);
+			// Is it safe to ask about now and count with delay after task execution?		
+			if (DateTime.now().isAfter(transferedDate)) {
+				createIdmLongRunningTask(context, taskDto);
+			}
+		}
 	}
 	
 	@Override

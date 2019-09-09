@@ -1,5 +1,7 @@
 // variables
 @margin-right: 10px;
+@margin-bottom: 16px;
+
 // mixins
 .flex-vertical-center {
   display: flex;
@@ -11,16 +13,17 @@
   flex-wrap: wrap;
   font-size: 14px;
   margin-top: 20px;
-  margin-bottom: 16px;
+  margin-bottom: @margin-bottom;
 }
 // month or week
 .secondary-group {
   .flex-vertical-center();
-  margin-bottom: 16px;
+  margin-bottom: @margin-bottom;
 }
 .text-group {
   .flex-vertical-center();
   height: 36px;
+  margin-bottom: @margin-bottom;
 }
 // boxes
 .interval-select {
@@ -44,6 +47,11 @@
 .time-select {
   margin-right: @margin-right;
   width: 70px;
+}
+.date-select {
+  margin-right: @margin-right;
+  width: 200px;
+  margin-bottom: 0;
 }
 .warning-icon {
   color: #eb9316;

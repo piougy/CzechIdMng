@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,10 +21,15 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
+import eu.bcvsolutions.idm.acc.entity.SysSyncLog_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.repository.SysSyncLogRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -33,8 +43,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 public class DefaultSysSyncLogService
 		extends AbstractReadWriteDtoService<SysSyncLogDto, SysSyncLog, SysSyncLogFilter>
 		implements SysSyncLogService {
-
-	private final SysSyncLogRepository repository;
+	
 	private final SysSyncActionLogService syncActionLogService;
 	
 	@Autowired
@@ -47,16 +56,7 @@ public class DefaultSysSyncLogService
 		Assert.notNull(syncActionLogService);
 		Assert.notNull(modelMapper);
 		//
-		this.repository = repository;
 		this.syncActionLogService = syncActionLogService;
-	}
-	
-	@Override
-	protected Page<SysSyncLog> findEntities(SysSyncLogFilter filter, Pageable pageable, BasePermission... permission) {
-		if (filter == null) {
-			return repository.findAll(pageable);
-		}
-		return repository.find(filter, pageable);
 	}
 	
 	@Override
@@ -92,6 +92,41 @@ public class DefaultSysSyncLogService
 		});
 		//
 		super.delete(syncLog);
+	}
+
+	@Override
+	protected List<Predicate> toPredicates(Root<SysSyncLog> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+			SysSyncLogFilter filter) {
+		
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+		
+		// Sync-configuration ID
+		UUID syncConfigId = filter.getSynchronizationConfigId();
+		if (syncConfigId != null) {
+			predicates.add(builder.equal(root.get(SysSyncLog_.synchronizationConfig).get(AbstractEntity_.id), syncConfigId));
+		}
+		
+		// Sync running
+		Boolean running = filter.getRunning();
+		if (running != null) {
+			predicates.add(builder.equal(root.get(SysSyncLog_.running), running));
+		}
+		
+		// System ID
+		UUID systemId = filter.getSystemId();
+		if (systemId != null) {
+			predicates.add(builder.equal(root.get(SysSyncLog_.synchronizationConfig) //
+					.get(SysSyncConfig_.systemMapping) //
+					.get(SysSystemMapping_.objectClass) //
+					.get(SysSchemaObjectClass_.system) //
+					.get(AbstractEntity_.id), systemId));
+		}
+		
+		if (filter.getModifiedFrom() != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncLog_.modified), filter.getModifiedFrom()));
+		}
+		
+		return predicates;
 	}
 
 	/**

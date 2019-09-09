@@ -18,7 +18,11 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {configs: []};
+    this.state = {
+      configs: [],
+      checkRunningSyncInprogress: false
+    };
+    this.canCheckRunningSync = false;
   }
 
   getManager() {
@@ -35,6 +39,65 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
 
   getNavigationKey() {
     return 'system-synchronization-configs';
+  }
+
+  componentWillReceiveProps(props) {
+    this._initComponent(props);
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    // Stop rquest of check rquests (next long-polling request will be not created)
+    this.canCheckRunningSync = false;
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    // Allow chcek of unresolved requests
+    this.canCheckRunningSync = true;
+    this._initComponent(this.props);
+  }
+
+  _initComponent(props) {
+    const { entityId } = props.params;
+    this.canCheckRunningSync = true;
+    if (!this.state.checkRunningSyncInprogress) {
+      // Some unresolved requests exists -> long-polling request can be send.
+      this.setState({checkRunningSyncInprogress: true}, () => {
+        this._checkRunningSync(entityId);
+      });
+    }
+  }
+
+  _checkRunningSync(systemId) {
+    systemManager.getService().checkRunningSync(systemId).then(result => {
+      if (this.canCheckRunningSync) {
+        if (result && result.state === 'RUNNING') {
+          // Change of role-requests was detected, we need to execute
+          // refresh and create new long-polling reqeust.
+          this.setState({checkRunningSyncInprogress: true}, () => {
+            this._checkRunningSync(systemId);
+            this._refreshAll();
+          });
+        } else if (result && result.state === 'NOT_EXECUTED') {
+          // None change for requests was made. We will send next long-polling checking request
+          this._checkRunningSync(systemId);
+        } else if (result && result.state === 'BLOCKED') {
+          // Long pooling is blocked on BE!
+          this.canCheckRunningSync = false;
+          this.setState({checkRunningSyncInprogress: false});
+        }
+      }
+    })
+      .catch(error => {
+        this.addError(error);
+        this.canCheckRunningSync = false;
+        this.setState({checkRunningSyncInprogress: false});
+      });
+  }
+
+  _refreshAll() {
+    this.refs.table.getWrappedInstance().reload();
   }
 
   showDetail(entity, add) {
@@ -224,6 +287,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
           <Advanced.Table
             ref="table"
             uiKey={ uiKey }
+            showRefreshButton={false}
             manager={ this.getManager() }
             forceSearchParameters={ forceSearchParameters }
             rowClass={({rowIndex, data}) => {
@@ -248,7 +312,8 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
                   rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
                   icon="fa:plus">
                   { this.i18n('button.add') }
-                </Basic.Button>
+                </Basic.Button>,
+                <Advanced.RefreshButton waiting={this.state.checkRunningSyncInprogress} onClick={ this._refreshAll.bind(this) }/>
               ]
             }>
             <Advanced.Column

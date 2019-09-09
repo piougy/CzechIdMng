@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.api.repository.filter;
 
-import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;

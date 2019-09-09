@@ -2537,6 +2537,7 @@
         },
         "changePermissions": "Žádost o změnu rolí",
         "authorities": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
+        "automaticRefreshSwitch": "Automatické obnovení",
         "changeRoleProcesses": {
           "header": "Role čekající na schválení",
           "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu rolí?",

@@ -47,7 +47,10 @@ class IdentityRoles extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       activeKey: 1,
+      checkUnresolvedRequestInprogress: false,
+      automaticRefreshOn: false
     };
+    this.canCheckUnresolvedRequest = false;
   }
 
   getContentKey() {
@@ -71,9 +74,68 @@ class IdentityRoles extends Basic.AbstractContent {
         () => {
           this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
           this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
+          // Allow chcek of unresolved requests
+          this.setState({
+            automaticRefreshOn: true
+          }, () => {
+            this.canCheckUnresolvedRequest = true;
+          });
         }
       )
     );
+  }
+
+  componentWillReceiveProps() {
+    const { entityId } = this.props.params;
+    if (!this.state.checkUnresolvedRequestInprogress) {
+      // Some unresolved requests exists -> long-polling request can be send.
+      this.setState({checkUnresolvedRequestInprogress: true}, () => {
+        this._checkUnresolvedRequest(entityId);
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    // Stop rquest of check rquests (next long-polling request will be not created)
+    this.canCheckUnresolvedRequest = false;
+  }
+
+  _checkUnresolvedRequest(identityId) {
+    if (!this.canCheckUnresolvedRequest) {
+      this.setState({checkUnresolvedRequestInprogress: false});
+    } else {
+      this.setState({checkUnresolvedRequestInprogress: true});
+      identityManager.getService().checkUnresolvedRequest(identityId).then(result => {
+        if (this.canCheckUnresolvedRequest) {
+          if (result && result.state === 'RUNNING') {
+            // Change of role-requests was detected, we need to execute
+            // refresh and create new long-polling reqeust.
+            this.setState({checkUnresolvedRequestInprogress: true}, () => {
+              this._checkUnresolvedRequest(identityId);
+              this._refreshAll();
+            });
+          } else if (result && result.state === 'NOT_EXECUTED') {
+            // None change for requests was made. We will send next long-polling checking request
+            this._checkUnresolvedRequest(identityId);
+          //  this._refreshAll();
+          } else if (result && result.state === 'BLOCKED') {
+            // Long pooling is blocked on BE!
+            this.setState({checkUnresolvedRequestInprogress: false,
+              automaticRefreshOn: false}, () => {
+              this.canCheckUnresolvedRequest = false;
+            });
+          }
+        } else {
+          this.setState({checkUnresolvedRequestInprogress: false});
+        }
+      })
+        .catch(error => {
+          this.addError(error);
+          this.canCheckUnresolvedRequest = false;
+          this.setState({checkUnresolvedRequestInprogress: false});
+        });
+    }
   }
 
   showProcessDetail(entity) {
@@ -202,9 +264,41 @@ class IdentityRoles extends Basic.AbstractContent {
     this.refs.tableProcesses.getWrappedInstance().reload();
   }
 
-  _getToolbar(contracts) {
+  _toggleAutomaticRefresh() {
+    const { entityId } = this.props.params;
+    const canCheckUnresolvedRequest = this.canCheckUnresolvedRequest;
+
+    this.canCheckUnresolvedRequest = !canCheckUnresolvedRequest;
+    this.setState({
+      automaticRefreshOn: !canCheckUnresolvedRequest
+    }, () => {
+      if (this.canCheckUnresolvedRequest) {
+        this._refreshAll();
+        if (!this.state.checkUnresolvedRequestInprogress) {
+          this._checkUnresolvedRequest(entityId);
+        }
+      }
+    });
+  }
+
+  _getToolbar(contracts, key) {
+    const {automaticRefreshOn} = this.state;
+    const data = {};
+    data[`automaticRefreshSwitch-${key}`] = automaticRefreshOn;
     return (
       <Basic.Toolbar>
+        <div className="pull-left">
+          <Basic.AbstractForm
+            ref={`automaticRefreshForm-${key}`}
+            style={{padding: '0px'}}
+            data={data}>
+            <Basic.ToggleSwitch
+              ref={`automaticRefreshSwitch-${key}`}
+              label={this.i18n('automaticRefreshSwitch')}
+              onChange={this._toggleAutomaticRefresh.bind(this, key)}
+            />
+          </Basic.AbstractForm>
+        </div>
         <div className="pull-right">
           <Basic.Button
             level="warning"
@@ -217,7 +311,7 @@ class IdentityRoles extends Basic.AbstractContent {
             titlePlacement="bottom">
             { this.i18n('changePermissions') }
           </Basic.Button>
-          <Advanced.RefreshButton onClick={ this._refreshAll.bind(this) }/>
+          {/** <Advanced.RefreshButton onClick={ this._refreshAll.bind(this) }/> **/}
         </div>
       </Basic.Toolbar>
     );
@@ -259,7 +353,7 @@ class IdentityRoles extends Basic.AbstractContent {
 
         <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
           <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
-            {this._getToolbar(_contracts)}
+            {this._getToolbar(_contracts, 'identity-role')}
             <Basic.ContentHeader
               icon="component:identity-roles"
               text={ this.i18n('directRoles.header') }
@@ -313,7 +407,7 @@ class IdentityRoles extends Basic.AbstractContent {
               </span>
             }
             className="bordered">
-            {this._getToolbar(_contracts)}
+            {this._getToolbar(_contracts, 'request')}
             {
               !SecurityManager.hasAuthority('ROLEREQUEST_READ')
               ||
@@ -424,6 +518,7 @@ function select(state, component) {
     addRoleProcessIds = state.data.ui['table-processes'].items;
   }
   const entityId = component.params.entityId;
+  const requestUi = Utils.Ui.getUiState(state, 'table-applicant-requests');
 
   return {
     identity: identityManager.getEntity(state, entityId),
@@ -434,7 +529,7 @@ function select(state, component) {
     userContext: state.security.userContext,
     _permissions: identityManager.getPermissions(state, null, entityId),
     _searchParameters: Utils.Ui.getSearchParameters(state, `${uiKey}-${entityId}`),
-    _requestUi: Utils.Ui.getUiState(state, 'table-applicant-requests')
+    _requestUi: requestUi
   };
 }
 

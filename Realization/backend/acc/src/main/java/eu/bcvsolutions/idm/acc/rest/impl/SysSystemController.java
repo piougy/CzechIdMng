@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -36,12 +39,16 @@ import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
@@ -51,6 +58,10 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.core.model.service.api.CheckLongPollingResult;
+import eu.bcvsolutions.idm.core.model.service.api.LongPollingManager;
+import eu.bcvsolutions.idm.core.rest.DeferredResultWrapper;
+import eu.bcvsolutions.idm.core.rest.LongPollingSubscriber;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -93,6 +104,10 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	private final ConfidentialStorage confidentialStorage;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
+	@Autowired
+	private SysSyncItemLogService syncItemLogService;
+	@Autowired
+	private LongPollingManager longPollingManager;
 	
 	@Autowired
 	public SysSystemController(
@@ -767,6 +782,86 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 				})
 	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.prevalidateBulkAction(bulkAction);
+	}
+	
+	/**
+	 * Long polling for check sync in progress for given system
+	 *  
+	 * @param backendId - system ID
+	 * 
+	 * @return DeferredResult<OperationResultDto>, where:
+	 * 
+	 * - RUNNING = Some sync are not resolved, but some sync was changed (since previous check).
+	 * - NOT_EXECUTED = Deferred-result expired
+	 * - BLOCKED - Long polling is disabled
+	 * 
+	 */
+	@ResponseBody
+	@RequestMapping(value = "{backendId}/check-running-sync", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@ApiOperation(
+			value = "Check changes of unresloved sync for the system (Long-polling request).", 
+			nickname = "checkRunningSyncs", 
+			tags = { SysSystemController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+				})
+	public DeferredResult<OperationResultDto> checkRunningSyncs(
+			@ApiParam(value = "System's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
+		SysSystemDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		UUID systemId = dto.getId();
+
+		DeferredResultWrapper result = new DeferredResultWrapper( //
+				systemId, //
+				dto.getClass(),//
+				new DeferredResult<OperationResultDto>( //
+						30000l, new OperationResultDto(OperationState.NOT_EXECUTED)) //
+		); //
+
+		result.onCheckResultCallback(new CheckLongPollingResult() {
+
+			@Override
+			public void checkDeferredResult(DeferredResult<OperationResultDto> result,
+					LongPollingSubscriber subscriber) {
+				checkDeferredRequest(result, subscriber);
+			}
+		});
+
+		// If isn't long polling enabled, then Blocked response will be sent.
+		if (!longPollingManager.isLongPollingEnabled()) {
+			result.getResult().setResult(new OperationResultDto(OperationState.BLOCKED));
+			return result.getResult();
+		}
+
+		longPollingManager.addSuspendedResult(result);
+
+		return result.getResult();
+	}
+	
+	@Scheduled(fixedDelay = 2000)
+	public synchronized void checkDeferredRequests() {
+		longPollingManager.checkDeferredRequests(SysSystemDto.class);
+	}
+
+	/**
+	 * Check deferred result - using default implementation from long-polling-manager.
+	 * 
+	 * @param deferredResult
+	 * @param subscriber
+	 */
+	private void checkDeferredRequest(DeferredResult<OperationResultDto> deferredResult, LongPollingSubscriber subscriber) {
+		Assert.notNull(deferredResult);
+		Assert.notNull(subscriber.getEntityId());
+		
+		SysSyncItemLogFilter filter = new SysSyncItemLogFilter();
+		filter.setSystemId(subscriber.getEntityId());
+		longPollingManager.baseCheckDeferredResult(deferredResult, subscriber, filter, syncItemLogService);
 	}
 	
 	/**

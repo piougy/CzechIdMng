@@ -2486,6 +2486,7 @@
         },
         "changePermissions": "Request to change roles",
         "authorities": "Granted authorizations <small>from assigned roles</small>",
+        "automaticRefreshSwitch": "Automatic refresh",
         "changeRoleProcesses": {
           "header": "Roles pending approval",
           "deleteConfirm": "Do you really want to delete selected request?",

@@ -329,4 +329,5 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	protected boolean isRequestModeEnabled() {
 		return requestConfiguration.isRequestModeEnabled(this.getDtoClass());
 	}
+	
 }

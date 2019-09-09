@@ -4335,6 +4335,7 @@
         "repeat": {
           "repeatEvery": "Repeat every",
           "validFrom": "Valid from",
+          "firstStart": "First start",
           "at": "at",
           "every_1": "On",
           "every_2": "On",
@@ -4342,7 +4343,7 @@
           "monthly": "Monthly",
           "day": "day",
           "cronExpression": "Cron expression:",
-          "warning": "Task will run only on current month contains requested day."
+          "warning": "Task will run only if current month contains requested day"
         },
         "cron": {
           "label": "Cron expression",

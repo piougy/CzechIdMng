@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
@@ -174,9 +175,11 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			}
 			// scheduled triggers - native
 			for (Trigger trigger : scheduler.getTriggersOfJob(jobKey)) {
-				TriggerState state = scheduler.getTriggerState(trigger.getKey());	
+				TriggerState state = scheduler.getTriggerState(trigger.getKey());
 				if (trigger instanceof CronTrigger) {
-					task.getTriggers().add(new CronTaskTrigger(task.getId(), (CronTrigger) trigger, TaskTriggerState.convert(state)));
+					// TODO where to get execute dateTime
+					String executeDate = (String) jobDetail.getJobDataMap().get(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE);
+					task.getTriggers().add(new CronTaskTrigger(task.getId(), (CronTrigger) trigger, TaskTriggerState.convert(state), executeDate));
 				} else if (trigger instanceof SimpleTrigger) {
 					task.getTriggers().add(new SimpleTaskTrigger(task.getId(), (SimpleTrigger) trigger, TaskTriggerState.convert(state)));
 				} else {
@@ -365,7 +368,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		//
 		// TODO use of visitor pattern may be good
 		if (trigger instanceof CronTaskTrigger) {
-			createTriggerInternal(taskId, (CronTaskTrigger) trigger, dryRun);
+			createTriggerInternal(taskId, (CronTaskTrigger) trigger, dryRun, ((CronTaskTrigger) trigger).getExecuteDate());
 		} else if (trigger instanceof SimpleTaskTrigger) {
 			createTriggerInternal(taskId, (SimpleTaskTrigger) trigger, dryRun);
 		} else if(trigger instanceof DependentTaskTrigger) {
@@ -376,7 +379,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		return trigger;
 	}
 	
-	private void createTriggerInternal(String taskId, CronTaskTrigger trigger, boolean dryRun) {
+	private void createTriggerInternal(String taskId, CronTaskTrigger trigger, boolean dryRun, String executeDate) {
 		CronTaskTrigger cronTaskTrigger = (CronTaskTrigger) trigger;
 		CronScheduleBuilder cronBuilder;
 		try {
@@ -396,6 +399,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 						.withDescription(cronTaskTrigger.getDescription())
 						.withSchedule(cronBuilder)
 						.usingJobData(SchedulableTaskExecutor.PARAMETER_DRY_RUN, dryRun)
+						.usingJobData(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE, executeDate)
 						.startNow()
 						.build());
 		} catch (org.quartz.SchedulerException ex) {

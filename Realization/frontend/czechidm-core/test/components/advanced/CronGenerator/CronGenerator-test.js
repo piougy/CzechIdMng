@@ -1,5 +1,6 @@
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
+import moment from 'moment';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
@@ -24,7 +25,7 @@ describe('CronGenerator', function testCronGenerator() {
     cronGeneratorInstance.setState({
       intervalType: IntervalTypeEnum.findKeyBySymbol(IntervalTypeEnum.MINUTE),
       cronMinute: CronMinuteEnum.findKeyBySymbol(CronMinuteEnum.FIFTEEN),
-      time: '18:37',
+      firstStartDateTime: moment().set({'hour': 18, 'minute': 37}),
     });
     const cronExpression = cronGeneratorInstance.resolveIntervalToCron();
     const cronCorrectExpression = '0 7/15 * * * ?';
@@ -39,7 +40,7 @@ describe('CronGenerator', function testCronGenerator() {
     cronGeneratorInstance.setState({
       intervalType: IntervalTypeEnum.findKeyBySymbol(IntervalTypeEnum.HOUR),
       cronHour: CronHourEnum.findKeyBySymbol(CronHourEnum.EIGHT),
-      time: '10:53',
+      firstStartDateTime: moment().set({'hour': 10, 'minute': 53}),
     });
     const cronExpression = cronGeneratorInstance.resolveIntervalToCron();
     const cronCorrectExpression = '0 53 2/8 * * ?';
@@ -53,7 +54,7 @@ describe('CronGenerator', function testCronGenerator() {
     // every day at 14:32
     cronGeneratorInstance.setState({
       intervalType: IntervalTypeEnum.findKeyBySymbol(IntervalTypeEnum.DAY),
-      time: '14:32',
+      firstStartDateTime: moment().set({'hour': 14, 'minute': 32}),
     });
     const cronExpression = cronGeneratorInstance.resolveIntervalToCron();
     const cronCorrectExpression = '0 32 14 * * ?';

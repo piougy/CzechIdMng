@@ -4385,6 +4385,7 @@
         "repeat": {
           "repeatEvery": "Opakovat jednou za",
           "validFrom": "Platné od",
+          "firstStart": "První spuštění",
           "at": "v",
           "every_1": "Každé",
           "every_2": "Každou",
@@ -4392,7 +4393,7 @@
           "monthly": "Měsíčně",
           "day": "den",
           "cronExpression": "Cron výraz:",
-          "warning": "Úloha se spustí pouze pokud daný měsíc obsahuje požadovaný den."
+          "warning": "Úloha se spustí pouze pokud daný měsíc obsahuje požadovaný den"
         },
         "cron": {
           "label": "Cron výraz",

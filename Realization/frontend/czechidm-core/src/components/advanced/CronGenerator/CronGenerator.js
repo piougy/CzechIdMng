@@ -21,6 +21,8 @@ class CronGenerator extends AbstractFormComponent {
       cronHour: CronHourEnum.findKeyBySymbol(CronHourEnum.ONE),
       dayInMonth: DayInMonthEnum.findKeyBySymbol(DayInMonthEnum.ONE),
       time: '22:00',
+      validFromDate: moment().startOf('day').format('MM.DD.YYYY'),
+      firstStartDateTime: moment().startOf('minute').format('MM.DD.YYYY HH:mm'),
       cronExpression: '',
       showMonthWarning: false,
       weekDaySpelling: 'every_1'
@@ -29,6 +31,13 @@ class CronGenerator extends AbstractFormComponent {
 
   getComponentKey() {
     return 'entity.SchedulerTask.trigger.repeat';
+  }
+
+  getExecuteDateTime() {
+    const { intervalType, firstStartDateTime, validFromDate } = this.state;
+    return (intervalType === 'MINUTE' || intervalType === 'HOUR' || intervalType === 'DAY') ? 
+    moment(firstStartDateTime).format('DD.MM.YYYY HH:mm') :
+    moment(validFromDate).format('DD.MM.YYYY HH:mm');
   }
 
   onChangeIntervalType(intervalType) {
@@ -103,6 +112,18 @@ class CronGenerator extends AbstractFormComponent {
     }, () => this.generateCron());
   }
 
+  onChangeDate(date) {
+    this.setState({
+      validFromDate: date
+    }, () => console.log(this.state.validFromDate));
+  }
+
+  onChangeDateTime(dateTime) {
+    this.setState({
+      firstStartDateTime: dateTime
+    }, () => this.generateCron());
+  }
+
   generateCron() {
     this.setState({
       cronExpression: this.resolveIntervalToCron()
@@ -137,9 +158,7 @@ class CronGenerator extends AbstractFormComponent {
   }
 
   resolveMinutes() {
-    // Minutes
-    const time = this.state.time;
-    const initMinute = time.split(':')[1];
+    const initMinute = moment(this.state.firstStartDateTime).get("minute");
     const repetitionRate = CronMinuteEnum.findSymbolByKey(this.state.cronMinute).description;
 
     let cronStartMinute = this.reCronNumber(initMinute);
@@ -160,11 +179,10 @@ class CronGenerator extends AbstractFormComponent {
   }
 
   resolveHours() {
-    // Hours
-    const time = this.state.time;
-    const initHour = time.split(':')[0];
-    const initMinute = time.split(':')[1];
-    const repetitionRate = CronHourEnum.findSymbolByKey(this.state.cronHour).description;
+    const { firstStartDateTime, cronHour } = this.state;
+    const initHour = moment(firstStartDateTime).get("hour");
+    const initMinute = moment(firstStartDateTime).get("minute");
+    const repetitionRate = CronHourEnum.findSymbolByKey(cronHour).description;
 
     let cronStartHour = this.reCronNumber(initHour);
     if (initHour - repetitionRate > 0) {
@@ -184,10 +202,9 @@ class CronGenerator extends AbstractFormComponent {
   }
 
   resolveEveryDay() {
-    // Day
-    const time = this.state.time;
-    const initHour = time.split(':')[0];
-    const initMinute = time.split(':')[1];
+    const { firstStartDateTime } = this.state;
+    const initHour = moment(firstStartDateTime).get("hour");
+    const initMinute = moment(firstStartDateTime).get("minute");
 
     const second = 0;
     const minute = this.reCronNumber(initMinute);
@@ -200,33 +217,29 @@ class CronGenerator extends AbstractFormComponent {
   }
 
   resolveEveryWeek() {
-    // Week
-    const time = this.state.time;
+    const { time, weekDay } = this.state;
     const initHour = time.split(':')[0];
     const initMinute = time.split(':')[1];
-    const weekDay = WeekDayEnum.findSymbolByKey(this.state.weekDay).description;
 
     const second = 0;
     const minute = this.reCronNumber(initMinute);
     const hour = this.reCronNumber(initHour);
     const monthDay = '?';
     const monthInYear = '*';
-    const dayOfWeek = weekDay;
+    const dayOfWeek = WeekDayEnum.findSymbolByKey(weekDay).description;
 
     return `${second} ${minute} ${hour} ${monthDay} ${monthInYear} ${dayOfWeek}`;
   }
 
   resolveEveryMonth() {
-    // Month
-    const time = this.state.time;
+    const { time, dayInMonth } = this.state;
     const initHour = time.split(':')[0];
     const initMinute = time.split(':')[1];
-    const dayInMonth = DayInMonthEnum.findSymbolByKey(this.state.dayInMonth).description;
 
     const second = 0;
     const minute = this.reCronNumber(initMinute);
     const hour = this.reCronNumber(initHour);
-    const monthDay = dayInMonth;
+    const monthDay = DayInMonthEnum.findSymbolByKey(dayInMonth).description;
     const monthInYear = '*';
     const dayOfWeek = '?';
 
@@ -243,6 +256,8 @@ class CronGenerator extends AbstractFormComponent {
       weekDay,
       dayInMonth,
       time,
+      firstStartDateTime,
+      validFromDate,
       showMonthWarning,
       weekDaySpelling
     } = this.state;
@@ -292,24 +307,6 @@ class CronGenerator extends AbstractFormComponent {
               onChange={ this.onChangeIntervalType.bind(this) }
               input={ false }/>
           </div>
-          {(intervalType === 'DAY' ||
-            intervalType === 'HOUR' ||
-            intervalType === 'MINUTE') && (
-            <div className="text-group">
-              <div className="text">
-                  { this.i18n('at') }
-              </div>
-              <div className="time-select">
-                <Datetime
-                  ref="dayTime"
-                  dateFormat={ false }
-                  timeFormat={ 'HH:mm' }
-                  value={ time }
-                  onChange={ this.onChangeTime.bind(this) }
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Week properties */}
@@ -387,31 +384,39 @@ class CronGenerator extends AbstractFormComponent {
           </div>
         )}
 
+        {/* Prepared for scheduled first start */}
+        <div className="secondary-group">
+          <div className="text">
+            {(intervalType === 'MINUTE' || intervalType === 'HOUR' || intervalType === 'DAY') ?
+            this.i18n('firstStart') : this.i18n('validFrom')}
+          </div>
+          <div>
+            <Basic.DateTimePicker
+              className="date-select"
+              ref="fireTime"
+              hidden={
+                intervalType !== 'MINUTE' &&
+                intervalType !== 'HOUR' &&
+                intervalType !== 'DAY' }
+              value={ firstStartDateTime }
+              onChange={ this.onChangeDateTime.bind(this) }
+            />
+            <Basic.DateTimePicker
+              className="date-select"
+              ref="fireTime"
+              hidden={ intervalType !== 'WEEK' && intervalType !== 'MONTH' }
+              mode="date"
+              value={ validFromDate }
+              onChange={ this.onChangeDate.bind(this) }
+            />
+          </div>
+        </div>
+
         <div className="text-group">
           { this.i18n('cronExpression') }
           { ' ' }
           { cronExpression }
         </div>
-
-        {/* Prepared for scheduled first start */}
-        <Basic.Row rendered={ false }>
-          <Basic.Col>
-              { this.i18n('validFrom') }
-          </Basic.Col>
-          <Basic.Col>
-            <Basic.DateTimePicker
-              ref="fireTime"
-              hidden={
-                intervalType !== 'MINUTE' &&
-                intervalType !== 'HOUR' &&
-                intervalType !== 'DAY' }/>
-            <Basic.DateTimePicker
-              ref="fireTime"
-              hidden={ intervalType !== 'WEEK' && intervalType !== 'MONTH' }
-              mode="date"
-              />
-          </Basic.Col>
-        </Basic.Row>
 
       </div>
     );

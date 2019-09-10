@@ -51,7 +51,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 	/**
 	 * Map of subscribers - subscriber contains metadata as last time stamp after deferred result is ended. 
 	 */
-	private final Map<UUID, LongPollingSubscriber> registredSubscirbers = new ConcurrentHashMap<UUID, LongPollingSubscriber>();
+	private final Map<UUID, LongPollingSubscriber> registredSubscribers = new ConcurrentHashMap<UUID, LongPollingSubscriber>();
 	
 	@Autowired
 	@Lazy
@@ -73,8 +73,8 @@ public class DefaultLongPollingManager implements LongPollingManager{
 				.filter(request -> type.equals(request.getType())) //
 				.forEach(request -> { //
 					LongPollingSubscriber subscriber = null;
-					if (this.registredSubscirbers.containsKey(request.getEntityId())) {
-						subscriber = this.registredSubscirbers.get(request.getEntityId());
+					if (this.registredSubscribers.containsKey(request.getEntityId())) {
+						subscriber = this.registredSubscribers.get(request.getEntityId());
 					} else {
 						subscriber = new LongPollingSubscriber(request.getEntityId(), type);
 					}
@@ -91,14 +91,15 @@ public class DefaultLongPollingManager implements LongPollingManager{
 	public synchronized void addSuspendedResult(DeferredResultWrapper result) {
 		Assert.notNull(result, "Result cannot be null!");
 		Assert.notNull(result.getType(), "Type of result must be defined!");
+		Assert.notNull(result.getResult(), "Deffered result must be defined!");
 		UUID entityId = result.getEntityId();
 		Assert.notNull(entityId, "Entity ID cannot be null!");
 		
 		LOG.debug("Add deferred-result [{}]", result);
 		
 		this.suspendedRequests.add(result);
-		if (!this.registredSubscirbers.containsKey(entityId)) {
-			this.registredSubscirbers.put(entityId, new LongPollingSubscriber(result.getEntityId(), result.getType()));
+		if (!this.registredSubscribers.containsKey(entityId)) {
+			this.registredSubscribers.put(entityId, new LongPollingSubscriber(result.getEntityId(), result.getType()));
 		}
 
 		result.getResult().onCompletion(new Runnable() {
@@ -176,13 +177,13 @@ public class DefaultLongPollingManager implements LongPollingManager{
 		DateTime timeStamp = clearBeforIt;
 		LOG.debug("Start clearUnUseSubscribers [{}] ...", timeStamp);
 		
-		this.registredSubscirbers.values().stream() //
-				.filter(subscriber -> subscriber.getLastUsingSubscriber() == null
-						|| subscriber.getLastUsingSubscriber().isBefore(timeStamp))
+		this.registredSubscribers.values().stream() //
+				.filter(subscriber -> subscriber.getLastUsingSubscriber() != null
+						&& subscriber.getLastUsingSubscriber().isBefore(timeStamp))
 				.forEach(subscriber -> { //
 					if (subscriber.getEntityId() != null) {
 						LOG.debug("Remove expired subscriber [{}].", subscriber);
-						this.registredSubscirbers.remove(subscriber.getEntityId());
+						this.registredSubscribers.remove(subscriber.getEntityId());
 					}
 				});
 	}
@@ -199,12 +200,33 @@ public class DefaultLongPollingManager implements LongPollingManager{
 			lastModified = dto.getCreated();
 		}
 
-		if (lastModified.isBefore(dto.getCreated())) {
+		if (lastModified == null) {
+			return null;
+		}
+		
+		if (dto.getCreated() != null && lastModified.isBefore(dto.getCreated())) {
 			lastModified = dto.getCreated();
 		}
+		
+		return lastModified.plusMillis(1);
+	}
 
-		lastModified = lastModified.plusMillis(1);
-		return lastModified;
+	/**
+	 * Get deferred results. For testing purpose.
+	 * 
+	 */
+	public Queue<DeferredResultWrapper> getSuspendedRequests() {
+		return suspendedRequests;
+	}
+
+
+	/**
+	 * Get registered subscribers. For testing purpose.
+	 * 
+	 * @return
+	 */
+	public Map<UUID, LongPollingSubscriber> getRegistredSubscribers() {
+		return registredSubscribers;
 	}
 	
 }

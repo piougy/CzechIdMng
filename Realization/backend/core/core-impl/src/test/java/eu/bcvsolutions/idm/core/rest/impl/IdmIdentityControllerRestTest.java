@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.fail;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -22,10 +21,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -783,33 +779,5 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDtoTwo.getId())));
 		//
 		Assert.assertEquals(2, count(parameters));
-	}
-	
-	
-	/**
-	 * Max time out for long-polling is 30 seconds.
-	 */
-	@Test
-	public void testLongPollingExpirationTimeOut() {
-		IdmIdentityDto identity = createDto(prepareDto());
-		
-		try {
-			MvcResult result = getMockMvc()
-					.perform(get(String.format("%s/check-unresolved-request", getDetailUrl(identity.getId())))
-					.with(authentication(getAdminAuthentication())))
-					.andExpect(MockMvcResultMatchers.request().asyncStarted())
-					.andReturn();
-
-			getMockMvc().perform(MockMvcRequestBuilders.asyncDispatch(result))
-					.andDo(MockMvcResultHandlers.log())
-					.andExpect(status().isOk())
-					.andReturn()
-					.getResponse()
-					.getContentAsString();
-
-			fail();
-		} catch (Exception e) {
-			Assert.assertTrue(e.getLocalizedMessage().endsWith("was not set during the specified timeToWait=30000"));
-		}
 	}
 }

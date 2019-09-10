@@ -648,6 +648,11 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testExecuteDeferredResultOnCreateSyncItemLog() {
+		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
+		// Clear deferred result and subscribers
+		defaultPollingManager.getSuspendedRequests().clear();
+		defaultPollingManager.getRegistredSubscribers().clear();
+		
 		// create test system and sync
 		SysSystemDto system = helper.createTestResourceSystem(true);
 		AbstractSysSyncConfigDto syncConfig = createSync(system);
@@ -664,7 +669,6 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 			}
 		});
 
-		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
 		Queue<DeferredResultWrapper> suspendedRequests = defaultPollingManager.getSuspendedRequests();
 		assertEquals(0, suspendedRequests.size());
 

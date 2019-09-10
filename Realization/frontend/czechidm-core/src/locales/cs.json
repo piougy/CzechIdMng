@@ -3310,8 +3310,8 @@
         "operationStates": {
           "placeholder": "$t(entity.EntityState.operationState.label)"
         },
-        "operationState": {
-          "placeholder": "$t(entity.EntityState.operationState.label)"
+        "states": {
+          "placeholder": "$t(entity.EntityState.result.label)"
         },
         "resultCode": {
           "placeholder": "$t(entity.EntityState.resultCode.label)"
@@ -4530,7 +4530,7 @@
         "label": "Výsledek"
       },
       "resultCode": {
-        "label": "Stavový kód"
+        "label": "Kód"
       },
       "owner": {
         "label": "Entita"
@@ -4539,7 +4539,7 @@
         "label": "Typ entity"
       },
       "ownerId": {
-        "label": "Entita"
+        "label": "Identifikátor entity"
       },
       "result": {
         "label": "Výsledek"

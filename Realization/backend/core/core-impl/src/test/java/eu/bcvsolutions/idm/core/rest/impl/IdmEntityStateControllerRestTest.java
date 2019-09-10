@@ -16,8 +16,11 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import com.google.common.collect.Lists;
+
 /**
  * Controller tests
+ * - TODO: test all filters
  * 
  * @author Radek Tomiška
  *
@@ -44,47 +47,52 @@ public class IdmEntityStateControllerRestTest extends AbstractReadWriteDtoContro
 
 	@Test
 	public void testResultCode(){
-		//init data
-		List<IdmEntityStateDto> idmEntityStateDtos;
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-
+		UUID ownerId = UUID.randomUUID();
+		//
+		IdmEntityStateDto other = prepareDto();
+		other.setOwnerId(ownerId);
+		other.getResult().setCode(getHelper().createName());
+		other = entityStateService.save(other);
 		IdmEntityStateDto idmEntityStateDto = prepareDto();
+		idmEntityStateDto.setOwnerId(ownerId);
 		idmEntityStateDto.getResult().setCode(getHelper().createName());
 		idmEntityStateDto = entityStateService.save(idmEntityStateDto);
-
-		//end init data
-		//set filter
+		//
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set("ownerId", ownerId.toString());
 		parameters.set("resultCode", idmEntityStateDto.getResult().getCode());
-		//end
-		//test
-		idmEntityStateDtos = find(parameters);
-		Assert.assertEquals(1, idmEntityStateDtos.size());
-		Assert.assertEquals(idmEntityStateDto.getId(), idmEntityStateDtos.get(0).getId());
-		//end test
+		//
+		List<IdmEntityStateDto> results = find(parameters);
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(idmEntityStateDto.getId(), results.get(0).getId());
 	}
 
 	@Test
 	public void testOperationStates(){
-		//init data
-		List<IdmEntityStateDto> idmEntityStateDtos;
+		UUID ownerId = UUID.randomUUID();
+		//
+		IdmEntityStateDto state = prepareDto();
+		state.setOwnerId(ownerId);
+		state.getResult().setState(OperationState.RUNNING);
+		IdmEntityStateDto stateOne = entityStateService.save(state);
+		//
+		state = prepareDto();
+		state.setOwnerId(ownerId);
+		state.getResult().setState(OperationState.BLOCKED);
+		IdmEntityStateDto stateTwo = entityStateService.save(state);
+		//
+		state = prepareDto();
+		state.setOwnerId(ownerId);
+		state.getResult().setState(OperationState.EXCEPTION);
+		entityStateService.save(state); // other
+		//
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-
-		IdmEntityStateDto idmEntityStateDto = prepareDto();
-		idmEntityStateDto.getResult().setState(OperationState.RUNNING);
-		idmEntityStateDto = entityStateService.save(idmEntityStateDto);
-
-		IdmEntityStateDto idmEntityStateDto2 = prepareDto();
-		idmEntityStateDto2.getResult().setState(OperationState.BLOCKED);
-		idmEntityStateDto2 = entityStateService.save(idmEntityStateDto2);
-
-		//end init data
-		//set filter
-		parameters.add("operationStates", idmEntityStateDto.getResult().getState().name());
-		parameters.add("operationStates", idmEntityStateDto2.getResult().getState().name());
-		//end
-		//test
-		idmEntityStateDtos = find(parameters);
-		Assert.assertTrue(2 <= idmEntityStateDtos.size());
-		//end test
+		parameters.set("ownerId", ownerId.toString());
+		parameters.put("states", Lists.newArrayList(stateOne.getResult().getState().name(), stateTwo.getResult().getState().name()));
+		//
+		List<IdmEntityStateDto> results = find(parameters);
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateOne.getId())));
+		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateTwo.getId())));
 	}
 }

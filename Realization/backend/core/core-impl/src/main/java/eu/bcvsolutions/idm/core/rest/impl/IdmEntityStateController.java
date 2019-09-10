@@ -97,7 +97,7 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
 		filter.setCreatedTill(getParameterConverter().toDateTime(parameters, "createdTill"));
 		filter.setOwnerType(getParameterConverter().toString(parameters, "ownerType"));
 		filter.setResultCode(getParameterConverter().toString(parameters, "resultCode"));
-		filter.setOperationStates(getParameterConverter().toEnums(parameters, "operationStates", OperationState.class));
+		filter.setStates(getParameterConverter().toEnums(parameters, "states", OperationState.class));
 		//
 		String ownerId = getParameterConverter().toString(parameters, "ownerId");
 		if (StringUtils.isNotEmpty(filter.getOwnerType()) 

@@ -26,7 +26,7 @@ public class IdmEntityStateFilter extends DataFilter {
 	private DateTime createdFrom;
     private DateTime createdTill;
     private String resultCode;
-	private List<OperationState> operationStates;
+    private List<OperationState> states;
 
 	public IdmEntityStateFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -92,11 +92,14 @@ public class IdmEntityStateFilter extends DataFilter {
 		return resultCode;
 	}
 
-	public List<OperationState> getOperationStates() {
-		return operationStates == null ? new ArrayList<>() : operationStates;
+	public List<OperationState> getStates() {
+		if (states == null) {
+			states = new ArrayList<>();
+		}
+		return states;
 	}
-
-	public void setOperationStates(List<OperationState> operationStates) {
-		this.operationStates = operationStates;
+	
+	public void setStates(List<OperationState> states) {
+		this.states = states;
 	}
 }

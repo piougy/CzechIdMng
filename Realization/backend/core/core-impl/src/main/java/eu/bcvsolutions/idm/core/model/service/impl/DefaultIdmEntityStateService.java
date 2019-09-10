@@ -77,9 +77,9 @@ public class DefaultIdmEntityStateService
 		if (StringUtils.isNotEmpty(resultCode)) {
 			predicates.add(builder.equal(root.get(IdmEntityState_.result).get(OperationResult_.code), resultCode));
 		}
-		List<OperationState> operationStates = filter.getOperationStates();
-		if (!operationStates.isEmpty()) {
-			predicates.add(root.get(IdmEntityState_.result).get(OperationResult_.state).in(operationStates));
+		List<OperationState> states = filter.getStates();
+		if (!states.isEmpty()) {
+			predicates.add(root.get(IdmEntityState_.result).get(OperationResult_.state).in(states));
 		}
 		//
 		return predicates;

@@ -3259,8 +3259,8 @@
         "operationStates": {
           "placeholder": "$t(entity.EntityState.operationState.label)"
         },
-        "operationState": {
-          "placeholder": "$t(entity.EntityState.operationState.label)"
+        "states": {
+          "placeholder": "$t(entity.EntityState.result.label)"
         },
         "resultCode": {
           "placeholder": "$t(entity.EntityState.resultCode.label)"
@@ -4480,10 +4480,10 @@
         "label": "Result"
       },
       "resultCode": {
-        "label": "Result code"
+        "label": "Code"
       },
       "owner": {
-        "label": "Entity"
+        "label": "Entity identifier"
       },
       "ownerType": {
         "label": "Entity type"

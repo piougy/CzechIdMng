@@ -40,9 +40,11 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -106,6 +108,8 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	private final IdmFormDefinitionController formDefinitionController;
 	@Autowired
 	private SysSyncItemLogService syncItemLogService;
+	@Autowired
+	private SysSyncLogService syncLogService;
 	@Autowired
 	private LongPollingManager longPollingManager;
 	
@@ -855,13 +859,20 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 * @param deferredResult
 	 * @param subscriber
 	 */
-	private void checkDeferredRequest(DeferredResult<OperationResultDto> deferredResult, LongPollingSubscriber subscriber) {
+	public void checkDeferredRequest(DeferredResult<OperationResultDto> deferredResult, LongPollingSubscriber subscriber) {
 		Assert.notNull(deferredResult);
 		Assert.notNull(subscriber.getEntityId());
 		
+		SysSyncLogFilter filterLog = new SysSyncLogFilter();
+		filterLog.setSystemId(subscriber.getEntityId());
+		longPollingManager.baseCheckDeferredResult(deferredResult, subscriber, filterLog, syncLogService, false);
+		
+		if(deferredResult.isSetOrExpired()) {
+			return;
+		}
 		SysSyncItemLogFilter filter = new SysSyncItemLogFilter();
 		filter.setSystemId(subscriber.getEntityId());
-		longPollingManager.baseCheckDeferredResult(deferredResult, subscriber, filter, syncItemLogService);
+		longPollingManager.baseCheckDeferredResult(deferredResult, subscriber, filter, syncItemLogService, true);
 	}
 	
 	/**

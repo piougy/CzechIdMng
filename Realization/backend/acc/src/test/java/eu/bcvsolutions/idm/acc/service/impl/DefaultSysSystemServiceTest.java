@@ -50,11 +50,11 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
+import eu.bcvsolutions.idm.acc.rest.impl.SysSystemController;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
@@ -125,6 +125,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired private LongPollingManager longPollingManager;
 	@Autowired private SysSyncItemLogService syncItemLogService;
 	@Autowired private SysSyncActionLogService syncActionLogService;
+	@Autowired private SysSystemController systemController;
 	
 	@Before
 	public void login() {
@@ -659,7 +660,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 			@Override
 			public void checkDeferredResult(DeferredResult<OperationResultDto> result,
 					LongPollingSubscriber subscriber) {
-				checkDeferredRequest(result, subscriber);
+				systemController.checkDeferredRequest(result, subscriber);
 			}
 		});
 
@@ -750,15 +751,4 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		syncConfig = syncConfigService.save(syncConfig);
 		return syncConfig;
 	}
-
-	private void checkDeferredRequest(DeferredResult<OperationResultDto> deferredResult,
-			LongPollingSubscriber subscriber) {
-		Assert.assertNotNull(deferredResult);
-		Assert.assertNotNull(subscriber.getEntityId());
-
-		SysSyncItemLogFilter filter = new SysSyncItemLogFilter();
-		filter.setSystemId(subscriber.getEntityId());
-		longPollingManager.baseCheckDeferredResult(deferredResult, subscriber, filter, syncItemLogService);
-	}
-
 }

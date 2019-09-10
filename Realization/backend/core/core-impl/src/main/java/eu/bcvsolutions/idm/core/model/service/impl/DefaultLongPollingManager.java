@@ -114,19 +114,21 @@ public class DefaultLongPollingManager implements LongPollingManager{
 	@Override
 	public void baseCheckDeferredResult(DeferredResult<OperationResultDto> deferredResult,
 			LongPollingSubscriber subscriber, ModifiedFromFilter filter,
-			ReadDtoService service) {
+			ReadDtoService service, boolean checkCount) {
 		Assert.notNull(deferredResult);
 		Assert.notNull(subscriber.getEntityId());
 		
 		LOG.debug("Start baseCheckDeferredResult for deferred-result [{}] and subscriber [{}]", deferredResult, subscriber);
 		
-		long countOfentities = service.count(filter);
-		Long lastNumberOfEntities = subscriber.getLastNumberOfEntities();
-		subscriber.setLastNumberOfEntities(countOfentities);
-		if (lastNumberOfEntities != null && countOfentities != lastNumberOfEntities) {
-			// Notify FE -> Some of an entities were changed (refresh must be executed)
-			deferredResult.setResult(new OperationResultDto(OperationState.RUNNING));
-			return;
+		if (checkCount) {
+			long countOfentities = service.count(filter);
+			Long lastNumberOfEntities = subscriber.getLastNumberOfEntities();
+			subscriber.setLastNumberOfEntities(countOfentities);
+			if (lastNumberOfEntities != null && countOfentities != lastNumberOfEntities) {
+				// Notify FE -> Some of an entities were changed (refresh must be executed)
+				deferredResult.setResult(new OperationResultDto(OperationState.RUNNING));
+				return;
+			}
 		}
 
 		DateTime timeStamp = subscriber.getLastTimeStamp();

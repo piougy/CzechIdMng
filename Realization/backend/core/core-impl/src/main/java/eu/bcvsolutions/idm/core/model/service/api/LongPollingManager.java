@@ -59,9 +59,10 @@ public interface LongPollingManager {
 	 * @param subscriber
 	 * @param filter - Filter must be configured for get data only for given subscriber!
 	 * @param service - Read service for subscriber type
+	 * @param checkCount - If true, then count of entities will be check against last count in subscriber
 	 */
 	void baseCheckDeferredResult(DeferredResult<OperationResultDto> deferredResult, LongPollingSubscriber subscriber,
-			ModifiedFromFilter filter, @SuppressWarnings("rawtypes") ReadDtoService service);
+			ModifiedFromFilter filter, @SuppressWarnings("rawtypes") ReadDtoService service, boolean checkCount);
 
 	/**
 	 * Removes all subscribers that were last use before given time stamp. If

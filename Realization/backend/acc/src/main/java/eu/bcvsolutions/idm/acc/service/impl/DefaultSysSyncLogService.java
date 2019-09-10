@@ -123,6 +123,7 @@ public class DefaultSysSyncLogService
 					.get(AbstractEntity_.id), systemId));
 		}
 		
+		// Modified from
 		DateTime modifiedFrom = filter.getModifiedFrom();
 		if (modifiedFrom != null) {
 			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncLog_.modified), modifiedFrom));

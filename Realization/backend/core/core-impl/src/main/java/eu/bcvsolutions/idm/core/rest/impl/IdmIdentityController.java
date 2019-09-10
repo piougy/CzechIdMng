@@ -1331,7 +1331,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
 		filter.setApplicantId(subscriber.getEntityId());
 		
-		longPollingManager.baseCheckDeferredResult(deferredResult, subscriber, filter, roleRequestService);
+		longPollingManager.baseCheckDeferredResult(deferredResult, subscriber, filter, roleRequestService, true);
 	}
 	
 	@Override

@@ -8,6 +8,7 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.ModifiedFromFilter;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
@@ -16,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  * @author Svanda
  * @author Radek Tomiška
  */
-public class SysSyncLogFilter extends DataFilter {
+public class SysSyncLogFilter extends DataFilter implements ModifiedFromFilter {
 
 	public static final String PARAMETER_SYNCHRONIZATION_CONFIG_ID = "synchronizationConfigId";
 	public static final String PARAMETER_RUNNING = "running";

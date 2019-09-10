@@ -9,6 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
@@ -84,8 +85,9 @@ public class DefaultSysSyncItemLogService
 		}
 
 		// Modified from
-		if (filter.getModifiedFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncItemLog_.modified), filter.getModifiedFrom()));
+		DateTime modifiedFrom = filter.getModifiedFrom();
+		if (modifiedFrom != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncItemLog_.modified), modifiedFrom));
 		}
 
 		return predicates;

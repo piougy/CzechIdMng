@@ -3307,6 +3307,15 @@
         "text": {
           "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity (like)"
         },
+        "operationStates": {
+          "placeholder": "$t(entity.EntityState.operationState.label)"
+        },
+        "states": {
+          "placeholder": "$t(entity.EntityState.result.label)"
+        },
+        "resultCode": {
+          "placeholder": "$t(entity.EntityState.resultCode.label)"
+        },
         "ownerType": {
           "placeholder": "$t(entity.EntityState.ownerType.label)"
         },
@@ -4517,6 +4526,12 @@
       "created": {
         "label": "Datum"
       },
+      "operationState": {
+        "label": "Výsledek"
+      },
+      "resultCode": {
+        "label": "Kód"
+      },
       "owner": {
         "label": "Entita"
       },
@@ -4524,7 +4539,7 @@
         "label": "Typ entity"
       },
       "ownerId": {
-        "label": "Entita"
+        "label": "Identifikátor entity"
       },
       "result": {
         "label": "Výsledek"

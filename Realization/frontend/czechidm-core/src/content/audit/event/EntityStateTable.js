@@ -8,6 +8,7 @@ import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
 import { EntityStateManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
+import OperationStateEnum from '../../../enums/OperationStateEnum';
 
 const manager = new EntityStateManager();
 
@@ -98,6 +99,21 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
+                <Basic.Row>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="states"
+                      placeholder={ this.i18n('filter.states.placeholder') }
+                      enum={ OperationStateEnum }
+                      multiSelect
+                      useSymbol={ false }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.TextField
+                      ref="resultCode"
+                      placeholder={ this.i18n('filter.resultCode.placeholder') }/>
+                  </Basic.Col>
+                </Basic.Row>
                 <Basic.Row rendered={ _.includes(columns, 'ownerType') }>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
@@ -149,6 +165,17 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
               }
             }
             rendered={_.includes(columns, 'result')}/>
+          <Advanced.Column
+            property="resultCode"
+            width={75}
+            cell={
+              ({rowIndex, data}) => (
+                data[rowIndex].result.code
+              )
+            }
+            sort
+            sortProperty="result.code"
+            rendered={_.includes(columns, 'resultCode')}/>
           <Advanced.Column property="created" sort face="datetime" rendered={ _.includes(columns, 'created') } width={ 175 }/>
           <Advanced.Column
             property="ownerType"
@@ -163,6 +190,7 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
           />
           <Advanced.Column
             property="ownerId"
+            header={ this.i18n('entity.EntityEvent.owner.label') }
             rendered={_.includes(columns, 'ownerId')}
             cell={
               ({ rowIndex, data, property }) => {
@@ -260,7 +288,7 @@ EntityStateTable.propTypes = {
 };
 
 EntityStateTable.defaultProps = {
-  columns: ['result', 'created', 'ownerType', 'ownerId', 'processor', 'processedOrder', 'instanceId', 'event'],
+  columns: ['result', 'resultCode', 'created', 'ownerType', 'ownerId', 'processor', 'processedOrder', 'instanceId', 'event'],
   filterOpened: false,
   forceSearchParameters: null,
   rendered: true

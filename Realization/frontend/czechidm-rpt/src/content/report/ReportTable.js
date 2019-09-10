@@ -440,7 +440,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
                       )
                     }
                     readOnly={ !Utils.Entity.isNew(detail.entity) }
-                    useDefaultValue/>
+                    useDefaultValue={ Utils.Entity.isNew(detail.entity) }/>
                 }
                 {
                   !longRunningTask

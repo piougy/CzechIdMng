@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -23,7 +26,8 @@ public class IdmEntityStateFilter extends DataFilter {
 	private DateTime createdFrom;
     private DateTime createdTill;
     private String resultCode;
-	
+	private List<OperationState> operationStates;
+
 	public IdmEntityStateFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
@@ -86,5 +90,13 @@ public class IdmEntityStateFilter extends DataFilter {
 	
 	public String getResultCode() {
 		return resultCode;
+	}
+
+	public List<OperationState> getOperationStates() {
+		return operationStates == null ? new ArrayList<>() : operationStates;
+	}
+
+	public void setOperationStates(List<OperationState> operationStates) {
+		this.operationStates = operationStates;
 	}
 }

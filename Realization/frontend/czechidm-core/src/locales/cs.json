@@ -3307,6 +3307,15 @@
         "text": {
           "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity (like)"
         },
+        "operationStates": {
+          "placeholder": "$t(entity.EntityState.operationState.label)"
+        },
+        "operationState": {
+          "placeholder": "$t(entity.EntityState.operationState.label)"
+        },
+        "resultCode": {
+          "placeholder": "$t(entity.EntityState.resultCode.label)"
+        },
         "ownerType": {
           "placeholder": "$t(entity.EntityState.ownerType.label)"
         },
@@ -4516,6 +4525,12 @@
       "_type": "Stav entity",
       "created": {
         "label": "Datum"
+      },
+      "operationState": {
+        "label": "Výsledek"
+      },
+      "resultCode": {
+        "label": "Stavový kód"
       },
       "owner": {
         "label": "Entita"

@@ -3256,6 +3256,15 @@
         "text": {
           "placeholder": "$t(entity.EntityState.ownerType.label) / Entity identifier (like)"
         },
+        "operationStates": {
+          "placeholder": "$t(entity.EntityState.operationState.label)"
+        },
+        "operationState": {
+          "placeholder": "$t(entity.EntityState.operationState.label)"
+        },
+        "resultCode": {
+          "placeholder": "$t(entity.EntityState.resultCode.label)"
+        },
         "ownerType": {
           "placeholder": "$t(entity.EntityState.ownerType.label)"
         },
@@ -4466,6 +4475,12 @@
       "_type": "Entity state",
       "created": {
         "label": "Date"
+      },
+      "operationState": {
+        "label": "Result"
+      },
+      "resultCode": {
+        "label": "Result code"
       },
       "owner": {
         "label": "Entity"

@@ -22,6 +22,7 @@ import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -95,6 +96,8 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
 		filter.setCreatedFrom(getParameterConverter().toDateTime(parameters, "createdFrom"));
 		filter.setCreatedTill(getParameterConverter().toDateTime(parameters, "createdTill"));
 		filter.setOwnerType(getParameterConverter().toString(parameters, "ownerType"));
+		filter.setResultCode(getParameterConverter().toString(parameters, "resultCode"));
+		filter.setOperationStates(getParameterConverter().toEnums(parameters, "operationStates", OperationState.class));
 		//
 		String ownerId = getParameterConverter().toString(parameters, "ownerId");
 		if (StringUtils.isNotEmpty(filter.getOwnerType()) 

@@ -8,6 +8,7 @@ import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
 import { EntityStateManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
+import OperationStateEnum from '../../../enums/OperationStateEnum';
 
 const manager = new EntityStateManager();
 
@@ -87,32 +88,47 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className={ _.includes(columns, 'ownerType') ? '' : 'last' }>
-                  <Basic.Col lg={ 8 }>
+                  <Basic.Col lg={ 5 }>
                     <Advanced.Filter.FilterDate
                       mode="datetime"
                       fromProperty="createdFrom"
                       tillProperty="createdTill"
                       ref="createdTill"/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 } className="text-right">
+                  <Basic.Col lg={ 5 }>
+                    <Advanced.Filter.TextField
+                      ref="ownerId"
+                      placeholder={ this.i18n('filter.ownerId.placeholder') }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 2 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
+                <Basic.Row>
+                  <Basic.Col lg={ 5 }>
+                    <Advanced.Filter.EnumSelectBox
+                      ref="operationStates"
+                      placeholder={ this.i18n('filter.operationStates.placeholder') }
+                      enum={ OperationStateEnum }
+                      multiSelect
+                      useSymbol={ false }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 5 }>
+                    <Advanced.Filter.TextField
+                      ref="resultCode"
+                      placeholder={ this.i18n('filter.resultCode.placeholder') }/>
+                  </Basic.Col>
+                </Basic.Row>
                 <Basic.Row rendered={ _.includes(columns, 'ownerType') }>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 5 }>
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={ this.i18n('filter.text.placeholder') }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 5 }>
                     <Advanced.Filter.TextField
                       ref="ownerType"
                       placeholder={ this.i18n('filter.ownerType.placeholder') }/>
-                  </Basic.Col>
-                  <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.TextField
-                      ref="ownerId"
-                      placeholder={ this.i18n('filter.ownerId.placeholder') }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -149,6 +165,15 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
               }
             }
             rendered={_.includes(columns, 'result')}/>
+          <Advanced.Column
+            property="resultCode"
+            width={75}
+            cell={
+              ({rowIndex, data}) => (
+                data[rowIndex].result.code
+              )
+            }
+            rendered={_.includes(columns, 'resultCode')}/>
           <Advanced.Column property="created" sort face="datetime" rendered={ _.includes(columns, 'created') } width={ 175 }/>
           <Advanced.Column
             property="ownerType"
@@ -260,7 +285,7 @@ EntityStateTable.propTypes = {
 };
 
 EntityStateTable.defaultProps = {
-  columns: ['result', 'created', 'ownerType', 'ownerId', 'processor', 'processedOrder', 'instanceId', 'event'],
+  columns: ['result', 'resultCode', 'created', 'ownerType', 'ownerId', 'processor', 'processedOrder', 'instanceId', 'event'],
   filterOpened: false,
   forceSearchParameters: null,
   rendered: true

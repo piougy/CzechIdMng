@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.joda.time.DateTime;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -122,8 +123,9 @@ public class DefaultSysSyncLogService
 					.get(AbstractEntity_.id), systemId));
 		}
 		
-		if (filter.getModifiedFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncLog_.modified), filter.getModifiedFrom()));
+		DateTime modifiedFrom = filter.getModifiedFrom();
+		if (modifiedFrom != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncLog_.modified), modifiedFrom));
 		}
 		
 		return predicates;

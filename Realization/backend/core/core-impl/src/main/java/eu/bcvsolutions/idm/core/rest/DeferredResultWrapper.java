@@ -33,26 +33,13 @@ public class DeferredResultWrapper {
 			return result;
 		}
 
-		public void setResult(DeferredResult<OperationResultDto> result) {
-			this.result = result;
-		}
-
 		public UUID getEntityId() {
 			return entityId;
-		}
-
-		public void setEntityId(UUID entityId) {
-			this.entityId = entityId;
 		}
 
 		public Class<? extends AbstractDto> getType() {
 			return type;
 		}
-
-		public void setType(Class<? extends AbstractDto> type) {
-			this.type = type;
-		}
-		
 
 		public CheckLongPollingResult getCheckResultCallback() {
 			return checkResultCallback;

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 
 import org.junit.After;
@@ -12,15 +13,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
@@ -33,7 +37,10 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
@@ -41,7 +48,9 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -52,12 +61,16 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -67,6 +80,11 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.model.service.api.CheckLongPollingResult;
+import eu.bcvsolutions.idm.core.model.service.api.LongPollingManager;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultLongPollingManager;
+import eu.bcvsolutions.idm.core.rest.DeferredResultWrapper;
+import eu.bcvsolutions.idm.core.rest.LongPollingSubscriber;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -104,6 +122,9 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired private SysSyncConfigService syncConfigService;
 	@Autowired private SysSystemAttributeMappingService schemaAttributeMappingService;
 	@Autowired private SysProvisioningOperationService provisioningOperationService;
+	@Autowired private LongPollingManager longPollingManager;
+	@Autowired private SysSyncItemLogService syncItemLogService;
+	@Autowired private SysSyncActionLogService syncActionLogService;
 	
 	@Before
 	public void login() {
@@ -624,4 +645,120 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(555, poolConfiguration.getMinEvictableIdleTimeMillis());
 	}
 	
+	@Test
+	public void testExecuteDeferredResultOnCreateSyncItemLog() {
+		// create test system and sync
+		SysSystemDto system = helper.createTestResourceSystem(true);
+		AbstractSysSyncConfigDto syncConfig = createSync(system);
+
+		DeferredResult<OperationResultDto> result = new DeferredResult<OperationResultDto>(1000000l,
+				new OperationResultDto(OperationState.NOT_EXECUTED));
+		DeferredResultWrapper wrapper = new DeferredResultWrapper(system.getId(), system.getClass(), result);
+		wrapper.onCheckResultCallback(new CheckLongPollingResult() {
+
+			@Override
+			public void checkDeferredResult(DeferredResult<OperationResultDto> result,
+					LongPollingSubscriber subscriber) {
+				checkDeferredRequest(result, subscriber);
+			}
+		});
+
+		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
+		Queue<DeferredResultWrapper> suspendedRequests = defaultPollingManager.getSuspendedRequests();
+		assertEquals(0, suspendedRequests.size());
+
+		longPollingManager.addSuspendedResult(wrapper);
+
+		suspendedRequests = defaultPollingManager.getSuspendedRequests();
+		assertEquals(1, suspendedRequests.size());
+
+		longPollingManager.checkDeferredRequests(SysSystemDto.class);
+		suspendedRequests = defaultPollingManager.getSuspendedRequests();
+		assertEquals(1, suspendedRequests.size());
+		helper.startSynchronization(syncConfig);
+
+		SysSyncConfigFilter logFilter = new SysSyncConfigFilter();
+		logFilter.setId(syncConfig.getId());
+		logFilter.setIncludeLastLog(Boolean.TRUE);
+		List<AbstractSysSyncConfigDto> configs = syncConfigService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, configs.size());
+		SysSyncLogDto log = configs.get(0).getLastSyncLog();
+		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+		assertEquals(0, actions.size());
+		SysSyncActionLogDto mockAction = new SysSyncActionLogDto();
+		mockAction.setSyncAction(SynchronizationActionType.IGNORE);
+		mockAction.setSyncLog(log.getId());
+		mockAction.setOperationResult(OperationResultType.IGNORE);
+		mockAction = syncActionLogService.save(mockAction);
+
+		// Sync item log created -> must be detected
+		SysSyncItemLogDto mockItemLogDto = new SysSyncItemLogDto();
+		mockItemLogDto.setSyncActionLog(mockAction.getId());
+		mockItemLogDto.setIdentification(helper.createName());
+		mockItemLogDto = syncItemLogService.save(mockItemLogDto);
+
+		// Check must be called twice, because first detect the change and second remove
+		// ended deferred result (from some reason is not invoked method
+		// result.onCompleted)
+		longPollingManager.checkDeferredRequests(SysSystemDto.class);
+		longPollingManager.checkDeferredRequests(SysSystemDto.class);
+
+		suspendedRequests = defaultPollingManager.getSuspendedRequests();
+		assertEquals(0, suspendedRequests.size());
+
+		// Clear deferred result and subscribers
+		defaultPollingManager.getSuspendedRequests().clear();
+		defaultPollingManager.getRegistredSubscribers().clear();
+	}
+
+	private AbstractSysSyncConfigDto createSync(SysSystemDto system) {
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(system.getId());
+		SysSystemMappingDto mappingOrig = helper.getDefaultMapping(system);
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mappingOrig.getId());
+
+		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
+				.getContent();
+		SysSystemAttributeMappingDto nameAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_NAME);
+		}).findFirst().get();
+
+		SysSystemAttributeMappingDto firstNameAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
+		}).findFirst().get();
+
+		SysSystemAttributeMappingDto emailAttribute = attributes.stream().filter(attribute -> {
+			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_EMAIL);
+		}).findFirst().get();
+
+		// create synchronization config
+		AbstractSysSyncConfigDto syncConfig = new SysSyncIdentityConfigDto();
+		syncConfig.setCustomFilter(true);
+		syncConfig.setSystemMapping(mappingOrig.getId());
+		syncConfig.setCorrelationAttribute(nameAttribute.getId());
+		syncConfig.setTokenAttribute(firstNameAttribute.getId());
+		syncConfig.setFilterAttribute(emailAttribute.getId());
+		syncConfig.setReconciliation(true);
+		syncConfig.setName(system.getName());
+		syncConfig.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
+		syncConfig.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
+		syncConfig.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
+		syncConfig.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
+		syncConfig = syncConfigService.save(syncConfig);
+		return syncConfig;
+	}
+
+	private void checkDeferredRequest(DeferredResult<OperationResultDto> deferredResult,
+			LongPollingSubscriber subscriber) {
+		Assert.assertNotNull(deferredResult);
+		Assert.assertNotNull(subscriber.getEntityId());
+
+		SysSyncItemLogFilter filter = new SysSyncItemLogFilter();
+		filter.setSystemId(subscriber.getEntityId());
+		longPollingManager.baseCheckDeferredResult(deferredResult, subscriber, filter, syncItemLogService);
+	}
+
 }

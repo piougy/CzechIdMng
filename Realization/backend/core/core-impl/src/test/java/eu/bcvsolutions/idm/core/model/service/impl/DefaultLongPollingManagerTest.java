@@ -95,6 +95,11 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 
 	@Test
 	public void testRegisteredSubscribers() {
+		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
+		// Clear deferred result and subscribers
+		defaultPollingManager.getSuspendedRequests().clear();
+		defaultPollingManager.getRegistredSubscribers().clear();
+		
 		IdmIdentityDto identityOne = this.getHelper().createIdentity();
 
 		DeferredResult<OperationResultDto> result = new DeferredResult<OperationResultDto>(10000l,
@@ -111,7 +116,6 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 
 		longPollingManager.addSuspendedResult(wrapper);
 
-		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
 		Map<UUID, LongPollingSubscriber> registredSubscirbers = defaultPollingManager.getRegistredSubscribers();
 
 		assertEquals(1, registredSubscirbers.size());
@@ -135,6 +139,11 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 
 	@Test
 	public void testExecuteDeferredResultOnCreateRoleRequest() throws InterruptedException {
+		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
+		// Clear deferred result and subscribers
+		defaultPollingManager.getSuspendedRequests().clear();
+		defaultPollingManager.getRegistredSubscribers().clear();
+		
 		IdmIdentityDto identityOne = this.getHelper().createIdentity();
 
 		DeferredResult<OperationResultDto> result = new DeferredResult<OperationResultDto>(10000l,
@@ -149,7 +158,6 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 			}
 		});
 
-		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
 		Queue<DeferredResultWrapper> suspendedRequests = defaultPollingManager.getSuspendedRequests();
 		assertEquals(0, suspendedRequests.size());
 
@@ -180,7 +188,12 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 	}
 
 	@Test
-	public void testExecuteDeferredResultOnUpdateRoleRequest() throws InterruptedException {
+	public void testExecuteDeferredResultOnUpdateRoleRequest() {
+		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
+		// Clear deferred result and subscribers
+		defaultPollingManager.getSuspendedRequests().clear();
+		defaultPollingManager.getRegistredSubscribers().clear();
+		
 		IdmIdentityDto identityOne = this.getHelper().createIdentity();
 		IdmRoleRequestDto roleRequest = this.getHelper().createRoleRequest(identityOne, this.getHelper().createRole());
 
@@ -196,7 +209,6 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 			}
 		});
 
-		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
 		Queue<DeferredResultWrapper> suspendedRequests = defaultPollingManager.getSuspendedRequests();
 		assertEquals(0, suspendedRequests.size());
 
@@ -228,7 +240,12 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 	}
 
 	@Test
-	public void testExecuteDeferredResultOnDeleteRoleRequest() throws InterruptedException {
+	public void testExecuteDeferredResultOnDeleteRoleRequest() {
+		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
+		// Clear deferred result and subscribers
+		defaultPollingManager.getSuspendedRequests().clear();
+		defaultPollingManager.getRegistredSubscribers().clear();
+		
 		IdmIdentityDto identityOne = this.getHelper().createIdentity();
 		IdmRoleRequestDto roleRequest = this.getHelper().createRoleRequest(identityOne, this.getHelper().createRole());
 
@@ -244,7 +261,6 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 			}
 		});
 
-		DefaultLongPollingManager defaultPollingManager = (DefaultLongPollingManager) longPollingManager;
 		Queue<DeferredResultWrapper> suspendedRequests = defaultPollingManager.getSuspendedRequests();
 		assertEquals(0, suspendedRequests.size());
 

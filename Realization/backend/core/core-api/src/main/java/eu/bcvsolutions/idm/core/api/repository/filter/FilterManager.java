@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.repository.filter;
 
+import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.FilterBuilderFilter;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -14,7 +16,6 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * Builds filters for domain types.
  * 
  * @author Radek Tomiška
- *
  */
 public interface FilterManager {
 	
@@ -37,4 +38,12 @@ public interface FilterManager {
 	 * @return
 	 */
 	List<Predicate> toPredicates(Root<? extends BaseEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder, DataFilter filter);
+
+	/**
+     * Returns all registered filter builders
+     *
+     * @param filter
+     * @return
+     */
+    List<FilterBuilderDto> find(FilterBuilderFilter filter);
 }

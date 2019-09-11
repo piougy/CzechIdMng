@@ -40,7 +40,14 @@ public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> exten
 	 */
 	@Override
 	String getName();
-	
+
+
+	/**
+	 * A domain type for which it is intended.
+	 * @return Class<E>
+	 * */
+	public Class<E> getEntityClass();
+
 	/**
 	 * Filter construct partial criteria where clause => {@link Predicate}, which will be appended to query for defined domain type.
 	 * Returned Predicate could be {@code null}, if builder doesn't have all parameters in filter set.

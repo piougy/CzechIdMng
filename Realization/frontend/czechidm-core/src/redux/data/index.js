@@ -32,6 +32,7 @@ import NotificationConfigurationManager from './NotificationConfigurationManager
 import WebsocketManager from './WebsocketManager';
 import PasswordPolicyManager from './PasswordPolicyManager';
 import EntityEventProcessorManager from './EntityEventProcessorManager';
+import FilterBuilderManager from './FilterBuilderManager';
 import LongRunningTaskManager from './LongRunningTaskManager';
 import SchedulerManager from './SchedulerManager';
 import NotificationTemplateManager from './NotificationTemplateManager';
@@ -103,6 +104,7 @@ const ManagerRoot = {
   WebsocketManager,
   PasswordPolicyManager,
   EntityEventProcessorManager,
+  FilterBuilderManager,
   LongRunningTaskManager,
   SchedulerManager,
   NotificationTemplateManager,

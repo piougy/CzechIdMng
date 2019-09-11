@@ -2869,6 +2869,27 @@
             "placeholder": "Select event type (processor has to support all of them)"
           }
         }
+      },
+      "filter-builders": {
+        "header": "Filters",
+        "title": "Filters",
+        "filter": {
+          "name": {
+            "placeholder": "Entity name"
+          },
+          "module": {
+            "placeholder": "Entity module"
+          },
+          "description": {
+            "placeholder": "Entity description"
+          },
+          "entityType": {
+            "placeholder": "Select entity type"
+          },
+          "eventTypes": {
+            "placeholder": "Select event type"
+          }
+        }
       }
     },
     "scheduler": {
@@ -4218,6 +4239,14 @@
       "disabled": "$t(label.disabled)",
       "disableable": "Cannot be inactivated",
       "closeable": "Closes processing"
+    },
+    "FilterBuilder": {
+      "id": "ID",
+      "name": "Name",
+      "module": "Module",
+      "description": "Description",
+      "entityType": "Entity type",
+      "entityTypes": "Entity types"
     },
     "LongRunningTask": {
       "taskId": "Task ID",

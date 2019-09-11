@@ -2920,6 +2920,27 @@
             "placeholder": "Vyberte typ události (processor musí podporovat všechny vybrané)"
           }
         }
+      },
+      "filter-builders": {
+        "header": "Filtry",
+        "title": "Filtry",
+        "filter": {
+          "name": {
+            "placeholder": "Název entity"
+          },
+          "module": {
+            "placeholder": "Modul entity"
+          },
+          "description": {
+            "placeholder": "Popis entity"
+          },
+          "entityType": {
+            "placeholder": "Vyberte typ entity"
+          },
+          "eventTypes": {
+            "placeholder": "Vyberte typ události"
+          }
+        }
       }
     },
     "scheduler": {
@@ -4268,6 +4289,14 @@
       "disabled": "Neaktivní",
       "disableable": "Nelze vypnout",
       "closeable": "Uzavírá zpracování"
+    },
+    "FilterBuilder": {
+      "id": "Id",
+      "name": "Název",
+      "module": "Modul",
+      "description": "Popis",
+      "entityType": "Typ entity",
+      "entityTypes": "Typy entit"
     },
     "LongRunningTask": {
       "taskId": "Id úlohy",

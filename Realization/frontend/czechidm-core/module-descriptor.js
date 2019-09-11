@@ -995,6 +995,15 @@ module.exports = {
                 icon: '',
                 type: 'TAB',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ'] } ]
+              },
+              {
+                id: 'filter-builders',
+                labelKey: 'content.system.filter-builders.title',
+                order: 40,
+                path: '/modules/filter-builders',
+                icon: '',
+                type: 'TAB',
+                access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
               }
             ]
           },

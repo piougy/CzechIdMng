@@ -34,7 +34,12 @@ public abstract class BaseFilterBuilder<E extends BaseEntity, F extends DataFilt
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), FilterBuilder.class);
 		entityClass = (Class<E>) genericTypes[0];
 	}
-	
+
+    @Override
+	public Class<E> getEntityClass(){
+		return entityClass;
+	}
+
 	@Override
 	public boolean supports(FilterKey delimiter) {
 		return entityClass.isAssignableFrom(delimiter.getEntityClass())

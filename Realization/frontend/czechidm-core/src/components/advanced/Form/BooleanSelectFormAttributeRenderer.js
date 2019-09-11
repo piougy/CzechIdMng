@@ -34,7 +34,7 @@ export default class BooleanSelectFormAttributeRenderer extends BooleanFormAttri
    */
   getInputValue(formValue) {
     const value = formValue.booleanValue ? formValue.booleanValue : formValue.value;
-    if (value === null) {
+    if (value === null || value === undefined) {
       return null;
     }
     // Warning: string representation is needed (false value not work as selected value for react-select clearable functionality)

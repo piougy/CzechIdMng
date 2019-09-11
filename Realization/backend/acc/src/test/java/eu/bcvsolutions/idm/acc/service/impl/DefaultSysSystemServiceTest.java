@@ -64,6 +64,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -120,6 +121,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired private AccAccountService accountService;
 	@Autowired private SysSystemEntityService systemEntityService;
 	@Autowired private SysSyncConfigService syncConfigService;
+	@Autowired private SysSyncLogService syncLogService;
 	@Autowired private SysSystemAttributeMappingService schemaAttributeMappingService;
 	@Autowired private SysProvisioningOperationService provisioningOperationService;
 	@Autowired private LongPollingManager longPollingManager;
@@ -687,11 +689,10 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		logFilter.setIncludeLastLog(Boolean.TRUE);
 		List<AbstractSysSyncConfigDto> configs = syncConfigService.find(logFilter, null).getContent();
 		Assert.assertEquals(1, configs.size());
-		SysSyncLogDto log = configs.get(0).getLastSyncLog();
-		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
-		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
-		assertEquals(0, actions.size());
+		SysSyncLogDto log = new SysSyncLogDto();
+		log.setSynchronizationConfig(syncConfig.getId());
+		log = syncLogService.save(log);
+	
 		SysSyncActionLogDto mockAction = new SysSyncActionLogDto();
 		mockAction.setSyncAction(SynchronizationActionType.IGNORE);
 		mockAction.setSyncLog(log.getId());

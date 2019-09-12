@@ -12,6 +12,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
@@ -40,6 +41,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
  * @since 9.7.0
  */
 @Component(EavCodeContractByManagerFilter.BEAN_NAME)
+@Description("Filter for find subordinates (contracts) for given manager (identity). "
+		+ "Supports subordinate contracts by guarantee and tree structure - finds parent tree node by code in eav attribute value.")
 public class EavCodeContractByManagerFilter 
 		extends AbstractFilterBuilder<IdmIdentityContract, IdmIdentityContractFilter> {
 	

@@ -2,61 +2,36 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import org.springframework.hateoas.core.Relation;
 
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+
 /**
- * Filter dto
+ * Filter builder dto.
  *
+ * @author Radek Tomiška
  * @author artem
+ * @since 9.7.7
  */
 @Relation(collectionRelation = "filterBuilders")
 public class FilterBuilderDto extends AbstractComponentDto {
 
-    //private String name; Declared in super.
-    //private String module; Declared in super.
-    //private String description; Declared in super.
-    private String text;
-    private Boolean disabled;
-    private String entityType;
-    private Class entityClass;
-    private String filterBuilderClass;
+	private static final long serialVersionUID = 1L;
+	//
+	private Class<? extends BaseEntity> entityClass;
+    private Class<?> filterBuilderClass; // filter builder or service class
 
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Boolean getDisabled() {
-        return disabled;
-    }
-
-    public void setDisabled(Boolean disabled) {
-        this.disabled = disabled;
-    }
-
-    public String getEntityType() {
-        return entityType;
-    }
-
-    public void setEntityType(String entityType) {
-        this.entityType = entityType;
-    }
-
-    public void setEntityClass(Class entityClass) {
+    public void setEntityClass(Class<? extends BaseEntity> entityClass) {
         this.entityClass = entityClass;
     }
 
-    public Class getEntityClass() {
+    public Class<? extends BaseEntity> getEntityClass() {
         return entityClass;
     }
 
-    public void setFilterBuilderClass(String filterBuilderClass) {
+    public void setFilterBuilderClass(Class<?> filterBuilderClass) {
         this.filterBuilderClass = filterBuilderClass;
     }
 
-    public String getFilterBuilderClass() {
+    public Class<?> getFilterBuilderClass() {
         return filterBuilderClass;
     }
 }

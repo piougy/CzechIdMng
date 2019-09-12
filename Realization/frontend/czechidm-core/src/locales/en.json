@@ -2874,20 +2874,14 @@
         "header": "Filters",
         "title": "Filters",
         "filter": {
-          "name": {
-            "placeholder": "Entity name"
+          "text": {
+            "placeholder": "Property name, entity or filter type, description (like)"
           },
           "module": {
-            "placeholder": "Entity module"
+            "placeholder": "Module"
           },
-          "description": {
-            "placeholder": "Entity description"
-          },
-          "entityType": {
-            "placeholder": "Select entity type"
-          },
-          "eventTypes": {
-            "placeholder": "Select event type"
+          "entityClass": {
+            "placeholder": "Entity type"
           }
         }
       }
@@ -4241,12 +4235,22 @@
       "closeable": "Closes processing"
     },
     "FilterBuilder": {
-      "id": "ID",
-      "name": "Name",
-      "module": "Module",
-      "description": "Description",
-      "entityType": "Entity type",
-      "entityTypes": "Entity types"
+      "name": {
+        "label": "Property name",
+        "title": "Property used in url for apply filter."
+      },
+      "module": {
+        "label": "Module"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "entityType": {
+        "label": "Entity type"
+      },
+      "filterBuilderClass": {
+        "label": "Filter type"
+      }
     },
     "LongRunningTask": {
       "taskId": "Task ID",

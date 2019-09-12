@@ -1,26 +1,24 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter builder filter
  *
  * @author Kolychev Artem
+ * @author Radek Tomiška
+ * @since 9.7.7
  */
 public class FilterBuilderFilter extends DataFilter {
 
-    public static final String PARAMETER_NAME = "name";
-    public static final String PARAMETER_TEXT = "text";
-    public static final String PARAMETER_MODULE = "module";
-    public static final String PARAMETER_DESCRIPTION = "description";
-    public static final String PARAMETER_DISABLED = "disabled";
-    public static final String PARAMETER_FILTER_BUILDER_CLASS = "filterBuilderClass";
-    public static final String PARAMETER_ENTITY_CLASS = "entityClass";
-    public static final String PARAMETER_ENTITY_TYPE = "entityType";
+    public static final String PARAMETER_NAME = "name"; // equals
+    public static final String PARAMETER_MODULE = "module"; // equals
+    public static final String PARAMETER_DESCRIPTION = "description"; // like
+    public static final String PARAMETER_FILTER_BUILDER_CLASS = "filterBuilderClass"; // equals (use text for like)
+    public static final String PARAMETER_ENTITY_CLASS = "entityClass"; // equals (use text for like)
 
     public FilterBuilderFilter() {
         this(new LinkedMultiValueMap<>());
@@ -42,16 +40,6 @@ public class FilterBuilderFilter extends DataFilter {
         data.set(PARAMETER_NAME, name);
     }
 
-    @Override
-    public String getText() {
-        return getParameterConverter().toString(data, PARAMETER_TEXT);
-    }
-
-    @Override
-    public void setText(String text) {
-        data.set(PARAMETER_TEXT, text);
-    }
-
     public String getModule() {
         return getParameterConverter().toString(data, PARAMETER_MODULE);
     }
@@ -68,14 +56,6 @@ public class FilterBuilderFilter extends DataFilter {
         data.set(PARAMETER_DESCRIPTION, description);
     }
 
-    public Boolean getDisabled() {
-        return getParameterConverter().toBoolean(data, PARAMETER_DISABLED);
-    }
-
-    public void setDisabled(Boolean disabled) {
-        data.set(PARAMETER_DISABLED, disabled);
-    }
-
     public String getFilterBuilderClass() {
         return getParameterConverter().toString(data, PARAMETER_FILTER_BUILDER_CLASS);
     }
@@ -83,13 +63,12 @@ public class FilterBuilderFilter extends DataFilter {
     public void setFilterBuilderClass(String filterBuilderClass) {
         data.set(PARAMETER_FILTER_BUILDER_CLASS, filterBuilderClass);
     }
-
-    public void setEntityType(String entityClass) {
-        data.set(PARAMETER_ENTITY_TYPE, entityClass);
-    }
-
-    public String getEntityType() {
-        return getParameterConverter().toString(data, PARAMETER_ENTITY_TYPE);
-    }
-
+    
+    public String getEntityClass() {
+    	return getParameterConverter().toString(data, PARAMETER_ENTITY_CLASS);
+	}
+    
+    public void setEntityClass(String entityClass) {
+    	data.set(PARAMETER_ENTITY_CLASS, entityClass);
+	}
 }

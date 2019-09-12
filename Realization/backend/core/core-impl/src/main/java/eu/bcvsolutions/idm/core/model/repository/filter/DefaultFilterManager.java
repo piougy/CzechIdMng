@@ -1,14 +1,14 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
-import eu.bcvsolutions.idm.core.api.dto.AbstractComponentDto;
-import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.FilterBuilderFilter;
-import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -16,17 +16,20 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.AbstractComponentDto;
+import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.FilterBuilderFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.filter.DisabledFilterBuilder;
@@ -34,6 +37,9 @@ import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterKey;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
  * Builds filters to domain types.
@@ -47,6 +53,8 @@ public class DefaultFilterManager implements FilterManager {
 
 	private final ApplicationContext context;
 	private final PluginRegistry<FilterBuilder<?, ?>, FilterKey> builders;
+	//
+	@Autowired private ConfigurationService configurationService;
 
 	@Autowired
 	public DefaultFilterManager(
@@ -58,21 +66,27 @@ public class DefaultFilterManager implements FilterManager {
 		this.context = context;
 		this.builders = OrderAwarePluginRegistry.create(builders);
 	}
-
-	@SuppressWarnings("unchecked")
+	
+	@Override
 	public <E extends BaseEntity> FilterBuilder<E, DataFilter> getBuilder(Class<E> entityClass, String propertyName) {
 		FilterKey key = new FilterKey(entityClass, propertyName);
+		//
+		return getBuilder(key);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <E extends BaseEntity> FilterBuilder<E, DataFilter> getBuilder(FilterKey key) {
 		if (!builders.hasPluginFor(key)) {
 			return null;
 		}
 		//
 		// default plugin by ordered definition
-		FilterBuilder<E, DataFilter> builder = (FilterBuilder<E, DataFilter>) builders.getPluginFor(new FilterKey(entityClass, propertyName));
+		FilterBuilder<E, DataFilter> builder = (FilterBuilder<E, DataFilter>) builders.getPluginFor(key);
 		if (builder.isDisabled()) {
 			return new DisabledFilterBuilder<E>(builder);
 		}
 		String implName = builder.getConfigurationValue(ConfigurationService.PROPERTY_IMPLEMENTATION);
-		if (!StringUtils.hasLength(implName)) {
+		if (StringUtils.isEmpty(implName)) {
 			// return default builder - configuration is empty
 			return builder;
 		}
@@ -85,7 +99,7 @@ public class DefaultFilterManager implements FilterManager {
 					CoreResultCode.FILTER_IMPLEMENTATION_NOT_FOUND,
 					ImmutableMap.of(
 						"implementation", implName,
-						"propertyName", propertyName,
+						"propertyName", key.getName(),
 						"configurationProperty", builder.getConfigurationPropertyName(ConfigurationService.PROPERTY_IMPLEMENTATION)
 						), ex);
 		}
@@ -121,47 +135,109 @@ public class DefaultFilterManager implements FilterManager {
 	 * @return
 	 */
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<FilterBuilderDto> find(FilterBuilderFilter filter) {
+		Set<FilterKey> registeredFilterKeys = new HashSet<>();
 		List<FilterBuilderDto> dtos = new ArrayList<>();
-
+		//
+		// registered filter builders
 		Map<String, FilterBuilder> filterBuilders = context.getBeansOfType(FilterBuilder.class);
-		filterBuilders.forEach((key, filterBuilder) -> {
-			FilterBuilderDto dto = toDto(key, filterBuilder);
+		filterBuilders.forEach((beanName, filterBuilder) -> {
+			FilterBuilderDto dto = toDto(filterBuilder);
 			if (passFilter(dto, filter)) {
+				FilterKey filterKey = new FilterKey(dto.getEntityClass(), dto.getName());
+				// evaluate effective filter
+				if (getBuilder(filterKey) != filterBuilder) { // check reference to instance
+					dto.setDisabled(true);
+				}
+				registeredFilterKeys.add(filterKey);
 				dtos.add(dto);
+			}
+		});
+		//
+		// find field by recursion from registered services and filter dtos
+		Map<String, ReadDtoService> services = context.getBeansOfType(ReadDtoService.class);
+		services.forEach((beanName, service) -> {
+			if (service.getEntityClass() == null) {
+				LOG.trace("Service [{}], [{}] does not define controller entity, skip to resolve available filter criteria.",
+						beanName, service.getClass());
+			} else {
+				for (Field declaredField : service.getFilterClass().getDeclaredFields()) {
+					Class entityClass = service.getEntityClass();
+					String propertyName = declaredField.getName();
+					if (Modifier.isStatic(declaredField.getModifiers())) {
+						try {
+							Object propertyValue = declaredField.get(null);
+							if (propertyValue instanceof String) {
+								propertyName = (String) propertyValue;
+							} else {
+								LOG.trace("Value of static property [{}] for class [{}] is not string, skip to resolve available filter criteria.",
+										propertyName, entityClass);
+								continue;
+							}
+						} catch (IllegalArgumentException | IllegalAccessException e) {
+							LOG.warn("Get value of static property [{}] for class [{}] failed, skip to resolve available filter criteria.",
+									propertyName, entityClass);
+							continue;
+						}
+					}
+					//
+					FilterKey filterKey = new FilterKey(entityClass, propertyName);
+					if (registeredFilterKeys.contains(filterKey)) {
+						LOG.trace("Property [{}] for class [{}] has their own filter builder implemented.",
+								propertyName, entityClass);
+						continue;
+					}
+					//
+					FilterBuilderDto dto = new FilterBuilderDto();
+					// service and property is unique combination
+					dto.setId(String.format("%s-%s", beanName, propertyName));
+					dto.setName(propertyName);
+					// service - can be overriden - https://wiki.czechidm.com/tutorial/dev/override_service
+					dto.setModule(EntityUtils.getModule(service.getClass()));
+					dto.setDescription("Internal service implementation (toPredicates).");
+					dto.setEntityClass(entityClass);
+					dto.setFilterBuilderClass(AutowireHelper.getTargetClass(service));
+					dto.setDisabled(false); // service is always effective filter
+					//
+					if (passFilter(dto, filter)) {
+						dtos.add(dto);
+					}
+				}
 			}
 		});
 		// sort by name
 		dtos.sort(Comparator.comparing(AbstractComponentDto::getName));
-
+		//
 		LOG.debug("Returning [{}] registered filterBuilders", dtos.size());
 		//
 		return dtos;
 	}
-
-
-	/**
-	 * Convert filterBuilder to dto.
-	 *
-	 * @param key
-	 * @param filterBuilder
-	 * @return
-	 */
-	private FilterBuilderDto toDto(String key, FilterBuilder filterBuilder) {
-		FilterBuilderDto dto = new FilterBuilderDto();
-		dto.setId(key);
-		dto.setName(filterBuilder.getName());
-		dto.setModule(filterBuilder.getModule());
-		dto.setDisabled(filterBuilder.isDisabled());
-		dto.setDescription(filterBuilder.getDescription());
-		dto.setEntityClass(filterBuilder.getEntityClass());
-		dto.setEntityType(filterBuilder.getEntityClass().getSimpleName());
-		dto.setFilterBuilderClass(AutowireHelper.getTargetType(filterBuilder));
-		//Text Not supported.
-		//Id Not supported.
-		return dto;
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public FilterBuilder<? extends BaseEntity, ? extends DataFilter> getFilterBuilder(String filterBuilderId) {
+		Assert.notNull(filterBuilderId, "Filter builder identifier is required.");
+		//
+		return (FilterBuilder<? extends BaseEntity, ? extends DataFilter>) context.getBean(filterBuilderId);
 	}
-
+	
+	@Override
+	public void enable(String filterBuilderId) {
+		Assert.notNull(filterBuilderId, "Filter builder identifier is required.");
+		//
+		FilterBuilder<? extends BaseEntity, ? extends DataFilter> filterBuilder = getFilterBuilder(filterBuilderId);
+		Assert.notNull(filterBuilder, "Filter builder is required.");
+		//
+		// default plugin by ordered definition
+		FilterBuilder<? extends BaseEntity, ? extends DataFilter> defaultBuilder = (FilterBuilder<? extends BaseEntity, ? extends DataFilter>)
+				builders.getPluginFor(new FilterKey(filterBuilder.getEntityClass(), filterBuilder.getName()));
+		// impl property is controlled by default filter configuration
+		configurationService.setValue(
+				defaultBuilder.getConfigurationPropertyName(ConfigurationService.PROPERTY_IMPLEMENTATION),
+				filterBuilderId);
+	}
+	
 	/**
 	 * Returns true, when given filterBuilder pass given filter
 	 *
@@ -169,7 +245,9 @@ public class DefaultFilterManager implements FilterManager {
 	 * @param filter
 	 * @return
 	 */
-	private boolean passFilter(FilterBuilderDto filterBuilder, FilterBuilderFilter filter) {
+	protected boolean passFilter(FilterBuilderDto filterBuilder, FilterBuilderFilter filter) {
+		Assert.notNull(filterBuilder, "Filter builder is requred to evaluate filter.");
+		//
 		if (filter == null || filter.getData().isEmpty()) {
 			// empty filter
 			return true;
@@ -179,8 +257,27 @@ public class DefaultFilterManager implements FilterManager {
 			throw new UnsupportedOperationException("Filtering filter builder by [id] is not supported.");
 		}
 		// text - not supported
-		if (!StringUtils.isEmpty(filter.getText())) {
-			throw new UnsupportedOperationException("Filtering filter builder by [test] is not supported.");
+		String text = filter.getText();
+		if (!StringUtils.isEmpty(text)) {
+			text = text.toLowerCase();
+			if (!filterBuilder.getName().toLowerCase().contains(text.toLowerCase())
+					&& (filterBuilder.getDescription() == null || !filterBuilder.getDescription().toLowerCase().contains(text))
+					&& !filterBuilder.getEntityClass().getCanonicalName().toLowerCase().contains(text)
+					&& (
+							filterBuilder.getFilterBuilderClass().getCanonicalName() == null // anonymous classes returns null.
+							|| 
+							!filterBuilder.getFilterBuilderClass().getCanonicalName().toLowerCase().contains(text)
+						)
+					) {
+				return false;
+			}
+		}
+		// description - like
+		if (!StringUtils.isEmpty(filter.getDescription())
+				&& (filterBuilder.getDescription() == null 
+					|| !filterBuilder.getDescription().toLowerCase().contains(filter.getDescription().toLowerCase())
+					)) {
+			return false;
 		}
 		// filter builders name
 		if (!StringUtils.isEmpty(filter.getName()) && !filterBuilder.getName().equals(filter.getName())) {
@@ -191,13 +288,38 @@ public class DefaultFilterManager implements FilterManager {
 			return false;
 		}
 		// entity class
-		if (!StringUtils.isEmpty(filter.getFilterBuilderClass()) && !filterBuilder.getFilterBuilderClass().contains(filter.getFilterBuilderClass())) {
+		if (!StringUtils.isEmpty(filter.getEntityClass()) 
+				&& !filterBuilder.getEntityClass().getCanonicalName().equals(filter.getEntityClass())) {
 			return false;
 		}
-		// description - like
-		if (null != filter.getDescription()) {
-			return null != filterBuilder.getDescription() && filterBuilder.getDescription().contains(filter.getDescription());
+		// filter class
+		if (!StringUtils.isEmpty(filter.getFilterBuilderClass()) 
+				&& (
+						filterBuilder.getFilterBuilderClass().getCanonicalName() == null 
+						|| 
+						!filterBuilder.getFilterBuilderClass().getCanonicalName().equals(filter.getFilterBuilderClass())
+					)) {
+			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Convert filterBuilder to dto.
+	 *
+	 * @param key
+	 * @param filterBuilder
+	 * @return
+	 */
+	private FilterBuilderDto toDto(FilterBuilder<? extends BaseEntity, ? extends DataFilter> filterBuilder) {
+		FilterBuilderDto dto = new FilterBuilderDto();
+		dto.setId(filterBuilder.getId());
+		dto.setName(filterBuilder.getName());
+		dto.setModule(filterBuilder.getModule());
+		dto.setDisabled(filterBuilder.isDisabled());
+		dto.setDescription(filterBuilder.getDescription());
+		dto.setEntityClass(filterBuilder.getEntityClass());
+		dto.setFilterBuilderClass(AutowireHelper.getTargetClass(filterBuilder));
+		return dto;
 	}
 }

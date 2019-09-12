@@ -2925,20 +2925,14 @@
         "header": "Filtry",
         "title": "Filtry",
         "filter": {
-          "name": {
-            "placeholder": "Název entity"
+          "text": {
+            "placeholder": "Název proměnné, typ entity či filtru, popis (like)"
           },
           "module": {
-            "placeholder": "Modul entity"
+            "placeholder": "Modul"
           },
-          "description": {
-            "placeholder": "Popis entity"
-          },
-          "entityType": {
-            "placeholder": "Vyberte typ entity"
-          },
-          "eventTypes": {
-            "placeholder": "Vyberte typ události"
+          "entityClass": {
+            "placeholder": "Typ entity"
           }
         }
       }
@@ -4291,12 +4285,22 @@
       "closeable": "Uzavírá zpracování"
     },
     "FilterBuilder": {
-      "id": "Id",
-      "name": "Název",
-      "module": "Modul",
-      "description": "Popis",
-      "entityType": "Typ entity",
-      "entityTypes": "Typy entit"
+      "name": {
+        "label": "Název proměnné",
+        "title": "Název proměnné použité v url pro aplikování filtru."
+      },
+      "module": {
+        "label": "Modul"
+      },
+      "description": {
+        "label": "Popis"
+      },
+      "entityType": {
+        "label": "Typ entity"
+      },
+      "filterBuilderClass": {
+        "label": "Typ filtru"
+      }
     },
     "LongRunningTask": {
       "taskId": "Id úlohy",

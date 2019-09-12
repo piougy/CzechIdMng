@@ -8,20 +8,31 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.activiti.engine.impl.util.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.core.Relation;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
@@ -76,9 +87,12 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 		tObject = new JSONObject(embeddedString);
 		// get embedded list
 		String listString = tObject.get(nameEmbeddedList).toString();
-
-		ObjectMapper mapper = new ObjectMapper();
-		return mapper.readValue(listString, new TypeReference<List<LinkedHashMap<String, Object>>>() {});
+		//
+		return getMapper().readValue(listString, new TypeReference<List<LinkedHashMap<String, Object>>>() {});
+	}
+	
+	protected ObjectMapper getMapper() {
+		return new ObjectMapper();
 	}
 	
 	/**
@@ -154,5 +168,69 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 	 */
 	protected String getBasicAuth(String user, String password) {
 		return Base64.encodeBase64String((user + ":" + password).getBytes(StandardCharsets.UTF_8));
+	}
+	
+	/**
+	 * Returns dto's resource name defined by {@link Relation} annotation.
+	 * 
+	 * @param dtoClass
+	 * @return
+	 */
+	protected String getResourcesName(Class<? extends BaseDto> dtoClass) {
+		Relation mapping = dtoClass.getAnnotation(Relation.class);
+		if (mapping == null) {
+			throw new CoreException("Dto class [" + dtoClass + "] not have @Relation annotation! Configure dto annotation properly.");
+		}
+		return mapping.collectionRelation();
+	}
+	
+	/**
+	 * Converts filter parameters to string
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	protected MultiValueMap<String, String> toQueryParams(DataFilter filter) {
+		MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+		if (filter == null) {
+			return queryParams;
+		}
+		//
+		filter.getData().entrySet().forEach(entry -> {
+			queryParams.put(
+					entry.getKey(), 
+					entry
+						.getValue()
+						.stream()
+						.filter(Objects::nonNull)
+						.map(Objects::toString)
+						.collect(Collectors.toList())
+						);
+		});
+		return queryParams;
+	}
+	
+	/**
+	 * Transform response with embedded dto list to dtos
+	 * 
+	 * @param listResponse
+	 * @return
+	 */
+	protected <T extends BaseDto> List<T> toDtos(String listResponse, Class<T> dtoClass) {
+		try {
+			JsonNode json = getMapper().readTree(listResponse);
+			JsonNode jsonEmbedded = json.get("_embedded"); // by convention
+			JsonNode jsonResources = jsonEmbedded.get(getResourcesName(dtoClass));
+			//
+			// convert embedded object to target DTO classes
+			List<T> results = new ArrayList<>();
+			jsonResources.forEach(jsonResource -> {
+				results.add(getMapper().convertValue(jsonResource, dtoClass));
+			});
+			//
+			return results;
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed parse entities from list response", ex);
+		}
 	}
 }

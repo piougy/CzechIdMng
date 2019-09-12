@@ -8,6 +8,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -22,8 +23,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Component
+@Description("Filter identities by given external codes or usernames.")
 public class DefaultIdentityIdentifiersFilter extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 
 	@Autowired

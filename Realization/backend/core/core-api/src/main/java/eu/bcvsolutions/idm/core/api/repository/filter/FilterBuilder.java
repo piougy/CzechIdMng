@@ -33,6 +33,14 @@ public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> exten
 	}
 	
 	/**
+	 *  bean name / unique identifier (spring bean name)
+	 *  
+	 * @return
+	 * @since 9.7.7
+	 */
+	String getId();
+	
+	/**
 	 * Property in filter - filter will be applied, when property will be set in filtering parameters.
 	 * FilterBuilder could read other properties from filter, 
 	 * 
@@ -41,11 +49,12 @@ public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> exten
 	@Override
 	String getName();
 
-
 	/**
-	 * A domain type for which it is intended.
+	 * A domain type for which it is filter intended.
+	 * 
 	 * @return Class<E>
-	 * */
+	 * @since 9.7.7
+	 */
 	public Class<E> getEntityClass();
 
 	/**

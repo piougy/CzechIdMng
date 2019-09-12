@@ -8,6 +8,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
@@ -26,6 +27,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  *
  */
 @Component(GuaranteeSubordinatesFilter.BEAN_NAME)
+@Description("Filter for find subordinates for given identity. "
+		+ "Supports subordinates by guarantee only.")
 public class GuaranteeSubordinatesFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	

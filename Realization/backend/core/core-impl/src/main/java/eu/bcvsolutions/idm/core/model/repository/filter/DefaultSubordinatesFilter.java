@@ -7,6 +7,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * 
  */
 @Component
+@Description("Filter for find subordinates for given identity. "
+		+ "Supports subordinates by guarantee and tree structure - finds parent tree node standardly by tree structure.")
 public class DefaultSubordinatesFilter extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	
 	@Autowired @Lazy FilterManager filterManager;

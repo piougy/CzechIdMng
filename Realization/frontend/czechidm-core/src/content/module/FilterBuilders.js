@@ -3,20 +3,22 @@ import Helmet from 'react-helmet';
 import Immutable from 'immutable';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
+//
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import {DataManager, FilterBuilderManager} from '../../redux';
+import { DataManager, FilterBuilderManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import * as Utils from '../../utils';
-import UiUtils from "../../utils/UiUtils";
 
 const UIKEY = 'filter-builders';
 const manager = new FilterBuilderManager();
 
 /**
- * Filter builders filter
+ * Registered filter builders.
  *
  * @author Kolychev Artem
+ * @author Radek Tomiška
+ * @since 9.7.7
  */
 class FilterBuilders extends Advanced.AbstractTableContent {
 
@@ -56,7 +58,12 @@ class FilterBuilders extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.fetchFilterBuilders(SearchParameters.getSearchParameters(SearchParameters.getFilterData(this.refs.filterForm), this.props._searchParameters));
+    this.fetchFilterBuilders(
+      SearchParameters.getSearchParameters(
+        SearchParameters.getFilterData(this.refs.filterForm),
+        this.props._searchParameters
+      )
+    );
   }
 
   cancelFilter(event) {
@@ -71,28 +78,55 @@ class FilterBuilders extends Advanced.AbstractTableContent {
     this.context.store.dispatch(this.getManager().fetchEntities(searchParameters, UIKEY));
   }
 
+  onEnable(entity, enable, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const name = `${ entity.name } - ${ Utils.Ui.getSimpleJavaType(entity.filterBuilderClass) }`;
+    this.refs[`confirm-${enable ? '' : 'de'}activate`].show(
+      this.i18n(
+        `action.${enable ? '' : 'de'}activate.message`,
+        { count: 1, record: name }
+      ),
+      this.i18n(`action.${enable ? '' : 'de'}activate.header`, { count: 1 })
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().setEnabled(entity.id, (patchedEntity, error) => {
+        if (!error) {
+          this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: name }) });
+          // refresh table with processors
+          this.reload();
+        } else {
+          this.addError(error);
+        }
+      }));
+    }, () => {
+      // rejected
+    });
+  }
+
   render() {
-    const {filterBuilders, showLoading, registeredFilterBuilders, _searchParameters} = this.props;
-    const {filterOpened} = this.state;
+    const { filterBuilders, showLoading, registeredFilterBuilders, _searchParameters } = this.props;
+    const { filterOpened } = this.state;
     let _filterBuilders = new Immutable.OrderedMap();
     let _entityClasses = new Immutable.OrderedSet();
-    let allEntityClasses = new Immutable.OrderedSet();
+    let _registeredEntityClasses = new Immutable.OrderedSet();
     if (filterBuilders) {
       filterBuilders.forEach(filterBuilder => {
-        if (!_filterBuilders.has(filterBuilder.entityType)) {
-          _filterBuilders = _filterBuilders.set(filterBuilder.entityType, []);
+        if (!_filterBuilders.has(filterBuilder.entityClass)) {
+          _filterBuilders = _filterBuilders.set(filterBuilder.entityClass, []);
         }
-        const builder = _filterBuilders.get(filterBuilder.entityType);
+        const builder = _filterBuilders.get(filterBuilder.entityClass);
         builder.push(filterBuilder);
-        _filterBuilders = _filterBuilders.set(filterBuilder.entityType, builder);
-        _entityClasses = _entityClasses.add(filterBuilder.entityType);
+        _filterBuilders = _filterBuilders.set(filterBuilder.entityClass, builder);
+        _entityClasses = _entityClasses.add(filterBuilder.entityClass);
       });
     }
     if (registeredFilterBuilders) {
       registeredFilterBuilders.forEach(filterBuilder => {
-        const value = UiUtils.getSimpleJavaType(filterBuilder.filterBuilderClass);
-        allEntityClasses = allEntityClasses.add({value, niceLabel: value});
+        _registeredEntityClasses = _registeredEntityClasses.add(filterBuilder.entityClass);
       });
+      // sort _entityTypes
+      _registeredEntityClasses = _registeredEntityClasses.sort((one, two) => one > two);
     }
     return (
       <div>
@@ -107,7 +141,7 @@ class FilterBuilders extends Advanced.AbstractTableContent {
                 filterOpen={(open) => this.setState({filterOpened: open})}
                 filterOpened={filterOpened}
                 style={{marginLeft: 3}}
-                searchParameters={_searchParameters}/>
+                searchParameters={ _searchParameters }/>
               <Advanced.RefreshButton
                 onClick={this.fetchFilterBuilders.bind(this, _searchParameters)}
                 title={this.i18n('button.refresh')}
@@ -120,32 +154,26 @@ class FilterBuilders extends Advanced.AbstractTableContent {
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
-                    <Basic.Col lg={4}>
+                    <Basic.Col lg={ 8 }>
                       <Advanced.Filter.TextField
-                        ref="name"
-                        placeholder={this.i18n('filter.name.placeholder')}/>
+                        ref="text"
+                        placeholder={ this.i18n('filter.text.placeholder') }/>
                     </Basic.Col>
-                    <Basic.Col lg={4}>
+                    <Basic.Col lg={ 4 } className="text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
+                    </Basic.Col>
+                  </Basic.Row>
+                  <Basic.Row className="last">
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.TextField
                         ref="module"
                         placeholder={this.i18n('filter.module.placeholder')}/>
                     </Basic.Col>
-                    <Basic.Col lg={4} className="text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </Basic.Col>
-                  </Basic.Row>
-                  <Basic.Row className="last">
-                    <Basic.Col lg={4}>
-                      <Advanced.Filter.TextField
-                        ref="description"
-                        placeholder={this.i18n('filter.description.placeholder')}/>
-                    </Basic.Col>
-
-                    <Basic.Col lg={4}>
+                    <Basic.Col lg={ 4 }>
                       <Advanced.Filter.EnumSelectBox
-                        ref="filterBuilderClass"
-                        placeholder={this.i18n('filter.eventTypes.placeholder')}
-                        options={[...new Set(allEntityClasses.map(x => x.value))]}
+                        ref="entityClass"
+                        placeholder={ this.i18n('filter.entityClass.placeholder') }
+                        options={ _registeredEntityClasses.toArray().map(value => ({ value, niceLabel: Utils.Ui.getSimpleJavaType(value) })) }
                         searchable/>
                     </Basic.Col>
                   </Basic.Row>
@@ -155,45 +183,95 @@ class FilterBuilders extends Advanced.AbstractTableContent {
           </Basic.Collapse>
         </Basic.Toolbar>
         <Basic.Loading isStatic show={showLoading}/>
+        <Basic.Alert
+          level="info"
+          text={ this.i18n('component.basic.Table.noData') }
+          style={{ margin: 15 }}
+          rendered={ !showLoading && _filterBuilders.size === 0 } />
         {
           showLoading || _filterBuilders.size === 0
-                    ||
-                    <div>
-                      {
-                        _entityClasses.map((entityType) => (
-                          <div className="tab-pane-table-body" style={{marginBottom: 15}} key={entityType}>
-                            <Basic.ContentHeader text={entityType}/>
-                            <Basic.Table
-                              data={_filterBuilders.get(entityType)}
-                              showLoading={showLoading}
-                              noData={this.i18n('component.basic.Table.noData')}
-                              rowClass={({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex])}>
-                              <Basic.Column
-                                property="id"
-                                header={this.i18n('entity.FilterBuilder.id')}/>
-                              <Basic.Column
-                                property="module"
-                                header={this.i18n('entity.FilterBuilder.module')}/>
-                              <Basic.Column
-                                property="name"
-                                header={this.i18n('entity.FilterBuilder.name')}/>
-                              <Basic.Column
-                                property="description"
-                                header={this.i18n('entity.FilterBuilder.description')}/>
-                              <Basic.Column
-                                property="filterBuilderClass"
-                                header={this.i18n('entity.FilterBuilder.entityType')}/>
-                            </Basic.Table>
-                          </div>
-                        ))
-                      }
-                    </div>
+          ||
+          <div>
+            {
+              _entityClasses.map((entityClass) => (
+                <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
+                  <Basic.ContentHeader text={ Utils.Ui.getSimpleJavaType(entityClass) }/>
+                  <Basic.Table
+                    data={_filterBuilders.get(entityClass)}
+                    showLoading={showLoading}
+                    noData={ this.i18n('component.basic.Table.noData') }
+                    rowClass={ ({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }>
+                    <Basic.Column
+                      property="module"
+                      header={ this.i18n('entity.FilterBuilder.module.label') }
+                      width={ 100 }/>
+                    <Basic.Column
+                      property="name"
+                      width="20%"
+                      header={
+                        <span title={ this.i18n('entity.FilterBuilder.name.title') }>
+                          { this.i18n('entity.FilterBuilder.name.label') }
+                        </span>
+                      }/>
+                    <Basic.Column
+                      property="description"
+                      header={ this.i18n('entity.FilterBuilder.description.label') }/>
+                    <Basic.Column
+                      property="filterBuilderClass"
+                      width="20%"
+                      header={ this.i18n('entity.FilterBuilder.filterBuilderClass.label') }
+                      cell={
+                        ({rowIndex, data, property}) => {
+                          const filterBuilderClass = data[rowIndex][property];
+                          //
+                          return (
+                            <span title={ filterBuilderClass }>{ Utils.Ui.getSimpleJavaType(filterBuilderClass) }</span>
+                          );
+                        }
+                      }/>
+                    <Basic.Column
+                      header={ this.i18n('entity.id.label') }
+                      property="id"
+                      rendered={ this.isDevelopment() }
+                      className="text-center"
+                      width={ 100 }
+                      cell={
+                        ({rowIndex, data, property}) => (
+                          <Advanced.UuidInfo value={ data[rowIndex][property] }/>
+                        )
+                      }/>
+                    <Basic.Column
+                      header={this.i18n('label.action')}
+                      className="action"
+                      cell={
+                        ({rowIndex, data}) => {
+                          if (!data[rowIndex].disabled) {
+                            // filter can be activated only
+                            return null;
+                          }
+                          return (
+                            <Basic.Button
+                              level="success"
+                              onClick={ this.onEnable.bind(this, data[rowIndex], true) }
+                              className="btn-xs"
+                              title={this.i18n('button.activate')}
+                              titlePlacement="bottom">
+                              {this.i18n('button.activate')}
+                            </Basic.Button>
+                          );
+                        }
+                      }/>
+                  </Basic.Table>
+                </div>
+              ))
+            }
+            <Basic.Pagination total={ filterBuilders.length } />
+          </div>
         }
       </div>
     );
   }
 }
-
 
 FilterBuilders.propTypes = {
   userContext: PropTypes.object,
@@ -213,6 +291,7 @@ function select(state) {
     filterBuilders: manager.getEntities(state, UIKEY),
     showLoading: Utils.Ui.isShowLoading(state, UIKEY)
             || Utils.Ui.isShowLoading(state, FilterBuilderManager.UI_KEY_FILTER_BUILDERS),
+    _searchParameters: Utils.Ui.getSearchParameters(state, UIKEY)
   };
 }
 

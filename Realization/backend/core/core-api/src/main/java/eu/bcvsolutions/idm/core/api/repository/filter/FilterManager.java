@@ -44,6 +44,25 @@ public interface FilterManager {
      *
      * @param filter
      * @return
+     * @since 9.7.7
      */
     List<FilterBuilderDto> find(FilterBuilderFilter filter);
+    
+    /**
+     * Get filter builder by its id.
+     * 
+     * @param filterBuilderId
+     * @return
+     * @since 9.7.7
+     */
+    FilterBuilder<? extends BaseEntity, ? extends DataFilter> getFilterBuilder(String filterBuilderId);
+    
+    /**
+     * Activate given filter builder. 
+     * Filter can be activated (enabled) only => will be effective (old one active will not be used).
+     * 
+     * @param filterBuilderId
+     * @since 9.7.7
+     */
+    void enable(String filterBuilderId);
 }

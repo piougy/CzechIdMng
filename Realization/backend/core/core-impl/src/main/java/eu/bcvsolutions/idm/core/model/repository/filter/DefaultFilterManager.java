@@ -260,46 +260,51 @@ public class DefaultFilterManager implements FilterManager {
 		String text = filter.getText();
 		if (!StringUtils.isEmpty(text)) {
 			text = text.toLowerCase();
+			String filterBuilderDescription = filterBuilder.getDescription();
+			String filterBuilderClassCanonicalName = filterBuilder.getFilterBuilderClass().getCanonicalName();
 			if (!filterBuilder.getName().toLowerCase().contains(text.toLowerCase())
-					&& (filterBuilder.getDescription() == null || !filterBuilder.getDescription().toLowerCase().contains(text))
+					&& (filterBuilderDescription == null || !filterBuilderDescription.toLowerCase().contains(text))
 					&& !filterBuilder.getEntityClass().getCanonicalName().toLowerCase().contains(text)
 					&& (
-							filterBuilder.getFilterBuilderClass().getCanonicalName() == null // anonymous classes returns null.
+							filterBuilderClassCanonicalName == null // anonymous classes returns null.
 							|| 
-							!filterBuilder.getFilterBuilderClass().getCanonicalName().toLowerCase().contains(text)
+							!filterBuilderClassCanonicalName.toLowerCase().contains(text)
 						)
 					) {
 				return false;
 			}
 		}
 		// description - like
-		if (!StringUtils.isEmpty(filter.getDescription())
-				&& (filterBuilder.getDescription() == null 
-					|| !filterBuilder.getDescription().toLowerCase().contains(filter.getDescription().toLowerCase())
-					)) {
-			return false;
+		String description = filter.getDescription();
+		if (!StringUtils.isEmpty(description)) {
+			String filterBuilderDescription = filterBuilder.getDescription();
+			if (filterBuilderDescription == null || !filterBuilderDescription.toLowerCase().contains(description.toLowerCase())) {
+				return false;
+			}
 		}
 		// filter builders name
-		if (!StringUtils.isEmpty(filter.getName()) && !filterBuilder.getName().equals(filter.getName())) {
+		String name = filter.getName();
+		if (!StringUtils.isEmpty(name) && !name.equals(filterBuilder.getName())) {
 			return false;
 		}
 		// module module
-		if (!StringUtils.isEmpty(filter.getModule()) && !filter.getModule().equals(filterBuilder.getModule())) {
+		String module = filter.getModule();
+		if (!StringUtils.isEmpty(module) && !module.equals(filterBuilder.getModule())) {
 			return false;
 		}
 		// entity class
-		if (!StringUtils.isEmpty(filter.getEntityClass()) 
-				&& !filterBuilder.getEntityClass().getCanonicalName().equals(filter.getEntityClass())) {
+		String entityClass = filter.getEntityClass();
+		if (!StringUtils.isEmpty(entityClass) 
+				&& !filterBuilder.getEntityClass().getCanonicalName().equals(entityClass)) {
 			return false;
 		}
 		// filter class
-		if (!StringUtils.isEmpty(filter.getFilterBuilderClass()) 
-				&& (
-						filterBuilder.getFilterBuilderClass().getCanonicalName() == null 
-						|| 
-						!filterBuilder.getFilterBuilderClass().getCanonicalName().equals(filter.getFilterBuilderClass())
-					)) {
-			return false;
+		String filterBuilderClass = filter.getFilterBuilderClass();
+		if (!StringUtils.isEmpty(filterBuilderClass)) {
+			String filterBuilderClassCanonicalName = filterBuilder.getFilterBuilderClass().getCanonicalName();
+			if (filterBuilderClassCanonicalName == null || !filterBuilderClassCanonicalName.equals(filterBuilderClass)) {
+				return false;
+			}
 		}
 		return true;
 	}

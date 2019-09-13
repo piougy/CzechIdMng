@@ -45,10 +45,12 @@ public class DefaultIdmEntityStateService
 			IdmEntityStateFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmEntityState_.ownerType)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmEntityState_.ownerId).as(String.class)), "%" + filter.getText().toLowerCase() + "%"))
+					builder.like(builder.lower(root.get(IdmEntityState_.ownerType)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmEntityState_.ownerId).as(String.class)), "%" + text + "%"))
 					);
 		}
 		// owner type

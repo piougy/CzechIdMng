@@ -35,7 +35,9 @@ import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
- * CRUD for entity changes
+ * CRUD for entity changes.
+ * 
+ * TODO: add support for save confidential properties.
  * 
  * @author Radek Tomiška
  * @since 8.0.0

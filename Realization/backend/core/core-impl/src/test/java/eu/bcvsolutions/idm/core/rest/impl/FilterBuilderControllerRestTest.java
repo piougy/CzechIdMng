@@ -91,6 +91,11 @@ public class FilterBuilderControllerRestTest extends AbstractRestTest{
 		Assert.assertTrue(results.stream().anyMatch(f -> f.getFilterBuilderClass().equals(AutowireHelper.getTargetClass(guaranteeManagersFilter))));
 		Assert.assertTrue(results.stream().allMatch(f -> f.getEntityClass().equals(IdmIdentity.class)));
 		Assert.assertTrue(results.stream().allMatch(f -> f.getName().equals(defaultManagersFilter.getName())));
+		//
+		filter.setName(getHelper().createName()); // not-exists
+		filter.setEntityClass(IdmIdentity.class.getCanonicalName());
+		results = find(filter);
+		Assert.assertTrue(results.isEmpty());
 	}
 	
 	protected List<FilterBuilderDto> find(FilterBuilderFilter filter) {

@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.7.7]
+
+- Services ``IdmEntityEventService``, ``IdmEntityStateService`` are usable in scripts now (``ScriptEnabled`` added). 
+
 ## [9.7.5]
 
 - [#1798](https://redmine.czechidm.com/issues/1798) - **New base permissions for roles, which can be requested, was added**. Configure this new permissions (``CANBEREQUESTED``) to role, which enables role requests for users. Previously configured permissions ``AUTOCOMPLETE`` on role will be not suffiscient to see roles in role request detail (and in bulk actions for assign / remove assigned roles). ``AUTOCOMPLETE`` permission can be used  widely for select boxes. **If you have ``RoleCanBeRequestedEvaluator`` configured in you project already, just switch permission from ``AUTOCOMPLETE`` to ``CANBEREQUESTED``**.

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 
 /**
  * Entity states
@@ -13,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
  * @author Radek Tomiška
  * @since 9.0.0
  */
-public interface EntityStateManager {
+public interface EntityStateManager extends ScriptEnabled {
 	
 	/**
 	 * Owner type has to be entity class - dto instance can be given.

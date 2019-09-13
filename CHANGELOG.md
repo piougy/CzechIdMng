@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [9.7.7]
 
-- Services ``IdmEntityEventService``, ``IdmEntityStateService`` are usable in scripts now (``ScriptEnabled`` added). 
+- Services ``IdmEntityEventService``, ``IdmEntityStateService`` and managers ``EntityEventManager``, ``EntityStateManager`` are usable in scripts now (``ScriptEnabled`` added). 
 
 ## [9.7.5]
 

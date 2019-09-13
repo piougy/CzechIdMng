@@ -73,6 +73,7 @@ public class IdmEntityStateControllerRestTest extends AbstractReadWriteDtoContro
 		state = prepareDto();
 		state.setOwnerId(ownerTwo);
 		state.setOwnerType(ownerTypeTwo);
+		state.getResult().setCode("mOck-code");
 		IdmEntityStateDto stateTwo = entityStateService.save(state);
 		//
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
@@ -87,6 +88,12 @@ public class IdmEntityStateControllerRestTest extends AbstractReadWriteDtoContro
 		results = find(parameters);
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateOne.getId())));
+		//
+		parameters.set("text", "moCk-");
+		parameters.set("ownerType", ownerTypeTwo);
+		results = find(parameters);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateTwo.getId())));
 	}
 
 	@Test

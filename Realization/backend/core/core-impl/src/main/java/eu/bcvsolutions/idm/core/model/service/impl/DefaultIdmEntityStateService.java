@@ -50,8 +50,9 @@ public class DefaultIdmEntityStateService
 			text = text.toLowerCase();
 			predicates.add(builder.or(
 					builder.like(builder.lower(root.get(IdmEntityState_.ownerType)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmEntityState_.ownerId).as(String.class)), "%" + text + "%"))
-					);
+					builder.like(builder.lower(root.get(IdmEntityState_.ownerId).as(String.class)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmEntityState_.result).get(OperationResult_.code)), "%" + text + "%")
+					));
 		}
 		// owner type
 		if (StringUtils.isNotEmpty(filter.getOwnerType())) {

@@ -3320,7 +3320,7 @@
       "label": "$t(content.entityStates.title)",
       "filter": {
         "text": {
-          "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity (like)"
+          "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity / $t(entity.EntityState.resultCode.label) (like)"
         },
         "operationStates": {
           "placeholder": "$t(entity.EntityState.operationState.label)"

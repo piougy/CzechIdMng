@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
  * @author Radek Tomiška
  *
  */
-public interface RoleConfiguration  extends Configurable {
+public interface RoleConfiguration extends Configurable {
 	
 	/**
 	 * Default user role - permissions configured for the default role are automatically assigned to every logged identity.

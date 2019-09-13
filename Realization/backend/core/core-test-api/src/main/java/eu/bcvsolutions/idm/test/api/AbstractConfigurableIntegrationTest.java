@@ -1,6 +1,7 @@
-package eu.bcvsolutions.idm.core.api.config;
+package eu.bcvsolutions.idm.test.api;
 
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -11,7 +12,7 @@ import org.springframework.context.ApplicationContext;
 
 import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Test all configurable services to provide configuration properties - "formal" test.
@@ -29,16 +30,23 @@ public class AbstractConfigurableIntegrationTest extends AbstractIntegrationTest
 	//
 	@Autowired private ApplicationContext context;
 	@Autowired private ConfigurationService configurationService;
+	@Autowired private EnabledEvaluator enabledEvaluator;
 	
 	@Test
 	public void testCheckRegisteredConfigurations() {
-		Map<String, Configurable> configurables = context.getBeansOfType(Configurable.class);
+		List<Configurable> configurables = context
+				.getBeansOfType(Configurable.class)
+				.values()
+				.stream()
+				.filter(c -> enabledEvaluator.isEnabled(c))
+				.collect(Collectors.toList());
+		//
 		Assert.assertFalse(configurables.isEmpty());
 		//
 		// check all configuration provides it's type
-		Assert.assertTrue(configurables.values().stream().allMatch(c -> StringUtils.isNotBlank(c.getConfigurableType())));
+		Assert.assertTrue(configurables.stream().allMatch(c -> StringUtils.isNotBlank(c.getConfigurableType())));
 		// check all configuration provides it's name
-		Assert.assertTrue(configurables.values().stream().allMatch(c -> {
+		Assert.assertTrue(configurables.stream().allMatch(c -> {
 			String name = c.getName();
 			if (name.contains(".")) {
 				LOG.warn("Configurable component [{}] has dynamic name [{}]. Define configurable name to better localization support.",
@@ -47,9 +55,9 @@ public class AbstractConfigurableIntegrationTest extends AbstractIntegrationTest
 			return StringUtils.isNotBlank(name);
 		}));
 		// check all configuration provides it's properties (not nullable)
-		Assert.assertTrue(configurables.values().stream().allMatch(c -> c.getPropertyNames() != null));
+		Assert.assertTrue(configurables.stream().allMatch(c -> c.getPropertyNames() != null));
 		// check all configuration has correct namespace if it's secured 
-		Assert.assertTrue(configurables.values().stream().allMatch(c -> {
+		Assert.assertTrue(configurables.stream().allMatch(c -> {
 			// can be other (e.g. not configurable from UI) => only invalid way is checked
 			if (c.isSecured()) {
 				return !c.getConfigurationPrefix().startsWith(ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX);
@@ -58,7 +66,7 @@ public class AbstractConfigurableIntegrationTest extends AbstractIntegrationTest
 		}));
 		//
 		// check not disablable configuration cannot be disabled
-		Assert.assertTrue(configurables.values().stream().allMatch(c -> {
+		Assert.assertTrue(configurables.stream().allMatch(c -> {
 			// can be other (e.g. not configurable from UI) => only invalid way is checked
 			if (!c.isDisableable()) {
 				//  try to disable configuration
@@ -72,10 +80,10 @@ public class AbstractConfigurableIntegrationTest extends AbstractIntegrationTest
 			return true;
 		}));
 		// 
-		// check common configurations are available
-		Assert.assertTrue(configurables.values().stream().anyMatch(c -> c.getConfigurableType().equals("identity")));
-		Assert.assertTrue(configurables.values().stream().anyMatch(c -> c.getConfigurableType().equals("role")));
-		Assert.assertTrue(configurables.values().stream().anyMatch(c -> c.getConfigurableType().equals("tree")));
-		Assert.assertTrue(configurables.values().stream().anyMatch(c -> c.getConfigurableType().equals("attachment")));
+		// check required core common configurations are available (has to be available for all modules)
+		Assert.assertTrue(configurables.stream().anyMatch(c -> c.getConfigurableType().equals("identity")));
+		Assert.assertTrue(configurables.stream().anyMatch(c -> c.getConfigurableType().equals("role")));
+		Assert.assertTrue(configurables.stream().anyMatch(c -> c.getConfigurableType().equals("tree")));
+		Assert.assertTrue(configurables.stream().anyMatch(c -> c.getConfigurableType().equals("attachment")));
 	}
 }

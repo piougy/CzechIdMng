@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -16,9 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
@@ -34,8 +38,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.event.processor.LongRunningTaskExecuteDependentProcessor;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmDependentTaskTriggerRepository;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleExpirationTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -51,6 +55,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	@Autowired private IdmScheduledTaskService scheduledTaskService;
 	@Autowired private IdmDependentTaskTriggerRepository dependentTaskTriggerRepository;
+	@Autowired private IdmIdentityService identityService;
 	//
 	private DefaultSchedulerManager manager;
 	
@@ -318,6 +323,67 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		//
 		taskOne = manager.getTask(taskOne.getId());
 		Assert.assertEquals("update", taskOne.getParameters().get(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY));
+	}
+	
+	/**
+	 * Disabled task can be loaded, but cannot be executed 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testDisabledTask() throws InterruptedException {
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		Task createTask = new Task();
+		createTask.setInstanceId(configurationService.getInstanceId());
+		createTask.setTaskType(TestUpdateIdentityTask.class);
+		createTask.setDescription("test");
+		createTask.getParameters().put(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY, identityOne.getUsername());
+		//
+		Task taskOne = manager.createTask(createTask);
+		Task task = manager.getTask(taskOne.getId());
+		//
+		Assert.assertFalse(task.isDisabled());
+		//
+		TestUpdateIdentityTask disabledTaskExecutor = AutowireHelper.createBean(TestUpdateIdentityTask.class);
+		try {
+			configurationService.setBooleanValue(
+					disabledTaskExecutor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED), 
+					false
+			);
+			//
+			task = manager.getTask(taskOne.getId());
+			Assert.assertTrue(task.isDisabled());
+			//
+			List<Task> supportedTasks = manager.getSupportedTasks();
+			Assert.assertTrue(supportedTasks.stream().anyMatch(t -> t.isDisabled() && t.getTaskType().equals(TestUpdateIdentityTask.class)));
+			//
+			// Schedule task and execute => lastName should not be changed.
+			manager.createTrigger(taskOne.getId(), getSimpleTrigger(taskOne));
+			// 
+			Function<String, Boolean> continueFunction = res -> {
+				return !manager.getTask(taskOne.getId()).getTriggers().isEmpty();
+			};
+			getHelper().waitForResult(continueFunction);
+			//
+			identityOne = identityService.get(identityOne);
+			Assert.assertNotEquals(identityOne.getUsername(), identityOne.getLastName());
+			//
+			configurationService.setBooleanValue(
+					disabledTaskExecutor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED), 
+					true
+			);
+			//
+			manager.createTrigger(taskOne.getId(), getSimpleTrigger(taskOne));
+			//
+			getHelper().waitForResult(continueFunction);
+			//
+			identityOne = identityService.get(identityOne);
+			Assert.assertEquals(identityOne.getUsername(), identityOne.getLastName());
+		} finally {
+			configurationService.setBooleanValue(
+					disabledTaskExecutor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED), 
+					true
+			);
+		}
 	}
 	
 	

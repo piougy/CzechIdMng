@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -27,6 +28,8 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		extends AbstractLongRunningTaskExecutor<V> 
 		implements SchedulableTaskExecutor<V> {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractSchedulableTaskExecutor.class);
+	//
 	@Autowired protected SecurityService securityService;
 	@Autowired protected IdmLongRunningTaskService longRunningTaskService;
 	@Autowired protected LongRunningTaskManager longRunningTaskManager;
@@ -36,6 +39,12 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 	
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
+		if (this.isDisabled()) {
+			LOG.warn("Task [{}] is disabled and cannot be executed, remove schedule for this task to hide this warning.",
+					AutowireHelper.getTargetClass(this).getSimpleName());
+			return;
+		}
+		//
 		// run as system - called from scheduler internally
 		securityService.setSystemAuthentication();
 		//
@@ -65,7 +74,7 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 	private IdmLongRunningTaskDto createIdmLongRunningTask(
 			JobExecutionContext context, IdmScheduledTaskDto taskDto) {
 		IdmLongRunningTaskDto longRunningTask = new IdmLongRunningTaskDto();
-		longRunningTask.setTaskType(getClass().getCanonicalName());
+		longRunningTask.setTaskType(AutowireHelper.getTargetType(this));
 		longRunningTask.setTaskDescription(context.getJobDetail().getDescription());
 		longRunningTask.setTaskProperties(context.getMergedJobDataMap());
 		longRunningTask.setResult(new OperationResult.Builder(OperationState.CREATED).build());
@@ -94,5 +103,4 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		IdmScheduledTaskDto dto = scheduledTaskService.findByQuartzTaskName(taskName);
 		return dto == null ? createIdmScheduledTask(taskName) : dto;
 	}
-
 }

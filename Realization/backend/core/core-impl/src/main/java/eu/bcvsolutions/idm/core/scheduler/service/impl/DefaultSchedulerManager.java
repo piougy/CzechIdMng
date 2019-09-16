@@ -24,6 +24,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.utils.Key;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,10 +97,13 @@ public class DefaultSchedulerManager implements SchedulerManager {
 					task.setModule(taskExecutor.getModule());
 					task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) AutowireHelper.getTargetClass(taskExecutor));
 					task.setDescription(AutowireHelper.getBeanDescription(entry.getKey()));
-					for (String parameterName : taskExecutor.getPropertyNames()) {
-						task.getParameters().put(parameterName, null);
+					task.setDisabled(taskExecutor.isDisabled());
+					if (!task.isDisabled()) {
+						for (String parameterName : taskExecutor.getPropertyNames()) {
+							task.getParameters().put(parameterName, null);
+						}
+						task.setFormDefinition(taskExecutor.getFormDefinition());
 					}
-					task.setFormDefinition(taskExecutor.getFormDefinition());
 					return task;
 				})
 				.sorted(Comparator.comparing(task -> task.getTaskType().getSimpleName(), Comparator.naturalOrder()))
@@ -157,10 +161,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			Task task = new Task();
 			// task setting
 			task.setId(jobKey.getName());
-			// AutowireHelper is not needed here
-			SchedulableTaskExecutor<?> taskExecutor = (SchedulableTaskExecutor<?>) jobDetail.getJobClass().newInstance();
+			// app context is needed here
+			SchedulableTaskExecutor<?> taskExecutor = (SchedulableTaskExecutor<?>) context.getAutowireCapableBeanFactory()
+					.createBean(jobDetail.getJobClass());
 			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) AutowireHelper.getTargetClass(taskExecutor));
-			task.setSupportsDryRun(taskExecutor.supportsDryRun());
 			task.setDescription(jobDetail.getDescription());
 			task.setInstanceId(jobDetail.getJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
 			task.setTriggers(new ArrayList<>());
@@ -169,8 +173,15 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			for (Entry<String, Object> entry : jobDetail.getJobDataMap().entrySet()) {
 				task.getParameters().put(entry.getKey(), entry.getValue() == null ? null : entry.getValue().toString());
 			}
-			if (context != null) { // scheduler is initialized before application context
-				task.setFormDefinition(taskExecutor.getFormDefinition());
+			task.setDisabled(taskExecutor.isDisabled());
+			if (!task.isDisabled()) {
+				task.setSupportsDryRun(taskExecutor.supportsDryRun());
+				if (context != null) { // scheduler is initialized before application context
+					task.setFormDefinition(taskExecutor.getFormDefinition());
+				}
+			} else {
+				LOG.warn("Task [{}] is disabled and cannot be executed, remove schedule for this task to hide this warning.",
+						task.getTaskType().getSimpleName());
 			}
 			// scheduled triggers - native
 			for (Trigger trigger : scheduler.getTriggersOfJob(jobKey)) {
@@ -198,7 +209,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 				return null;
 			}
 			throw new CoreException(ex);	
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException ex) {
+		} catch (BeansException | IllegalArgumentException ex) {
 			deleteTask(jobKey.getName());
 			LOG.warn("Job [{}] inicialization failed, scheduled task is removed", jobKey, ex);
 			return null;
@@ -246,7 +257,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			// add job 
 			scheduler.addJob(jobDetail, false);			
 			//
-			LOG.debug("Job '{}' ({}) was created and registered", taskId, task.getTaskType());
+			LOG.debug("Job [{}] ([{}]) was created and registered", taskId, task.getTaskType());
 			//
 			return getTask(taskId);
 		} catch (org.quartz.SchedulerException ex) {

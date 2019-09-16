@@ -10,7 +10,7 @@ import * as Basic from '../../basic';
 class DetailButton extends Basic.AbstractContextComponent {
 
   render() {
-    const { rendered, title, onClick } = this.props;
+    const { rendered, title, onClick, disabled } = this.props;
     if (!rendered) {
       return null;
     }
@@ -29,7 +29,8 @@ class DetailButton extends Basic.AbstractContextComponent {
         title={ _title }
         titlePlacement="bottom"
         onClick={ onClick }
-        className="btn-xs">
+        className="btn-xs"
+        disabled={ disabled }>
         <Basic.Icon type="fa" icon="search"/>
       </Basic.Button>
     );

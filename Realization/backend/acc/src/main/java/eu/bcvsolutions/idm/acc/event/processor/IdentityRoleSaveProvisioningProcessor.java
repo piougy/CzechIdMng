@@ -49,7 +49,6 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	//
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private EntityEventManager entityEventManager;
-	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private AccAccountManagementService accountManagementService;
 	@Autowired private ProvisioningService provisioningService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
@@ -85,11 +84,16 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 		UUID roleId = identityRole.getRole();
 		SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
 		roleSystemFilter.setRoleId(roleId);
-		long numberOfMappedSystem = roleSystemService.count(roleSystemFilter);
-		if(numberOfMappedSystem == 0) {
-			return new DefaultEventResult<>(event, this);
-		}
 		
+		// I had to turn off this optimization, because we need to recalculate (remove
+		// identity-account) identity-role mapped on role where mapped system no longer
+		// exists.
+
+		// long numberOfMappedSystem = roleSystemService.count(roleSystemFilter);
+		// if(numberOfMappedSystem == 0) {
+		// return new DefaultEventResult<>(event, this);
+		// }
+				
 		IdmIdentityContractDto identityContract = identityContractService.get(identityRole.getIdentityContract());
 		IdmIdentityDto identity = DtoUtils.getEmbedded(identityContract, IdmIdentityContract_.identity);
 		

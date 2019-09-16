@@ -403,20 +403,32 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	private void resolveIdentityAccountForDelete(List<AccIdentityAccountDto> identityAccountList,
 			List<IdmIdentityRoleDto> identityRoles, List<AccIdentityAccountDto> identityAccountsToDelete) {
 
+		// Search IdentityAccounts to delete
 		identityRoles.stream().filter(identityRole -> {
 			return !identityRole.isValid();
 		}).forEach(identityRole -> {
-			// Search IdentityAccounts to delete
-
-			// Identity-account is not removed (even if that identity-role is invalid) if
-			// the role-system has enabled forward account management and identity-role will
-			// be valid in the future.
 			identityAccountList.stream() //
 					.filter(identityAccount -> identityRole.getId().equals(identityAccount.getIdentityRole())) //
+					// Identity-account is not removed (even if that identity-role is invalid) if
+					// the role-system has enabled forward account management and identity-role will
+					// be valid in the future.
 					.filter(identityAccount -> identityAccount.getRoleSystem() == null
 							|| !( ((SysRoleSystemDto) DtoUtils
 									.getEmbedded(identityAccount, AccIdentityAccount_.roleSystem))
 									.isForwardAccountManagemen() && identityRole.isValidNowOrInFuture())) //
+					.forEach(identityAccount -> {
+						identityAccountsToDelete.add(identityAccount);
+					});
+		});
+		
+		// Search IdentityAccounts to delete - we want to delete identity-account if
+		// identity-role is valid, but mapped system on the role does not longer exist.
+		identityRoles.stream().filter(identityRole -> {
+			return identityRole.isValid();
+		}).forEach(identityRole -> {
+			identityAccountList.stream() //
+					.filter(identityAccount -> identityRole.getId().equals(identityAccount.getIdentityRole())) //
+					.filter(identityAccount -> identityAccount.getRoleSystem() == null) //
 					.forEach(identityAccount -> {
 						identityAccountsToDelete.add(identityAccount);
 					});

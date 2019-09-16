@@ -918,11 +918,13 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 			}
 		}
 
-		// check audit records for identity account, exists two record, because helper create one and second create save with change identity role
+		// Check audit records for identity account, exists three record, because helper
+		// create one and second create save with change identity role and third is
+		// delete of this identity-account (role does not mapping the system)
 		filter = new IdmAuditFilter();
 		filter.setEntityId(identityAccount.getId());
 		List<IdmAuditDto> auditsForIdentityAccount = auditService.find(filter, null).getContent();
-		assertEquals(2, auditsForIdentityAccount.size());
+		assertEquals(3, auditsForIdentityAccount.size());
 
 		// some tests expect data as contract slice with id 1. Just for sure we clear test slices
 		slices = contractSliceService.find(contractSliceFilter, null).getContent();

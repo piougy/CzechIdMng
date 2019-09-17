@@ -36,7 +36,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    if (this.props.filterOpened) {
+    if (this.refs.text) {
       this.refs.text.focus();
     }
   }

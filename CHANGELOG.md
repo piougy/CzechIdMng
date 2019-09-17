@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [9.7.7]
 
 - Services ``IdmEntityEventService``, ``IdmEntityStateService`` and managers ``EntityEventManager``, ``EntityStateManager`` are usable in scripts now (``ScriptEnabled`` added).
-- [#1851](https://redmine.czechidm.com/issues/1851) - Bulk action for recalculate accounts and provision (``RoleAccountManagementBulkAction``) on the role table works the same way as the same bulk action on the identity table - account management and provisioning is called synchronously in LRT, which is asynchronuos itself (and event queue is not overused now).
+- [#1851](https://redmine.czechidm.com/issues/1851) - Bulk action for recalculate accounts and provision (``RoleAccountManagementBulkAction``) on the role table works the same way as the same bulk action on the identity table - account management and provisioning is called synchronously in LRT, which is asynchronous itself (and event queue is not overused now).
 
 ## [9.7.5]
 

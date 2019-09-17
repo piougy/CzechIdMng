@@ -1212,7 +1212,7 @@
         "header": "New configuration item"
       },
       "save": {
-        "success": "Configuration items [{{name}}] successfully saved",
+        "success": "Configuration item [{{name}}] successfully saved",
         "sucessBulk": "Configuration items were successfully saved"
       },
       "addMore":{

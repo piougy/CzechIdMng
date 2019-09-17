@@ -122,7 +122,8 @@
     "text": {
       "help": {
         "header": "Filtering",
-        "body": "<div>Filter is using <strong>like</strong> operator:<br /><ul><li>looking for any occurrence of the specified string,</li><li>available wildcard characters:<ul><li><strong>%</strong> - matches zero or more characters,</li><li><strong>_</strong> - single character.</li></ul></li></ul>If we want to look for special characters, we add a backslash <strong>\\\\%,\\\\.</strong></div>"
+        "body": "<div>Filter is using <strong>like</strong> operator:<br /><ul><li>looking for any occurrence of the specified string,</li><li>available wildcard characters:<ul><li><strong>%</strong> - matches zero or more characters,</li><li><strong>_</strong> - single character.</li></ul></li></ul>If we want to look for special characters, we add a backslash <strong>\\\\%,\\\\.</strong></div>",
+        "uuid": "<div>Given <strong>uuid</strong> identifiers cannot contain dashes (short identifier can be given or dashes can be removed).</div>"
       }
     },
     "module": {

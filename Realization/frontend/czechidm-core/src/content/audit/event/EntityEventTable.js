@@ -194,7 +194,8 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={ this.i18n('filter.text.placeholder') }/>
+                      placeholder={ this.i18n('filter.text.placeholder') }
+                      help={ Advanced.Filter.getTextHelp({ includeUuidHelp: true }) }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField

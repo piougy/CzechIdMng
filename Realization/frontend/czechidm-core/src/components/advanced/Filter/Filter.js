@@ -68,16 +68,23 @@ export default class Filter extends Basic.AbstractContextComponent {
    *
    * @return {HelpContent} help can be given to input help props or to the help icon itself
    */
-  static getTextHelp() {
+  static getTextHelp({ includeUuidHelp } = { includeUuidHelp: false }) {
     let helpContent = new HelpContent();
     helpContent = helpContent.setHeader(
       <span>
         <Basic.Icon value="filter"/> { i18n('filter.text.help.header') }
       </span>
     );
-    helpContent = helpContent.setBody((
-      (<span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.body') }}/>)
-    ));
+    const content = [];
+    content.push(
+      <span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.body') }}/>
+    );
+    if (includeUuidHelp) {
+      content.push(
+        <span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.uuid') }}/>
+      );
+    }
+    helpContent = helpContent.setBody(content);
     //
     return helpContent;
   }

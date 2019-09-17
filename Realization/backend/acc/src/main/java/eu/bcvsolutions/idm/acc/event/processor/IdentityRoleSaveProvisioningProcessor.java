@@ -120,7 +120,6 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 				}
 			});	
 		}
-		
 		//
 		return new DefaultEventResult<>(event, this);
 	}

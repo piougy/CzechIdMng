@@ -1,30 +1,28 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 
 /**
- * Simple provisioning exception simulation
+ * Simple acm exception simulation.
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-public class TestProvisioningExceptionProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
+public class TestAccountExceptionProcessor extends AbstractEntityEventProcessor<AccAccountDto> {
 
 	private boolean disabled = true;
-	private UUID failOnEntityIdentifier = null; // fail only for some provisioning operations (by entity identifier).
+	private String failOnUid = null; // fail only for some accounts (by account uid ~ e.g. identity username).
 	
 	@Override
-	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
-		if (failOnEntityIdentifier == null || event.getContent().getEntityIdentifier().equals(failOnEntityIdentifier)) {
+	public EventResult<AccAccountDto> process(EntityEvent<AccAccountDto> event) {
+		if (failOnUid == null || event.getContent().getUid().equals(failOnUid)) {
 			throw new RuntimeException("test exception");
 		}
 		return null;
@@ -39,8 +37,8 @@ public class TestProvisioningExceptionProcessor extends AbstractEntityEventProce
 		this.disabled = disabled;
 	}
 	
-	public void setFailOnEntityIdentifier(UUID failOnEntityIdentifier) {
-		this.failOnEntityIdentifier = failOnEntityIdentifier;
+	public void setFailOnUid(String failOnUid) {
+		this.failOnUid = failOnUid;
 	}
 
 	/**

@@ -331,7 +331,7 @@ public class SchedulerController implements BaseController {
 			@PathVariable String taskId,
 			@ApiParam(value = "Cron trigger definition.", required = true)
 			@Valid @RequestBody CronTaskTrigger trigger) {
-		return schedulerService.createTrigger(taskId, trigger, false);
+		return schedulerService.createTrigger(taskId, trigger);
 	}
 	
 	/**

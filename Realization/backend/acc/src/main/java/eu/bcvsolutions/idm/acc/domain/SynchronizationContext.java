@@ -321,10 +321,7 @@ public class SynchronizationContext implements Serializable {
 		.addUid(context.getUid())
 		.addGeneratedUid(context.getGeneratedUid())
 		.addActionType(context.getActionType())
-		.addSkipEntityUpdate(context.isSkipEntityUpdate())
-		.addSkipProvisioning(context.isSkipProvisioning())
-		.addProtectionInterval(context.getProtectionInterval())
-		.setProperties(context.getProperties());
+		.addProtectionInterval(context.getProtectionInterval());
 		
 		return newContext;
 	}

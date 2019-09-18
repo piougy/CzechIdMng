@@ -131,6 +131,32 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	}
 	
 	@Test
+	public void testCreateTaskWithEmptyDescription() {
+		Task task = new Task();
+		task.setInstanceId(configurationService.getInstanceId());
+		task.setTaskType(TestRegistrableSchedulableTask.class);
+		//
+		task = manager.createTask(task);
+		//
+		Assert.assertEquals(TestRegistrableSchedulableTask.DESCRIPTION, task.getDescription());
+	}
+	
+	@Test
+	public void testUpdateTaskWithEmptyDescription() {
+		Task task = new Task();
+		task.setDescription("mock");
+		task.setInstanceId(configurationService.getInstanceId());
+		task.setTaskType(TestRegistrableSchedulableTask.class);
+		//
+		task = manager.createTask(task);
+		Assert.assertEquals("mock", task.getDescription());
+		//
+		task.setDescription(null);
+		task = manager.updateTask(task.getId(), task);
+		Assert.assertEquals(TestRegistrableSchedulableTask.DESCRIPTION, task.getDescription());
+	}
+	
+	@Test
 	public void testCreateAndRunSimpleTrigger() throws InterruptedException, ExecutionException {
 		String result = "TEST_SCHEDULER_TWO";
 		Task task = createTask(result);

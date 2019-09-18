@@ -324,7 +324,7 @@ public class SchedulerController implements BaseController {
 						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_CREATE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_CREATE, description = "") })
-				},
+				},	
 			notes = "Create trigger by given quartz cron expression.")
 	public AbstractTaskTrigger createCronTrigger(
 			@ApiParam(value = "Task identifier.", required = true)

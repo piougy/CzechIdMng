@@ -27,7 +27,7 @@ public class CronTaskTrigger extends AbstractTaskTrigger {
 	 * @param state state
 	 */
 	public CronTaskTrigger(String taskId, CronTrigger trigger, TaskTriggerState state, String executeDate) {
-		super(taskId, trigger, state);
+		super(taskId, trigger, state, executeDate);
 		
 		this.executeDate = executeDate;
 		cron = trigger.getCronExpression();

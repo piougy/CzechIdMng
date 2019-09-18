@@ -177,9 +177,9 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			for (Trigger trigger : scheduler.getTriggersOfJob(jobKey)) {
 				TriggerState state = scheduler.getTriggerState(trigger.getKey());
 				if (trigger instanceof CronTrigger) {
-					// TODO where to get execute dateTime
 					String executeDate = (String) jobDetail.getJobDataMap().get(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE);
-					task.getTriggers().add(new CronTaskTrigger(task.getId(), (CronTrigger) trigger, TaskTriggerState.convert(state), executeDate));
+					CronTaskTrigger cronTrigger = new CronTaskTrigger(task.getId(), (CronTrigger) trigger, TaskTriggerState.convert(state), executeDate);
+					task.getTriggers().add(cronTrigger);
 				} else if (trigger instanceof SimpleTrigger) {
 					task.getTriggers().add(new SimpleTaskTrigger(task.getId(), (SimpleTrigger) trigger, TaskTriggerState.convert(state)));
 				} else {

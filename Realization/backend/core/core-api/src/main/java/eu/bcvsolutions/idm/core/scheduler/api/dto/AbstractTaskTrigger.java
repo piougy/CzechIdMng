@@ -41,7 +41,16 @@ public abstract class AbstractTaskTrigger implements BaseDto {
 	private DateTime nextFireTime;
 	private DateTime previousFireTime;
 	private TaskTriggerState state;
+	private String executeDate;
 	
+	public String getExecuteDate() {
+		return executeDate;
+	}
+
+	public void setExecuteDate(String executeDate) {
+		this.executeDate = executeDate;
+	}
+
 	public AbstractTaskTrigger() {
 	}
 	
@@ -69,6 +78,22 @@ public abstract class AbstractTaskTrigger implements BaseDto {
 		this.nextFireTime = new DateTime(trigger.getNextFireTime());
 		this.previousFireTime = new DateTime(trigger.getPreviousFireTime());
 		this.state = state;
+	}
+	
+	/**
+	 * Creates a new instance using trigger and state
+	 * 
+	 * @param trigger trigger
+	 * @param state state
+	 */
+	public AbstractTaskTrigger(String taskId, Trigger trigger, TaskTriggerState state, String executeDate) {
+		this(taskId, trigger.getKey().getName());
+		//
+		this.description = trigger.getDescription();
+		this.nextFireTime = new DateTime(trigger.getNextFireTime());
+		this.previousFireTime = new DateTime(trigger.getPreviousFireTime());
+		this.state = state;
+		this.executeDate = executeDate;
 	}
 	
 	@Override

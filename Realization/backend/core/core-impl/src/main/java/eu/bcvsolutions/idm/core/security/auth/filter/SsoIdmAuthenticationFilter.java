@@ -69,12 +69,16 @@ public class SsoIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 	@Autowired private LookupService lookupService;
 	@Autowired private JwtAuthenticationService jwtAuthenticationService;
 	@Autowired private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-	
+
 	@Override
 	public String getName() {
 		return FILTER_NAME;
 	}
-	
+
+	protected LookupService getLookupService() {
+		return lookupService;
+	}
+
 	@Override
 	public boolean isDefaultDisabled() {
 		return true;
@@ -135,7 +139,7 @@ public class SsoIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 		return !CollectionUtils.isEmpty(forbiddenUids) && forbiddenUids.contains(uid);
 	}
 
-	private String removeUidSuffix(String token) {
+	protected String removeUidSuffix(String token) {
 		List<String> suffixes = getConfigurationService().getValues(getConfigurationPropertyName(PARAMETER_UID_SUFFIXES));
 		if (CollectionUtils.isEmpty(suffixes)) {
 			return token;

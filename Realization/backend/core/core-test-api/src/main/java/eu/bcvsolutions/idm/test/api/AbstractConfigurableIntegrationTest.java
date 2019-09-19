@@ -50,7 +50,7 @@ public class AbstractConfigurableIntegrationTest extends AbstractIntegrationTest
 			String name = c.getName();
 			if (name.contains(".")) {
 				LOG.warn("Configurable component [{}] has dynamic name [{}]. Define configurable name to better localization support.",
-						c.getConfigurableType(), c.getName());
+						c.getConfigurableType(), name);
 			}
 			return StringUtils.isNotBlank(name);
 		}));

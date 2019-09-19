@@ -49,9 +49,9 @@ public class PasswordGenerator {
 	
 	public String generatePassphrase(PasswordGenerate policy) {
 		Assert.notNull(policy, "Password policy can't be null.");
-		List<String> password = new ArrayList<>();
 		
 		int passphraseLength = policy.getPassphraseWords() == null ? 0 : policy.getPassphraseWords().intValue();
+		List<String> password = new ArrayList<>(passphraseLength);
 		
 		for (int index = 0; index < passphraseLength; index++) {
 			
@@ -312,8 +312,9 @@ public class PasswordGenerator {
 	}
 	
 	private StringBuilder shuffle(StringBuilder string) {
-		List<Character> list = new ArrayList<Character>();
-        for(char character : string.toString().toCharArray()){
+		char[] charArray = string.toString().toCharArray();
+		List<Character> list = new ArrayList<>(charArray.length);
+        for (char character : charArray){
         	list.add(character);
         }
         

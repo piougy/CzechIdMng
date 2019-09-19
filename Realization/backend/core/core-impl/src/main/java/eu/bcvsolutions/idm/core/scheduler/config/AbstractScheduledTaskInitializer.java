@@ -149,8 +149,9 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 
 		// parameters
 		if (type.getParameters() != null && type.getParameters().getParameters() != null) {
-			Map<String, String> parameters = new HashMap<>();
-			for (IdmScheduledTaskParameterType param : type.getParameters().getParameters()) {
+			List<IdmScheduledTaskParameterType> taskParameters = type.getParameters().getParameters();
+			Map<String, String> parameters = new HashMap<>(taskParameters.size());
+			for (IdmScheduledTaskParameterType param : taskParameters) {
 				parameters.put(param.getKey(), param.getValue());
 			}
 			if (!parameters.isEmpty()) {

@@ -93,8 +93,8 @@ public abstract class PermissionUtils {
 		if (CollectionUtils.isEmpty(authorities)) {
 			return Collections.<BasePermission>emptySet();
 		}
-		Set<String> resolvedPermissions = new HashSet<>();
-		Set<BasePermission> result = new HashSet<>();
+		Set<String> resolvedPermissions = new HashSet<>(authorities.size());
+		Set<BasePermission> result = new HashSet<>(authorities.size());
 		for (String authority : authorities) {
 			if (authority.contains(BasePermission.SEPARATOR)) {
 				String[] split = authority.split(BasePermission.SEPARATOR);

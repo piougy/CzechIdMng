@@ -78,7 +78,6 @@ public class ContractPositionAutomaticRoleProcessor
 		//
 		// check if new and old work position are same
 		// check automatic roles - if position or contract was enabled
-		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
 		// work positions has some difference or validity changes
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContractPosition(contractPosition.getId());
 		//
@@ -120,6 +119,7 @@ public class ContractPositionAutomaticRoleProcessor
 		addedAutomaticRoles.removeIf(a -> {
 			return previousAutomaticRoles.contains(a.getId());
 		});
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(removedAutomaticRoles.size() + addedAutomaticRoles.size());
 		//
 		for(UUID removedAutomaticRole : removedAutomaticRoles) {
 			Iterator<IdmIdentityRoleDto> iter = assignedRoles.iterator();

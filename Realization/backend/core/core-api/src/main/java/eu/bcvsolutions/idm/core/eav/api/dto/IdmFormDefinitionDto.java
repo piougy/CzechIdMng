@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.eav.api.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -13,7 +14,6 @@ import org.springframework.hateoas.core.Relation;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Niceable;
@@ -159,9 +159,10 @@ public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEnt
 	 */
 	private Map<UUID, IdmFormAttributeDto> getMappedAttributes() {
 		if (mappedAttributes == null || mappedKeys == null) {
-			mappedAttributes = Maps.newHashMap();
-			mappedKeys = Maps.newHashMap();
-			for (IdmFormAttributeDto attribute : getFormAttributes()) {
+			List<IdmFormAttributeDto> attributes = getFormAttributes();
+			mappedAttributes = new HashMap<>(attributes.size());
+			mappedKeys = new HashMap<>(attributes.size());
+			for (IdmFormAttributeDto attribute : attributes) {
 				mappedAttributes.put(attribute.getId(), attribute);
 				mappedKeys.put(attribute.getCode(), attribute.getId());
 			}

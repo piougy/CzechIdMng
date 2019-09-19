@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -172,11 +171,11 @@ public class DefaultIdmRoleCatalogueService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogueDto> findAllByRole(UUID roleId) {
-		List<IdmRoleCatalogueDto> roleCatalogues = new ArrayList<>();
-		for (IdmRoleCatalogueRoleDto roleCatalogueRole : roleCatalogueRoleService.findAllByRole(roleId)) {
-			roleCatalogues.add(DtoUtils.getEmbedded(roleCatalogueRole, IdmRoleCatalogueRole_.roleCatalogue));
-		}
-		return roleCatalogues;
+		return roleCatalogueRoleService
+			.findAllByRole(roleId)
+			.stream()
+			.map(roleCatalogueRole -> DtoUtils.getEmbedded(roleCatalogueRole, IdmRoleCatalogueRole_.roleCatalogue, IdmRoleCatalogueDto.class))
+			.collect(Collectors.toList());
 	}
 	
 	@Override

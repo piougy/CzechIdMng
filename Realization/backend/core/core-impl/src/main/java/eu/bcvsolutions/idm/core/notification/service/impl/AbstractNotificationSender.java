@@ -109,7 +109,6 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	@Transactional
 	public List<N> send(String topic, IdmMessageDto message, IdmIdentityDto identitySender, List<IdmIdentityDto> recipients, List<IdmAttachmentDto> attachments) {
 		Assert.notNull(message, "Message is required");
-		List<N> sendMessages = new ArrayList<>();
 		//
 		List<IdmNotificationRecipientDto> notificationRecipients = new ArrayList<>();
 		recipients.forEach(recipient ->{
@@ -117,6 +116,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
     	});
 		//
 		List<IdmNotificationLogDto> notifications = notificationTemplateService.prepareNotifications(topic, message);
+		List<N> sendMessages = new ArrayList<>(notifications.size());
 		//
 		if (notifications.isEmpty()) {
 			LOG.info("Notification for topic [{}] level [{}] not found or is disabled. Message will not be sent.", topic, message.getLevel());

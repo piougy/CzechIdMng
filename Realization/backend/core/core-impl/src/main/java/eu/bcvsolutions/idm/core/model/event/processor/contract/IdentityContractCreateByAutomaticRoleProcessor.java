@@ -62,7 +62,7 @@ public class IdentityContractCreateByAutomaticRoleProcessor
 		if (contract.getWorkPosition() != null) {
 			Set<IdmRoleTreeNodeDto> automaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(contract.getWorkPosition());
 			if (!automaticRoles.isEmpty()) {
-				List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
+				List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(automaticRoles.size());
 				for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 					IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
 					conceptRoleRequest.setIdentityContract(contract.getId());

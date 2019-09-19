@@ -160,7 +160,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 
 		List<String> changedAttributes = filter.getChangedAttributesList();
 		if (changedAttributes != null && !changedAttributes.isEmpty()) {
-			List<Predicate> orPredicates = new ArrayList<>();
+			List<Predicate> orPredicates = new ArrayList<>(changedAttributes.size());
 			for (String attribute : changedAttributes) {
 				orPredicates.add(builder.like(builder.lower(root.get(IdmAudit_.changedAttributes)), "%" + attribute.toLowerCase() + "%"));
 			}
@@ -698,7 +698,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		filter.setWithVersion(Boolean.FALSE);
 
 		// Iterate over all result and transform it into dtos
-		List<IdmAuditDto> result = new ArrayList<>();
+		List<IdmAuditDto> result = new ArrayList<>(resultList.size());
 		for (Object[] object : resultList) {
 			Object version = object[PROPERTY_AUDIT_VERSION];
 			IdmAudit entity = (IdmAudit) object[PROPERTY_AUDIT_ENTITY];

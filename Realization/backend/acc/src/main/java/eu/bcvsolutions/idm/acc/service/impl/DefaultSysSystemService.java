@@ -362,9 +362,10 @@ public class DefaultSysSystemService
 		sysObjectClassesInSystem = page.getContent();
 
 		// Convert IC schema to ACC entities
-		List<SysSchemaObjectClassDto> sysObjectClasses = new ArrayList<SysSchemaObjectClassDto>();
-		List<SysSchemaAttributeDto> sysAttributes = new ArrayList<SysSchemaAttributeDto>();
-		for (IcObjectClassInfo objectClass : icSchema.getDeclaredObjectClasses()) {
+		List<IcObjectClassInfo> declaredObjectClasses = icSchema.getDeclaredObjectClasses();
+		List<SysSchemaObjectClassDto> sysObjectClasses = new ArrayList<>(declaredObjectClasses.size());
+		List<SysSchemaAttributeDto> sysAttributes = new ArrayList<>();
+		for (IcObjectClassInfo objectClass : declaredObjectClasses) {
 
 			// We can create only IC schemas, it means only schemas created for
 			// __ACCOUNT__ and __GROUP__
@@ -642,9 +643,10 @@ public class DefaultSysSystemService
 					connectorInstance.getConnectorKey().getFullName()));
 		}
 		//
-		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
-		for (short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {
-			IcConfigurationProperty property = conf.getConfigurationProperties().getProperties().get(seq);
+		List<IcConfigurationProperty> properties = conf.getConfigurationProperties().getProperties();
+		List<IdmFormAttributeDto> formAttributes = new ArrayList<>(properties.size());
+		for (short seq = 0; seq < properties.size(); seq++) {
+			IcConfigurationProperty property = properties.get(seq);
 			IdmFormAttributeDto attribute = formPropertyManager.toFormAttribute(property);
 			attribute.setSeq(seq);
 			formAttributes.add(attribute);

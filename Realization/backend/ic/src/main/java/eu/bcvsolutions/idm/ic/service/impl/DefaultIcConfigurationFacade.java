@@ -38,12 +38,14 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	// registered ic configuration services
 	private final PluginRegistry<IcConfigurationService, String> configurationServices;
 	// local connector infos are cached
-	private final Map<String, Set<IcConnectorInfo>> icLocalConnectorInfos  = new HashMap<>();
+	private final Map<String, Set<IcConnectorInfo>> icLocalConnectorInfos;
 	
 	@Autowired
 	public DefaultIcConfigurationFacade(List<? extends IcConfigurationService> configurationServices) {
 		this.configurationServices = OrderAwarePluginRegistry.create(configurationServices);
-		for (IcConfigurationService config : this.configurationServices.getPlugins()) {
+		List<IcConfigurationService> plugins = this.configurationServices.getPlugins();
+		icLocalConnectorInfos  = new HashMap<>(plugins.size());
+		for (IcConfigurationService config : plugins) {
 			icLocalConnectorInfos.put(config.getFramework(), config.getAvailableLocalConnectors());
 		}
 	}

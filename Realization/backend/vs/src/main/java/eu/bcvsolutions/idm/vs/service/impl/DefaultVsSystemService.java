@@ -662,11 +662,12 @@ public class DefaultVsSystemService implements VsSystemService {
 	 * @return
 	 */
 	private List<IdmIdentityDto> loadImplementers(UUID[] implementersUUID) {
-		List<IdmIdentityDto> implementers = new ArrayList<>();
+		
 		if (implementersUUID == null) {
-			return implementers;
+			return new ArrayList<>();
 		}
-
+		
+		List<IdmIdentityDto> implementers = new ArrayList<>(implementersUUID.length);
 		for (UUID implementer : implementersUUID) {
 			IdmIdentityDto identity = identityService.get(implementer);
 			if (identity == null) {
@@ -689,8 +690,8 @@ public class DefaultVsSystemService implements VsSystemService {
 	 */
 	private List<IdmRoleDto> loadImplementerRoles(UUID[] implementerRolesUUID,
 			List<IdmIdentityDto> implementersFromConfig) {
-		List<IdmRoleDto> implementerRoles = new ArrayList<>();
 		if ((implementerRolesUUID == null || implementerRolesUUID.length == 0)) {
+			List<IdmRoleDto> implementerRoles = new ArrayList<>(1);
 			if (CollectionUtils.isEmpty(implementersFromConfig)) {
 				// Load default role from configuration
 				IdmRoleDto defaultRole = vsConfiguration.getDefaultRole();
@@ -701,6 +702,7 @@ public class DefaultVsSystemService implements VsSystemService {
 			return implementerRoles;
 		}
 
+		List<IdmRoleDto> implementerRoles = new ArrayList<>(implementerRolesUUID.length);
 		for (UUID implementer : implementerRolesUUID) {
 			IdmRoleDto role = roleService.get(implementer);
 			if (role == null) {

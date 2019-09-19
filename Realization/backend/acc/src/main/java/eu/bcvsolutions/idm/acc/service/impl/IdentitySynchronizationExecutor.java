@@ -312,7 +312,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			return identityAccount;
 		}
 		
-		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(contracts.size());
 
 		for (IdmIdentityContractDto contract : contracts) {
 			IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();

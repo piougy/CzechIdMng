@@ -13,6 +13,12 @@ import eu.bcvsolutions.idm.core.rest.LongPollingSubscriber;
  */
 public interface CheckLongPollingResult {
 	
+	/**
+	 * Check of the given deferred result on existing some changes.
+	 * 
+	 * @param result
+	 * @param subscriber - Subscriber (keeps more metadata) for same entity ID
+	 */
 	public void checkDeferredResult(DeferredResult<OperationResultDto> result, LongPollingSubscriber subscriber);
 
 }

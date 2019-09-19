@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
  *
  * @author svandav
  */
-public class IdmRoleRequestFilter extends DataFilter implements ModifiedFromFilter {
+public class IdmRoleRequestFilter extends DataFilter {
 	private UUID applicantId;
 	private String applicant;
 	private RoleRequestState state;
@@ -28,7 +28,6 @@ public class IdmRoleRequestFilter extends DataFilter implements ModifiedFromFilt
 	private List<RoleRequestState> states;
 	private DateTime createdFrom;
 	private DateTime createdTill;
-	private DateTime modifiedFrom;
 	private List<UUID> applicants;
 	private UUID creatorId;
 	private boolean includeConcepts = false;
@@ -79,14 +78,6 @@ public class IdmRoleRequestFilter extends DataFilter implements ModifiedFromFilt
 
 	public void setCreatedTill(DateTime createdTill) {
 		this.createdTill = createdTill;
-	}
-
-	public DateTime getModifiedFrom() {
-		return modifiedFrom;
-	}
-
-	public void setModifiedFrom(DateTime modifiedFrom) {
-		this.modifiedFrom = modifiedFrom;
 	}
 
 	public UUID getApplicantId() {

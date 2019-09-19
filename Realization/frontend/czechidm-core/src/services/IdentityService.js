@@ -152,7 +152,7 @@ class IdentityService extends FormableEntityService {
     });
   }
 
-  checkUnresolvedRequest(username) {
+  sendLongPollingRequest(username) {
     return RestApiService
       .get(`${this.getApiPath()}/${encodeURIComponent(username)}/check-unresolved-request`)
       .then(response => response.json())

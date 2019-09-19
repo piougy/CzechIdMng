@@ -2,13 +2,11 @@ package eu.bcvsolutions.idm.acc.dto.filter;
 
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.ModifiedFromFilter;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
@@ -17,12 +15,11 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  * @author Svanda
  * @author Radek Tomiška
  */
-public class SysSyncLogFilter extends DataFilter implements ModifiedFromFilter {
+public class SysSyncLogFilter extends DataFilter {
 
 	public static final String PARAMETER_SYNCHRONIZATION_CONFIG_ID = "synchronizationConfigId";
 	public static final String PARAMETER_RUNNING = "running";
 	public static final String PARAMETER_SYSTEM_ID = "systemId";
-	public static final String PARAMETER_MODIFIED_FROM = "modifiedFrom";
 	
 	public SysSyncLogFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -58,13 +55,5 @@ public class SysSyncLogFilter extends DataFilter implements ModifiedFromFilter {
 
 	public void setSystemId(UUID systemId) {
 		data.set(PARAMETER_SYSTEM_ID, systemId);
-	}
-	
-	public DateTime getModifiedFrom() {
-		return getParameterConverter().toDateTime(data, PARAMETER_MODIFIED_FROM);
-	}
-
-	public void setModifiedFrom(DateTime dateTime) {
-		data.set(PARAMETER_MODIFIED_FROM, dateTime);
 	}
 }

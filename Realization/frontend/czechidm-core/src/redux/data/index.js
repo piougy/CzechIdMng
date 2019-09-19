@@ -75,6 +75,7 @@ import RoleFormAttributeManager from './RoleFormAttributeManager';
 import PasswordHistoryManager from './PasswordHistoryManager';
 import PasswordManager from './PasswordManager';
 import RequestIdentityRoleManager from './RequestIdentityRoleManager';
+import LongPollingManager from './LongPollingManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -146,7 +147,8 @@ const ManagerRoot = {
   RoleFormAttributeManager,
   PasswordHistoryManager,
   PasswordManager,
-  RequestIdentityRoleManager
+  RequestIdentityRoleManager,
+  LongPollingManager
 };
 
 ManagerRoot.version = '9.4.0';

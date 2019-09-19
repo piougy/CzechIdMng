@@ -1266,16 +1266,19 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 */
 	@ResponseBody
 	@RequestMapping(value = "{backendId}/check-unresolved-request", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	@ApiOperation(
 			value = "Check changes of unresloved requests for the identity (Long-polling request).", 
 			nickname = "checkUnresolvedRequests", 
 			tags = { IdmIdentityController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "")}),
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "")})
+						@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "")})
 				})
 	public DeferredResult<OperationResultDto> checkUnresolvedRequests(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true) @PathVariable @NotNull String backendId) {

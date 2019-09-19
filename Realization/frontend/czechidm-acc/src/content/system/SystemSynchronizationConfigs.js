@@ -20,9 +20,10 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     super(props, context);
     this.state = {
       configs: [],
-      checkRunningSyncInprogress: false
+      longPollingInprogress: false,
+      automaticRefreshOn: true
     };
-    this.canCheckRunningSync = false;
+    this.canSendLongPollingRequest = false;
   }
 
   getManager() {
@@ -48,52 +49,50 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
   componentWillUnmount() {
     super.componentWillUnmount();
     // Stop rquest of check rquests (next long-polling request will be not created)
-    this.canCheckRunningSync = false;
+    this.canSendLongPollingRequest = false;
   }
 
   componentDidMount() {
     super.componentDidMount();
     // Allow chcek of unresolved requests
-    this.canCheckRunningSync = true;
+    this.canSendLongPollingRequest = true;
     this._initComponent(this.props);
   }
 
   _initComponent(props) {
     const { entityId } = props.params;
-    this.canCheckRunningSync = true;
-    if (!this.state.checkRunningSyncInprogress) {
-      // Some unresolved requests exists -> long-polling request can be send.
-      this.setState({checkRunningSyncInprogress: true}, () => {
-        this._checkRunningSync(entityId);
+    if (!this.state.longPollingInprogress && this._isLongPollingEnabled()) {
+      // Long-polling request can be send.
+      this.setState({longPollingInprogress: true}, () => {
+        this._sendLongPollingRequest(entityId);
       });
     }
   }
 
-  _checkRunningSync(systemId) {
-    systemManager.getService().checkRunningSync(systemId).then(result => {
-      if (this.canCheckRunningSync) {
-        if (result && result.state === 'RUNNING') {
-          // Change of role-requests was detected, we need to execute
-          // refresh and create new long-polling reqeust.
-          this.setState({checkRunningSyncInprogress: true}, () => {
-            this._checkRunningSync(systemId);
-            this._refreshAll();
-          });
-        } else if (result && result.state === 'NOT_EXECUTED') {
-          // None change for requests was made. We will send next long-polling checking request
-          this._checkRunningSync(systemId);
-        } else if (result && result.state === 'BLOCKED') {
-          // Long pooling is blocked on BE!
-          this.canCheckRunningSync = false;
-          this.setState({checkRunningSyncInprogress: false});
+  _sendLongPollingRequest(entityId) {
+    Managers.LongPollingManager.sendLongPollingRequest.bind(this, entityId, systemManager.getService())();
+  }
+
+  _toggleAutomaticRefresh() {
+    const { entityId } = this.props.params;
+    const canSendLongPollingRequest = this.canSendLongPollingRequest;
+
+    this.canSendLongPollingRequest = !canSendLongPollingRequest;
+    this.setState({
+      automaticRefreshOn: !canSendLongPollingRequest
+    }, () => {
+      if (this.canSendLongPollingRequest) {
+        this._refreshAll();
+        if (!this.state.longPollingInprogress) {
+          this._sendLongPollingRequest(entityId);
         }
       }
-    })
-      .catch(error => {
-        this.addError(error);
-        this.canCheckRunningSync = false;
-        this.setState({checkRunningSyncInprogress: false});
-      });
+    });
+  }
+
+  _isLongPollingEnabled() {
+    const {_longPollingEnabled } = this.props;
+    return _longPollingEnabled;
   }
 
   _refreshAll() {
@@ -272,6 +271,44 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     );
   }
 
+  _getToolbar(key) {
+    const {automaticRefreshOn} = this.state;
+    const longPollingEnabled = this._isLongPollingEnabled();
+    const data = {};
+    data[`automaticRefreshSwitch-${key}`] = automaticRefreshOn && longPollingEnabled;
+    return (
+      <Basic.Toolbar>
+        <div className="pull-left">
+          <Basic.AbstractForm
+            ref={`automaticRefreshForm-${key}`}
+            readOnly={!longPollingEnabled}
+            style={{padding: '0px'}}
+            data={data}>
+            <Basic.ToggleSwitch
+              ref={`automaticRefreshSwitch-${key}`}
+              label={this.i18n('content.identity.roles.automaticRefreshSwitch')}
+              onChange={this._toggleAutomaticRefresh.bind(this, key)}
+            />
+          </Basic.AbstractForm>
+        </div>
+        <div className="pull-right">
+          <Basic.Button
+            level="success"
+            key="add_button"
+            className="btn-xs"
+            onClick={ this.showDetail.bind(this, { }, true) }
+            rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
+            icon="fa:plus">
+            { this.i18n('button.add') }
+          </Basic.Button>
+          <Advanced.RefreshButton
+            rendered={!automaticRefreshOn || !longPollingEnabled}
+            onClick={ this._refreshAll.bind(this) }/>
+        </div>
+      </Basic.Toolbar>
+    );
+  }
+
   render() {
     const { entityId } = this.props.params;
     const forceSearchParameters = new Domain.SearchParameters()
@@ -284,6 +321,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
         { this.renderContentHeader() }
 
         <Basic.Panel className="no-border last">
+          {this._getToolbar('system-sync')}
           <Advanced.Table
             ref="table"
             uiKey={ uiKey }
@@ -301,21 +339,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
             }
             }
             showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
-            actions={ this._getBulkActions() }
-            buttons={
-              [
-                <Basic.Button
-                  level="success"
-                  key="add_button"
-                  className="btn-xs"
-                  onClick={ this.showDetail.bind(this, { }, true) }
-                  rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
-                  icon="fa:plus">
-                  { this.i18n('button.add') }
-                </Basic.Button>,
-                <Advanced.RefreshButton waiting={this.state.checkRunningSyncInprogress} onClick={ this._refreshAll.bind(this) }/>
-              ]
-            }>
+            actions={ this._getBulkActions() }>
             <Advanced.Column
               property=""
               header=""
@@ -398,6 +422,7 @@ function select(state, component) {
     i18nReady: state.config.get('i18nReady'),
     system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _longPollingEnabled: Managers.ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.long-polling.enabled', true)
   };
 }
 

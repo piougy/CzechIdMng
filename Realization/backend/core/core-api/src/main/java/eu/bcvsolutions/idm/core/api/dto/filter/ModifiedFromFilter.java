@@ -9,9 +9,21 @@ import org.joda.time.DateTime;
  *
  */
 public interface ModifiedFromFilter extends BaseFilter {
+	
+	public static final String PARAMETER_MODIFIED_FROM = "modifiedFrom";
 
+	/**
+	 * Get modified from for filtering entities changed from given time stamp
+	 * 
+	 * @return
+	 */
 	DateTime getModifiedFrom();
 
+	/**
+	 * Set modified from for filtering entities changed from this time stamp
+	 * 
+	 * @param modifiedFrom
+	 */
 	void setModifiedFrom(DateTime modifiedFrom);
 
 }

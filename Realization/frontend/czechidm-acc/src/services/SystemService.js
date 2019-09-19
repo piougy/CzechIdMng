@@ -299,7 +299,7 @@ class SystemService extends Services.AbstractService {
       });
   }
 
-  checkRunningSync(systemId) {
+  sendLongPollingRequest(systemId) {
     return Services.RestApiService
       .get(`${this.getApiPath()}/${encodeURIComponent(systemId)}/check-running-sync`)
       .then(response => response.json())

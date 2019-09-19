@@ -71,8 +71,7 @@ class ToggleSwitch extends AbstractFormComponent {
                 on={this._isChecked(value)}
                 ref="toggleswitch"
                 theme="graphite-small"
-                disabled={ readOnly || disabled }
-                readOnly={ readOnly }
+                enabled={ !readOnly && !disabled }
               />
               <span style={{marginLeft: '5px', marginTop: '3px'}}>
                 {label}

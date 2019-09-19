@@ -9,9 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
@@ -44,14 +42,6 @@ public class DefaultSysSyncItemLogService
 		super(repository);
 	}
 	
-	
-	
-	@Query(value = "select e from SysSyncItemLog e"+ 
-			" where" +
-	        " (?#{[0].syncActionLogId} is null or e.syncActionLog.id = ?#{[0].syncActionLogId})" +
-	        " and" +
-	        " (lower(e.displayName) like ?#{[0].displayName == null ? '%' : '%'.concat([0].displayName.toLowerCase()).concat('%')})"
-			)
 	@Override
 	protected List<Predicate> toPredicates(Root<SysSyncItemLog> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			SysSyncItemLogFilter filter) {
@@ -82,12 +72,6 @@ public class DefaultSysSyncItemLogService
 					.get(SysSystemMapping_.objectClass) //
 					.get(SysSchemaObjectClass_.system) //
 					.get(AbstractEntity_.id), systemId));
-		}
-
-		// Modified from
-		DateTime modifiedFrom = filter.getModifiedFrom();
-		if (modifiedFrom != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncItemLog_.modified), modifiedFrom));
 		}
 
 		return predicates;

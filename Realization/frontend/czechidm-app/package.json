@@ -1,6 +1,6 @@
 {
   "name": "czechidm-app",
-  "version": "9.7.7-snapshot",
+  "version": "9.7.7",
   "description": "Main application module for czechidm.",
   "main": "index.html",
   "keywords": [

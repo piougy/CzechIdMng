@@ -5,6 +5,7 @@ import javax.persistence.criteria.Predicate;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -33,6 +34,7 @@ public abstract class BaseFilterBuilder<E extends BaseEntity, F extends DataFilt
 	public BaseFilterBuilder() {
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), FilterBuilder.class);
 		//
+		Assert.notEmpty(genericTypes, "Wrong generic types is given, fix class definition");
 		entityClass = (Class<E>) genericTypes[0];
 		filterClass = (Class<F>) genericTypes[1];
 	}

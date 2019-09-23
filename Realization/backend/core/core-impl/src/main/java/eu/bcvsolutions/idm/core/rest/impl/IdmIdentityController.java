@@ -1267,7 +1267,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	@ResponseBody
 	@RequestMapping(value = "{backendId}/check-unresolved-request", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLE_REQUEST_READ + "')"
-			+ " or hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+			+ " and hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
 	@ApiOperation(
 			value = "Check changes of unresloved requests for the identity (Long-polling request).", 
 			nickname = "checkUnresolvedRequests", 

@@ -3,6 +3,7 @@
  * Long polling service
  *
  * @author Vít Švanda
+ * @since 9.7.7
  */
 export default class LongPollingManager {
 

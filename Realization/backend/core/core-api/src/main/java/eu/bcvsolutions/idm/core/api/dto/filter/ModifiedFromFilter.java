@@ -6,11 +6,11 @@ import org.joda.time.DateTime;
  * Filter for filtering entities changed from given time stamp
  * 
  * @author Vít Švanda
- *
+ * @since 9.7.7
  */
 public interface ModifiedFromFilter extends BaseFilter {
 	
-	public static final String PARAMETER_MODIFIED_FROM = "modifiedFrom";
+	String PARAMETER_MODIFIED_FROM = "modifiedFrom";
 
 	/**
 	 * Get modified from for filtering entities changed from given time stamp

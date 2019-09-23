@@ -19,6 +19,6 @@ public interface CheckLongPollingResult {
 	 * @param result
 	 * @param subscriber - Subscriber (keeps more metadata) for same entity ID
 	 */
-	public void checkDeferredResult(DeferredResult<OperationResultDto> result, LongPollingSubscriber subscriber);
+	void checkDeferredResult(DeferredResult<OperationResultDto> result, LongPollingSubscriber subscriber);
 
 }

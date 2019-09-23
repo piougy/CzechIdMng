@@ -987,7 +987,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               header={ header }
               data={ _entities }
               hover={ hover }
-              showLoading={ (_showLoading && (!_entities || _entities.length === 0)) || showLoading }
+              showLoading={ showLoading }
               onRowClick={ onRowClick }
               onRowDoubleClick={ onRowDoubleClick }
               showRowSelection={ _actions.length > 0 && showRowSelection }

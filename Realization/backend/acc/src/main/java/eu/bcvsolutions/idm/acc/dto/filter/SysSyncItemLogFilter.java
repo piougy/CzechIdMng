@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
@@ -30,7 +30,7 @@ public class SysSyncItemLogFilter extends DataFilter {
 	}
 	
 	public SysSyncItemLogFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
-		super(SysSyncLogDto.class, data, parameterConverter);
+		super(SysSyncItemLogDto.class, data, parameterConverter);
 	}
 	
 

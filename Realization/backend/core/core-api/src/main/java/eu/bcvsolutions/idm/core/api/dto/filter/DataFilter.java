@@ -205,10 +205,24 @@ public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 		return parameterConverter;
 	}
 
+	/**
+	 * Get modified from for filtering entities changed from given time stamp
+	 * 
+	 * @return
+	 * @since 9.7.7
+	 */
+	@Override
 	public DateTime getModifiedFrom() {
 		return getParameterConverter().toDateTime(data, PARAMETER_MODIFIED_FROM);
 	}
 
+	/**
+	 * Set modified from for filtering entities changed from this time stamp
+	 * 
+	 * @param modifiedFrom
+	 * @since 9.7.7
+	 */
+	@Override
 	public void setModifiedFrom(DateTime dateTime) {
 		data.set(PARAMETER_MODIFIED_FROM, dateTime);
 	}

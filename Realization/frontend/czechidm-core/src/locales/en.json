@@ -4246,8 +4246,11 @@
       "description": {
         "label": "Description"
       },
-      "entityType": {
+      "entityClass": {
         "label": "Entity type"
+      },
+      "filterClass": {
+        "title": "Filter type"
       },
       "filterBuilderClass": {
         "label": "Filter type"

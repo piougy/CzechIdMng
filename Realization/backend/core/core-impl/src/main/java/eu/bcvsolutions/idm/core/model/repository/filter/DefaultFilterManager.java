@@ -40,6 +40,8 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Builds filters to domain types.
@@ -55,6 +57,7 @@ public class DefaultFilterManager implements FilterManager {
 	private final PluginRegistry<FilterBuilder<?, ?>, FilterKey> builders;
 	//
 	@Autowired private ConfigurationService configurationService;
+	@Autowired private EnabledEvaluator enabledEvaluator;
 
 	@Autowired
 	public DefaultFilterManager(
@@ -143,15 +146,17 @@ public class DefaultFilterManager implements FilterManager {
 		// registered filter builders
 		Map<String, FilterBuilder> filterBuilders = context.getBeansOfType(FilterBuilder.class);
 		filterBuilders.forEach((beanName, filterBuilder) -> {
-			FilterBuilderDto dto = toDto(filterBuilder);
-			if (passFilter(dto, filter)) {
-				FilterKey filterKey = new FilterKey(dto.getEntityClass(), dto.getName());
-				// evaluate effective filter
-				if (getBuilder(filterKey) != filterBuilder) { // check reference to instance
-					dto.setDisabled(true);
+			if (enabledEvaluator.isEnabled(filterBuilder)) {
+				FilterBuilderDto dto = toDto(filterBuilder);
+				if (passFilter(dto, filter)) {
+					FilterKey filterKey = new FilterKey(dto.getEntityClass(), dto.getName());
+					// evaluate effective filter
+					if (getBuilder(filterKey) != filterBuilder) { // check reference to instance
+						dto.setDisabled(true);
+					}
+					registeredFilterKeys.add(filterKey);
+					dtos.add(dto);
 				}
-				registeredFilterKeys.add(filterKey);
-				dtos.add(dto);
 			}
 		});
 		//
@@ -197,7 +202,12 @@ public class DefaultFilterManager implements FilterManager {
 					dto.setModule(EntityUtils.getModule(service.getClass()));
 					dto.setDescription("Internal service implementation (toPredicates).");
 					dto.setEntityClass(entityClass);
-					dto.setFilterBuilderClass(AutowireHelper.getTargetClass(service));
+					dto.setFilterClass(service.getFilterClass());
+					if (service instanceof AbstractFormValueService<?, ?>) { // eav value services are constructed dynamically (prevent to show cglib class)
+						dto.setFilterBuilderClass(AbstractFormValueService.class);
+					} else {
+						dto.setFilterBuilderClass(AutowireHelper.getTargetClass(service));
+					}
 					dto.setDisabled(false); // service is always effective filter
 					//
 					if (passFilter(dto, filter)) {
@@ -324,6 +334,7 @@ public class DefaultFilterManager implements FilterManager {
 		dto.setDisabled(filterBuilder.isDisabled());
 		dto.setDescription(filterBuilder.getDescription());
 		dto.setEntityClass(filterBuilder.getEntityClass());
+		dto.setFilterClass(filterBuilder.getFilterClass());
 		dto.setFilterBuilderClass(AutowireHelper.getTargetClass(filterBuilder));
 		return dto;
 	}

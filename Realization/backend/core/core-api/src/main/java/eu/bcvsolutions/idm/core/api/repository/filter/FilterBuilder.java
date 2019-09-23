@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.Plugin;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
@@ -56,6 +57,14 @@ public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> exten
 	 * @since 9.7.7
 	 */
 	public Class<E> getEntityClass();
+	
+	/**
+	 * Returns {@link BaseFilter} type class, which is controlled by this filter builder
+	 * 
+	 * @return
+	 * @since 9.7.7
+	 */
+	public Class<F> getFilterClass();
 
 	/**
 	 * Filter construct partial criteria where clause => {@link Predicate}, which will be appended to query for defined domain type.

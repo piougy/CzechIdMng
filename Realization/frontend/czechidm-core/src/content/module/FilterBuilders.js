@@ -109,6 +109,7 @@ class FilterBuilders extends Advanced.AbstractTableContent {
     const { filterOpened } = this.state;
     let _filterBuilders = new Immutable.OrderedMap();
     let _entityClasses = new Immutable.OrderedSet();
+    let _registeredFilterClasses = new Immutable.Map();
     let _registeredEntityClasses = new Immutable.OrderedSet();
     if (filterBuilders) {
       filterBuilders.forEach(filterBuilder => {
@@ -124,6 +125,7 @@ class FilterBuilders extends Advanced.AbstractTableContent {
     if (registeredFilterBuilders) {
       registeredFilterBuilders.forEach(filterBuilder => {
         _registeredEntityClasses = _registeredEntityClasses.add(filterBuilder.entityClass);
+        _registeredFilterClasses = _registeredFilterClasses.set(filterBuilder.entityClass, filterBuilder.filterClass);
       });
       // sort _entityTypes
       _registeredEntityClasses = _registeredEntityClasses.sort((one, two) => one > two);
@@ -195,7 +197,14 @@ class FilterBuilders extends Advanced.AbstractTableContent {
             {
               _entityClasses.map((entityClass) => (
                 <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
-                  <Basic.ContentHeader text={ Utils.Ui.getSimpleJavaType(entityClass) }/>
+                  <Basic.ContentHeader>
+                    { Utils.Ui.getSimpleJavaType(entityClass) }
+                    <small
+                      style={{ marginLeft: 7, fontSize: '0.8em' }}
+                      title={ this.i18n('entity.FilterBuilder.filterClass.title') }>
+                      { `(${ Utils.Ui.getSimpleJavaType(_registeredFilterClasses.get(entityClass)) })` }
+                    </small>
+                  </Basic.ContentHeader>
                   <Basic.Table
                     data={_filterBuilders.get(entityClass)}
                     showLoading={showLoading}

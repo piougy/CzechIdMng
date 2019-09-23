@@ -41,7 +41,7 @@ public class UsernameIdentityFilter extends AbstractFilterBuilder<IdmIdentity, I
 		if (filter.getUsername() == null) {
 			return null;
 		}
-		return builder.like(builder.lower(root.get(IdmIdentity_.username)), "%" + filter.getUsername() + "%");
+		return builder.like(builder.lower(root.get(IdmIdentity_.username)), "%" + filter.getUsername().toLowerCase() + "%");
 	}
 	
 	@Override

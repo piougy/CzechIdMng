@@ -4296,8 +4296,11 @@
       "description": {
         "label": "Popis"
       },
-      "entityType": {
+      "entityClass": {
         "label": "Typ entity"
+      },
+      "filterClass": {
+        "title": "Typ filtru"
       },
       "filterBuilderClass": {
         "label": "Typ filtru"

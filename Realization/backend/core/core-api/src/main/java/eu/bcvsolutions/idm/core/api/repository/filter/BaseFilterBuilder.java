@@ -24,6 +24,7 @@ public abstract class BaseFilterBuilder<E extends BaseEntity, F extends DataFilt
 		implements FilterBuilder<E, F>, BeanNameAware {
 
 	private final Class<E> entityClass;
+	private final Class<F> filterClass;
 	private String beanName; // spring bean name - used as processor id
 	@Autowired(required = false)
 	private ConfigurationService configurationService; // optional internal dependency - checks for processor is enabled
@@ -33,11 +34,17 @@ public abstract class BaseFilterBuilder<E extends BaseEntity, F extends DataFilt
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), FilterBuilder.class);
 		//
 		entityClass = (Class<E>) genericTypes[0];
+		filterClass = (Class<F>) genericTypes[1];
 	}
 
     @Override
 	public Class<E> getEntityClass(){
 		return entityClass;
+	}
+    
+    @Override
+    public Class<F> getFilterClass() {
+		return filterClass;
 	}
     
     @Override

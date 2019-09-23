@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.EventContentDeletedException;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 
 /**
  * Entity processing based on synchronous {@link ApplicationEvent} publishing.
@@ -39,7 +40,7 @@ import eu.bcvsolutions.idm.core.api.exception.EventContentDeletedException;
  * 
  * @author Radek Tomiška
  */
-public interface EntityEventManager {
+public interface EntityEventManager extends ScriptEnabled {
 	
 	String EVENT_PROPERTY_SKIP_NOTIFY = "idm:skip-notify";
 	String EVENT_PROPERTY_SKIP_NOTIFICATION = "idm:skip-notification"; // skip sending notifications

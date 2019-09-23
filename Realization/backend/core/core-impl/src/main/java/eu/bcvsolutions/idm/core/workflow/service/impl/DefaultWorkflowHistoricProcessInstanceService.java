@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.engine.ActivitiException;
@@ -119,7 +120,7 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 		if(!securityService.isAdmin()) {
 			// Applicant and Implementer is added to involved user after process
 			// (subprocess) started. This modification allow not use OR clause.
-			query.involvedUser(securityService.getCurrentId().toString());
+			query.involvedUser(securityService.getCurrentId() == null ? UUID.randomUUID().toString() : securityService.getCurrentId().toString());
 		}
 
 		String fieldForSort = null;

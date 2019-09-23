@@ -491,16 +491,21 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 							"taskId", task.getId(),
 							"taskType", task.getTaskType(),
 							"instanceId", task.getInstanceId()));
-
+		} catch (ResultCodeException e) {
+			ex = e;
+			resultModel = ((ResultCodeException) e).getError().getError();
 		} catch (Exception e) {
 			ex = e;
-			resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED,
-					ImmutableMap.of(
-							"taskId", task.getId(),
-							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()));
 		}
 		if (ex != null) {
+			if (resultModel == null) {
+				resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED,
+						ImmutableMap.of(
+								"taskId", task.getId(),
+								"taskType", task.getTaskType(),
+								"instanceId", task.getInstanceId()));
+			}
+			//
 			LOG.error(resultModel.toString(), ex);
 			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 			service.save(task);

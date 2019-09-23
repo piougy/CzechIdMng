@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.workflow.domain.formtype;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.activiti.bpmn.model.FormProperty;
@@ -30,8 +31,9 @@ public class CustomFormTypes extends FormTypes {
 
 	@Override
 	public AbstractFormType parseFormPropertyType(FormProperty formProperty) {
-		Map<String, String> values = new LinkedHashMap<>();
-		for (FormValue formValue : formProperty.getFormValues()) {
+		List<FormValue> formValues = formProperty.getFormValues();
+		Map<String, String> values = new LinkedHashMap<>(formValues.size());
+		for (FormValue formValue : formValues) {
 			values.put(formValue.getId(), formValue.getName());
 		}
 		switch (formProperty.getType()) {

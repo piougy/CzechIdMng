@@ -91,9 +91,6 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	@Override
 	public Set<IcConnectorInfo> getAvailableLocalConnectors() {
 		if (connectorInfos == null) {
-			connectorInfos = new HashSet<>();
-			connectorsConfigurations = new HashMap<>();
-			connectorsClass = new HashMap<>();
 			List<Class<?>> annotated = new ArrayList<>();
 			// Find all class with annotation IcConnectorClass under specific
 			// packages
@@ -103,7 +100,10 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 			});
 
 			LOG.info(MessageFormat.format("Found annotated classes with IcConnectorClass [{0}]", annotated));
-
+			
+			connectorInfos = new HashSet<>(annotated.size());
+			connectorsConfigurations = new HashMap<>(annotated.size());
+			connectorsClass = new HashMap<>(annotated.size());
 			for (Class<?> clazz : annotated) {
 				IcConnectorClass connectorAnnotation = clazz.getAnnotation(IcConnectorClass.class);
 				if (!this.getFramework().equals(connectorAnnotation.framework())) {

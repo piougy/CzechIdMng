@@ -181,7 +181,7 @@ public class IdentityRoleByIdentityDeduplicationExecutor extends AbstractReportE
 			return null;
 		}
 		
-		List<RptIdentityRoleByRoleDeduplicationDuplicityDto> duplicity = new ArrayList<>();
+		List<RptIdentityRoleByRoleDeduplicationDuplicityDto> duplicity = new ArrayList<>(duplicityIdentityRoles.size());
 		for (IdmIdentityRoleDto duplicityIdentityRole : duplicityIdentityRoles) {
 			RptIdentityRoleByRoleDeduplicationDuplicityDto dupl = new RptIdentityRoleByRoleDeduplicationDuplicityDto();
 			dupl.setValidFrom(duplicityIdentityRole.getValidFrom());

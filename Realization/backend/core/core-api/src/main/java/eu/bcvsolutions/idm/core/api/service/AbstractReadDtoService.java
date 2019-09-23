@@ -91,9 +91,9 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@SuppressWarnings("unchecked")
 	public AbstractReadDtoService(AbstractEntityRepository<E> repository) {
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractReadDtoService.class);
+		dtoClass = (Class<DTO>) genericTypes[0];
 		entityClass = (Class<E>) genericTypes[1];
 		filterClass = (Class<F>) genericTypes[2];
-		dtoClass = (Class<DTO>) genericTypes[0];
 		//
 		Assert.notNull(repository, MessageFormat.format("Repository for class [{0}] is required!", entityClass));
 		//

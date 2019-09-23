@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
@@ -44,11 +45,14 @@ public class DefaultIdmEntityStateService
 			IdmEntityStateFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
-		if (StringUtils.isNotEmpty(filter.getText())) {
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
 			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmEntityState_.ownerType)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmEntityState_.ownerId).as(String.class)), "%" + filter.getText().toLowerCase() + "%"))
-					);
+					builder.like(builder.lower(root.get(IdmEntityState_.ownerType)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmEntityState_.ownerId).as(String.class)), "%" + text + "%"),
+					builder.like(builder.lower(root.get(IdmEntityState_.result).get(OperationResult_.code)), "%" + text + "%")
+					));
 		}
 		// owner type
 		if (StringUtils.isNotEmpty(filter.getOwnerType())) {
@@ -75,6 +79,10 @@ public class DefaultIdmEntityStateService
 		String resultCode = filter.getResultCode();
 		if (StringUtils.isNotEmpty(resultCode)) {
 			predicates.add(builder.equal(root.get(IdmEntityState_.result).get(OperationResult_.code), resultCode));
+		}
+		List<OperationState> states = filter.getStates();
+		if (!states.isEmpty()) {
+			predicates.add(root.get(IdmEntityState_.result).get(OperationResult_.state).in(states));
 		}
 		//
 		return predicates;

@@ -71,7 +71,7 @@ class AbstractForm extends AbstractContextComponent {
         return null;
       }
      // We will add only AbstractFormComponent
-      if (child.type && child.type.prototype instanceof AbstractFormComponent) {
+      if (child.type && ((child.type.prototype instanceof AbstractFormComponent) || child.type.__FormableComponent__)) {
         if (child.ref && (!child.props || !child.props.notControlled)) {
           keys.push(child.ref);
         }

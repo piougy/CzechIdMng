@@ -174,9 +174,11 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 	 * @return
 	 */
 	private List<IdmConceptRoleRequestDto> processDuplicitiesForContract(IdmIdentityContractDto contract) {
-		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
+		
+		List<IdmIdentityRoleDto> duplicatesIdentityRoleForContract = getDuplicatesIdentityRoleForContract(contract);
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(duplicatesIdentityRoleForContract.size());
 
-		for (IdmIdentityRoleDto duplicity : getDuplicatesIdentityRoleForContract(contract)) {
+		for (IdmIdentityRoleDto duplicity : duplicatesIdentityRoleForContract) {
 			IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
 			concept.setRole(duplicity.getRole());
 			concept.setIdentityRole(duplicity.getId());

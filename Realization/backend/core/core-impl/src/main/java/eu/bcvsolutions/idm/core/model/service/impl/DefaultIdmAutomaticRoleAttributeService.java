@@ -531,7 +531,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 					predicates.add(cb.exists(subquery));
 				}
 				//
-				List<Predicate> predicatesFromRules = new ArrayList<>();
+				List<Predicate> predicatesFromRules = new ArrayList<>(rules.size());
 				for (IdmAutomaticRoleAttributeRuleDto rule : rules) {
 					// compose all predicate from rules
 					Predicate predicate = DefaultIdmAutomaticRoleAttributeService.this.getPredicateForRuleByContract(rule, root,
@@ -841,7 +841,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @param automaticRoles
 	 */
 	private void createIdentityRoles(IdmIdentityContractDto contract, IdmContractPositionDto contractPosition, Set<AbstractIdmAutomaticRoleDto> automaticRoles) {		
-		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
+		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(automaticRoles.size());
 
 		for (AbstractIdmAutomaticRoleDto autoRole : automaticRoles) {
 			IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();

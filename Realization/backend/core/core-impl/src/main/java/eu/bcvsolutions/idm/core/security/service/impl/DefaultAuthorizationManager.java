@@ -1,13 +1,12 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -232,23 +231,26 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 
 	@Override
-	@SuppressWarnings({ "rawtypes" })
 	public List<AuthorizationEvaluatorDto> getSupportedEvaluators() {
-		List<AuthorizationEvaluatorDto> evaluators = new ArrayList<>();
-		for(Entry<String, AuthorizationEvaluator> entry : context.getBeansOfType(AuthorizationEvaluator.class).entrySet()) {
-			AuthorizationEvaluator<?> evaluator = entry.getValue();
-			AuthorizationEvaluatorDto evaluatorDto = new AuthorizationEvaluatorDto();
-			evaluatorDto.setId(evaluator.getId());
-			evaluatorDto.setName(evaluator.getName());
-			evaluatorDto.setEntityType(evaluator.getEntityClass().getCanonicalName());
-			evaluatorDto.setEvaluatorType(AutowireHelper.getTargetType(evaluator));
-			evaluatorDto.setModule(evaluator.getModule());
-			evaluatorDto.setSupportsPermissions(evaluator.supportsPermissions());
-			evaluatorDto.setDescription(evaluator.getDescription());
-			evaluatorDto.setFormDefinition(evaluator.getFormDefinition());
-			evaluators.add(evaluatorDto);
-		}
-		return evaluators;
+		// TODO: sort
+		return context
+			.getBeansOfType(AuthorizationEvaluator.class)
+			.values()
+			.stream()
+			.map(evaluator -> {
+				AuthorizationEvaluatorDto evaluatorDto = new AuthorizationEvaluatorDto();
+				evaluatorDto.setId(evaluator.getId());
+				evaluatorDto.setName(evaluator.getName());
+				evaluatorDto.setEntityType(evaluator.getEntityClass().getCanonicalName());
+				evaluatorDto.setEvaluatorType(AutowireHelper.getTargetType(evaluator));
+				evaluatorDto.setModule(evaluator.getModule());
+				evaluatorDto.setSupportsPermissions(evaluator.supportsPermissions());
+				evaluatorDto.setDescription(evaluator.getDescription());
+				evaluatorDto.setFormDefinition(evaluator.getFormDefinition());
+				//
+				return evaluatorDto;
+			})
+			.collect(Collectors.toList());
 	}
 	
 	/**

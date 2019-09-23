@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.Process;
@@ -50,15 +51,13 @@ public class DefaultWorkflowProcessDefinitionService
 		query.active();
 		query.latestVersion();
 		List<ProcessDefinition> processDefinitions = query.list();
-		List<WorkflowProcessDefinitionDto> processDefinitionDtos = new ArrayList<>();
 		if (processDefinitions == null) {
-			return processDefinitionDtos;
+			return new ArrayList<>();
 		}
-		for (ProcessDefinition p : processDefinitions) {
-			processDefinitionDtos.add(toDto(p));
-		}
-		return processDefinitionDtos;
-
+		return processDefinitions
+				.stream()
+				.map(p -> toDto(p))
+				.collect(Collectors.toList());
 	}
 
 	/**

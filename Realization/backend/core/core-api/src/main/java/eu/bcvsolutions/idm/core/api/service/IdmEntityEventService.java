@@ -11,15 +11,17 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 
 /**
- * Persisted entity events
+ * Persisted entity events.
  * 
  * @author Radek Tomiška
  * @since 8.0.0
  */
 public interface IdmEntityEventService extends 
-		EventableDtoService<IdmEntityEventDto, IdmEntityEventFilter> {
+		EventableDtoService<IdmEntityEventDto, IdmEntityEventFilter>,
+		ScriptEnabled {
 
 	/**
 	 * Find events by their state

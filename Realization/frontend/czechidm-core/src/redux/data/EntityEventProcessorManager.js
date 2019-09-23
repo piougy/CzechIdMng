@@ -62,19 +62,19 @@ export default class EntityEventProcessorManager extends EntityManager {
     return (dispatch, getState) => {
       dispatch(this.requestEntity(processorId, uiKey));
       this.getService().setEnabled(processorId, enable)
-      .then(json => {
-        const registeredProcessors = DataManager.getData(getState(), EntityEventProcessorManager.UI_KEY_PROCESSORS);
-        if (registeredProcessors.has(json.id)) {
-          registeredProcessors.get(json.id).disabled = json.disabled;
-        }
-        dispatch(this.dataManager.receiveData(uiKey, registeredProcessors));
-        if (cb) {
-          cb(json, null);
-        }
-      })
-      .catch(error => {
-        dispatch(this.receiveError({ id: processorId, disabled: !enable }, uiKey, error, cb));
-      });
+        .then(json => {
+          const registeredProcessors = DataManager.getData(getState(), EntityEventProcessorManager.UI_KEY_PROCESSORS);
+          if (registeredProcessors.has(json.id)) {
+            registeredProcessors.get(json.id).disabled = json.disabled;
+          }
+          dispatch(this.dataManager.receiveData(uiKey, registeredProcessors));
+          if (cb) {
+            cb(json, null);
+          }
+        })
+        .catch(error => {
+          dispatch(this.receiveError({ id: processorId, disabled: !enable }, uiKey, error, cb));
+        });
     };
   }
 }

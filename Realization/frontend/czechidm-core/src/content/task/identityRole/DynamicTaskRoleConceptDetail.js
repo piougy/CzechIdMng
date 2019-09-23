@@ -148,6 +148,7 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
         <Basic.PageHeader>
           {taskName}
           <small>
+            {' '}
             {this.i18n('header')}
           </small>
         </Basic.PageHeader>

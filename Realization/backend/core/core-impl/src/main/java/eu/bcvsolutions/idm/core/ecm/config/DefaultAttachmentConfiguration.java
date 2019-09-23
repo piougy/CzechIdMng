@@ -31,12 +31,13 @@ public class DefaultAttachmentConfiguration extends AbstractConfiguration implem
 	@Override
 	public String getStoragePath() {
 		String storagePath = getConfigurationService().getValue(PROPERTY_STORAGE_PATH);
-		if (StringUtils.isEmpty(storagePath)) {	
-			if (System.getProperty("user.home") == null) {
+		if (StringUtils.isEmpty(storagePath)) {
+			String userHome = System.getProperty("user.home");
+			if (userHome == null) {
 				throw new ResultCodeException(CoreResultCode.ATTACHMENT_INIT_DEFAULT_STORAGE_FAILED, ImmutableMap.of(
 						"path", "user.home"));
 			}			
-			storagePath = System.getProperty("user.home") + DEFAULT_STORAGE_PATH;
+			storagePath = userHome + DEFAULT_STORAGE_PATH;
 			LOG.warn("Attachments are saved under default path (user.home) [{}]. Configure attachment storage [{}] properly.", storagePath, PROPERTY_STORAGE_PATH);
 			//
 			if (!storageChecked) {

@@ -152,6 +152,18 @@ class IdentityService extends FormableEntityService {
     });
   }
 
+  sendLongPollingRequest(username) {
+    return RestApiService
+      .get(`${this.getApiPath()}/${encodeURIComponent(username)}/check-unresolved-request`)
+      .then(response => response.json())
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

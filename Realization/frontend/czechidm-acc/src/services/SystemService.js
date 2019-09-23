@@ -298,6 +298,18 @@ class SystemService extends Services.AbstractService {
         return json;
       });
   }
+
+  sendLongPollingRequest(systemId) {
+    return Services.RestApiService
+      .get(`${this.getApiPath()}/${encodeURIComponent(systemId)}/check-running-sync`)
+      .then(response => response.json())
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
 }
 
 export default SystemService;

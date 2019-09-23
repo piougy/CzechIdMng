@@ -1,12 +1,11 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 //
+import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
 import DecisionButtons from '../DecisionButtons';
 import DynamicTaskDetail from '../DynamicTaskDetail';
 import RoleRequestDetail from '../../requestrole/RoleRequestDetail';
-import { connect } from 'react-redux';
-import SearchParameters from '../../../domain/SearchParameters';
 
 /**
  * Custom task detail designed for use with RoleConceptTable.
@@ -29,7 +28,9 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
     this.setState({
       showLoading: true
     });
-    const formData = {'decision': decision.id, 'formData': formDataConverted};
+    const formData = {
+      decision: decision.id,
+      formData: formDataConverted};
     const { taskManager} = this.props;
     this.context.store.dispatch(taskManager.completeTask(task, formData, this.props.uiKey, this._afterComplete.bind(this)));
   }
@@ -38,22 +39,23 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
     const {task, canExecute, taskManager} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
-    let force = new SearchParameters();
-    if (task) {
-      force = force.setFilter('username', task.applicant);
-    }
     const formDataValues = this._toFormDataValues(task.formData);
     const taskName = taskManager.localize(task, 'name');
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
 
-        <Basic.PageHeader>{taskName}
-          <small> {this.i18n('header')}</small>
+        <Basic.PageHeader>
+          {taskName}
+          <small>
+            {' '}
+            {this.i18n('header')}
+          </small>
         </Basic.PageHeader>
 
-        <Basic.Panel showLoading = {showLoadingInternal}>
+        <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             {this._getTaskInfo(task)}
             {this._getApplicantAndRequester(task)}

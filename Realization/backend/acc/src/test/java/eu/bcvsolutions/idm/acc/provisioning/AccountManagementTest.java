@@ -310,6 +310,73 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void testRemoveIdentityAccountIfRoleSystemRemoved( ) {
+		IdmRoleDto roleOne = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysRoleSystemDto roleSystem = getHelper().createRoleSystem(roleOne, systemOne);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+
+		// check created account
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		
+		roleSystemService.delete(roleSystem);
+		
+		// Execute ACM and provisioning via bulk action
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityAccountManagementBulkAction.NAME);
+		bulkAction.setIdentifiers(Sets.newHashSet(identity.getId()));
+		bulkActionManager.processAction(bulkAction);
+		
+		// Account must not exist
+		accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNull(accountOne);
+	}
+	
+	@Test
+	public void testCreateIdentityAccountIfRoleSystemCreated( ) {
+		IdmRoleDto roleOne = getHelper().createRole();
+
+		// create test system with mapping
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+
+		// check created account -> role-system mapping does not exist -> account is null
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNull(accountOne);
+		
+		getHelper().createRoleSystem(roleOne, systemOne);
+		
+		// Execute ACM and provisioning via bulk action
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityAccountManagementBulkAction.NAME);
+		bulkAction.setIdentifiers(Sets.newHashSet(identity.getId()));
+		bulkActionManager.processAction(bulkAction);
+		
+		// Account must exists now
+		accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+	}
+	
+	
+	@Test
 	public void incrementalProvisioningWithoutRequest( ) {
 		IdmRoleDto roleOne = getHelper().createRole();
 		IdmRoleDto roleTwo = getHelper().createRole();

@@ -27,7 +27,6 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -261,8 +260,8 @@ public class DefaultIdmRoleService
 		if (roles == null) {
 			return null;
 		}
-		List<IdmRoleDto> idmRoles = new ArrayList<>();
 		String[] rolesArray = roles.split(",");
+		List<IdmRoleDto> idmRoles = new ArrayList<>(rolesArray.length);
 		for (String id : rolesArray) {
 			idmRoles.add(get(id));
 		}
@@ -330,12 +329,12 @@ public class DefaultIdmRoleService
 		IdmRoleCatalogueRoleFilter filter = new IdmRoleCatalogueRoleFilter();
 		filter.setRoleCatalogueId(roleCatalogueId);
 		//
-		List<IdmRoleDto> roles = new ArrayList<>();
-		for (IdmRoleCatalogueRoleDto roleCatalogueRole : roleCatalogueRoleService.find(filter, null).getContent()) {
-			IdmRoleDto role = DtoUtils.getEmbedded(roleCatalogueRole, IdmRoleCatalogueRole_.role);
-			roles.add(role);
-		}
-		return roles;
+		return roleCatalogueRoleService
+			.find(filter, null)
+			.getContent()
+			.stream()
+			.map(roleCatalogueRole -> DtoUtils.getEmbedded(roleCatalogueRole, IdmRoleCatalogueRole_.role, IdmRoleDto.class))
+			.collect(Collectors.toList());
 	}
 	
 	@Override

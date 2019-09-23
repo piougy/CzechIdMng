@@ -374,7 +374,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 					.getAllPasswordAttributes(system.getId(), systemMappingDto.getId());
 			//
 			// create account object with all another password
-			Map<ProvisioningAttributeDto, Object> accountObjectWithAnotherPassword = new HashMap<>();
+			Map<ProvisioningAttributeDto, Object> accountObjectWithAnotherPassword = new HashMap<>(passwordAttributes.size());
 			for (AttributeMapping passwordAttribute : passwordAttributes) {
 				// all password attributes contains also main __PASSWORD__ the attribute must be skipped
 				if (mappedAttribute != null && mappedAttribute.equals(passwordAttribute)) {
@@ -1026,7 +1026,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 					// Sort attributes by role priority
 					IdmRoleDto role1 = this.getRole(att1);
 					IdmRoleDto role2 = this.getRole(att2);
-					return Integer.valueOf(role2.getPriority()).compareTo(Integer.valueOf(role1.getPriority()));
+					return Integer.compare(role2.getPriority(), role1.getPriority());
 				}).collect(Collectors.toList());
 
 		// We have some overloaded attributes

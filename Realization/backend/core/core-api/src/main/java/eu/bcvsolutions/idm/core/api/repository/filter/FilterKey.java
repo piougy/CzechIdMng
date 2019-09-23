@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.repository.filter;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -42,5 +44,26 @@ public class FilterKey {
 		return entityClass;
 	}
 	
+	@Override
+	public boolean equals(final Object o) {
+		if (!(o instanceof FilterKey)) {
+			return false;
+		}
+		FilterKey that = (FilterKey) o;
+		
+		EqualsBuilder builder = new EqualsBuilder();
+		
+		return builder
+				.append(entityClass, that.entityClass)
+				.append(name, that.name)
+				.isEquals();
+	}
 	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				.append(entityClass)
+				.append(name)
+				 .toHashCode();
+	}
 }

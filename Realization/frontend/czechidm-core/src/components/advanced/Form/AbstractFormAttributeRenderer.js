@@ -55,7 +55,7 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    * FIXME: Usage as base AbstractFormComponent is not implemented (see automatic role rule).
    */
   setValue(value /* , cb*/) {
-    LOGGER.warn('AbstractFormAttributeRenderer: Set raw value for form attribute rendered is not supported. Use formInstance instead. GivenValue: [{}]', value);
+    LOGGER.warn('AbstractFormAttributeRenderer: Set raw value for form attribute renderer is not supported. Use formInstance instead. GivenValue: [{}]', value);
   }
 
   /**
@@ -125,6 +125,12 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
       return false;
     }
     return true;
+  }
+
+  focus() {
+    if (this.refs[AbstractFormAttributeRenderer.INPUT]) {
+      this.refs[AbstractFormAttributeRenderer.INPUT].focus();
+    }
   }
 
   /**
@@ -484,4 +490,6 @@ AbstractFormAttributeRenderer.defaultProps = {
   useDefaultValue: false
 };
 
+// usable in abstract form
+AbstractFormAttributeRenderer.__FormableComponent__ = true;
 AbstractFormAttributeRenderer.INPUT = 'input'; // input ref - is used internally for common operations

@@ -269,7 +269,7 @@ public class SysSyncConfigController
 		boolean running = service.isRunning(this.getService().get(backendId));
 		return new ResponseEntity<>(running, HttpStatus.OK);
 	}
-
+	
 	@Override
 	protected SysSyncConfigFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SysSyncConfigFilter filter = new SysSyncConfigFilter(parameters);

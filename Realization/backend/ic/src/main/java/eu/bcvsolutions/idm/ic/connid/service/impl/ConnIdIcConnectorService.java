@@ -85,7 +85,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		LOG.debug("Create object - ConnId ({} {})", connectorInstance.getConnectorKey().toString(), attributes.toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
-		Set<Attribute> connIdAttributes = new HashSet<>();
+		Set<Attribute> connIdAttributes = new HashSet<>(attributes.size());
 		for (IcAttribute icAttribute : attributes) {
 			connIdAttributes.add(ConnIdIcConvertUtil.convertIcAttribute(icAttribute));
 		}
@@ -111,7 +111,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		LOG.debug("Update object - ConnId (Uid= {} {} {})", uid, connectorInstance.getConnectorKey().toString(), replaceAttributes.toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
-		Set<Attribute> connIdAttributes = new HashSet<>();
+		Set<Attribute> connIdAttributes = new HashSet<>(replaceAttributes.size());
 		for (IcAttribute icAttribute : replaceAttributes) {
 			connIdAttributes.add(ConnIdIcConvertUtil.convertIcAttribute(icAttribute));
 		}

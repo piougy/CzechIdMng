@@ -9,6 +9,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
@@ -32,6 +33,9 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  *
  */
 @Component("guaranteeManagersFilter")
+@Description("Filter for find managers for given identity. "
+		+ "Supports managers by guarantee only. "
+		+ "Only valid identity can be manager.")
 public class GuaranteeManagersFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	

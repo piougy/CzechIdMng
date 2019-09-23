@@ -122,7 +122,8 @@
     "text": {
       "help": {
         "header": "Filtrování",
-        "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chcete hledat samotné speciální znaky, přidejte zpětné lomítko <strong>\\\\%,\\\\.</strong></div>"
+        "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chcete hledat samotné speciální znaky, přidejte zpětné lomítko <strong>\\\\%,\\\\.</strong></div>",
+        "uuid": "<div>Zadané <strong>uuid</strong> identifikátory nesmí obsahovat pomlčky (lze zadat krátký tvar identifikátoru nebo odebrat pomlčky).</div>"
       }
     },
     "module": {
@@ -2537,6 +2538,7 @@
         },
         "changePermissions": "Žádost o změnu rolí",
         "authorities": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
+        "automaticRefreshSwitch": "Automatické obnovení",
         "changeRoleProcesses": {
           "header": "Role čekající na schválení",
           "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu rolí?",
@@ -2917,6 +2919,21 @@
           },
           "eventTypes": {
             "placeholder": "Vyberte typ události (processor musí podporovat všechny vybrané)"
+          }
+        }
+      },
+      "filter-builders": {
+        "header": "Filtry",
+        "title": "Filtry",
+        "filter": {
+          "text": {
+            "placeholder": "Název proměnné, typ entity či filtru, popis (like)"
+          },
+          "module": {
+            "placeholder": "Modul"
+          },
+          "entityClass": {
+            "placeholder": "Typ entity"
           }
         }
       }
@@ -3304,7 +3321,16 @@
       "label": "$t(content.entityStates.title)",
       "filter": {
         "text": {
-          "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity (like)"
+          "placeholder": "$t(entity.EntityState.ownerType.label) / Identifikátor entity / $t(entity.EntityState.resultCode.label) (like)"
+        },
+        "operationStates": {
+          "placeholder": "$t(entity.EntityState.operationState.label)"
+        },
+        "states": {
+          "placeholder": "$t(entity.EntityState.result.label)"
+        },
+        "resultCode": {
+          "placeholder": "$t(entity.EntityState.resultCode.label)"
         },
         "ownerType": {
           "placeholder": "$t(entity.EntityState.ownerType.label)"
@@ -4259,6 +4285,27 @@
       "disableable": "Nelze vypnout",
       "closeable": "Uzavírá zpracování"
     },
+    "FilterBuilder": {
+      "name": {
+        "label": "Název proměnné",
+        "title": "Název proměnné použité v url pro aplikování filtru."
+      },
+      "module": {
+        "label": "Modul"
+      },
+      "description": {
+        "label": "Popis"
+      },
+      "entityClass": {
+        "label": "Typ entity"
+      },
+      "filterClass": {
+        "title": "Typ filtru"
+      },
+      "filterBuilderClass": {
+        "label": "Typ filtru"
+      }
+    },
     "LongRunningTask": {
       "taskId": "Id úlohy",
       "taskType": "Typ úlohy",
@@ -4516,6 +4563,12 @@
       "created": {
         "label": "Datum"
       },
+      "operationState": {
+        "label": "Výsledek"
+      },
+      "resultCode": {
+        "label": "Kód"
+      },
       "owner": {
         "label": "Entita"
       },
@@ -4523,7 +4576,7 @@
         "label": "Typ entity"
       },
       "ownerId": {
-        "label": "Entita"
+        "label": "Identifikátor entity"
       },
       "result": {
         "label": "Výsledek"

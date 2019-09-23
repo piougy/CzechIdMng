@@ -51,7 +51,7 @@ class SchedulerTaskOptionDecorator extends Basic.SelectBox.OptionDecorator {
         parameterNameLocalized = this.i18n(`entity.LongRunningTask.taskProperties.${ Utils.Ui.spinalCase(parameterName) }.label`, {
           defaultValue: parameterName
         });
-      } else if (_task) { // task's form definition is available
+      } else if (_task && _task.formDefinition) { // task's form definition is available
         parameterNameLocalized = formAttributeManager.getLocalization(_task.formDefinition, { code: parameterName }, 'label', parameterName);
       }
       parameterValues.push(
@@ -320,11 +320,16 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
 
   _toOption(task) {
     return {
-      niceLabel: formAttributeManager.getLocalization(task.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(task.taskType)),
+      niceLabel: task.formDefinition
+        ? formAttributeManager.getLocalization(task.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(task.taskType))
+        : Utils.Ui.getSimpleJavaType(task.taskType),
       value: task.taskType,
-      description: formAttributeManager.getLocalization(task.formDefinition, null, 'help', task.description),
+      description: task.formDefinition
+        ? formAttributeManager.getLocalization(task.formDefinition, null, 'help', task.description)
+        : task.description,
       parameters: task.parameters,
-      formDefinition: task.formDefinition
+      formDefinition: task.formDefinition,
+      disabled: task.disabled
     };
   }
 
@@ -391,8 +396,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
             cell={
               ({ rowIndex, data }) => (
                 <Advanced.DetailButton
-                  title={ this.i18n('button.detail') }
-                  onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
+                  title={ data[rowIndex].disabled ? this.i18n('label.disabled') : this.i18n('button.detail') }
+                  onClick={ this.showDetail.bind(this, data[rowIndex]) }
+                  disabled={ data[rowIndex].disabled }/>
               )
             }/>
           <Advanced.Column
@@ -409,7 +415,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 }
                 const simpleTaskType = Utils.Ui.getSimpleJavaType(propertyValue);
                 let _label = simpleTaskType;
-                if (_taskType) {
+                if (_taskType && _taskType.formDefinition) {
                   _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', simpleTaskType);
                 }
                 if (_label !== simpleTaskType) {
@@ -510,7 +516,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                       level="success"
                       className="btn-xs"
                       onClick={ this.showTriggerDetail.bind(this, { type: triggerType, taskId: data[rowIndex].id }) }
-                      rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE']) }>
+                      rendered={ !data[rowIndex].disabled && SecurityManager.hasAnyAuthority(['SCHEDULER_CREATE']) }>
                       <Basic.Icon value="plus"/>
                       {' '}
                       { this.i18n('button.add') }
@@ -532,7 +538,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                     title={ data[rowIndex].supportsDryRun ? this.i18n('button.dryRun') : this.i18n('error.SCHEDULER_DRY_RUN_NOT_SUPPORTED.title') }
                     titlePlacement="bottom"
                     style={{ marginLeft: 3 }}
-                    rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
+                    rendered={ !data[rowIndex].disabled && SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
                     disabled={ !data[rowIndex].supportsDryRun }
                     icon="play"/>
                   <Basic.Button
@@ -542,7 +548,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                     title={ this.i18n('button.run') }
                     titlePlacement="bottom"
                     style={{ marginLeft: 3 }}
-                    rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }>
+                    rendered={ !data[rowIndex].disabled && SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }>
                     <Basic.Icon icon="play"/>
                   </Basic.Button>
                 </div>

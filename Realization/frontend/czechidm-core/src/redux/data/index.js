@@ -32,6 +32,7 @@ import NotificationConfigurationManager from './NotificationConfigurationManager
 import WebsocketManager from './WebsocketManager';
 import PasswordPolicyManager from './PasswordPolicyManager';
 import EntityEventProcessorManager from './EntityEventProcessorManager';
+import FilterBuilderManager from './FilterBuilderManager';
 import LongRunningTaskManager from './LongRunningTaskManager';
 import SchedulerManager from './SchedulerManager';
 import NotificationTemplateManager from './NotificationTemplateManager';
@@ -74,6 +75,7 @@ import RoleFormAttributeManager from './RoleFormAttributeManager';
 import PasswordHistoryManager from './PasswordHistoryManager';
 import PasswordManager from './PasswordManager';
 import RequestIdentityRoleManager from './RequestIdentityRoleManager';
+import LongPollingManager from './LongPollingManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -103,6 +105,7 @@ const ManagerRoot = {
   WebsocketManager,
   PasswordPolicyManager,
   EntityEventProcessorManager,
+  FilterBuilderManager,
   LongRunningTaskManager,
   SchedulerManager,
   NotificationTemplateManager,
@@ -144,7 +147,8 @@ const ManagerRoot = {
   RoleFormAttributeManager,
   PasswordHistoryManager,
   PasswordManager,
-  RequestIdentityRoleManager
+  RequestIdentityRoleManager,
+  LongPollingManager
 };
 
 ManagerRoot.version = '9.4.0';

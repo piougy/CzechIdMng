@@ -32,11 +32,11 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -193,7 +193,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		Pageable pageable = new PageRequest(
 				0, 
 				PAGE_SIZE, 
-				new Sort(Direction.ASC, AbstractEntity_.id.getName())
+				new Sort(Direction.ASC, Auditable.PROPERTY_ID)
 		);
 		//
 		do {

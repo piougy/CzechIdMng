@@ -14,9 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +48,6 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
-import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -983,6 +980,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 * 
 	 * @return
 	 */
+	@Override
 	protected ObjectMapper getMapper() {
 		return getController().getMapper();
 	}
@@ -1124,52 +1122,12 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	/**
-	 * Converts filter parameters to string
-	 * 
-	 * @param filter
-	 * @return
-	 */
-	protected MultiValueMap<String, String> toQueryParams(DataFilter filter) {
-		MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
-		if (filter == null) {
-			return queryParams;
-		}
-		//
-		filter.getData().entrySet().forEach(entry -> {
-			queryParams.put(
-					entry.getKey(), 
-					entry
-						.getValue()
-						.stream()
-						.filter(Objects::nonNull)
-						.map(Objects::toString)
-						.collect(Collectors.toList())
-						);
-		});
-		return queryParams;
-	}
-	
-	/**
 	 * Returns dto's resource name defined by {@link Relation} annotation.
 	 * 
 	 * @return
 	 */
 	protected String getResourcesName() {
 		return this.getResourcesName(getController().getDtoClass());
-	}
-	
-	/**
-	 * Returns dto's resource name defined by {@link Relation} annotation.
-	 * 
-	 * @param dtoClass
-	 * @return
-	 */
-	protected String getResourcesName(Class<? extends BaseDto> dtoClass) {
-		Relation mapping = dtoClass.getAnnotation(Relation.class);
-		if (mapping == null) {
-			throw new CoreException("Dto class [" + dtoClass + "] not have @Relation annotation! Configure dto annotation properly.");
-		}
-		return mapping.collectionRelation();
 	}
 	
 	/**
@@ -1270,30 +1228,6 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	 */
 	protected List<DTO> toDtos(String listResponse) {
 		return toDtos(listResponse, getController().getDtoClass());
-	}
-	
-	/**
-	 * Transform response with embedded dto list to dtos
-	 * 
-	 * @param listResponse
-	 * @return
-	 */
-	protected <T extends BaseDto> List<T> toDtos(String listResponse, Class<T> dtoClass) {
-		try {
-			JsonNode json = getMapper().readTree(listResponse);
-			JsonNode jsonEmbedded = json.get("_embedded"); // by convention
-			JsonNode jsonResources = jsonEmbedded.get(getResourcesName(dtoClass));
-			//
-			// convert embedded object to target DTO classes
-			List<T> results = new ArrayList<>();
-			jsonResources.forEach(jsonResource -> {
-				results.add(getMapper().convertValue(jsonResource, dtoClass));
-			});
-			//
-			return results;
-		} catch (Exception ex) {
-			throw new RuntimeException("Failed parse entities from list response", ex);
-		}
 	}
 	
 	/**

@@ -127,9 +127,9 @@ public class DefaultCryptService implements CryptService {
 				return value;
 			}
 			return encryptCipher.doFinal(value);
-		} catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
-			LOG.error("Encrypt problem! Password will not be encrypted! Error: {}", e);
-			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), e);
+		} catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException ex) {
+			LOG.error("Encrypt problem! Password will not be encrypted! Error:", ex);
+			throw new ResultCodeException(CoreResultCode.CRYPT_INITIALIZATION_PROBLEM, ImmutableMap.of("algorithm", ALGORITHM), ex);
 		}
 	}
 

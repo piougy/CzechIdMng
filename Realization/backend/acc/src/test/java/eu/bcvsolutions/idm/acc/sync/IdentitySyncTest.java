@@ -117,6 +117,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class IdentitySyncTest extends AbstractIntegrationTest {
 
 	private static final String IDENTITY_ONE = "identityOne";
+	private static final String IDENTITY_TWO = "identityTwo";
 	private static final String IDENTITY_ONE_EMAIL = "email@test.cz";
 	private static final String SYNC_CONFIG_NAME = "syncConfigNameContract";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
@@ -185,6 +186,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 			identityService.delete(identity);
 			// clean up account in protection. There should be max. 1 after every test.
 			deleteProtectedAccount(IDENTITY_ONE);
+		}
+		IdmIdentityDto identityTwo = identityService.getByUsername(IDENTITY_TWO);
+		if (identityTwo != null) {
+			identityService.delete(identityTwo);
+			// clean up account in protection. There should be max. 1 after every test.
+			deleteProtectedAccount(IDENTITY_TWO);
 		}
 	}
 
@@ -2036,6 +2043,59 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		syncLogService.delete(log);
 		syncConfigService.delete(config);
 	}
+	
+	@Test
+	public void testLinkIdentityWithContractAndIdentityWithoutContractDontLinkSync() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		IdmRoleDto defaultRole = helper.createRole();
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		// Don't link without owner
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		
+		// We want to try If identity with the contract does not affect to the next sync of
+		// identity without contract
+		this.getBean().deleteAllResourceData();
+		this.getBean().setTestData(IDENTITY_TWO, IDENTITY_TWO, IDENTITY_TWO);
+		this.getBean().setTestData(IDENTITY_ONE, IDENTITY_ONE, IDENTITY_ONE);
+		
+		IdmIdentityDto identityTwo = helper.createIdentity(IDENTITY_TWO);
+		IdmIdentityContractDto primeContract = contractService.getPrimeContract(identityTwo.getId());
+		Assert.assertNotNull(primeContract);
+
+		// create identity without contract
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, Boolean.FALSE);
+		IdmIdentityDto identity = helper.createIdentity(IDENTITY_ONE);
+		// Set default
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT, Boolean.TRUE);
+		primeContract = contractService.getPrimeContract(identity.getId());
+		Assert.assertNull(primeContract);
+
+		helper.startSynchronization(config);
+
+		// has to be ignored, because no contract was found, so account wasn't linked
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.UNLINKED, 1, OperationResultType.IGNORE);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// role is not assigned
+		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(0, roles.size());
+
+		// check that AccAccount doesn't exist
+		checkAccAccount(0, false, null);
+
+		checkIdentityAccount(identity, 0, null);
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
 
 	// unlinked, no contract, link protected => role is not assigned, account is in protection infinitely
 	@Test
@@ -2074,6 +2134,72 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// role is not assigned
 		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(0, roles.size());
+
+		// account is linked in protection infinitely
+		checkAccAccount(1, true, null);
+
+		// account is in protection and not assigned by any role
+		checkIdentityAccount(identity, 1, null);
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+	
+	// unlinked, no contract, link protected => role is not assigned, account is in protection infinitely
+	@Test
+	public void testLinkIdentityWithContractAndIdentityWithoutContractLinkProtectedSync() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		IdmRoleDto defaultRole = helper.createRole();
+
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		// Link protected
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		// create mapping for provisioning with protection enabled infinitely
+		createMappingWithProtection(system, null);
+		helper.createRoleSystem(defaultRole, system);
+		
+		// We want to try If identity with the contract does not affect to the next sync of
+		// identity without contract
+		this.getBean().deleteAllResourceData();
+		this.getBean().setTestData(IDENTITY_TWO, IDENTITY_TWO, IDENTITY_TWO);
+		this.getBean().setTestData(IDENTITY_ONE, IDENTITY_ONE, IDENTITY_ONE);
+		
+		IdmIdentityDto identityTwo = helper.createIdentity(IDENTITY_TWO);
+		IdmIdentityContractDto primeContract = contractService.getPrimeContract(identityTwo.getId());
+		Assert.assertNotNull(primeContract);
+
+		// create identity without contract
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT,
+				Boolean.FALSE);
+		IdmIdentityDto identity = helper.createIdentity(IDENTITY_ONE);
+		// Set default
+		configurationService.setBooleanValue(IdentityConfiguration.PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT,
+				Boolean.TRUE);
+		primeContract = contractService.getPrimeContract(identity.getId());
+		Assert.assertNull(primeContract);
+
+		helper.startSynchronization(config);
+
+		// has to be success, account was linked and we expected that contract can be
+		// invalid
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK, 2, OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// role is not assigned
+		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(0, roles.size());
+		
+		// role is assigned
+		roles = identityRoleService.findAllByIdentity(identityTwo.getId());
+		Assert.assertEquals(1, roles.size());
 
 		// account is linked in protection infinitely
 		checkAccAccount(1, true, null);

@@ -35,11 +35,13 @@ public class Task implements BaseDto {
 	@JsonDeserialize(as = String.class)
 	private String id; // quartz job name
 	private String module;
+	
 	@NotEmpty
 	private String instanceId;
 	private Class<? extends SchedulableTaskExecutor<?>> taskType; // task executor class
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;
+	private boolean disabled; // task is disabled
 	@JsonProperty(access=Access.READ_ONLY)
 	private List<AbstractTaskTrigger> triggers;
 	private Map<String, String> parameters;
@@ -163,5 +165,25 @@ public class Task implements BaseDto {
 	 */
 	public IdmFormDefinitionDto getFormDefinition() {
 		return formDefinition;
+	}
+	
+	/**
+	 * Task is disabled.
+	 * 
+	 * @return
+	 * @since 9.7.7
+	 */
+	public boolean isDisabled() {
+		return disabled;
+	}
+	
+	/**
+	 * Task is disabled.
+	 * 
+	 * @param disabled
+	 * @since 9.7.7
+	 */
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 }

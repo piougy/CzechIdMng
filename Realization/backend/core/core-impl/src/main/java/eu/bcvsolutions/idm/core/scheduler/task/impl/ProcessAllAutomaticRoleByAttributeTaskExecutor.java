@@ -154,9 +154,6 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     	//
     	while (canContinue) {
     		for(UUID contractId : newNotPassedContracts) {
-    			// Concepts that will be added
-    			List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
-    			//
     			// Identity id is get from embedded identity role. This is little speedup.
     			UUID identityId = null;
     			//
@@ -164,6 +161,8 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     			filter.setIdentityContractId(contractId);
     			filter.setAutomaticRoleId(automaticRoleId);
     			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
+    			// Concepts that will be added
+    			List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(identityRoles.size());
     			for (IdmIdentityRoleDto identityRole : identityRoles) {
     				IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
         			concept.setIdentityContract(contractId);

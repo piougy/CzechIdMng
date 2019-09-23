@@ -870,7 +870,7 @@ public class DefaultFormService implements FormService {
 		//
 		// evaluate permissions for form definition attributes by values - change attribute properties ao remove attribute at all
 		if (!ObjectUtils.isEmpty(permissions)) {
-			Set<UUID> checkedAttributes = new HashSet<>();
+			Set<UUID> checkedAttributes = new HashSet<>(values.size());
 			for(IdmFormValueDto value : values) {
 				checkedAttributes.add(value.getFormAttribute());
 				Set<String> valuePermissions = formValueService.getPermissions(value);

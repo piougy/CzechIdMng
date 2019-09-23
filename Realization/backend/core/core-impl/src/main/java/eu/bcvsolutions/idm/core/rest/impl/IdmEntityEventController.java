@@ -18,10 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
@@ -111,24 +110,33 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 		filter.setOwnerType(getParameterConverter().toString(parameters, "ownerType"));
 		//
 		String ownerId = getParameterConverter().toString(parameters, "ownerId");
+		UUID ownerUuid = null;
 		if (StringUtils.isNotEmpty(filter.getOwnerType()) 
 				&& StringUtils.isNotEmpty(ownerId)) {
 			// try to find entity owner by Codeable identifier
 			AbstractDto owner = manager.findOwner(filter.getOwnerType(), ownerId);
 			if (owner != null) {
-				filter.setOwnerId(owner.getId());
+				ownerUuid = owner.getId();
 			} else {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found",
-						ImmutableMap.of("entityClass", filter.getOwnerType(), "identifier", ownerId));
+				LOG.debug("Entity type [{}] with identifier [{}] does not found, raw ownerId will be used as uuid.", 
+						filter.getOwnerType(), ownerId);
 			}
-		} else {
+		}
+		if (ownerUuid == null) {
 			try {
-				filter.setOwnerId(getParameterConverter().toUuid(parameters, "ownerId"));
+				ownerUuid = getParameterConverter().toUuid(parameters, "ownerId");
 			} catch (ClassCastException ex) {
 				throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
 			}
 		}
+		filter.setOwnerId(ownerUuid);
+		filter.setRootId(getParameterConverter().toUuid(parameters, "rootId"));
+		filter.setParentId(getParameterConverter().toUuid(parameters, "parentId"));
+		filter.setPriority(getParameterConverter().toEnum(parameters, "priority", PriorityType.class));
+		filter.setResultCode(getParameterConverter().toString(parameters, "resultCode"));
 		filter.setStates(getParameterConverter().toEnums(parameters, "states", OperationState.class));
+		filter.setEventType(getParameterConverter().toString(parameters, "eventType"));
+		filter.setSuperOwnerId(getParameterConverter().toUuid(parameters, "superOwnerId"));
 		return filter;
 	}
 }

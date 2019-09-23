@@ -96,5 +96,4 @@ public class DefaultFilterManagerIntegrationTest extends AbstractIntegrationTest
 			configurationService.setValue(implProperty, currentFilterBeanName);
 		}
 	}
-
 }

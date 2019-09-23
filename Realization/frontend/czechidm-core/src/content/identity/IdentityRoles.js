@@ -17,7 +17,9 @@ import {
   WorkflowProcessInstanceManager,
   SecurityManager,
   RoleRequestManager,
-  CodeListManager }
+  CodeListManager,
+  ConfigurationManager,
+  LongPollingManager}
   from '../../redux';
 import RoleRequestTable from '../requestrole/RoleRequestTable';
 import IdentityRoleTableComponent, { IdentityRoleTable } from './IdentityRoleTable';
@@ -47,7 +49,10 @@ class IdentityRoles extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       activeKey: 1,
+      longPollingInprogress: false,
+      automaticRefreshOn: true
     };
+    this.canSendLongPollingRequest = false;
   }
 
   getContentKey() {
@@ -71,9 +76,36 @@ class IdentityRoles extends Basic.AbstractContent {
         () => {
           this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
           this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
+          // Allow chcek of unresolved requests
+          this.canSendLongPollingRequest = true;
+          this._initComponent(this.props);
         }
       )
     );
+  }
+
+  componentWillReceiveProps(props) {
+    this._initComponent(props);
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    // Stop rquest of check rquests (next long-polling request will be not created)
+    this.canSendLongPollingRequest = false;
+  }
+
+  _initComponent(props) {
+    const { entityId } = props.params;
+    if (!this.state.longPollingInprogress && this._isLongPollingEnabled()) {
+      // Long-polling request can be send.
+      this.setState({longPollingInprogress: true}, () => {
+        this._sendLongPollingRequest(entityId);
+      });
+    }
+  }
+
+  _sendLongPollingRequest(entityId) {
+    LongPollingManager.sendLongPollingRequest.bind(this, entityId, identityManager.getService())();
   }
 
   showProcessDetail(entity) {
@@ -152,6 +184,12 @@ class IdentityRoles extends Basic.AbstractContent {
     return Utils.Permission.hasPermission(_permissions, 'CHANGEPERMISSION');
   }
 
+  _isLongPollingEnabled() {
+    const { _longPollingEnabled } = this.props;
+    const hasAuthority = SecurityManager.hasAuthority('ROLEREQUEST_READ');
+    return _longPollingEnabled && hasAuthority;
+  }
+
   /**
    * Redirects to tab with identity contracts
    *
@@ -202,9 +240,30 @@ class IdentityRoles extends Basic.AbstractContent {
     this.refs.tableProcesses.getWrappedInstance().reload();
   }
 
-  _getToolbar(contracts) {
+  _toggleAutomaticRefresh() {
+    LongPollingManager.toggleAutomaticRefresh.bind(this)();
+  }
+
+  _getToolbar(contracts, key) {
+    const {automaticRefreshOn} = this.state;
+    const longPollingEnabled = this._isLongPollingEnabled();
+    const data = {};
+    data[`automaticRefreshSwitch-${key}`] = automaticRefreshOn && longPollingEnabled;
     return (
       <Basic.Toolbar>
+        <div className="pull-left">
+          <Basic.AbstractForm
+            ref={`automaticRefreshForm-${key}`}
+            readOnly={!longPollingEnabled}
+            style={{padding: '0px'}}
+            data={data}>
+            <Basic.ToggleSwitch
+              ref={`automaticRefreshSwitch-${key}`}
+              label={this.i18n('automaticRefreshSwitch')}
+              onChange={this._toggleAutomaticRefresh.bind(this, key)}
+            />
+          </Basic.AbstractForm>
+        </div>
         <div className="pull-right">
           <Basic.Button
             level="warning"
@@ -217,7 +276,9 @@ class IdentityRoles extends Basic.AbstractContent {
             titlePlacement="bottom">
             { this.i18n('changePermissions') }
           </Basic.Button>
-          <Advanced.RefreshButton onClick={ this._refreshAll.bind(this) }/>
+          <Advanced.RefreshButton
+            rendered={!automaticRefreshOn || !longPollingEnabled}
+            onClick={ this._refreshAll.bind(this) }/>
         </div>
       </Basic.Toolbar>
     );
@@ -259,7 +320,7 @@ class IdentityRoles extends Basic.AbstractContent {
 
         <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
           <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
-            {this._getToolbar(_contracts)}
+            {this._getToolbar(_contracts, 'identity-role')}
             <Basic.ContentHeader
               icon="component:identity-roles"
               text={ this.i18n('directRoles.header') }
@@ -313,7 +374,7 @@ class IdentityRoles extends Basic.AbstractContent {
               </span>
             }
             className="bordered">
-            {this._getToolbar(_contracts)}
+            {this._getToolbar(_contracts, 'request')}
             {
               !SecurityManager.hasAuthority('ROLEREQUEST_READ')
               ||
@@ -424,6 +485,8 @@ function select(state, component) {
     addRoleProcessIds = state.data.ui['table-processes'].items;
   }
   const entityId = component.params.entityId;
+  const requestUi = Utils.Ui.getUiState(state, 'table-applicant-requests');
+  const longPollingEnabled = ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.long-polling.enabled', true);
 
   return {
     identity: identityManager.getEntity(state, entityId),
@@ -434,7 +497,8 @@ function select(state, component) {
     userContext: state.security.userContext,
     _permissions: identityManager.getPermissions(state, null, entityId),
     _searchParameters: Utils.Ui.getSearchParameters(state, `${uiKey}-${entityId}`),
-    _requestUi: Utils.Ui.getUiState(state, 'table-applicant-requests')
+    _requestUi: requestUi,
+    _longPollingEnabled: longPollingEnabled
   };
 }
 

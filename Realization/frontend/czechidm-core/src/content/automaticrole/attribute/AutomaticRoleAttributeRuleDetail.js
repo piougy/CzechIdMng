@@ -640,7 +640,6 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
             required={ !(typeForceSearchParameters !== null) }/>
           <Basic.SelectBox
             ref="formAttribute"
-            useFirst
             clearable={ false }
             returnProperty={ null }
             onChange={ this._formAttributeChange.bind(this) }

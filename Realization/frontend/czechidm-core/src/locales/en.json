@@ -122,7 +122,8 @@
     "text": {
       "help": {
         "header": "Filtering",
-        "body": "<div>Filter is using <strong>like</strong> operator:<br /><ul><li>looking for any occurrence of the specified string,</li><li>available wildcard characters:<ul><li><strong>%</strong> - matches zero or more characters,</li><li><strong>_</strong> - single character.</li></ul></li></ul>If we want to look for special characters, we add a backslash <strong>\\\\%,\\\\.</strong></div>"
+        "body": "<div>Filter is using <strong>like</strong> operator:<br /><ul><li>looking for any occurrence of the specified string,</li><li>available wildcard characters:<ul><li><strong>%</strong> - matches zero or more characters,</li><li><strong>_</strong> - single character.</li></ul></li></ul>If we want to look for special characters, we add a backslash <strong>\\\\%,\\\\.</strong></div>",
+        "uuid": "<div>Given <strong>uuid</strong> identifiers cannot contain dashes (short identifier can be given or dashes can be removed).</div>"
       }
     },
     "module": {
@@ -1212,7 +1213,7 @@
         "header": "New configuration item"
       },
       "save": {
-        "success": "Configuration items [{{name}}] successfully saved",
+        "success": "Configuration item [{{name}}] successfully saved",
         "sucessBulk": "Configuration items were successfully saved"
       },
       "addMore":{
@@ -2486,6 +2487,7 @@
         },
         "changePermissions": "Request to change roles",
         "authorities": "Granted authorizations <small>from assigned roles</small>",
+        "automaticRefreshSwitch": "Automatic refresh",
         "changeRoleProcesses": {
           "header": "Roles pending approval",
           "deleteConfirm": "Do you really want to delete selected request?",
@@ -2866,6 +2868,21 @@
           },
           "eventTypes": {
             "placeholder": "Select event type (processor has to support all of them)"
+          }
+        }
+      },
+      "filter-builders": {
+        "header": "Filters",
+        "title": "Filters",
+        "filter": {
+          "text": {
+            "placeholder": "Property name, entity or filter type, description (like)"
+          },
+          "module": {
+            "placeholder": "Module"
+          },
+          "entityClass": {
+            "placeholder": "Entity type"
           }
         }
       }
@@ -3253,7 +3270,16 @@
       "label": "$t(content.entityStates.title)",
       "filter": {
         "text": {
-          "placeholder": "$t(entity.EntityState.ownerType.label) / Entity identifier (like)"
+          "placeholder": "$t(entity.EntityState.ownerType.label) / Entity identifier / $t(entity.EntityState.resultCode.label) (like)"
+        },
+        "operationStates": {
+          "placeholder": "$t(entity.EntityState.operationState.label)"
+        },
+        "states": {
+          "placeholder": "$t(entity.EntityState.result.label)"
+        },
+        "resultCode": {
+          "placeholder": "$t(entity.EntityState.resultCode.label)"
         },
         "ownerType": {
           "placeholder": "$t(entity.EntityState.ownerType.label)"
@@ -4209,6 +4235,27 @@
       "disableable": "Cannot be inactivated",
       "closeable": "Closes processing"
     },
+    "FilterBuilder": {
+      "name": {
+        "label": "Property name",
+        "title": "Property used in url for apply filter."
+      },
+      "module": {
+        "label": "Module"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "entityClass": {
+        "label": "Entity type"
+      },
+      "filterClass": {
+        "title": "Filter type"
+      },
+      "filterBuilderClass": {
+        "label": "Filter type"
+      }
+    },
     "LongRunningTask": {
       "taskId": "Task ID",
       "taskType": "Task type",
@@ -4466,8 +4513,14 @@
       "created": {
         "label": "Date"
       },
+      "operationState": {
+        "label": "Result"
+      },
+      "resultCode": {
+        "label": "Code"
+      },
       "owner": {
-        "label": "Entity"
+        "label": "Entity identifier"
       },
       "ownerType": {
         "label": "Entity type"

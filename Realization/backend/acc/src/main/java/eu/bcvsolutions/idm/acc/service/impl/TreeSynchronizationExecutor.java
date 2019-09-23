@@ -505,7 +505,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		SysSyncLogDto log = context.getLog();
 		List<SysSyncActionLogDto> actionsLog = context.getActionLogs();
 		AttributeMapping tokenAttribute = context.getTokenAttribute();
-		Set<String> accountsUseInTreeList = new HashSet<>();
 
 		// Find UID/PARENT/CODE attribute
 		SysSystemAttributeMappingDto uidAttribute = attributeHandlingService.getUidAttribute(mappedAttributes, system);
@@ -530,6 +529,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			// just alias all accounts as roots and process
 			roots.addAll(accountsMap.keySet());
 		}
+		
+		Set<String> accountsUseInTreeList = new HashSet<>(roots.size());
 		for (String root : roots) {
 			accountsUseInTreeList.add(root);
 			IcConnectorObject account = accountsMap.get(root);

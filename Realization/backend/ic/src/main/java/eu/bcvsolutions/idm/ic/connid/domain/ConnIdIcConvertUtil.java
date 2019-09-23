@@ -347,8 +347,8 @@ public class ConnIdIcConvertUtil {
 		}
 		if (schema.getSupportedObjectClassesByOperation() != null) {
 			for (Class<? extends APIOperation> operation : schema.getSupportedObjectClassesByOperation().keySet()) {
-				List<String> objectClassesForOperation = new ArrayList<>();
 				Set<ObjectClassInfo> objectClasesConnid = schema.getSupportedObjectClassesByOperation().get(operation);
+				List<String> objectClassesForOperation = new ArrayList<>(objectClasesConnid.size());
 				for (ObjectClassInfo oci : objectClasesConnid) {
 					objectClassesForOperation.add(oci.getType());
 				}

@@ -415,5 +415,7 @@ AbstractFormComponent.defaultProps = {
   notControlled: false,
   validationErrors: []
 };
+// usable in abstract form
+AbstractFormComponent.__FormableComponent__ = true;
 
 export default AbstractFormComponent;

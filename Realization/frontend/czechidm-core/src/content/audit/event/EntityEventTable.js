@@ -6,13 +6,14 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { EntityEventManager, SecurityManager, ConfigurationManager } from '../../../redux';
+import { EntityEventManager, SecurityManager, ConfigurationManager, AuditManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import EntityStateTableComponent, { EntityStateTable } from './EntityStateTable';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
 import PriorityTypeEnum from '../../../enums/PriorityTypeEnum';
 
 const manager = new EntityEventManager();
+const auditManager = new AuditManager();
 
 /**
  * Table of persisted entity events
@@ -31,6 +32,12 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
         message: null
       }
     };
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
   }
 
   getContentKey() {
@@ -124,7 +131,8 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
       rendered,
       className,
       showDeleteAllButton,
-      showTransactionId
+      showTransactionId,
+      auditedEntities
     } = this.props;
     const { filterOpened, detail } = this.state;
     //
@@ -194,12 +202,15 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={ this.i18n('filter.text.placeholder') }/>
+                      placeholder={ this.i18n('filter.text.placeholder') }
+                      help={ Advanced.Filter.getTextHelp({ includeUuidHelp: true }) }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.TextField
+                    <Advanced.Filter.EnumSelectBox
                       ref="ownerType"
-                      placeholder={ this.i18n('filter.ownerType.placeholder') }/>
+                      searchable
+                      placeholder={this.i18n('filter.ownerType.placeholder')}
+                      options={ auditedEntities }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
@@ -483,7 +494,8 @@ EntityEventTable.defaultProps = {
 function select(state, component) {
   return {
     showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false),
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    auditedEntities: auditManager.prepareOptionsFromAuditedEntitiesNames(auditManager.getAuditedEntitiesNames(state))
   };
 }
 

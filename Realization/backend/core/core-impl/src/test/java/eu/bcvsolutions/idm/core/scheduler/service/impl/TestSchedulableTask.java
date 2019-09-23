@@ -45,4 +45,9 @@ public class TestSchedulableTask extends AbstractSchedulableTaskExecutor<String>
 		}			
 		return result;
 	}
+	
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
 }

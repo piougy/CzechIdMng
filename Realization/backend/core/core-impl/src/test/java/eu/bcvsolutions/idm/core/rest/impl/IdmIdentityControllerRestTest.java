@@ -14,9 +14,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -779,5 +781,44 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(createdDtoTwo.getId())));
 		//
 		Assert.assertEquals(2, count(parameters));
+	}
+	
+	@Test
+	public void testEnableNotFound() throws Exception {
+		getMockMvc().perform(patch(String.format("%s/enable", getDetailUrl(UUID.randomUUID())))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void testDisableNotFound() throws Exception {
+		getMockMvc().perform(patch(String.format("%s/disable", getDetailUrl(UUID.randomUUID())))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void testCheckUnresolvedRequestsNotFound() throws Exception {
+		getMockMvc().perform(get(String.format("%s/check-unresolved-request", getDetailUrl(UUID.randomUUID())))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void testEmptyCheckUnresolvedRequests() throws Exception {
+		IdmIdentityDto identity = createDto();
+		//
+		String response = getMockMvc().perform(get(String.format("%s/check-unresolved-request", getDetailUrl(identity.getId())))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+		        .andReturn()
+		        .getResponse()
+		        .getContentAsString();
+		//
+		Assert.assertTrue(StringUtils.isEmpty(response));
 	}
 }

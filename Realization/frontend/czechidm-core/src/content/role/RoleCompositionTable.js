@@ -165,7 +165,14 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
                     onClick={this.showDetail.bind(this, data[rowIndex])}/>
                 );
                 content.push(
-                  <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(entity._embedded.superior) }/>
+                  <IncompatibleRoleWarning
+                    incompatibleRoles={
+                      superiorId !== null
+                      ?
+                      this._getIncompatibleRoles(entity._embedded.sub)
+                      :
+                      this._getIncompatibleRoles(entity._embedded.superior)
+                    }/>
                 );
                 return content;
               }

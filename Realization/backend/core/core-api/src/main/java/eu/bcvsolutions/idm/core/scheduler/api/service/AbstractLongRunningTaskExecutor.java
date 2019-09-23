@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilte
 import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent;
 import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent.LongRunningTaskEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.exception.ConcurrentExecutionException;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Template for long running task executor. This template persists long running tasks.
@@ -55,6 +56,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private IdmProcessedTaskItemService itemService;
 	@Autowired private ConfigurationService configurationService;
+	@Autowired private EnabledEvaluator enabledEvaluator;
 	//
 	private String beanName; // spring bean name - used as processor id
 	private ParameterConverter parameterConverter;	
@@ -88,6 +90,11 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	@Override
 	public String getDescription() {
 		return AutowireHelper.getBeanDescription(this.getClass());
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return !enabledEvaluator.isEnabled(this) || LongRunningTaskExecutor.super.isDisabled();
 	}
 	
 	/**

@@ -257,7 +257,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		// (assigned/candidates/group) for this task)
 		List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(task.getId());
 		if (identityLinks != null) {
-			List<IdentityLinkDto> identityLinksDtos = new ArrayList<>();
+			List<IdentityLinkDto> identityLinksDtos = new ArrayList<>(identityLinks.size());
 			for (IdentityLink il : identityLinks) {
 				identityLinksDtos.add(toResource(il));
 			}

@@ -19,6 +19,7 @@ public class SysSyncLogFilter extends DataFilter {
 
 	public static final String PARAMETER_SYNCHRONIZATION_CONFIG_ID = "synchronizationConfigId";
 	public static final String PARAMETER_RUNNING = "running";
+	public static final String PARAMETER_SYSTEM_ID = "systemId";
 	
 	public SysSyncLogFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -46,5 +47,13 @@ public class SysSyncLogFilter extends DataFilter {
 
 	public void setRunning(Boolean running) {
 		data.set(PARAMETER_RUNNING, running);
+	}
+	
+	public UUID getSystemId() {
+		return getParameterConverter().toUuid(data, PARAMETER_SYSTEM_ID);
+	}
+
+	public void setSystemId(UUID systemId) {
+		data.set(PARAMETER_SYSTEM_ID, systemId);
 	}
 }

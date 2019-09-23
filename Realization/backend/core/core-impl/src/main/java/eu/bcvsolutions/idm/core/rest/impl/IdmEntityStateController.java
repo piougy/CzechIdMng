@@ -5,12 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
-import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.dto.ResultModels;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
-import io.swagger.annotations.AuthorizationScope;
+import javax.validation.Valid;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,13 +15,20 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.ImmutableMap;
-
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -35,13 +38,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import io.swagger.annotations.Api;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
 
 /**
  * Entity states
@@ -87,36 +86,6 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
 			dto.getEmbedded().put("ownerId", loadedDtos.get(ownerId));
 		});
 		return results;
-	}
-	
-	@Override
-	protected IdmEntityStateFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmEntityStateFilter filter = new IdmEntityStateFilter(parameters);
-		filter.setCreatedFrom(getParameterConverter().toDateTime(parameters, "createdFrom"));
-		filter.setCreatedTill(getParameterConverter().toDateTime(parameters, "createdTill"));
-		filter.setOwnerType(getParameterConverter().toString(parameters, "ownerType"));
-		//
-		String ownerId = getParameterConverter().toString(parameters, "ownerId");
-		if (StringUtils.isNotEmpty(filter.getOwnerType()) 
-				&& StringUtils.isNotEmpty(ownerId)) {
-			// try to find entity owner by Codeable identifier
-			AbstractDto owner = manager.findOwner(filter.getOwnerType(), ownerId);
-			if (owner != null) {
-				filter.setOwnerId(owner.getId());
-			} else {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found",
-						ImmutableMap.of("entityClass", filter.getOwnerType(), "identifier", ownerId));
-			}
-		} else {
-			try {
-				UUID uuid = getParameterConverter().toUuid(parameters, "ownerId");
-				filter.setOwnerId(uuid);
-			} catch (ClassCastException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
-			}
-		}
-		filter.setEventId(getParameterConverter().toUuid(parameters, "eventId"));
-		return filter;
 	}
 
     /**
@@ -188,5 +157,40 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
     public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
         return super.prevalidateBulkAction(bulkAction);
     }
+    
+    @Override
+	protected IdmEntityStateFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmEntityStateFilter filter = new IdmEntityStateFilter(parameters);
+		filter.setCreatedFrom(getParameterConverter().toDateTime(parameters, "createdFrom"));
+		filter.setCreatedTill(getParameterConverter().toDateTime(parameters, "createdTill"));
+		filter.setOwnerType(getParameterConverter().toString(parameters, "ownerType"));
+		filter.setResultCode(getParameterConverter().toString(parameters, "resultCode"));
+		filter.setStates(getParameterConverter().toEnums(parameters, "states", OperationState.class));
+		//
+		String ownerId = getParameterConverter().toString(parameters, "ownerId");
+		UUID ownerUuid = null;
+		if (StringUtils.isNotEmpty(filter.getOwnerType()) 
+				&& StringUtils.isNotEmpty(ownerId)) {
+			// try to find entity owner by Codeable identifier
+			AbstractDto owner = manager.findOwner(filter.getOwnerType(), ownerId);
+			if (owner != null) {
+				ownerUuid = owner.getId();
+			} else {
+				LOG.debug("Entity type [{}] with identifier [{}] does not found, raw ownerId will be used as uuid.", 
+						filter.getOwnerType(), ownerId);
+			}
+		}
+		if (ownerUuid == null) {
+			try {
+				ownerUuid = getParameterConverter().toUuid(parameters, "ownerId");
+			} catch (ClassCastException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
+			}
+		}
+		filter.setOwnerId(ownerUuid);
+		filter.setEventId(getParameterConverter().toUuid(parameters, "eventId"));
+		filter.setSuperOwnerId(getParameterConverter().toUuid(parameters, "superOwnerId"));
+		return filter;
+	}
 
 }

@@ -263,8 +263,9 @@ public interface Configurable {
 	default IdmFormDefinitionDto getFormDefinition() {
 		IdmFormDefinitionDto formDefinition = new IdmFormDefinitionDto();
 		formDefinition.setType(getConfigurableType());
-		formDefinition.setCode(getName());
-		formDefinition.setName(getName());
+		String configurableName = getName();
+		formDefinition.setCode(configurableName);
+		formDefinition.setName(configurableName);
 		formDefinition.setModule(getModule());
 		formDefinition.setDescription(getDescription());
 		formDefinition.setFormAttributes(getFormAttributes());

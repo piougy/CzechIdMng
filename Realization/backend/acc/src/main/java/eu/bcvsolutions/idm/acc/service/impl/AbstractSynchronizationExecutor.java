@@ -900,9 +900,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			variables.put("filter", filter);
 			variables.put("token", configToken);
 
-			List<Class<?>> allowTypes = new ArrayList<>();
+			IcFilterOperationType[] values = IcFilterOperationType.values();
+			List<Class<?>> allowTypes = new ArrayList<>(values.length + 6);
 			// Allow all IC filter operator
-			for (IcFilterOperationType operation : IcFilterOperationType.values()) {
+			for (IcFilterOperationType operation : values) {
 				allowTypes.add(operation.getImplementation());
 			}
 			allowTypes.add(IcAndFilter.class);

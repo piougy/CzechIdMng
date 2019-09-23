@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.Plugin;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
@@ -33,6 +34,14 @@ public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> exten
 	}
 	
 	/**
+	 *  bean name / unique identifier (spring bean name)
+	 *  
+	 * @return
+	 * @since 9.7.7
+	 */
+	String getId();
+	
+	/**
 	 * Property in filter - filter will be applied, when property will be set in filtering parameters.
 	 * FilterBuilder could read other properties from filter, 
 	 * 
@@ -40,7 +49,23 @@ public interface FilterBuilder<E extends BaseEntity, F extends DataFilter> exten
 	 */
 	@Override
 	String getName();
+
+	/**
+	 * A domain type for which it is filter intended.
+	 * 
+	 * @return Class<E>
+	 * @since 9.7.7
+	 */
+	public Class<E> getEntityClass();
 	
+	/**
+	 * Returns {@link BaseFilter} type class, which is controlled by this filter builder
+	 * 
+	 * @return
+	 * @since 9.7.7
+	 */
+	public Class<F> getFilterClass();
+
 	/**
 	 * Filter construct partial criteria where clause => {@link Predicate}, which will be appended to query for defined domain type.
 	 * Returned Predicate could be {@code null}, if builder doesn't have all parameters in filter set.

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -213,10 +214,11 @@ public class JwtAuthenticationMapper {
 	public IdmJwtAuthentication fromDto(IdmTokenDto token) {
 		Assert.notNull(token);
 		//
-		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-		for (DefaultGrantedAuthorityDto a : getDtoAuthorities(token)) {
-			grantedAuthorities.add(new DefaultGrantedAuthority(a.getAuthority()));
-		}
+		List<GrantedAuthority> grantedAuthorities = getDtoAuthorities(token)
+				.stream()
+				.map(authority -> new DefaultGrantedAuthority(authority.getAuthority()))
+				.collect(Collectors.toList());
+		//
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				new IdmIdentityDto(
 						token.getOwnerId(), 

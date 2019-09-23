@@ -2,6 +2,11 @@ import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
+/**
+ * Entity event processors.
+ *
+ * @author Radek Tomiška
+ */
 export default class EntityEventProcessorService extends AbstractService {
 
   getApiPath() {
@@ -22,16 +27,14 @@ export default class EntityEventProcessorService extends AbstractService {
    */
   getReqisteredProcessors() {
     return RestApiService
-    .get(this.getApiPath())
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(this.getApiPath())
+      .then(response => response.json())
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -42,22 +45,22 @@ export default class EntityEventProcessorService extends AbstractService {
    */
   setEnabled(processorId, enable = true) {
     return RestApiService
-    .patch(this.getApiPath() + `/${processorId}/${enable ? 'enable' : 'disable'}`)
-    .then(response => {
-      if (response.status === 204) {
-        // construct basic information about de/activated module
-        return {
-          id: processorId,
-          disabled: !enable
-        };
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .patch(`${ this.getApiPath() }/${ encodeURIComponent(processorId) }/${ enable ? 'enable' : 'disable' }`)
+      .then(response => {
+        if (response.status === 204) {
+          // construct basic information about de/activated module
+          return {
+            id: processorId,
+            disabled: !enable
+          };
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }

@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.event.processor.contract;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -8,6 +7,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -64,8 +65,6 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 		IdmIdentityContractDto identityContract = event.getContent();
 		UUID contractId = identityContract.getId();
 		//
-		List<IdmConceptRoleRequestDto> concepts = new ArrayList<IdmConceptRoleRequestDto>();
-		//
 		AutomaticRoleAttributeRuleType type = AutomaticRoleAttributeRuleType.CONTRACT;
 		// get original event type
 		if (CoreEventType.EAV_SAVE.name().equals(event.getParentType())) {
@@ -77,6 +76,10 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 				.getRulesForContract(true, type, contractId);
 		Set<AbstractIdmAutomaticRoleDto> allNotPassedAutomaticRoleForContract = automaticRoleAttributeService
 				.getRulesForContract(false, type, contractId);
+		// we don't know precious size - guava is used instead simple ArrayList constructor
+		List<IdmConceptRoleRequestDto> concepts = Lists.newArrayListWithExpectedSize(
+				allNewPassedAutomaticRoleForContract.size() + allNotPassedAutomaticRoleForContract.size()
+		);
 		//
 		// Iterate over newly passed
 		for (AbstractIdmAutomaticRoleDto autoRole : allNewPassedAutomaticRoleForContract) {

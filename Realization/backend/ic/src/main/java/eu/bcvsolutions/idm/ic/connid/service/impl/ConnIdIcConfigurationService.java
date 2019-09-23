@@ -142,9 +142,9 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	public Set<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server) {
 		Assert.notNull(server);
 		//
-		Set<IcConnectorInfo> result = new HashSet<>();
-		//
 		List<ConnectorInfo> infos = getAllRemoteConnectors(server);
+		//
+		Set<IcConnectorInfo> result = new HashSet<>(infos.size());
 
 		for (ConnectorInfo info : infos) {
 			ConnectorKey key = info.getConnectorKey();
@@ -268,8 +268,9 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		ConnectorInfoManager manager = null;
 		try {
 			// flush remote cache
-			ConnectorInfoManagerFactory.getInstance().clearRemoteCache();
-			manager = ConnectorInfoManagerFactory.getInstance().getRemoteManager(info);
+			ConnectorInfoManagerFactory instance = ConnectorInfoManagerFactory.getInstance();
+			instance.clearRemoteCache();
+			manager = instance.getRemoteManager(info);
 		} catch (InvalidCredentialException e) {
 			throw new IcInvalidCredentialException(server.getHost(), server.getPort(), e);
 		} catch (ConnectorIOException e) {
@@ -285,7 +286,6 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	private List<ConnectorInfoManager> findAllLocalConnectorManagers() {
 		if (managers == null) {
-			managers = new ArrayList<>();
 			List<Class<?>> annotated = new ArrayList<>();
 			// Find all class with annotation IcConnectorClass under specific
 			// packages
@@ -293,8 +293,10 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 				Reflections reflections = new Reflections(packageWithConnectors);
 				annotated.addAll(reflections.getTypesAnnotatedWith(ConnectorClass.class));
 			});
-
+			
 			LOG.info(MessageFormat.format("Found annotated classes with IcConnectorClass [{0}]", annotated));
+			
+			managers = new ArrayList<>(annotated.size());
 			for (Class<?> clazz : annotated) {
 				URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
 				// Transformation the Url to standard Java Url (for the JBoss VFS problem)

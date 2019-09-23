@@ -116,7 +116,7 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Object convertMultipleConnectorPropertyValue(IcConfigurationProperty propertyConfiguration, List<IdmFormValueDto> formValues) {
 		Object value = null;
-		List valueList = new ArrayList<>();
+		List valueList = new ArrayList<>(formValues.size());
 		for (IdmFormValueDto formValue : formValues) {
 			valueList.add(convertSingleConnectorPropertyValue(propertyConfiguration, formValue));
 		}

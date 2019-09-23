@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -25,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  * @see ParameterConverter
  * @author Radek Tomiška
  */
-public class DataFilter extends QuickFilter {
+public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 
 	/**
 	 * Dto uuid identifier
@@ -202,5 +203,27 @@ public class DataFilter extends QuickFilter {
 	 */
 	public ParameterConverter getParameterConverter() {
 		return parameterConverter;
+	}
+
+	/**
+	 * Get modified from for filtering entities changed from given time stamp
+	 * 
+	 * @return
+	 * @since 9.7.7
+	 */
+	@Override
+	public DateTime getModifiedFrom() {
+		return getParameterConverter().toDateTime(data, PARAMETER_MODIFIED_FROM);
+	}
+
+	/**
+	 * Set modified from for filtering entities changed from this time stamp
+	 * 
+	 * @param modifiedFrom
+	 * @since 9.7.7
+	 */
+	@Override
+	public void setModifiedFrom(DateTime dateTime) {
+		data.set(PARAMETER_MODIFIED_FROM, dateTime);
 	}
 }

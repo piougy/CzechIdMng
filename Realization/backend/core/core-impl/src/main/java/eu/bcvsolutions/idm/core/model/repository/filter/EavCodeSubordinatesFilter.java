@@ -12,6 +12,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -42,6 +43,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  */
 @Deprecated
 @Component("eavCodeSubordinatesFilter")
+@Description("Deprecated - use EavCodeContractByManagerFilter. Filter for find subordinates for given identity."
+		+ "Supports subordinates by guarantee and tree structure - finds parent tree node by code in eav attribute value.")
 public class EavCodeSubordinatesFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	

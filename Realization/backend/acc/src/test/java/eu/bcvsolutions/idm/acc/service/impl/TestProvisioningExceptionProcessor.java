@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
@@ -18,10 +20,14 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 public class TestProvisioningExceptionProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 
 	private boolean disabled = true;
+	private UUID failOnEntityIdentifier = null; // fail only for some provisioning operations (by entity identifier).
 	
 	@Override
 	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
-		throw new RuntimeException("test exception");
+		if (failOnEntityIdentifier == null || event.getContent().getEntityIdentifier().equals(failOnEntityIdentifier)) {
+			throw new RuntimeException("test exception");
+		}
+		return null;
 	}
 	
 	@Override
@@ -31,6 +37,10 @@ public class TestProvisioningExceptionProcessor extends AbstractEntityEventProce
 	
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+	
+	public void setFailOnEntityIdentifier(UUID failOnEntityIdentifier) {
+		this.failOnEntityIdentifier = failOnEntityIdentifier;
 	}
 
 	/**

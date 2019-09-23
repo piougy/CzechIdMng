@@ -78,6 +78,7 @@ import RoleFormAttributeService from './RoleFormAttributeService';
 import PasswordHistoryService from './PasswordHistoryService';
 import PasswordService from './PasswordService';
 import RequestIdentityRoleService from './RequestIdentityRoleService';
+import FilterBuilderService from './FilterBuilderService';
 
 const ServiceRoot = {
   RestApiService,
@@ -109,6 +110,7 @@ const ServiceRoot = {
   WebsocketService,
   PasswordPolicyService,
   EntityEventProcessorService,
+  FilterBuilderService,
   LongRunningTaskService,
   SchedulerService,
   NotificationTemplateService,

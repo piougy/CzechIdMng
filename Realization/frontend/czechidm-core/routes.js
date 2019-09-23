@@ -590,6 +590,11 @@ module.exports = {
           path: 'entity-event-processors',
           component: require('./src/content/module/EntityEventProcessors'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ'] } ]
+        },
+        {
+          path: 'filter-builders',
+          component: require('./src/content/module/FilterBuilders'),
+          access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
         }
       ]
     },

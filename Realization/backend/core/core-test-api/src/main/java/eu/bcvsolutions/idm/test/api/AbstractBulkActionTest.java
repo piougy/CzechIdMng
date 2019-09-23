@@ -106,7 +106,7 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 	 * @return
 	 */
 	protected List<IdmIdentityDto> createIdentities(int count) {
-		List<IdmIdentityDto> identites = new ArrayList<>();
+		List<IdmIdentityDto> identites = new ArrayList<>(count);
 		//
 		for (int index = 0; index < count; index++) {
 			// create identity without password
@@ -123,7 +123,7 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 	 * @return
 	 */
 	protected List<IdmRoleDto> createRoles(int count) {
-		List<IdmRoleDto> roles = new ArrayList<>();
+		List<IdmRoleDto> roles = new ArrayList<>(count);
 		//
 		for (int index = 0; index < count; index++) {
 			// create identity without password

@@ -5743,7 +5743,7 @@
     },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Neplatný formát",
-      "message": "Soubor má správnou příponu, ale není to obrázek. Soubor musí obsahovat obrázek v jednom z těchto formátů: jpg, png, gif."
+      "message": "Soubor má správnou příponu, ale není to obrázek. Soubor musí obsahovat obrázek v jednom z těchto formátů: jpg, jpeg, png, gif."
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Nebyla vyplněna povinná položka",

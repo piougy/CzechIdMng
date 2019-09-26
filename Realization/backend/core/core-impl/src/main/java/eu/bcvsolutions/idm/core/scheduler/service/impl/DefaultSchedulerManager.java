@@ -376,10 +376,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		trigger.setTaskId(taskId);
 		//
 		// TODO use of visitor pattern may be good
-		if (trigger instanceof CronTaskTrigger) {
-			createTriggerInternal(taskId, (CronTaskTrigger) trigger, dryRun, ((CronTaskTrigger) trigger).getExecuteDate());
-		} else if (trigger instanceof SimpleTaskTrigger) {
+		if (trigger instanceof SimpleTaskTrigger) {
 			createTriggerInternal(taskId, (SimpleTaskTrigger) trigger, dryRun);
+		} else if (trigger instanceof CronTaskTrigger) {
+			createTriggerInternal(taskId, (CronTaskTrigger) trigger, dryRun, ((CronTaskTrigger) trigger).getExecuteDate());
 		} else if(trigger instanceof DependentTaskTrigger) {
 			createTriggerInternal(taskId, (DependentTaskTrigger) trigger);
 		} else {

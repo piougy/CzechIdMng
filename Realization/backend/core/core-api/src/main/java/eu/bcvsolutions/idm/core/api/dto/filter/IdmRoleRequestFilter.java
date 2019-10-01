@@ -31,6 +31,7 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private List<UUID> applicants;
 	private UUID creatorId;
 	private boolean includeConcepts = false;
+	private boolean includeSubprocessCandidates = false;
 	/**
 	 * If true, then returns requests where state in IdM and state on a systems is
 	 * EXECUTED. 
@@ -153,5 +154,13 @@ public class IdmRoleRequestFilter extends DataFilter {
 
 	public void setSystemStates(List<OperationState> systemStates) {
 		this.systemStates = systemStates;
+	}
+
+	public boolean isIncludeSubprocessCandidates() {
+		return includeSubprocessCandidates;
+	}
+
+	public void setIncludeSubprocessCandidates(boolean includeSubprocessCandidates) {
+		this.includeSubprocessCandidates = includeSubprocessCandidates;
 	}
 }

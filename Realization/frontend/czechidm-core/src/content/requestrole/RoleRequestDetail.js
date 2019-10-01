@@ -298,6 +298,10 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         </div>);
     }
 
+    const candidatesFromRequest = request.candicateUsers;
+    const isCandidatesFromRequest = !(candidatesFromRequest === null || candidatesFromRequest === undefined || candidatesFromRequest.lenght > 0);
+    const candidates = isCandidatesFromRequest ? request.candicateUsers : request.candidatesForSubprocess;
+
     return (
       <div>
         <Basic.Confirm ref="confirm-incompatible-role" level="warning">
@@ -367,8 +371,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.currentActivity')}/>
               <Basic.LabelWrapper
                 label={ this.i18n('entity.RoleRequest.candicateUsers') }
-                rendered={ (_adminMode && request.candicateUsers && request.candicateUsers.length > 0) === true }>
-                <Advanced.IdentitiesInfo identities={ request.candicateUsers } maxEntry={ 5 } />
+                rendered={ ((candidates && candidates.length > 0) === true) }>
+                <Advanced.IdentitiesInfo identities={ candidates } isUsedIdentifier={ isCandidatesFromRequest } maxEntry={ 5 } />
               </Basic.LabelWrapper>
               <Basic.TextArea
                 ref="description"

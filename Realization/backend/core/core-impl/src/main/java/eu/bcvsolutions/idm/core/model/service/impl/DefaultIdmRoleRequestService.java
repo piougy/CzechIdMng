@@ -609,12 +609,15 @@ public class DefaultIdmRoleRequestService
 		// from FE.
 		if (requestDto != null && requestDto.getWfProcessId() != null) {
 			if (RoleRequestState.IN_PROGRESS == requestDto.getState()) {
+				String wfProcessId = requestDto.getWfProcessId();
 				// Instance of process should exists only in 'IN_PROGRESS' state
-				WorkflowProcessInstanceDto processInstanceDto = workflowProcessInstanceService
-						.get(requestDto.getWfProcessId());
+				WorkflowProcessInstanceDto processInstanceDto = workflowProcessInstanceService.get(wfProcessId);
 				// Trim a process variables - prevent security issues and too
 				// high of response
 				// size
+				if (filter != null && filter.isIncludeSubprocessCandidates()) {
+					requestDto.setCandidatesForSubprocess(workflowProcessInstanceService.getCandidatesForSubprocess(wfProcessId));
+				}
 				if (processInstanceDto != null) {
 					processInstanceDto.setProcessVariables(null);
 				}

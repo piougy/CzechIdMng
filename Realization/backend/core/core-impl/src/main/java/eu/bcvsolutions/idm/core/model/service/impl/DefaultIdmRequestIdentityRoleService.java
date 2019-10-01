@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
  * Default implementation of service for search and processing changes in assigned identity roles
@@ -69,6 +70,8 @@ public class DefaultIdmRequestIdentityRoleService extends
 	private ModelMapper modelMapper;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private WorkflowProcessInstanceService workflowProcessInstanceService;
 
 	@Override
 	public Page<IdmRequestIdentityRoleDto> find(IdmRequestIdentityRoleFilter filter, Pageable pageable,
@@ -463,7 +466,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 						(IdmIdentityRoleDto) null);
 				if (identityRole == null) { 
 					// Identity-role was not found, remove concept was executed (identity-role was removed).
-					return requestIdentityRoleDto;
+					return addCandidates(requestIdentityRoleDto, concept, filter);
 				}
 				formInstanceDto  = identityRoleService.getRoleAttributeValues(identityRole);
 			} else {
@@ -471,6 +474,24 @@ public class DefaultIdmRequestIdentityRoleService extends
 			}
 			addEav(requestIdentityRoleDto, formInstanceDto);
 		}
+
+		return addCandidates(requestIdentityRoleDto, concept, filter);
+	}
+
+	/**
+	 * Add candidates to given {@link IdmRequestIdentityRoleDto}. Candidates will be added only if filter has includesCandidates = true
+	 *
+	 * @param requestIdentityRoleDto
+	 * @param concept
+	 * @param filter
+	 * @return
+	 */
+	private IdmRequestIdentityRoleDto addCandidates(IdmRequestIdentityRoleDto requestIdentityRoleDto, IdmConceptRoleRequestDto concept, IdmRequestIdentityRoleFilter filter) {
+		if (filter != null && filter.isIncludeCandidates() && concept.getWfProcessId() != null) {
+			// Concept has own process (subprocess)
+			requestIdentityRoleDto.setCandidates(workflowProcessInstanceService.getCandidatesForProcess(concept.getWfProcessId()));
+		}
+
 		return requestIdentityRoleDto;
 	}
 

@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -285,6 +286,28 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 	}
 
 	@Override
+	public Set<IdmIdentityDto> getCandidatesForSubprocess(String processInstaceId) {
+		if (processInstaceId == null) {
+			return Sets.newHashSet();
+		}
+
+		Set<IdmIdentityDto> identities = new HashSet<IdmIdentityDto>();
+		
+		// All subprocess
+		List<ProcessInstance> list = runtimeService
+				.createProcessInstanceQuery()
+				.superProcessInstanceId(processInstaceId)
+				.list();
+
+		// Iterate over subprocess and get candidates for each subprocess
+		for (ProcessInstance instance : list) {
+			identities.addAll(getCandidatesForProcess(instance.getId()));
+		}
+
+		return identities;
+	}
+
+	@Override
 	public WorkflowProcessInstanceDto delete(String processInstanceId, String deleteReason) {
 		if (processInstanceId == null) {
 			return null;
@@ -310,6 +333,28 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 		runtimeService.deleteProcessInstance(processInstanceToDelete.getProcessInstanceId(), deleteReason);
 
 		return processInstanceToDelete;
+	}
+
+	@Override
+	public Set<IdmIdentityDto> getCandidatesForProcess(String processInstaceId) {
+		Task task = taskService.createTaskQuery().active().processInstanceId(processInstaceId).singleResult();
+		
+		if (task != null) {
+			List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForTask(task.getId());
+			if (identityLinks != null && !identityLinks.isEmpty()) {
+				Set<IdmIdentityDto> candicateUsers = new HashSet<>();
+				for	(HistoricIdentityLink identity : identityLinks) {
+					if (IdentityLinkType.CANDIDATE.equals(identity.getType())) {
+						IdmIdentityDto identityDto = identityService.get(identity.getUserId());
+						if (identityDto != null) {
+							candicateUsers.add(identityDto);
+						}
+					}
+				}
+				return candicateUsers;
+			}
+		}
+		return Sets.newHashSet();
 	}
 
 	private WorkflowProcessInstanceDto toResource(ProcessInstance instance) {

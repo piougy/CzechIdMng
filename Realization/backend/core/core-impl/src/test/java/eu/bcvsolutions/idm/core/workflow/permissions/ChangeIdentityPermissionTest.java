@@ -31,10 +31,13 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRequestIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRequestIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
@@ -42,6 +45,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRequestIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -103,7 +107,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private SecurityService securityService;
 	@Autowired
 	private IdmIncompatibleRoleService incompatibleRoleService;
-
+	@Autowired
+	private IdmRequestIdentityRoleService requestIdentityRoleService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
 
@@ -1359,6 +1364,192 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// Main process has to be executed
 		assertEquals(RoleRequestState.EXECUTED, request.getState());
 		
+	}
+
+	@Test
+	public void testFindCandidatesWithoutSubprocess() {
+		// approve only by help desk
+		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
+		//
+		loginAsAdmin();
+		IdmIdentityDto identity = helper.createIdentity();
+		//
+		IdmRoleDto role = helper.createRole();
+		//
+		// helpdesk role and identity
+		IdmRoleDto helpdeskRole = helper.createRole();
+		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		// add role directly
+		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+
+		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+
+		loginAsNoAdmin(identity.getUsername());
+		IdmRoleRequestDto request = createRoleRequest(identity);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(role, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+		
+		IdmRequestIdentityRoleFilter requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
+		requestIdentityRoleFilter.setIncludeCandidates(true);
+		requestIdentityRoleFilter.setRoleRequestId(request.getId());
+		requestIdentityRoleFilter.setIdentityId(identity.getId());
+		List<IdmRequestIdentityRoleDto> requestIdentityRoles = requestIdentityRoleService.find(requestIdentityRoleFilter, null).getContent();
+		assertEquals(1, requestIdentityRoles.size());
+		IdmRequestIdentityRoleDto requestIdentityRoleDto = requestIdentityRoles.get(0);
+		assertNull(requestIdentityRoleDto.getCandidates());
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		Set<IdmIdentityDto> candidates = workflowProcessInstanceService.getCandidatesForProcess(request.getWfProcessId());
+		assertEquals(1, candidates.size());
+
+		candidates = workflowProcessInstanceService.getCandidatesForSubprocess(request.getWfProcessId());
+		assertEquals(0, candidates.size());
+
+		requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
+		requestIdentityRoleFilter.setIncludeCandidates(true);
+		requestIdentityRoleFilter.setRoleRequestId(request.getId());
+		requestIdentityRoleFilter.setIdentityId(identity.getId());
+		requestIdentityRoles = requestIdentityRoleService.find(requestIdentityRoleFilter, null).getContent();
+		assertEquals(1, requestIdentityRoles.size());
+		requestIdentityRoleDto = requestIdentityRoles.get(0);
+		assertNull(requestIdentityRoleDto.getCandidates());
+	}
+
+	@Test
+	@Transactional
+	public void testFindCandidatesWithSubprocess() {
+		// approve only by help desk
+		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
+		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
+
+		loginAsAdmin();
+
+		// helpdesk role and identity
+		IdmRoleDto helpdeskRole = helper.createRole();
+		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		// add role directly
+		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+				
+		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto guarantee = identityService.getByUsername(InitTestData.TEST_USER_2);
+
+		// Guarantee
+		int priority = 500;
+		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
+		adminRole.setPriority(priority);
+		getHelper().createRoleGuarantee(adminRole, guarantee);
+		adminRole = roleService.save(adminRole);
+		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
+				APPROVE_ROLE_BY_MANAGER_KEY);
+
+		IdmIdentityContractDto contract = identityContractService.getPrimeContract(identity.getId());
+
+		IdmRoleRequestDto request = createRoleRequest(identity);
+		request = roleRequestService.save(request);
+
+		IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+		concept = conceptRoleRequestService.save(concept);
+
+		IdmRequestIdentityRoleFilter requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
+		requestIdentityRoleFilter.setIncludeCandidates(true);
+		requestIdentityRoleFilter.setRoleRequestId(request.getId());
+		requestIdentityRoleFilter.setIdentityId(identity.getId());
+		List<IdmRequestIdentityRoleDto> requestIdentityRoles = requestIdentityRoleService.find(requestIdentityRoleFilter, null).getContent();
+		assertEquals(1, requestIdentityRoles.size());
+		IdmRequestIdentityRoleDto requestIdentityRoleDto = requestIdentityRoles.get(0);
+		assertNull(requestIdentityRoleDto.getCandidates());
+
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(0, tasks.size());
+
+		Set<IdmIdentityDto> candidates = workflowProcessInstanceService.getCandidatesForProcess(request.getWfProcessId());
+		assertEquals(1, candidates.size());
+		
+		candidates = workflowProcessInstanceService.getCandidatesForSubprocess(request.getWfProcessId());
+		assertEquals(0, candidates.size());
+		
+		requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
+		requestIdentityRoleFilter.setIncludeCandidates(true);
+		requestIdentityRoleFilter.setRoleRequestId(request.getId());
+		requestIdentityRoleFilter.setIdentityId(identity.getId());
+		requestIdentityRoles = requestIdentityRoleService.find(requestIdentityRoleFilter, null).getContent();
+		assertEquals(1, requestIdentityRoles.size());
+		requestIdentityRoleDto = requestIdentityRoles.get(0);
+		assertNull(requestIdentityRoleDto.getCandidates());
+
+		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
+		filter.setIncludeSubprocessCandidates(true);
+		IdmRoleRequestDto requestDto = roleRequestService.get(request.getId(), filter);
+		assertEquals(0, requestDto.getCandidatesForSubprocess().size());
+
+		// HELPDESK
+		loginAsAdmin(helpdeskIdentity.getUsername());
+		taskFilter.setCandidateOrAssigned(helpdeskIdentity.getUsername());
+		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
+
+		filter.setIncludeSubprocessCandidates(false);
+		requestDto = roleRequestService.get(request.getId(), filter);
+		assertNull(requestDto.getCandidatesForSubprocess());
+		
+		// Subprocess - approve by Manager
+		request = roleRequestService.get(request.getId());
+		loginAsAdmin(guarantee.getUsername());
+		taskFilter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+		assertEquals(1, tasks.size());
+		concept = conceptRoleRequestService.get(concept.getId());
+
+		String conceptWf = concept.getWfProcessId();
+		assertNotNull(conceptWf);
+		assertNotNull(workflowProcessInstanceService.get(conceptWf));
+
+		candidates = workflowProcessInstanceService.getCandidatesForProcess(request.getWfProcessId());
+		assertEquals(0, candidates.size());
+
+		candidates = workflowProcessInstanceService.getCandidatesForSubprocess(request.getWfProcessId());
+		assertEquals(1, candidates.size());
+
+		requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
+		requestIdentityRoleFilter.setIncludeCandidates(true);
+		requestIdentityRoleFilter.setRoleRequestId(request.getId());
+		requestIdentityRoleFilter.setIdentityId(identity.getId());
+		requestIdentityRoles = requestIdentityRoleService.find(requestIdentityRoleFilter, null).getContent();
+		assertEquals(1, requestIdentityRoles.size());
+		requestIdentityRoleDto = requestIdentityRoles.get(0);
+		assertEquals(1, requestIdentityRoleDto.getCandidates().size());
+
+		requestIdentityRoleFilter.setIncludeCandidates(false);
+		requestIdentityRoles = requestIdentityRoleService.find(requestIdentityRoleFilter, null).getContent();
+		assertEquals(1, requestIdentityRoles.size());
+		requestIdentityRoleDto = requestIdentityRoles.get(0);
+		assertNull(requestIdentityRoleDto.getCandidates());
+
+		filter = new IdmRoleRequestFilter();
+		filter.setIncludeSubprocessCandidates(true);
+		requestDto = roleRequestService.get(request.getId(), filter);
+		assertEquals(1, requestDto.getCandidatesForSubprocess().size());
+
+		filter.setIncludeSubprocessCandidates(false);
+		requestDto = roleRequestService.get(request.getId(), filter);
+		assertNull(requestDto.getCandidatesForSubprocess());
 	}
 
 	/**

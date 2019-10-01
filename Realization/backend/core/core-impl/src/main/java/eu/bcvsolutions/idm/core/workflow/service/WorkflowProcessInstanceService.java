@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.core.workflow.service;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.activiti.engine.runtime.ProcessInstance;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -94,5 +96,19 @@ public interface WorkflowProcessInstanceService extends ReadWriteDtoService<Work
 	@Deprecated
 	ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight);
 
+	/**
+	 * Return unique set of all candidates for all subprocess of given parent process id in parameters.
+	 *
+	 * @param processInstaceId
+	 * @return
+	 */
+	Set<IdmIdentityDto> getCandidatesForSubprocess(String processInstaceId);
 
+	/**
+	 * Return unique set of all candidates for given process id in parameters.
+	 *
+	 * @param processInstaceId
+	 * @return
+	 */
+	Set<IdmIdentityDto> getCandidatesForProcess(String processInstaceId);
 }

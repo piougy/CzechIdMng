@@ -31,7 +31,10 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private List<UUID> applicants;
 	private UUID creatorId;
 	private boolean includeConcepts = false;
-	private boolean includeSubprocessCandidates = false;
+	/**
+	 * Include approvers for current tasks. Approvers will be receive from original process or from all subprocesses. 
+	 */
+	private boolean includeApprovers = false;
 	/**
 	 * If true, then returns requests where state in IdM and state on a systems is
 	 * EXECUTED. 
@@ -156,11 +159,11 @@ public class IdmRoleRequestFilter extends DataFilter {
 		this.systemStates = systemStates;
 	}
 
-	public boolean isIncludeSubprocessCandidates() {
-		return includeSubprocessCandidates;
+	public boolean isIncludeApprovers() {
+		return includeApprovers;
 	}
 
-	public void setIncludeSubprocessCandidates(boolean includeSubprocessCandidates) {
-		this.includeSubprocessCandidates = includeSubprocessCandidates;
+	public void setIncludeApprovers(boolean includeApprovers) {
+		this.includeApprovers = includeApprovers;
 	}
 }

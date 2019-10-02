@@ -298,9 +298,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         </div>);
     }
 
-    const candidatesFromRequest = request.candicateUsers;
-    const isCandidatesFromRequest = !(candidatesFromRequest === null || candidatesFromRequest === undefined || candidatesFromRequest.lenght > 0);
-    const candidates = isCandidatesFromRequest ? request.candicateUsers : request.candidatesForSubprocess;
+    const approvers = request.approvers;
 
     return (
       <div>
@@ -371,8 +369,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.currentActivity')}/>
               <Basic.LabelWrapper
                 label={ this.i18n('entity.RoleRequest.candicateUsers') }
-                rendered={ ((candidates && candidates.length > 0) === true) }>
-                <Advanced.IdentitiesInfo identities={ candidates } isUsedIdentifier={ isCandidatesFromRequest } maxEntry={ 5 } />
+                rendered={ ((approvers && approvers.length > 0) === true) }>
+                <Advanced.IdentitiesInfo identities={ approvers } isUsedIdentifier={ false } maxEntry={ 5 } />
               </Basic.LabelWrapper>
               <Basic.TextArea
                 ref="description"

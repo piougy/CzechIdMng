@@ -286,7 +286,7 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 	}
 
 	@Override
-	public Set<IdmIdentityDto> getCandidatesForSubprocess(String processInstaceId) {
+	public Set<IdmIdentityDto> getApproversForSubprocess(String processInstaceId) {
 		if (processInstaceId == null) {
 			return Sets.newHashSet();
 		}
@@ -299,9 +299,9 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 				.superProcessInstanceId(processInstaceId)
 				.list();
 
-		// Iterate over subprocess and get candidates for each subprocess
+		// Iterate over subprocess and get approvers for each subprocess
 		for (ProcessInstance instance : list) {
-			identities.addAll(getCandidatesForProcess(instance.getId()));
+			identities.addAll(getApproversForProcess(instance.getId()));
 		}
 
 		return identities;
@@ -336,25 +336,28 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 	}
 
 	@Override
-	public Set<IdmIdentityDto> getCandidatesForProcess(String processInstaceId) {
+	public Set<IdmIdentityDto> getApproversForProcess(String processInstaceId) {
 		Task task = taskService.createTaskQuery().active().processInstanceId(processInstaceId).singleResult();
+		Set<IdmIdentityDto> approvers = new HashSet<>();
 		
 		if (task != null) {
+			// Get all identity links for task id
 			List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForTask(task.getId());
 			if (identityLinks != null && !identityLinks.isEmpty()) {
-				Set<IdmIdentityDto> candicateUsers = new HashSet<>();
 				for	(HistoricIdentityLink identity : identityLinks) {
 					if (IdentityLinkType.CANDIDATE.equals(identity.getType())) {
 						IdmIdentityDto identityDto = identityService.get(identity.getUserId());
 						if (identityDto != null) {
-							candicateUsers.add(identityDto);
+							approvers.add(identityDto);
 						}
 					}
 				}
-				return candicateUsers;
 			}
 		}
-		return Sets.newHashSet();
+		// Include approvers by subprocess
+		approvers.addAll(this.getApproversForSubprocess(processInstaceId));
+
+		return approvers;
 	}
 
 	private WorkflowProcessInstanceDto toResource(ProcessInstance instance) {

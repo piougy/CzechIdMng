@@ -37,7 +37,7 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
     private String log;
     private String description;
     private OperationResultDto systemState;
-    private Set<IdmIdentityDto> candidatesForSubprocess;
+    private Set<IdmIdentityDto> approvers;
 
     public RoleRequestState getState() {
         return state;
@@ -144,12 +144,11 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
         return this.getLog();
     }
 
-	public Set<IdmIdentityDto> getCandidatesForSubprocess() {
-		return candidatesForSubprocess;
+	public Set<IdmIdentityDto> getApprovers() {
+		return approvers;
 	}
 
-	public void setCandidatesForSubprocess(Set<IdmIdentityDto> candidatesForSubprocess) {
-		this.candidatesForSubprocess = candidatesForSubprocess;
+	public void setApprovers(Set<IdmIdentityDto> approvers) {
+		this.approvers = approvers;
 	}
-
 }

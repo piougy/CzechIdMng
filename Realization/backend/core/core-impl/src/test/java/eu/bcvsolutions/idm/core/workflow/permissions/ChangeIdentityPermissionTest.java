@@ -1408,10 +1408,10 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		request = roleRequestService.get(request.getId());
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
-		Set<IdmIdentityDto> candidates = workflowProcessInstanceService.getCandidatesForProcess(request.getWfProcessId());
+		Set<IdmIdentityDto> candidates = workflowProcessInstanceService.getApproversForProcess(request.getWfProcessId());
 		assertEquals(1, candidates.size());
 
-		candidates = workflowProcessInstanceService.getCandidatesForSubprocess(request.getWfProcessId());
+		candidates = workflowProcessInstanceService.getApproversForSubprocess(request.getWfProcessId());
 		assertEquals(0, candidates.size());
 
 		requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
@@ -1480,10 +1480,10 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
 
-		Set<IdmIdentityDto> candidates = workflowProcessInstanceService.getCandidatesForProcess(request.getWfProcessId());
+		Set<IdmIdentityDto> candidates = workflowProcessInstanceService.getApproversForProcess(request.getWfProcessId());
 		assertEquals(1, candidates.size());
 		
-		candidates = workflowProcessInstanceService.getCandidatesForSubprocess(request.getWfProcessId());
+		candidates = workflowProcessInstanceService.getApproversForSubprocess(request.getWfProcessId());
 		assertEquals(0, candidates.size());
 		
 		requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
@@ -1496,18 +1496,18 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertNull(requestIdentityRoleDto.getCandidates());
 
 		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
-		filter.setIncludeSubprocessCandidates(true);
+		filter.setIncludeApprovers(true);
 		IdmRoleRequestDto requestDto = roleRequestService.get(request.getId(), filter);
-		assertEquals(0, requestDto.getCandidatesForSubprocess().size());
+		assertEquals(1, requestDto.getApprovers().size());
 
 		// HELPDESK
 		loginAsAdmin(helpdeskIdentity.getUsername());
 		taskFilter.setCandidateOrAssigned(helpdeskIdentity.getUsername());
 		checkAndCompleteOneTask(taskFilter, InitTestData.TEST_USER_1, "approve");
 
-		filter.setIncludeSubprocessCandidates(false);
+		filter.setIncludeApprovers(false);
 		requestDto = roleRequestService.get(request.getId(), filter);
-		assertNull(requestDto.getCandidatesForSubprocess());
+		assertNull(requestDto.getApprovers());
 		
 		// Subprocess - approve by Manager
 		request = roleRequestService.get(request.getId());
@@ -1521,11 +1521,14 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertNotNull(conceptWf);
 		assertNotNull(workflowProcessInstanceService.get(conceptWf));
 
-		candidates = workflowProcessInstanceService.getCandidatesForProcess(request.getWfProcessId());
-		assertEquals(0, candidates.size());
-
-		candidates = workflowProcessInstanceService.getCandidatesForSubprocess(request.getWfProcessId());
+		candidates = workflowProcessInstanceService.getApproversForProcess(request.getWfProcessId());
 		assertEquals(1, candidates.size());
+		IdmIdentityDto approversFromProcess = candidates.stream().findFirst().get();
+
+		candidates = workflowProcessInstanceService.getApproversForSubprocess(request.getWfProcessId());
+		assertEquals(1, candidates.size());
+		IdmIdentityDto approversFromSubProcess = candidates.stream().findFirst().get();
+		assertEquals(approversFromProcess.getId(), approversFromSubProcess.getId());
 
 		requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
 		requestIdentityRoleFilter.setIncludeCandidates(true);
@@ -1543,13 +1546,13 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertNull(requestIdentityRoleDto.getCandidates());
 
 		filter = new IdmRoleRequestFilter();
-		filter.setIncludeSubprocessCandidates(true);
+		filter.setIncludeApprovers(true);
 		requestDto = roleRequestService.get(request.getId(), filter);
-		assertEquals(1, requestDto.getCandidatesForSubprocess().size());
+		assertEquals(1, requestDto.getApprovers().size());
 
-		filter.setIncludeSubprocessCandidates(false);
+		filter.setIncludeApprovers(false);
 		requestDto = roleRequestService.get(request.getId(), filter);
-		assertNull(requestDto.getCandidatesForSubprocess());
+		assertNull(requestDto.getApprovers());
 	}
 
 	/**

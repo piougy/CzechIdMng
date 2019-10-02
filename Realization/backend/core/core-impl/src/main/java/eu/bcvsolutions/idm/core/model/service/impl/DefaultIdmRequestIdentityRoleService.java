@@ -488,8 +488,8 @@ public class DefaultIdmRequestIdentityRoleService extends
 	 */
 	private IdmRequestIdentityRoleDto addCandidates(IdmRequestIdentityRoleDto requestIdentityRoleDto, IdmConceptRoleRequestDto concept, IdmRequestIdentityRoleFilter filter) {
 		if (filter != null && filter.isIncludeCandidates() && concept.getWfProcessId() != null) {
-			// Concept has own process (subprocess)
-			requestIdentityRoleDto.setCandidates(workflowProcessInstanceService.getCandidatesForProcess(concept.getWfProcessId()));
+			// Concept has own process (subprocess), method getApproversForProcess also include approvers for subprocess
+			requestIdentityRoleDto.setCandidates(workflowProcessInstanceService.getApproversForProcess(concept.getWfProcessId()));
 		}
 
 		return requestIdentityRoleDto;

@@ -615,8 +615,8 @@ public class DefaultIdmRoleRequestService
 				// Trim a process variables - prevent security issues and too
 				// high of response
 				// size
-				if (filter != null && filter.isIncludeSubprocessCandidates()) {
-					requestDto.setCandidatesForSubprocess(workflowProcessInstanceService.getCandidatesForSubprocess(wfProcessId));
+				if (filter != null && filter.isIncludeApprovers()) {
+					requestDto.setApprovers(workflowProcessInstanceService.getApproversForProcess(wfProcessId));
 				}
 				if (processInstanceDto != null) {
 					processInstanceDto.setProcessVariables(null);

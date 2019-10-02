@@ -97,18 +97,18 @@ public interface WorkflowProcessInstanceService extends ReadWriteDtoService<Work
 	ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight);
 
 	/**
-	 * Return unique set of all candidates for all subprocess of given parent process id in parameters.
+	 * Return unique set of all approvers for all subprocess of given parent process id in parameters.
 	 *
 	 * @param processInstaceId
 	 * @return
 	 */
-	Set<IdmIdentityDto> getCandidatesForSubprocess(String processInstaceId);
+	Set<IdmIdentityDto> getApproversForSubprocess(String processInstaceId);
 
 	/**
-	 * Return unique set of all candidates for given process id in parameters.
+	 * Return unique set of all approvers for given process id in parameters. This method also include approvers for subprocess.
 	 *
 	 * @param processInstaceId
 	 * @return
 	 */
-	Set<IdmIdentityDto> getCandidatesForProcess(String processInstaceId);
+	Set<IdmIdentityDto> getApproversForProcess(String processInstaceId);
 }

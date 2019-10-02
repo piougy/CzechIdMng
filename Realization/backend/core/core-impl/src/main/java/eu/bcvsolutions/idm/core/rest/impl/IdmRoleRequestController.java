@@ -158,7 +158,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 
 		// 
 		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
-		filter.setIncludeSubprocessCandidates(true);
+		filter.setIncludeApprovers(true);
 
 		IdmRoleRequestDto requestDto = getService().get(backendId, filter, IdmBasePermission.READ);
 		if (requestDto == null) {
@@ -435,7 +435,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		filter.setApplicants(getParameterConverter().toUuids(parameters, "applicants"));
 		filter.setCreatorId(getParameterConverter().toEntityUuid(parameters, "creator", IdmIdentityDto.class));
 		filter.setExecuted(getParameterConverter().toBoolean(parameters, "executed"));
-		filter.setIncludeSubprocessCandidates(getParameterConverter().toBoolean(parameters, "includeSubprocessCandidates", false));
+		filter.setIncludeApprovers(getParameterConverter().toBoolean(parameters, "includeApprovers", false));
 		return filter;
 	}
 

@@ -221,7 +221,11 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 		// Applicant and Implementer is added to involved user after process
 		// (subprocess) started. This modification allow not use OR clause.
 		if(checkRight && !securityService.isAdmin()){
-			query.involvedUser(securityService.getCurrentId().toString());
+			UUID currentId = securityService.getCurrentId();
+			if (currentId == null) {
+				currentId = UUID.randomUUID();
+			}
+			query.involvedUser(currentId.toString());
 		}
 
 		query.orderByProcessDefinitionId();

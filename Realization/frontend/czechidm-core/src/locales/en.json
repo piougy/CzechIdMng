@@ -5693,7 +5693,7 @@
     },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Wrong format",
-      "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, jpeg, png, gif"
+      "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, jpeg, png, gif."
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Required property wasn't filled",

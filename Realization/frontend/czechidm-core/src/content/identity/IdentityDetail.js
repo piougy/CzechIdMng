@@ -121,8 +121,8 @@ class IdentityDetail extends Basic.AbstractContent {
       return;
     }
     files.forEach((file) => {
-      // const { identity } = this.props;
-      if (!file.name.endsWith('.jpg') && !file.name.endsWith('.jpeg') && !file.name.endsWith('.png') && !file.name.endsWith('.gif')) {
+      const fileName = file.name.toLowerCase();
+      if (!fileName.endsWith('.jpg') && !fileName.endsWith('.jpeg') && !fileName.endsWith('.png') && !fileName.endsWith('.gif')) {
         this.addMessage({
           message: this.i18n('fileRejected', {name: file.name}),
           level: 'warning'

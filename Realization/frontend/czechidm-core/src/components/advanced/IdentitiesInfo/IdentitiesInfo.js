@@ -11,7 +11,7 @@ import * as Basic from '../../basic';
 class IdentitiesInfo extends Basic.AbstractComponent {
 
   render() {
-    const { identities, maxEntry, showOnlyUsername} = this.props;
+    const { identities, isUsedIdentifier, maxEntry, showOnlyUsername} = this.props;
     let candidatesResult;
     let isMoreResults = false;
     let infoCandidates = [];
@@ -23,7 +23,11 @@ class IdentitiesInfo extends Basic.AbstractComponent {
         candidatesResult = _.slice(candidatesResult, 0, maxEntry);
       }
       for (const candidate of candidatesResult) {
-        infoCandidates.push(<IdentityInfo key={candidate} entityIdentifier={candidate} face="popover" showOnlyUsername={showOnlyUsername} />);
+        if (isUsedIdentifier) {
+          infoCandidates.push(<IdentityInfo key={candidate} entityIdentifier={candidate} face="popover" showOnlyUsername={showOnlyUsername} />);
+        } else {
+          infoCandidates.push(<IdentityInfo key={candidate.id} entity={candidate} face="popover" showOnlyUsername={showOnlyUsername} />);
+        }
         infoCandidates.push(', ');
       }
 
@@ -45,11 +49,13 @@ class IdentitiesInfo extends Basic.AbstractComponent {
 
 IdentitiesInfo.propTypes = {
   identities: PropTypes.array,
+  isUsedIdentifier: PropTypes.bool,
   maxEntry: PropTypes.number,
   showOnlyUsername: PropTypes.bool
 };
 
 IdentitiesInfo.defaultProps = {
+  isUsedIdentifier: true,
   showOnlyUsername: true,
   maxEntry: 2
 };

@@ -298,6 +298,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         </div>);
     }
 
+    const approvers = request.approvers;
+
     return (
       <div>
         <Basic.Confirm ref="confirm-incompatible-role" level="warning">
@@ -367,8 +369,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.currentActivity')}/>
               <Basic.LabelWrapper
                 label={ this.i18n('entity.RoleRequest.candicateUsers') }
-                rendered={ (_adminMode && request.candicateUsers && request.candicateUsers.length > 0) === true }>
-                <Advanced.IdentitiesInfo identities={ request.candicateUsers } maxEntry={ 5 } />
+                rendered={ ((approvers && approvers.length > 0) === true) }>
+                <Advanced.IdentitiesInfo identities={ approvers } isUsedIdentifier={ false } maxEntry={ 5 } />
               </Basic.LabelWrapper>
               <Basic.TextArea
                 ref="description"

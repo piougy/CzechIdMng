@@ -52,7 +52,9 @@ class ImageCropper extends Basic.AbstractContextComponent {
       width: 300, height: 300
     });
     //
-    if (canvas.toBlob !== undefined) {
+    if (!canvas) {
+      this.addMessage({ level: 'warning', message: this.i18n('error.IDENTITYIMAGE_WRONG_FORMAT.message') });
+    } else if (canvas.toBlob !== undefined) {
       canvas.toBlob((blob) => {
         const formData = new FormData();
         formData.append('data', blob);

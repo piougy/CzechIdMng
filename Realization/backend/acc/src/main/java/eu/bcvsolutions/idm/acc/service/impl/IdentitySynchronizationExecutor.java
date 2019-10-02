@@ -317,8 +317,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		for (IdmIdentityContractDto contract : contracts) {
 			IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
 			concept.setIdentityContract(contract.getId());
-			concept.setValidFrom(contract.getValidFrom());
-			concept.setValidTill(contract.getValidTill());
+			concept.setValidFrom(contract.getValidFrom()); // filled automatically - prevent to provision future valid roles by default
+			concept.setValidTill(null); // #1887: its not filled automatically form contract (validity will be controlled by contract validity dynamically)
 			concept.setRole(defaultRole.getId());
 			concept.setOperation(ConceptRoleRequestOperation.ADD);
 			concepts.add(concept);

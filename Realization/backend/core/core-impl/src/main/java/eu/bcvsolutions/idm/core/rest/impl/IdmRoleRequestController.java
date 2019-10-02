@@ -155,8 +155,21 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 							@AuthorizationScope(scope = CoreGroupPermission.ROLE_REQUEST_READ, description = "") }) })
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Role request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		ResponseEntity<?> response = super.get(backendId);
-		return response;
+
+		// 
+		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
+		filter.setIncludeApprovers(true);
+
+		IdmRoleRequestDto requestDto = getService().get(backendId, filter, IdmBasePermission.READ);
+		if (requestDto == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
+
+		ResourceSupport resource = toResource(requestDto);
+		if (resource == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(resource, HttpStatus.OK);
 	}
 
 	@Override
@@ -422,6 +435,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		filter.setApplicants(getParameterConverter().toUuids(parameters, "applicants"));
 		filter.setCreatorId(getParameterConverter().toEntityUuid(parameters, "creator", IdmIdentityDto.class));
 		filter.setExecuted(getParameterConverter().toBoolean(parameters, "executed"));
+		filter.setIncludeApprovers(getParameterConverter().toBoolean(parameters, "includeApprovers", false));
 		return filter;
 	}
 

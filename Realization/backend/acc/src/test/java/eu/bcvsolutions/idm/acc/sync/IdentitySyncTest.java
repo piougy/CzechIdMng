@@ -594,7 +594,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		IdmIdentityRoleDto identityRole = roles.get(0);
 		Assert.assertEquals(defaultRole.getId(), identityRole.getRole());
 		Assert.assertEquals(identityRole.getValidFrom(), validFrom);
-		Assert.assertEquals(identityRole.getValidTill(), validTill);
+		Assert.assertNull(identityRole.getValidTill());
 
 		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
 		identityAccountFilter.setIdentityRoleId(identityRole.getId());

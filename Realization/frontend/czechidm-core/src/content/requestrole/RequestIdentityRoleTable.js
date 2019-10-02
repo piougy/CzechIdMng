@@ -477,6 +477,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       forceSearchParameters = forceSearchParameters.setFilter('identityId', identityId);
     }
     forceSearchParameters = forceSearchParameters.setFilter('onlyChanges', showChangesOnly);
+    forceSearchParameters = forceSearchParameters.setFilter('includeCandidates', true);
     //
     const showLoading = this.props.showLoading || this.state.showLoading;
     const contractForceSearchparameters = new SearchParameters().setFilter('identity', identityUsername);
@@ -663,6 +664,16 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                       showIdentity={ false }
                       showIcon
                       face="popover" />
+                  );
+                }
+              }/>
+            <Advanced.Column
+              header={ this.i18n('entity.RoleRequest.candicateUsers') }
+              cell={
+                ({rowIndex, data}) => {
+                  const candidates = data[rowIndex].candidates;
+                  return (
+                    <Advanced.IdentitiesInfo identities={ candidates } isUsedIdentifier={ false } maxEntry={ 5 } />
                   );
                 }
               }/>

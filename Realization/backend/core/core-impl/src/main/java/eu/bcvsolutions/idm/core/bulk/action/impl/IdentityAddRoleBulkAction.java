@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
@@ -104,7 +105,11 @@ public class IdentityAddRoleBulkAction extends AbstractBulkAction<IdmIdentityDto
 				contracts.add(contract);
 			}
 		} else {
-			contracts.addAll(identityContractService.findAllByIdentity(identity.getId()));
+			IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+			filter.setIdentity(identity.getId());
+			filter.setValidNowOrInFuture(Boolean.TRUE);
+			
+			contracts.addAll(identityContractService.find(filter, null).getContent());
 		}
 		//
 		// contract empty return not processed
@@ -131,9 +136,10 @@ public class IdentityAddRoleBulkAction extends AbstractBulkAction<IdmIdentityDto
 				concept.setRole(role.getId());
 				concept.setIdentityContract(contract.getId());
 				concept.setOperation(ConceptRoleRequestOperation.ADD);
-				// if valid till or from is null get this attributes from contract
+				// filled automatically - prevent to provision future valid roles by default
 				concept.setValidFrom(validFrom == null ? contract.getValidFrom() : validFrom);
-				concept.setValidTill(validTill == null ? contract.getValidTill() : validTill);
+				// #1887: its not filled automatically form contract (validity will be controlled by contract validity dynamically)
+				concept.setValidTill(validTill);
 				concepts.add(concept);
 			}
 		}

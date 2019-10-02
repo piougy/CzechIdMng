@@ -4901,15 +4901,15 @@
           },
           "maincontract": {
             "label": "Assign to main contract only",
-            "help": "Assigning new roles will only be done on the main contract."
+            "help": "Assigning new roles will only be done on the main contract. Otherwise role will be assigned to all valid and future valid contracts."
           },
           "validfrom": {
             "label": "Valid from",
-            "help": ""
+            "help": "If valid from is not filled, then will be filled from contract automatically."
           },
           "validtill": {
             "label": "Valid till",
-            "help": ""
+            "help": "If valid from is not filled, then will be not set (assigned role will be removed by contact validity)."
           }
         }
       },

@@ -4951,15 +4951,15 @@
           },
           "maincontract": {
             "label": "Přiřadit pouze na hlavní kontrakt",
-            "help": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt."
+            "help": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt. Jinak bude role přazena na všechny validní a v budoucnu validní kontrakty."
           },
           "validfrom": {
             "label": "Platnost od",
-            "help": ""
+            "help": "Pokud nebude platnost zadána, bude vyplněna dle kontraktu, na který bude role přidělena."
           },
           "validtill": {
             "label": "Platnost do",
-            "help": ""
+            "help": "Pokud nebude platnost zadána, nebude vyplněna (role bude odebrána dle platnosti kontraktu)."
           }
         }
       },

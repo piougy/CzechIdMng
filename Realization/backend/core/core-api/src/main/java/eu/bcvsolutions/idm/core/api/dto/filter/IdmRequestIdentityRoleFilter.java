@@ -14,6 +14,7 @@ public class IdmRequestIdentityRoleFilter extends IdmConceptRoleRequestFilter {
     private UUID identityId;
     private boolean includeEav = false;
     private boolean onlyChanges = false;
+    private boolean includeCandidates = false;
     
     public IdmRequestIdentityRoleFilter() {
 		super();
@@ -46,5 +47,12 @@ public class IdmRequestIdentityRoleFilter extends IdmConceptRoleRequestFilter {
 	public void setOnlyChanges(boolean onlyChanges) {
 		this.onlyChanges = onlyChanges;
 	}
-	
+
+	public boolean isIncludeCandidates() {
+		return includeCandidates;
+	}
+
+	public void setIncludeCandidates(boolean includeCandidates) {
+		this.includeCandidates = includeCandidates;
+	}
 }

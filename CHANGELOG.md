@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.7.8]
+
+- [#1887](https://redmine.czechidm.com/issues/1887) - Filling the value of ``validTill`` automatically for newly created assigned roles in bulk action for role assignment (``IdentityAddRoleBulkAction``) and in synchronization (default role creation) by related contract validity was removed.
+
 ## [9.7.7]
 
 - Services ``IdmEntityEventService``, ``IdmEntityStateService`` and managers ``EntityEventManager``, ``EntityStateManager`` are usable in scripts now (``ScriptEnabled`` added).

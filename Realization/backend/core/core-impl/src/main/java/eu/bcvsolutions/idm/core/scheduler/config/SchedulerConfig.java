@@ -6,7 +6,12 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.simpl.RAMJobStore;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -37,6 +42,8 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 @ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
 public class SchedulerConfig implements SchedulerConfiguration {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSchedulerManager.class);
+	//
 	@Value("${" + PROPERTY_PROPERETIES_LOCATION + ":" + DEFAULT_PROPERETIES_LOCATION + "}")
     private String propertiesLocation;
 
@@ -86,12 +93,39 @@ public class SchedulerConfig implements SchedulerConfiguration {
     @DependsOn(CoreFlywayConfig.NAME)
 	@Bean(name = "schedulerManager")
 	public SchedulerManager schedulerManager(ApplicationContext context, IdmDependentTaskTriggerRepository dependentTaskTriggerRepository) {
-		SchedulerManager manager = new DefaultSchedulerManager(
+    	Scheduler scheduler = schedulerFactoryBean(context).getScheduler();
+    	SchedulerManager manager = new DefaultSchedulerManager(
 				context, 
 				schedulerFactoryBean(context).getScheduler(), 
 				dependentTaskTriggerRepository);
 		// read all task - checks obsolete task types and remove them before scheduler starts automatically
-		manager.getAllTasks();
+		try {
+			for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(DefaultSchedulerManager.DEFAULT_GROUP_NAME))) {
+				try {
+					JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+					if (jobDetail == null) {
+						// job does not exists
+						return null;
+					}
+					// test task is still installed
+					jobDetail.getJobClass().newInstance();
+				} catch (org.quartz.SchedulerException ex) {
+					if (ex.getCause() instanceof ClassNotFoundException) {
+						manager.deleteTask(jobKey.getName());
+						//
+						LOG.warn("Job [{}] inicialization failed, job class was removed, scheduled task is removed.", jobKey, ex);
+					} else {
+						throw new CoreException(ex);
+					}
+				} catch (InstantiationException | IllegalAccessException| BeansException | IllegalArgumentException ex) {
+					manager.deleteTask(jobKey.getName());
+					//
+					LOG.warn("Job [{}] inicialization failed, scheduled task is removed", jobKey, ex);
+				}
+			}
+		} catch (org.quartz.SchedulerException ex) {
+			throw new CoreException(ex);
+		}
 		//
 		return manager;
 	}

@@ -3400,7 +3400,7 @@
       "externe": "External contractor",
       "titleBefore": "Titles before",
       "titleAfter": "Titles after",
-      "fileRejected": "Profile picture file ({{name}}) must be of image type - jpg, png, gif.",
+      "fileRejected": "Profile picture file ({{name}}) must be of image type - jpg, jpeg, png, gif.",
       "fileUploaded": "Profile picture ({{name}}) was successfully uploaded.",
       "state": {
         "label": "State",
@@ -4901,15 +4901,15 @@
           },
           "maincontract": {
             "label": "Assign to main contract only",
-            "help": "Assigning new roles will only be done on the main contract."
+            "help": "Assigning new roles will only be done on the main contract. Otherwise role will be assigned to all valid and future valid contracts."
           },
           "validfrom": {
             "label": "Valid from",
-            "help": ""
+            "help": "If valid from is not filled, then will be filled from contract automatically."
           },
           "validtill": {
             "label": "Valid till",
-            "help": ""
+            "help": "If valid from is not filled, then will be not set (assigned role will be removed by contact validity)."
           }
         }
       },
@@ -5693,7 +5693,7 @@
     },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Wrong format",
-      "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, png, gif"
+      "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, jpeg, png, gif."
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Required property wasn't filled",

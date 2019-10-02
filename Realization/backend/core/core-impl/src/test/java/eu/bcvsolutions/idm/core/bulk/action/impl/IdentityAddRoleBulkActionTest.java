@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,11 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityAddRoleBulkAction;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
@@ -118,6 +119,43 @@ public class IdentityAddRoleBulkActionTest extends AbstractBulkActionTest {
 				assertTrue(existsRole);
 			}
 		}
+	}
+	
+	@Test
+	public void processBulkActionByIdsWithoutValidityIsGiven() {
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identityOne);
+		IdmIdentityContractDto otherValidContract = getHelper().createIdentityContact(identityOne, null, LocalDate.now().plusDays(1), LocalDate.now().plusDays(2));
+		IdmIdentityContractDto otherInvalidContract = getHelper().createIdentityContact(identityOne, null, null, LocalDate.now().minusDays(1));
+		
+		IdmRoleDto roleOne = getHelper().createRole();
+		
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityAddRoleBulkAction.NAME);
+		bulkAction.setIdentifiers(Sets.newHashSet(identityOne.getId()));
+		
+		Map<String, Object> properties = new HashMap<>();
+		properties.put(IdentityAddRoleBulkAction.ROLE_CODE, Lists.newArrayList(roleOne.getId().toString()) );
+		properties.put(IdentityAddRoleBulkAction.PRIMARY_CONTRACT_CODE, Boolean.FALSE);
+		properties.put(IdentityAddRoleBulkAction.APPROVE_CODE, Boolean.FALSE);
+		bulkAction.setProperties(properties);
+
+		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		
+		checkResultLrt(processAction, 1l, null, null);
+		
+		List<IdmIdentityContractDto> contracts = identityContractService.findAllByIdentity(identityOne.getId());
+		Assert.assertEquals(3, contracts.size()); // +1 primary vithout validity is set
+		Assert.assertTrue(identityRoleService.findAllByContract(otherInvalidContract.getId()).isEmpty());
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identityOne.getId());
+		Assert.assertEquals(2, identityRoles.size());
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> ir.getRole().equals(roleOne.getId()) 
+				&& ir.getIdentityContract().equals(primeContract.getId())
+				&& ir.getValidFrom() == null
+				&& ir.getValidTill() == null));
+		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> ir.getRole().equals(roleOne.getId()) 
+				&& ir.getIdentityContract().equals(otherValidContract.getId())
+				&& ir.getValidFrom().equals(otherValidContract.getValidFrom())
+				&& ir.getValidTill() == null));
 	}
 
 	@Test

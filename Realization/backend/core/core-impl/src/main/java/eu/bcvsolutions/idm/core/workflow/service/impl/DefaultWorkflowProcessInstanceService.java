@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -220,7 +221,11 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 		// Applicant and Implementer is added to involved user after process
 		// (subprocess) started. This modification allow not use OR clause.
 		if(checkRight && !securityService.isAdmin()){
-			query.involvedUser(securityService.getCurrentId().toString());
+			UUID currentId = securityService.getCurrentId();
+			if (currentId == null) {
+				currentId = UUID.randomUUID();
+			}
+			query.involvedUser(currentId.toString());
 		}
 
 		query.orderByProcessDefinitionId();
@@ -285,6 +290,28 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 	}
 
 	@Override
+	public Set<IdmIdentityDto> getApproversForSubprocess(String processInstaceId) {
+		if (processInstaceId == null) {
+			return Sets.newHashSet();
+		}
+
+		Set<IdmIdentityDto> identities = new HashSet<IdmIdentityDto>();
+		
+		// All subprocess
+		List<ProcessInstance> list = runtimeService
+				.createProcessInstanceQuery()
+				.superProcessInstanceId(processInstaceId)
+				.list();
+
+		// Iterate over subprocess and get approvers for each subprocess
+		for (ProcessInstance instance : list) {
+			identities.addAll(getApproversForProcess(instance.getId()));
+		}
+
+		return identities;
+	}
+
+	@Override
 	public WorkflowProcessInstanceDto delete(String processInstanceId, String deleteReason) {
 		if (processInstanceId == null) {
 			return null;
@@ -310,6 +337,31 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 		runtimeService.deleteProcessInstance(processInstanceToDelete.getProcessInstanceId(), deleteReason);
 
 		return processInstanceToDelete;
+	}
+
+	@Override
+	public Set<IdmIdentityDto> getApproversForProcess(String processInstaceId) {
+		Task task = taskService.createTaskQuery().active().processInstanceId(processInstaceId).singleResult();
+		Set<IdmIdentityDto> approvers = new HashSet<>();
+		
+		if (task != null) {
+			// Get all identity links for task id
+			List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForTask(task.getId());
+			if (identityLinks != null && !identityLinks.isEmpty()) {
+				for	(HistoricIdentityLink identity : identityLinks) {
+					if (IdentityLinkType.CANDIDATE.equals(identity.getType())) {
+						IdmIdentityDto identityDto = identityService.get(identity.getUserId());
+						if (identityDto != null) {
+							approvers.add(identityDto);
+						}
+					}
+				}
+			}
+		}
+		// Include approvers by subprocess
+		approvers.addAll(this.getApproversForSubprocess(processInstaceId));
+
+		return approvers;
 	}
 
 	private WorkflowProcessInstanceDto toResource(ProcessInstance instance) {

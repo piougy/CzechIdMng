@@ -4951,15 +4951,15 @@
           },
           "maincontract": {
             "label": "Přiřadit pouze na hlavní kontrakt",
-            "help": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt."
+            "help": "Přiřazení nových rolí bude provedeno pouze na hlavní kontrakt. Jinak bude role přazena na všechny validní a v budoucnu validní kontrakty."
           },
           "validfrom": {
             "label": "Platnost od",
-            "help": ""
+            "help": "Pokud nebude platnost zadána, bude vyplněna dle kontraktu, na který bude role přidělena."
           },
           "validtill": {
             "label": "Platnost do",
-            "help": ""
+            "help": "Pokud nebude platnost zadána, nebude vyplněna (role bude odebrána dle platnosti kontraktu)."
           }
         }
       },
@@ -5743,7 +5743,7 @@
     },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Neplatný formát",
-      "message": "Soubor má správnou příponu, ale není to obrázek. Soubor musí obsahovat obrázek v jednom z těchto formátů: jpg, png, gif."
+      "message": "Soubor má správnou příponu, ale není to obrázek. Soubor musí obsahovat obrázek v jednom z těchto formátů: jpg, jpeg, png, gif."
     },
     "BULK_ACTION_REQUIRED_PROPERTY": {
       "title": "Nebyla vyplněna povinná položka",

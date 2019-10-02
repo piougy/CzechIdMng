@@ -22,6 +22,7 @@ public class IdmRequestIdentityRoleDto extends IdmConceptRoleRequestDto {
 	 * still use field "role" for assign one role.
 	 */
 	private Set<UUID> roles;
+	private Set<IdmIdentityDto> candidates;
 
 	public Set<UUID> getRoles() {
 		return roles;
@@ -45,5 +46,13 @@ public class IdmRequestIdentityRoleDto extends IdmConceptRoleRequestDto {
 
 	public void setRoleComposition(UUID roleComposition) {
 		this.roleComposition = roleComposition;
+	}
+
+	public Set<IdmIdentityDto> getCandidates() {
+		return candidates;
+	}
+
+	public void setCandidates(Set<IdmIdentityDto> candidates) {
+		this.candidates = candidates;
 	}
 }

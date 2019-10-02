@@ -222,8 +222,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		cq.where(predicate);
 
 		// prepare sort
-		if (pageable != null && pageable.getSort() != null) {
-			List<Order> orders = QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder);
+		if (pageable != null) {
+			List<Order> orders = QueryUtils.toOrders(
+					pageable.getSort() == null ? new Sort(AbstractEntity_.id.getName()) : pageable.getSort(),
+					root,
+					criteriaBuilder);
 			cq.orderBy(orders);
 		}
 
@@ -312,6 +315,17 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
 		LOG.trace("Find entities for the filter [{}] with pageable [{}] starts", filter != null, pageable != null);
+		//
+		if (pageable != null && pageable.getSort() == null) {
+			// #1872 - apply default pageable, if sort is not defined
+			if (AbstractEntity.class.isAssignableFrom(getEntityClass())) {
+				LOG.debug("Default sort by [id] will be added, Sort is not specified.");
+				//
+				pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), new Sort(AbstractEntity_.id.getName()));
+			} else {
+				LOG.error("Default sort by [id] cannot be added, specify Sort for service [{}] usage.", getClass());
+			}
+		}
 		//
 		Page<E> entities = getRepository().findAll(toCriteria(filter, true, permission), pageable);
 		//

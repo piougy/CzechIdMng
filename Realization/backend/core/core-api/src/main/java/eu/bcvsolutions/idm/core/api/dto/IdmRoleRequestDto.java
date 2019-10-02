@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
@@ -26,7 +27,7 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
     private UUID applicant;
     private RoleRequestState state;
     private RoleRequestedByType requestedByType;
-    //In embedded map, is under wfProcessId key actual task - WorkflowHistoricTaskInstanceDto.class
+    //In embedded map, is under wfProcessId key actual task - WorkflowProcessInstanceDto.class
     private String wfProcessId;
     private String originalRequest;
     private List<IdmConceptRoleRequestDto> conceptRoles;
@@ -36,6 +37,7 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
     private String log;
     private String description;
     private OperationResultDto systemState;
+    private Set<IdmIdentityDto> approvers;
 
     public RoleRequestState getState() {
         return state;
@@ -142,4 +144,11 @@ public class IdmRoleRequestDto extends AbstractDto implements Loggable {
         return this.getLog();
     }
 
+	public Set<IdmIdentityDto> getApprovers() {
+		return approvers;
+	}
+
+	public void setApprovers(Set<IdmIdentityDto> approvers) {
+		this.approvers = approvers;
+	}
 }

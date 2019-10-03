@@ -71,7 +71,7 @@ public class ModelMapperChecker {
 					modelMapperUsed++;
 				}
 			} catch (UnsupportedOperationException ex) {
-				LOG.warn("Service [{}] does not support find method. Check will be skipped.", service.getClass());
+				LOG.debug("Service [{}] does not support find method. Check will be skipped.", service.getClass());
 			} catch (MappingException ex) {
 				// Throw exception => prevent to IdM starts in invalid state.
 				throw new CoreException(

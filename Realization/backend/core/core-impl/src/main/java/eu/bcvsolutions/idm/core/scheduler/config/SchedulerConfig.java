@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 @ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
 public class SchedulerConfig implements SchedulerConfiguration {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSchedulerManager.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SchedulerConfig.class);
 	//
 	@Value("${" + PROPERTY_PROPERETIES_LOCATION + ":" + DEFAULT_PROPERETIES_LOCATION + "}")
     private String propertiesLocation;

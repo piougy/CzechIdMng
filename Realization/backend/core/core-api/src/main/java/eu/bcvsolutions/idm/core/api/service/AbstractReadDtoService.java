@@ -323,7 +323,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				//
 				pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), new Sort(AbstractEntity_.id.getName()));
 			} else {
-				LOG.error("Default sort by [id] cannot be added, specify Sort for service [{}] usage.", getClass());
+				LOG.warn("Default sort by [id] cannot be added, specify Sort for service [{}] usage.", getClass());
 			}
 		}
 		//

@@ -20,11 +20,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.config.domain.ConfigurationMapToConfigurationMapConverter;
 import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.OperationResultConverter;
 import eu.bcvsolutions.idm.core.config.domain.StringToStringConverter;
@@ -79,7 +81,9 @@ public class ModelMapperConfig {
 		modeler.createTypeMap(String.class, String.class).setConverter(new StringToStringConverter());
 		// Converter OperationResult for resolve problem with 0x00 character in Postgress.
 		modeler.createTypeMap(OperationResult.class, OperationResult.class).setConverter(new OperationResultConverter(modeler));
-		 
+		// Simple ConfigurationMap converter - map without template is not provided by model mapper out of box.
+		modeler.createTypeMap(ConfigurationMap.class, ConfigurationMap.class).setConverter(new ConfigurationMapToConfigurationMapConverter());
+
 		// Condition for property ... if is property list and dto is trimmed,
 		// then will be not used (set null)
 		// or if is property list and have parent dto, then will be to set null

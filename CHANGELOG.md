@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [10.0.0]
 
 - Default database name configured for the all ``dev`` profiles was renamed to ``bcv_idm_10`` to prevent update (by flyway) old database on the background - **old database can be used for LTS version 9.7.x development**, so clone database is needed.
+- TODO: #1801 description
 
 ## [9.7.8]
 

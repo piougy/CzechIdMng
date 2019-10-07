@@ -32,7 +32,7 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRoleDto
 	public RoleDeleteProcessor(VsSystemImplementerService systemImplementerService) {
 		super(RoleEventType.DELETE);
 		//
-		Assert.notNull(systemImplementerService);
+		Assert.notNull(systemImplementerService, "Service is required.");
 		//
 		this.systemImplementerService = systemImplementerService;
 	}
@@ -48,8 +48,8 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRoleDto
 	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
 
 		IdmRoleDto role = event.getContent();
-		Assert.notNull(role);
-		Assert.notNull(role.getId());
+		Assert.notNull(role, "Role is required.");
+		Assert.notNull(role.getId(), "Role identifier is required.");
 		// Delete vs implementers
 		VsSystemImplementerFilter implementerFilter = new VsSystemImplementerFilter();
 		implementerFilter.setRoleId(role.getId());

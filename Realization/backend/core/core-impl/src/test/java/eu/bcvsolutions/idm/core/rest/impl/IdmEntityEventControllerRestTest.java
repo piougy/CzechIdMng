@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -261,26 +262,26 @@ public class IdmEntityEventControllerRestTest extends AbstractReadWriteDtoContro
 		IdmEntityEventDto eventTwo = entityEventService.save(event);
 		//
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-		parameters.set("createdFrom", eventOne.getCreated().toString());
+		parameters.set("createdFrom", eventOne.getCreated().truncatedTo(ChronoUnit.MILLIS).toString());
 		parameters.set("ownerType", ownerType);
 		List<IdmEntityEventDto> results = find(parameters);
 		Assert.assertEquals(2, results.size());
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(eventOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(eventTwo.getId())));
 		//
-		parameters.set("createdFrom", eventTwo.getCreated().toString());
+		parameters.set("createdFrom", eventTwo.getCreated().truncatedTo(ChronoUnit.MILLIS).toString());
 		results = find(parameters);
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(eventTwo.getId())));
 		//
 		parameters.remove("createdFrom");
-		parameters.set("createdTill", eventTwo.getCreated().toString());
+		parameters.set("createdTill", eventTwo.getCreated().truncatedTo(ChronoUnit.MILLIS).plus(1, ChronoUnit.MILLIS).toString());
 		results = find(parameters);
 		Assert.assertEquals(2, results.size());
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(eventOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(eventTwo.getId())));
 		//
-		parameters.set("createdTill", eventOne.getCreated().toString());
+		parameters.set("createdTill", eventOne.getCreated().truncatedTo(ChronoUnit.MILLIS).plus(1, ChronoUnit.MILLIS).toString());
 		results = find(parameters);
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(eventOne.getId())));
@@ -403,13 +404,13 @@ public class IdmEntityEventControllerRestTest extends AbstractReadWriteDtoContro
 		createDto();
 		createDto();
 		//
-		Assert.assertTrue(entityEventService.find(null, new PageRequest(0, 1)).getTotalElements() > 1);
+		Assert.assertTrue(entityEventService.find(null, PageRequest.of(0, 1)).getTotalElements() > 1);
 		//
 		getMockMvc().perform(delete(getBaseUrl() + "/action/bulk/delete")
         		.with(authentication(getAdminAuthentication()))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isNoContent());
 		//
-		Assert.assertEquals(0, entityEventService.find(null, new PageRequest(0, 1)).getTotalElements());
+		Assert.assertEquals(0, entityEventService.find(null, PageRequest.of(0, 1)).getTotalElements());
 	}
 }

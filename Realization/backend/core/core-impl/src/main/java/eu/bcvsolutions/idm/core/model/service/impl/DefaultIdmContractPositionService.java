@@ -22,9 +22,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.repository.IdmContractPositionRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -38,8 +36,6 @@ public class DefaultIdmContractPositionService
 		implements IdmContractPositionService {
 	
 	private final IdmContractPositionRepository repository;
-	//
-	@Autowired private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
 	public DefaultIdmContractPositionService(
@@ -58,12 +54,9 @@ public class DefaultIdmContractPositionService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmContractPositionDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
-		Assert.notNull(workPositionId);
-		// TODO: use uuid only - rewrite to subquery
-		IdmTreeNode workPosition = treeNodeRepository.findOne(workPositionId);
-		Assert.notNull(workPosition);
+		Assert.notNull(workPositionId, "Work position is required to gen related contracts.");
 		//
-		return toDtos(repository.findAllByWorkPosition(workPosition, recursion == null ? RecursionType.NO : recursion), false);
+		return toDtos(repository.findAllByWorkPosition(workPositionId, recursion == null ? RecursionType.NO : recursion), false);
 	}
 	
 	@Override

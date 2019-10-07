@@ -24,9 +24,8 @@ import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -145,14 +144,14 @@ public class DefaultIdmAutomaticRoleAttributeService
 			IdmIdentityContractRepository identityContractRepository) {
 		super(repository);
 		//
-		Assert.notNull(identityContractService);
-		Assert.notNull(formAttributeService);
-		Assert.notNull(automaticRoleAttributeRuleService);
-		Assert.notNull(identityRoleService);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(entityManager);
-		Assert.notNull(longRunningTaskManager);
-		Assert.notNull(identityContractRepository);
+		Assert.notNull(identityContractService, "Service is required.");
+		Assert.notNull(formAttributeService, "Service is required.");
+		Assert.notNull(automaticRoleAttributeRuleService, "Service is required.");
+		Assert.notNull(identityRoleService, "Service is required.");
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(entityManager, "Manager is required.");
+		Assert.notNull(longRunningTaskManager, "Manager is required.");
+		Assert.notNull(identityContractRepository, "Repository is required.");
 		//
 		this.identityContractService = identityContractService;
 		this.formAttributeService = formAttributeService;
@@ -172,7 +171,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional(noRollbackFor = AcceptedException.class)
 	public void delete(IdmAutomaticRoleAttributeDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		checkAccess(this.getEntity(dto.getId()), permission);
 		//
 		LOG.debug("Deleting automatic role by attribute [{}]", dto.getRole());
@@ -213,7 +212,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole,
 			Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
-		Assert.notNull(identityRole);
+		Assert.notNull(identityRole, "Identity role is required.");
 		//
 		this.removeAutomaticRoles(identityRole.getIdentityContract(), automaticRoles);
 		return null;
@@ -222,7 +221,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void removeAutomaticRoles(IdmIdentityRoleDto identityRole) {
-		Assert.notNull(identityRole.getAutomaticRole());
+		Assert.notNull(identityRole.getAutomaticRole(), "Automatic role is required.");
 		// skip check granted authorities
 		IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.DELETE, identityRole);
 		event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
@@ -273,7 +272,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmRoleRequestDto prepareAddAutomaticRoles(IdmIdentityContractDto contract,
 			Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
-		Assert.notNull(contract);
+		Assert.notNull(contract, "Contract is required.");
 		//
 		this.addAutomaticRoles(contract, automaticRoles);
 		return null;
@@ -420,9 +419,9 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional
 	public IdmAutomaticRoleAttributeDto recalculate(UUID automaticRoleId) {
-		Assert.notNull(automaticRoleId);
+		Assert.notNull(automaticRoleId, "Automatic role identifier is required.");
 		IdmAutomaticRoleAttributeDto automaticRole = get(automaticRoleId);
-		Assert.notNull(automaticRole);
+		Assert.notNull(automaticRole, "Automatic role is required.");
 		//
 		EntityEvent<IdmAutomaticRoleAttributeDto> event = new AutomaticRoleAttributeEvent(AutomaticRoleAttributeEventType.UPDATE, automaticRole);
 		event.setPriority(PriorityType.NORMAL);
@@ -433,16 +432,16 @@ public class DefaultIdmAutomaticRoleAttributeService
 	@Override
 	@Transactional
 	public IdmAutomaticRoleAttributeDto recalculate(EntityEvent<IdmAutomaticRoleAttributeDto> event) {
-		Assert.notNull(event);
-		IdmAutomaticRoleAttributeDto automaticRolAttributeDto = event.getContent();
-		Assert.notNull(automaticRolAttributeDto.getId());
+		Assert.notNull(event, "Event is required.");
+		IdmAutomaticRoleAttributeDto automaticRoleAttributeDto = event.getContent();
+		Assert.notNull(automaticRoleAttributeDto.getId(), "Automatic role identifier is required.");
 		//
 		// set concept to false before recalculation
-		automaticRolAttributeDto.setConcept(false);
-		automaticRolAttributeDto = this.save(automaticRolAttributeDto);
+		automaticRoleAttributeDto.setConcept(false);
+		automaticRoleAttributeDto = this.save(automaticRoleAttributeDto);
 		//
 		ProcessAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByAttributeTaskExecutor.class);
-		automaticRoleTask.setAutomaticRoleId(automaticRolAttributeDto.getId());
+		automaticRoleTask.setAutomaticRoleId(automaticRoleAttributeDto.getId());
 		if (event.getPriority() == PriorityType.IMMEDIATE) {
 			automaticRoleTask.setAsync(false);
 			longRunningTaskManager.executeSync(automaticRoleTask);
@@ -450,7 +449,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			longRunningTaskManager.execute(automaticRoleTask);
 		}
 		//
-		return automaticRolAttributeDto;
+		return automaticRoleAttributeDto;
 	}
 	
 	@Override
@@ -458,7 +457,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 		Set<AbstractIdmAutomaticRoleDto> automaticRoles = new HashSet<>();
 		//
 		// iterate trough all automatic role that has at least one rule and isn't in concept state
-		Page<IdmAutomaticRoleAttributeDto> automaticRolesToProcess = this.findAllToProcess(type, new PageRequest(0, PROCESS_ROLE_SIZE));
+		Page<IdmAutomaticRoleAttributeDto> automaticRolesToProcess = this.findAllToProcess(type, PageRequest.of(0, PROCESS_ROLE_SIZE));
 		while (automaticRolesToProcess.hasContent()) {
 			// all found roles it will has rules and will not be in concept state
 			for (IdmAutomaticRoleAttributeDto automaticRole : automaticRolesToProcess) {
@@ -495,6 +494,9 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 */
 	private Specification<IdmIdentityContract> getCriteriaForRulesByContract(UUID automaticRoleId, List<IdmAutomaticRoleAttributeRuleDto> rules, boolean passed, UUID contractId) {
 		Specification<IdmIdentityContract> criteria = new Specification<IdmIdentityContract>() {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public Predicate toPredicate(Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				List<Predicate> predicates = new ArrayList<>();
@@ -681,9 +683,9 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 */
 	private Predicate getPredicateWithComparsion(Path<?> path, Object value, CriteriaBuilder cb,
 			AutomaticRoleAttributeRuleComparison comparsion, Boolean negation) {
-		Assert.notNull(comparsion);
-		Assert.notNull(path);
-		Assert.notNull(cb);
+		Assert.notNull(comparsion, "Comparison operator is required.");
+		Assert.notNull(path, "Path is required.");
+		Assert.notNull(cb, "Criteria builder is required.");
 		// TODO: now is implement only equals
 		if (comparsion == AutomaticRoleAttributeRuleComparison.EQUALS) {
 			//
@@ -806,7 +808,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @return
 	 */
 	private Object getEavValue(String value, PersistentType persistentType) {
-		Assert.notNull(value);
+		Assert.notNull(value, "Value is required.");
 		switch (persistentType) {
 		case INT:
 		case LONG:
@@ -815,7 +817,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			return Boolean.valueOf(value);
 		case DATE:
 		case DATETIME:
-			return new DateTime(value, DateTimeZone.UTC);
+			return ZonedDateTime.parse(value);
 		case DOUBLE:
 			return new BigDecimal(value);
 		case BYTEARRAY: {

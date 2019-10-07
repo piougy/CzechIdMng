@@ -7,17 +7,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 
-@RepositoryRestResource(//
-		collectionResourceRel = "audits", //
-		path = "audits", //
-		itemResourceRel = "audit", //
-		exported = false // 
-	)
+/**
+ * Audit - the center of the wheel.
+ * 
+ * @author Ond5ej Kopr
+ *
+ */
 public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
 	
 	

@@ -168,7 +168,7 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 				},
 			notes = "If role has guarantee assigned, then automatic role has to be approved by him at first (configurable by entity event processor).")
 	public ResponseEntity<?> post(@Valid @RequestBody IdmRoleTreeNodeDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		IdmRoleTreeNodeDto result = requestService.createTreeAutomaticRole(dto);
 		if(result == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -194,7 +194,7 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 			@ApiParam(value = "Automatic role's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		IdmRoleTreeNodeDto automaticRole = this.getDto(backendId);
-		Assert.notNull(automaticRole);
+		Assert.notNull(automaticRole, "Automatic role is required.");
 		requestService.deleteAutomaticRole(automaticRole, AutomaticRoleRequestType.TREE);
 		//
 		throw new AcceptedException();

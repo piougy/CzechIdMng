@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +16,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
-import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
@@ -99,7 +98,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Svanda
  *
  */
-@Service
 public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 	private static final String CONTRACT_OWNER_ONE = "contractOwnerOne";
@@ -1461,6 +1459,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	}
 
 	private ContractSliceSyncTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 }

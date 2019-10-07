@@ -39,8 +39,6 @@ public class IdmAuthorityHieararchyUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testSimpleRole() {
-		Mockito.when(moduleService.getAvailablePermissions()).thenReturn(Arrays.asList(CoreGroupPermission.values()));
-		//
 		Collection<?> authorities = hierarchy.getReachableGrantedAuthorities(Lists.newArrayList(new DefaultGrantedAuthority(CoreGroupPermission.AUDIT_READ)));
 		Assert.assertEquals(1, authorities.size());
 		Assert.assertEquals(new DefaultGrantedAuthority(CoreGroupPermission.AUDIT_READ), authorities.iterator().next());
@@ -48,8 +46,6 @@ public class IdmAuthorityHieararchyUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testSimpleRoleAsString() {
-		Mockito.when(moduleService.getAvailablePermissions()).thenReturn(Arrays.asList(CoreGroupPermission.values()));
-		//
 		Collection<?> authorities = hierarchy.getReachableGrantedAuthorities(Lists.newArrayList(new DefaultGrantedAuthority("test")));
 		Assert.assertEquals(1, authorities.size());
 		Assert.assertEquals(new DefaultGrantedAuthority("test"), authorities.iterator().next());

@@ -6,6 +6,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ public abstract class AbstractFilterBuilder<E extends BaseEntity, F extends Data
 	private final BaseEntityRepository<E, ?> repository;
 	
 	public AbstractFilterBuilder(BaseEntityRepository<E, ?> repository) {
-		Assert.notNull(repository);
+		Assert.notNull(repository, "Repository is required for filter builder construction.");
 		//
 		this.repository = repository;
 	}
@@ -49,8 +50,9 @@ public abstract class AbstractFilterBuilder<E extends BaseEntity, F extends Data
 	public Page<E> find(F filter, Pageable pageable) {
 		// transform filter to criteria
 		Specification<E> criteria = new Specification<E>() {
+			private static final long serialVersionUID = 1L;
+
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-				// TODO: deprecated in 9.7.0, but fix this after original method will be removed => all custom filters can use original
 				Predicate predicate = AbstractFilterBuilder.this.getPredicate(root, query, builder, filter);
 				if (predicate == null) {
 					return query.getRestriction();
@@ -58,6 +60,9 @@ public abstract class AbstractFilterBuilder<E extends BaseEntity, F extends Data
 				return query.where(predicate).getRestriction();
 			}
 		};
+		if (pageable == null) {
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
 		return getRepository().findAll(criteria, pageable);
 	}
 }

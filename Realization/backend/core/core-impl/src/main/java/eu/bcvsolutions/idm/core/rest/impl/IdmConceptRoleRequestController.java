@@ -93,9 +93,9 @@ public class IdmConceptRoleRequestController
 			IdmRoleRequestService roleRequestService) {
 		super(service);
 		//
-		Assert.notNull(securityService);
-		Assert.notNull(roleRequestService);
-		Assert.notNull(service);
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(roleRequestService, "Service is required.");
+		Assert.notNull(service, "Service is required.");
 		//
 		this.securityService = securityService;
 		this.roleRequestService = roleRequestService;
@@ -209,7 +209,7 @@ public class IdmConceptRoleRequestController
 			filter.setRoleRequestId(dto.getRoleRequest());
 			filter.setOperation(dto.getOperation());
 			filter.setIdentityContractId(dto.getIdentityContract());
-			List<IdmConceptRoleRequestDto> duplicates = getService().find(filter, new PageRequest(0, 1)).getContent();
+			List<IdmConceptRoleRequestDto> duplicates = getService().find(filter, PageRequest.of(0, 1)).getContent();
 			duplicates.forEach(duplicate -> {
 				// Delete duplicated concept first
 				getService().delete(duplicate);

@@ -40,7 +40,7 @@ public class DefaultSysSchemaAttributeService extends AbstractReadWriteDtoServic
 			EntityEventManager entityEventManager) {
 		super(repository);
 		//
-		Assert.notNull(entityEventManager);
+		Assert.notNull(entityEventManager, "Manager is required.");
 		//
 		this.repository = repository;
 		this.entityEventManager = entityEventManager;
@@ -57,7 +57,7 @@ public class DefaultSysSchemaAttributeService extends AbstractReadWriteDtoServic
 	@Override
 	@Transactional
 	public void delete(SysSchemaAttributeDto schemaAttribute, BasePermission... permission) {
-		Assert.notNull(schemaAttribute);
+		Assert.notNull(schemaAttribute, "Schema attribute is required.");
 		//
 		checkAccess(this.getEntity(schemaAttribute.getId()), permission);
 		//

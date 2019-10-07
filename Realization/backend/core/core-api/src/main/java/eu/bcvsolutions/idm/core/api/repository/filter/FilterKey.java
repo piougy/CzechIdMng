@@ -18,8 +18,8 @@ public class FilterKey {
 	private final String name;
 	
 	public FilterKey(Class<? extends BaseEntity> entityClass, String name) {
-		Assert.notNull(entityClass);
-		Assert.hasLength(name);
+		Assert.notNull(entityClass, "Entity class is required for filter builder key construction.");
+		Assert.hasLength(name, "Property name is required for filter builder key construction (is used for filter registration).");
 		//
 		this.entityClass = entityClass;
 		this.name = name;

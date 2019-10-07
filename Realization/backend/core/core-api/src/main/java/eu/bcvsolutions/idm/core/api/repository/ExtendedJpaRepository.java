@@ -75,7 +75,7 @@ public class ExtendedJpaRepository<E, ID extends Serializable>
 	}
 	
 	private <S> Root<E> applySpecificationToCriteria(Specification<E> spec, CriteriaQuery<S> query) {
-		Assert.notNull(query);
+		Assert.notNull(query, "Query is required");
 		Root<E> root = query.from(getDomainClass());
 		//
 		if (spec == null) {

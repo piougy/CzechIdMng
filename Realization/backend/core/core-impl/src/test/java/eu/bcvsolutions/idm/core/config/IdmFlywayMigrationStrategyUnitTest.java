@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 
+import org.flywaydb.core.api.Location;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayMigrationStrategy;
@@ -29,7 +30,10 @@ public class IdmFlywayMigrationStrategyUnitTest extends AbstractVerifiableUnitTe
 		String dbName = "oracle";
 		String locationPrefixOne = "eu/bcvsolutions/core/";
 		String locationPrefixTwo = "eu/bcvsolutions/module/";
-		String[] rawLocations = new String[]{locationPrefixOne + IdmFlywayMigrationStrategy.WILDCARD_DBNAME, locationPrefixTwo + IdmFlywayMigrationStrategy.WILDCARD_DBNAME}; 
+		Location[] rawLocations = new Location[]{
+				new Location(locationPrefixOne + IdmFlywayMigrationStrategy.WILDCARD_DBNAME), 
+				new Location(locationPrefixTwo + IdmFlywayMigrationStrategy.WILDCARD_DBNAME)
+				}; 
 		List<String> locations = Arrays.asList(flywayMigrationStrategy.resolveLocations(dbName, rawLocations));
 		
 		assertEquals(2, locations.size());

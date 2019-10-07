@@ -31,7 +31,7 @@ public class RoleRequestSaveProcessor extends CoreEventProcessor<IdmRoleRequestD
 	public RoleRequestSaveProcessor(IdmRoleRequestService service) {
 		super(RoleRequestEventType.CREATE, RoleRequestEventType.UPDATE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

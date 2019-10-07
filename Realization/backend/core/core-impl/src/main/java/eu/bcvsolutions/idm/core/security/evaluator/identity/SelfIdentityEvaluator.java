@@ -33,7 +33,7 @@ public class SelfIdentityEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 	
 	@Autowired
 	public SelfIdentityEvaluator(SecurityService securityService) {
-		Assert.notNull(securityService);
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.securityService = securityService;
 	}

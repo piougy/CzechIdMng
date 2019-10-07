@@ -1,17 +1,17 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.time.ZonedDateTime;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
@@ -46,7 +46,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Svanda
  *
  */
-@Service
 public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
@@ -98,7 +97,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		authorizationPolicyService.save(policyAccount);
 
 		// Change resources (set state on exclude) .. must be call in transaction
-		this.getBean().persistResource(createResource(userOneName, new DateTime()));
+		this.getBean().persistResource(createResource(userOneName, ZonedDateTime.now()));
 		AccAccountDto account = new AccAccountDto();
 		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystem(system.getId());
@@ -149,7 +148,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		authorizationPolicyService.save(policyAccount);
 
 		// Change resources (set state on exclude) .. must be call in transaction
-		this.getBean().persistResource(createResource(userOneName, new DateTime()));
+		this.getBean().persistResource(createResource(userOneName, ZonedDateTime.now()));
 		AccAccountDto account = new AccAccountDto();
 		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystem(system.getId());
@@ -186,7 +185,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		schemaAttributeService.delete(eavAttribute);
 		Assert.assertNotNull(system);
 		// Change resources (set state on exclude) .. must be call in transaction
-		this.getBean().persistResource(createResource(userOneName, new DateTime()));
+		this.getBean().persistResource(createResource(userOneName, ZonedDateTime.now()));
 		AccAccountDto account = new AccAccountDto();
 		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystem(system.getId());
@@ -244,7 +243,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		schemaAttributeService.delete(eavAttribute);
 		Assert.assertNotNull(system);
 		// Change resources (set state on exclude) .. must be call in transaction
-		this.getBean().persistResource(createResource(userOneName, new DateTime()));
+		this.getBean().persistResource(createResource(userOneName, ZonedDateTime.now()));
 		AccAccountDto account = new AccAccountDto();
 		account.setEntityType(SystemEntityType.IDENTITY);
 		account.setSystem(system.getId());
@@ -322,7 +321,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 		entityManager.persist(resource);
 	}
 
-	private TestResource createResource(String code, DateTime modified) {
+	private TestResource createResource(String code, ZonedDateTime modified) {
 		TestResource resource = new TestResource();
 		resource.setName(code);
 		resource.setEmail(code);
@@ -356,6 +355,6 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 	}
 
 	private DefaultAccAccountServiceTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 }

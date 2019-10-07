@@ -78,10 +78,10 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	@Override
 	public IcUidAttribute createObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, List<IcAttribute> attributes) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(attributes);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(attributes, "Attributes are required.");
 		LOG.debug("Create object - ConnId ({} {})", connectorInstance.getConnectorKey().toString(), attributes.toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
@@ -102,11 +102,11 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	@Override
 	public IcUidAttribute updateObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid, List<IcAttribute> replaceAttributes) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(replaceAttributes);
-		Assert.notNull(uid);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(replaceAttributes, "Replace attributes are required.");
+		Assert.notNull(uid, "Uid is required.");
 
 		LOG.debug("Update object - ConnId (Uid= {} {} {})", uid, connectorInstance.getConnectorKey().toString(), replaceAttributes.toString());
 
@@ -129,10 +129,10 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	@Override
 	public void deleteObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(uid);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(uid, "Uid is required.");
 		LOG.debug("Delete object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
@@ -149,10 +149,10 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	@Override
 	public IcConnectorObject readObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(uid);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(uid, "Uid is required.");
 		LOG.debug("Read object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
@@ -170,10 +170,10 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	@Override
 	public IcUidAttribute authenticateObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, String username, GuardedString password) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(username);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(username, "Username is required.");
 		LOG.debug("Authenticate object - ConnId (username= {} {})", username, connectorInstance.getConnectorKey().toString());
 
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
@@ -196,11 +196,11 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	@Override
 	public IcSyncToken synchronization(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcSyncToken token, IcSyncResultsHandler handler) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(objectClass);
-		Assert.notNull(handler);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(objectClass, "Object class is required.");
+		Assert.notNull(handler, "Handler is required.");
 		LOG.debug("Start synchronization for connector {} and objectClass {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName());
 		
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
@@ -228,11 +228,11 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	@Override
 	public void search(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcFilter filter, IcResultsHandler handler){
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(objectClass);
-		Assert.notNull(handler);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(objectClass, "Object class is required.");
+		Assert.notNull(handler, "Handler is required.");
 		
 		LOG.debug("Start search for connector {} and objectClass {} and filter {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName(), filter);
 		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
@@ -284,8 +284,8 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	}
 
 	private ConnectorFacade getConnectorFacade(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
 		ConnectorInfo connIdInfo = configurationServiceConnId.getConnIdConnectorInfo(connectorInstance);
 		Assert.notNull(connIdInfo, "ConnId connector info not found!");
 		APIConfiguration config = connIdInfo.createDefaultAPIConfiguration();

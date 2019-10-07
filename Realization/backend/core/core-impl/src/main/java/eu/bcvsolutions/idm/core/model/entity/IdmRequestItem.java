@@ -13,12 +13,12 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
@@ -59,7 +59,7 @@ public class IdmRequestItem extends AbstractEntity {
 	private String ownerType;
 
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "data")
 	private String data; // JSON represented target DTO
 	

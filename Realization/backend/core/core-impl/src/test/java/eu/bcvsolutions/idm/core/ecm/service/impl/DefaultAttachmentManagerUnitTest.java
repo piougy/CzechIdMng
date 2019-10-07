@@ -79,7 +79,7 @@ public class DefaultAttachmentManagerUnitTest extends AbstractVerifiableUnitTest
 		Assert.assertNull(attachment.getInputData());
 		Mockito.verify(inputStreamSpy).close();
 		Mockito.verify(repository).saveAndFlush(Mockito.any(IdmAttachment.class));
-		Mockito.verify(repository).findOne(Mockito.any(UUID.class));
+		Mockito.verify(repository).findById(Mockito.any(UUID.class));
 		Mockito.verify(attachmentConfiguration, times(2)).getStoragePath();
 	}
 	

@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
@@ -50,7 +50,7 @@ public class IdmScript extends AbstractEntity implements Codeable {
 	private String code;
 	
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "script")
 	private String script;
 

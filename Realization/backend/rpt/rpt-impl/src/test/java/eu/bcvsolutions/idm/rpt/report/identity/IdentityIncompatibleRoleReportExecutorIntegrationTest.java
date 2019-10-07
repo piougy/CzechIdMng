@@ -84,7 +84,7 @@ public class IdentityIncompatibleRoleReportExecutorIntegrationTest extends Abstr
 		Assert.assertTrue(identityIncompatibleRoles.stream().anyMatch(i -> i.getIdentity().getId().equals(identityOne.getId()) 
 				&& i.getSuperior().getId().equals(roleOne.getId())
 				&& i.getSub().getId().equals(roleTwo.getId())));
-		Assert.assertFalse(identityIncompatibleRoles.stream().anyMatch(i -> i.equals(identityTwo)));
+		Assert.assertFalse(identityIncompatibleRoles.stream().anyMatch(i -> i.getIdentity().getId().equals(identityTwo.getId())));
 		//
 		attachmentManager.deleteAttachments(report);
 	}

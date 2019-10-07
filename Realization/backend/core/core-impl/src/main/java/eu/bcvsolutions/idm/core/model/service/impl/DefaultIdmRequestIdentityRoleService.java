@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -77,11 +77,11 @@ public class DefaultIdmRequestIdentityRoleService extends
 	public Page<IdmRequestIdentityRoleDto> find(IdmRequestIdentityRoleFilter filter, Pageable pageable,
 			BasePermission... permission) {
 		LOG.debug(MessageFormat.format("Find idm-request-identity-roles by filter [{0}] ", filter));
-		Assert.notNull(filter);
+		Assert.notNull(filter, "Filter is required.");
 		
 		if (pageable == null) {
 			// Page is null, so we set page to max value
-			pageable = new PageRequest(0, Integer.MAX_VALUE);
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
 		}
 		
 		// If is true, then we want to return only concepts (not assigned roles)
@@ -115,7 +115,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 
 			IdmIdentityRoleFilter identityRoleFilter = toIdentityRoleFilter(filter);
 			 
-			PageRequest pageableForAssignedRoles = new PageRequest(
+			PageRequest pageableForAssignedRoles = PageRequest.of(
 					pageNumberForAssignedRoles, pageable.getPageSize(),
 					pageable.getSort());
 
@@ -133,7 +133,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 			
 		}
 		
-		PageRequest pageableRequest = new PageRequest(pageable.getPageNumber(),
+		PageRequest pageableRequest = PageRequest.of(pageable.getPageNumber(),
 				results.size() > pageable.getPageSize() ? results.size() : pageable.getPageSize(), pageable.getSort());
 		return new PageImpl<>(results, pageableRequest, total);
 	}
@@ -142,23 +142,23 @@ public class DefaultIdmRequestIdentityRoleService extends
 	@Transactional
 	public IdmRequestIdentityRoleDto save(IdmRequestIdentityRoleDto dto, BasePermission... permission) {
 		LOG.debug(MessageFormat.format("Save idm-request-identity-role [{0}] ", dto));
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 	
 		// We don`t know if is given DTO identity-role or role-concept.
 		if (dto.getId() != null && dto.getId().equals(dto.getIdentityRole())) {
 			// Given DTO is identity-role -> create UPDATE concept
-			IdmIdentityRoleDto identityRoleDto = identityRoleService.get(dto.getId());
-			Assert.notNull(identityRoleDto);
+			IdmIdentityRoleDto identityRole = identityRoleService.get(dto.getId());
+			Assert.notNull(identityRole, "Identity role is required.");
 
-			IdmIdentityContractDto identityContractDto = DtoUtils.getEmbedded(identityRoleDto,
+			IdmIdentityContractDto identityContractDto = DtoUtils.getEmbedded(identityRole,
 					IdmIdentityRole_.identityContract.getName(), IdmIdentityContractDto.class);
 			UUID requestId = dto.getRoleRequest();
 			if(requestId == null) {
 				IdmRoleRequestDto request = this.createRequest(identityContractDto.getIdentity());
 				requestId = request.getId();
 			}
-			IdmConceptRoleRequestDto conceptRoleRequest = createConcept(identityRoleDto, identityContractDto, requestId,
-					identityRoleDto.getRole(), identityContractDto.getValidFrom(), identityContractDto.getValidTill(),
+			IdmConceptRoleRequestDto conceptRoleRequest = createConcept(identityRole, identityContractDto, requestId,
+					identityRole.getRole(), identityContractDto.getValidFrom(), identityContractDto.getValidTill(),
 					ConceptRoleRequestOperation.UPDATE);
 			conceptRoleRequest.setValidFrom(dto.getValidFrom());
 			conceptRoleRequest.setValidTill(dto.getValidTill());
@@ -169,7 +169,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 			return this.conceptToRequestIdentityRole(conceptRoleRequest, null);
 		} else if(dto.getId() == null && dto.getIdentityRole() == null) {
 			// Given DTO does not have ID neither identity-role ID -> create ADD concept
-			Assert.notNull(dto.getIdentityContract());
+			Assert.notNull(dto.getIdentityContract(), "Contract is required.");
 			
 			Set<UUID> roles = Sets.newHashSet();
 			if (dto.getRole() != null) {
@@ -420,7 +420,7 @@ public class DefaultIdmRequestIdentityRoleService extends
 		// TODO: Rewrite to query, this is very ineffective!!
 		UUID identityId = filter.getIdentityId();
 		LOG.debug(MessageFormat.format("Start searching duplicates for identity [{1}].", identityId));
-		Assert.notNull(identityId);
+		Assert.notNull(identityId, "Identity identifier is required.");
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findValidRoles(identityId, null).getContent();
 		// Add to all identity roles form instance. For identity role can exists only
 		// one form instance.

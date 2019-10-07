@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		//
-		expiration = new LocalDate();
+		expiration = LocalDate.now();
 		LOG.info("Expired roles removal task was inintialized for expiration less than [{}].", expiration);
 	}
 	
@@ -53,7 +53,7 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableTaskE
 		int pageSize = 100;
 		boolean hasNextPage = false;
 		do {
-			Page<IdmIdentityRoleDto> assignedRoles = service.findExpiredRoles(expiration, new PageRequest(0, pageSize)); // 0 => from start - roles from previous search are already removed
+			Page<IdmIdentityRoleDto> assignedRoles = service.findExpiredRoles(expiration, PageRequest.of(0, pageSize)); // 0 => from start - roles from previous search are already removed
 			hasNextPage = assignedRoles.hasContent();
 			if (count == null) {
 				count = assignedRoles.getTotalElements();

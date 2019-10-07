@@ -68,7 +68,7 @@ public class DefaultIdmRoleCompositionService
 	
 	@Override
 	public List<IdmRoleCompositionDto> findDirectSubRoles(UUID superiorId, BasePermission... permission) {
-		Assert.notNull(superiorId);
+		Assert.notNull(superiorId, "Superior role identifier is required.");
 		//
 		IdmRoleCompositionFilter filter = new IdmRoleCompositionFilter();
 		filter.setSuperiorId(superiorId);
@@ -78,7 +78,7 @@ public class DefaultIdmRoleCompositionService
 	
 	@Override
 	public List<IdmRoleCompositionDto> findAllSubRoles(UUID superiorId, BasePermission... permission) {
-		Assert.notNull(superiorId);
+		Assert.notNull(superiorId, "Superior role identifier is required.");
 		//
 		List<IdmRoleCompositionDto> results = new ArrayList<>();
 		//
@@ -89,7 +89,7 @@ public class DefaultIdmRoleCompositionService
 	
 	@Override
 	public List<IdmRoleCompositionDto> findAllSuperiorRoles(UUID subId, BasePermission... permission) {
-		Assert.notNull(subId);
+		Assert.notNull(subId, "Sub role identifier is required.");
 		//
 		List<IdmRoleCompositionDto> results = new ArrayList<>();
 		//
@@ -105,9 +105,9 @@ public class DefaultIdmRoleCompositionService
 	@Override
 	@SuppressWarnings("unchecked")
 	public void assignSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required.");
 		IdmIdentityRoleDto identityRole = event.getContent();
-		Assert.notNull(identityRole.getId());
+		Assert.notNull(identityRole, "Identity role identifier is required.");
 		//
 		List<IdmRoleCompositionDto> directSubRoles = findDirectSubRoles(identityRole.getRole());
 		LOG.debug("Assign sub roles [{}] for identity role [{}], role [{}]",
@@ -159,10 +159,10 @@ public class DefaultIdmRoleCompositionService
 	@Override
 	@Transactional
 	public void removeSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required.");
 		IdmIdentityRoleDto directRole = event.getContent();
-		Assert.notNull(directRole);
-		Assert.notNull(directRole.getId());
+		Assert.notNull(directRole, "Direct role is required.");
+		Assert.notNull(directRole.getId(), "Direct role identifier is required.");
 		//
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 		filter.setDirectRoleId(directRole.getId());
@@ -181,9 +181,9 @@ public class DefaultIdmRoleCompositionService
 	@Override
 	@Transactional
 	public void updateSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required.");
 		IdmIdentityRoleDto identityRole = event.getContent();
-		Assert.notNull(identityRole.getId());
+		Assert.notNull(identityRole, "Identity role identifier is required.");
 		//
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 		filter.setDirectRoleId(identityRole.getId());
@@ -317,9 +317,9 @@ public class DefaultIdmRoleCompositionService
 	 */
 	@SuppressWarnings("unchecked")
 	private void notingAssignedRole(EntityEvent<IdmIdentityRoleDto> event, EntityEvent<IdmIdentityRoleDto> subEvent, IdmIdentityRoleDto identityRole, String property) {
-		Assert.notNull(identityRole);
-		Assert.notNull(identityRole.getId());
-		Assert.notNull(property);
+		Assert.notNull(identityRole, "Identity role is required.");
+		Assert.notNull(identityRole, "Identity role identifier is required.");
+		Assert.notNull(property, "Property is required.");
 		
 		if (!event.getProperties().containsKey(property)) {
 			event.getProperties().put(property, new HashSet<IdmIdentityRoleDto>());
@@ -347,8 +347,8 @@ public class DefaultIdmRoleCompositionService
 	@SuppressWarnings("unchecked")
 	private void notingIdentityAccountForDelayedAcm(EntityEvent<IdmIdentityRoleDto> event,
 			EntityEvent<IdmIdentityRoleDto> subEvent) {
-		Assert.notNull(event);
-		Assert.notNull(subEvent);
+		Assert.notNull(event, "Event is required.");
+		Assert.notNull(subEvent, "Sub event is required.");
 
 		if (!event.getProperties().containsKey(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM)) {
 			event.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, new HashSet<UUID>());

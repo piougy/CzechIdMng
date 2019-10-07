@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -80,19 +79,12 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 
 	protected static final String TAG = "Role Request - requests";
 	//
-	private final IdmConceptRoleRequestController conceptRoleRequestController;
-	private final IdmRoleRequestService service;
+	@Autowired private IdmConceptRoleRequestController conceptRoleRequestController;
+	@Autowired private IdmRoleRequestService service;
 
 	@Autowired
-	public IdmRoleRequestController(IdmRoleRequestService service,
-			IdmConceptRoleRequestController conceptRoleRequestController) {
+	public IdmRoleRequestController(IdmRoleRequestService service) {
 		super(service);
-		//
-		Assert.notNull(conceptRoleRequestController);
-		Assert.notNull(service);
-		//
-		this.conceptRoleRequestController = conceptRoleRequestController;
-		this.service = service;
 	}
 
 	@Override

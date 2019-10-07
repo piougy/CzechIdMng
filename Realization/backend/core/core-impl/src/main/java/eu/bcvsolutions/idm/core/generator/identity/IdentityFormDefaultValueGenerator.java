@@ -60,8 +60,8 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 
 	@Override
 	public IdmIdentityDto generate(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
-		Assert.notNull(dto);
-		Assert.notNull(valueGenerator);
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(valueGenerator, "Value generator is required.");
 		//
 		IdmFormDefinitionDto formDefinition = getFormDefinition(valueGenerator);
 

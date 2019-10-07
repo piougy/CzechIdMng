@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -89,16 +90,16 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 		}
 		ProcessInstanceBuilder builder = runtimeService.createProcessInstanceBuilder()
 				.processDefinitionKey(definitionKey)//
-				.addVariable(WorkflowProcessInstanceService.OBJECT_TYPE, objectType)
-				.addVariable(WorkflowProcessInstanceService.ACTIVITI_SKIP_EXPRESSION_ENABLED, Boolean.TRUE) // Allow skip expression on user task
-				.addVariable(WorkflowProcessInstanceService.OBJECT_IDENTIFIER, objectIdentifier)
-				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, implementerId == null ? null : implementerId.toString())
-				.addVariable(WorkflowProcessInstanceService.APPLICANT_USERNAME, applicant)
-				.addVariable(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER,
+				.variable(WorkflowProcessInstanceService.OBJECT_TYPE, objectType)
+				.variable(WorkflowProcessInstanceService.ACTIVITI_SKIP_EXPRESSION_ENABLED, Boolean.TRUE) // Allow skip expression on user task
+				.variable(WorkflowProcessInstanceService.OBJECT_IDENTIFIER, objectIdentifier)
+				.variable(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, implementerId == null ? null : implementerId.toString())
+				.variable(WorkflowProcessInstanceService.APPLICANT_USERNAME, applicant)
+				.variable(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER,
 						applicantIdentity != null ? applicantIdentity.getId() : null);
 		if (variables != null) {
 			for (Entry<String, Object> entry : variables.entrySet()) {
-				builder.addVariable(entry.getKey(), entry.getValue());
+				builder.variable(entry.getKey(), entry.getValue());
 			}
 		}
 
@@ -113,49 +114,53 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 				// Set current logged user (implementer) as starter of process
 				runtimeService.addUserIdentityLink(instance.getId(), implementerId.toString(), IdentityLinkType.STARTER);
 			}
+			// TODO: search subprocesses and add create links for the
+			
 		}
 		return instance;
 	}
 	
 	@Override
 	public WorkflowProcessInstanceDto get(Serializable id, BasePermission... permission) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is required.");
 		return this.get(String.valueOf(id));
 	}
 	
 	@Override
 	public Page<WorkflowProcessInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
-		// we must call original method search because is there check flag checkRight
-		if (pageable != null) {
-			filter.setPageNumber(pageable.getPageNumber());
-			filter.setPageSize(pageable.getPageSize());
-			//
-			String fieldForSort = null;
-			boolean ascSort = false;
-			boolean descSort = false;
-			if (pageable != null) {
-				Sort sort = pageable.getSort();
-				if (sort != null) {
-					for (Order order : sort) {
-						if (!StringUtils.isEmpty(order.getProperty())) {
-							// TODO: now is implemented only one property sort 
-							fieldForSort = order.getProperty();
-							if (order.getDirection() == Direction.ASC) {
-								ascSort = true;
-							} else if (order.getDirection() == Direction.DESC) {
-								descSort = true;
-							}
-							break;
-						}
-						
-					}
-				}
-			}
-			filter.setSortAsc(ascSort);
-			filter.setSortDesc(descSort);
-			filter.setSortByFields(fieldForSort);
+		if (pageable == null) {
+			// pageable is required now
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
 		}
+		
+		// we must call original method search because is there check flag checkRight
+		filter.setPageNumber(pageable.getPageNumber());
+		filter.setPageSize(pageable.getPageSize());
+		//
+		String fieldForSort = null;
+		boolean ascSort = false;
+		boolean descSort = false;
+		//
+		Sort sort = pageable.getSort();
+		if (sort != null) {
+			for (Order order : sort) {
+				if (!StringUtils.isEmpty(order.getProperty())) {
+					// TODO: now is implemented only one property sort 
+					fieldForSort = order.getProperty();
+					if (order.getDirection() == Direction.ASC) {
+						ascSort = true;
+					} else if (order.getDirection() == Direction.DESC) {
+						descSort = true;
+					}
+					break;
+				}
+				
+			}
+		}
+		filter.setSortAsc(ascSort);
+		filter.setSortDesc(descSort);
+		filter.setSortByFields(fieldForSort);
 		ResourcesWrapper<WorkflowProcessInstanceDto> search = this.search(filter);
 		//
 		ResourcePage pages = search.getPage();
@@ -216,8 +221,7 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 				query.variableValueEquals(entry.getKey(), entry.getValue());
 			}
 		}
-		// check security ... only involved user or applicant can work with
-		// historic process instance
+		// check security ... only involved user or applicant can work with process instance
 		// Applicant and Implementer is added to involved user after process
 		// (subprocess) started. This modification allow not use OR clause.
 		if(checkRight && !securityService.isAdmin()){

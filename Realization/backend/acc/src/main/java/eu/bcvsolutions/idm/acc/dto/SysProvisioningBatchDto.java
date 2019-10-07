@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
@@ -27,7 +27,7 @@ public class SysProvisioningBatchDto extends AbstractDto {
 	@NotNull
 	@Embedded(dtoClass = SysSystemEntityDto.class)
 	private UUID systemEntity; // account uid, etc.
-	private DateTime nextAttempt;
+	private ZonedDateTime nextAttempt;
 	
 	public SysProvisioningBatchDto() {
 	}
@@ -36,11 +36,11 @@ public class SysProvisioningBatchDto extends AbstractDto {
 		this.systemEntity = operation.getSystemEntity();
 	}
 
-	public DateTime getNextAttempt() {
+	public ZonedDateTime getNextAttempt() {
 		return nextAttempt;
 	}
 
-	public void setNextAttempt(DateTime nextAttempt) {
+	public void setNextAttempt(ZonedDateTime nextAttempt) {
 		this.nextAttempt = nextAttempt;
 	}
 

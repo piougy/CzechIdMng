@@ -36,7 +36,7 @@ public class IdentityPasswordValidateProcessor extends AbstractIdentityPasswordV
 		IdentityConfiguration identityConfiguration) {
 		super(identityConfiguration, passwordService, authenticationManager, passwordPolicyService, securityService, IdentityEventType.PASSWORD);
 		//
-		Assert.notNull(securityService);
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.securityService = securityService;
 	}

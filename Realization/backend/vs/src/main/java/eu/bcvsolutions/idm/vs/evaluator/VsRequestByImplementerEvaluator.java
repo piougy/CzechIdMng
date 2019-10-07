@@ -49,9 +49,9 @@ public class VsRequestByImplementerEvaluator extends AbstractAuthorizationEvalua
 	@Autowired
 	public VsRequestByImplementerEvaluator(SecurityService securityService,
 			VsSystemImplementerService systemImplementerService, IdmIdentityRoleService identityRoleService) {
-		Assert.notNull(securityService);
-		Assert.notNull(systemImplementerService);
-		Assert.notNull(identityRoleService);
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(systemImplementerService, "Service is required.");
+		Assert.notNull(identityRoleService, "Service is required.");
 		//
 		this.securityService = securityService;
 		this.systemImplementerService = systemImplementerService;

@@ -8,13 +8,12 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -41,10 +40,8 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
  *
  */
 @Ignore
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = IdmApplication.class)
-@WebAppConfiguration
-@IntegrationTest("server.port:0")
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = IdmApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 @Rollback(true)
 public abstract class AbstractIntegrationTest {
 	

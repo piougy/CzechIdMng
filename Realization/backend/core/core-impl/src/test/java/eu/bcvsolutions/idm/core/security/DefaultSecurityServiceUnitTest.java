@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška 
  *
  */
-public class DefaultSecurityServiceTest extends AbstractUnitTest {
+public class DefaultSecurityServiceUnitTest extends AbstractUnitTest {
 	
 	private static final String CURRENT_USERNAME = "current_username";
 	private static final String ORIGINAL_USERNAME = "original_username";
@@ -40,8 +40,8 @@ public class DefaultSecurityServiceTest extends AbstractUnitTest {
 	private static final IdmJwtAuthentication AUTHENTICATION = new IdmJwtAuthentication(
 			new IdmIdentityDto(CURRENT_USERNAME), 
 			new IdmIdentityDto(ORIGINAL_USERNAME), 
-			DateTime.now(),
-			DateTime.now(),
+			ZonedDateTime.now(),
+			ZonedDateTime.now(),
 			AUTHORITIES,
 			"test");
 	

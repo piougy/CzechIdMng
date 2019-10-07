@@ -121,17 +121,17 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			ProvisioningConfiguration provisioningConfiguration) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
-		Assert.notNull(systemEntityService);
-		Assert.notNull(systemMappingService);
-		Assert.notNull(attributeMappingService);
-		Assert.notNull(connectorFacade);
-		Assert.notNull(systemService);
-		Assert.notNull(notificationManager);
-		Assert.notNull(provisioningOperationService);
-		Assert.notNull(schemaAttributeService);
-		Assert.notNull(provisioningArchiveService);
-		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(provisioningConfiguration);
+		Assert.notNull(systemEntityService, "Service is required.");
+		Assert.notNull(systemMappingService, "Service is required.");
+		Assert.notNull(attributeMappingService, "Service is required.");
+		Assert.notNull(connectorFacade, "Connector facade is required.");
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(notificationManager, "Manager is required.");
+		Assert.notNull(provisioningOperationService, "Service is required.");
+		Assert.notNull(schemaAttributeService, "Service is required.");
+		Assert.notNull(provisioningArchiveService, "Service is required.");
+		Assert.notNull(schemaObjectClassService, "Service is required.");
+		Assert.notNull(provisioningConfiguration, "Configuration is required.");
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;

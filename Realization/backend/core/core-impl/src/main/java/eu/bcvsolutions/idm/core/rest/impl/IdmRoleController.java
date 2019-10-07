@@ -109,11 +109,11 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 			SecurityService securityService) {
 		super(roleService);
 		//
-		Assert.notNull(auditService);
-		Assert.notNull(formDefinitionController);
-		Assert.notNull(authorizationPolicyService);
-		Assert.notNull(securityService);
-		Assert.notNull(roleService);
+		Assert.notNull(auditService, "Service is required.");
+		Assert.notNull(formDefinitionController, "Controller is required.");
+		Assert.notNull(authorizationPolicyService, "Service is required.");
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(roleService, "Service is required.");
 		//
 		this.auditService = auditService;
 		this.formDefinitionController = formDefinitionController;
@@ -769,6 +769,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmRoleFilter filter = new IdmRoleFilter(parameters, getParameterConverter());
 		//

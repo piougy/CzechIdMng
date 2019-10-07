@@ -49,7 +49,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 	
 	@Override
 	public Object evaluate(String script, Map<String, Object> variables, List<Class<?>> extraAllowedClasses) {
-		Assert.notNull(script);
+		Assert.notNull(script, "Script is required.");
 		
 		Binding binding = new Binding(variables);
 		
@@ -138,7 +138,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 
 	@Override
 	public Object validateScript(String script) throws ResultCodeException {
-		Assert.notNull(script);
+		Assert.notNull(script, "Script is required.");
 		try {
 			GroovyShell shell = new GroovyShell();
 			return shell.parse(script);

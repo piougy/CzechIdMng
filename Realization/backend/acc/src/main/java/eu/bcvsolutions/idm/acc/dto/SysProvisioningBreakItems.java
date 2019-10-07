@@ -120,7 +120,7 @@ public class SysProvisioningBreakItems {
 	 * @param provisioningType
 	 */
 	public void clearRecords(ProvisioningEventType provisioningType) {
-		Assert.notNull(provisioningType);
+		Assert.notNull(provisioningType, "Provisioning type is required.");
 		this.getExecutedItems(provisioningType).clear();
 	}
 }

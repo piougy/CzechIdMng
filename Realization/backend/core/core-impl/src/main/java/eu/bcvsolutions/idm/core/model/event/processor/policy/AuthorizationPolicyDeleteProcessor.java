@@ -32,7 +32,7 @@ public class AuthorizationPolicyDeleteProcessor extends CoreEventProcessor<IdmAu
 			IdmAuthorizationPolicyService service) {
 		super(AuthorizationPolicyEventType.DELETE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

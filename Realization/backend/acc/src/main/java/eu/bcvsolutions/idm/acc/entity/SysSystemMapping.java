@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -86,7 +86,7 @@ public class SysSystemMapping extends AbstractEntity {
 	private Integer protectionInterval;
 	
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "can_be_acc_created_script")
 	private String canBeAccountCreatedScript;
 	

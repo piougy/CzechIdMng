@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -26,7 +26,7 @@ public interface ResultModel extends Serializable {
 	 * 
 	 * @return
 	 */
-	DateTime getCreation();
+	ZonedDateTime getCreation();
 
 	/**
 	 * Internal message

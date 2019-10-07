@@ -27,7 +27,7 @@ public class DefaultSysProvisioningAttributeService implements SysProvisioningAt
 	
 	@Autowired
 	public DefaultSysProvisioningAttributeService(SysProvisioningAttributeRepository repository) {
-		Assert.notNull(repository);
+		Assert.notNull(repository, "Repository is required.");
 		//
 		this.repository = repository;
 	}
@@ -35,8 +35,8 @@ public class DefaultSysProvisioningAttributeService implements SysProvisioningAt
 	@Override
 	@Transactional
 	public void saveAttributes(ProvisioningOperation operation) {
-		Assert.notNull(operation);
-		Assert.notNull(operation.getId());
+		Assert.notNull(operation, "Operation is required.");
+		Assert.notNull(operation.getId(), "Operation identifier is required.");
 		//
 		if (operation.getProvisioningContext().getConnectorObject() != null) {
 			List<IcAttribute> connectorAttributes = operation.getProvisioningContext().getConnectorObject().getAttributes();
@@ -63,8 +63,8 @@ public class DefaultSysProvisioningAttributeService implements SysProvisioningAt
 	@Override
 	@Transactional
 	public int deleteAttributes(ProvisioningOperation operation) {
-		Assert.notNull(operation);
-		Assert.notNull(operation.getId());
+		Assert.notNull(operation, "Operation is required.");
+		Assert.notNull(operation.getId(), "Operation identifier is required.");
 		//
 		return repository.deleteByProvisioningId(operation.getId());
 	}

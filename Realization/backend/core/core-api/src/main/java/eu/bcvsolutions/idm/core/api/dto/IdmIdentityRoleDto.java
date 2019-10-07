@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
-import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
@@ -85,7 +85,7 @@ public class IdmIdentityRoleDto extends FormableDto implements ValidableEntity, 
     
     @JsonIgnore
     public void setIdentityContractDto(IdmIdentityContractDto identityContract) {
-    	Assert.notNull(identityContract);
+    	Assert.notNull(identityContract, "Contract is requred to se into assigned role.");
     	//
         this.identityContract = identityContract.getId();
         this.getEmbedded().put(PROPERTY_IDENTITY_CONTRACT, identityContract);

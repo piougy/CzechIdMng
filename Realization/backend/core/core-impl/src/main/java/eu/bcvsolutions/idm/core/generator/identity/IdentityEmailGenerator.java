@@ -45,8 +45,8 @@ public class IdentityEmailGenerator extends AbstractIdentityValueGenerator {
 
 	@Override
 	public IdmIdentityDto generate(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
-		Assert.notNull(dto);
-		Assert.notNull(valueGenerator);
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(valueGenerator, "Value generator is required.");
 		//		
 		// if exists email and configuration doesn't allow regenerate return dto
 		if (!valueGenerator.isRegenerateValue() && StringUtils.isNotEmpty(dto.getEmail())) {

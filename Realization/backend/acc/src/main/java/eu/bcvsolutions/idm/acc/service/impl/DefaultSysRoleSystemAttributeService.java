@@ -247,7 +247,7 @@ public class DefaultSysRoleSystemAttributeService extends
 	@Override
 	@Transactional
 	public void delete(SysRoleSystemAttributeDto roleSystemAttribute, BasePermission... permission) {
-		Assert.notNull(roleSystemAttribute);
+		Assert.notNull(roleSystemAttribute, "Role system attribute is required.");
 		// Cancel requests and request items using that deleting DTO
 		requestManager.onDeleteRequestable(roleSystemAttribute);
 

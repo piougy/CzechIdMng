@@ -18,7 +18,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -75,17 +75,17 @@ public class SysSyncConfig extends AbstractEntity {
 	private boolean customFilter = false;
 
 	@NotAudited // token isn't audited any more
-	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "token")
 	private String token;
 
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "custom_filter_script")
 	private String customFilterScript;
 	
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "roots_filter_script")
 	private String rootsFilterScript;
 

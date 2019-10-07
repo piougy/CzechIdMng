@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -26,7 +26,7 @@ public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProv
 	 * @param operation
 	 * @return Date of the next attempt. Null if there should be no next attempt 
 	 */
-	DateTime calculateNextAttempt(SysProvisioningOperationDto operation);
+	ZonedDateTime calculateNextAttempt(SysProvisioningOperationDto operation);
 	
 	/**
 	 * Gets batches to process (cteated requests)
@@ -44,7 +44,7 @@ public interface SysProvisioningBatchService extends ReadWriteDtoService<SysProv
 	 * @param pageable
 	 * @return
 	 */
-	Page<SysProvisioningBatchDto> findBatchesToRetry(DateTime date, Pageable pageable);
+	Page<SysProvisioningBatchDto> findBatchesToRetry(ZonedDateTime date, Pageable pageable);
 	
 	/**
 	 * Finds batch for given system entity

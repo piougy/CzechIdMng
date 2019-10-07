@@ -95,7 +95,11 @@ public class DefaultWorkflowProcessDefinitionService
 			query.processDefinitionNameLike('%' + filter.getName() + '%');
 		}
 
-		if (pageable != null && pageable.getSort() != null) {
+		if (pageable == null) {
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
+		
+		if (pageable.getSort() != null) {
 			pageable.getSort().forEach(order -> {
 				if (SORT_BY_KEY.equals(order.getProperty())) {
 					// Sort by key
@@ -122,8 +126,7 @@ public class DefaultWorkflowProcessDefinitionService
 		// paginator
 		long count = query.count();
 
-		List<ProcessDefinition> processInstances = pageable == null ? query.list() // without pagination
-				: query.listPage((pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize());
+		List<ProcessDefinition> processInstances = query.listPage((pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize());
 
 		List<WorkflowProcessDefinitionDto> dtos = new ArrayList<>();
 
@@ -132,8 +135,7 @@ public class DefaultWorkflowProcessDefinitionService
 				dtos.add(toDto(instance));
 			}
 		}
-		return toPage(dtos, count, pageable != null ? pageable.getPageNumber() : -1,
-				pageable != null ? pageable.getPageSize() : -1);
+		return toPage(dtos, count, pageable.getPageNumber(), pageable.getPageSize());
 	}
 
 	/**
@@ -199,7 +201,7 @@ public class DefaultWorkflowProcessDefinitionService
 	
 	@Override
 	public List<ValuedDataObject> getDataObjects(String definitionId) {
-		Assert.notNull(definitionId);
+		Assert.notNull(definitionId, "Definition identifier is required.");
 		BpmnModel model = repositoryService.getBpmnModel(definitionId);
 		if (model != null) {
 			// we must split this check to two, because sonar has problem with 
@@ -236,7 +238,7 @@ public class DefaultWorkflowProcessDefinitionService
 			int pageNumber, int pageSize) {
 		PageRequest pageRequest = null;
 		if (pageSize > 0) {
-			pageRequest = new PageRequest(pageNumber, pageSize);
+			pageRequest = PageRequest.of(pageNumber, pageSize);
 			return new PageImpl<>(dtos, pageRequest, totalElements);
 		}
 		return new PageImpl<>(dtos);

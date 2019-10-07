@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
@@ -65,7 +64,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Svanda
  *
  */
-@Service
 public class TreeSyncTest extends AbstractIntegrationTest {
 
 	private static final String SYNC_CONFIG_NAME = "syncTreeAdvancedConfigName";
@@ -350,6 +348,6 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 	}
 
 	private TreeSyncTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 }

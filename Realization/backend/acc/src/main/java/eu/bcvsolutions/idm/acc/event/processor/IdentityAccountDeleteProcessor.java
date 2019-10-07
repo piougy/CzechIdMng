@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.PageRequest;
@@ -47,29 +47,15 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdentityAccountDto> {
 
 	private static final String PROCESSOR_NAME = "identity-account-delete-processor";
-	private final AccIdentityAccountService service;
-	private final AccAccountService accountService;
-	private final SysSystemMappingService systemMappingService;
-	private final EntityEventManager entityEventManager;
-	private final IdmIdentityService identityService;
+	//
+	@Autowired private AccIdentityAccountService service;
+	@Autowired private AccAccountService accountService;
+	@Autowired private SysSystemMappingService systemMappingService;
+	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private IdmIdentityService identityService;
 
-	@Autowired
-	public IdentityAccountDeleteProcessor(AccIdentityAccountService service, AccAccountService accountService,
-			SysSystemMappingService systemMappingService, EntityEventManager entityEventManager,
-			IdmIdentityService identityService) {
+	public IdentityAccountDeleteProcessor() {
 		super(IdentityAccountEventType.DELETE);
-		//
-		Assert.notNull(service);
-		Assert.notNull(accountService);
-		Assert.notNull(systemMappingService);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(identityService);
-		//
-		this.service = service;
-		this.accountService = accountService;
-		this.systemMappingService = systemMappingService;
-		this.entityEventManager = entityEventManager;
-		this.identityService = identityService;
 	}
 
 	@Override
@@ -91,7 +77,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 		identityAccountFilter.setOwnership(Boolean.TRUE);
 		identityAccountFilter.setNotIdentityAccount(entity.getId());
 
-		boolean moreIdentityAccounts = service.find(identityAccountFilter, new PageRequest(0, 1))
+		boolean moreIdentityAccounts = service.find(identityAccountFilter, PageRequest.of(0, 1))
 				.getTotalElements() > 0;
 		boolean deleteTargetAccount = (boolean) event.getProperties()
 				.get(AccIdentityAccountService.DELETE_TARGET_ACCOUNT_KEY);
@@ -196,7 +182,7 @@ public class IdentityAccountDeleteProcessor extends CoreEventProcessor<AccIdenti
 			// Interval is null, protection is infinite
 			accountEntity.setEndOfProtection(null);
 		} else {
-			accountEntity.setEndOfProtection(DateTime.now().plusDays(daysInterval));
+			accountEntity.setEndOfProtection(ZonedDateTime.now().plusDays(daysInterval));
 		}
 	}
 

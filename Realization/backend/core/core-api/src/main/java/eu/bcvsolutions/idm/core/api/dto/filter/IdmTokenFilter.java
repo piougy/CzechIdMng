@@ -1,17 +1,14 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 
 /**
  * Persisted tokens
@@ -66,16 +63,11 @@ public class IdmTokenFilter extends DataFilter implements ExternalIdentifiable {
 		data.set(PARAMETER_DISABLED, disabled);
 	}
 	
-	public DateTime getExpirationTill() {
-		// TODO: refactor value conversions - e.g. move to parameter converter
-		IdmFormValueDto value = new IdmFormValueDto();
-		value.setPersistentType(PersistentType.DATETIME);
-		value.setValue((Serializable) data.getFirst(PARAMETER_EXPIRATION_TILL));
-		//
-		return value.getDateValue();
+	public ZonedDateTime getExpirationTill() {
+		return getParameterConverter().toDateTime(data, PARAMETER_EXPIRATION_TILL);
 	}
 	
-	public void setExpirationTill(DateTime expirationTill) {
+	public void setExpirationTill(ZonedDateTime expirationTill) {
 		data.set(PARAMETER_EXPIRATION_TILL, expirationTill);
 	}
 	

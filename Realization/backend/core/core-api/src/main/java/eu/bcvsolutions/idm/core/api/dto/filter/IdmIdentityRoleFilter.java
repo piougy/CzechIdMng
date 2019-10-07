@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -127,11 +126,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
 
 	public Boolean getValid() {
-		Object first = data.getFirst(PARAMETER_VALID);
-    	if (first == null) {
-    		return null;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+    	return getParameterConverter().toBoolean(data, PARAMETER_VALID);
 	}
 
 	public void setValid(Boolean valid) {
@@ -139,11 +134,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
 
 	public Boolean getAutomaticRole() {
-		Object first = data.getFirst(PARAMETER_AUTOMATIC_ROLE);
-    	if (first == null) {
-    		return null;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+		return getParameterConverter().toBoolean(data, PARAMETER_AUTOMATIC_ROLE);
 	}
 
 	public void setAutomaticRole(Boolean automaticRole) {
@@ -177,11 +168,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
 	
 	public Boolean getDirectRole() {
-		Object first = data.getFirst(PARAMETER_DIRECT_ROLE);
-    	if (first == null) {
-    		return null;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+    	return getParameterConverter().toBoolean(data, PARAMETER_DIRECT_ROLE);
 	}
 
 	public void setDirectRole(Boolean directRole) {
@@ -234,11 +221,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 
 	@Override
 	public Boolean getAddEavMetadata() {
-		Object first = data.getFirst(PARAMETER_ADD_EAV_METADATA);
-    	if (first == null) {
-    		return null;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+    	return getParameterConverter().toBoolean(data, PARAMETER_ADD_EAV_METADATA);
 	}
 
 	@Override

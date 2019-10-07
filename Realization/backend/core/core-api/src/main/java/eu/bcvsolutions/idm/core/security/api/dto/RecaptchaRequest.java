@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.security.api.dto;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * Request for ReCaptcha validation, see https://developers.google.com/recaptcha/docs/verify.

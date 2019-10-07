@@ -80,14 +80,14 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			SecurityService securityService,
 			ProvisioningConfiguration provisioningConfiguration,
 			SysSystemEntityService systemEntityService) {
-		Assert.notNull(entityEventManager);
-		Assert.notNull(provisioningOperationService);
-		Assert.notNull(batchService);
-		Assert.notNull(notificationManager);
-		Assert.notNull(systemService);
-		Assert.notNull(securityService);
-		Assert.notNull(provisioningConfiguration);
-		Assert.notNull(systemEntityService);
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(provisioningOperationService, "Service is required.");
+		Assert.notNull(batchService, "Service is required.");
+		Assert.notNull(notificationManager, "Manager is required.");
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(provisioningConfiguration, "Configuration is required.");
+		Assert.notNull(systemEntityService, "Service is required.");
 		//
 		this.entityEventManager = entityEventManager;
 		this.provisioningOperationService = provisioningOperationService;
@@ -109,7 +109,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		if(system == null) {
 			system = systemService.get(provisioningOperation.getSystem());;
 		}
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 		if (!system.isQueue()) {
 			if (provisioningOperationService.isNew(provisioningOperation)) {
 				// In sync mode, we need to save operation now (for request and system state)
@@ -149,9 +149,9 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@TransactionalEventListener
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public synchronized SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation) {
-		Assert.notNull(provisioningOperation);
-		Assert.notNull(provisioningOperation.getSystemEntity());
-		Assert.notNull(provisioningOperation.getProvisioningContext());
+		Assert.notNull(provisioningOperation, "Provisioning operation is required.");
+		Assert.notNull(provisioningOperation.getSystemEntity(), "System entity is required.");
+		Assert.notNull(provisioningOperation.getProvisioningContext(), "Provisioning context is required.");
 		//
 		boolean checkNotExecuted = provisioningOperation.isSynchronousProvisioning();
 		if (provisioningOperationService.isNew(provisioningOperation)) {
@@ -222,7 +222,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@Override
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public synchronized OperationResult execute(SysProvisioningBatchDto batch) {
-		Assert.notNull(batch);
+		Assert.notNull(batch, "Provisioning batch is required.");
 		batch = batchService.get(batch.getId());
 		//	
 		OperationResult result = null;
@@ -265,7 +265,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@Override
 	@Transactional
 	public void cancel(SysProvisioningBatchDto batch) {
-		Assert.notNull(batch);
+		Assert.notNull(batch, "Provisioning batch is required.");
 		//
 		for (SysProvisioningOperationDto operation : provisioningOperationService.getByTimelineAndBatchId(batch.getId())) {
 			// It not possible get operation from embedded, missing request
@@ -285,15 +285,15 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	 * @return
 	 */
 	private SysProvisioningOperationDto persistOperation(SysProvisioningOperationDto provisioningOperation) {
-		Assert.notNull(provisioningOperation);
-		Assert.notNull(provisioningOperation.getSystemEntity());
-		Assert.notNull(provisioningOperation.getProvisioningContext());
+		Assert.notNull(provisioningOperation, "Provisioning operation is required.");
+		Assert.notNull(provisioningOperation.getSystemEntity(), "System entity is required.");
+		Assert.notNull(provisioningOperation.getProvisioningContext(), "Provisioning context is required.");
 		// get system from service, in provisioning operation may not exist
 		SysSystemDto system = DtoUtils.getEmbedded(provisioningOperation, SysProvisioningOperation_.system, (SysSystemDto) null);
 		if (system == null) { 
 			system = systemService.get(provisioningOperation.getSystem());
 		}
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 		provisioningOperation.getEmbedded().put(SysProvisioningOperation_.system.getName(), system); // make sure system will be in embedded - optimize
 		//
 		// save new operation to provisioning log / queue
@@ -309,7 +309,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			filter.setNotInState(OperationState.CREATED);
 			filter.setBatchId(batch.getId());
 			List<SysProvisioningOperationDto> activeOperations = provisioningOperationService
-					.find(filter, new PageRequest(0, 1, new Sort(Direction.DESC, SysProvisioningOperation_.created.getName())))
+					.find(filter, PageRequest.of(0, 1, new Sort(Direction.DESC, SysProvisioningOperation_.created.getName())))
 					.getContent();
 			if (activeOperations.isEmpty()) {
 				// batch is completed (no operations in queue)

@@ -99,12 +99,12 @@ public class DefaultVsSystemService implements VsSystemService {
 			SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService systemAttributeMappingService,
 			SysSchemaAttributeService schemaAttributeService, IdmFormAttributeService formAttributeService) {
-		Assert.notNull(systemService);
-		Assert.notNull(formService);
-		Assert.notNull(systemMappingService);
-		Assert.notNull(systemAttributeMappingService);
-		Assert.notNull(schemaAttributeService);
-		Assert.notNull(formAttributeService);
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(formService, "Form service (eav) is required.");
+		Assert.notNull(systemMappingService, "Service is required.");
+		Assert.notNull(systemAttributeMappingService, "Service is required.");
+		Assert.notNull(schemaAttributeService, "Service is required.");
+		Assert.notNull(formAttributeService, "Service is required.");
 		//
 		this.systemService = systemService;
 		this.formService = formService;
@@ -118,7 +118,7 @@ public class DefaultVsSystemService implements VsSystemService {
 	@Override
 	public IcConnector getConnectorInstance(UUID systemId, IcConnectorInfo connectorInfo) {
 		Assert.notNull(systemId, "System ID is required!");
-		Assert.notNull(connectorInfo);
+		Assert.notNull(connectorInfo, "Connector info is required.");
 
 		IcConnectorInstance connectorKeyInstance = new IcConnectorInstanceImpl(null, connectorInfo.getConnectorKey(),
 				false);
@@ -135,8 +135,8 @@ public class DefaultVsSystemService implements VsSystemService {
 	@Transactional
 	@Override
 	public VsVirtualConnector getVirtualConnector(UUID systemId, String connectorKey) {
-		Assert.notNull(systemId);
-		Assert.notNull(connectorKey);
+		Assert.notNull(systemId, "System identifier is required.");
+		Assert.notNull(connectorKey, "Connector key is required.");
 
 		IcConnectorInfo connectorInfo = this.getConnectorInfo(connectorKey);
 		if (connectorInfo == null) {
@@ -156,7 +156,7 @@ public class DefaultVsSystemService implements VsSystemService {
 	@Transactional
 	@Override
 	public IcConnectorInfo getConnectorInfo(String connectorKey) {
-		Assert.notNull(connectorKey);
+		Assert.notNull(connectorKey, "Connector key is required.");
 		return czechIdMConfigurationService.getAvailableLocalConnectors()//
 				.stream()//
 				.filter(info -> connectorKey.equals(info.getConnectorKey().getFullName()))//
@@ -168,7 +168,7 @@ public class DefaultVsSystemService implements VsSystemService {
 	@Override
 	public void updateSystemConfiguration(IcConnectorConfiguration configuration,
 			Class<? extends IcConnector> connectorClass) {
-		Assert.notNull(configuration);
+		Assert.notNull(configuration, "Configuration is required.");
 
 		if (!(configuration instanceof IcConnectorConfigurationCzechIdMImpl)) {
 			throw new IcException(
@@ -257,7 +257,7 @@ public class DefaultVsSystemService implements VsSystemService {
 		// Update virtual system configuration (implementers and definition)
 		VsVirtualConnector virtualConnector = this.getVirtualConnector(system.getId(),
 				system.getConnectorKey().getFullName());
-		Assert.notNull(virtualConnector);
+		Assert.notNull(virtualConnector, "Connector is required.");
 		this.updateSystemConfiguration(virtualConnector.getConfiguration(), virtualConnector.getClass());
 		system = systemService.get(system.getId());
 
@@ -322,7 +322,7 @@ public class DefaultVsSystemService implements VsSystemService {
 			return null;
 		}
 		
-		Assert.hasLength(vsSystem.getRoleName());
+		Assert.hasLength(vsSystem.getRoleName(), "Role code is required.");
 		
 		String code = vsSystem.getRoleName();
 		IdmRoleDto newRole = roleService.getByCode(code);

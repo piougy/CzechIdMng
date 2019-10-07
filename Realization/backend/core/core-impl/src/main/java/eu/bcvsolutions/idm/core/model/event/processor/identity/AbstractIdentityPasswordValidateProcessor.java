@@ -45,11 +45,11 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 			EventType... types) {
 		super(types);
 		//
-		Assert.notNull(identityConfiguration);
-		Assert.notNull(passwordService);
-		Assert.notNull(authenticationManager);
-		Assert.notNull(passwordPolicyService);
-		Assert.notNull(securityService);
+		Assert.notNull(identityConfiguration, "Configuration is required.");
+		Assert.notNull(passwordService, "Service is required.");
+		Assert.notNull(authenticationManager, "Manager is required.");
+		Assert.notNull(passwordPolicyService, "Service is required.");
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.securityService = securityService;
 		this.identityConfiguration = identityConfiguration;
@@ -63,7 +63,7 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 		IdmIdentityDto identity = event.getContent();
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties()
 			.get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
-		Assert.notNull(passwordChangeDto);
+		Assert.notNull(passwordChangeDto, "Password change dto is required.");
 		//
 		if (requiresOriginalPassword()) {
 			PasswordChangeType passwordChangeType = identityConfiguration.getPasswordChangeType();

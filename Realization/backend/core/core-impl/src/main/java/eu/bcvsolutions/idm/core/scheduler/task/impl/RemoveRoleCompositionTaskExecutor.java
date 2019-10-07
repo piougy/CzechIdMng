@@ -66,7 +66,7 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		super.validate(task);
 		//
 		IdmRoleCompositionDto roleComposition = roleCompositionService.get(roleCompositionId);
-		Assert.notNull(roleComposition);
+		Assert.notNull(roleComposition, "Role composition is required.");
 		//
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setTaskType(this.getClass().getCanonicalName());
@@ -98,7 +98,7 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	@Override
 	public Page<IdmIdentityRoleDto> getItemsToProcess(Pageable pageable) {
 		IdmRoleCompositionDto roleComposition = roleCompositionService.get(roleCompositionId);
-		Assert.notNull(roleComposition);
+		Assert.notNull(roleComposition, "Role composition is required.");
 		//
 		//
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
@@ -130,12 +130,12 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		//
 		if (BooleanUtils.isTrue(ended)) {
 			IdmRoleCompositionDto roleComposition = roleCompositionService.get(roleCompositionId);
-			Assert.notNull(roleComposition);
+			Assert.notNull(roleComposition, "Role composition is required.");
 			//
 			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 			filter.setRoleCompositionId(roleComposition.getId());
 			//
-			long assignedRoles = identityRoleService.find(filter, new PageRequest(0, 1)).getTotalElements();
+			long assignedRoles = identityRoleService.find(filter, PageRequest.of(0, 1)).getTotalElements();
 			if (assignedRoles != 0) {
 				LOG.debug("Remove role composition [{}] is not complete, some identity roles [{}] remains assigned to identities.", 
 						roleCompositionId, assignedRoles);

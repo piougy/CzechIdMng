@@ -9,10 +9,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Seconds;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.jwt.Jwt;
@@ -60,6 +63,7 @@ public class JwtAuthenticationMapper {
 	public static final String PROPERTY_ORIGINAL_USERNAME = "originalUsername";
 	public static final String PROPERTY_ORIGINAL_IDENTITY_ID = "originalIdentityId";
 	//
+	@Lazy
 	@Qualifier("objectMapper")
 	@Autowired private ObjectMapper mapper;
 	@Autowired private ConfigurationService configurationService;
@@ -99,7 +103,7 @@ public class JwtAuthenticationMapper {
 	 * @throws IOException
 	 */
 	public String writeToken(IdmJwtAuthentication authentication) {
-		Assert.notNull(authentication);
+		Assert.notNull(authentication, "Authentication is required to write token");
 		//
 		return writeToken(toDto(authentication));
 	}
@@ -113,7 +117,7 @@ public class JwtAuthenticationMapper {
 	 */
 	public String writeToken(IdmJwtAuthenticationDto dto) {
 		try {
-			Assert.notNull(dto);
+			Assert.notNull(dto, "Authentication is required to write token");
 			//
 			String authenticationJson = mapper.writeValueAsString(dto);
 			return JwtHelper.encode(authenticationJson, new MacSigner(getSecret().asString())).getEncoded();
@@ -136,12 +140,12 @@ public class JwtAuthenticationMapper {
 	 * 
 	 * @return
 	 */
-	public DateTime getNewExpiration() {
+	public ZonedDateTime getNewExpiration() {
 		Integer timeoutMillis = configurationService.getIntegerValue(
 				LoginService.PROPERTY_EXPIRATION_TIMEOUT,
 				LoginService.DEFAULT_EXPIRATION_TIMEOUT);
 		//
-		return DateTime.now().plus(timeoutMillis);
+		return ZonedDateTime.now().plus(timeoutMillis, ChronoField.MILLI_OF_DAY.getBaseUnit());
 	}
 	
 	/**
@@ -154,8 +158,8 @@ public class JwtAuthenticationMapper {
 	 * @return
 	 */
 	public IdmJwtAuthentication fromDto(IdmJwtAuthenticationDto dto) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getCurrentIdentityId());
+		Assert.notNull(dto, "Authentication DTO is required to be transformed to authentication.");
+		Assert.notNull(dto.getCurrentIdentityId(), "Current identity identifier is required.");
 		//
 		IdmIdentityDto identity = new IdmIdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername());
 		// try to load token or create a new one
@@ -212,7 +216,7 @@ public class JwtAuthenticationMapper {
 	 * @return
 	 */
 	public IdmJwtAuthentication fromDto(IdmTokenDto token) {
-		Assert.notNull(token);
+		Assert.notNull(token, "Token is required.");
 		//
 		List<GrantedAuthority> grantedAuthorities = getDtoAuthorities(token)
 				.stream()
@@ -243,7 +247,7 @@ public class JwtAuthenticationMapper {
 	 * @return preparedToken with filled required 
 	 */
 	public IdmTokenDto createToken(IdmIdentityDto identity, IdmTokenDto preparedToken) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required.");
 		//
 		// persist token
 		IdmTokenDto token = new IdmTokenDto();
@@ -260,7 +264,7 @@ public class JwtAuthenticationMapper {
 		token.setOwnerId(identity.getId());
 		token.setOwnerType(tokenManager.getOwnerType(identity));
 		if (token.getIssuedAt() == null) {
-			token.setIssuedAt(DateTime.now());
+			token.setIssuedAt(ZonedDateTime.now());
 		}
 		token.setExpiration(getNewExpiration());
 		ConfigurationMap properties = token.getProperties();
@@ -291,13 +295,13 @@ public class JwtAuthenticationMapper {
 			return authenticationDto;
 		}
 		//
-		DateTime newExpiration = getNewExpiration();
-		DateTime oldExpiration = authenticationDto.getExpiration();
+		ZonedDateTime newExpiration = getNewExpiration();
+		ZonedDateTime oldExpiration = authenticationDto.getExpiration();
 		if (oldExpiration == null) {
 			LOG.trace("Authentication token with id [{}] has unlimited expiration (e.g. system token), expiration will not be changed.", authenticationDto.getId());
 			return authenticationDto;
 		}
-		int seconds = Seconds.secondsBetween(authenticationDto.getExpiration(), newExpiration).getSeconds();
+		long seconds = ChronoUnit.SECONDS.between(authenticationDto.getExpiration(), newExpiration);
 		if (seconds < 60) {
 			LOG.trace("Authentication [{}] expiration will not be prolonged - expiration differs by [{}]s only.", authenticationDto.getId(), seconds);
 			return authenticationDto;
@@ -334,7 +338,7 @@ public class JwtAuthenticationMapper {
 	 * @return
 	 */
 	public IdmJwtAuthenticationDto toDto(IdmJwtAuthentication authentication) {
-		Assert.notNull(authentication);
+		Assert.notNull(authentication, "Authentication is required.");
 		//
 		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
 		authenticationDto.setId(authentication.getId());
@@ -356,7 +360,7 @@ public class JwtAuthenticationMapper {
 	 * @return
 	 */
 	public IdmJwtAuthenticationDto toDto(IdmTokenDto token) {
-		Assert.notNull(token);
+		Assert.notNull(token, "Token is required.");
 		//
 		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
 		authenticationDto.setCurrentUsername(token.getProperties().getString(PROPERTY_CURRENT_USERNAME));
@@ -416,7 +420,7 @@ public class JwtAuthenticationMapper {
 	 * @throws IOException
 	 */
 	private String getTokenHash(IdmTokenDto token) {
-		return Hashing.sha1().hashString(writeToken(toDto(token)), StandardCharsets.UTF_8).toString();
+		return Hashing.sha256().hashString(writeToken(toDto(token)), StandardCharsets.UTF_8).toString();
 	}
 	
 }

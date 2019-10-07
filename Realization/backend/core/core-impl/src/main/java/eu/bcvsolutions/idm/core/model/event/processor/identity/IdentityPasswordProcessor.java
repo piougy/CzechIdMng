@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -37,8 +37,8 @@ public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor
 			IdmPasswordPolicyService passwordPolicyService) {
 		super(passwordService, IdentityEventType.PASSWORD);
 		//
-		Assert.notNull(passwordService);
-		Assert.notNull(passwordPolicyService);
+		Assert.notNull(passwordService, "Password service is required for password processor.");
+		Assert.notNull(passwordPolicyService, "Password policy service is required for password processor.");
 		//
 		this.passwordService = passwordService;
 		this.passwordPolicyService = passwordPolicyService;
@@ -63,7 +63,7 @@ public class IdentityPasswordProcessor extends AbstractIdentityPasswordProcessor
 					.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 			if (defaultValidatePolicy != null && defaultValidatePolicy.getMaxPasswordAge() != null) {
 				// put new valid till by default password policy
-				passwordChangeDto.setMaxPasswordAge(DateTime.now().plusDays(defaultValidatePolicy.getMaxPasswordAge()));
+				passwordChangeDto.setMaxPasswordAge(ZonedDateTime.now().plusDays(defaultValidatePolicy.getMaxPasswordAge()));
 			} else {
 				passwordChangeDto.setMaxPasswordAge(null);
 				LOG.info("Default validate password policy not exists or max password age is not filled."

@@ -32,7 +32,7 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 	public IdentityDeleteProcessor(VsSystemImplementerService systemImplementerService) {
 		super(IdentityEventType.DELETE);
 		//
-		Assert.notNull(systemImplementerService);
+		Assert.notNull(systemImplementerService, "Service is required.");
 		//
 		this.systemImplementerService = systemImplementerService;
 	}
@@ -48,8 +48,8 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 
 		IdmIdentityDto identity = event.getContent();
-		Assert.notNull(identity);
-		Assert.notNull(identity.getId());
+		Assert.notNull(identity, "Identity is required.");
+		Assert.notNull(identity.getId(), "Identity identifier is required.");
 		// Delete vs implementers
 		VsSystemImplementerFilter implementerFilter = new VsSystemImplementerFilter();
 		implementerFilter.setIdentityId(identity.getId());

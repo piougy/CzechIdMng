@@ -68,7 +68,7 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 		}
 		// For every query is get first page with 100 rows
-		PageRequest defaultPageRequest = new PageRequest(0, PAGE_SIZE);
+		PageRequest defaultPageRequest = PageRequest.of(0, PAGE_SIZE);
 		Set<AbstractIdmAutomaticRoleDto> setWithAutomaticRole = Sets.newHashSet(automaticRolAttributeDto);
 		//
 		List<String> failedEntitiesAdd = new ArrayList<>();

@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.security.core.GrantedAuthority;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -21,35 +21,35 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 	//
 	public static final String TOKEN_TYPE = "authentication";
 	//
-	private DateTime issuedAt; // issued at
-	private DateTime expiration; // expiration
+	private ZonedDateTime issuedAt; // issued at
+	private ZonedDateTime expiration; // expiration
 	private Collection<GrantedAuthority> authorities;
 	private String fromModule;
 	
 	public IdmJwtAuthentication(
 			IdmIdentityDto currentIdentity,
-			DateTime expiration,
+			ZonedDateTime expiration,
 			Collection<GrantedAuthority> authorities,
 			String fromModule) {
-		this(currentIdentity, currentIdentity, expiration, DateTime.now(), authorities, fromModule);
+		this(currentIdentity, currentIdentity, expiration, ZonedDateTime.now(), authorities, fromModule);
 	}
 
 	public IdmJwtAuthentication(
 			IdmIdentityDto currentIdentity, 
 			IdmIdentityDto originalIdentity, 
-			DateTime expiration,
-			DateTime issuedAt,
+			ZonedDateTime expiration,
+			ZonedDateTime issuedAt,
 			Collection<GrantedAuthority> authorities,
 			String fromModule) {
-		this(null, currentIdentity, currentIdentity, expiration, DateTime.now(), authorities, fromModule);
+		this(null, currentIdentity, currentIdentity, expiration, ZonedDateTime.now(), authorities, fromModule);
 	}
 	
 	public IdmJwtAuthentication(
 			UUID tokenId,
 			IdmIdentityDto currentIdentity, 
 			IdmIdentityDto originalIdentity, 
-			DateTime expiration,
-			DateTime issuedAt,
+			ZonedDateTime expiration,
+			ZonedDateTime issuedAt,
 			Collection<GrantedAuthority> authorities,
 			String fromModule) {
 		super(tokenId, currentIdentity, originalIdentity);
@@ -73,19 +73,19 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 		this.authorities = authorities;
 	}
 
-	public DateTime getExpiration() {
+	public ZonedDateTime getExpiration() {
 		return expiration;
 	}
 	
-	public void setExpiration(DateTime expiration) {
+	public void setExpiration(ZonedDateTime expiration) {
 		this.expiration = expiration;
 	}
 	
-	public DateTime getIssuedAt() {
+	public ZonedDateTime getIssuedAt() {
 		return issuedAt;
 	}
 	
-	public void setIssuedAt(DateTime issuedAt) {
+	public void setIssuedAt(ZonedDateTime issuedAt) {
 		this.issuedAt = issuedAt;
 	}
 
@@ -93,7 +93,7 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 		if (expiration == null) {
 			return false;
 		}
-		return expiration.isBefore(DateTime.now());
+		return expiration.isBefore(ZonedDateTime.now());
 	}
 
 	public String getFromModule() {

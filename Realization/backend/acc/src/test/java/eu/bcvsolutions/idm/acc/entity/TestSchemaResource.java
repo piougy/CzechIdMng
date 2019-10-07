@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -34,7 +34,7 @@ public class TestSchemaResource {
 	@Column(name = "NAME", length = DefaultFieldLengths.NAME)
 	private String name;
 
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "STRING_VALUE", nullable = true)
 	private String stringValue;
 
@@ -55,7 +55,7 @@ public class TestSchemaResource {
 	private BigDecimal doubleValue;
 
 	@Column(name = "DATE_VALUE")
-	private DateTime dateValue;
+	private ZonedDateTime dateValue;
 
 	@Column(name = "BYTE_VALUE")
 	private byte[] byteValue;
@@ -112,11 +112,11 @@ public class TestSchemaResource {
 		this.doubleValue = doubleValue;
 	}
 
-	public DateTime getDateValue() {
+	public ZonedDateTime getDateValue() {
 		return dateValue;
 	}
 
-	public void setDateValue(DateTime dateValue) {
+	public void setDateValue(ZonedDateTime dateValue) {
 		this.dateValue = dateValue;
 	}
 

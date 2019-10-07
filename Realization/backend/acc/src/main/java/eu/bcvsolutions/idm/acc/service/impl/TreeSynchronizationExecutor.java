@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -111,7 +111,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		// Create basic synchronization log
 		SysSyncLogDto log = new SysSyncLogDto();
 		log.setSynchronizationConfig(config.getId());
-		log.setStarted(LocalDateTime.now());
+		log.setStarted(ZonedDateTime.now());
 		log.setRunning(true);
 		log.setToken(lastToken != null ? lastToken.toString() : null);
 		log.addToLog(MessageFormat.format("Synchronization was started in {0}.", log.getStarted()));
@@ -142,7 +142,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			processTreeSync(context, accountsMap);
 			log = context.getLog();
 			//
-			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
+			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", ZonedDateTime.now()));
 			synchronizationConfigService.save(config);
 		} catch (Exception e) {
 			String message = "Error during synchronization";
@@ -152,7 +152,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			LOG.error(message, e);
 		} finally {
 			log.setRunning(false);
-			log.setEnded(LocalDateTime.now());
+			log.setEnded(ZonedDateTime.now());
 			log = synchronizationLogService.save(log);
 			//
 			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
@@ -481,8 +481,8 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 		@Override
 		public boolean handle(IcConnectorObject connectorObject) {
-			Assert.notNull(connectorObject);
-			Assert.notNull(connectorObject.getUidValue());
+			Assert.notNull(connectorObject, "Connector object is required.");
+			Assert.notNull(connectorObject.getUidValue(), "Connector object uid is required.");
 			String uid = connectorObject.getUidValue();
 			accountsMap.put(uid, connectorObject);
 			return true;

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.eav.entity;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -17,8 +18,6 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
-import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -45,8 +44,8 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	private static final long serialVersionUID = -5914285774914667917L;
 
 	@NotNull
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-	@ManyToOne(optional = false) // TODO: should we support values without definition?
+	@Audited
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "attribute_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
@@ -66,7 +65,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	private boolean confidential;
 
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "string_value", nullable = true)
 	private String stringValue;
 	
@@ -89,7 +88,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 
 	@Audited
 	@Column(name = "date_value")
-	private DateTime dateValue;
+	private ZonedDateTime dateValue;
 	
 	@Audited
 	@Column(name = "byte_value")
@@ -113,7 +112,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	}
 
 	public AbstractFormValue(IdmFormAttribute formAttribute) {
-		Assert.notNull(formAttribute);
+		Assert.notNull(formAttribute, "Form attribute is required for form value construction.");
 		//
 		this.formAttribute = formAttribute;
 		this.persistentType = formAttribute.getPersistentType();
@@ -210,11 +209,11 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		this.doubleValue = doubleValue;
 	}
 
-	public DateTime getDateValue() {
+	public ZonedDateTime getDateValue() {
 		return dateValue;
 	}
 
-	public void setDateValue(DateTime dateValue) {
+	public void setDateValue(ZonedDateTime dateValue) {
 		this.dateValue = dateValue;
 	}
 	

@@ -33,15 +33,7 @@ public class IdmGenerateValueFilter extends DataFilter {
 	}
 
 	public Boolean getDisabled() {
-		// TODO: parameter converter
-		Object disabled = data.getFirst(PARAMETER_DISABLED);
-		if (disabled == null) {
-			return null;
-		}
-		if (disabled instanceof Boolean) {
-			return (Boolean) disabled;
-		}
-		return Boolean.valueOf(disabled.toString()) ;
+		return getParameterConverter().toBoolean(data, PARAMETER_DISABLED) ;
 	}
 
 	public void setDisabled(Boolean disabled) {

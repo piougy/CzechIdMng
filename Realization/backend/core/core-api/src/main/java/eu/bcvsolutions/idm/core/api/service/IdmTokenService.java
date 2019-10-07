@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.service;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
@@ -37,5 +37,5 @@ public interface IdmTokenService extends
 	 * @param tokenType - [optional] - given type only (e.g. cidmst)
 	 * @param olderThan - [optional] - with expiration older than given, all otherwise
 	 */
-	void purgeTokens(String tokenType, DateTime olderThan);
+	void purgeTokens(String tokenType, ZonedDateTime olderThan);
 }

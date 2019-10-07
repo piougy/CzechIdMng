@@ -40,7 +40,7 @@ public class IdmRoleFilter
 	public static final String PARAMETER_ENVIRONMENT = "environment"; // list - OR
 	public static final String PARAMETER_BASE_CODE = "baseCode";
 	public static final String PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF = "identityRoleAttributeDefinition";
-	
+	@Deprecated // unused since the start of project
 	private RoleType roleType;
 	
 	public IdmRoleFilter() {
@@ -55,10 +55,12 @@ public class IdmRoleFilter
 		super(IdmRoleDto.class, data, parameterConverter);
 	}
 
+	@Deprecated
 	public RoleType getRoleType() {
 		return roleType;
 	}
 
+	@Deprecated
 	public void setRoleType(RoleType roleType) {
 		this.roleType = roleType;
 	}

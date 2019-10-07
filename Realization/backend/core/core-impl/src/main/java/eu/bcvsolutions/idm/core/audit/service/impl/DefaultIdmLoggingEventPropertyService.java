@@ -79,8 +79,8 @@ public class DefaultIdmLoggingEventPropertyService extends
 
 	@Override
 	protected IdmLoggingEventProperty getEntity(Serializable id, BasePermission... permission) {
-		Assert.notNull(id);
-		Assert.isTrue(id instanceof IdmLoggingEventPropertyPrimaryKey);
+		Assert.notNull(id, "Identifier is requiered for load an log event property.");
+		Assert.isTrue(id instanceof IdmLoggingEventPropertyPrimaryKey, "Identifier has to generalize IdmLoggingEventPropertyPrimaryKey.");
 		IdmLoggingEventPropertyPrimaryKey primaryKey = (IdmLoggingEventPropertyPrimaryKey) id;
 		//
 		IdmLoggingEventPropertyFilter filter = new IdmLoggingEventPropertyFilter();

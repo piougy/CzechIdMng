@@ -73,9 +73,9 @@ public class DefaultIdmRoleTreeNodeService
 			IdmIdentityRoleService identityRoleService) {
 		super(repository, entityEventManager);
 		//
-		Assert.notNull(entityEventManager);
-		Assert.notNull(treeNodeRepository);
-		Assert.notNull(identityRoleService);
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(treeNodeRepository, "Repository is required.");
+		Assert.notNull(identityRoleService, "Service is required.");
 		//
 		this.repository = repository;
 		this.treeNodeRepository = treeNodeRepository;
@@ -96,7 +96,7 @@ public class DefaultIdmRoleTreeNodeService
 	@Override
 	@Transactional(noRollbackFor = AcceptedException.class)
 	public IdmRoleTreeNodeDto save(IdmRoleTreeNodeDto roleTreeNode, BasePermission... permission) {
-		Assert.notNull(roleTreeNode);
+		Assert.notNull(roleTreeNode, "Automatic role is required.");
 		checkAccess(toEntity(roleTreeNode, null), permission);
 		//
 		LOG.debug("Saving automatic role [{}] - [{}] - [{}]", roleTreeNode.getRole(), roleTreeNode.getTreeNode(), roleTreeNode.getRecursionType());
@@ -143,10 +143,9 @@ public class DefaultIdmRoleTreeNodeService
 	@Override
 	@Transactional(readOnly = true)
 	public Set<IdmRoleTreeNodeDto> getAutomaticRolesByTreeNode(UUID workPosition) {
-		Assert.notNull(workPosition);
+		Assert.notNull(workPosition, "Tree node (work position) is required.");
 		// TODO: we need actual forest index - use uuid and rewrite to subquery
-		IdmTreeNode treeNode = treeNodeRepository.findOne(workPosition);
-		Assert.notNull(treeNode);
+		IdmTreeNode treeNode = treeNodeRepository.findById(workPosition).get();
 		//
 		return new HashSet<>(toDtos(repository.findAutomaticRoles(treeNode), false));
 	}

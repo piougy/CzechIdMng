@@ -224,7 +224,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		// prepare sort
 		if (pageable != null) {
 			List<Order> orders = QueryUtils.toOrders(
-					pageable.getSort() == null ? new Sort(AbstractEntity_.id.getName()) : pageable.getSort(),
+					pageable.getSort() == null ? Sort.by(AbstractEntity_.id.getName()) : pageable.getSort(),
 					root,
 					criteriaBuilder);
 			cq.orderBy(orders);
@@ -243,7 +243,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		countQuery.where(predicate);
 		Long total = entityManager.createQuery(countQuery).getSingleResult();
 		
-		query.setFirstResult(pageable.getOffset());
+		query.setFirstResult((int) pageable.getOffset());
 		query.setMaxResults(pageable.getPageSize());
 		
 		List<UUID> content = total > pageable.getOffset() ? query.getResultList() : Collections.<UUID> emptyList();
@@ -300,7 +300,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			identifier = (UUID) id;
 		}
 		// get entity
-		E entity = getRepository().findOne(identifier);
+		E entity = getRepository().findById(identifier).orElse(null);
 		//
 		LOG.trace("Entity found [{}], permissions [{}] will be evaluated ...", entity, permission);
 		entity = checkAccess(entity, permission);
@@ -316,14 +316,19 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected Page<E> findEntities(F filter, Pageable pageable, BasePermission... permission) {
 		LOG.trace("Find entities for the filter [{}] with pageable [{}] starts", filter != null, pageable != null);
 		//
-		if (pageable != null && pageable.getSort() == null) {
+		if (pageable == null) {
+			// Underlying repository requires pageable is defined.
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
+		//
+		if (pageable.getSort() == null) {
 			// #1872 - apply default pageable, if sort is not defined
 			if (AbstractEntity.class.isAssignableFrom(getEntityClass())) {
 				LOG.debug("Default sort by [id] will be added, Sort is not specified.");
 				//
-				pageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), new Sort(AbstractEntity_.id.getName()));
+				pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(AbstractEntity_.id.getName()));
 			} else {
-				LOG.error("Default sort by [id] cannot be added, specify Sort for service [{}] usage.", getClass());
+				LOG.warn("Default sort by [id] cannot be added, specify Sort for service [{}] usage.", getClass());
 			}
 		}
 		//
@@ -356,6 +361,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 */
 	protected Specification<E> toCriteria(F filter, boolean applyFetchMode, BasePermission... permission) {
 		return new Specification<E>() {
+			private static final long serialVersionUID = 1L;
+
 			public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				List<Predicate> predicates = new ArrayList<>();
 				//
@@ -374,7 +381,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				}
 				// include referenced entity in "master" select  => reduces number of sub selects
 				if (applyFetchMode) {
-					applyFetchMode(root);
+					// FIXME: is needed in new hibernate?
+					// applyFetchMode(root);
 				}
 				//
 				return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
@@ -384,9 +392,9 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	
 	@Override
 	public boolean isNew(DTO dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required for check, if is new.");
 		//
-		return dto.getId() == null || !getRepository().exists((UUID) dto.getId());
+		return dto.getId() == null || !getRepository().existsById((UUID) dto.getId());
 	}
 	
 	
@@ -413,7 +421,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 	
 	protected Set<String> getPermissions(E entity) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required get permissions.");
 		//
 		return getAuthorizationManager().getPermissions(entity);
 	}
@@ -496,10 +504,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		} else {
 			dtos = this.toDtos(entityPage.getContent(), true);
 		}
-		PageRequest pageRequest = null;
-		if (entityPage.getSize() > 0) {
-			pageRequest = new PageRequest(entityPage.getNumber(), entityPage.getSize(), entityPage.getSort());
-		}
+		PageRequest pageRequest = PageRequest.of(
+				entityPage.getNumber(), 
+				entityPage.getSize() > 0 ? entityPage.getSize() : 10, 
+				entityPage.getSort());
 		Page<DTO> dtoPage = new PageImpl<>(dtos, pageRequest, entityPage.getTotalElements());
 		return dtoPage;
 	}
@@ -534,7 +542,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		List<DTO> dtos = new ArrayList<>();
 		entities.forEach(entity -> {
 			try {
-				DTO newDto = this.getDtoClass(entity).newInstance();
+				DTO newDto = this.getDtoClass(entity).getDeclaredConstructor().newInstance();
 				if (newDto instanceof AbstractDto) {
 					((AbstractDto) newDto).setTrimmed(trimmed);
 				}
@@ -548,8 +556,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				}
 				dtos.add(dto);
 
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new CoreException(e);
+			} catch (ReflectiveOperationException ex) {
+				throw new CoreException(ex);
 			}
 		});
 		return dtos;
@@ -648,7 +656,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * @return
 	 */
 	protected Pageable getPageableAll(Sort sort) {
-		return new PageRequest(0, Integer.MAX_VALUE, sort);
+		return PageRequest.of(0, Integer.MAX_VALUE, sort);
 	}
 
 	/**

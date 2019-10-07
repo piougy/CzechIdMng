@@ -22,8 +22,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -54,8 +52,6 @@ public class DefaultLdapTestHelper implements LdapTestHelper {
 	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private SysSystemRepository systemRepository;
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
 	@Autowired
@@ -105,10 +101,8 @@ public class DefaultLdapTestHelper implements LdapTestHelper {
 		IdmFormValueDto dnAttribute = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("dnAttribute"));
 		dnAttribute.setValue("dn");
 		values.add(dnAttribute);
-
-		SysSystem systemEntity = systemRepository.findOne(system.getId());
 		
-		formService.saveValues(systemEntity, savedFormDefinition, values);
+		formService.saveValues(system, savedFormDefinition, values);
 
 		return system;
 	}

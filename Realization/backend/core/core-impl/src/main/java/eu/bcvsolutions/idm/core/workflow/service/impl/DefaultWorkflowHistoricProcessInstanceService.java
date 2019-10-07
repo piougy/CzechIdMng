@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,10 +21,7 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricProcessInstanceQuery;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.impl.RepositoryServiceImpl;
-import org.activiti.engine.impl.bpmn.behavior.ParallelGatewayActivityBehavior;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
-import org.activiti.engine.impl.pvm.PvmTransition;
-import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.image.ProcessDiagramGenerator;
 import org.activiti.image.impl.DefaultProcessDiagramGenerator;
@@ -117,7 +113,7 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 		// check security ... only involved user or applicant can work with
 		// historic process instance ... admin can see all historic processes every time
 		// TODO: refactor and use username/id from filter
-		if(!securityService.isAdmin()) {
+		if (!securityService.isAdmin()) {
 			// Applicant and Implementer is added to involved user after process
 			// (subprocess) started. This modification allow not use OR clause.
 			query.involvedUser(securityService.getCurrentId() == null ? UUID.randomUUID().toString() : securityService.getCurrentId().toString());
@@ -126,21 +122,22 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 		String fieldForSort = null;
 		boolean ascSort = false;
 		boolean descSort = false;
-		if (pageable != null) {
-			Sort sort = pageable.getSort();
-			if (sort != null) {
-				for (Order order : sort) {
-					if (!StringUtils.isEmpty(order.getProperty())) {
-						// TODO: now is implemented only one property sort 
-						fieldForSort = order.getProperty();
-						if (order.getDirection() == Direction.ASC) {
-							ascSort = true;
-						} else if (order.getDirection() == Direction.DESC) {
-							descSort = true;
-						}
-						break;
+		//
+		if (pageable == null) {
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
+		Sort sort = pageable.getSort();
+		if (sort != null) {
+			for (Order order : sort) {
+				if (!StringUtils.isEmpty(order.getProperty())) {
+					// TODO: now is implemented only one property sort 
+					fieldForSort = order.getProperty();
+					if (order.getDirection() == Direction.ASC) {
+						ascSort = true;
+					} else if (order.getDirection() == Direction.DESC) {
+						descSort = true;
 					}
-					
+					break;
 				}
 			}
 		}
@@ -161,15 +158,8 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 			query.desc();
 		}
 		long count = query.count();
-		
-		// it's possible that pageable is null
-		List<HistoricProcessInstance> processInstances = null;
-		if (pageable == null) {
-			processInstances = query.list();
-		} else {
-			processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
-		}
-		
+		List<HistoricProcessInstance> processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
+		//
 		List<WorkflowHistoricProcessInstanceDto> dtos = new ArrayList<>();
 		if (processInstances != null) {
 			for (HistoricProcessInstance instance : processInstances) {
@@ -198,9 +188,9 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 			} else {
 				sort = new Sort(Direction.DESC, filter.getSortByFields());
 			}
-			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize(), sort);
+			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize(), sort);
 		} else {
-			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize());
+			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
 		}
 		Page<WorkflowHistoricProcessInstanceDto> page = this.find(filter, pageable);
 		
@@ -210,7 +200,7 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 	
 	@Override
 	public WorkflowHistoricProcessInstanceDto get(Serializable id, BasePermission... permission) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is required.");
 		return this.get(String.valueOf(id));
 	}
 
@@ -294,7 +284,9 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 			historicActivityInstanceList.addAll(currentHighLightedActivities);
 		}
 		// activities and their sequence-flows
-		getHighLightedFlows(processDefinition.getActivities(), historicActivityInstanceList, highLightedFlows);
+		// ProcessDefinitionUtil.getProcess(processDefinition.getId());
+		
+		// getHighLightedFlows(processDefinition.getActivities(), historicActivityInstanceList, highLightedFlows);
 
 		if (isProcessActive) {
 			return currentHighLightedActivities;
@@ -309,69 +301,69 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 	 * @param historicActivityInstanceList
 	 * @param highLightedFlows
 	 */
-	private void getHighLightedFlows(List<ActivityImpl> activityList, List<String> historicActivityInstanceList,
-			List<String> highLightedFlows) {
-		Map<Integer, String> usedActivityFlow = new HashMap<Integer, String>();
-		/**
-		 * Iterate all used activity (start to end)
-		 */
-		for (int i = 0; i < historicActivityInstanceList.size(); i++) {
-			String activityId = historicActivityInstanceList.get(i);
-			ActivityImpl currentActivity = null;
-			for (ActivityImpl activity : activityList) {
-				if (activityId.equals(activity.getId())) {
-					currentActivity = activity;
-					break;
-				}
-			}
-			if (currentActivity == null) {
-				continue;
-			}
-			/**
-			 * Get incoming transitions from current activity 
-			 */
-			List<PvmTransition> pvmTransitionList = currentActivity.getIncomingTransitions();
-			boolean findedFlow = false;
-			// create index previous activity
-			int prevIndex = i - 1;
-			/**
-			 * We will finding flow for highlight. We will start with previous activity. 
-			 * if we find nothing, then we will continuing with previous activity (index = index -1).
-			 */
-			while (!findedFlow) {
-				if (prevIndex < 0) {
-					// We are on begin .. nothing to highlight
-					break;
-				}
-				String tempActivity = historicActivityInstanceList.get(prevIndex);
-				for (PvmTransition pvmTransition : pvmTransitionList) {
-					String destinationFlowId = pvmTransition.getSource().getId();
-					if (tempActivity != null && destinationFlowId.equals(tempActivity)) {
-						highLightedFlows.add(pvmTransition.getId());
-						findedFlow = true;
-						for (ActivityImpl activity : activityList) {
-							if (tempActivity.equals(activity.getId())
-									&& !(activity.getActivityBehavior() instanceof ParallelGatewayActivityBehavior)) {
-								// We use activity in other cycle if is ParallelGate. 
-								// Its means, we don't put parralel gate to usedActivityFlow map.
-								usedActivityFlow.put(prevIndex, tempActivity);
-							}
-						}
-
-					}
-				}
-				if (!findedFlow) {
-					// If we don't find flow for highlight, we have to continue with previous historic activity
-					while (true) {
-						prevIndex = prevIndex - 1;
-						if (!usedActivityFlow.containsKey(prevIndex)) {
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
+//	private void getHighLightedFlows(List<ActivityImpl> activityList, List<String> historicActivityInstanceList,
+//			List<String> highLightedFlows) {
+//		Map<Integer, String> usedActivityFlow = new HashMap<Integer, String>();
+//		/**
+//		 * Iterate all used activity (start to end)
+//		 */
+//		for (int i = 0; i < historicActivityInstanceList.size(); i++) {
+//			String activityId = historicActivityInstanceList.get(i);
+//			ActivityImpl currentActivity = null;
+//			for (ActivityImpl activity : activityList) {
+//				if (activityId.equals(activity.getId())) {
+//					currentActivity = activity;
+//					break;
+//				}
+//			}
+//			if (currentActivity == null) {
+//				continue;
+//			}
+//			/**
+//			 * Get incoming transitions from current activity 
+//			 */
+//			List<PvmTransition> pvmTransitionList = currentActivity.getIncomingTransitions();
+//			boolean findedFlow = false;
+//			// create index previous activity
+//			int prevIndex = i - 1;
+//			/**
+//			 * We will finding flow for highlight. We will start with previous activity. 
+//			 * if we find nothing, then we will continuing with previous activity (index = index -1).
+//			 */
+//			while (!findedFlow) {
+//				if (prevIndex < 0) {
+//					// We are on begin .. nothing to highlight
+//					break;
+//				}
+//				String tempActivity = historicActivityInstanceList.get(prevIndex);
+//				for (PvmTransition pvmTransition : pvmTransitionList) {
+//					String destinationFlowId = pvmTransition.getSource().getId();
+//					if (tempActivity != null && destinationFlowId.equals(tempActivity)) {
+//						highLightedFlows.add(pvmTransition.getId());
+//						findedFlow = true;
+//						for (ActivityImpl activity : activityList) {
+//							if (tempActivity.equals(activity.getId())
+//									&& !(activity.getActivityBehavior() instanceof ParallelGatewayActivityBehavior)) {
+//								// We use activity in other cycle if is ParallelGate. 
+//								// Its means, we don't put parralel gate to usedActivityFlow map.
+//								usedActivityFlow.put(prevIndex, tempActivity);
+//							}
+//						}
+//
+//					}
+//				}
+//				if (!findedFlow) {
+//					// If we don't find flow for highlight, we have to continue with previous historic activity
+//					while (true) {
+//						prevIndex = prevIndex - 1;
+//						if (!usedActivityFlow.containsKey(prevIndex)) {
+//							break;
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	private WorkflowHistoricProcessInstanceDto toResource(HistoricProcessInstance instance, boolean trimmed) {
 		if (instance == null) {

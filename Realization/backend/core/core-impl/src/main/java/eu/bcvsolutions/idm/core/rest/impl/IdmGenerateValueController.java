@@ -67,7 +67,7 @@ public class IdmGenerateValueController extends AbstractReadWriteDtoController<I
 	public IdmGenerateValueController(IdmGenerateValueService entityService, ValueGeneratorManager valueGeneratorManager) {
 		super(entityService);
 		//
-		Assert.notNull(valueGeneratorManager);
+		Assert.notNull(valueGeneratorManager, "Manager is required.");
 		//
 		this.valueGeneratorManager = valueGeneratorManager;
 	}

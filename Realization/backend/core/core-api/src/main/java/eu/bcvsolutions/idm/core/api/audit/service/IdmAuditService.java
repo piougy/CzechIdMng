@@ -199,7 +199,7 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAud
 	 * Find entity with relation. This method is deprecated, please use
 	 * {@link #findEntityWithRelation(IdmAuditFilter, Pageable)}
 	 *
-	 * @deprecated {@link #findEntityWithRelation(IdmAuditFilter, Pageable)}
+	 * @deprecated {@link #findEntityWithRelation(IdmAuditFilter, Pageable)} @since 9.4.1
 	 * @param clazz
 	 * @param parameters
 	 * @param pageable

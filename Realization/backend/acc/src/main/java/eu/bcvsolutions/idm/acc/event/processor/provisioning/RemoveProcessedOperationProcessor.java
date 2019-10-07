@@ -50,8 +50,8 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 			SysSystemEntityService systemEntityService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE, ProvisioningEventType.CANCEL);
 		//
-		Assert.notNull(provisioningOperationService);
-		Assert.notNull(systemEntityService);		
+		Assert.notNull(provisioningOperationService, "Service is required.");
+		Assert.notNull(systemEntityService, "Service is required.");		
 		//
 		this.provisioningOperationService = provisioningOperationService;
 		this.systemEntityService = systemEntityService;

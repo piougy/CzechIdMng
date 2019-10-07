@@ -48,9 +48,9 @@ public class IdentityRoleValidRequestProvisioningProcessor extends AbstractEntit
 			IdmIdentityContractService identityContractService) {
 		super(IdentityRoleValidRequestEventType.IDENTITY_ROLE_VALID);
 		//
-		Assert.notNull(applicationContext);
-		Assert.notNull(identityRoleService);
-		Assert.notNull(identityContractService);
+		Assert.notNull(applicationContext, "Context is required.");
+		Assert.notNull(identityRoleService, "Service is required.");
+		Assert.notNull(identityContractService, "Service is required.");
 		//
 		this.applicationContext = applicationContext;
 		this.identityRoleService = identityRoleService;

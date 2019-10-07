@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.core.api.config.domain.AbstractConfiguration;
@@ -28,17 +27,8 @@ public class DefaultProvisioningBreakConfiguration extends AbstractConfiguration
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultProvisioningBreakConfiguration.class);
 	
-	private final LookupService lookupService;
-	
-	@Autowired
-	public DefaultProvisioningBreakConfiguration(
-			LookupService lookupService) {
-		//
-		Assert.notNull(lookupService);
-		//
-		this.lookupService = lookupService;
-	}
-	
+	@Autowired private LookupService lookupService;
+
 	@Override
 	public Boolean getDisabled(ProvisioningEventType eventType) {
 		return this.getConfigurationBooleanValue(getPrefix(eventType) + PROPERTY_DISABLED);

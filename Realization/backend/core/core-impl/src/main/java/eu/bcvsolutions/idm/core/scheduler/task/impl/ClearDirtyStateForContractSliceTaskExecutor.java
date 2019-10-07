@@ -148,8 +148,8 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 
 		// Process for slices to delete
 		for (IdmEntityStateDto dirtyState : deleteDirtyStates) {
-			Assert.notNull(dirtyState);
-			Assert.notNull(dirtyState.getId());
+			Assert.notNull(dirtyState, "State (dirty) is required.");
+			Assert.notNull(dirtyState.getId(), "State identifier (dirty) is required.");
 			processItemToDelete(dirtyState);
 			counter++;
 
@@ -177,8 +177,8 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 	 * @return
 	 */
 	private boolean processState(boolean canContinue, IdmEntityStateDto dirtyState) {
-		Assert.notNull(dirtyState);
-		Assert.notNull(dirtyState.getId());
+		Assert.notNull(dirtyState, "State (dirty) is required.");
+		Assert.notNull(dirtyState.getId(), "State identifier (dirty) is required.");
 		processItem(dirtyState);
 		counter++;
 

@@ -50,7 +50,7 @@ public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoServic
 			ApplicationContext applicationContext) {
 		super(repository);
 		//
-		Assert.notNull(applicationContext);
+		Assert.notNull(applicationContext, "Context is required.");
 		//
 		this.repository = repository;
 		this.applicationContext = applicationContext;

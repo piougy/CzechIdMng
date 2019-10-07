@@ -10,9 +10,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -99,11 +100,11 @@ public class DefaultIdmPasswordPolicyService
 			IdmPasswordHistoryService passwordHistoryService) {
 		super(repository);
 		//
-		Assert.notNull(entityEventProcessorService);
-		Assert.notNull(repository);
-		Assert.notNull(securityService);
-		Assert.notNull(passwordService);
-		Assert.notNull(passwordHistoryService);
+		Assert.notNull(entityEventProcessorService, "Service is required.");
+		Assert.notNull(repository, "Repository is required.");
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(passwordService, "Service is required.");
+		Assert.notNull(passwordHistoryService, "Service is required.");
 		//
 		this.entityEventProcessorService = entityEventProcessorService;
 		this.repository = repository;
@@ -114,6 +115,11 @@ public class DefaultIdmPasswordPolicyService
 	
 	@Override
 	protected Page<IdmPasswordPolicy> findEntities(IdmPasswordPolicyFilter filter, Pageable pageable, BasePermission... permission) {
+		if (pageable == null) {
+			// pageable is required in spring data
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
+		//
 		if (filter == null) {
 			return getRepository().findAll(pageable);
 		}
@@ -123,7 +129,7 @@ public class DefaultIdmPasswordPolicyService
 	@Override
 	@Transactional
 	public IdmPasswordPolicyDto save(IdmPasswordPolicyDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DtTO is required to be saved.");
 		//
 		// TODO: this should be moved to save internal, can be bypassed by event publishing
 		if (!ObjectUtils.isEmpty(permission)) {
@@ -192,7 +198,7 @@ public class DefaultIdmPasswordPolicyService
 
 	@Override
 	public String generatePassword(IdmPasswordPolicyDto passwordPolicy) {
-		Assert.notNull(passwordPolicy);
+		Assert.notNull(passwordPolicy, "Password policy is requred to generate password.");
 		Assert.doesNotContain(passwordPolicy.getType().name(), IdmPasswordPolicyType.VALIDATE.name(), "Bad type.");
 		String generateRandom = null;
 		
@@ -245,13 +251,13 @@ public class DefaultIdmPasswordPolicyService
 	
 	@Override
 	public Integer getMaxPasswordAge(List<IdmPasswordPolicyDto> policyList) {
-		Assert.notNull(policyList);
+		Assert.notNull(policyList, "Policy list is required.");
 		//
 		if (policyList.isEmpty()) {
 			return null;
 		}
 		//
-		Integer passwordAge = new Integer(Integer.MIN_VALUE);
+		Integer passwordAge = Integer.MIN_VALUE;
 		for (IdmPasswordPolicyDto idmPasswordPolicy : policyList) {
 			if (idmPasswordPolicy.getMaxPasswordAge() != 0 && 
 					idmPasswordPolicy.getMaxPasswordAge() > passwordAge) {
@@ -284,8 +290,8 @@ public class DefaultIdmPasswordPolicyService
 
 	private void validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicyDto> passwordPolicyList,
 			boolean prevalidation) {
-		Assert.notNull(passwordPolicyList);
-		Assert.notNull(passwordValidationDto);
+		Assert.notNull(passwordPolicyList, "Password policy list is required.");
+		Assert.notNull(passwordValidationDto, "Password validation dto is required.");
 		
 		// default password policy is used when list of password policies is empty, or for get maximum equals password
 		IdmPasswordPolicyDto defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
@@ -308,7 +314,7 @@ public class DefaultIdmPasswordPolicyService
 				: null;
 		String password = passwordValidationDto.getPassword().asString();
 
-		DateTime now = new DateTime();
+		ZonedDateTime now = ZonedDateTime.now();
 
 		Map<String, Object> errors = new HashMap<>();
 		Set<Character> prohibitedChar = new HashSet<>();

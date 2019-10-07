@@ -34,7 +34,7 @@ public class IdentityRoleValidRequestDeleteProcessor extends AbstractEntityEvent
 			IdmIdentityRoleValidRequestService validRequestService) {
 		super(IdentityRoleValidRequestEventType.IDENTITY_ROLE_VALID);
 		//
-		Assert.notNull(validRequestService);
+		Assert.notNull(validRequestService, "Service is required.");
 		//
 		this.validRequestService = validRequestService;
 	}

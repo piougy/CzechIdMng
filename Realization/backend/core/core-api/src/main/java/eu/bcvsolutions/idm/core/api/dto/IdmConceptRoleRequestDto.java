@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

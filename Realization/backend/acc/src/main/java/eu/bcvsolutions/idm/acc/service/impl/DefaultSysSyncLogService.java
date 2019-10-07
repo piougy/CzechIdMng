@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,8 +54,8 @@ public class DefaultSysSyncLogService
 			ModelMapper modelMapper) { // model mapper: just for backward compatibility (constructor can be used externally)
 		super(repository);
 		//
-		Assert.notNull(syncActionLogService);
-		Assert.notNull(modelMapper);
+		Assert.notNull(syncActionLogService, "Service is required.");
+		Assert.notNull(modelMapper, "Model mapper is required.");
 		//
 		this.syncActionLogService = syncActionLogService;
 	}
@@ -81,7 +82,7 @@ public class DefaultSysSyncLogService
 	@Override
 	@Transactional
 	public void delete(SysSyncLogDto syncLog, BasePermission... permission) {
-		Assert.notNull(syncLog);
+		Assert.notNull(syncLog, "Sync log is required.");
 		checkAccess(this.getEntity(syncLog.getId()), permission);
 		//
 		// remove all synchronization action logs
@@ -122,6 +123,12 @@ public class DefaultSysSyncLogService
 					.get(AbstractEntity_.id), systemId));
 		}
 		
+		// Modified from
+		ZonedDateTime modifiedFrom = filter.getModifiedFrom();
+		if (modifiedFrom != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncLog_.modified), modifiedFrom));
+		}
+
 		return predicates;
 	}
 
@@ -132,7 +139,7 @@ public class DefaultSysSyncLogService
 	 * @return
 	 */
 	private List<SysSyncActionLogDto> getActionsForLog(UUID logId) {
-		Assert.notNull(logId);
+		Assert.notNull(logId, "Log identifier is required.");
 		//
 		SysSyncActionLogFilter filter = new SysSyncActionLogFilter();
 		filter.setSynchronizationLogId(logId);

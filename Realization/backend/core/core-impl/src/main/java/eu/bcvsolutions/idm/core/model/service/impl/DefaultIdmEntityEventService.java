@@ -10,7 +10,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -73,7 +73,7 @@ public class DefaultIdmEntityEventService
 	@Transactional(readOnly = true)
 	public Page<IdmEntityEventDto> findToExecute(
 			String instanceId,
-			DateTime executeDate,
+			ZonedDateTime executeDate,
 			PriorityType priority,
 			Pageable pageable) {
 		return findToExecute(instanceId, executeDate, priority, null, pageable);
@@ -83,7 +83,7 @@ public class DefaultIdmEntityEventService
 	@Transactional(readOnly = true)
 	public Page<IdmEntityEventDto> findToExecute(
 			String instanceId, 
-			DateTime executeDate, 
+			ZonedDateTime executeDate, 
 			PriorityType priority,
 			List<UUID> exceptOwnerIds, 
 			Pageable pageable) {
@@ -133,14 +133,14 @@ public class DefaultIdmEntityEventService
 	
 	/**
 	 * Returns fully loaded event properties (with confidential properties)
-	 * @param changeId
+	 * @param event
 	 * @return
 	 */
-	public ConfigurationMap getEventProperties(IdmEntityEventDto change) {
-		Assert.notNull(change);
+	public ConfigurationMap getEventProperties(IdmEntityEventDto event) {
+		Assert.notNull(event, "Event is required to get properties");
 		//
 		// TODO: return confidentialStorage.getGuardedString(requestId, getEntityClass(), PROPERTY_PASSWORD);
-		return change.getProperties();
+		return event.getProperties();
 	}
 	
 	@Override

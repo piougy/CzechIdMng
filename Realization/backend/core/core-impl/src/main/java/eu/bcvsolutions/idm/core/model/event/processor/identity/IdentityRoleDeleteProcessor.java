@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
@@ -54,7 +53,7 @@ public class IdentityRoleDeleteProcessor
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
 		IdmIdentityRoleDto identityRole = event.getContent();
-		Assert.notNull(identityRole.getId());
+		Assert.notNull(identityRole.getId(), "Content identifier is required.");
 		
 		// Find all concepts and remove relation on identity role
 		IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();

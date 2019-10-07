@@ -1,14 +1,15 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
@@ -75,9 +76,9 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			ApplicationContext context,
 			Scheduler scheduler,
 			IdmDependentTaskTriggerRepository dependentTaskTriggerRepository) {
-		Assert.notNull(context);
-		Assert.notNull(scheduler);
-		Assert.notNull(dependentTaskTriggerRepository);
+		Assert.notNull(context, "Context is required.");
+		Assert.notNull(scheduler, "Scheduler is required.");
+		Assert.notNull(dependentTaskTriggerRepository, "Repository is required.");
 		//
 		this.context = context;
 		this.scheduler = scheduler;
@@ -216,9 +217,9 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	
 	@Override
 	public Task createTask(Task task) {
-		Assert.notNull(task);
-		Assert.notNull(task.getInstanceId());
-		Assert.notNull(task.getTaskType());
+		Assert.notNull(task, "Task is required.");
+		Assert.notNull(task.getInstanceId(), "Task instance identifier is required.");
+		Assert.notNull(task.getTaskType(), "Task type is required.");
 		//
 		try {
 			// task id
@@ -265,7 +266,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	
 	@Override
 	public Task updateTask(String taskId, Task newTask) {
-		Assert.notNull(taskId);
+		Assert.notNull(taskId, "Task identifier is required.");
 		Task task = getTask(taskId);
 		String description = newTask.getDescription();
 		if (StringUtils.isEmpty(description)) {
@@ -338,7 +339,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
  		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
  		trigger.setTaskId(taskId);
  		trigger.setDescription("run manually");
- 		trigger.setFireTime(new DateTime());
+ 		trigger.setFireTime(ZonedDateTime.now());
 		return createTrigger(taskId, trigger, dryRun);
 	}
 	
@@ -358,12 +359,12 @@ public class DefaultSchedulerManager implements SchedulerManager {
 
 	@Override
 	public AbstractTaskTrigger createTrigger(String taskId, AbstractTaskTrigger trigger, boolean dryRun) {
-		Assert.notNull(taskId);
-		Assert.notNull(trigger);
+		Assert.notNull(taskId, "Task identifier is required.");
+		Assert.notNull(trigger, "Trigger is required.");
 		//
 		// task has to support dry run mode
 		Task task = getTask(taskId);
-		Assert.notNull(task);
+		Assert.notNull(task, "Task is required.");
 		if (dryRun && !task.isSupportsDryRun()) {
 			throw new DryRunNotSupportedException(task.getTaskType().getCanonicalName());
 		}
@@ -420,7 +421,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 						.forJob(getKey(taskId))
 						.withDescription(trigger.getDescription())
 						.withSchedule(SimpleScheduleBuilder.simpleSchedule())
-						.startAt(((SimpleTaskTrigger) trigger).getFireTime().toDate())
+						.startAt(Date.from(((SimpleTaskTrigger) trigger).getFireTime().toInstant()))
 						.usingJobData(SchedulableTaskExecutor.PARAMETER_DRY_RUN, dryRun)
 						.build());
 		} catch (org.quartz.SchedulerException ex) {
@@ -437,7 +438,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		try {
 			if (!scheduler.unscheduleJob(new TriggerKey(triggerId, taskId))) {
 				try {
-					dependentTaskTriggerRepository.delete(EntityUtils.toUuid(triggerId));
+					dependentTaskTriggerRepository.deleteById(EntityUtils.toUuid(triggerId));
 				} catch (ClassCastException ex) {
 					throw new SchedulerException(CoreResultCode.SCHEDULER_DELETE_TRIGGER_FAILED, ex);
 				}				

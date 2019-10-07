@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import org.apache.http.util.Asserts;
-import org.springframework.util.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
@@ -25,16 +25,11 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
 public class DefaultSysSystemFormValueService extends AbstractFormValueService<SysSystem, SysSystemFormValue>
 		implements SysSystemFormValueService {
 
-	private final ConfidentialStorage confidentialStorage;
+	@Autowired 
+	private ConfidentialStorage confidentialStorage;
 
-	public DefaultSysSystemFormValueService(
-			AbstractFormValueRepository<SysSystem, SysSystemFormValue> repository,
-			ConfidentialStorage confidentialStorage) {
-		super(repository, confidentialStorage);
-		//
-		Assert.notNull(confidentialStorage);
-		//
-		this.confidentialStorage = confidentialStorage;
+	public DefaultSysSystemFormValueService(AbstractFormValueRepository<SysSystem, SysSystemFormValue> repository) {
+		super(repository);
 	}
 
 	@Override

@@ -29,7 +29,7 @@ boolean skip = false;
 List candidates = null;
 
 // Find guarantees for that role or approvers for approving change of role
-candidates = new ArrayList(identityService.findGuaranteesByRoleId(targetRoleId, new PageRequest(0, 100)).getContent());
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(targetRoleId, PageRequest.of(0, 100)).getContent());
 
 //Is current logged user = implementer user and is between candidates? If yes, then we can skip task.
 if(implementerIdentifier.equals(securityService.getCurrentId().toString())){

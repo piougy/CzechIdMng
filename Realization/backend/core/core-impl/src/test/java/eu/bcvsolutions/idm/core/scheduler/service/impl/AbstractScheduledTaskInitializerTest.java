@@ -5,8 +5,10 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,7 +42,7 @@ public class AbstractScheduledTaskInitializerTest extends AbstractIntegrationTes
 	private static String VALUE_3 = "test";
 	
 	private static String TEST_CRON = "0 0 1 ? * *";
-	private static DateTime TEST_FIRE_TIME = new DateTime(4102441200000l);
+	private static ZonedDateTime TEST_FIRE_TIME = ZonedDateTime.ofInstant(Instant.ofEpochMilli(4102441200000l), ZoneId.systemDefault());
 	
 	@Autowired
 	private SchedulerManager schedulerService;

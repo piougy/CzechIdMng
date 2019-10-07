@@ -32,7 +32,7 @@ public class ContractSliceGuaranteeDeleteProcessor extends CoreEventProcessor<Id
 	public ContractSliceGuaranteeDeleteProcessor(IdmContractSliceGuaranteeService contractSliceGuaranteeService) {
 		super(ContractSliceGuaranteeEventType.DELETE);
 		//
-		Assert.notNull(contractSliceGuaranteeService);
+		Assert.notNull(contractSliceGuaranteeService, "Service is required.");
 		//
 		this.contractSliceGuaranteeService = contractSliceGuaranteeService;
 	}

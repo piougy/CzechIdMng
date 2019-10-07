@@ -60,14 +60,14 @@ public class BasicIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 		return new String(Base64.decodeBase64(token), StandardCharsets.UTF_8).split(":");
 	}
 
-	private LoginDto createLoginDto(String[] creds) {
-		Assert.notNull(creds);
-		Assert.isTrue(creds.length == 2);
+	private LoginDto createLoginDto(String[] credentials) {
+		Assert.notNull(credentials, "Credentials are required.");
+		Assert.isTrue(credentials.length == 2, "Credentials username and password is requered.");
 		//
 		LoginDto ldto = new LoginDto();
-		ldto.setUsername(creds[0]);
-		ldto.setPassword(new GuardedString(creds[1]));
-		ldto.setSkipMustChange(true); // FIXME: really? I thing this row is  
+		ldto.setUsername(credentials[0]);
+		ldto.setPassword(new GuardedString(credentials[1]));
+		ldto.setSkipMustChange(true); // FIXME: really?
 		return ldto;
 	}
 	

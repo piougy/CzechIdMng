@@ -52,7 +52,7 @@ public class WorkflowDefinitionControllerRestTest extends AbstractRestTest {
 
 		result = getMockMvc()
 				.perform(MockMvcRequestBuilders
-						.fileUpload(BaseDtoController.BASE_PATH + "/workflow-definitions")
+						.multipart(BaseDtoController.BASE_PATH + "/workflow-definitions")
 						.file(
 								"data",
 								result.getResponse().getContentAsByteArray()

@@ -55,7 +55,7 @@ public class SysSyncItemLog extends AbstractEntity {
 	@Column(name = "type", length = DefaultFieldLengths.NAME, nullable = true)
 	private String type;
 
-	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "log")
 	private String log;
 

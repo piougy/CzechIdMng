@@ -10,7 +10,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,18 +50,14 @@ public class DefaultIdmLongRunningTaskService
 	implements IdmLongRunningTaskService {
 	
 	private final IdmLongRunningTaskRepository repository;
-	private final IdmProcessedTaskItemService itemService;
+	//
+	@Autowired private IdmProcessedTaskItemService itemService;
 	
 	@Autowired
-	public DefaultIdmLongRunningTaskService(
-			IdmLongRunningTaskRepository repository,
-			IdmProcessedTaskItemService itemService) {
+	public DefaultIdmLongRunningTaskService(IdmLongRunningTaskRepository repository) {
 		super(repository);
 		//
-		Assert.notNull(itemService);
-		//
 		this.repository = repository;
-		this.itemService = itemService;
 	}
 
 	@Override
@@ -110,11 +106,11 @@ public class DefaultIdmLongRunningTaskService
 		if (StringUtils.isNotEmpty(taskType)) {
 			predicates.add(builder.equal(root.get(IdmLongRunningTask_.taskType), taskType));
 		}
-		DateTime from = filter.getFrom();
+		ZonedDateTime from = filter.getFrom();
 		if (from != null) {
 			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmLongRunningTask_.created), from));
 		}
-		DateTime till = filter.getTill();
+		ZonedDateTime till = filter.getTill();
 		if (till != null) {
 			predicates.add(builder.lessThanOrEqualTo(root.get(IdmLongRunningTask_.created), till));
 		}
@@ -147,13 +143,13 @@ public class DefaultIdmLongRunningTaskService
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void updateState(UUID id, Long count, Long counter) {
-		repository.updateState(id, count, counter, new DateTime());
+		repository.updateState(id, count, counter, ZonedDateTime.now());
 	}
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmLongRunningTaskDto save(IdmLongRunningTaskDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		// description is from some place dynamically generated, we must check the description length and cutoff more characters
 		// this is defensive behavior, descriptions longer than 2000 characters will 
 		if (StringUtils.length(dto.getTaskDescription()) > DefaultFieldLengths.DESCRIPTION) {
@@ -184,7 +180,7 @@ public class DefaultIdmLongRunningTaskService
 	@Override
 	@Transactional
 	public void deleteInternal(IdmLongRunningTaskDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		itemService.deleteAllByLongRunningTask(get(dto.getId()));
 		super.deleteInternal(dto);

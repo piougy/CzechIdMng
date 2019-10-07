@@ -50,8 +50,8 @@ public class DefaultSysAttributeControlledValueService extends
 	@Override
 	public void setControlledValues(SysSystemAttributeMappingDto attributeMapping,
 			List<Serializable> controlledAttributeValues) {
-		Assert.notNull(attributeMapping);
-		Assert.notNull(controlledAttributeValues);
+		Assert.notNull(attributeMapping, "Attribute mapping is required.");
+		Assert.notNull(controlledAttributeValues, "Controlled values are required.");
 
 		SysAttributeControlledValueFilter attributeControlledValueFilter = new SysAttributeControlledValueFilter();
 		attributeControlledValueFilter.setAttributeMappingId(attributeMapping.getId());
@@ -124,7 +124,7 @@ public class DefaultSysAttributeControlledValueService extends
 		if (ObjectUtils.isEmpty(value)) {
 			return;
 		}
-		Assert.notNull(attributeMapping);
+		Assert.notNull(attributeMapping, "Attribute mapping is required.");
 
 		SysAttributeControlledValueFilter attributeControlledValueFilter = new SysAttributeControlledValueFilter();
 		attributeControlledValueFilter.setAttributeMappingId(attributeMapping.getId());

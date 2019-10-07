@@ -929,7 +929,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		List<SysProvisioningArchiveDto> archives = provisioningArchiveService
 				.find(operationFilter,
-						new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+						PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 				.getContent();
 		assertEquals(1, archives.size());
 
@@ -955,7 +955,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		archives = provisioningArchiveService
 		.find(operationFilter,
-				new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+				PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 		.getContent();
 		assertEquals(1, archives.size());
 
@@ -983,7 +983,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 
 		archives = provisioningArchiveService
 				.find(operationFilter,
-						new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+						PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 				.getContent();
 		assertEquals(1, archives.size());
 
@@ -1063,7 +1063,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		List<SysProvisioningArchiveDto> archives = provisioningArchiveService
 				.find(operationFilter,
-						new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+						PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 				.getContent();
 		assertEquals(1, archives.size());
 
@@ -1089,7 +1089,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		archives = provisioningArchiveService
 		.find(operationFilter,
-				new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+				PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 		.getContent();
 		assertEquals(1, archives.size());
 
@@ -1117,7 +1117,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 
 		archives = provisioningArchiveService
 				.find(operationFilter,
-						new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+						PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 				.getContent();
 		assertEquals(1, archives.size());
 
@@ -1230,7 +1230,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		List<SysProvisioningArchiveDto> archives = provisioningArchiveService
 				.find(operationFilter,
-						new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+						PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 				.getContent();
 		assertEquals(1, archives.size());
 
@@ -1257,7 +1257,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		archives = provisioningArchiveService
 		.find(operationFilter,
-				new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+				PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 		.getContent();
 		assertEquals(1, archives.size());
 
@@ -1286,7 +1286,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		archives = provisioningArchiveService
 		.find(operationFilter,
-				new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+				PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 		.getContent();
 		assertEquals(1, archives.size());
 
@@ -1314,7 +1314,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 
 		archives = provisioningArchiveService
 				.find(operationFilter,
-						new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
+						PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName())))
 				.getContent();
 		assertEquals(1, archives.size());
 

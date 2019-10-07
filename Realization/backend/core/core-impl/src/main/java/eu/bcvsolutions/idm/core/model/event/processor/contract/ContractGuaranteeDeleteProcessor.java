@@ -32,7 +32,7 @@ public class ContractGuaranteeDeleteProcessor extends CoreEventProcessor<IdmCont
 	public ContractGuaranteeDeleteProcessor(IdmContractGuaranteeService contractGuaranteeService) {
 		super(ContractGuaranteeEventType.DELETE);
 		//
-		Assert.notNull(contractGuaranteeService);
+		Assert.notNull(contractGuaranteeService, "Service is required.");
 		//
 		this.contractGuaranteeService = contractGuaranteeService;
 	}

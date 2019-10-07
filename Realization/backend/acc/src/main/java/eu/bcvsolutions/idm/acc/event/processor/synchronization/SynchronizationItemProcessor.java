@@ -33,7 +33,7 @@ public class SynchronizationItemProcessor extends AbstractEntityEventProcessor<S
 			SynchronizationService synchronizationService) {
 		super(SynchronizationEventType.START_ITEM);
 		//
-		Assert.notNull(synchronizationService);
+		Assert.notNull(synchronizationService, "Service is required.");
 		//
 		this.synchronizationService = synchronizationService;
 	}

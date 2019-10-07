@@ -1320,7 +1320,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	 * 
 	 */
 	private void createStructure() {
-		IdmTreeNodeDto rootOrganization = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1)).getContent()
+		IdmTreeNodeDto rootOrganization = treeNodeService.findRoots((UUID) null, PageRequest.of(0, 1)).getContent()
 				.get(0);
 
 		IdmRoleDto role2 = new IdmRoleDto();

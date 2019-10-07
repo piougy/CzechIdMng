@@ -8,7 +8,6 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -58,17 +57,13 @@ import io.swagger.annotations.Authorization;
  */
 public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends BaseFilter>
 		implements BaseDtoController<DTO> {
-
-	// private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadDtoController.class);
+	
+	@Autowired private PagedResourcesAssembler<Object> pagedResourcesAssembler;
+	@Autowired private ObjectMapper objectMapper;
+	@Autowired private LookupService lookupService;
+	//
 	private FilterConverter filterConverter;
-	@Autowired
-	private PagedResourcesAssembler<Object> pagedResourcesAssembler;
-	@Autowired(required = false)
-	@Qualifier("objectMapper")
-	private ObjectMapper mapper;
 	private final ReadDtoService<DTO, F> service;
-	@Autowired
-	private LookupService lookupService;
 
 	public AbstractReadDtoController(ReadDtoService<DTO, F> service) {
 		this.service = service;
@@ -311,7 +306,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		} else {
 			// Iterable to Page
 			List records = Lists.newArrayList(source);
-			page = new PageImpl(records, new PageRequest(0, records.size() > 0 ? records.size() : 10), records.size());
+			page = new PageImpl(records, PageRequest.of(0, records.size() > 0 ? records.size() : 10), records.size());
 		}
 		return pageToResources(page, domainType);
 	}
@@ -319,7 +314,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	protected Resources<?> pageToResources(Page<Object> page, Class<?> domainType) {
 
 		if (page.getContent().isEmpty()) {
-			return pagedResourcesAssembler.toEmptyResource(page, domainType, null);
+			return pagedResourcesAssembler.toEmptyResource(page, domainType);
 		}
 
 		return pagedResourcesAssembler.toResource(page);
@@ -344,7 +339,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	protected FilterConverter getParameterConverter() {
 		if (filterConverter == null) {
-			filterConverter = new FilterConverter(lookupService, mapper);
+			filterConverter = new FilterConverter(lookupService, objectMapper);
 		}
 		return filterConverter;
 	}
@@ -354,7 +349,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	}
 	
 	protected ObjectMapper getMapper() {
-		return mapper;
+		return objectMapper;
 	}
 	
 	/**

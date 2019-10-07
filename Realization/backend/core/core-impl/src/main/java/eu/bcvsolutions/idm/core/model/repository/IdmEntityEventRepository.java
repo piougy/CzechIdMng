@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.model.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -55,7 +55,7 @@ public interface IdmEntityEventRepository extends AbstractEntityRepository<IdmEn
 	Page<IdmEntityEvent> findToExecute(
 			@Param("instanceId") String instanceId, 
 			@Param("state") OperationState state,
-			@Param("executeDate") DateTime executeDate,
+			@Param("executeDate") ZonedDateTime executeDate,
 			@Param("priority") PriorityType priority,
 			Pageable pageable);
 	
@@ -84,7 +84,7 @@ public interface IdmEntityEventRepository extends AbstractEntityRepository<IdmEn
 	Page<IdmEntityEvent> findToExecute(
 			@Param("instanceId") String instanceId, 
 			@Param("state") OperationState state,
-			@Param("executeDate") DateTime executeDate,
+			@Param("executeDate") ZonedDateTime executeDate,
 			@Param("priority") PriorityType priority,
 			@Param("exceptOwnerIds") List<UUID> exceptOwnerIds,
 			Pageable pageable);

@@ -16,7 +16,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.hibernate.envers.RevisionType;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,7 +65,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Ondrej Kopr
  * @author Radek Tomiška
  */
-public class DefaultAuditServiceTest extends AbstractIntegrationTest {
+public class DefaultAuditServiceIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmAuditService auditService;
@@ -274,7 +274,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		filter.setModifier("admin");
 		filter.setType(IdmRole.class.getSimpleName());
 
-		Pageable pageable = new PageRequest(0, 10);
+		Pageable pageable = PageRequest.of(0, 10);
 
 		List<IdmAuditDto> result = auditService.find(filter, pageable).getContent();
 
@@ -308,7 +308,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		List<IdmAuditDto> audits = auditService.findEntityWithRelation(
 				IdmIdentity.class, 
 				parameters, 
-				new PageRequest(0, Integer.MAX_VALUE, new Sort("id"))).getContent();
+				PageRequest.of(0, Integer.MAX_VALUE, Sort.by("id"))).getContent();
 		assertEquals(2, audits.size());
 		//
 		String contractChangedAttribute = audits.get(0).getChangedAttributes();
@@ -393,7 +393,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		
 		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setOwnerId(identity.getId().toString());
-		PageRequest pageable = new PageRequest(0, 1);
+		PageRequest pageable = PageRequest.of(0, 1);
 		Page<IdmAuditDto> findLogin = getTransactionTemplate().execute(new TransactionCallback<Page<IdmAuditDto>>() {
 			@Override
 			public Page<IdmAuditDto> doInTransaction(TransactionStatus status) {
@@ -446,7 +446,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setOwnerId(identity.getId().toString());
-		PageRequest pageable = new PageRequest(0, 1);
+		PageRequest pageable = PageRequest.of(0, 1);
 
 		Page<IdmAuditDto> findLogin = getTransactionTemplate().execute(new TransactionCallback<Page<IdmAuditDto>>() {
 			@Override
@@ -720,12 +720,12 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testFilterByFrom() {
-		long from = System.currentTimeMillis();
+		ZonedDateTime now = ZonedDateTime.now();
 		IdmIdentityDto identity = getHelper().createIdentity();
 
 		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setEntityId(identity.getId());
-		filter.setFrom(new DateTime(from));
+		filter.setFrom(now);
 		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
 		assertEquals(1, audits.size());
 		IdmAuditDto auditDto = audits.get(0);
@@ -734,17 +734,17 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testFilterByFromAndTill() {
-		long from = System.currentTimeMillis();
+		ZonedDateTime from = ZonedDateTime.now();
 		IdmIdentityDto identity = getHelper().createIdentity();
-		long tillOne = System.currentTimeMillis();
+		ZonedDateTime tillOne = ZonedDateTime.now();
 		identity.setDescription("description-" + System.currentTimeMillis());
 		identity = identityService.save(identity);
-		long tillTwo = System.currentTimeMillis();
+		ZonedDateTime tillTwo = ZonedDateTime.now();
 
 		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setEntityId(identity.getId());
-		filter.setFrom(new DateTime(from));
-		filter.setTill(new DateTime(tillOne));
+		filter.setFrom(from);
+		filter.setTill(tillOne);
 		List<IdmAuditDto> audits = auditService.find(filter, null).getContent();
 		assertEquals(1, audits.size());
 		IdmAuditDto auditDto = audits.get(0);
@@ -752,8 +752,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 		filter = new IdmAuditFilter();
 		filter.setEntityId(identity.getId());
-		filter.setFrom(new DateTime(from));
-		filter.setTill(new DateTime(tillTwo));
+		filter.setFrom(from);
+		filter.setTill(tillTwo);
 		audits = auditService.find(filter, null).getContent();
 		assertEquals(2, audits.size());
 

@@ -4,12 +4,12 @@ import java.beans.IntrospectionException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -127,7 +127,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 
 		AbstractSysSyncConfigDto config = synchronizationConfigService.get(synchronizationConfigId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
-		Assert.notNull(mapping);
+		Assert.notNull(mapping, "Mapping is required.");
 		SysSystemAttributeMappingFilter attributeHandlingFilter = new SysSystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMappingDto> mappedAttributes = systemAttributeMappingService
@@ -160,14 +160,14 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			log = executeHrProcess(log, new HrContractExclusionProcess(true));
 		} else {
 			log.addToLog(MessageFormat.format("Start HR processes contracts (after sync) isn't allowed [{0}]",
-					LocalDateTime.now()));
+					ZonedDateTime.now()));
 		}
 
 		if (getConfig(context).isStartAutoRoleRec()) {
 			log = executeAutomaticRoleRecalculation(log);
 		} else {
 			log.addToLog(MessageFormat.format("Start automatic role recalculation (after sync) isn't allowed [{0}]",
-					LocalDateTime.now()));
+					ZonedDateTime.now()));
 		}
 
 		return log;
@@ -704,12 +704,12 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 
 		log.addToLog(MessageFormat.format(
 				"After success sync have to be run Automatic role by attribute recalculation. We start him (synchronously) now [{0}].",
-				LocalDateTime.now()));
+				ZonedDateTime.now()));
 		Boolean executed = longRunningTaskManager.executeSync(executor);
 
 		if (BooleanUtils.isTrue(executed)) {
 			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].",
-					LocalDateTime.now()));
+					ZonedDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
 		}
@@ -765,11 +765,11 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		if (lrt != null) {
 			log.addToLog(MessageFormat.format(
 					"After success sync have to be run HR task [{1}]. We start him (synchronously) now [{0}]. LRT ID: [{2}]",
-					LocalDateTime.now(), simpleName, lrt.getId()));
+					ZonedDateTime.now(), simpleName, lrt.getId()));
 			log = synchronizationLogService.save(log);
 			executor.setLongRunningTaskId(lrt.getId());
 			longRunningTaskManager.executeSync(executor);
-			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", LocalDateTime.now(), simpleName));
+			log.addToLog(MessageFormat.format("HR task [{1}] ended in [{0}].", ZonedDateTime.now(), simpleName));
 			log = synchronizationLogService.save(log);
 		}
 		return log;

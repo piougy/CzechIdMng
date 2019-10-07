@@ -118,4 +118,4 @@ function select() {
   return {};
 }
 
-export default connect(select, null, null, { withRef: true})(Definition);
+export default connect(select, null, null, { forwardRef: true})(Definition);

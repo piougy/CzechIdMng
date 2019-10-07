@@ -133,8 +133,8 @@ public class IdentityUsernameExportBulkActionTest extends AbstractBulkActionTest
 		assertFalse(longRunningTask.isRunning());
 		assertFalse(longRunningTask2.isRunning());
 
-		Assert.notNull(longRunningTask);
-		Assert.notNull(longRunningTask2);
+		Assert.notNull(longRunningTask, "Task is required.");
+		Assert.notNull(longRunningTask2, "Task is required.");
 
 		UUID attachmentOneId = UUID.fromString(longRunningTask.getResult().getModel().getParameters().get(AttachableEntity.PARAMETER_ATTACHMENT_ID).toString());
 		try {

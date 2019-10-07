@@ -1,11 +1,11 @@
 package eu.bcvsolutions.idm.core.api.repository.listener;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -43,7 +43,7 @@ public class AuditableEntityListener {
 		//
 		AutowireHelper.autowire(this, this.securityService);
 		//
-		DateTime date = new DateTime();
+		ZonedDateTime date = ZonedDateTime.now();
 		Auditable entity = (Auditable) target;
 		// set created date - can be preset (e.g. preserve created date of original operation moved some where info archive)
 		if (entity.getCreated() == null) {
@@ -86,7 +86,7 @@ public class AuditableEntityListener {
 		//
 		AutowireHelper.autowire(this, this.securityService);
 		//
-		DateTime date = new DateTime();
+		ZonedDateTime date = ZonedDateTime.now();
 		Auditable entity = (Auditable) target;
 		//
 		entity.setModified(date);

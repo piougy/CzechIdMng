@@ -158,9 +158,9 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 			} else {
 				sort = new Sort(Direction.DESC, filter.getSortByFields());
 			}
-			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize(), sort);
+			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize(), sort);
 		} else {
-			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize());
+			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
 		}
 		
 		Page<WorkflowHistoricTaskInstanceDto> page = this.find(filter, pageable);
@@ -171,7 +171,7 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 	
 	@Override
 	public WorkflowHistoricTaskInstanceDto get(Serializable id, BasePermission... permission) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is required.");
 		return this.get(String.valueOf(id));
 	}
 

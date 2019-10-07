@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 
@@ -52,20 +52,8 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVeri
 	@Mock private SecurityService securityService;
 	@Mock private SysSystemEntityService systemEntityService;
 	//
+	@InjectMocks 
 	private DefaultSysProvisioningOperationService service;
-
-	@Before
-	public void init() {		
-		service = new DefaultSysProvisioningOperationService(
-				repository,
-				provisioningArchiveService, 
-				batchService, 
-				notificationManager, 
-				confidentialStorage,
-				systemService,
-				securityService,
-				systemEntityService);
-	}
 	
 	@Test
 	public void testReplaceGuardedStringsInEmptyContext() {

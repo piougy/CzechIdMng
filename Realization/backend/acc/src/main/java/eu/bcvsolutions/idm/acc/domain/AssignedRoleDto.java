@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;

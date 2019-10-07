@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.rest;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,11 +11,13 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -32,7 +35,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -54,14 +56,14 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadWriteDtoController.class);
 	//
-	@Autowired(required = false) // optional dependency for support patch method
-	private RequestResourceResolver requestResourceResolver;
 	@Autowired(required = false) // optional dependency for support automatic JSR303 validations
 	private ValidatorFactory validatorFactory;
 	@Autowired
 	private BulkActionManager bulkActionManager;
 	@Autowired
 	private RequestConfiguration requestConfiguration;
+	@Autowired
+	private ModelMapper modelMapper;
 
 	public AbstractReadWriteDtoController(ReadWriteDtoService<DTO, F> entityService) {
 		super(entityService);
@@ -94,7 +96,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @return
 	 */
 	public DTO saveDto(DTO dto, BasePermission... permission) {
-		Assert.notNull(dto, "DTO is required");
+		Assert.notNull(dto, "DTO is required.");
 		//
 		if (this.isRequestModeEnabled()) {
 			throw new ResultCodeException(CoreResultCode.REQUEST_CUD_OPERATIONS_NOT_ALLOWED,
@@ -177,15 +179,18 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 */
 	public ResponseEntity<?> patch(String backendId, HttpServletRequest nativeRequest) 
 			throws HttpMessageNotReadableException {
-		if (requestResourceResolver == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_SUPPORTED, ImmutableMap.of("method", "patch method"));
-		}
-		//
 		DTO updateDto = getDto(backendId);
 		if (updateDto == null) {
 			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
 		}
-		updateDto = patchDto((DTO) requestResourceResolver.resolve(nativeRequest, getDtoClass(), updateDto));
+		//
+		ServletServerHttpRequest request = new ServletServerHttpRequest(nativeRequest);
+		try {
+			modelMapper.map(getMapper().readerForUpdating(updateDto).readValue(request.getBody()), updateDto);
+		} catch (IOException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ex);
+		}
+		updateDto = patchDto(updateDto);
 		return new ResponseEntity<>(toResource(updateDto), HttpStatus.OK);
 	}
 	
@@ -227,7 +232,7 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	 * @return
 	 */
 	public void deleteDto(DTO dto) {
-		Assert.notNull(dto, "DTO is required");
+		Assert.notNull(dto, "DTO is required.");
 		//
 		if (this.isRequestModeEnabled()) {
 			throw new ResultCodeException(CoreResultCode.REQUEST_CUD_OPERATIONS_NOT_ALLOWED,

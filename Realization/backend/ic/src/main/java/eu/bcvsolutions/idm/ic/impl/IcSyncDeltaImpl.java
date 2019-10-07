@@ -40,9 +40,9 @@ public final class IcSyncDeltaImpl implements IcSyncDelta {
 	 */
 	public IcSyncDeltaImpl(IcSyncToken token, IcSyncDeltaTypeEnum deltaType, IcUidAttribute previousUid,
 			IcObjectClass objectClass, IcUidAttribute uid, IcConnectorObject object) {
-		Assert.notNull(token);
-		Assert.notNull(deltaType);
-		Assert.notNull(uid);
+		Assert.notNull(token, "Token is required.");
+		Assert.notNull(deltaType, "Deltta type is required.");
+		Assert.notNull(uid, "Uid is required.");
 
 		// do not allow previous Uid for anything else than create or update
 		if (previousUid != null

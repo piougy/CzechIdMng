@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.notification.api.dto;
 import java.io.Serializable;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -20,7 +20,7 @@ public class FlashMessage implements BaseDto {
 	private UUID id;
 	private String title;
 	private String message;
-	private DateTime date;
+	private ZonedDateTime date;
 	private String key;
 	private String level; // TODO: enumeration
 	private String position; // TODO: enumeration
@@ -40,11 +40,11 @@ public class FlashMessage implements BaseDto {
 		this.id = (UUID) id;
 	}
 
-	public DateTime getDate() {
+	public ZonedDateTime getDate() {
 		return date;
 	}
 
-	public void setDate(DateTime date) {
+	public void setDate(ZonedDateTime date) {
 		this.date = date;
 	}
 

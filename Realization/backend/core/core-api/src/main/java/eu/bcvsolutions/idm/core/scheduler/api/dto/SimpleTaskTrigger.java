@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.core.scheduler.api.dto;
 
 import javax.validation.constraints.NotNull;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
+
 import org.quartz.SimpleTrigger;
 
 /**
@@ -13,7 +15,7 @@ public class SimpleTaskTrigger extends AbstractTaskTrigger {
 	private static final long serialVersionUID = 1L;
 	
 	@NotNull
-	private DateTime fireTime;
+	private ZonedDateTime fireTime;
 	
 	public SimpleTaskTrigger() {
 	}
@@ -26,15 +28,17 @@ public class SimpleTaskTrigger extends AbstractTaskTrigger {
 	 */
 	public SimpleTaskTrigger(String taskId, SimpleTrigger trigger, TaskTriggerState state) {
 		super(taskId, trigger, state);
-		
-		this.fireTime = new DateTime(trigger.getStartTime());
+		//
+		if (trigger.getStartTime() != null) {
+			this.fireTime = trigger.getStartTime().toInstant().atZone(ZoneId.systemDefault());
+		}
 	}
 	
-	public DateTime getFireTime() {
+	public ZonedDateTime getFireTime() {
 		return fireTime;
 	}
 	
-	public void setFireTime(DateTime fireTime) {
+	public void setFireTime(ZonedDateTime fireTime) {
 		this.fireTime = fireTime;
 	}
 }

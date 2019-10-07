@@ -78,8 +78,8 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 	@Override
 	public EventResult<IdmRoleRequestDto> process(EntityEvent<IdmRoleRequestDto> event) {
 		IdmRoleRequestDto request = event.getContent();
-		Assert.notNull(request);
-		Assert.notNull(request.getId());
+		Assert.notNull(request, "Request is required.");
+		Assert.notNull(request.getId(), "Request identifier is required.");
 		
 		VsRequestFilter requestFilter = new VsRequestFilter();
 		requestFilter.setRoleRequestId(request.getId());
@@ -124,7 +124,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 				List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService
 						.findAllByRoleRequest(request.getId());
 				rejectedRequests.forEach(vsRequest -> {
-					Assert.notNull(vsRequest.getSystem());
+					Assert.notNull(vsRequest.getSystem(), "System is required.");
 					UUID systemId = vsRequest.getSystem();
 
 					List<IdmConceptRoleRequestDto> rejectedConcepts = roleSystemService.getConceptsForSystem(concepts, systemId);

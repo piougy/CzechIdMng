@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Immutable from 'immutable';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -186,4 +187,4 @@ function select(state) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(AuthoritiesPanel);
+export default connect(select, null, null, { forwardRef: true })(AuthoritiesPanel);

@@ -1,14 +1,10 @@
 package eu.bcvsolutions.idm.core.workflow.deploy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.io.InputStream;
 
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,16 +30,6 @@ public class BasicEmailTest extends AbstractCoreWorkflowIntegrationTest {
 	//
 	@Autowired private WorkflowDeploymentService processDeploymentService;
 	@Autowired private IdmEmailLogService emailLogService;
-	
-	@Before
-	public void login() {
-		super.loginAsAdmin();
-	}
-	
-	@After
-	public void logout() {
-		super.logout();
-	}
 
 	/**
 	 * Send email through {@link EmailNotificationSender}
@@ -55,16 +41,17 @@ public class BasicEmailTest extends AbstractCoreWorkflowIntegrationTest {
 				.getResourceAsStream("eu/bcvsolutions/idm/workflow/deploy/testEmailer.bpmn20.xml");
 		WorkflowDeploymentDto deploymentDto = processDeploymentService.create(PROCESS_KEY, "testEmailer.bpmn20.xml", is);
 		IdmNotificationFilter filter = new IdmNotificationFilter();
-		
-		assertNotNull(deploymentDto);
+		//
+		Assert.assertNotNull(deploymentDto);
 		filter.setText(EMAIL_TEXT);
 		filter.setRecipient(EMAIL_RECIPIENT);
-		assertEquals(0, emailLogService.find(filter, null).getTotalElements());
+		Assert.assertEquals(0, emailLogService.find(filter, null).getTotalElements());
 		RuntimeService runtimeService = activitiRule.getRuntimeService();
 		ProcessInstance instance = runtimeService.startProcessInstanceByKey(PROCESS_KEY);
-		assertEquals(instance.getActivityId(), "endevent");
+		//
+		Assert.assertTrue(instance.isEnded());
 		long count = runtimeService.createProcessInstanceQuery().processDefinitionKey(PROCESS_KEY).count();
-		assertEquals(0, count);
-		assertEquals(1, emailLogService.find(filter, null).getTotalElements());
+		Assert.assertEquals(0, count);
+		Assert.assertEquals(1, emailLogService.find(filter, null).getTotalElements());
 	}
 }

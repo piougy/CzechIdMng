@@ -64,11 +64,11 @@ public class IdmRoleRequest extends AbstractEntity {
 	@Column(name = "wf_process_id")
 	private String wfProcessId;
 
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "original_request")
 	private String originalRequest;
 
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "log")
 	private String log;
 

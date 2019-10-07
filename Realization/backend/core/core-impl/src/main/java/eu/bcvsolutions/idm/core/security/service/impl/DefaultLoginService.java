@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.text.MessageFormat;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -143,7 +143,7 @@ public class DefaultLoginService implements LoginService {
 			throw new ResultCodeException(CoreResultCode.MUST_CHANGE_IDM_PASSWORD, ImmutableMap.of("user", identity.getUsername()));
 		}
 		// check if password expired
-		if (idmPassword.getValidTill() != null && idmPassword.getValidTill().isBefore(new LocalDate())) {
+		if (idmPassword.getValidTill() != null && idmPassword.getValidTill().isBefore(LocalDate.now())) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_EXPIRED);
 		}
 		return passwordService.checkPassword(loginDto.getPassword(), idmPassword);

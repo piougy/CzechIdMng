@@ -24,24 +24,24 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 public class ExtendedJpaRepositoryFactoryBean<R extends JpaRepository<T, I>, T, I extends Serializable> 
 		extends JpaRepositoryFactoryBean<R, T, I> {
  
-    @Override
+    public ExtendedJpaRepositoryFactoryBean(Class<? extends R> repositoryInterface) {
+		super(repositoryInterface);
+	}
+
+	@Override
     protected RepositoryFactorySupport createRepositoryFactory(EntityManager em) {
         return new BaseRepositoryFactory<>(em);
     }
  
     private static class BaseRepositoryFactory<T, I extends Serializable> extends JpaRepositoryFactory {
  
-        private final EntityManager em;
- 
         public BaseRepositoryFactory(EntityManager em) {
             super(em);
-            //
-            this.em = em;
         }
         
 		@Override
 		@SuppressWarnings("unchecked")
-        protected SimpleJpaRepository<?, ?> getTargetRepository(RepositoryInformation information) {
+        protected SimpleJpaRepository<?, ?> getTargetRepository(RepositoryInformation information, EntityManager em ) {
         	return new ExtendedJpaRepository<T, I>((Class<T>) information.getDomainType(), em);
         }
  

@@ -50,7 +50,7 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 	
 	@Override
 	public <DTO extends AbstractDto> DTO generate(DTO dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		List<IdmGenerateValueDto> enabledGenerateValues = getEnabledGenerateValues(dto.getClass());
 		//
@@ -103,7 +103,7 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 
 	@Override
 	public boolean supportsGenerating(AbstractDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		return getSupportedTypes().contains(dto.getClass());
 	}
@@ -161,7 +161,7 @@ public class DefaultValueGeneratorManager implements ValueGeneratorManager {
 	}
 	
 	private List<IdmGenerateValueDto> getEnabledGenerateValues(Class<? extends AbstractDto> dtoType) {
-		Assert.notNull(dtoType);
+		Assert.notNull(dtoType, "DTO type is required.");
 		//
 		IdmGenerateValueFilter filter = new IdmGenerateValueFilter();
 		filter.setDisabled(Boolean.FALSE);

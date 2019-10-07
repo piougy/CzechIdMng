@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.config.domain.AbstractConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
@@ -21,14 +20,8 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 public class DefaultTreeConfiguration extends AbstractConfiguration implements TreeConfiguration {	
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultTreeConfiguration.class);
-	private final LookupService lookupService;
-	
-	@Autowired
-	public DefaultTreeConfiguration(LookupService lookupService) {
-		Assert.notNull(lookupService);
-		//
-		this.lookupService = lookupService;
-	}
+	//
+	@Autowired private LookupService lookupService;
 	
 	@Override
 	public IdmTreeTypeDto getDefaultType() {

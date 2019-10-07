@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import org.joda.time.LocalDate;
-
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**

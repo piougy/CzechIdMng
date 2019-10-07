@@ -48,12 +48,12 @@ public class IdmNotificationTemplate extends AbstractEntity implements Codeable,
 	private String subject;
 	
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "body_html")
 	private String bodyHtml;
 	
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "body_text")
 	private String bodyText;
 	

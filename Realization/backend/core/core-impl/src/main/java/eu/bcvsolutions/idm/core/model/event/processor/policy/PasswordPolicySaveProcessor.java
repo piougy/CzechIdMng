@@ -41,8 +41,8 @@ public class PasswordPolicySaveProcessor extends CoreEventProcessor<IdmPasswordP
 			IdmPasswordPolicyService passwordPolicyService) {
 		super(PasswordPolicyEvenType.UPDATE, PasswordPolicyEvenType.CREATE);
 		//
-		Assert.notNull(passwordPolicyRepository);
-		Assert.notNull(passwordPolicyService);
+		Assert.notNull(passwordPolicyRepository, "Repository is required.");
+		Assert.notNull(passwordPolicyService, "Service is required.");
 		//
 		this.passwordPolicyRepository = passwordPolicyRepository;
 		this.passwordPolicyService = passwordPolicyService;

@@ -38,8 +38,8 @@ public class SchemaAttributeDeleteProcessor extends CoreEventProcessor<SysSchema
 			SysSchemaAttributeService schemaAttributeService) {
 		super(SchemaAttributeEventType.DELETE);
 		//
-		Assert.notNull(systeAttributeMappingService);
-		Assert.notNull(schemaAttributeService);
+		Assert.notNull(systeAttributeMappingService, "Service is required.");
+		Assert.notNull(schemaAttributeService, "Service is required.");
 		//
 		this.systeAttributeMappingService = systeAttributeMappingService;
 		this.schemaAttributeService = schemaAttributeService;

@@ -1218,7 +1218,7 @@ AdvancedTable.propTypes = {
    * loadinig indicator
    */
   _showLoading: PropTypes.bool,
-  _entities: PropTypes.arrayOf(React.PropTypes.object),
+  _entities: PropTypes.arrayOf(PropTypes.object),
   _total: PropTypes.number,
   /**
    * Persisted / used search parameters in redux
@@ -1277,4 +1277,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true})(AdvancedTable);
+export default connect(select, null, null, { forwardRef: true})(AdvancedTable);

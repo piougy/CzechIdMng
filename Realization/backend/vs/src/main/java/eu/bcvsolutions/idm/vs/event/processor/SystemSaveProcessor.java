@@ -48,8 +48,8 @@ public class SystemSaveProcessor extends AbstractEntityEventProcessor<SysSystemD
 	public boolean conditional(EntityEvent<SysSystemDto> event) {
 		// We want execute this processor only for virtual system
 		SysSystemDto system = event.getContent();
-		Assert.notNull(system);
-		Assert.notNull(system.getId());
+		Assert.notNull(system, "System is required.");
+		Assert.notNull(system.getId(), "System identifier is required.");
 		
 		if(system.getConnectorKey() == null) {
 			return false;
@@ -72,14 +72,14 @@ public class SystemSaveProcessor extends AbstractEntityEventProcessor<SysSystemD
 	public EventResult<SysSystemDto> process(EntityEvent<SysSystemDto> event) {
 
 		SysSystemDto system = event.getContent();
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 		UUID systemId = system.getId();
-		Assert.notNull(systemId);
+		Assert.notNull(systemId, "System identifier is required.");
 		SysConnectorKeyDto connectorKey = system.getConnectorKey();
-		Assert.notNull(connectorKey);
+		Assert.notNull(connectorKey, "Connector key is required.");
 
 		VsVirtualConnector virtualConnector = vsSystemService.getVirtualConnector(systemId, connectorKey.getFullName());
-		Assert.notNull(virtualConnector);
+		Assert.notNull(virtualConnector, "Connector is required.");
 
 		// Update configuration (implementers, definition)
 		vsSystemService.updateSystemConfiguration(virtualConnector.getConfiguration(), virtualConnector.getClass());

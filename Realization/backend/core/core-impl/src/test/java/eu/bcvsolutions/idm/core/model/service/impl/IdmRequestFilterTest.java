@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class IdmRequestFilterTest extends AbstractIntegrationTest{
 		UUID ownerId = UUID.randomUUID();
 		String ownerType = IdmIdentityDto.class.toString();
 		IdmRequestDto createRequest = createRequest(ownerType, ownerId);
-		DateTime createdDate = createRequest.getCreated();
+		ZonedDateTime createdDate = createRequest.getCreated();
 		//
 		IdmRequestFilter filter = new IdmRequestFilter();
 		filter.setCreatedAfter(createdDate.minusSeconds(10));

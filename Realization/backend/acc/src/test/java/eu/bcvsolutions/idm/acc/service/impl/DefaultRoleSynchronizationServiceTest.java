@@ -1,12 +1,13 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,7 +17,6 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,7 +77,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Rollback(false)
-@Service
 public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	private static final String SYNC_CONFIG_NAME = "syncConfigNameRole";
@@ -516,15 +515,19 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 		Assert.assertEquals(null, ten.getModified());
 	
 		// Create extended attribute
-		DateTime now = DateTime.now();
-		formService.saveValues(roleTen.getId(), IdmRole.class, "changed", ImmutableList.of(now.withZone(DateTimeZone.UTC).toString(DATE_TABLE_CONNECTOR_FORMAT)));
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TABLE_CONNECTOR_FORMAT);
+		ZonedDateTime now = ZonedDateTime.now();
+		formService.saveValues(
+				roleTen.getId(), 
+				IdmRole.class, 
+				"changed", ImmutableList.of(now.withZoneSameInstant(ZoneOffset.UTC).format(formatter)));
 		
 		// Save IDM changed node (must invoke provisioning)
 		roleService.save(roleTen);
 		// Check state after provisioning
 		ten = entityManager.find(TestRoleResource.class, ROLE_NAME_TEN);
 		Assert.assertNotNull(ten);
-		Assert.assertEquals(now.toString(DATE_TABLE_CONNECTOR_FORMAT), ten.getModified().toString(DATE_TABLE_CONNECTOR_FORMAT));
+		Assert.assertEquals(now.format(formatter), ten.getModified().format(formatter));
 		
 		// Delete role mapping
 		systemMappingService.delete(mapping);
@@ -616,7 +619,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	
 	private void initRoleData(){
 		deleteAllResourceData();
-		DateTime now = DateTime.now();
+		ZonedDateTime now = ZonedDateTime.now();
 		entityManager.persist(this.createRole("1", RoleType.TECHNICAL.name(), now.plusHours(1), 0));
 		entityManager.persist(this.createRole("2", RoleType.TECHNICAL.name(), now.plusHours(2), 0));
 		entityManager.persist(this.createRole("3", RoleType.TECHNICAL.name(), now.plusHours(3), 0));
@@ -625,7 +628,7 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 
 	}
 	
-	private TestRoleResource createRole(String code, String type, DateTime changed, int priority){
+	private TestRoleResource createRole(String code, String type, ZonedDateTime changed, int priority){
 		TestRoleResource role = new TestRoleResource();
 		role.setType(type);
 		role.setName(code);
@@ -718,6 +721,6 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	}
 
 	private DefaultRoleSynchronizationServiceTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 }

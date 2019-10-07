@@ -36,7 +36,7 @@ public class IdmLoggingEvent implements BaseEntity {
 	private Long timestmp;
 
 	@Column(name = "formatted_message", nullable = false)
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	private String formattedMessage;
 
 	@Column(name = "logger_name", length = DefaultFieldLengths.NAME, nullable = false)

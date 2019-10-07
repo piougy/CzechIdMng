@@ -48,9 +48,9 @@ public class IdentityDeleteProcessor
 			SysSyncConfigRepository syncConfigRepository) {
 		super(IdentityEventType.DELETE);
 		//
-		Assert.notNull(identityAccountService);
-		Assert.notNull(provisioningBreakRecipientService);
-		Assert.notNull(syncConfigRepository);
+		Assert.notNull(identityAccountService, "Service is required.");
+		Assert.notNull(provisioningBreakRecipientService, "Service is required.");
+		Assert.notNull(syncConfigRepository, "Repository is required.");
 		//
 		this.identityAccountService = identityAccountService;
 		this.provisioningBreakRecipientService = provisioningBreakRecipientService;
@@ -65,8 +65,8 @@ public class IdentityDeleteProcessor
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdmIdentityDto identity = event.getContent();
-		Assert.notNull(identity);
-		Assert.notNull(identity.getId());
+		Assert.notNull(identity, "Identity is required.");
+		Assert.notNull(identity.getId(), "Identity identifier is required.");
 		
 		syncConfigRepository.clearDefaultLeader(identity.getId());
 		

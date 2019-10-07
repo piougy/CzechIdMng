@@ -64,7 +64,7 @@ public class IdmAuthorizationPolicyController extends AbstractReadWriteDtoContro
 			AuthorizationManager authorizationManager) {
 		super(service);
 		//
-		Assert.notNull(authorizationManager);
+		Assert.notNull(authorizationManager, "Manager is required.");
 		//
 		this.authorizationManager = authorizationManager;
 	}

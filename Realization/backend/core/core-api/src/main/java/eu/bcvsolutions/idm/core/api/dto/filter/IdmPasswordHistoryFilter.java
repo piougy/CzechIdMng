@@ -1,8 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
-
-import org.joda.time.DateTime;
 
 /**
  * Filter for password history
@@ -14,8 +13,8 @@ public class IdmPasswordHistoryFilter implements BaseFilter {
 	
 	private UUID identityId;
 	private String identityUsername;
-	private DateTime from;
-    private DateTime till;
+	private ZonedDateTime from;
+    private ZonedDateTime till;
     private String creator;
 
 	public UUID getIdentityId() {
@@ -26,19 +25,19 @@ public class IdmPasswordHistoryFilter implements BaseFilter {
 		this.identityId = identityId;
 	}
 
-	public DateTime getFrom() {
+	public ZonedDateTime getFrom() {
 		return from;
 	}
 
-	public void setFrom(DateTime from) {
+	public void setFrom(ZonedDateTime from) {
 		this.from = from;
 	}
 
-	public DateTime getTill() {
+	public ZonedDateTime getTill() {
 		return till;
 	}
 
-	public void setTill(DateTime till) {
+	public void setTill(ZonedDateTime till) {
 		this.till = till;
 	}
 

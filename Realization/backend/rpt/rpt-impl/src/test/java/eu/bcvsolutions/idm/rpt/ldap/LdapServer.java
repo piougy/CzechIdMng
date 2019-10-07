@@ -291,17 +291,17 @@ public class LdapServer {
 
         // Check created groups
 		boolean exists = existsEntityByDn(GROUP_A_DN);
-		Assert.isTrue(exists);
+		Assert.isTrue(exists, "Group has to exist");
 
 		exists = existsEntityByDn(GROUP_B_DN);
-		Assert.isTrue(exists);
+		Assert.isTrue(exists, "Group has to exist");
 
 		exists = existsEntityByDn(GROUP_C_DN);
-		Assert.isTrue(exists);
+		Assert.isTrue(exists, "Group has to exist");
 
 		// Check created user
 		exists = existsEntityByDn(TEST_USER_DN);
-		Assert.isTrue(exists);
+		Assert.isTrue(exists, "Group has to exist");
 	}
 	
 	/**

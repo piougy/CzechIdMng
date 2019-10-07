@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -64,13 +64,13 @@ public class DefaultTokenManager implements TokenManager {
 	@Override
 	@Transactional
 	public IdmTokenDto saveToken(Identifiable owner, IdmTokenDto token, BasePermission... permission) {
-		Assert.notNull(owner);
-		Assert.notNull(owner.getId());
+		Assert.notNull(owner, "Owner is required.");
+		Assert.notNull(owner.getId(), "Owner identifier is required.");
 		//
 		token.setOwnerType(getOwnerType(owner));
 		token.setOwnerId(getOwnerId(owner));
 		if (token.getIssuedAt() == null) {
-			token.setIssuedAt(new DateTime());
+			token.setIssuedAt(ZonedDateTime.now());
 		}
 		//
 		return tokenService.save(token, permission);
@@ -91,7 +91,7 @@ public class DefaultTokenManager implements TokenManager {
 			// FE need to check if this exception is for actual logged user (has same hash of token). Token must be included in the exception!
 			throw new ResultCodeException(CoreResultCode.AUTHORITIES_CHANGED, ImmutableMap.of("token", token.getToken()));
 		}
-		if (token.getExpiration() != null && token.getExpiration().isBefore(DateTime.now())) {
+		if (token.getExpiration() != null && token.getExpiration().isBefore(ZonedDateTime.now())) {
 			throw new ResultCodeException(CoreResultCode.AUTH_EXPIRED);
 		}
 		//
@@ -100,15 +100,15 @@ public class DefaultTokenManager implements TokenManager {
 	
 	@Override
 	public List<IdmTokenDto> getTokens(Identifiable owner, BasePermission... permission) {
-		Assert.notNull(owner);
-		Assert.notNull(owner.getId());
+		Assert.notNull(owner, "Owner is required.");
+		Assert.notNull(owner.getId(), "Owner identifier is required.");
 		//
 		IdmTokenFilter filter = new IdmTokenFilter();
 		filter.setOwnerType(getOwnerType(owner.getClass()));
 		filter.setOwnerId(getOwnerId(owner));
 		//
 		return tokenService
-				.find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(Direction.ASC, IdmToken_.expiration.getName())), permission)
+				.find(filter, PageRequest.of(0, Integer.MAX_VALUE, new Sort(Direction.ASC, IdmToken_.expiration.getName())), permission)
 				.getContent();
 	}
 	
@@ -124,8 +124,8 @@ public class DefaultTokenManager implements TokenManager {
 	@Override
 	@Transactional
 	public void disableTokens(Identifiable owner, BasePermission... permission) {
-		Assert.notNull(owner);
-		Assert.notNull(owner.getId());
+		Assert.notNull(owner, "Owner is required.");
+		Assert.notNull(owner.getId(), "Owner identifier is required.");
 		//
 		IdmTokenFilter filter = new IdmTokenFilter();
 		filter.setOwnerType(getOwnerType(owner.getClass()));
@@ -142,7 +142,7 @@ public class DefaultTokenManager implements TokenManager {
 	@Override
 	@Transactional
 	public IdmTokenDto disableToken(UUID tokenId, BasePermission... permission) {
-		Assert.notNull(tokenId);
+		Assert.notNull(tokenId, "Token identifier is required.");
 		//
 		IdmTokenDto token = getToken(tokenId);
 		if (token == null) {
@@ -159,8 +159,8 @@ public class DefaultTokenManager implements TokenManager {
 		}
 		//
 		token.setDisabled(true);
-		if (token.getExpiration() == null || token.getExpiration().isAfter(DateTime.now())) {
-			token.setExpiration(DateTime.now()); // Remove token by LRT depends on expiration time
+		if (token.getExpiration() == null || token.getExpiration().isAfter(ZonedDateTime.now())) {
+			token.setExpiration(ZonedDateTime.now()); // Remove token by LRT depends on expiration time
 		}
 		return tokenService.save(token, permission);
 	}
@@ -170,25 +170,25 @@ public class DefaultTokenManager implements TokenManager {
 	public void purgeTokens() {
 		// TODO: CONFIGURATION - ENABLE, TTL
 		// older then 2 weeks by default
-		purgeTokens(null, DateTime.now().minusWeeks(2));
+		purgeTokens(null, ZonedDateTime.now().minusWeeks(2));
 	}
 	
 	@Override
 	@Transactional
-	public void purgeTokens(String tokenType, DateTime olderThan) {
+	public void purgeTokens(String tokenType, ZonedDateTime olderThan) {
 		tokenService.purgeTokens(tokenType, olderThan);
 	}
 	
 	@Override
 	public String getOwnerType(Identifiable owner) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return getOwnerType(owner.getClass());
 	}
 	
 	@Override
 	public String getOwnerType(Class<? extends Identifiable> ownerType) {
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		return tokenService.getOwnerType(ownerType);
 	}

@@ -87,7 +87,7 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	) {
 		super(roleService);
 		//
-		Assert.notNull(formDefinitionController);
+		Assert.notNull(formDefinitionController, "Controller is required.");
 		this.formDefinitionController = formDefinitionController;
 	}
 	
@@ -424,10 +424,10 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		// TODO: Call to filter from original controller -> make as public?
 		IdmRoleFilter filter = new IdmRoleFilter(parameters);
-		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setRoleType(getParameterConverter().toEnum(parameters, "roleType", RoleType.class));
 		filter.setRoleCatalogueId(getParameterConverter().toUuid(parameters, "roleCatalogue"));
 		filter.setGuaranteeId(getParameterConverter().toEntityUuid(parameters, "guarantee", IdmIdentity.class));

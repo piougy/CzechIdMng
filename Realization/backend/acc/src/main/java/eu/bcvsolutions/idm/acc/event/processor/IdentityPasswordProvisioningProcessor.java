@@ -43,7 +43,7 @@ public class IdentityPasswordProvisioningProcessor
 	public IdentityPasswordProvisioningProcessor(ProvisioningService provisioningService) {
 		super(IdentityEventType.PASSWORD);
 		//
-		Assert.notNull(provisioningService);
+		Assert.notNull(provisioningService, "Service is required.");
 		//
 		this.provisioningService = provisioningService;
 	}
@@ -57,7 +57,7 @@ public class IdentityPasswordProvisioningProcessor
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdmIdentityDto identity = event.getContent();
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
-		Assert.notNull(passwordChangeDto);
+		Assert.notNull(passwordChangeDto, "Password change dto is required.");
 		//
 		LOG.debug("Call provisioning for identity password [{}]", event.getContent().getUsername());
 		List<OperationResult> results = provisioningService.changePassword(identity, passwordChangeDto);

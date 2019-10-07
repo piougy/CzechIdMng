@@ -1052,7 +1052,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 		filter.setIdentityId(test1.getId());
 		Page<IdmIdentityRoleDto> page = identityRoleService.find(filter, null);
-		assertEquals(0, page.getSize());
+		assertEquals(0, page.getTotalElements());
 	}
 
 	@Test

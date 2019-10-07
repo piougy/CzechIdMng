@@ -72,9 +72,9 @@ public class DefaultIdmRoleService
 		implements IdmRoleService {
 
 	private final IdmRoleRepository repository;
-	private final ConfigurationService configurationService;
-	private final RoleConfiguration roleConfiguration;
 	//
+	@Autowired private ConfigurationService configurationService;
+	@Autowired private RoleConfiguration roleConfiguration;
 	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired @Lazy private IdmIdentityService identityService;
@@ -82,20 +82,12 @@ public class DefaultIdmRoleService
 	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	
 	@Autowired
-	public DefaultIdmRoleService(
-			IdmRoleRepository repository,
+	public DefaultIdmRoleService(IdmRoleRepository repository,
 			EntityEventManager entityEventManager,
-			FormService formService,
-			ConfigurationService configurationService,
-			RoleConfiguration roleConfiguration) {
+			FormService formService) {
 		super(repository, entityEventManager, formService);
 		//
-		Assert.notNull(configurationService);
-		Assert.notNull(roleConfiguration);
-		//
 		this.repository = repository;
-		this.configurationService = configurationService;
-		this.roleConfiguration = roleConfiguration;
 	}
 	
 	@Override
@@ -135,7 +127,7 @@ public class DefaultIdmRoleService
 	
 	@Override
 	public IdmFormDefinitionDto getFormAttributeSubdefinition(IdmRoleDto role) {
-		Assert.notNull(role);
+		Assert.notNull(role, "Role is required.");
 		UUID identityRoleAttributeDefinition = role.getIdentityRoleAttributeDefinition();
 		if(identityRoleAttributeDefinition == null) {
 			return null;
@@ -188,6 +180,7 @@ public class DefaultIdmRoleService
 							));
 		}
 		// role type
+		@SuppressWarnings("deprecation")
 		RoleType roleType = filter.getRoleType();
 		if (roleType != null) {
 			predicates.add(builder.equal(root.get(IdmRole_.roleType), roleType));
@@ -324,7 +317,7 @@ public class DefaultIdmRoleService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleDto> findAllByRoleCatalogue(UUID roleCatalogueId) {
-		Assert.notNull(roleCatalogueId);
+		Assert.notNull(roleCatalogueId, "Role catalogue identifier is required.");
 		//
 		IdmRoleCatalogueRoleFilter filter = new IdmRoleCatalogueRoleFilter();
 		filter.setRoleCatalogueId(roleCatalogueId);
@@ -367,7 +360,7 @@ public class DefaultIdmRoleService
 	
 	@Override
 	public String getCodeWithoutEnvironment(IdmRoleDto role) {
-		Assert.notNull(role);
+		Assert.notNull(role, "Role is required.");
 		//
 		if (role.getCode() == null) {
 			return role.getBaseCode();
@@ -381,7 +374,7 @@ public class DefaultIdmRoleService
 	
 	@Override
 	public String getCodeWithEnvironment(IdmRoleDto role) {
-		Assert.notNull(role);
+		Assert.notNull(role, "Role is required.");
 		//
 		String code = role.getBaseCode() == null ? role.getCode() : role.getBaseCode();
 		if (StringUtils.isEmpty(role.getEnvironment())) {

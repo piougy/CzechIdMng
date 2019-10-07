@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -84,11 +83,7 @@ public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdenti
 	 * @return
 	 */
 	public Boolean getRoots() {
-		Object first = data.getFirst(PARAMETER_ROOTS);
-    	if (first == null) {
-    		return null;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+    	return getParameterConverter().toBoolean(data, PARAMETER_ROOTS);
 	}
 	
 	/**
@@ -104,11 +99,7 @@ public class IdmRoleCatalogueFilter extends DataFilter implements ExternalIdenti
 	 * @return
 	 */
 	public boolean isRecursively() {
-    	Object first = data.getFirst(PARAMETER_RECURSIVELY);
-    	if (first == null) {
-    		return DEFAULT_RECURSIVELY;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+    	return getParameterConverter().toBoolean(data, PARAMETER_RECURSIVELY, DEFAULT_RECURSIVELY);
     }
 
 	/**

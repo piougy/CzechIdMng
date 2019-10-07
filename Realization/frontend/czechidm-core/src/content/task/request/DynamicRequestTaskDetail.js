@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
@@ -108,4 +109,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(DynamicRequestTaskDetail);
+export default connect(select, null, null, { forwardRef: true })(DynamicRequestTaskDetail);

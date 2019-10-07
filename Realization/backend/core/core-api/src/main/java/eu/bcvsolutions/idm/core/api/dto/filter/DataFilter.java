@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -212,7 +212,7 @@ public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 	 * @since 9.7.7
 	 */
 	@Override
-	public DateTime getModifiedFrom() {
+	public ZonedDateTime getModifiedFrom() {
 		return getParameterConverter().toDateTime(data, PARAMETER_MODIFIED_FROM);
 	}
 
@@ -223,7 +223,7 @@ public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 	 * @since 9.7.7
 	 */
 	@Override
-	public void setModifiedFrom(DateTime dateTime) {
+	public void setModifiedFrom(ZonedDateTime dateTime) {
 		data.set(PARAMETER_MODIFIED_FROM, dateTime);
 	}
 }

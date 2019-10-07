@@ -44,17 +44,20 @@ public interface IdmTreeNodeRepository extends
 			+ " ((:parentId is null and e.parent.id is null) or (e.parent.id = :parentId))"
 			+ " and"
 			+ " (:treeTypeId is null or e.treeType.id = :treeTypeId)")
-	Page<IdmTreeNode> findChildren(@Param(value = "treeTypeId") UUID treeTypeId, @Param(value = "parentId") UUID parentId, Pageable pageable);
+	Page<IdmTreeNode> findChildren(
+			@Param(value = "treeTypeId") UUID treeTypeId, 
+			@Param(value = "parentId") UUID parentId, 
+			Pageable pageable);
 	
 	
 	/**
 	 * Finds roots 
 	 * 
-	 * @param treeTypeCode
+	 * @param treeTypeId [optional] returns root from all tree types otherwise.
 	 * @param pageable
 	 * @return
 	 */
-	@Query("select e from #{#entityName} e where e.parent is null and e.treeType.id = :treeTypeId")
+	@Query("select e from #{#entityName} e where e.parent is null and (:treeTypeId is null or e.treeType.id = :treeTypeId)")
 	Page<IdmTreeNode> findRoots(@Param("treeTypeId") UUID treeTypeId, Pageable pageable);
 	
 	/**

@@ -19,7 +19,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -61,7 +61,7 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	private List<IdmNotificationRecipient> recipients;
 
 	@Column(name = "sent")
-	private DateTime sent;
+	private ZonedDateTime sent;
 
 	@Size(max = DefaultFieldLengths.LOG)
 	@Column(name = "SENT_LOG", length = DefaultFieldLengths.LOG)
@@ -118,11 +118,11 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 		return message;
 	}
 	
-	public void setSent(DateTime sent) {
+	public void setSent(ZonedDateTime sent) {
 		this.sent = sent;
 	}
 	
-	public DateTime getSent() {
+	public ZonedDateTime getSent() {
 		return sent;
 	}
 	

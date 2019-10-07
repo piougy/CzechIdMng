@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -14,7 +15,6 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,7 +48,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -66,26 +65,18 @@ public class DefaultIdmIdentityContractService
 		implements IdmIdentityContractService {
 
 	private final IdmIdentityContractRepository repository;
-	private final TreeConfiguration treeConfiguration;
-	private final IdmTreeNodeRepository treeNodeRepository;
-	@Autowired
-	private IdmContractSliceService contractSliceService;
+	//
+	@Autowired private TreeConfiguration treeConfiguration;
+	@Autowired private IdmContractSliceService contractSliceService;
 	
 	@Autowired
 	public DefaultIdmIdentityContractService(
 			IdmIdentityContractRepository repository,
 			FormService formService,
-			EntityEventManager entityEventManager,
-			TreeConfiguration treeConfiguration,
-			IdmTreeNodeRepository treeNodeRepository) {
+			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager, formService);
 		//
-		Assert.notNull(treeConfiguration);
-		Assert.notNull(treeNodeRepository);
-		//
 		this.repository = repository;
-		this.treeConfiguration = treeConfiguration;
-		this.treeNodeRepository = treeNodeRepository;
 	}
 	
 	@Override
@@ -229,18 +220,15 @@ public class DefaultIdmIdentityContractService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityContractDto> findAllByIdentity(UUID identityId) {
-		return toDtos(repository.findAllByIdentity_Id(identityId, new Sort(IdmIdentityContract_.validFrom.getName())), false);
+		return toDtos(repository.findAllByIdentity_Id(identityId, Sort.by(IdmIdentityContract_.validFrom.getName())), false);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
-		Assert.notNull(workPositionId);
-		// TODO: use uuid only - rewrite to subquery
-		IdmTreeNode workPosition = treeNodeRepository.findOne(workPositionId);
-		Assert.notNull(workPosition);
+		Assert.notNull(workPositionId, "Work position is required to gen related contracts.");
 		//
-		return toDtos(repository.findAllByWorkPosition(workPosition, recursion == null ? RecursionType.NO : recursion), false);
+		return toDtos(repository.findAllByWorkPosition(workPositionId, recursion == null ? RecursionType.NO : recursion), false);
 	}
 
 	@Override
@@ -248,17 +236,10 @@ public class DefaultIdmIdentityContractService
 	public Page<IdmIdentityContractDto> findExpiredContracts(LocalDate expiration, Pageable pageable) {
 		return toDtoPage(repository.findExpiredContracts(expiration, pageable));
 	}
-	
-	
-	@Override
-	@Deprecated
-	public IdmIdentityContractDto prepareDefaultContract(UUID identityId) {
-		return prepareMainContract(identityId);
-	}
 
 	@Override
 	public IdmIdentityContractDto prepareMainContract(UUID identityId) {
-		Assert.notNull(identityId);
+		Assert.notNull(identityId, "Identity identifier is required for preparing main contract");
 		//
 		// set identity
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
@@ -280,7 +261,7 @@ public class DefaultIdmIdentityContractService
 	@Override
 	@Transactional(readOnly = true)
 	public IdmIdentityContractDto getPrimeContract(UUID identityId) {
-		Assert.notNull(identityId);
+		Assert.notNull(identityId, "Identity identifier is required for get prime contract");
 		//
 		// find all identity working position
 		List<IdmIdentityContract> contracts = repository.findAllByIdentity_Id(identityId, null);
@@ -295,7 +276,7 @@ public class DefaultIdmIdentityContractService
 	@Override
 	@Transactional(readOnly = true)
 	public IdmIdentityContractDto getPrimeValidContract(UUID identityId) {
-		Assert.notNull(identityId);
+		Assert.notNull(identityId, "Identity identifier is required for get prime valid contract");
 		//
 		// find valid all identity working position
 		List<IdmIdentityContract> contracts = repository.findAllValidContracts(identityId, LocalDate.now(), null);
@@ -314,18 +295,19 @@ public class DefaultIdmIdentityContractService
 
 	@Override
 	public IdmIdentityContractDto findLastExpiredContract(UUID identityId, LocalDate expiration) {
-		Assert.notNull(identityId);
+		Assert.notNull(identityId, "Identity identifier is required for get last expired contract");
 		//
 		List<IdmIdentityContract> contracts = repository
 				.findExpiredContractsByIdentity(
 						identityId,
 						expiration == null ? LocalDate.now() : expiration,
-						new PageRequest(0, 1, new Sort(Sort.Direction.DESC, IdmIdentityContract_.validTill.getName()))		
+						PageRequest.of(0, 1, new Sort(Sort.Direction.DESC, IdmIdentityContract_.validTill.getName()))		
 				)
 				.getContent();
 		//
 		return contracts.isEmpty() ? null : toDto(contracts.get(0));
 	}
+	
 	/**
 	 * Returns contracts sorted by priority:
 	 * - 1. main

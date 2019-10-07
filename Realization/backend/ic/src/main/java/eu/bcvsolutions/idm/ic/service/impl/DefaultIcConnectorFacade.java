@@ -48,8 +48,8 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 	@Override
 	public IcUidAttribute createObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, List<IcAttribute> attributes) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).createObject(connectorInstance, connectorConfiguration, objectClass, attributes);
 
@@ -58,8 +58,8 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 	@Override
 	public IcUidAttribute updateObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid, List<IcAttribute> replaceAttributes) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).updateObject(connectorInstance, connectorConfiguration, objectClass, uid,
 				replaceAttributes);
@@ -69,8 +69,8 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 	@Override
 	public void deleteObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		icConnectors.get(connectorInstance.getConnectorKey().getFramework()).deleteObject(connectorInstance, connectorConfiguration, objectClass, uid);
 
@@ -79,8 +79,8 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 	@Override
 	public IcConnectorObject readObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).readObject(connectorInstance, connectorConfiguration, objectClass, uid);
 
@@ -89,8 +89,8 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 	@Override
 	public IcUidAttribute authenticateObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, String username, GuardedString password) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).authenticateObject(connectorInstance, connectorConfiguration, objectClass,
 				username, password);
@@ -99,8 +99,8 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 	@Override
 	public IcSyncToken synchronization(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcSyncToken token, IcSyncResultsHandler handler) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).synchronization(connectorInstance, connectorConfiguration, objectClass, token, handler);
 	}
@@ -108,8 +108,8 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 	@Override
 	public void search(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
 			IcFilter filter, IcResultsHandler handler){
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		icConnectors.get(connectorInstance.getConnectorKey().getFramework()).search(connectorInstance, connectorConfiguration, objectClass, filter, handler);
 	}

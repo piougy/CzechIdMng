@@ -75,7 +75,7 @@ public class IdmContractSliceController
 			IdmContractSliceService identityContractService, IdmFormDefinitionController formDefinitionController) {
 		super(identityContractService);
 		//
-		Assert.notNull(formDefinitionController);
+		Assert.notNull(formDefinitionController, "Controller is required.");
 		//
 		this.formDefinitionController = formDefinitionController;
 	}

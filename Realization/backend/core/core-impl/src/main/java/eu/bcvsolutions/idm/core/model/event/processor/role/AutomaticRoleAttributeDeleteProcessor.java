@@ -35,7 +35,7 @@ public class AutomaticRoleAttributeDeleteProcessor extends CoreEventProcessor<Id
 			LongRunningTaskManager longRunningTaskManager) {
 		super(AutomaticRoleAttributeEventType.DELETE);
 		//
-		Assert.notNull(longRunningTaskManager);
+		Assert.notNull(longRunningTaskManager, "Manager is required.");
 		//
 		this.longRunningTaskManager = longRunningTaskManager;
 	}

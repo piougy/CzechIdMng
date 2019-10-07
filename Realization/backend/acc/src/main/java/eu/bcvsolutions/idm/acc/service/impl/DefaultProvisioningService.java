@@ -47,8 +47,8 @@ public class DefaultProvisioningService implements ProvisioningService {
 	@Autowired
 	public DefaultProvisioningService(List<ProvisioningEntityExecutor<?>>  executors,
 			SysSystemEntityService systemEntityService) {
-		Assert.notNull(executors);
-		Assert.notNull(systemEntityService);
+		Assert.notNull(executors, "Executors are required.");
+		Assert.notNull(systemEntityService, "Service is required.");
 		//
 		this.pluginExecutors = OrderAwarePluginRegistry.create(executors);
 		this.systemEntityService = systemEntityService;
@@ -56,40 +56,40 @@ public class DefaultProvisioningService implements ProvisioningService {
 
 	@Override
 	public void doProvisioning(AbstractDto entity) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioning(entity);		
 	}
 
 	@Override
 	public void doProvisioning(AccAccountDto account) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 		SysSystemEntityDto systemEntityDto = systemEntityService.get(account.getSystemEntity());
 		this.getExecutor(systemEntityDto.getEntityType()).doProvisioning(account);
 	}
 
 	@Override
 	public void doProvisioning(AccAccountDto account, AbstractDto entity) {
-		Assert.notNull(account);
-		Assert.notNull(entity);
+		Assert.notNull(account, "Account is required.");
+		Assert.notNull(entity, "Entity is required.");
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioning(account, entity);
 	}
 	
 	@Override
 	public void doInternalProvisioning(AccAccountDto account, AbstractDto entity) {
-		Assert.notNull(account);
-		Assert.notNull(entity);
+		Assert.notNull(account, "Account is required.");
+		Assert.notNull(entity, "Entity is required.");
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doInternalProvisioning(account, entity);
 	}
 
 	@Override
 	public void doDeleteProvisioning(AccAccountDto account, SystemEntityType entityType, UUID entityId) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 		this.getExecutor(entityType).doDeleteProvisioning(account, entityId);
 	}
 
 	@Override
 	public List<OperationResult> changePassword(AbstractDto entity, PasswordChangeDto passwordChange) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		//
 		return this.getExecutor(SystemEntityType.getByClass(entity.getClass())).changePassword(entity, passwordChange);
 	}
@@ -97,7 +97,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	@Override
 	public void doProvisioningForAttribute(SysSystemEntityDto systemEntity, AttributeMapping mappedAttribute, Object value,
 			ProvisioningOperationType operationType, AbstractDto entity) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		//
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).doProvisioningForAttribute(systemEntity, mappedAttribute, value, operationType, entity);
 	}
@@ -105,33 +105,33 @@ public class DefaultProvisioningService implements ProvisioningService {
 	@Override
 	public IcUidAttribute authenticate(String username, GuardedString password, SysSystemDto system,
 			SystemEntityType entityType) {
-		Assert.notNull(entityType);
+		Assert.notNull(entityType, "Entity type is required.");
 		return this.getExecutor(entityType).authenticate(username, password, system, entityType);
 	}
 
 	@Override
 	public List<AttributeMapping> resolveMappedAttributes(AccAccountDto account, AbstractDto entity,
 			SysSystemDto system, SystemEntityType entityType) {
-		Assert.notNull(entityType);
+		Assert.notNull(entityType, "Entity type is required.");
 		return this.getExecutor(entityType).resolveMappedAttributes(account, entity, system, entityType);
 	}
 
 	@Override
 	public List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttributeDto> overloadingAttributes, SystemEntityType entityType) {
-		Assert.notNull(entityType);
+		Assert.notNull(entityType, "Entity type is required.");
 		return this.getExecutor(entityType).compileAttributes(defaultAttributes, overloadingAttributes, entityType);
 	}
 
 	@Override
 	public void createAccountsForAllSystems(AbstractDto entity) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).createAccountsForAllSystems(entity);
 	}
 	
 	@Override
 	public boolean accountManagement(AbstractDto entity) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		return this.getExecutor(SystemEntityType.getByClass(entity.getClass())).accountManagement(entity);
 	}
 	

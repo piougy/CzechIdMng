@@ -39,9 +39,9 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
     		ProducerTemplate producerTemplate,
     		IdmNotificationTemplateService notificationTemplateService) {
     	//
-    	Assert.notNull(emailLogService);
-    	Assert.notNull(producerTemplate);
-    	Assert.notNull(notificationTemplateService);
+    	Assert.notNull(emailLogService, "Service is required.");
+    	Assert.notNull(producerTemplate, "Producer template is required.");
+    	Assert.notNull(notificationTemplateService, "Service is required.");
     	//
 		this.producerTemplate = producerTemplate;
 		this.emailLogService = emailLogService;
@@ -73,7 +73,7 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	@Override
 	@Transactional
 	public IdmEmailLogDto send(IdmMessageDto message, String email) {
-		Assert.notNull(email);
+		Assert.notNull(email, "Email is required.");
 		//
 		return this.send(message, new String[]{ email });
 	}
@@ -87,8 +87,8 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	@Override
 	@Transactional
 	public IdmEmailLogDto send(IdmMessageDto message, String[] emails, List<IdmAttachmentDto> attachments) {
-		Assert.notNull(message);
-		Assert.notNull(emails);
+		Assert.notNull(message, "Message is required.");
+		Assert.notNull(emails, "Emails are required.");
 		//
 		IdmEmailLogDto emailLog = new IdmEmailLogDto();
 		// there is no parent
@@ -116,8 +116,8 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 	 * @return
 	 */
 	private IdmEmailLogDto createLog(IdmNotificationDto notification) {
-		Assert.notNull(notification);
-		Assert.notNull(notification.getMessage());
+		Assert.notNull(notification, "Notification is required.");
+		Assert.notNull(notification.getMessage(), "Message is required.");
 		//
 		IdmEmailLogDto emailLog = new IdmEmailLogDto();
 		// parent message

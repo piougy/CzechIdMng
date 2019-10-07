@@ -1,12 +1,12 @@
 package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.core.ResolvableTypeProvider;
 import org.springframework.util.Assert;
 
@@ -123,14 +123,14 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	 * 
 	 * @return
 	 */
-	DateTime getExecuteDate();
+	ZonedDateTime getExecuteDate();
 	
 	/**
 	 * Event execute date.
 	 * 
 	 * @param executeDate
 	 */
-	void setExecuteDate(DateTime executeDate);
+	void setExecuteDate(ZonedDateTime executeDate);
 	
 	/**
 	 * Event priority. 
@@ -229,7 +229,7 @@ public interface EntityEvent<E extends Serializable> extends ResolvableTypeProvi
 	 * @return
 	 */
 	default boolean hasType(EventType eventType) {
-		Assert.notNull(eventType);
+		Assert.notNull(eventType, "Event type is required to compare.");
 		//
 		return eventType.name().equals(getType().name());
 	}

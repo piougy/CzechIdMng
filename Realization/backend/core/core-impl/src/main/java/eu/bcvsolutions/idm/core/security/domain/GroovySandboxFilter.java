@@ -5,10 +5,12 @@ import java.sql.Date;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,10 +25,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.runtime.GStringImpl;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 import org.kohsuke.groovy.sandbox.GroovyValueFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,8 +51,8 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 
 	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(String.class, Integer.class, Double.class,
 			Long.class, Date.class, Enum.class, Boolean.class, BigDecimal.class, UUID.class, Character.class,
-			GuardedString.class, DateTimeFormatter.class, DateTimeFormat.class, DateTime.class, String[].class,
-			LocalDateTime.class, java.util.Date.class, ZoneId.class, Instant.class, LocalDate.class, LocalTime.class,
+			GuardedString.class, DateTimeFormatter.class, org.joda.time.LocalDateTime.class, String[].class,
+			LocalDateTime.class, ZonedDateTime.class, java.util.Date.class, ZoneId.class, Instant.class, LocalDate.class, LocalTime.class,
 			org.joda.time.LocalDate.class, OffsetTime.class, OffsetDateTime.class, Map.class, HashMap.class, List.class,
 			ArrayList.class, Set.class, HashSet.class, LoggerFactory.class, Logger.class,
 			ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class, MessageFormat.class, Arrays.class,

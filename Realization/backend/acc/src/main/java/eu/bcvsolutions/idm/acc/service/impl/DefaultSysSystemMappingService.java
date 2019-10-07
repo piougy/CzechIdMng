@@ -70,10 +70,10 @@ public class DefaultSysSystemMappingService
 			ApplicationContext applicationContext) {
 		super(repository, entityEventManager);
 		//
-		Assert.notNull(entityEventManager);
-		Assert.notNull(groovyScriptService);
-		Assert.notNull(evaluators);
-		Assert.notNull(applicationContext);
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(groovyScriptService, "Groovy script service is required.");
+		Assert.notNull(evaluators, "Script evaluators is required.");
+		Assert.notNull(applicationContext, "Context is required.");
 		//
 		this.repository = repository;
 		this.applicationContext = applicationContext;
@@ -108,7 +108,7 @@ public class DefaultSysSystemMappingService
 	@Override
 	public List<SysSystemMappingDto> findBySystem(SysSystemDto system, SystemOperationType operation,
 			SystemEntityType entityType) {
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 		//
 		return findBySystemId(system.getId(), operation, entityType);
 	}
@@ -116,7 +116,7 @@ public class DefaultSysSystemMappingService
 	@Override
 	public List<SysSystemMappingDto> findBySystemId(UUID systemId, SystemOperationType operation,
 			SystemEntityType entityType) {
-		Assert.notNull(systemId);
+		Assert.notNull(systemId, "System identifier is required.");
 		//
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setSystemId(systemId);
@@ -129,7 +129,7 @@ public class DefaultSysSystemMappingService
 	@Override
 	public List<SysSystemMappingDto> findByObjectClass(SysSchemaObjectClassDto objectClass,
 			SystemOperationType operation, SystemEntityType entityType) {
-		Assert.notNull(objectClass);
+		Assert.notNull(objectClass, "Object class is required.");
 
 		SysSystemMappingFilter filter = new SysSystemMappingFilter();
 		filter.setObjectClassId(objectClass.getId());
@@ -186,7 +186,7 @@ public class DefaultSysSystemMappingService
 	 */
 	@Override
 	public void validate(UUID id) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is required.");
 		//
 		Map<String, Object> errors = new HashMap<>();
 		SysSystemMappingDto systemMapping = this.get(id);
@@ -282,8 +282,8 @@ public class DefaultSysSystemMappingService
 
 	@Override
 	public SysSystemMappingDto findProvisioningMapping(UUID systemId, SystemEntityType entityType) {
-		Assert.notNull(systemId);
-		Assert.notNull(entityType);
+		Assert.notNull(systemId, "System identifier is required.");
+		Assert.notNull(entityType, "Entity type is required.");
 		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
 		mappingFilter.setSystemId(systemId);
 		mappingFilter.setEntityType(entityType);

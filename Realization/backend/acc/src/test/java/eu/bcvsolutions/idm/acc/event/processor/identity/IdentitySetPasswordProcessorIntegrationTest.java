@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor.identity;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -61,7 +61,7 @@ public class IdentitySetPasswordProcessorIntegrationTest extends AbstractIntegra
 		helper.createRoleSystem(role, system);
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
-		contract.setValidFrom(new LocalDate().plusDays(1));
+		contract.setValidFrom(LocalDate.now().plusDays(1));
 		identityContractService.save(contract);
 		identity = identityService.get(identity.getId());
 		Assert.assertEquals(IdentityState.FUTURE_CONTRACT, identity.getState());
@@ -86,7 +86,7 @@ public class IdentitySetPasswordProcessorIntegrationTest extends AbstractIntegra
 		Assert.assertEquals(IDENTITY_PASSWORD_ONE, resource.getPassword());
 		//
 		// set contract to valid
-		contract.setValidFrom(new LocalDate());
+		contract.setValidFrom(LocalDate.now());
 		identityContractService.save(contract);
 		identity = identityService.get(identity.getId());
 		Assert.assertEquals(IdentityState.VALID, identity.getState());

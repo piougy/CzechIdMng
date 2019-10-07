@@ -39,7 +39,7 @@ public class IdentityUsernameCheckProcessor
 			IdmIdentityService service) {
 		super(IdentityEventType.CREATE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

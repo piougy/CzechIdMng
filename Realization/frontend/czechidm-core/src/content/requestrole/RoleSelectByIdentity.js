@@ -515,4 +515,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true})(RoleSelectByIdentity);
+export default connect(select, null, null, { forwardRef: true})(RoleSelectByIdentity);

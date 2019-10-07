@@ -6,7 +6,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +58,7 @@ public class JwtIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 			claims = jwtTokenMapper.getClaims(jwt.get());
 			// check expiration for token given in header
 			// we need to check expiration, before current (automatically prolonged) token is used by mapper
-			if (claims.getExpiration() != null && claims.getExpiration().isBefore(DateTime.now())) {
+			if (claims.getExpiration() != null && claims.getExpiration().isBefore(ZonedDateTime.now())) {
 				throw new ResultCodeException(CoreResultCode.AUTH_EXPIRED);
 			}
 			// resolve actual authentication from given authentication dto (token is loaded)

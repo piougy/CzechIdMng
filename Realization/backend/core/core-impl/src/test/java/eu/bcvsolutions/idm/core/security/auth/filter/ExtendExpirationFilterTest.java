@@ -61,8 +61,8 @@ public class ExtendExpirationFilterTest extends AbstractRestTest {
 		
 		Assert.assertEquals(login.getAuthentication().getId(), extendedDto.getId());
 		Assert.assertEquals(login.getToken(), result.getResponse().getHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME));
-		Assert.assertEquals(login.getAuthentication().getIssuedAt().getMillis(), extendedDto.getIssuedAt().getMillis());
-		Assert.assertEquals(login.getAuthentication().getExpiration().getMillis(), extendedDto.getExpiration().getMillis());
+		Assert.assertEquals(login.getAuthentication().getIssuedAt().toInstant().toEpochMilli(), extendedDto.getIssuedAt().toInstant().toEpochMilli());
+		Assert.assertEquals(login.getAuthentication().getExpiration().toInstant().toEpochMilli(), extendedDto.getExpiration().toInstant().toEpochMilli());
 	}
 	
 	/**
@@ -89,10 +89,11 @@ public class ExtendExpirationFilterTest extends AbstractRestTest {
 		IdmJwtAuthenticationDto extended = getIdmJwtDto(result);
 		
 		Assert.assertEquals(originalToken.getOwnerId(), extended.getCurrentIdentityId());
-		Assert.assertEquals(originalToken.getIssuedAt().getMillis(), extended.getIssuedAt().getMillis());
+		Assert.assertEquals(originalToken.getIssuedAt().toInstant().toEpochMilli(), extended.getIssuedAt().toInstant().toEpochMilli());
 		
 		// token expiration - orignal exp. time is lower or equal to new one 
-		Assert.assertTrue(originalToken.getExpiration().getMillis() < extended.getExpiration().getMillis());
+		Assert.assertTrue(originalToken.getExpiration().toInstant().toEpochMilli() 
+				< extended.getExpiration().toInstant().toEpochMilli());
 	}
 
 	@Test
@@ -128,8 +129,10 @@ public class ExtendExpirationFilterTest extends AbstractRestTest {
 		
 		IdmJwtAuthenticationDto extendedDto = getIdmJwtDto(result);
 		
-		Assert.assertEquals(login.getAuthentication().getIssuedAt().getMillis(), extendedDto.getIssuedAt().getMillis());
-		Assert.assertEquals(login.getAuthentication().getExpiration().getMillis(), extendedDto.getExpiration().getMillis());
+		Assert.assertEquals(login.getAuthentication().getIssuedAt().toInstant().toEpochMilli(),
+				extendedDto.getIssuedAt().toInstant().toEpochMilli());
+		Assert.assertEquals(login.getAuthentication().getExpiration().toInstant().toEpochMilli(),
+				extendedDto.getExpiration().toInstant().toEpochMilli());
 	}
 
 	@Test
@@ -155,10 +158,10 @@ public class ExtendExpirationFilterTest extends AbstractRestTest {
 		IdmJwtAuthenticationDto extended = getIdmJwtDto(result);
 		
 		Assert.assertEquals(originalToken.getOwnerId(), extended.getCurrentIdentityId());
-		Assert.assertEquals(originalToken.getIssuedAt().getMillis(), extended.getIssuedAt().getMillis());
+		Assert.assertEquals(originalToken.getIssuedAt().toInstant().toEpochMilli(), extended.getIssuedAt().toInstant().toEpochMilli());
 		
 		// token expiration - orignal exp. time is lower or equal to new one 
-		Assert.assertTrue(originalToken.getExpiration().getMillis() < extended.getExpiration().getMillis());
+		Assert.assertTrue(originalToken.getExpiration().toInstant().toEpochMilli() < extended.getExpiration().toInstant().toEpochMilli());
 	}
 
 	private IdmJwtAuthenticationDto getIdmJwtDto(MvcResult result) throws IOException {

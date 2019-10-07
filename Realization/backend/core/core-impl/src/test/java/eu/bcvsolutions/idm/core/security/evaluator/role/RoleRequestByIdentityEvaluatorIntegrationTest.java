@@ -122,7 +122,7 @@ public class RoleRequestByIdentityEvaluatorIntegrationTest extends AbstractInteg
 			roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
 			roleRequest = roleRequestService.save(roleRequest, IdmBasePermission.CREATE);
 			//
-			Assert.notNull(roleRequest.getId());
+			Assert.notNull(roleRequest.getId(), "Requires identifier is required.");
 		} finally {
 			logout();
 		}

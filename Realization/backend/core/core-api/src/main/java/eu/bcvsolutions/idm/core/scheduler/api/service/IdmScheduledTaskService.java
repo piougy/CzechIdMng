@@ -28,9 +28,9 @@ public interface IdmScheduledTaskService extends
 	/**
 	 * Finds scheduled tasks by assigned long running task.
 	 * 
-	 * @param lrtId
+	 * @param longRunningTaskId
 	 * @return
 	 */
-	IdmScheduledTaskDto findByLongRunningTaskId(UUID lrtId);
+	IdmScheduledTaskDto findByLongRunningTaskId(UUID longRunningTaskId);
 
 }

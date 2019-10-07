@@ -88,9 +88,9 @@ public class IdmRoleCatalogueControllerTest extends AbstractRestTest {
 		
 		getMockMvc().perform(get(BaseController.BASE_PATH + "/role-catalogues/search/children?parent=" + root.getId() + "&size=10&page=0&sort=name,asc")
 				.with(authentication(getAuthentication()))
-				.contentType(InitTestData.HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE));
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE));
 		
 		String jsonString = this.getJsonAsString("/role-catalogues/search/children", "parent=" + root.getId() ,20l, 0l, "name", "asc", getAuthentication());
 		List<LinkedHashMap<String, Object>> catalogues = this.getEmbeddedList("roleCatalogues", jsonString);
@@ -128,9 +128,9 @@ public class IdmRoleCatalogueControllerTest extends AbstractRestTest {
 
 		getMockMvc().perform(get(BaseController.BASE_PATH + "/role-catalogues/search/roots?size=10&page=0&sort=name,asc")
 				.with(authentication(getAuthentication()))
-				.contentType(InitTestData.HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE));
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE));
 
 		String jsonString = this.getJsonAsString("/role-catalogues/search/roots", null, 20l, 0l, "name", "asc", getAuthentication());
 		List<LinkedHashMap<String, Object>> catalogues = this.getEmbeddedList("roleCatalogues", jsonString);

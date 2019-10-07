@@ -28,7 +28,7 @@ public class DefaultFormPropertyManager implements FormPropertyManager {
 	
 	@Autowired
 	public DefaultFormPropertyManager(List<? extends FormPropertyConverter> propertyConverters) {
-		Assert.notNull(propertyConverters);
+		Assert.notNull(propertyConverters, "Property converters are required.");
 		//
 		this.propertyConverters = OrderAwarePluginRegistry.create(propertyConverters);
 	}
@@ -36,7 +36,7 @@ public class DefaultFormPropertyManager implements FormPropertyManager {
 	@Override
 	public IdmFormAttributeDto toFormAttribute(IcConfigurationProperty propertyConfiguration) {
 		FormPropertyConverter converter = getPropertyConverter(propertyConfiguration);
-		Assert.notNull(converter);
+		Assert.notNull(converter, "Converter to convert connector property to form attribute is required.");
 		//
 		return converter.toFormAttribute(propertyConfiguration);
 	}
@@ -44,7 +44,7 @@ public class DefaultFormPropertyManager implements FormPropertyManager {
 	@Override
 	public IcConfigurationProperty toConnectorProperty(IcConfigurationProperty propertyConfiguration, List<IdmFormValueDto> formValues) {
 		FormPropertyConverter converter = getPropertyConverter(propertyConfiguration);
-		Assert.notNull(converter);
+		Assert.notNull(converter, "Converter is required.");
 		//
 		return converter.toConnectorProperty(propertyConfiguration, formValues);
 	}
@@ -60,7 +60,7 @@ public class DefaultFormPropertyManager implements FormPropertyManager {
 	}
 	
 	private FormPropertyConverter getPropertyConverter(IcConfigurationProperty propertyConfiguration) {
-		Assert.notNull(propertyConfiguration);
+		Assert.notNull(propertyConfiguration, "Property configuration is required");
 		//
 		return propertyConverters.getPluginFor(propertyConfiguration);
 	}

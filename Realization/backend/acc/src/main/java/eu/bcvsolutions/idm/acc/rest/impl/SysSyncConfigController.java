@@ -70,7 +70,7 @@ public class SysSyncConfigController
 	public SysSyncConfigController(SysSyncConfigService service, SynchronizationService synchronizationService) {
 		super(service);
 		
-		Assert.notNull(synchronizationService);
+		Assert.notNull(synchronizationService, "Service is required.");
 
 		this.service = service;
 		this.synchronizationService = synchronizationService;
@@ -278,8 +278,8 @@ public class SysSyncConfigController
 	}
 
 	private void validate(AbstractSysSyncConfigDto config) {
-		Assert.notNull(config);
-		Assert.notNull(config.getId());
+		Assert.notNull(config, "Configuration is required.");
+		Assert.notNull(config.getId(), "Configuration identifier is required.");
 
 		// Synchronization can not be running
 		boolean running = ((SysSyncConfigService) this.getService()).isRunning(this.getService().get(config.getId()));

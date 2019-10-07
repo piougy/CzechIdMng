@@ -67,14 +67,14 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 			ConfidentialStorage confidentialStorage) {
 		super(SystemEventType.DELETE);
 		//
-		Assert.notNull(service);
-		Assert.notNull(provisioningOperationRepository);
-		Assert.notNull(objectClassService);
-		Assert.notNull(synchronizationConfigService);
-		Assert.notNull(accountRepository);
-		Assert.notNull(systemEntityService);
-		Assert.notNull(provisioningBreakConfigService);
-		Assert.notNull(confidentialStorage);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(provisioningOperationRepository, "Repository is required.");
+		Assert.notNull(objectClassService, "Service is required.");
+		Assert.notNull(synchronizationConfigService, "Service is required.");
+		Assert.notNull(accountRepository, "Repository is required.");
+		Assert.notNull(systemEntityService, "Service is required.");
+		Assert.notNull(provisioningBreakConfigService, "Service is required.");
+		Assert.notNull(confidentialStorage, "Confidential storage is required.");
 		//
 		this.service = service;
 		this.objectClassService = objectClassService;
@@ -94,7 +94,7 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 	@Override
 	public EventResult<SysSystemDto> process(EntityEvent<SysSystemDto> event) {
 		SysSystemDto system = event.getContent();
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 		//
 		// if exists provisioning operations, then is not possible to delete
 		// system

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -445,7 +445,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	private SimpleTaskTrigger getSimpleTrigger(Task task) {
 		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
 		trigger.setTaskId(task.getId());
-		trigger.setFireTime(new DateTime());
+		trigger.setFireTime(ZonedDateTime.now());
 		return trigger;
 	}	
 }

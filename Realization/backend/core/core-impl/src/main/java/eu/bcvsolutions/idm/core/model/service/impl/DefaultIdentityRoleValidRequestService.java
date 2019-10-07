@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,11 +54,11 @@ public class DefaultIdentityRoleValidRequestService
 
 	@Override
 	public List<IdmIdentityRoleValidRequestDto> findAllValid() {
-		return this.findAllValidFrom(new DateTime());
+		return this.findAllValidFrom(ZonedDateTime.now());
 	}
 
 	@Override
-	public List<IdmIdentityRoleValidRequestDto> findAllValidFrom(DateTime from) {
+	public List<IdmIdentityRoleValidRequestDto> findAllValidFrom(ZonedDateTime from) {
 		return toDtos(this.repository.findAllValidFrom(from.toLocalDate()), true);
 	}
 

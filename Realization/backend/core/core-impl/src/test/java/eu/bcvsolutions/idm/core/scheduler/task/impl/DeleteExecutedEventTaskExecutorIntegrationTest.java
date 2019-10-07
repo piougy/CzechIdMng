@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import org.joda.time.DateTime;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +35,15 @@ public class DeleteExecutedEventTaskExecutorIntegrationTest extends AbstractInte
 	@Test
 	public void testDeleteOldExecutedEvents() {
 		// prepare provisioning operations
-		DateTime createdOne = DateTime.now().minusDays(2);
+		ZonedDateTime createdOne = ZonedDateTime.now().minusDays(2);
 		UUID ownerId = UUID.randomUUID();
 		IdmEntityEventDto operationOne = createDto(ownerId, createdOne, OperationState.EXECUTED);
 		// all other variants for not removal
-		createDto(ownerId, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED);
-		createDto(ownerId, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.CREATED);
-		createDto(ownerId, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED);
-		createDto(ownerId, DateTime.now().minusDays(2), OperationState.EXCEPTION);
-		createDto(ownerId, DateTime.now().withTimeAtStartOfDay().minusHours(23), OperationState.EXECUTED);
+		createDto(ownerId, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.EXECUTED);
+		createDto(ownerId, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.CREATED);
+		createDto(ownerId, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.EXECUTED);
+		createDto(ownerId, ZonedDateTime.now().minusDays(2), OperationState.EXCEPTION);
+		createDto(ownerId, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(23), OperationState.EXECUTED);
 		//
 		Assert.assertEquals(createdOne, operationOne.getCreated());
 		IdmEntityEventFilter filter = new IdmEntityEventFilter();
@@ -63,7 +64,7 @@ public class DeleteExecutedEventTaskExecutorIntegrationTest extends AbstractInte
 		Assert.assertTrue(events.stream().allMatch(a -> !a.getId().equals(operationOne.getId())));		
 	}
 	
-	private IdmEntityEventDto createDto(UUID ownerId, DateTime created, OperationState state) {
+	private IdmEntityEventDto createDto(UUID ownerId, ZonedDateTime created, OperationState state) {
 		IdmEntityEventDto dto = new IdmEntityEventDto();
 		dto.setCreated(created);
 		dto.setResult(new OperationResultDto(state));

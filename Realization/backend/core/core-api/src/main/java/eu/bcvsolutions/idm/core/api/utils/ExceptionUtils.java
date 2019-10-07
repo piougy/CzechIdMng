@@ -27,7 +27,7 @@ public abstract class ExceptionUtils {
 	 * @return
 	 */
 	public static Throwable resolveException(Throwable ex) {
-		Assert.notNull(ex);
+		Assert.notNull(ex, "Original exception is required to resolve ResultCodeException.");
 		List<Throwable> causes = Throwables.getCausalChain(ex);
 		// If is some cause instance of ResultCodeException, then we will use only it
 		// (for better show on frontend)
@@ -55,8 +55,8 @@ public abstract class ExceptionUtils {
 	 * @since 9.6.0
 	 */
 	public static void log(Logger logger, ResultCodeException ex) {
-		Assert.notNull(logger);
-		Assert.notNull(ex);
+		Assert.notNull(logger, "Logger is required.");
+		Assert.notNull(ex, "Exeption is required.");
 		// error is required for ResultCodeException - one error will be defined
 		ex
 			.getError()
@@ -76,7 +76,7 @@ public abstract class ExceptionUtils {
 	 * @since 9.6.0
 	 */
 	public static void log(Logger logger, ResultModel resultModel, Throwable ex) {
-		Assert.notNull(logger);
+		Assert.notNull(logger, "Logger is required.");
 		// model not given - log exception only, if given
 		if (resultModel == null) {
 			if (ex != null) {

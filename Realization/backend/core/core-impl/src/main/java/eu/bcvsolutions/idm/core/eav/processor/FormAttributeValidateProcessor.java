@@ -65,7 +65,7 @@ public class FormAttributeValidateProcessor
 		IdmFormValueFilter<FormableEntity> filter = new IdmFormValueFilter<>();
 		filter.setAttributeId(dto.getId());
 		try {
-			if (formService.findValues(filter, new PageRequest(0, 1)).getTotalElements() > 0) {
+			if (formService.findValues(filter, PageRequest.of(0, 1)).getTotalElements() > 0) {
 				throwException(dto.getCode(), persistentTypeChanged, confidentialChanged, null);
 			}
 		} catch (ResultCodeException ex) {

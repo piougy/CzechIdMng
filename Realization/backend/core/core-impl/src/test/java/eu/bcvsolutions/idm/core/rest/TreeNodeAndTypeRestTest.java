@@ -166,7 +166,7 @@ public class TreeNodeAndTypeRestTest extends AbstractRestTest {
 		assertNull(ex);
 		assertEquals(201, status);
 		
-		Page<IdmTreeNode> nodes = this.treeNodeRepository.findChildren(type.getId(), null, new PageRequest(0, 1));
+		Page<IdmTreeNode> nodes = this.treeNodeRepository.findChildren(type.getId(), null, PageRequest.of(0, 1));
 		assertFalse(nodes.getContent().isEmpty());
 		IdmTreeNode node = nodes.getContent().get(0);
 		

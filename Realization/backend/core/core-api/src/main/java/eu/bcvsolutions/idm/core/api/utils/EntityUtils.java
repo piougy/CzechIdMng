@@ -10,6 +10,8 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,8 +19,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.util.Asserts;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
@@ -41,7 +41,7 @@ public class EntityUtils {
 	 * @return
 	 */
 	public static boolean isValid(ValidableEntity entity) {
-		return isValid(entity, new LocalDate());
+		return isValid(entity, LocalDate.now());
 	}
 	
 	/**
@@ -52,7 +52,7 @@ public class EntityUtils {
 	 * @return
 	 */
 	public static boolean isValid(ValidableEntity entity, LocalDate targetDate) {
-		Assert.notNull(targetDate);
+		Assert.notNull(targetDate, "Target date to compare validity is required.");
 		//
 		if (entity == null) {
 			return false;
@@ -68,8 +68,8 @@ public class EntityUtils {
 	 * @param validTill
 	 * @return
 	 */
-	public static boolean isValid(DateTime validFrom, DateTime validTill) {
-		return isValid(validFrom, validTill, new DateTime());
+	public static boolean isValid(ZonedDateTime validFrom, ZonedDateTime validTill) {
+		return isValid(validFrom, validTill, ZonedDateTime.now());
 	}
 	
 	/**
@@ -80,7 +80,9 @@ public class EntityUtils {
 	 * @param targetDate
 	 * @return
 	 */
-	public static boolean isValid(DateTime validFrom, DateTime validTill, DateTime targetDate) {
+	public static boolean isValid(ZonedDateTime validFrom, ZonedDateTime validTill, ZonedDateTime targetDate) {
+		Assert.notNull(targetDate, "Target date to compare validity is required.");
+		//
 		return (validFrom == null || validFrom.compareTo(targetDate) <= 0)
 				&& (validTill == null || validTill.compareTo(targetDate) >= 0);
 	}
@@ -95,7 +97,7 @@ public class EntityUtils {
 		if (entity == null) {
 			return false;
 		}		
-		LocalDate now = new LocalDate();	
+		LocalDate now = LocalDate.now();	
 		return entity.getValidFrom() != null && entity.getValidFrom().compareTo(now) > 0
 				&& (entity.getValidTill() == null || entity.getValidTill().compareTo(now) > 0);
 	}
@@ -110,7 +112,7 @@ public class EntityUtils {
 		if (entity == null) {
 			return false;
 		}	
-		LocalDate now = new LocalDate();
+		LocalDate now = LocalDate.now();
 		return entity.getValidTill() == null || entity.getValidTill().compareTo(now) >= 0;
 	}	
 	
@@ -134,7 +136,7 @@ public class EntityUtils {
 	 * @return module identifier
 	 */
 	public static String getModule(Class<?> entityClass) {
-		Assert.notNull(entityClass);
+		Assert.notNull(entityClass, "Entity class is requered to get IdM module.");
 		//
 		String name = entityClass.getCanonicalName();
 		if (StringUtils.isEmpty(name)) {
@@ -219,8 +221,8 @@ public class EntityUtils {
 	 * @throws IllegalArgumentException
 	 * @throws InvocationTargetException
 	 */
-	public static Object getEntityValue(Object entity, String propertyName) throws 
-	IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
+	public static Object getEntityValue(Object entity, String propertyName) 
+			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
 			 {
 		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
 				.asList(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors())
@@ -265,7 +267,7 @@ public class EntityUtils {
 		}
 		// When is target LocalDate and value not, then we try create instance of LocalDate first
 		if (value != null && LocalDate.class.equals(parameterClass) && !(value instanceof LocalDate)) {
-			value = new LocalDate(value);
+			value = LocalDate.parse(value.toString());
 		}
 		if (value != null && !parameterClass.isAssignableFrom(value.getClass()) && !(value.getClass().isPrimitive() || parameterClass.isPrimitive())) {
 			throw new IllegalAccessException(

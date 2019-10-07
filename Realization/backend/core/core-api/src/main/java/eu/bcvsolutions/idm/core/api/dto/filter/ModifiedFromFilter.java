@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 /**
  * Filter for filtering entities changed from given time stamp
@@ -11,19 +11,18 @@ import org.joda.time.DateTime;
 public interface ModifiedFromFilter extends BaseFilter {
 	
 	String PARAMETER_MODIFIED_FROM = "modifiedFrom";
-
+	
 	/**
 	 * Get modified from for filtering entities changed from given time stamp
 	 * 
 	 * @return
 	 */
-	DateTime getModifiedFrom();
+	ZonedDateTime getModifiedFrom();
 
 	/**
 	 * Set modified from for filtering entities changed from this time stamp
 	 * 
 	 * @param modifiedFrom
 	 */
-	void setModifiedFrom(DateTime modifiedFrom);
-
+	void setModifiedFrom(ZonedDateTime modifiedFrom);
 }

@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -93,7 +92,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		String response = getMockMvc()
 				.perform(post(BaseController.BASE_PATH + "/authentication")
 				.content(serialize(login))
-				.contentType(InitTestData.HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
                 .andReturn()
@@ -110,7 +109,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		getMockMvc()
 			.perform(delete(BaseController.BASE_PATH + "/logout")
 			.header(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME, token)
-			.contentType(InitTestData.HAL_CONTENT_TYPE))
+			.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isNoContent());
 		//
 		tokenDto = tokenManager.getToken(tokenId);
@@ -127,7 +126,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		String response = getMockMvc()
 				.perform(post(BaseController.BASE_PATH + "/authentication")
 				.content(serialize(login))
-				.contentType(InitTestData.HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
                 .andReturn()
@@ -144,7 +143,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		getMockMvc()
 			.perform(delete(BaseController.BASE_PATH + "/logout")
 					.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
-			.contentType(InitTestData.HAL_CONTENT_TYPE))
+			.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isNoContent());
 		//
 		tokenDto = tokenManager.getToken(tokenId);
@@ -158,7 +157,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		return getMockMvc()
 				.perform(post(BaseController.BASE_PATH + "/authentication")
 				.content(serialize(login))
-				.contentType(InitTestData.HAL_CONTENT_TYPE));
+				.contentType(TestHelper.HAL_CONTENT_TYPE));
 	}
 
 	private String serialize(Map<String,String> login) throws IOException {

@@ -108,7 +108,7 @@ public class DefaultIdmPasswordHistoryService
 	private List<IdmPasswordHistoryDto> getPasswordHistoryForIdentity(UUID identityId, int count) {
 		IdmPasswordHistoryFilter filter = new IdmPasswordHistoryFilter();
 		filter.setIdentityId(identityId);
-		return this.find(filter, new PageRequest(0, count, new Sort(Direction.DESC, IdmPasswordHistory_.created.getName()))).getContent();
+		return this.find(filter, PageRequest.of(0, count, new Sort(Direction.DESC, IdmPasswordHistory_.created.getName()))).getContent();
 	}
 
 }

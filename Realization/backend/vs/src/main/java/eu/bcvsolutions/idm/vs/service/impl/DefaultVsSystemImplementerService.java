@@ -48,7 +48,7 @@ public class DefaultVsSystemImplementerService
 			IdmIdentityService identityService) {
 		super(repository);
 
-		Assert.notNull(identityService);
+		Assert.notNull(identityService, "Service is required.");
 
 		this.identityService = identityService;
 
@@ -114,7 +114,7 @@ public class DefaultVsSystemImplementerService
 		roles.forEach(role -> {
 			if (identities.size() < limit) {
 				List<IdmIdentityDto> identitiesFromRole = identityService
-						.findValidByRolePage(role, new PageRequest(0, (int) limit - identities.size())).getContent();
+						.findValidByRolePage(role, PageRequest.of(0, (int) limit - identities.size())).getContent();
 				identities.addAll(identitiesFromRole);
 			}
 		});

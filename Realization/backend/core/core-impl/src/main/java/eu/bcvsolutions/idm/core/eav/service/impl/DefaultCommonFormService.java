@@ -50,8 +50,8 @@ public class DefaultCommonFormService
 			IdmFormDefinitionService formDefinitionService) {
 		super(repository);
 		//
-		Assert.notNull(formService);
-		Assert.notNull(formDefinitionService);
+		Assert.notNull(formService, "Service is required.");
+		Assert.notNull(formDefinitionService, "Service is required.");
 		//
 		this.formService = formService;
 		this.formDefinitionService = formDefinitionService;
@@ -90,8 +90,8 @@ public class DefaultCommonFormService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormDto> getForms(Identifiable owner, BasePermission... permission) {
-		Assert.notNull(owner);
-		Assert.notNull(owner.getId());
+		Assert.notNull(owner, "Owner is required.");
+		Assert.notNull(owner.getId(), "Owner identifier is required.");
 		//
 		IdmFormFilter filter = new IdmFormFilter();
 		filter.setOwnerType(formDefinitionService.getOwnerType(owner));
@@ -103,8 +103,8 @@ public class DefaultCommonFormService
 	@Override
 	@Transactional
 	public IdmFormDto saveForm(Identifiable owner, IdmFormDto form, BasePermission... permission) {
-		Assert.notNull(owner);
-		Assert.notNull(form);
+		Assert.notNull(owner, "Owner is required.");
+		Assert.notNull(form, "Form is required.");
 		//
 		if (StringUtils.isBlank(form.getOwnerType())) {
 			form.setOwnerType(formDefinitionService.getOwnerType(owner));
@@ -123,7 +123,7 @@ public class DefaultCommonFormService
 	@Override
 	@Transactional
 	public void deleteForms(Identifiable owner, BasePermission... permission) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		getForms(owner).forEach(form -> {
 			delete(form, permission);
@@ -172,7 +172,7 @@ public class DefaultCommonFormService
 	 * @return
 	 */
 	private UUID getOwnerId(Identifiable owner) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		Assert.isInstanceOf(UUID.class, owner.getId(), "Entity with UUID identifier is supported as owner for common forms.");
 		//
 		return (UUID) owner.getId();

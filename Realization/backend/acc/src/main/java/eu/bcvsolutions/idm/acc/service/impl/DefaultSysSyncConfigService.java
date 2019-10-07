@@ -60,7 +60,7 @@ public class DefaultSysSyncConfigService
 	public DefaultSysSyncConfigService(SysSyncConfigRepository repository, SysSyncLogService synchronizationLogService) {
 		super(repository);
 		//
-		Assert.notNull(synchronizationLogService);
+		Assert.notNull(synchronizationLogService, "Service is required.");
 		//
 		this.repository = repository;
 		this.syncLogService = synchronizationLogService;
@@ -69,7 +69,7 @@ public class DefaultSysSyncConfigService
 	@Override
 	@Transactional
 	public AbstractSysSyncConfigDto saveInternal(AbstractSysSyncConfigDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		if (dto != null && !this.isNew(dto)) {
 			AbstractSysSyncConfigDto persistedConfig = this.get(dto.getId());
@@ -90,12 +90,12 @@ public class DefaultSysSyncConfigService
 		// log and add it to the sync configuration DTO (for show statistics and results
 		// in the table of sync -> UX)
 		if (filter != null && filter.getIncludeLastLog() != null && filter.getIncludeLastLog()) {
-			Assert.notNull(result.getId());
+			Assert.notNull(result.getId(), "Result identifier is required.");
 
 			SysSyncLogFilter syncLogFilter = new SysSyncLogFilter();
 			syncLogFilter.setSynchronizationConfigId(result.getId());
 			List<SysSyncLogDto> logs = syncLogService
-					.find(syncLogFilter, new PageRequest(0, 1, Direction.DESC, SysSyncLog_.created.getName()))
+					.find(syncLogFilter, PageRequest.of(0, 1, Direction.DESC, SysSyncLog_.created.getName()))
 					.getContent();
 			if (!logs.isEmpty()) {
 				result.setLastSyncLog(logs.get(0));
@@ -135,7 +135,7 @@ public class DefaultSysSyncConfigService
 	@Override
 	@Transactional
 	public void deleteInternal(AbstractSysSyncConfigDto synchronizationConfig) {
-		Assert.notNull(synchronizationConfig);
+		Assert.notNull(synchronizationConfig, "Synchronization configuration is required.");
 		//
 		// remove all synchronization logs
 		SysSyncLogFilter filter = new SysSyncLogFilter();
@@ -193,7 +193,7 @@ public class DefaultSysSyncConfigService
 			return false;
 		}
 		int count = ((SysSyncConfigRepository) this.getRepository())
-				.runningCount(((SysSyncConfigRepository) this.getRepository()).findOne(config.getId()));
+				.runningCount(((SysSyncConfigRepository) this.getRepository()).findById(config.getId()).get());
 		return count > 0;
 	}
 
@@ -209,10 +209,10 @@ public class DefaultSysSyncConfigService
 	}
 
 	@Override
-	public Long countBySystemMapping(SysSystemMappingDto mappingDto) {
-		Assert.notNull(mappingDto);
-		Assert.notNull(mappingDto.getId());
-		return repository.countByCorrelationAttribute_Id(mappingDto.getId());
+	public Long countBySystemMapping(SysSystemMappingDto mapping) {
+		Assert.notNull(mapping, "Mapping is required.");
+		Assert.notNull(mapping.getId(), "Mapping identifier is required.");
+		return repository.countByCorrelationAttribute_Id(mapping.getId());
 	}
 
 }

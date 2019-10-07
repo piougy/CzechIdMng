@@ -442,4 +442,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(ProvisioningOperationTable);
+export default connect(select, null, null, { forwardRef: true })(ProvisioningOperationTable);

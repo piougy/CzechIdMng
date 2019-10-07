@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -152,7 +152,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 */
 		createAndCheckDuplicitIdentityRole(
 				null, null, // A
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), //B 
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), //B 
 				B_ROLE_DUPLICATED);
 	}
 
@@ -181,8 +181,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().minusDays(10), null, // A
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // B
+				LocalDate.now().minusDays(10), null, // A
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // B
 				B_ROLE_DUPLICATED);
 	}
 
@@ -196,8 +196,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                  now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				null, new LocalDate().plusDays(10), // A
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // B
+				null, LocalDate.now().plusDays(10), // A
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // B
 				B_ROLE_DUPLICATED);
 	}
 
@@ -211,8 +211,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                  now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().minusDays(10), new LocalDate().plusDays(10), // A
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // B
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(10), // A
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // B
 				B_ROLE_DUPLICATED);
 	}
 
@@ -226,8 +226,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // A
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // B
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // A
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // B
 				B_ROLE_DUPLICATED);
 	}
 
@@ -241,8 +241,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                  now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				null, new LocalDate().plusDays(5), // A
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // B
+				null, LocalDate.now().plusDays(5), // A
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // B
 				B_ROLE_DUPLICATED);
 	}
 
@@ -256,8 +256,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                  now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().minusDays(50), new LocalDate().plusDays(5),
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5),
+				LocalDate.now().minusDays(50), LocalDate.now().plusDays(5),
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5),
 				B_ROLE_DUPLICATED);
 	}
 
@@ -271,8 +271,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                  now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().minusDays(5), null, // A
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // B
+				LocalDate.now().minusDays(5), null, // A
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // B
 				B_ROLE_DUPLICATED);
 	}
 
@@ -286,8 +286,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                  now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(50), // A
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // B
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(50), // A
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // B
 				B_ROLE_DUPLICATED);
 	}
 
@@ -302,8 +302,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *           now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(10), // A
-				new LocalDate().plusDays(20), new LocalDate().plusDays(50), // B
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(10), // A
+				LocalDate.now().plusDays(20), LocalDate.now().plusDays(50), // B
 				NONE_ROLE_DUPLICATED);
 	}
 
@@ -318,8 +318,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *   now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().plusDays(5), new LocalDate().plusDays(10), // A
-				new LocalDate().plusDays(20), new LocalDate().plusDays(50), // B
+				LocalDate.now().plusDays(5), LocalDate.now().plusDays(10), // A
+				LocalDate.now().plusDays(20), LocalDate.now().plusDays(50), // B
 				NONE_ROLE_DUPLICATED);
 	}
 
@@ -334,8 +334,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *   now
 		 */
 		IdmIdentityDto identity = createAndCheckDuplicitIdentityRole(
-				new LocalDate().plusDays(5), new LocalDate().plusDays(10), // A
-				new LocalDate().plusDays(20), new LocalDate().plusDays(50), // B
+				LocalDate.now().plusDays(5), LocalDate.now().plusDays(10), // A
+				LocalDate.now().plusDays(20), LocalDate.now().plusDays(50), // B
 				NONE_ROLE_DUPLICATED);
 
 		List<IdmIdentityRoleDto> allByIdentity = service.findAllByIdentity(identity.getId());
@@ -354,7 +354,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *   			valid till
 		 */
 		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
-		contract.setValidTill(new LocalDate().plusDays(10));
+		contract.setValidTill(LocalDate.now().plusDays(10));
 		contract = identityContractService.save(contract);
 		
 		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
@@ -372,8 +372,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *   		 now
 		 */
 		IdmIdentityDto identity = createAndCheckDuplicitIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(10), // A
-				new LocalDate().plusDays(20), new LocalDate().plusDays(50), // B
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(10), // A
+				LocalDate.now().plusDays(20), LocalDate.now().plusDays(50), // B
 				NONE_ROLE_DUPLICATED);
 
 		List<IdmIdentityRoleDto> allByIdentity = service.findAllByIdentity(identity.getId());
@@ -399,7 +399,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *   			valid till
 		 */
 		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
-		contract.setValidTill(new LocalDate().plusDays(10));
+		contract.setValidTill(LocalDate.now().plusDays(10));
 		contract = identityContractService.save(contract);
 
 		// Only for embedded and identityContract
@@ -422,8 +422,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                   now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().minusDays(10), new LocalDate().plusDays(10), // A
-				new LocalDate().minusDays(5), new LocalDate().plusDays(50), // B
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(10), // A
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(50), // B
 				A_ROLE_DUPLICATED);
 	}
 
@@ -438,8 +438,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *  now
 		 */
 		createAndCheckDuplicitIdentityRole(
-				new LocalDate().plusDays(5), new LocalDate().plusDays(10),
-				new LocalDate().plusDays(15), new LocalDate().plusDays(50),
+				LocalDate.now().plusDays(5), LocalDate.now().plusDays(10),
+				LocalDate.now().plusDays(15), LocalDate.now().plusDays(50),
 				NONE_ROLE_DUPLICATED);
 	}
 
@@ -454,7 +454,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
 				null, null, // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -468,8 +468,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(10), null, // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(10), null, // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -483,8 +483,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				null, new LocalDate().plusDays(10), // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // MAN
+				null, LocalDate.now().plusDays(10), // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -498,8 +498,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(10), new LocalDate().plusDays(10), // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(10), // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -513,8 +513,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                 now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -528,8 +528,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				null, new LocalDate().plusDays(5), // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // MAN
+				null, LocalDate.now().plusDays(5), // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -543,8 +543,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(50), new LocalDate().plusDays(5), // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(50), LocalDate.now().plusDays(5), // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -558,8 +558,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                 now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(5), null, // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(5), null, // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -573,8 +573,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                 now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(50), // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(50), // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -588,8 +588,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *           now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // AUTO
-				new LocalDate().plusDays(10), new LocalDate().plusDays(20), // MAN
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // AUTO
+				LocalDate.now().plusDays(10), LocalDate.now().plusDays(20), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -603,8 +603,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *           now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(5), // AUTO
-				new LocalDate().plusDays(10), null, // MAN
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), // AUTO
+				LocalDate.now().plusDays(10), null, // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -618,8 +618,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                 now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(10), new LocalDate().plusDays(20), // AUTO
-				new LocalDate().minusDays(10), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(20), // AUTO
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -633,8 +633,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *          now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(10), new LocalDate().plusDays(20), // AUTO
-				new LocalDate().plusDays(30), new LocalDate().plusDays(40), // MAN
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(20), // AUTO
+				LocalDate.now().plusDays(30), LocalDate.now().plusDays(40), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -648,8 +648,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(10), new LocalDate().plusDays(20), // AUTO
-				new LocalDate().minusDays(30), new LocalDate().plusDays(20), // MAN
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(20), // AUTO
+				LocalDate.now().minusDays(30), LocalDate.now().plusDays(20), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -663,8 +663,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(10), new LocalDate().plusDays(5), // AUTO
-				new LocalDate().minusDays(5), new LocalDate().plusDays(10), // MAN
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(5), // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(10), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -678,8 +678,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                   now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(10), // AUTO
-				new LocalDate().minusDays(10), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(10), // AUTO
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 	}
 
@@ -693,7 +693,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                   now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(10), // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(10), // AUTO
 				null, null, // MAN
 				MANUALLY_DUPLICATED);
 	}
@@ -708,7 +708,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().plusDays(5), new LocalDate().plusDays(10), // AUTO
+				LocalDate.now().plusDays(5), LocalDate.now().plusDays(10), // AUTO
 				null, null, // MAN
 				MANUALLY_NOT_DUPLICATED);
 	}
@@ -723,7 +723,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().plusDays(5), new LocalDate().plusDays(10), // AUTO
+				LocalDate.now().plusDays(5), LocalDate.now().plusDays(10), // AUTO
 				null, null, // MAN
 				MANUALLY_NOT_DUPLICATED);
 	}
@@ -738,8 +738,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *      now
 		 */
 		createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().plusDays(5), new LocalDate().plusDays(10), // AUTO
-				new LocalDate().minusDays(5), null, // MAN
+				LocalDate.now().plusDays(5), LocalDate.now().plusDays(10), // AUTO
+				LocalDate.now().minusDays(5), null, // MAN
 				MANUALLY_NOT_DUPLICATED);
 	}
 
@@ -770,7 +770,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 */
 		createAndCheckDuplicitIdentityRole(
 				null, null, // A
-				null, new LocalDate().plusDays(10), // B
+				null, LocalDate.now().plusDays(10), // B
 				B_ROLE_DUPLICATED);
 	}
 
@@ -787,7 +787,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 */
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
 		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
-		contract.setValidTill(new LocalDate().plusDays(10));
+		contract.setValidTill(LocalDate.now().plusDays(10));
 		contract = identityContractService.save(contract);
 		
 		IdmRoleDto role = getHelper().createRole();
@@ -807,8 +807,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 		IdmRoleDto role = createRoleWithAttributes(prepareAttributeOne());
 
-		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(10), new LocalDate().plusDays(10));
-		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(5), new LocalDate().plusDays(5));
+		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, LocalDate.now().minusDays(10), LocalDate.now().plusDays(10));
+		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, LocalDate.now().minusDays(5), LocalDate.now().plusDays(5));
 
 		List<IdmIdentityRoleDto> allByIdentity = service.findAllByIdentity(identity.getId());
 		assertEquals(2, allByIdentity.size());
@@ -861,8 +861,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 		IdmRoleDto role = createRoleWithAttributes(prepareAttributeThree());
 
-		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(10), new LocalDate().plusDays(10));
-		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, new LocalDate().plusDays(15), new LocalDate().plusDays(20));
+		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, LocalDate.now().minusDays(10), LocalDate.now().plusDays(10));
+		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, LocalDate.now().plusDays(15), LocalDate.now().plusDays(20));
 
 		List<IdmIdentityRoleDto> allByIdentity = service.findAllByIdentity(identity.getId());
 		assertEquals(2, allByIdentity.size());
@@ -918,8 +918,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 		IdmRoleDto role = createRoleWithAttributes(prepareAttributeTwo());
 
-		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(10), new LocalDate().plusDays(10));
-		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, new LocalDate().plusDays(15), new LocalDate().plusDays(20));
+		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, LocalDate.now().minusDays(10), LocalDate.now().plusDays(10));
+		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, LocalDate.now().plusDays(15), LocalDate.now().plusDays(20));
 
 		List<IdmIdentityRoleDto> allByIdentity = service.findAllByIdentity(identity.getId());
 		assertEquals(2, allByIdentity.size());
@@ -945,8 +945,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		duplicated = service.getDuplicated(one, two, null);
 		assertNull(duplicated);
 		
-		LocalDate validFrom = new LocalDate().minusDays(5);
-		LocalDate validTill = new LocalDate().plusDays(5);
+		LocalDate validFrom = LocalDate.now().minusDays(5);
+		LocalDate validTill = LocalDate.now().plusDays(5);
 		one.setValidFrom(validFrom);
 		one.setValidTill(validTill);
 		two.setValidFrom(validFrom);
@@ -1045,8 +1045,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		IdmFormAttributeDto attribute = getAttribute(ATTRIBUTE_ONE, role);
 		
 		IdmIdentityDto identity = createAndCheckDuplicityAutomaticIdentityRole(role,
-				new LocalDate().minusDays(10), new LocalDate().plusDays(20), // AUTO
-				new LocalDate().minusDays(10), new LocalDate().plusDays(5), // MAN
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(20), // AUTO
+				LocalDate.now().minusDays(10), LocalDate.now().plusDays(5), // MAN
 				MANUALLY_DUPLICATED);
 
 		List<IdmIdentityRoleDto> roles = service.findAllByIdentity(identity.getId());
@@ -1100,7 +1100,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		 *                   now
 		 */
 		IdmIdentityDto identity = createAndCheckDuplicityAutomaticIdentityRole(
-				new LocalDate().minusDays(5), new LocalDate().plusDays(10), // AUTO
+				LocalDate.now().minusDays(5), LocalDate.now().plusDays(10), // AUTO
 				null, null, // MAN
 				MANUALLY_DUPLICATED);
 
@@ -1172,13 +1172,13 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		one.setIdentityContract(contract.getId());
 		one.setIdentityContractDto(contract);
 		one.setRole(role.getId());
-		one.setCreated(DateTime.now().minusDays(5));
+		one.setCreated(ZonedDateTime.now().minusDays(5));
 
 		IdmIdentityRoleDto two = new IdmIdentityRoleDto(UUID.randomUUID());
 		two.setIdentityContract(contract.getId());
 		two.setIdentityContractDto(contract);
 		two.setRole(role.getId());
-		two.setCreated(DateTime.now().minusDays(10));
+		two.setCreated(ZonedDateTime.now().minusDays(10));
 
 		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
 		assertNotNull(duplicated);
@@ -1195,13 +1195,13 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		one.setIdentityContract(contract.getId());
 		one.setIdentityContractDto(contract);
 		one.setRole(role.getId());
-		one.setCreated(DateTime.now().minusDays(5));
+		one.setCreated(ZonedDateTime.now().minusDays(5));
 
 		IdmIdentityRoleDto two = new IdmIdentityRoleDto();
 		two.setIdentityContract(contract.getId());
 		two.setIdentityContractDto(contract);
 		two.setRole(role.getId());
-		two.setCreated(DateTime.now().minusDays(10));
+		two.setCreated(ZonedDateTime.now().minusDays(10));
 
 		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
 		assertNotNull(duplicated);
@@ -1218,14 +1218,14 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		one.setIdentityContractDto(contract);
 		one.setRole(role.getId());
 		one.setValidFrom(LocalDate.now().plusDays(10));
-		one.setCreated(DateTime.now().minusDays(5));
+		one.setCreated(ZonedDateTime.now().minusDays(5));
 
 		IdmIdentityRoleDto two = new IdmIdentityRoleDto();
 		two.setIdentityContract(contract.getId());
 		two.setIdentityContractDto(contract);
 		two.setValidTill(LocalDate.now().plusDays(5));
 		two.setRole(role.getId());
-		two.setCreated(DateTime.now().minusDays(10));
+		two.setCreated(ZonedDateTime.now().minusDays(10));
 
 		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
 		assertNull(duplicated);
@@ -1238,8 +1238,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 		IdmRoleDto role = createRoleWithAttributes(prepareAttributeOne());
 
-		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(10), new LocalDate().plusDays(10));
-		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, new LocalDate().plusDays(15), new LocalDate().plusDays(40));
+		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, LocalDate.now().minusDays(10), LocalDate.now().plusDays(10));
+		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, LocalDate.now().plusDays(15), LocalDate.now().plusDays(40));
 
 		one = fillEavs(one);
 		two = fillEavs(two);
@@ -1255,8 +1255,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
 		concept.setRole(role.getId());
 		concept.setIdentityContract(contract.getId());
-		concept.setValidFrom(new LocalDate().minusDays(9));
-		concept.setValidTill(new LocalDate().plusDays(9));
+		concept.setValidFrom(LocalDate.now().minusDays(9));
+		concept.setValidTill(LocalDate.now().plusDays(9));
 		concept.setOperation(ConceptRoleRequestOperation.ADD);
 		Map<String, BaseDto> embedded = concept.getEmbedded();
 		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
@@ -1296,8 +1296,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 		IdmRoleDto role = getHelper().createRole();
 
-		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(10), new LocalDate().plusDays(10));
-		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, new LocalDate().plusDays(15), new LocalDate().plusDays(40));
+		IdmIdentityRoleDto one = getHelper().createIdentityRole(identity, role, LocalDate.now().minusDays(10), LocalDate.now().plusDays(10));
+		IdmIdentityRoleDto two = getHelper().createIdentityRole(identity, role, LocalDate.now().plusDays(15), LocalDate.now().plusDays(40));
 
 		IdmIdentityRoleDto duplicated = service.getDuplicated(one, two, null);
 		assertNull(duplicated);
@@ -1306,8 +1306,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
 		concept.setRole(role.getId());
 		concept.setIdentityContract(contract.getId());
-		concept.setValidFrom(new LocalDate().minusDays(9));
-		concept.setValidTill(new LocalDate().plusDays(9));
+		concept.setValidFrom(LocalDate.now().minusDays(9));
+		concept.setValidTill(LocalDate.now().plusDays(9));
 		concept.setOperation(ConceptRoleRequestOperation.ADD);
 		Map<String, BaseDto> embedded = concept.getEmbedded();
 		embedded.put(IdmConceptRoleRequest_.identityContract.getName(), contract);
@@ -1328,8 +1328,8 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 		concepts = new ArrayList<IdmConceptRoleRequestDto>();
 		concept.setRole(role.getId());
-		concept.setValidFrom(new LocalDate().plusDays(50));
-		concept.setValidTill(new LocalDate().plusDays(60));
+		concept.setValidFrom(LocalDate.now().plusDays(50));
+		concept.setValidTill(LocalDate.now().plusDays(60));
 		concept.setDuplicate(null);
 		concept.setDuplicates(null);
 		concepts.add(concept);

@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.acc.dto;
 
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,7 +34,7 @@ public class AccAccountDto extends AbstractDto {
 	private UUID systemEntity;
 	@JsonProperty(access = Access.READ_ONLY)
 	private boolean inProtection;
-	private DateTime endOfProtection;
+	private ZonedDateTime endOfProtection;
 	private String realUid;
 	private SystemEntityType entityType;
 	@Beta
@@ -82,11 +82,11 @@ public class AccAccountDto extends AbstractDto {
 		this.inProtection = inProtection;
 	}
 
-	public DateTime getEndOfProtection() {
+	public ZonedDateTime getEndOfProtection() {
 		return endOfProtection;
 	}
 
-	public void setEndOfProtection(DateTime endOfProtection) {
+	public void setEndOfProtection(ZonedDateTime endOfProtection) {
 		this.endOfProtection = endOfProtection;
 	}
 
@@ -101,7 +101,7 @@ public class AccAccountDto extends AbstractDto {
 			if (this.getEndOfProtection() == null) {
 				return true;
 			}
-			if (this.getEndOfProtection() != null && this.getEndOfProtection().isAfterNow()) {
+			if (this.getEndOfProtection() != null && this.getEndOfProtection().isAfter(ZonedDateTime.now())) {
 				return true;
 			}
 		}

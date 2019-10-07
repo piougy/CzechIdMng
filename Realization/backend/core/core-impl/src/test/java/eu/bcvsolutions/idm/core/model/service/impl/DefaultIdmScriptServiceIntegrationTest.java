@@ -14,7 +14,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -263,10 +263,10 @@ public class DefaultIdmScriptServiceIntegrationTest extends AbstractIntegrationT
 			IdmScriptDto newDto = scriptService.redeploy(script1);
 			assertEquals(script1.getCode(), newDto.getCode());
 			//
-			DateTime date = new DateTime();
+			ZonedDateTime date = ZonedDateTime.now();
 			DecimalFormat decimalFormat = new DecimalFormat("00");
 			directory = new File(TEST_BACKUP_FOLDER + "scripts/" + date.getYear()
-					+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
+					+ decimalFormat.format(date.getMonthValue()) + decimalFormat.format(date.getDayOfMonth()) + "/");
 			File[] files = directory.listFiles();
 			assertEquals(1, files.length);
 			File backup = files[0];
@@ -303,10 +303,10 @@ public class DefaultIdmScriptServiceIntegrationTest extends AbstractIntegrationT
 		try {
 			scriptService.backup(script1);
 			//
-			DateTime date = DateTime.now();
+			ZonedDateTime date = ZonedDateTime.now();
 			DecimalFormat decimalFormat = new DecimalFormat("00");
 			directory = new File(TEST_BACKUP_FOLDER + "scripts/" + date.getYear()
-					+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
+					+ decimalFormat.format(date.getMonthValue()) + decimalFormat.format(date.getDayOfMonth()) + "/");
 			File[] files = directory.listFiles();
 			assertEquals(1, files.length);
 			File backup = files[0];

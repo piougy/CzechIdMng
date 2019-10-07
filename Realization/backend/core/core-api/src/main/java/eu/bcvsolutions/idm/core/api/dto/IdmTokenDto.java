@@ -1,12 +1,12 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
@@ -38,8 +38,8 @@ public class IdmTokenDto extends AbstractDto implements Disableable, ExternalIde
 	@NotNull
 	private String tokenType; // cidmst, password reset, confirm...
 	@NotNull
-	private DateTime issuedAt;
-	private DateTime expiration;
+	private ZonedDateTime issuedAt;
+	private ZonedDateTime expiration;
 	private ConfigurationMap properties;
 	private boolean disabled;
 	private String moduleId;
@@ -75,11 +75,11 @@ public class IdmTokenDto extends AbstractDto implements Disableable, ExternalIde
 		this.disabled = disabled;
 	}
 
-	public DateTime getExpiration() {
+	public ZonedDateTime getExpiration() {
 		return expiration;
 	}
 
-	public void setExpiration(DateTime expiration) {
+	public void setExpiration(ZonedDateTime expiration) {
 		this.expiration = expiration;
 	}
 
@@ -94,11 +94,11 @@ public class IdmTokenDto extends AbstractDto implements Disableable, ExternalIde
 		this.properties = properties;
 	}
 	
-	public DateTime getIssuedAt() {
+	public ZonedDateTime getIssuedAt() {
 		return issuedAt;
 	}
 	
-	public void setIssuedAt(DateTime issuedAt) {
+	public void setIssuedAt(ZonedDateTime issuedAt) {
 		this.issuedAt = issuedAt;
 	}
 	

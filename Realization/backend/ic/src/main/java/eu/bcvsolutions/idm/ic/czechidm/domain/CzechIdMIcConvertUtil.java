@@ -65,7 +65,7 @@ public class CzechIdMIcConvertUtil {
 		List<IcConfigurationProperty> properties = configuration.getConfigurationProperties().getProperties();
 
 		try {
-			ConfigurationClass configurationClassInstance = configurationClass.newInstance();
+			ConfigurationClass configurationClassInstance = configurationClass.getDeclaredConstructor().newInstance();
 
 			PropertyDescriptor[] descriptors;
 			descriptors = Introspector.getBeanInfo(configurationClass).getPropertyDescriptors();
@@ -85,7 +85,7 @@ public class CzechIdMIcConvertUtil {
 				}
 			});
 			return configurationClassInstance;
-		} catch (IntrospectionException | InstantiationException | IllegalAccessException e) {
+		} catch (IntrospectionException | ReflectiveOperationException e) {
 			throw new IcException(e);
 		}
 	}

@@ -4,11 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,25 +73,25 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 	public void testGetLastTimeStamp() {
 		IdmIdentityDto identityOne = new IdmIdentityDto();
 
-		identityOne.setCreated(DateTime.now().minusMinutes(10));
-		identityOne.setModified(DateTime.now().minusMinutes(100));
-		DateTime lastTimeStamp = longPollingManager.getLastTimeStamp(identityOne);
-		assertEquals(identityOne.getCreated().plusMillis(1), lastTimeStamp);
+		identityOne.setCreated(ZonedDateTime.now().minusMinutes(10));
+		identityOne.setModified(ZonedDateTime.now().minusMinutes(100));
+		ZonedDateTime lastTimeStamp = longPollingManager.getLastTimeStamp(identityOne);
+		assertEquals(identityOne.getCreated().plus(1, ChronoUnit.MILLIS), lastTimeStamp);
 
-		identityOne.setCreated(DateTime.now().minusMinutes(100));
-		identityOne.setModified(DateTime.now().minusMinutes(10));
+		identityOne.setCreated(ZonedDateTime.now().minusMinutes(100));
+		identityOne.setModified(ZonedDateTime.now().minusMinutes(10));
 		lastTimeStamp = longPollingManager.getLastTimeStamp(identityOne);
-		assertEquals(identityOne.getModified().plusMillis(1), lastTimeStamp);
+		assertEquals(identityOne.getModified().plus(1, ChronoUnit.MILLIS), lastTimeStamp);
 
-		identityOne.setCreated(DateTime.now().minusMinutes(100));
+		identityOne.setCreated(ZonedDateTime.now().minusMinutes(100));
 		identityOne.setModified(null);
 		lastTimeStamp = longPollingManager.getLastTimeStamp(identityOne);
-		assertEquals(identityOne.getCreated().plusMillis(1), lastTimeStamp);
+		assertEquals(identityOne.getCreated().plus(1, ChronoUnit.MILLIS), lastTimeStamp);
 
 		identityOne.setCreated(null);
-		identityOne.setModified(DateTime.now().minusMinutes(100));
+		identityOne.setModified(ZonedDateTime.now().minusMinutes(100));
 		lastTimeStamp = longPollingManager.getLastTimeStamp(identityOne);
-		assertEquals(identityOne.getModified().plusMillis(1), lastTimeStamp);
+		assertEquals(identityOne.getModified().plus(1, ChronoUnit.MILLIS), lastTimeStamp);
 	}
 
 	@Test
@@ -124,11 +125,11 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 		longPollingManager.checkDeferredRequests(IdmIdentityDto.class);
 
 		// None subscriber will be cleared ... threshold time stamp is too small
-		longPollingManager.clearUnUseSubscribers(DateTime.now().minusMinutes(1));
+		longPollingManager.clearUnUseSubscribers(ZonedDateTime.now().minusMinutes(1));
 		registredSubscirbers = defaultPollingManager.getRegistredSubscribers();
 		assertEquals(1, registredSubscirbers.size());
 
-		longPollingManager.clearUnUseSubscribers(DateTime.now().plusMinutes(1));
+		longPollingManager.clearUnUseSubscribers(ZonedDateTime.now().plusMinutes(1));
 		registredSubscirbers = defaultPollingManager.getRegistredSubscribers();
 		assertEquals(0, registredSubscirbers.size());
 
@@ -292,8 +293,8 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 
 	private void checkDeferredRequest(DeferredResult<OperationResultDto> deferredResult,
 			LongPollingSubscriber subscriber) {
-		Assert.notNull(deferredResult);
-		Assert.notNull(subscriber.getEntityId());
+		Assert.notNull(deferredResult, "Deffered result is required.");
+		Assert.notNull(subscriber.getEntityId(), "Entity identifier is required.");
 
 		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
 		filter.setApplicantId(subscriber.getEntityId());

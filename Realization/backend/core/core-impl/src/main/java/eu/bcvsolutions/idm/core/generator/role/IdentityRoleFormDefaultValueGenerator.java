@@ -37,8 +37,8 @@ public class IdentityRoleFormDefaultValueGenerator
 
 	@Override
 	public IdmIdentityRoleDto generate(IdmIdentityRoleDto dto, IdmGenerateValueDto valueGenerator) {
-		Assert.notNull(dto);
-		Assert.notNull(valueGenerator);
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(valueGenerator, "Value generator is required.");
 		UUID roleId = dto.getRole();
 
 		IdmRoleDto roleDto = null;

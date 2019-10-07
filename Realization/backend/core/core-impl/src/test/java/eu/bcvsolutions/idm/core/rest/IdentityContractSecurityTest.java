@@ -15,7 +15,6 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -37,7 +36,8 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 /**
- * Test for get working positions for signed and unsigned user
+ * Test for get working positions for signed and unsigned user.
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
@@ -45,13 +45,10 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	
 	@Autowired
 	private IdmIdentityService identityService;
-	
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
-	
 	@Autowired
-	@Qualifier("objectMapper")
-	protected ObjectMapper mapper;
+	private ObjectMapper mapper;
 	
 	@Test
 	public void getWorkPositions() {	

@@ -39,7 +39,7 @@ public class DefaultForestIndexService extends AbstractForestIndexService<IdmFor
 			ConfigurationService configurationService) {
 		super(repository, entityManager);
 		//
-		Assert.notNull(configurationService);
+		Assert.notNull(configurationService, "Service is required.");
 		//
 		this.configurationService = configurationService;
 	}

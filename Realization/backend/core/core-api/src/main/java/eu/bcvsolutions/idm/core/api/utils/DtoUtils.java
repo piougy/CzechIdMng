@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import javax.persistence.metamodel.SingularAttribute;
@@ -26,9 +29,9 @@ public abstract class DtoUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <DTO> DTO getEmbedded(AbstractDto dto, String attributeName, DTO defaultValue) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getEmbedded());
-		Assert.hasLength(attributeName);
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(dto.getEmbedded(), "DTO does not have embedded DTO map initialized and is required.");
+		Assert.hasLength(attributeName, "Singular attribute is required to get embedded DTO.");
 		//
 		if (!dto.getEmbedded().containsKey(attributeName)) {
     		return defaultValue;
@@ -61,7 +64,7 @@ public abstract class DtoUtils {
 	 * @return
 	 */
 	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute) {
-		Assert.notNull(attribute);
+		Assert.notNull(attribute, "Singular attribute is required to get DTO from embedded.");
 		//
 		return getEmbedded(dto, attribute.getName());
 	}
@@ -75,7 +78,7 @@ public abstract class DtoUtils {
 	 * @return
 	 */
 	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute, DTO defaultValue) {
-		Assert.notNull(attribute);
+		Assert.notNull(attribute, "Singular attribute is required to get DTO from embedded.");
 		//
 		return getEmbedded(dto, attribute.getName(), (DTO) defaultValue);
 	}
@@ -104,10 +107,6 @@ public abstract class DtoUtils {
 	 * @return
 	 */
 	public static <DTO> DTO getEmbedded(AbstractDto dto, String attributeName, Class<DTO> dtoClass, DTO defaultValue) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getEmbedded());
-		Assert.hasLength(attributeName);
-		//
 		return getEmbedded(dto, attributeName, defaultValue);
 	}
 	
@@ -120,9 +119,7 @@ public abstract class DtoUtils {
 	 * @return
 	 */
 	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute, Class<DTO> dtoClass) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getEmbedded());
-		Assert.notNull(attribute);
+		Assert.notNull(attribute, "Singular attribute is required to get DTO from embedded.");
 		//
 		return getEmbedded(dto, attribute.getName(), dtoClass);
 	}
@@ -135,9 +132,7 @@ public abstract class DtoUtils {
 	 * @return
 	 */
 	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute, Class<DTO> dtoClass, DTO defaultValue) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getEmbedded());
-		Assert.notNull(attribute);
+		Assert.notNull(attribute, "Singular attribute is required to get DTO from embedded.");
 		//
 		return getEmbedded(dto, attribute.getName(), dtoClass, defaultValue);
 	}
@@ -161,6 +156,22 @@ public abstract class DtoUtils {
 	 */	
 	public static UUID toUuid(Object identifier) {
 		return EntityUtils.toUuid(identifier);
+	}
+	
+	/**
+	 * Util to solve legacy issues with joda (old) vs. java time (new) usage.
+	 * 
+	 * @param dateTime
+	 * @return
+	 */
+	public static ZonedDateTime toZonedDateTime(Object dateTime) {
+		if (dateTime == null) {
+			return null;
+		}
+		if (dateTime instanceof org.joda.time.DateTime) {
+			return ZonedDateTime.ofInstant(Instant.ofEpochMilli(((org.joda.time.DateTime) dateTime).getMillis()), ZoneId.systemDefault());
+		}
+		return (ZonedDateTime) dateTime;
 	}
 	
 }

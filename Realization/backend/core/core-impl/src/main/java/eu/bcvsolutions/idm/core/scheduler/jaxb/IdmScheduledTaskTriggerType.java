@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.scheduler.jaxb;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 /**
  * One instace of trigger for scheduled task type.
@@ -17,8 +17,8 @@ public class IdmScheduledTaskTriggerType {
 
 	private String type;
 	private String description;
-	private DateTime nextFireTime;
-	private DateTime previousFireTime;
+	private ZonedDateTime nextFireTime;
+	private ZonedDateTime previousFireTime;
 	private String state;
 	private Long fireTime;
 	private String cron;
@@ -41,21 +41,21 @@ public class IdmScheduledTaskTriggerType {
 		this.description = description;
 	}
 
-	@XmlElement(required = false, type = DateTime.class)
-	public DateTime getNextFireTime() {
+	@XmlElement(required = false, type = ZonedDateTime.class)
+	public ZonedDateTime getNextFireTime() {
 		return nextFireTime;
 	}
 
-	public void setNextFireTime(DateTime nextFireTime) {
+	public void setNextFireTime(ZonedDateTime nextFireTime) {
 		this.nextFireTime = nextFireTime;
 	}
 
-	@XmlElement(required = false, type = DateTime.class)
-	public DateTime getPreviousFireTime() {
+	@XmlElement(required = false, type = ZonedDateTime.class)
+	public ZonedDateTime getPreviousFireTime() {
 		return previousFireTime;
 	}
 
-	public void setPreviousFireTime(DateTime previousFireTime) {
+	public void setPreviousFireTime(ZonedDateTime previousFireTime) {
 		this.previousFireTime = previousFireTime;
 	}
 

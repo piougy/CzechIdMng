@@ -68,11 +68,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			EntityEventManager entityEventManager,
 			ConfigurationService configurationService,
 			SecurityService securityService) {
-		Assert.notNull(service);
-		Assert.notNull(executor);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(configurationService);
-		Assert.notNull(securityService);
+		Assert.notNull(service, "LRT service is required.");
+		Assert.notNull(executor, "Thread executor is required.");
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(configurationService, "Service is required.");
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.service = service;
 		this.executor = executor;
@@ -194,10 +194,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Transactional
 	@TransactionalEventListener
 	public synchronized<V> void executeInternal(LongRunningFutureTask<V> futureTask) {
-		Assert.notNull(futureTask);
+		Assert.notNull(futureTask, "Future task is required.");
 		LongRunningTaskExecutor<V> taskExecutor = futureTask.getExecutor();
-		Assert.notNull(taskExecutor);
-		Assert.notNull(futureTask.getFutureTask());
+		Assert.notNull(taskExecutor, "Task executor is required.");
+		Assert.notNull(futureTask.getFutureTask(), "Future task wrapper is required.");
 		//
 		if (securityService.getUsername().contentEquals(SecurityService.SYSTEM_NAME)) {
 			// each LRT executed by system (~scheduler) will have new transaction context
@@ -255,9 +255,9 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Override
 	@Transactional
 	public void cancel(UUID longRunningTaskId) {
-		Assert.notNull(longRunningTaskId);
+		Assert.notNull(longRunningTaskId, "Task identifier is required.");
 		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
-		Assert.notNull(longRunningTaskId);
+		Assert.notNull(task, "Task is required.");
 		//
 		if (!OperationState.isRunnable(task.getResult().getState())) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING, 
@@ -278,9 +278,9 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Override
 	@Transactional
 	public boolean interrupt(UUID longRunningTaskId) {
-		Assert.notNull(longRunningTaskId);
+		Assert.notNull(longRunningTaskId, "Task identifier is required.");
 		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
-		Assert.notNull(longRunningTaskId);
+		Assert.notNull(longRunningTaskId, "Task identifier is required.");
 		String instanceId = configurationService.getInstanceId();
 		if (!task.getInstanceId().equals(instanceId)) {			
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 
@@ -364,8 +364,8 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 
 	@Override
 	public IdmAttachmentDto getAttachment(UUID longRunningTaskId, UUID attachmentId, BasePermission... permission) {
-		Assert.notNull(longRunningTaskId);
-		Assert.notNull(attachmentId);
+		Assert.notNull(longRunningTaskId, "Task identifier is required.");
+		Assert.notNull(attachmentId, "Attachment identifier is required");
 
 		IdmLongRunningTaskDto longRunningTaskDto = service.get(longRunningTaskId, permission);
 
@@ -454,7 +454,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 */
 	private IdmLongRunningTaskDto getValidTask(LongRunningTaskExecutor<?> taskExecutor) {
 		IdmLongRunningTaskDto task = service.get(taskExecutor.getLongRunningTaskId());
-		Assert.notNull(task);
+		Assert.notNull(task, "Task is required.");
 		//
 		if (!task.getInstanceId().equals(configurationService.getInstanceId())) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 

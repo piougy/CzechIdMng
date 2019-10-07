@@ -79,7 +79,7 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 		request = roleRequestService.startRequestInternal(request.getId(), true);
 		if (RequestState.EXECUTED == request.getState()) {
 			UUID createdAutomaticRoleId = request.getAutomaticRole();
-			Assert.notNull(createdAutomaticRoleId);
+			Assert.notNull(createdAutomaticRoleId, "Automatic role identifier is required.");
 			return automaticRoleAttributeService.get(request.getAutomaticRole());
 		}
 		if (RequestState.IN_PROGRESS == request.getState()) {
@@ -94,7 +94,7 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 	@Override
 	public IdmAutomaticRoleAttributeDto changeAutomaticRoleRules(IdmAutomaticRoleAttributeDto automaticRole,
 			boolean executeImmediately, IdmAutomaticRoleAttributeRuleDto... newRules) {
-		Assert.notNull(automaticRole);
+		Assert.notNull(automaticRole, "Automatic role is required.");
 		Assert.notNull(automaticRole.getId(), "Automatic role must exists!");
 
 		IdmAutomaticRoleRequestDto request = new IdmAutomaticRoleRequestDto();
@@ -145,7 +145,7 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 				true);
 		if (RequestState.EXECUTED == executedRequest.getState()) {
 			UUID createdAutomaticRoleId = executedRequest.getAutomaticRole();
-			Assert.notNull(createdAutomaticRoleId);
+			Assert.notNull(createdAutomaticRoleId, "Automatic role identifier is required.");
 			return automaticRoleAttributeService.get(executedRequest.getAutomaticRole());
 		}
 		if (RequestState.IN_PROGRESS == executedRequest.getState()) {
@@ -159,7 +159,7 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 
 	@Override
 	public void deleteAutomaticRole(AbstractIdmAutomaticRoleDto automaticRole, boolean executeImmediately) {
-		Assert.notNull(automaticRole);
+		Assert.notNull(automaticRole, "Automatic role is required.");
 		Assert.notNull(automaticRole.getId(), "Automatic role must exists!");
 
 		IdmAutomaticRoleRequestDto request = new IdmAutomaticRoleRequestDto();
@@ -201,7 +201,7 @@ public class DefaultAutomaticRoleManager implements AutomaticRoleManager {
 		request = roleRequestService.startRequestInternal(request.getId(), true);
 		if (RequestState.EXECUTED == request.getState()) {
 			UUID createdAutomaticRoleId = request.getAutomaticRole();
-			Assert.notNull(createdAutomaticRoleId);
+			Assert.notNull(createdAutomaticRoleId, "Automatic role identifier is required.");
 			return roleTreeNodeService.get(request.getAutomaticRole());
 		}
 		if (RequestState.IN_PROGRESS == request.getState()) {

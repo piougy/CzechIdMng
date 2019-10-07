@@ -131,7 +131,7 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional
 	public void setValue(String key, String value) {
-		Assert.hasText(key);
+		Assert.hasText(key, "Key is required.");
 		//
 		saveConfiguration(new IdmConfigurationDto(key, value));
 	}
@@ -139,7 +139,7 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional
 	public void setValues(String key, List<String> values) {
-		Assert.hasText(key);
+		Assert.hasText(key, "Key is required.");
 		//
 		// join not null values
 		String value = null;
@@ -167,8 +167,8 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional
 	public void saveConfiguration(IdmConfigurationDto configuration) {
-		Assert.notNull(configuration);
-		Assert.hasText(configuration.getName());
+		Assert.notNull(configuration, "Configuration is required.");
+		Assert.hasText(configuration.getName(), "Configuration name is required.");
 		// only maps dto to entity
 		IdmConfigurationDto configurationEntity = getByCode(configuration.getName());
 		if (configurationEntity == null) {
@@ -184,7 +184,7 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional
 	public IdmConfigurationDto save(IdmConfigurationDto entity, BasePermission... permission) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		// check confidential option
 		if (shouldBeConfidential(entity.getName())) {
 			entity.setConfidential(true);
@@ -218,7 +218,7 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional
 	public void delete(IdmConfigurationDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		checkAccess(this.getEntity(dto.getId()), permission);
 		//
 		if (dto.isConfidential()) {

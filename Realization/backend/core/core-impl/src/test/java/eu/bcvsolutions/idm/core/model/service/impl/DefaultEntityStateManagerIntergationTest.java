@@ -79,6 +79,6 @@ public class DefaultEntityStateManagerIntergationTest extends AbstractIntegratio
 		//
 		manager.deleteState(state);
 		//
-		Assert.assertTrue(manager.findStates(owner, new PageRequest(0, 1)).getTotalElements() == 0);
+		Assert.assertTrue(manager.findStates(owner, PageRequest.of(0, 1)).getTotalElements() == 0);
 	}
 }

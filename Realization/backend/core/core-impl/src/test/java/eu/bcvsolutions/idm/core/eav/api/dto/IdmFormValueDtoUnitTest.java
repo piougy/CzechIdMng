@@ -1,18 +1,20 @@
 package eu.bcvsolutions.idm.core.eav.api.dto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
@@ -58,7 +60,7 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATETIME);
 		
-		DateTime current = new DateTime();
+		ZonedDateTime current = ZonedDateTime.now();
 		
 		formValue.setValue(current);
 		
@@ -66,13 +68,25 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
-	public void testDateTimeValueAsDate() {
+	public void testLocalDateTimeValueAsDate() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATETIME);
 		
-		DateTime current = new DateTime();
+		LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		
-		formValue.setValue(current.toDate());
+		formValue.setValue(Date.from(current.atZone(ZoneId.systemDefault()).toInstant()));
+		
+		Assert.assertEquals(current.atZone(ZoneId.systemDefault()), formValue.getValue());
+	}
+	
+	@Test
+	public void testZonedDateTimeValueAsDate() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.DATETIME);
+		
+		ZonedDateTime current = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
+		formValue.setValue(Date.from(current.toInstant()));
 		
 		Assert.assertEquals(current, formValue.getValue());
 	}
@@ -82,9 +96,9 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATETIME);
 		
-		DateTime current = new DateTime();
+		ZonedDateTime current = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		
-		formValue.setValue(current.toDate().getTime());
+		formValue.setValue(current.toInstant().toEpochMilli());
 		
 		Assert.assertEquals(current, formValue.getValue());
 	}
@@ -94,9 +108,35 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATETIME);
 		
-		DateTime current = new DateTime().withTimeAtStartOfDay();
+		ZonedDateTime current = LocalDate.now().atStartOfDay(ZoneId.systemDefault());
 		
 		formValue.setValue(current.toLocalDate());
+		
+		Assert.assertEquals(current, formValue.getValue());
+	}
+	
+	@Test
+	public void testDateTimeValueAsJodaDateTime() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.DATETIME);
+		
+		ZonedDateTime current = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		DateTime currentAsJoda = new DateTime(Date.from(current.toInstant()).getTime());
+		
+		formValue.setValue(currentAsJoda);
+		
+		Assert.assertEquals(current, formValue.getValue());
+	}
+	
+	@Test
+	public void testDateTimeValueAsJodaLocalDate() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.DATETIME);
+		
+		ZonedDateTime current = LocalDate.now().atStartOfDay(ZoneId.systemDefault());
+		org.joda.time.LocalDate currentAsJoda = new org.joda.time.LocalDate(Date.from(current.toInstant()).getTime());
+		
+		formValue.setValue(currentAsJoda);
 		
 		Assert.assertEquals(current, formValue.getValue());
 	}
@@ -106,11 +146,11 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATETIME);
 		//
-		DateTime current = new DateTime();		
+		ZonedDateTime current = ZonedDateTime.now();		
 		
 		formValue.setValue(current.toString());
 		// time zone default vs. constructed
-		Assert.assertTrue(current.isEqual((DateTime) formValue.getValue()));
+		Assert.assertTrue(current.isEqual((ZonedDateTime) formValue.getValue()));
 	}
 	
 	@Test
@@ -118,7 +158,7 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATETIME);
 		//
-		DateTime current = new DateTime(DateTimeZone.UTC);		
+		ZonedDateTime current = ZonedDateTime.now(ZoneId.of("UTC"));		
 		
 		formValue.setValue(current.toString());
 		
@@ -130,11 +170,11 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.DATE);
 		//
-		LocalDate current = new LocalDate();		
+		LocalDate current = LocalDate.now();		
 		
 		formValue.setValue(current.toString());
 		
-		Assert.assertEquals(current, ((DateTime) formValue.getValue()).toLocalDate());
+		Assert.assertEquals(current, ((ZonedDateTime) formValue.getValue()).toLocalDate());
 	}
 	
 	@Test(expected = ResultCodeException.class)

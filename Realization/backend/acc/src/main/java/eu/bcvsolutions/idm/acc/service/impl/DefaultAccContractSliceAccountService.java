@@ -60,7 +60,7 @@ public class DefaultAccContractSliceAccountService extends
 	
 	@Override
 	public AccContractSliceAccountDto save(AccContractSliceAccountDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		checkAccess(toEntity(dto, null), permission);
 		//
 		LOG.debug("Saving contract-slice-account [{}]", dto);
@@ -80,9 +80,9 @@ public class DefaultAccContractSliceAccountService extends
 	@Override
 	@Transactional
 	public void delete(AccContractSliceAccountDto entity, boolean deleteTargetAccount, BasePermission... permission) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		super.delete(entity, permission);
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		checkAccess(this.getEntity(entity.getId()), permission);
 		//
 		LOG.debug("Deleting contract-slice-account [{}]", entity);

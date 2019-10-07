@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import javax.validation.ConstraintViolationException;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -280,13 +280,13 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	public void testEnableIdentityByContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
-		contract.setValidFrom(new LocalDate().plusDays(1));
+		contract.setValidFrom(LocalDate.now().plusDays(1));
 		identityContractService.save(contract);
 		identity = identityService.get(identity.getId());
 		Assert.assertTrue(identity.isDisabled());
 		Assert.assertEquals(IdentityState.FUTURE_CONTRACT, identity.getState());
 		//
-		contract.setValidFrom(new LocalDate());
+		contract.setValidFrom(LocalDate.now());
 		identityContractService.save(contract);
 		//
 		identity = identityService.get(identity.getId());
@@ -303,7 +303,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		Assert.assertTrue(identity.isDisabled());
 		Assert.assertEquals(IdentityState.NO_CONTRACT, identity.getState());
 		//
-		contract = getHelper().createIdentityContact(identity, null, new LocalDate().plusDays(1), null);
+		contract = getHelper().createIdentityContact(identity, null, LocalDate.now().plusDays(1), null);
 		//
 		identity = identityService.get(identity.getId());
 		Assert.assertTrue(identity.isDisabled());
@@ -316,11 +316,11 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		IdmRoleDto role = getHelper().createRole();
 		getHelper().createIdentityRole(identity, role);
 		getHelper().createIdentityRole(identity, role);
-		getHelper().createIdentityRole(identity, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
+		getHelper().createIdentityRole(identity, role, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1));
 		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
 		getHelper().createIdentityRole(contract, role);
 		getHelper().createIdentityRole(contract, role);
-		getHelper().createIdentityRole(contract, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
+		getHelper().createIdentityRole(contract, role, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1));
 		//
 		List<IdmIdentityDto> identities = identityService.findAllByRole(role.getId());
 		//
@@ -337,11 +337,11 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	public void testFindValidByRole() {
 		IdmIdentityDto validIdentity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto role = getHelper().createRole();
-		getHelper().createIdentityRole(validIdentity, role, new LocalDate().plusDays(1), null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(validIdentity, null, new LocalDate().minusDays(1), null);
+		getHelper().createIdentityRole(validIdentity, role, LocalDate.now().plusDays(1), null);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(validIdentity, null, LocalDate.now().minusDays(1), null);
 		getHelper().createIdentityRole(contract, role);
 		getHelper().createIdentityRole(contract, role);
-		getHelper().createIdentityRole(contract, role, new LocalDate().minusDays(1), new LocalDate().plusDays(1));
+		getHelper().createIdentityRole(contract, role, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1));
 		//
 		// disabled identity
 		IdmIdentityDto identityDisabled = getHelper().createIdentity((GuardedString) null);
@@ -365,7 +365,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		// expired contract
 		IdmIdentityDto identityInvalidContract = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto invalidContract = getHelper().getPrimeContract(identityInvalidContract.getId());
-		invalidContract.setValidFrom(new LocalDate().plusDays(1));
+		invalidContract.setValidFrom(LocalDate.now().plusDays(1));
 		identityContractService.save(invalidContract);
 		getHelper().createIdentityRole(identityInvalidContract, role);
 		//
@@ -388,16 +388,16 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		getHelper().createIdentity((GuardedString) null);
 		getHelper().createIdentity((GuardedString) null);
 		//
-		UUID firstIdentity = identityService.findIds(null, new PageRequest(0, 1)).getContent().get(0);
-		UUID secondIdentity = identityService.findIds(null, new PageRequest(1, 1)).getContent().get(0);
+		UUID firstIdentity = identityService.findIds(null, PageRequest.of(0, 1)).getContent().get(0);
+		UUID secondIdentity = identityService.findIds(null, PageRequest.of(1, 1)).getContent().get(0);
 		//
 		Assert.assertNotEquals(firstIdentity, secondIdentity);
-		Assert.assertTrue(identityService.findIds(null, new PageRequest(1, 1)).getTotalElements() > 1);
+		Assert.assertTrue(identityService.findIds(null, PageRequest.of(1, 1)).getTotalElements() > 1);
 		//
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setId(firstIdentity);
 		//
-		Page<UUID> findIds = identityService.findIds(filter, new PageRequest(0, 1));
+		Page<UUID> findIds = identityService.findIds(filter, PageRequest.of(0, 1));
 		//
 		Assert.assertEquals(1, findIds.getTotalElements());
 		Assert.assertEquals(firstIdentity, findIds.getContent().get(0));
@@ -409,7 +409,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		getHelper().createIdentity((GuardedString) null);
 		getHelper().createIdentity((GuardedString) null);
 		//
-		Page<UUID> findIds = identityService.findIds(null, new PageRequest(0, 2, new Sort(Direction.ASC, IdmIdentity_.username.getName())));
+		Page<UUID> findIds = identityService.findIds(null, PageRequest.of(0, 2, new Sort(Direction.ASC, IdmIdentity_.username.getName())));
 		UUID firstIdentity = findIds.getContent().get(0);
 		UUID secondIdentity = findIds.getContent().get(1);
 		//
@@ -417,7 +417,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		Assert.assertNotNull(secondIdentity);
 		Assert.assertTrue(findIds.getTotalElements() > 1);
 		//
-		findIds = identityService.findIds(null, new PageRequest(0, 2, new Sort(Direction.DESC, IdmIdentity_.username.getName())));
+		findIds = identityService.findIds(null, PageRequest.of(0, 2, new Sort(Direction.DESC, IdmIdentity_.username.getName())));
 		//
 		Assert.assertNotEquals(firstIdentity, findIds.getContent().get(0));
 		Assert.assertNotEquals(secondIdentity, findIds.getContent().get(1));

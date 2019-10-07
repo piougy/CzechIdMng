@@ -2,6 +2,12 @@ package eu.bcvsolutions.idm.core.eav.api.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -11,8 +17,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
@@ -43,10 +47,8 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	private static final long serialVersionUID = 1L;
 	public static final String PROPERTY_FORM_ATTRIBUTE = "formAttribute";
 	//
-	// @NotNull
 	@JsonProperty(access = Access.READ_ONLY)
 	private Serializable ownerId;
-	// @NotEmpty
 	@JsonProperty(access = Access.READ_ONLY)
 	private Class<? extends FormableEntity> ownerType;
 	@NotNull
@@ -61,7 +63,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	private Boolean booleanValue;
 	private Long longValue;
 	private BigDecimal doubleValue;
-	private DateTime dateValue;
+	private ZonedDateTime dateValue;
 	private byte[] byteValue;
 	private UUID uuidValue;
 	@Max(99999)
@@ -84,7 +86,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	}
 	
 	public IdmFormValueDto(IdmFormAttributeDto formAttribute) {
-		Assert.notNull(formAttribute);
+		Assert.notNull(formAttribute, "For attribute is required.");
 		//
 		setFormAttributeDto(formAttribute);
 	}
@@ -185,11 +187,11 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 		this.doubleValue = doubleValue;
 	}
 
-	public DateTime getDateValue() {
+	public ZonedDateTime getDateValue() {
 		return dateValue;
 	}
 
-	public void setDateValue(DateTime dateValue) {
+	public void setDateValue(ZonedDateTime dateValue) {
 		this.dateValue = dateValue;
 	}
 
@@ -250,7 +252,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	 * @return
 	 */
 	public Serializable getValue(PersistentType persistentType) {
-		Assert.notNull(persistentType);
+		Assert.notNull(persistentType, "Persistent type is required.");
 		//
 		switch (persistentType) {
 		case INT:
@@ -290,7 +292,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	 */
 	@JsonProperty(access = Access.READ_ONLY)
 	public boolean isEmpty() {
-		Assert.notNull(persistentType);
+		Assert.notNull(persistentType, "Persistent type is required.");
 		//
 		switch (persistentType) {
 			case INT:
@@ -327,7 +329,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	 */
 	@JsonIgnore
 	public boolean isNull() {
-		Assert.notNull(persistentType);
+		Assert.notNull(persistentType, "Persistent type is required.");
 		//
 		switch (persistentType) {
 			case INT:
@@ -379,7 +381,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 			return false;
 		}
 		//
-		Assert.notNull(persistentType);
+		Assert.notNull(persistentType, "Persistent type is required.");
 		switch (persistentType) {
 			case DATE:
 			case DATETIME:
@@ -396,7 +398,7 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 	 * @param value
 	 */
 	public void setValue(Serializable value) {
-		Assert.notNull(persistentType);
+		Assert.notNull(persistentType, "Persistent type is required.");
 		//
 		switch (persistentType) {
 			case INT:
@@ -430,18 +432,30 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 			case DATETIME:
 				if (value == null) {
 					setDateValue(null);
-				} else if (value instanceof DateTime) {
-					setDateValue((DateTime) value);
+				} else if (value instanceof ZonedDateTime) {
+					setDateValue((ZonedDateTime) value);
+				} else if (value instanceof LocalDateTime) {
+					setDateValue(((LocalDateTime) value).atZone(ZoneId.systemDefault()));
 				} else if (value instanceof LocalDate) {
-					setDateValue(((LocalDate) value).toDateTimeAtStartOfDay());
+					setDateValue(((LocalDate) value).atStartOfDay(ZoneId.systemDefault()));
+				} else if (value instanceof org.joda.time.DateTime) {
+					setDateValue(ZonedDateTime.ofInstant(Instant.ofEpochMilli(((org.joda.time.DateTime) value).getMillis()), 
+							ZoneId.systemDefault()));
+				} else if (value instanceof org.joda.time.LocalDate) {
+					setDateValue(ZonedDateTime.ofInstant(Instant.ofEpochMilli(((org.joda.time.LocalDate) value).toDateTimeAtStartOfDay().getMillis()),
+							ZoneId.systemDefault()));
 				} else if (value instanceof Date) {
-					setDateValue(new DateTime((Date) value));
+					setDateValue(((Date) value).toInstant().atZone(ZoneId.systemDefault()));
 				} else if (value instanceof Long) {
-					setDateValue(new DateTime(( Long) value));
+					setDateValue(Instant.ofEpochMilli(( Long) value).atZone(ZoneId.systemDefault()));
 				} else if (value instanceof String) {
 					try {
-						setDateValue(DateTime.parse((String) value));
-					} catch(IllegalArgumentException ex) {
+						if (persistentType == PersistentType.DATE) {
+							setDateValue(LocalDate.parse((String) value).atStartOfDay(ZoneId.systemDefault()));
+						} else {
+							setDateValue(ZonedDateTime.parse((String) value));
+						}
+					} catch(IllegalArgumentException | DateTimeParseException ex) {
 						throw new ResultCodeException(
 								CoreResultCode.FORM_VALUE_WRONG_TYPE, 
 								"Form value [%s] for attribute [%s] with type [%s] supports ISO format only.", 

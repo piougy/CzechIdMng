@@ -19,7 +19,9 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 
-public interface IdmPasswordService extends ReadWriteDtoService<IdmPasswordDto, IdmPasswordFilter>, ScriptEnabled,
+public interface IdmPasswordService extends 
+		ReadWriteDtoService<IdmPasswordDto, IdmPasswordFilter>, 
+		ScriptEnabled,
 		AuthorizableService<IdmPasswordDto> {
 
 	/**

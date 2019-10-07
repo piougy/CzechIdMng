@@ -96,9 +96,9 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 			IdmFormDefinitionController formDefinitionController) {
 		super(treeNodeService);
 		//
-		Assert.notNull(treeNodeService);
-		Assert.notNull(auditService);
-		Assert.notNull(formDefinitionController);
+		Assert.notNull(treeNodeService, "Service is required.");
+		Assert.notNull(auditService, "Service is required.");
+		Assert.notNull(formDefinitionController, "Controller is required.");
 		//
 		this.treeNodeService = treeNodeService;
 		this.auditService = auditService;

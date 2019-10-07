@@ -1,13 +1,12 @@
 package eu.bcvsolutions.idm.core.model.event.processor.role;
 
 import java.text.MessageFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -89,7 +88,7 @@ public class RoleRequestNotificationProcessor extends CoreEventProcessor<IdmRole
 	public EventResult<IdmRoleRequestDto> process(EntityEvent<IdmRoleRequestDto> event) {
 		IdmRoleRequestDto dto = event.getContent();
 		IdmRoleRequestDto originalSource = event.getOriginalSource();
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required for role request processing.");
 
 		OperationResultDto systemState = dto.getSystemState();
 		OperationResultDto originalSystemState = originalSource != null ? originalSource.getSystemState() : null;
@@ -115,9 +114,8 @@ public class RoleRequestNotificationProcessor extends CoreEventProcessor<IdmRole
 	 * @param request
 	 */
 	private void sendNotification(IdmRoleRequestDto request) {
-
 		UUID requestId = request.getId();
-		Assert.notNull(requestId);
+		Assert.notNull(requestId, "Role request has to persisted before notification is sent.");
 
 		boolean sendNotificationToApplicant = configurationService
 				.getBooleanValue(WorkflowConfig.SEND_NOTIFICATION_TO_APPLICANT_CONFIGURATION_PROPERTY, true);
@@ -125,8 +123,8 @@ public class RoleRequestNotificationProcessor extends CoreEventProcessor<IdmRole
 				.getBooleanValue(WorkflowConfig.SEND_NOTIFICATION_TO_IMPLEMENTER_CONFIGURATION_PROPERTY, false);
 
 		// Transform created date
-		DateTimeFormatter dateFormat = DateTimeFormat.forPattern(ConfigurationService.DEFAULT_APP_DATETIME_FORMAT);
-		String from = dateFormat.print(request.getCreated());
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(ConfigurationService.DEFAULT_APP_DATETIME_FORMAT);
+		String from = request.getCreated().format(dateFormat);
 
 		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService.findAllByRoleRequest(request.getId());
 		Set<IdmConceptRoleRequestDto> addedRoles = concepts.stream() //

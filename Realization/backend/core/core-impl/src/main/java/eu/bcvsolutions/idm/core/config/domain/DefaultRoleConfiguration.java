@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.config.domain.AbstractConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
@@ -20,14 +19,8 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 public class DefaultRoleConfiguration extends AbstractConfiguration implements RoleConfiguration {	
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultRoleConfiguration.class);
-	private final LookupService lookupService;
-	
-	@Autowired
-	public DefaultRoleConfiguration(LookupService lookupService) {
-		Assert.notNull(lookupService);
-		//
-		this.lookupService = lookupService;
-	}
+	//
+	@Autowired private LookupService lookupService;
 
 	@Override
 	public UUID getDefaultRoleId() {

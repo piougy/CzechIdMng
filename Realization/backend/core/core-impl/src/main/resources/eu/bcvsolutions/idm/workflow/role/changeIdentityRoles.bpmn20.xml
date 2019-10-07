@@ -65,7 +65,7 @@ Configuration properties:
     <sequenceFlow id="flow19" sourceRef="approveByHelpDesk" targetRef="exclusivegateway2"></sequenceFlow>
     <sequenceFlow id="flow21" sourceRef="scripttask1" targetRef="startAddSubWorkflow"></sequenceFlow>
     <scriptTask id="scripttask1" name="Loading concepts for add new permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import org.joda.time.LocalDate;
+      <script>import java.time.LocalDate;
           import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
           import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation
 
@@ -84,7 +84,7 @@ execution.setVariable("addedConceptRoles", addedConceptRoles);</script>
     <serviceTask id="servicetaskCreateProcessName" name="Generating process name" activiti:expression="Change permissions request for {{${identityService.getNiceLabel(identityService.get(applicantIdentifier, null))}}}" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow23" sourceRef="startevent1" targetRef="servicetaskCreateProcessName"></sequenceFlow>
     <scriptTask id="scripttask2" name="Loading concepts for change permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import org.joda.time.LocalDate;
+      <script>import java.time.LocalDate;
           import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
           import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation
 
@@ -136,7 +136,7 @@ execution.setVariable("changedConceptRoles", changedConceptRoles);</script>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="removedConceptRoles" activiti:elementVariable="conceptRole"></multiInstanceLoopCharacteristics>
     </callActivity>
     <scriptTask id="scripttask3" name="Loading concepts for remove assigned permissions" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>import org.joda.time.LocalDate;
+      <script>import java.time.LocalDate;
           import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
           import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation
 
@@ -481,15 +481,14 @@ import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 
 // get request ID from event
 def requestId = entityEvent.content.id;
 
 // transform date
-DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
-def from = dateFormat.print(entityEvent.content.created);
+DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
+def from = dateFormat.format(entityEvent.content.created);
 
 // gather all information about roles for send notification
 IdmConceptRoleRequestFilter conceptFilter = new IdmConceptRoleRequestFilter();
@@ -566,8 +565,7 @@ if(sendNotificationToApplicant){
       <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 
 // get request ID from event
 def requestId = entityEvent.content.id;
@@ -589,8 +587,8 @@ def applicantIdentity = identityService.getByUsername(applicantUsername);
 def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
-DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
-def from = dateFormat.print(entityEvent.content.created);
+DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
+def from = dateFormat.format(entityEvent.content.created);
 
 def managerDescription = execution.getVariable("managerDescription");
 
@@ -649,8 +647,7 @@ if(sendNotificationToApplicant){
       <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 
 
 // get request ID from event
@@ -673,8 +670,8 @@ def applicantIdentity = identityService.getByUsername(applicantUsername);
 def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
-DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
-def from = dateFormat.print(entityEvent.content.created);
+DateTimeFormatter dateFormat = DateTimeFormatter.forPattern("dd. MM. yyyy HH:mm");
+def from = dateFormat.format(entityEvent.content.created);
 
 def managerDescription = execution.getVariable("managerDescription");
 if (managerDescription == null || managerDescription.isEmpty()) {
@@ -731,8 +728,7 @@ if(sendNotificationToApplicant){
       <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 
 
 // get request ID from event
@@ -755,8 +751,8 @@ def applicantIdentity = identityService.getByUsername(applicantUsername);
 def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
-DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
-def from = dateFormat.print(entityEvent.content.created);
+DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
+def from = dateFormat.format(entityEvent.content.created);
 
 def managerDescription = execution.getVariable("managerDescription");
 if (managerDescription == null || managerDescription.isEmpty()) {
@@ -813,8 +809,7 @@ if(sendNotificationToApplicant){
       <script>import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
 
 
 // get request ID from event
@@ -837,8 +832,8 @@ def applicantIdentity = identityService.getByUsername(applicantUsername);
 def implementerIdentity = identityService.get(implementerIdentifier);
 
 // transform date
-DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd. MM. yyyy HH:mm");
-def from = dateFormat.print(entityEvent.content.created);
+DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
+def from = dateFormat.format(entityEvent.content.created);
 
 def managerDescription = execution.getVariable("managerDescription");
 if (managerDescription == null || managerDescription.isEmpty()) {

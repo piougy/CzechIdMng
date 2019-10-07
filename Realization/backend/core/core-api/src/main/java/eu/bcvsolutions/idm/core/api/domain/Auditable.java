@@ -1,8 +1,7 @@
 package eu.bcvsolutions.idm.core.api.domain;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
-
-import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
@@ -66,14 +65,14 @@ public interface Auditable {
 	 * 
 	 * @return
 	 */
-	DateTime getCreated();
+	ZonedDateTime getCreated();
 
 	/**
 	 * Created date
 	 * 
 	 * @param created
 	 */
-	void setCreated(DateTime created);
+	void setCreated(ZonedDateTime created);
 
 	/**
 	 * Original last entity modifier (logged identity before authentication was switched)
@@ -108,14 +107,14 @@ public interface Auditable {
 	 * 
 	 * @return
 	 */
-	DateTime getModified();
+	ZonedDateTime getModified();
 
 	/**
 	 * Last entity modified date
 	 * 
 	 * @param modified
 	 */
-	void setModified(DateTime modified);
+	void setModified(ZonedDateTime modified);
 	
 	/**
 	 * Entity author identifier

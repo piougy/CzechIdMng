@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,7 +77,7 @@ public class JwtIdmAuthenticationFilterTest extends AbstractRestTest {
 		
 		// mix two different tokens - payload from second, signature from first
 		IdmJwtAuthenticationDto authDto = login.getAuthentication();
-		authDto.setExpiration(DateTime.now().plus(10000000));
+		authDto.setExpiration(ZonedDateTime.now().plusNanos(10000000000000L));
 		String[] token2Split = getAuthToken(authDto).split("\\.");
 		String[] tokenOrigSplit = tokenOriginal.split("\\.");
 		

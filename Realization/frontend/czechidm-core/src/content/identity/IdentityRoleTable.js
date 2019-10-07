@@ -657,4 +657,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(IdentityRoleTable);
+export default connect(select, null, null, { forwardRef: true })(IdentityRoleTable);

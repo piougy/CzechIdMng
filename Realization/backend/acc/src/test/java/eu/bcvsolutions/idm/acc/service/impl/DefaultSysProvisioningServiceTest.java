@@ -92,7 +92,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -127,7 +126,6 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	@Autowired private FormService formService;
 	@Autowired private IdmIdentityService idmIdentityService;
 	@Autowired private IdmIdentityContractService identityContractService;
-	@Autowired private IdmIdentityRepository identityRepository;
 	@Autowired private AccIdentityAccountService identityAccountService;
 	@Autowired private AccAccountService accountService;
 	@Autowired private ProvisioningService provisioningService;
@@ -562,7 +560,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		phoneValue.setPersistentType(PersistentType.SHORTTEXT);
 		phoneValue.setValue(IDENTITY_PASSWORD_THREE);
 		values.add(phoneValue);
-		formService.saveValues(identityRepository.findOne(identity.getId()), formDefinition, values);
+		formService.saveValues(identity, formDefinition, values);
 
 		// save account
 		provisioningService.doProvisioning(identity);

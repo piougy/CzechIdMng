@@ -128,17 +128,17 @@ public class DefaultSysSystemService
 			EntityEventManager entityEventManager) {
 		super(systemRepository, entityEventManager, formService);
 		//
-		Assert.notNull(icConfigurationFacade);
-		Assert.notNull(objectClassService);
-		Assert.notNull(attributeService);
-		Assert.notNull(synchronizationConfigService);
-		Assert.notNull(formPropertyManager);
-		Assert.notNull(confidentialStorage);
-		Assert.notNull(connectorFacade);
-		Assert.notNull(systemFormValueService);
-		Assert.notNull(systemMappingService);
-		Assert.notNull(systemAttributeMappingService);
-		Assert.notNull(schemaObjectClassService);
+		Assert.notNull(icConfigurationFacade, "Connector configuration facade is required.");
+		Assert.notNull(objectClassService, "Service is required.");
+		Assert.notNull(attributeService, "Service is required.");
+		Assert.notNull(synchronizationConfigService, "Service is required.");
+		Assert.notNull(formPropertyManager, "Manager is required.");
+		Assert.notNull(confidentialStorage, "Confidential storage is required.");
+		Assert.notNull(connectorFacade, "Connector facade is required.");
+		Assert.notNull(systemFormValueService, "Service is required.");
+		Assert.notNull(systemMappingService, "Service is required.");
+		Assert.notNull(systemAttributeMappingService, "Service is required.");
+		Assert.notNull(schemaObjectClassService, "Service is required.");
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -229,7 +229,7 @@ public class DefaultSysSystemService
 	@Override
 	@Transactional
 	public IcConnectorConfiguration getConnectorConfiguration(SysSystemDto system) {
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 		if (system.getConnectorKey() == null) {
 			return null;
 		}
@@ -299,7 +299,7 @@ public class DefaultSysSystemService
 	@Override
 	@Transactional
 	public void checkSystem(SysSystemDto system) {
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 
 		// Find connector identification persisted in system
 		IcConnectorKey connectorKey = system.getConnectorKey();
@@ -322,8 +322,8 @@ public class DefaultSysSystemService
 	@Override
 	@Transactional
 	public List<SysSchemaObjectClassDto> generateSchema(SysSystemDto system) {
-		Assert.notNull(system);
-		Assert.notNull(system.getId());
+		Assert.notNull(system, "System is required.");
+		Assert.notNull(system.getId(), "System identifier is required.");
 		
 		// Find connector identification persisted in system
 		IcConnectorKey connectorKey = system.getConnectorKey();
@@ -434,8 +434,8 @@ public class DefaultSysSystemService
 	@Override
 	@Transactional
 	public IdmFormDefinitionDto getConnectorFormDefinition(IcConnectorInstance connectorInstance) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance, "Connector instance is required to create connector form definition.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required to create connector form definition.");
 		//
 		IdmFormDefinitionDto formDefinition = getFormService().getDefinition(SysSystem.class.getName(),
 				connectorInstance.getConnectorKey().getFullName());
@@ -452,8 +452,8 @@ public class DefaultSysSystemService
 	@Override
 	@Transactional
 	public IdmFormDefinitionDto getPoolingConnectorFormDefinition(IcConnectorInstance connectorInstance) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 	
 		IdmFormDefinitionDto formDefinitionPooling = getFormService().getDefinition(SysSystem.class.getName(),
 				getPoolingFormDefinitionCode(connectorInstance));

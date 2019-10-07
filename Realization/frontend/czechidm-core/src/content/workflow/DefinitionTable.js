@@ -156,4 +156,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true})(DefinitionTable);
+export default connect(select, null, null, { forwardRef: true})(DefinitionTable);

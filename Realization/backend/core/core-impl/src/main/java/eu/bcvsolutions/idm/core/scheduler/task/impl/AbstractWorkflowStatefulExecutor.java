@@ -33,7 +33,7 @@ public abstract class AbstractWorkflowStatefulExecutor<T extends AbstractDto> ex
 
 	@Override
 	public Optional<OperationResult> processItem(T dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		Map<String, Object> variables = getVariables();
 		variables.put(SCHEDULED_TASK_ID_WF_PARAM, this.getScheduledTaskId());

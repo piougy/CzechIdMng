@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
 import java.util.Map;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +32,11 @@ public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulable
 	//
 	@Autowired private AccAccountService service;
 	//
-	private DateTime expiration;
+	private ZonedDateTime expiration;
 	
 	@Override
 	protected boolean start() {
-		expiration = new DateTime();
+		expiration = ZonedDateTime.now();
 		LOG.debug("Start: Remove accounts with expired protection for expiration less than [{}]", expiration);
 		//
 		return super.start();
@@ -47,7 +47,7 @@ public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulable
 		this.counter = 0L;
 		boolean canContinue = true;
 		while(canContinue) {
-			Page<AccAccountDto> expiredAccounts = service.findExpired(expiration, new PageRequest(0, 100));
+			Page<AccAccountDto> expiredAccounts = service.findExpired(expiration, PageRequest.of(0, 100));
 			// init count
 			if (count == null) {
 				count = expiredAccounts.getTotalElements();

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.eav.service.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +13,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.GenericTypeResolver;
@@ -61,25 +61,25 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractFormValueService.class);
 	private final Class<O> ownerClass;
 	private final Class<E> formValueClass;
-	private final ConfidentialStorage confidentialStorage;
 	private final AbstractFormValueRepository<O, E> repository;
+	//
+	@Autowired 
+	private ConfidentialStorage confidentialStorage;
 	@Autowired @Lazy
 	private LookupService lookupService;
 	@Autowired @Lazy
 	private RequestManager requestManager;
 	
 	@SuppressWarnings("unchecked")
-	public AbstractFormValueService(AbstractFormValueRepository<O, E> repository, ConfidentialStorage confidentialStorage) {
+	public AbstractFormValueService(AbstractFormValueRepository<O, E> repository) {
 		super(repository);
 		//
-		Assert.notNull(repository);
-		Assert.notNull(confidentialStorage);
+		Assert.notNull(repository, "Repository is required for service construction.");
 		//
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractFormValueService.class);
 		this.ownerClass = (Class<O>)genericTypes[0];
 		this.formValueClass = (Class<E>)genericTypes[1];
 		this.repository = repository;
-		this.confidentialStorage = confidentialStorage;
 	}
 	
 	@Override
@@ -158,7 +158,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@Override
 	@Transactional
 	public IdmFormValueDto saveInternal(IdmFormValueDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required to be saved.");
 		//
 		// check, if value has to be persisted in confidential storage 
 		Serializable formValue = dto.getValue();
@@ -170,7 +170,6 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 				dto.setShortTextValue(GuardedString.SECRED_PROXY_STRING);
 			}
 		}
-		Assert.notNull(dto);
 		//
 		E persistedEntity = null;
 		if (dto.getId() != null) {
@@ -189,7 +188,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@Override
 	@Transactional
 	public void deleteInternal(IdmFormValueDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required to delete.");
 		//
 		LOG.debug("FormValue [{}] will be removed", dto.getId());
 		if (dto.isConfidential()) {
@@ -264,7 +263,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			predicates.add(builder.equal(root.get(AbstractFormValue_.doubleValue), doubleValue));
 		}
 		//
-		DateTime dateValue = filter.getDateValue();
+		ZonedDateTime dateValue = filter.getDateValue();
 		if (dateValue != null) {
 			predicates.add(builder.equal(root.get(AbstractFormValue_.dateValue), dateValue));
 		}
@@ -280,29 +279,29 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefiniton, BasePermission... permission) {
-		Assert.notNull(owner);
-		Assert.notNull(owner.getId());
+		Assert.notNull(owner, "Owner is required to get form values.");
+		Assert.notNull(owner.getId(), "Owner identifier is required to get form values.");
 		//
 		IdmFormValueFilter<O> filter = new IdmFormValueFilter<>();
 		filter.setOwner(owner);
 		if (formDefiniton != null) {
 			filter.setDefinitionId(formDefiniton.getId());
 		}
-		return find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(AbstractFormValue_.seq.getName())), permission).getContent();
+		return find(filter, PageRequest.of(0, Integer.MAX_VALUE, Sort.by(AbstractFormValue_.seq.getName())), permission).getContent();
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormValueDto> getValues(O owner, IdmFormAttributeDto attribute, BasePermission... permission) {
-		Assert.notNull(owner);
-		Assert.notNull(owner.getId());
+		Assert.notNull(owner, "Owner is required to get form values.");
+		Assert.notNull(owner.getId(), "Owner identifier is required to get form values.");
 		Assert.notNull(attribute, "Form attribute definition is required!");
 		//
 		IdmFormValueFilter<O> filter = new IdmFormValueFilter<>();
 		filter.setOwner(owner);
 		filter.setAttributeId(attribute.getId());
 		//
-		return find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(AbstractFormValue_.seq.getName())), permission).getContent();
+		return find(filter, PageRequest.of(0, Integer.MAX_VALUE, Sort.by(AbstractFormValue_.seq.getName())), permission).getContent();
 	}
 	
 	@Override
@@ -329,14 +328,14 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	
 	@Override
 	public String getConfidentialStorageKey(UUID formAttributeId) {
-		Assert.notNull(formAttributeId);
+		Assert.notNull(formAttributeId, "For attribute identifier is required to get confidential storage key.");
 		//
 		return CONFIDENTIAL_STORAGE_VALUE_PREFIX + ":" + formAttributeId;
 	}
 
 	@Override
 	public Serializable getConfidentialPersistentValue(IdmFormValueDto guardedValue) {
-		Assert.notNull(guardedValue);
+		Assert.notNull(guardedValue, "Form value holding the confidential falue is required to get them.");
 		//
 		return confidentialStorage.get(guardedValue.getId(), getEntityClass(), getConfidentialStorageKey(guardedValue.getFormAttribute()));
 	}
@@ -345,7 +344,11 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@Transactional(readOnly = true)
 	@SuppressWarnings("deprecation")
 	public Page<O> findOwners(IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable) {
-		Assert.notNull(attribute);
+		Assert.notNull(attribute, "Attribute is required.");
+		if (pageable == null) {
+			// pageable is required now
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
 		//
 		if (persistentValue == null) {
 			LOG.debug("Null values are not stored (null form values are removed from repository). Owners cannot be found by 'null' persistent value.");

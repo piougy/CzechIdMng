@@ -36,7 +36,7 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 	public ProvisioningStartProcessor(ProvisioningService provisioningService) {
 		super(ProvisioningEventType.START);
 		//
-		Assert.notNull(provisioningService);
+		Assert.notNull(provisioningService, "Service is required.");
 		//
 		this.provisioningService = provisioningService;
 	}
@@ -49,7 +49,7 @@ public class ProvisioningStartProcessor extends AbstractEntityEventProcessor<Acc
 	@Override
 	public EventResult<AccAccountDto> process(EntityEvent<AccAccountDto> event) {
 		AccAccountDto account = event.getContent();
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 		LOG.info("Provisioning event start, for account id: [{}], account uid: [{}], real uid [{}] , system id: [{}]",
 				account.getId(), account.getUid(), account.getRealUid(), account.getSystem());
 

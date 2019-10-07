@@ -51,8 +51,8 @@ public class SystemMappingSaveProcessor extends CoreEventProcessor<SysSystemMapp
 			SysSchemaObjectClassService schemaObjectClassService) {
 		super(SystemMappingEventType.CREATE, SystemMappingEventType.UPDATE);
 		//
-		Assert.notNull(systemMappingService);
-		Assert.notNull(schemaObjectClassService);
+		Assert.notNull(systemMappingService, "Service is required.");
+		Assert.notNull(schemaObjectClassService, "Service is required.");
 		//
 		this.systemMappingService = systemMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;

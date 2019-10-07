@@ -47,7 +47,7 @@ public class VsSystemController {
 
 	@Autowired
 	public VsSystemController(VsSystemService service) {
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		this.service = service;
 	}
 

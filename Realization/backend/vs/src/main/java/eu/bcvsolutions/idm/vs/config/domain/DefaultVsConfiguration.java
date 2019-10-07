@@ -25,7 +25,7 @@ public class DefaultVsConfiguration
 	
 	@Autowired
 	public DefaultVsConfiguration(LookupService lookupService) {
-		Assert.notNull(lookupService);
+		Assert.notNull(lookupService, "Lookup service is required.");
 		//
 		this.lookupService = lookupService;
 	}

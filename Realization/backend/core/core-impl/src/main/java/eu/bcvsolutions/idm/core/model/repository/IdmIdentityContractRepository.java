@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -14,8 +14,6 @@ import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 /**
  * Identity contracts (working positions etc.)
@@ -25,23 +23,62 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  */
 public interface IdmIdentityContractRepository extends AbstractEntityRepository<IdmIdentityContract> {
 	
+	/**
+	 * All contracts of given identity.
+	 * 
+	 * @param identity
+	 * @param sort
+	 * @return
+	 */
 	List<IdmIdentityContract> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
 	
+	/**
+	 * All contracts of given identity.
+	 * 
+	 * @param identityId
+	 * @param sort
+	 * @return
+	 */
 	List<IdmIdentityContract> findAllByIdentity_Id(@Param("identityId") UUID identityId, Sort sort);
 	
-	@Query(value = "select e from #{#entityName} e join e.workPosition n"
+	/**
+	 * Contracts with given tree node (by workPositionId) recursively (by recursionType).
+	 * 
+	 * @param workPositionId
+	 * @param recursionType
+	 * @return
+	 */
+	@Query(value = "select e from IdmTreeNode wp, #{#entityName} e join e.workPosition n"
 			+ " where"
-			+ " (n.treeType = ?#{[0].treeType})" // more tree types
+			+ " wp.id = :workPositionId"
+			+ " and"
+			+ " n.treeType = wp.treeType" // more tree types
 			+ " and"
 			+ " ("
-				+ " (n = ?#{[0]})" // takes all recursion
+				+ " (n.id = wp.id)" // takes all recursion
 				+ " or"
-				+ " (?#{[1].name()} = 'DOWN' and n.forestIndex.lft between ?#{[0].lft} and ?#{[0].rgt})"
+				+ " ("
+					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'DOWN'"
+					+ " and n.forestIndex.lft between wp.forestIndex.lft and wp.forestIndex.rgt"
+				+ " )"
 				+ " or"
-				+ " (?#{[1].name()} = 'UP' and ?#{[0].lft} between n.forestIndex.lft and n.forestIndex.rgt)"
+				+ " ("
+					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'UP'"
+					+ " and wp.forestIndex.lft between n.forestIndex.lft and n.forestIndex.rgt"
+				+ " )"
 			+ " )")
-	List<IdmIdentityContract> findAllByWorkPosition(IdmTreeNode workPosition, RecursionType recursionType);
+	List<IdmIdentityContract> findAllByWorkPosition(
+			@Param("workPositionId") UUID workPositionId, 
+			@Param("recursionType") RecursionType recursionType);
 	
+	/**
+	 * Valid contracts (by given date) of given identity.
+	 * 
+	 * @param identityId
+	 * @param date
+	 * @param isExterne
+	 * @return
+	 */
 	@Query(value = "select e from #{#entityName} e"
 			+ " where"
 			+ " (e.state is null or e.state != eu.bcvsolutions.idm.core.api.domain.ContractState.DISABLED)"
@@ -59,19 +96,19 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 			@Param("isExterne") Boolean isExterne);
 	
 	/**
-	 * @deprecated use {@link #countByWorkPosition_Id(UUID)}
+	 * Count of contracts with given tree node.
+	 * 
+	 * @param treeNodeId
+	 * @return
 	 */
-	@Deprecated
-	Long countByWorkPosition(@Param("treeNode") IdmTreeNode treeNode);
-	
 	Long countByWorkPosition_Id(@Param("treeNodeId") UUID treeNodeId);
 	
 	/**
-	 * @deprecated use {@link #countByWorkPosition_TreeType_Id(UUID)}
+	 * Count of contracts with given tree type.
+	 * 
+	 * @param treeTypeId
+	 * @return
 	 */
-	@Deprecated
-	Long countByWorkPosition_TreeType(@Param("treeType") IdmTreeType treeType);
-	
 	Long countByWorkPosition_TreeType_Id(UUID treeTypeId);
 
 	/**

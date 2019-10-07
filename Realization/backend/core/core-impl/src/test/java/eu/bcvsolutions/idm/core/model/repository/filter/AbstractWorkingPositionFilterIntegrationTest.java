@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -89,7 +89,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		structureOne = getHelper().createTreeType();
 		IdmTreeNodeDto managerOnePosition = getHelper().createTreeNode(structureOne, null); 
 		getHelper().createIdentityContact(managerOne, managerOnePosition);
-		getHelper().createIdentityContact(invalidManagerExpiredContract, managerOnePosition, new LocalDate().plusDays(1), null);
+		getHelper().createIdentityContact(invalidManagerExpiredContract, managerOnePosition, LocalDate.now().plusDays(1), null);
 		getHelper().createIdentityContact(invalidManagerDisabledIdentity, managerOnePosition);
 		IdmIdentityContractDto exclededContract = getHelper().createIdentityContact(invalidManagerExcludedContract, managerOnePosition);
 		exclededContract.setState(ContractState.EXCLUDED);

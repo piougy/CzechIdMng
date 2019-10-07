@@ -112,7 +112,6 @@ public abstract class AbstractHrProcessIntegrationTest<E extends AbstractDto> ex
 		return longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(taskDto, clazz));
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected void process(IdmLongRunningTaskDto lrt, E dto) {
 		// TODO: remove mixing unit and integration test - filter and "black magic" is not tested ...
 		//

@@ -29,7 +29,7 @@ public class IdmIdentityEntityLookup extends AbstractEntityLookup<IdmIdentity> {
 	public IdmIdentity lookup(Serializable id) {
 		IdmIdentity entity = null;
 		try {
-			entity = identityRepository.findOne(EntityUtils.toUuid(id));
+			entity = identityRepository.findById(EntityUtils.toUuid(id)).orElse(null);
 		} catch (ClassCastException ex) {
 			// simply not found
 		}

@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -81,7 +81,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH),
 						any(),
 						any()))
@@ -89,7 +89,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL), 
 						any(),
 						any()))
@@ -103,7 +103,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH), 
 						any(),
 						any()))
@@ -111,7 +111,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(),						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL), 
 						any(),
 						any()))
@@ -129,7 +129,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH), 
 						any(),
 						any()))
@@ -137,7 +137,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL), 
 						any(),
 						any()))
@@ -155,7 +155,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH), 
 						any(),
 						any()))
@@ -163,7 +163,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL), 
 						any(),
 						any()))
@@ -182,7 +182,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH), 
 						any(),
 						any()))
@@ -190,7 +190,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL), 
 						any(),
 						any()))
@@ -208,7 +208,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH), 
 						any(),
 						any()))
@@ -216,7 +216,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL), 
 						any(),
 						any()))
@@ -231,21 +231,21 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testCreatedEventsSortByCreatedAndPriority() {
 		List<IdmEntityEventDto> highEvents = new ArrayList<>();
-		DateTime created = new DateTime();
+		ZonedDateTime created = ZonedDateTime.now();
 		IdmEntityEventDto highEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		highEventOne.setCreated(created.minusMillis(11));
+		highEventOne.setCreated(created.minusNanos(11));
 		highEventOne.setPriority(PriorityType.HIGH);
 		highEventOne.setOwnerId(UUID.randomUUID());		
 		highEvents.add(highEventOne);
 		IdmEntityEventDto highEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		highEventTwo.setCreated(created.minusMillis(21));
+		highEventTwo.setCreated(created.minusNanos(21));
 		highEventTwo.setPriority(PriorityType.HIGH);
 		highEventTwo.setOwnerId(UUID.randomUUID());		
 		highEvents.add(highEventTwo);
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH), 
 						any(),
 						any()))
@@ -253,19 +253,19 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		List<IdmEntityEventDto> normalEvents = new ArrayList<>();
 		IdmEntityEventDto normalEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventOne.setCreated(created.minusMillis(18));
+		normalEventOne.setCreated(created.minusNanos(18));
 		normalEventOne.setPriority(PriorityType.NORMAL);
 		normalEventOne.setOwnerId(UUID.randomUUID());		
 		normalEvents.add(normalEventOne);
 		IdmEntityEventDto normalEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventTwo.setCreated(created.minusMillis(40));
+		normalEventTwo.setCreated(created.minusNanos(40));
 		normalEventTwo.setPriority(PriorityType.NORMAL);
 		normalEventTwo.setOwnerId(UUID.randomUUID());		
 		normalEvents.add(normalEventTwo);
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL), 
 						any(),
 						any()))
@@ -285,22 +285,22 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testCreatedEventsHigherPriorityByDuplicate() {
 		List<IdmEntityEventDto> highEvents = new ArrayList<>();
-		DateTime created = new DateTime();
+		ZonedDateTime created = ZonedDateTime.now();
 		UUID ownerId = UUID.randomUUID();
 		IdmEntityEventDto highEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		highEventOne.setCreated(created.minusMillis(11));
+		highEventOne.setCreated(created.minusNanos(11));
 		highEventOne.setPriority(PriorityType.HIGH);
 		highEventOne.setOwnerId(UUID.randomUUID());
 		highEvents.add(highEventOne);
 		IdmEntityEventDto highEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		highEventTwo.setCreated(created.minusMillis(21));
+		highEventTwo.setCreated(created.minusNanos(21));
 		highEventTwo.setPriority(PriorityType.HIGH);
 		highEventTwo.setOwnerId(ownerId);		
 		highEvents.add(highEventTwo);
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH), 
 						any(),
 						any()))
@@ -308,19 +308,19 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		List<IdmEntityEventDto> normalEvents = new ArrayList<>();
 		IdmEntityEventDto normalEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventOne.setCreated(created.minusMillis(18));
+		normalEventOne.setCreated(created.minusNanos(18));
 		normalEventOne.setPriority(PriorityType.NORMAL);
 		normalEventOne.setOwnerId(UUID.randomUUID());		
 		normalEvents.add(normalEventOne);
 		IdmEntityEventDto normalEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventTwo.setCreated(created.minusMillis(4));
+		normalEventTwo.setCreated(created.minusNanos(4));
 		normalEventTwo.setPriority(PriorityType.NORMAL);
 		normalEventTwo.setOwnerId(ownerId);		
 		normalEvents.add(normalEventTwo);
 		when(entityEventService
 				.findToExecute(
 						any(),						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL), 
 						any(),
 						any()))
@@ -344,27 +344,27 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testCreatedEventsRemoveOlderDuplicates() {
 		List<IdmEntityEventDto> highEvents = new ArrayList<>();
-		DateTime created = new DateTime();
+		ZonedDateTime created = ZonedDateTime.now();
 		UUID ownerId = UUID.randomUUID();
 		IdmEntityEventDto highEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		highEventOne.setCreated(created.minusMillis(11));
+		highEventOne.setCreated(created.minusNanos(11));
 		highEventOne.setPriority(PriorityType.HIGH);
 		highEventOne.setOwnerId(UUID.randomUUID());		
 		highEvents.add(highEventOne);
 		IdmEntityEventDto highEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		highEventTwo.setCreated(created.minusMillis(21));
+		highEventTwo.setCreated(created.minusNanos(21));
 		highEventTwo.setPriority(PriorityType.HIGH);
 		highEventTwo.setOwnerId(ownerId);		
 		highEvents.add(highEventTwo);
 		IdmEntityEventDto highEventThree = new IdmEntityEventDto(UUID.randomUUID());
-		highEventThree.setCreated(created.minusMillis(2));
+		highEventThree.setCreated(created.minusNanos(2));
 		highEventThree.setPriority(PriorityType.HIGH);
 		highEventThree.setOwnerId(ownerId);		
 		highEvents.add(highEventThree);
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH), 
 						any(),
 						any()))
@@ -372,24 +372,24 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		List<IdmEntityEventDto> normalEvents = new ArrayList<>();
 		IdmEntityEventDto normalEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventOne.setCreated(created.minusMillis(18));
+		normalEventOne.setCreated(created.minusNanos(18));
 		normalEventOne.setPriority(PriorityType.NORMAL);
 		normalEventOne.setOwnerId(UUID.randomUUID());		
 		normalEvents.add(normalEventOne);
 		IdmEntityEventDto normalEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventTwo.setCreated(created.minusMillis(1));
+		normalEventTwo.setCreated(created.minusNanos(1));
 		normalEventTwo.setPriority(PriorityType.NORMAL);
 		normalEventTwo.setOwnerId(ownerId);		
 		normalEvents.add(normalEventTwo);
 		IdmEntityEventDto normalEventThree = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventThree.setCreated(created.minusMillis(2));
+		normalEventThree.setCreated(created.minusNanos(2));
 		normalEventThree.setPriority(PriorityType.NORMAL);
 		normalEventThree.setOwnerId(ownerId);		
 		normalEvents.add(normalEventThree);
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL), 
 						any(),
 						any()))
@@ -411,22 +411,22 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testCreatedEventsDontRemoveDuplicatesWithDifferentPerentEventType() {
-		DateTime created = new DateTime();
+		ZonedDateTime created = ZonedDateTime.now();
 		UUID ownerId = UUID.randomUUID();
 		IdmEntityEventDto highEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		highEventOne.setCreated(created.minusMillis(11));
+		highEventOne.setCreated(created.minusNanos(11));
 		highEventOne.setPriority(PriorityType.HIGH);
 		highEventOne.setOwnerId(ownerId);	
 		highEventOne.setParentEventType("one");
 		//
 		IdmEntityEventDto highEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		highEventTwo.setCreated(created.minusMillis(21));
+		highEventTwo.setCreated(created.minusNanos(21));
 		highEventTwo.setPriority(PriorityType.HIGH);
 		highEventTwo.setOwnerId(ownerId);		
 		highEventTwo.setParentEventType("one");
 		//
 		IdmEntityEventDto highEventThree = new IdmEntityEventDto(UUID.randomUUID());
-		highEventThree.setCreated(created.minusMillis(2));
+		highEventThree.setCreated(created.minusNanos(2));
 		highEventThree.setPriority(PriorityType.HIGH);
 		highEventThree.setOwnerId(ownerId);	
 		highEventThree.setParentEventType("two");
@@ -439,18 +439,18 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testIsDuplicate() {
-		DateTime created = new DateTime();
+		ZonedDateTime created = ZonedDateTime.now();
 		UUID ownerId = UUID.randomUUID();
 		//
 		IdmEntityEventDto eventOne = new IdmEntityEventDto(UUID.randomUUID());
-		eventOne.setCreated(created.minusMillis(11));
+		eventOne.setCreated(created.minusNanos(11));
 		eventOne.setPriority(PriorityType.HIGH);
 		eventOne.setOwnerId(ownerId);	
 		eventOne.setParentEventType("one");
 		eventOne.setEventType("type");
 		//
 		IdmEntityEventDto eventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		eventTwo.setCreated(created.minusMillis(21));
+		eventTwo.setCreated(created.minusNanos(21));
 		eventTwo.setPriority(PriorityType.HIGH);
 		eventTwo.setOwnerId(ownerId);
 		eventTwo.setEventType("type");
@@ -540,7 +540,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		//
 		// audit fields are ignored
-		originalSourceOne.setModified(new DateTime());
+		originalSourceOne.setModified(ZonedDateTime.now());
 		//
 		Assert.assertTrue(manager.isDuplicate(eventOne, eventTwo));
 		
@@ -549,22 +549,22 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testCreatedEventsRemoveDuplicatesByProps() {
 		List<IdmEntityEventDto> highEvents = new ArrayList<>();
-		DateTime created = new DateTime();
+		ZonedDateTime created = ZonedDateTime.now();
 		UUID ownerId = UUID.randomUUID();
 		IdmEntityEventDto highEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		highEventOne.setCreated(created.minusMillis(21));
+		highEventOne.setCreated(created.minusNanos(21));
 		highEventOne.setPriority(PriorityType.HIGH);
 		highEventOne.setOwnerId(ownerId);	
 		highEventOne.getProperties().put("one", "one");
 		highEvents.add(highEventOne);
 		IdmEntityEventDto highEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		highEventTwo.setCreated(created.minusMillis(11));
+		highEventTwo.setCreated(created.minusNanos(11));
 		highEventTwo.setPriority(PriorityType.HIGH);
 		highEventTwo.setOwnerId(ownerId);
 		highEventTwo.getProperties().put("one", "one");
 		highEvents.add(highEventTwo);
 		IdmEntityEventDto highEventThree = new IdmEntityEventDto(UUID.randomUUID());
-		highEventThree.setCreated(created.minusMillis(2));
+		highEventThree.setCreated(created.minusNanos(2));
 		highEventThree.setPriority(PriorityType.HIGH);
 		highEventThree.setOwnerId(ownerId);		
 		highEventThree.getProperties().put("one", "oneU");
@@ -572,7 +572,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH),
 						any(),
 						any()))
@@ -581,7 +581,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		when(entityEventService
 				.findToExecute(
 						any(),	
-						any(DateTime.class),
+						any(ZonedDateTime.class),
 						eq(PriorityType.NORMAL),
 						any(),
 						any()))
@@ -601,27 +601,27 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testCreatedEventsDistinctByOwner() {
 		List<IdmEntityEventDto> highEvents = new ArrayList<>();
-		DateTime created = new DateTime();
+		ZonedDateTime created = ZonedDateTime.now();
 		UUID ownerId = UUID.randomUUID();
 		IdmEntityEventDto highEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		highEventOne.setCreated(created.minusMillis(11));
+		highEventOne.setCreated(created.minusNanos(11));
 		highEventOne.setPriority(PriorityType.HIGH);
 		highEventOne.setOwnerId(ownerId);		
 		highEvents.add(highEventOne);
 		IdmEntityEventDto highEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		highEventTwo.setCreated(created.minusMillis(21));
+		highEventTwo.setCreated(created.minusNanos(21));
 		highEventTwo.setPriority(PriorityType.HIGH);
 		highEventTwo.setOwnerId(ownerId);		
 		highEvents.add(highEventTwo);
 		IdmEntityEventDto highEventThree = new IdmEntityEventDto(UUID.randomUUID());
-		highEventThree.setCreated(created.minusMillis(2));
+		highEventThree.setCreated(created.minusNanos(2));
 		highEventThree.setPriority(PriorityType.HIGH);
 		highEventThree.setOwnerId(ownerId);		
 		highEvents.add(highEventThree);
 		when(entityEventService
 				.findToExecute(
 						any(), 						
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.HIGH),
 						any(),
 						any()))
@@ -629,24 +629,24 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		//
 		List<IdmEntityEventDto> normalEvents = new ArrayList<>();
 		IdmEntityEventDto normalEventOne = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventOne.setCreated(created.minusMillis(18));
+		normalEventOne.setCreated(created.minusNanos(18));
 		normalEventOne.setPriority(PriorityType.NORMAL);
 		normalEventOne.setOwnerId(ownerId);		
 		normalEvents.add(normalEventOne);
 		IdmEntityEventDto normalEventTwo = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventTwo.setCreated(created.minusMillis(1));
+		normalEventTwo.setCreated(created.minusNanos(1));
 		normalEventTwo.setPriority(PriorityType.NORMAL);
 		normalEventTwo.setOwnerId(ownerId);		
 		normalEvents.add(normalEventTwo);
 		IdmEntityEventDto normalEventThree = new IdmEntityEventDto(UUID.randomUUID());
-		normalEventThree.setCreated(created.minusMillis(3));
+		normalEventThree.setCreated(created.minusNanos(3));
 		normalEventThree.setPriority(PriorityType.NORMAL);
 		normalEventThree.setOwnerId(ownerId);		
 		normalEvents.add(normalEventThree);
 		when(entityEventService
 				.findToExecute(
 						any(), 
-						any(DateTime.class), 
+						any(ZonedDateTime.class), 
 						eq(PriorityType.NORMAL),
 						any(),
 						any()))
@@ -696,7 +696,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		entityEvent.setOwnerId((UUID) mockOwner.getId());
 		entityEvent.setContent(mockOwner);
 		entityEvent.setPriority(PriorityType.NORMAL);
-		entityEvent.setExecuteDate(new DateTime());
+		entityEvent.setExecuteDate(ZonedDateTime.now());
 		entityEvent.setEventType(CoreEventType.NOTIFY.name());
 		entityEvent.getProperties().put("one", "one");
 		entityEvent.setParentEventType(CoreEventType.UPDATE.name());
@@ -762,7 +762,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	public void testSetAdditionalPrioritiesForEvent() {
 		when(eventConfiguration.getAsynchronousInstanceId()).thenReturn("mockInstance");
 		//
-		DateTime executeDate = new DateTime();
+		ZonedDateTime executeDate = ZonedDateTime.now();
 		IdmIdentity identity = new IdmIdentity(UUID.randomUUID());
 		when(lookupService
 				.getOwnerId(any()))
@@ -802,7 +802,7 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 		EntityEvent<?> parentEvent = new CoreEvent<>(CoreEventType.CREATE, new IdmIdentityDto());
 		parentEvent.setId(UUID.randomUUID());
 		parentEvent.getProperties().put("one", "one");
-		parentEvent.getProperties().put(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE, new DateTime());
+		parentEvent.getProperties().put(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE, ZonedDateTime.now());
 		//
 		manager.propagateProperties(event, parentEvent);
 		//
@@ -813,10 +813,10 @@ public class DefaultEntityEventManagerUnitTest extends AbstractUnitTest {
 	
 	private Page<IdmEntityEventDto> createEvents(PriorityType priority, int count) {
 		List<IdmEntityEventDto> events = new ArrayList<>();
-		DateTime created = new DateTime().minusMillis(count);
+		ZonedDateTime created = ZonedDateTime.now().minusNanos(count);
 		for(int i = 0; i < count; i++) {
 			IdmEntityEventDto event = new IdmEntityEventDto();
-			event.setCreated(created.plusMillis(count));
+			event.setCreated(created.plusNanos(count));
 			event.setPriority(priority);
 			event.setOwnerId(UUID.randomUUID());
 			event.setEventType("custom");

@@ -76,8 +76,8 @@ public class IdmNotificationLogController
 			IdmNotificationConfigurationService notificationConfigurationService) {
 		super(notificationLogService);
 		//
-		Assert.notNull(notificationManager);
-		Assert.notNull(notificationConfigurationService);
+		Assert.notNull(notificationManager, "Manager is required.");
+		Assert.notNull(notificationConfigurationService, "Service is required.");
 		//
 		this.notificationManager = notificationManager;
 		this.notificationLogService = notificationLogService;

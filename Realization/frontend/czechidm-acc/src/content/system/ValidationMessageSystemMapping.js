@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 //
 import { Basic } from 'czechidm-core';
@@ -70,7 +71,7 @@ export default class ValidationMessageSystemMapping extends Basic.AbstractFormCo
 
 ValidationMessageSystemMapping.propTypes = {
   ...Basic.AbstractFormComponent.propTypes,
-  error: React.PropTypes.object
+  error: PropTypes.object
 };
 
 ValidationMessageSystemMapping.defaultProps = {

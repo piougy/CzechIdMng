@@ -58,7 +58,7 @@ public class IdmRequestIdentityRoleController
 	@Autowired
 	public IdmRequestIdentityRoleController(IdmRequestIdentityRoleService service) {
 		super(service);
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		this.service = service;
 	}
 

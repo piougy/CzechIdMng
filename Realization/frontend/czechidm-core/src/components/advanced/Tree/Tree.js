@@ -1066,4 +1066,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(Tree);
+export default connect(select, null, null, { forwardRef: true })(Tree);

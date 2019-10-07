@@ -55,7 +55,7 @@ public abstract class IdmAuthorityUtils {
 	 * @return
 	 */
 	public static List<GrantedAuthority> toAuthorities(GroupPermission... groupPermissions) {
-		Assert.notNull(groupPermissions);
+		Assert.notNull(groupPermissions, "Group permissions is required to get authorities.");
 		//
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		for (GroupPermission groupPermission : groupPermissions) {

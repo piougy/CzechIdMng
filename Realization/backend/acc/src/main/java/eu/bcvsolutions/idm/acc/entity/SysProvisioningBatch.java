@@ -10,7 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -39,13 +39,13 @@ public class SysProvisioningBatch extends AbstractEntity {
 	private SysSystemEntity systemEntity;
 	
 	@Column(name = "next_attempt")
-	private DateTime nextAttempt;
+	private ZonedDateTime nextAttempt;
 
-	public DateTime getNextAttempt() {
+	public ZonedDateTime getNextAttempt() {
 		return nextAttempt;
 	}
 
-	public void setNextAttempt(DateTime nextAttempt) {
+	public void setNextAttempt(ZonedDateTime nextAttempt) {
 		this.nextAttempt = nextAttempt;
 	}
 

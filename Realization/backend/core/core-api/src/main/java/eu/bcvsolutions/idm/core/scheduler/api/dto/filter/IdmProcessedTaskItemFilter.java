@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.api.dto.filter;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -23,8 +23,8 @@ public class IdmProcessedTaskItemFilter extends DataFilter {
 	private UUID referencedEntityId;
 	private String referencedEntityType;
 	private OperationState operationState;
-	private DateTime from;
-	private DateTime till;
+	private ZonedDateTime from;
+	private ZonedDateTime till;
 
 	public IdmProcessedTaskItemFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -74,19 +74,19 @@ public class IdmProcessedTaskItemFilter extends DataFilter {
 		this.referencedEntityId = referencedEntityId;
 	}
 
-	public DateTime getFrom() {
+	public ZonedDateTime getFrom() {
 		return from;
 	}
 
-	public void setFrom(DateTime from) {
+	public void setFrom(ZonedDateTime from) {
 		this.from = from;
 	}
 
-	public DateTime getTill() {
+	public ZonedDateTime getTill() {
 		return till;
 	}
 
-	public void setTill(DateTime till) {
+	public void setTill(ZonedDateTime till) {
 		this.till = till;
 	}
 }

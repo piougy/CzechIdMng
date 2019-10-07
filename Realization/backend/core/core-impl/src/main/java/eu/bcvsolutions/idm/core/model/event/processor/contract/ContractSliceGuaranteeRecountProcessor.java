@@ -46,7 +46,7 @@ public class ContractSliceGuaranteeRecountProcessor extends CoreEventProcessor<I
 	@Override
 	public EventResult<IdmContractSliceGuaranteeDto> process(EntityEvent<IdmContractSliceGuaranteeDto> event) {
 		IdmContractSliceGuaranteeDto dto = event.getContent();
-		Assert.notNull(dto.getContractSlice());
+		Assert.notNull(dto.getContractSlice(), "Contract slice is required.");
 		IdmContractSliceDto slice = contractSliceService.get(dto.getContractSlice());
 		UUID parentContract = slice.getParentContract();
 		if(parentContract != null) {

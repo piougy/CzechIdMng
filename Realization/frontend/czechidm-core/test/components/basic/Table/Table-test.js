@@ -1,5 +1,6 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
+import ShallowRenderer from 'react-test-renderer/shallow';
 import faker from 'faker';
 import _ from 'lodash';
 import chai, { expect } from 'chai';
@@ -28,7 +29,7 @@ describe.skip('Basic Table', function basicTableTestSuite() {
 
   describe('[empty data]', function basicTableTest() {
     const noData = 'noData text';
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.Table noData={noData}/>);
     const tableWrapper = shallowRenderer.getRenderOutput();
     it('- table without data should return Alert with no data', function test() {
@@ -42,7 +43,7 @@ describe.skip('Basic Table', function basicTableTestSuite() {
   });
 
   describe('[not rendered]', function basicTableTest() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.Table rendered={false}/>);
     const table = shallowRenderer.getRenderOutput();
     it('- table should not be rendered', function test() {
@@ -66,7 +67,7 @@ describe.skip('Basic Table', function basicTableTestSuite() {
       });
     }
 
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.Table data={data}/>);
     const tableWrapper = shallowRenderer.getRenderOutput();
 

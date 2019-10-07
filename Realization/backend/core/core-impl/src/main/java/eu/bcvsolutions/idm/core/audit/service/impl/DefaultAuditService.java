@@ -32,7 +32,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.criterion.MatchMode;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.Audited;
@@ -43,10 +42,10 @@ import org.hibernate.envers.query.AuditQuery;
 import org.hibernate.envers.query.criteria.AuditConjunction;
 import org.hibernate.envers.query.criteria.AuditDisjunction;
 import org.hibernate.envers.query.criteria.AuditProperty;
+import org.hibernate.envers.query.criteria.MatchMode;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -107,7 +106,6 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	private List<String> allAuditedEntititesNames;
 	private FilterConverter filterConverter;
 	@Autowired(required = false)
-	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
 	@Autowired
 	private LookupService lookupService;
@@ -115,8 +113,6 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	@Autowired
 	public DefaultAuditService(IdmAuditRepository auditRepository) {
 		super(auditRepository);
-		//
-		Assert.notNull(auditRepository);
 		//
 		this.auditRepository = auditRepository;
 	}
@@ -176,11 +172,11 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		}
 
 		if (filter.getFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmAudit_.timestamp), filter.getFrom().getMillis()));
+			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmAudit_.timestamp), filter.getFrom().toInstant().toEpochMilli()));
 		}
 		
 		if (filter.getTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(IdmAudit_.timestamp), filter.getTill().getMillis()));
+			predicates.add(builder.lessThanOrEqualTo(root.get(IdmAudit_.timestamp), filter.getTill().toInstant().toEpochMilli()));
 		}
 
 		if (StringUtils.isNotEmpty(filter.getType())) {
@@ -271,7 +267,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		IdmAuditFilter filter = new IdmAuditFilter();
 		filter.setEntityId(entityId);
 		filter.setType(classType.getName());
-		Pageable page = new PageRequest(0, Integer.MAX_VALUE, Direction.ASC, "timestamp", "id");
+		Pageable page = PageRequest.of(0, Integer.MAX_VALUE, Direction.ASC, "timestamp", "id");
 		Page<IdmAuditDto> result = this.find(filter, page);
 		return result.getContent();
 	}
@@ -407,8 +403,8 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 			// TODO: add some better get of all class annotations
 			Annotation[] annotations = null;
 			try {
-				annotations = entityType.getJavaType().newInstance().getClass().getAnnotations();
-			} catch (InstantiationException | IllegalAccessException e) {
+				annotations = entityType.getJavaType().getDeclaredConstructor().newInstance().getClass().getAnnotations();
+			} catch (ReflectiveOperationException e) {
 				// class is not accessible
 				continue;
 			}
@@ -620,7 +616,11 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	public Page<IdmAuditDto> findLogin(IdmAuditFilter filter, Pageable pageable) {
 		// TODO: this behavior is much faster than search audit and then get request for version
 		// it will be nice if this will be used in eq identity role audit
-
+		//
+		if (pageable == null) {
+			// pageable is required noe
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
 		// Create audit query for specific login audit
 		// Conjunction solve connection between successful and failed query
 		AuditConjunction conjunction = AuditEntity.conjunction();
@@ -652,11 +652,11 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		}
 
 		if (filter.getFrom() != null) {
-			conjunction.add(AuditEntity.revisionProperty(IdmAudit_.timestamp.getName()).ge(filter.getFrom().getMillis()));
+			conjunction.add(AuditEntity.revisionProperty(IdmAudit_.timestamp.getName()).ge(filter.getFrom().toInstant().toEpochMilli()));
 		}
 
 		if (filter.getTill() != null) {
-			conjunction.add(AuditEntity.revisionProperty(IdmAudit_.timestamp.getName()).le(filter.getTill().getMillis()));
+			conjunction.add(AuditEntity.revisionProperty(IdmAudit_.timestamp.getName()).le(filter.getTill().toInstant().toEpochMilli()));
 		}
 
 		// Count is for pageable and check if is required made query
@@ -673,25 +673,24 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 
 		// Create final query and solve pagination and order
 		AuditQuery query = this.getAuditReader().createQuery().forRevisionsOfEntity(IdmPassword.class, false, true).add(conjunction);
-		if (pageable != null) {
-			int maxResults = pageable.getPageSize();
-			int firstResult = pageable.getPageSize() * pageable.getPageNumber();
-			query.setMaxResults(maxResults).setFirstResult(firstResult);
-			
-			Sort sort = pageable.getSort();
-			if (sort != null) {
-				sort.forEach(order -> {
-					AuditProperty<Object> property = AuditEntity.revisionProperty(order.getProperty());
-					if (order.isAscending()) {
-						query.addOrder(property.asc());
-					} else {
-						query.addOrder(property.desc());
-					}
-				});
-			}
+		int maxResults = pageable.getPageSize();
+		int firstResult = pageable.getPageSize() * pageable.getPageNumber();
+		query.setMaxResults(maxResults).setFirstResult(firstResult);
+		
+		Sort sort = pageable.getSort();
+		if (sort != null) {
+			sort.forEach(order -> {
+				AuditProperty<Object> property = AuditEntity.revisionProperty(order.getProperty());
+				if (order.isAscending()) {
+					query.addOrder(property.asc());
+				} else {
+					query.addOrder(property.desc());
+				}
+			});
 		}
-
+		
 		// Returned list contains three object IdmAudit, Version (IdmPassword) and type of modification
+		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = query.getResultList();
 
 		// We doesn't need made again get for version, because version is in result form audit query

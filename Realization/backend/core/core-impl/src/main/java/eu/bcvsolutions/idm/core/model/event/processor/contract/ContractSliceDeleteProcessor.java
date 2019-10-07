@@ -67,7 +67,7 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 	public ContractSliceDeleteProcessor(IdmContractSliceService service) {
 		super(ContractSliceEventType.DELETE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -686,18 +686,18 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(1, requests.size());
 		
-		requestFilter.setCreatedAfter(new DateTime().minusSeconds(10));
-		requestFilter.setCreatedBefore(new DateTime());
+		requestFilter.setCreatedAfter(ZonedDateTime.now().minusSeconds(10));
+		requestFilter.setCreatedBefore(ZonedDateTime.now());
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(1, requests.size());
 		
-		requestFilter.setCreatedAfter(new DateTime().plusMinutes(10));
-		requestFilter.setCreatedBefore(new DateTime().plusMinutes(11));
+		requestFilter.setCreatedAfter(ZonedDateTime.now().plusMinutes(10));
+		requestFilter.setCreatedBefore(ZonedDateTime.now().plusMinutes(11));
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(0, requests.size());
 		
-		requestFilter.setCreatedAfter(new DateTime().minusMinutes(10));
-		requestFilter.setCreatedBefore(new DateTime().minusMinutes(9));
+		requestFilter.setCreatedAfter(ZonedDateTime.now().minusMinutes(10));
+		requestFilter.setCreatedBefore(ZonedDateTime.now().minusMinutes(9));
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(0, requests.size());
 	}

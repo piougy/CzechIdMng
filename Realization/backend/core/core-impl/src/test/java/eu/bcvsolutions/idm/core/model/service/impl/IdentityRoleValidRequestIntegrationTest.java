@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.util.List;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,7 +80,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		IdmTreeTypeDto treeType = createAndSaveTreeType();
 		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
-		LocalDate from = new LocalDate();
+		LocalDate from = LocalDate.now();
 		from = from.plusDays(5);
 		createAndSaveIdentityRole(identityContract, role, null, from);
 		
@@ -103,7 +103,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		IdmTreeTypeDto treeType = createAndSaveTreeType();
 		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
-		LocalDate from = new LocalDate();
+		LocalDate from = LocalDate.now();
 		from = from.plusDays(5);
 		createAndSaveIdentityRole(identityContract, role, null, from);
 		
@@ -127,7 +127,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		IdmTreeTypeDto treeType = createAndSaveTreeType();
 		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
-		LocalDate from = new LocalDate();
+		LocalDate from = LocalDate.now();
 		from = from.plusDays(5);
 		createAndSaveIdentityRole(identityContract, role, null, from);
 		
@@ -150,7 +150,7 @@ public class IdentityRoleValidRequestIntegrationTest extends AbstractIntegration
 		IdmTreeTypeDto treeType = createAndSaveTreeType();
 		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
-		LocalDate from = new LocalDate();
+		LocalDate from = LocalDate.now();
 		from = from.plusDays(5);
 		IdmIdentityRoleDto identityRole = createAndSaveIdentityRole(identityContract, role, null, from);
 		

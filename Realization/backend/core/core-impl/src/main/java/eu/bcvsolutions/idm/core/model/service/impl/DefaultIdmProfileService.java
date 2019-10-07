@@ -66,7 +66,7 @@ public class DefaultIdmProfileService
 	@Override
 	@Transactional(readOnly = true)
 	public IdmProfileDto findOneByIdentity(Serializable identityIdentifier, BasePermission... permission) {
-		Assert.notNull(identityIdentifier);
+		Assert.notNull(identityIdentifier, "Identity identifier is required.");
 		IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identityIdentifier);
 		if (identity == null) {
 			return null;
@@ -77,7 +77,7 @@ public class DefaultIdmProfileService
 	@Override
 	@Transactional
 	public IdmProfileDto findOrCreateByIdentity(Serializable identityIdentifier, BasePermission... permission) {
-		Assert.notNull(identityIdentifier);
+		Assert.notNull(identityIdentifier, "Identity identifier is required.");
 		IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, identityIdentifier);
 		if (identity == null) {
 			return null;
@@ -98,8 +98,8 @@ public class DefaultIdmProfileService
 	@Override
 	@Transactional
 	public IdmProfileDto uploadImage(IdmProfileDto profile, MultipartFile data, String fileName, BasePermission... permission) {
-		Assert.notNull(profile);
-		Assert.notNull(profile.getId());
+		Assert.notNull(profile, "Profile is required.");
+		Assert.notNull(profile.getId(), "Profile identifier is required.");
 		//
 		IdmAttachmentDto attachment = new IdmAttachmentDto();
 		attachment.setName(fileName);
@@ -124,8 +124,8 @@ public class DefaultIdmProfileService
 	@Override
 	@Transactional
 	public IdmProfileDto deleteImage(IdmProfileDto profile, BasePermission... permission) {
-		Assert.notNull(profile);
-		Assert.notNull(profile.getId());
+		Assert.notNull(profile, "Profile is required.");
+		Assert.notNull(profile.getId(), "Profile identifier is required.");
 		//
 		if (profile.getImage() == null) {
 			return profile;
@@ -158,7 +158,7 @@ public class DefaultIdmProfileService
 	}
 	
 	private IdmProfileDto findOneByIdentity(IdmIdentityDto identity, BasePermission... permission) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required.");
 		//
 		IdmProfileFilter filter = new IdmProfileFilter();
 		filter.setIdentityId(identity.getId());

@@ -68,11 +68,11 @@ public class ProvisioningBreakProcessor extends AbstractEntityEventProcessor<Sys
 			SysProvisioningOperationService provisioningOperationService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE);
 		//
-		Assert.notNull(systemService);
-		Assert.notNull(breakConfigService);
-		Assert.notNull(breakRecipientService);
-		Assert.notNull(notificationManager);
-		Assert.notNull(provisioningOperationService);
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(breakConfigService, "Service is required.");
+		Assert.notNull(breakRecipientService, "Service is required.");
+		Assert.notNull(notificationManager, "Manager is required.");
+		Assert.notNull(provisioningOperationService, "Service is required.");
 		//
 		this.systemService = systemService;
 		this.breakConfigService = breakConfigService;

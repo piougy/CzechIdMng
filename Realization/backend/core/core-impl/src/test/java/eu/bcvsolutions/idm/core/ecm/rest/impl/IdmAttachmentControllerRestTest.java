@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class IdmAttachmentControllerRestTest extends AbstractReadWriteDtoControl
 	public void testUpload() throws Exception {
 		String fileName = "file.txt";
 		String content = "some text content";
-		String response = getMockMvc().perform(MockMvcRequestBuilders.fileUpload(getBaseUrl() + "/upload")
+		String response = getMockMvc().perform(MockMvcRequestBuilders.multipart(getBaseUrl() + "/upload")
 				.file("data", IOUtils.toByteArray(IOUtils.toInputStream(content)))
         		.param("fileName", fileName)
         		.with(authentication(getAdminAuthentication())))
@@ -87,13 +87,13 @@ public class IdmAttachmentControllerRestTest extends AbstractReadWriteDtoControl
 		attachment.setOwnerId(ownerId);
 		IdmAttachmentDto attachmentOne = createDto(attachment);
 		getHelper().waitForResult(null, 20, 1);
-		DateTime afterOne = DateTime.now();
+		ZonedDateTime afterOne = ZonedDateTime.now();
 		getHelper().waitForResult(null, 20, 1);
 		attachment = prepareDto();
 		attachment.setOwnerId(ownerId);
 		IdmAttachmentDto attachmentTwo = createDto(attachment);
 		getHelper().waitForResult(null, 20, 1);
-		DateTime afterTwo = DateTime.now();
+		ZonedDateTime afterTwo = ZonedDateTime.now();
 		//
 		IdmAttachmentFilter filter = new IdmAttachmentFilter();
 		filter.setOwnerId(ownerId);

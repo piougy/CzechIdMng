@@ -9,7 +9,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.joda.time.DateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -169,8 +171,8 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 	 * @param type
 	 */
 	private void createAndSaveTriggers(Task task, IdmScheduledTaskType type) {
-		Assert.notNull(task);
-		Assert.notNull(task.getId());
+		Assert.notNull(task, "Task is required.");
+		Assert.notNull(task.getId(), "Task identifier is required.");
 		// triggers
 		if (type.getTriggers() != null && type.getTriggers().getTriggers() != null) {
 			for (IdmScheduledTaskTriggerType trigger : type.getTriggers().getTriggers()) {
@@ -207,7 +209,7 @@ public abstract class AbstractScheduledTaskInitializer implements ApplicationLis
 		if (triggerClass.isAssignableFrom(SimpleTaskTrigger.class)) {
 			SimpleTaskTrigger simpleTrigger = new SimpleTaskTrigger();
 			simpleTrigger = (SimpleTaskTrigger) setTriggerDefaultValues(simpleTrigger, triggerType);
-			simpleTrigger.setFireTime(new DateTime(triggerType.getFireTime()));
+			simpleTrigger.setFireTime(Instant.ofEpochMilli(triggerType.getFireTime()).atZone(ZoneId.systemDefault()));
 			return simpleTrigger;
 		} else if (triggerClass.isAssignableFrom(CronTaskTrigger.class)) {
 			CronTaskTrigger cronTrigger = new CronTaskTrigger();

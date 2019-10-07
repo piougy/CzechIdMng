@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,10 +15,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
@@ -100,37 +99,17 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEntityEventManager.class);
 	private static final ConcurrentHashMap<UUID, UUID> runningOwnerEvents = new ConcurrentHashMap<>();
 	//
-	private final ApplicationContext context;
-	private final ApplicationEventPublisher publisher;
-	private final EnabledEvaluator enabledEvaluator;
-	private final LookupService lookupService;
-	//
+	@Autowired private ApplicationContext context;
+	@Autowired private ApplicationEventPublisher publisher;
+	@Autowired private EnabledEvaluator enabledEvaluator;
+	@Autowired private LookupService lookupService;
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private EntityStateManager entityStateManager;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private SecurityService securityService;
 	@Autowired private EventConfiguration eventConfiguration;
 	@Autowired private ModelMapper modelMapper;
-	@Autowired
-	@Qualifier("objectMapper")
-	private ObjectMapper mapper;
-
-	@Autowired
-	public DefaultEntityEventManager(
-			ApplicationContext context, 	
-			ApplicationEventPublisher publisher,
-			EnabledEvaluator enabledEvaluator,
-			LookupService lookupService) {
-		Assert.notNull(context, "Spring context is required");
-		Assert.notNull(publisher, "Event publisher is required");
-		Assert.notNull(enabledEvaluator, "Enabled evaluator is required");
-		Assert.notNull(lookupService, "LookupService is required");
-		//
-		this.context = context;
-		this.publisher = publisher;
-		this.enabledEvaluator = enabledEvaluator;
-		this.lookupService = lookupService;
-	}
+	@Autowired private ObjectMapper mapper;
 	
 	/**
 	 * Cancel all previously ran events
@@ -181,7 +160,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Transactional
 	@SuppressWarnings("unchecked")
 	public <E extends Serializable> EventContext<E> process(EntityEvent<E> event, EntityEvent<?> parentEvent) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required for processing.");
 		Serializable content = event.getContent();
 		//
 		LOG.info("Publishing event [{}]", event);
@@ -295,7 +274,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	@Override
 	public EntityEventProcessor<?> getProcessor(String processorId) {
-		Assert.notNull(processorId);
+		Assert.notNull(processorId, "Procesor identifier is required.");
 		//
 		return (EntityEventProcessor<?>) context.getBean(processorId);
 	}
@@ -312,7 +291,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	@Override
 	public <E extends Identifiable> void changedEntity(E owner, EntityEvent<? extends Identifiable> originalEvent) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is needed for publish is changed event.");
 		//
 		IdmEntityEventDto notifyEvent = prepareEvent(owner, originalEvent);
 		notifyEvent.setEventType(CoreEventType.NOTIFY.name());
@@ -372,7 +351,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			// prevent to debug some messages into log - usable for devs
 			return;
 		}
-		// check running events are full already
+		// check running events queue is full already
 		if (runningOwnerEvents.size() > eventConfiguration.getBatchSize()) {
 			LOG.trace("Asynchronous running events queue is full, waiting for complete running events.");
 			return;
@@ -400,7 +379,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	@Override
 	public IdmEntityEventDto getEvent(EntityEvent<? extends Serializable> event) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required to be trasformed to DTO.");
 		//
 		UUID eventId = getEventId(event);
 		if (eventId == null) {
@@ -417,7 +396,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	@Override
 	public UUID getEventId(EntityEvent<? extends Serializable> event) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required for get their id.");
 		//
 		return event.getId();
 	}
@@ -479,8 +458,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	@Transactional
 	public void executeEvent(IdmEntityEventDto event) {
-		Assert.notNull(event);
-		Assert.notNull(event.getOwnerId());
+		Assert.notNull(event, "Event is reqired to be event executed.");
+		Assert.notNull(event.getOwnerId(), "Event owner identifier is reqired to be event executed.");
 		if (!eventConfiguration.isAsynchronous()) {
 			// synchronous processing
 			// we don't persist events and their states
@@ -587,7 +566,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	@Override
 	public void processOnBackground(EntityEvent<? extends Identifiable> event) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required to be executed.");
 		//
 		putToQueue(prepareEvent(event.getContent(), event));
 	}
@@ -615,10 +594,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmEntityEventDto saveResult(UUID eventId, OperationResultDto result) {
-		Assert.notNull(eventId);
-		Assert.notNull(result);
+		Assert.notNull(eventId, "Event has to be persisted before result is persisted.");
+		Assert.notNull(result, "Event result to persist is required.");
 		IdmEntityEventDto entityEvent = entityEventService.get(eventId);
-		Assert.notNull(entityEvent);
+		Assert.notNull(entityEvent, "Event DTO has to be persisted before result is persisted.");
 		//
 		entityEvent.setResult(result);
 		return entityEventService.save(entityEvent);
@@ -722,8 +701,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 */
 	@Override
 	public void propagateProperties(EntityEvent<?> event, EntityEvent<?> parentEvent) {
-		Assert.notNull(event);
-		Assert.notNull(parentEvent);
+		Assert.notNull(event, "Event is required.");
+		Assert.notNull(parentEvent, "Parent event is required.");
 		//
 		// clone event properties from parent - only if absent
 		getProperties(parentEvent.getProperties())
@@ -735,9 +714,9 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	@Override
 	public IdmEntityEventDto saveEvent(EntityEvent<? extends Identifiable> event, OperationResultDto result) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required.");
 		Identifiable content = event.getContent();
-		Assert.notNull(content);
+		Assert.notNull(content, "Event content is required.");
 		//
 		IdmEntityEventDto savedEvent = toDto(event);
 		savedEvent.setOwnerId(lookupService.getOwnerId(content));
@@ -758,7 +737,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 
 	@Override
 	public IdmEntityEventDto prepareEvent(Identifiable owner, EntityEvent<? extends Identifiable> originalEvent) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		Assert.notNull(owner.getId(), "Change can be published after entity id is assigned at least.");
 		//
 		IdmEntityEventDto event = prepareEvent(owner.getClass(), lookupService.getOwnerId(owner), originalEvent);
@@ -839,27 +818,27 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 * @return
 	 */
 	protected List<IdmEntityEventDto> getCreatedEvents(String instanceId) {
-		Assert.notNull(instanceId);
+		Assert.notNull(instanceId, "Server instance identifier is required.");
 		//
 		// already running owners are excluded (super owner is excluded too)
 		List<UUID> exceptOwnerIds = Lists.newArrayList(runningOwnerEvents.keySet());
 		exceptOwnerIds = exceptOwnerIds.subList(0, exceptOwnerIds.size() > 500 ? 500 : exceptOwnerIds.size()); // prevent sql queue size is exceeded
 		//
 		// load created events - high priority
-		DateTime executeDate = new DateTime();
+		ZonedDateTime executeDate = ZonedDateTime.now();
 		Page<IdmEntityEventDto> highEvents = entityEventService.findToExecute(
 				instanceId,
 				executeDate,
 				PriorityType.HIGH,
 				exceptOwnerIds,
-				new PageRequest(0, eventConfiguration.getBatchSize(), new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
+				PageRequest.of(0, eventConfiguration.getBatchSize(), new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
 		// load created events - low priority
 		Page<IdmEntityEventDto> normalEvents = entityEventService.findToExecute(
 				instanceId,
 				executeDate,
 				PriorityType.NORMAL,
 				exceptOwnerIds,
-				new PageRequest(0, eventConfiguration.getBatchSize(), new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
+				PageRequest.of(0, eventConfiguration.getBatchSize(), new Sort(Direction.ASC, Auditable.PROPERTY_CREATED)));
 		// merge events
 		List<IdmEntityEventDto> events = new ArrayList<>();
 		events.addAll(highEvents.getContent());
@@ -895,7 +874,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 					//
 					IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
 					eventFilter.setParentId(olderEvent.getId());
-					if (entityEventService.find(eventFilter, new PageRequest(0, 1)).getTotalElements() == 0) {
+					if (entityEventService.find(eventFilter, PageRequest.of(0, 1)).getTotalElements() == 0) {
 						entityEventService.delete(olderEvent);
 					}
 				}
@@ -946,8 +925,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	 * @return
 	 */
 	protected boolean isDuplicate(IdmEntityEventDto olderEvent, IdmEntityEventDto event) {
-		Assert.notNull(olderEvent);
-		Assert.notNull(event);
+		Assert.notNull(olderEvent, "Older event is required.");
+		Assert.notNull(event, "Event is required.");
 		//
 		boolean result = Objects.equal(olderEvent.getEventType(), event.getEventType())
 				&& Objects.equal(olderEvent.getParentEventType(), event.getParentEventType())
@@ -973,9 +952,9 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		AbstractDto originalSource = (AbstractDto) event.getOriginalSource();
 		try {
 			// Prevent to change event setting => defensive copy by mapper.
-			AbstractDto olderOriginalSourceCopy = olderOriginalSource.getClass().newInstance();
+			AbstractDto olderOriginalSourceCopy = olderOriginalSource.getClass().getDeclaredConstructor().newInstance();
 			modelMapper.map(olderOriginalSource, olderOriginalSourceCopy);
-			AbstractDto originalSourceCopy = originalSource.getClass().newInstance();
+			AbstractDto originalSourceCopy = originalSource.getClass().getDeclaredConstructor().newInstance();
 			modelMapper.map(originalSource, originalSourceCopy);
 			// Embedded is ignored.
 			olderOriginalSourceCopy.setEmbedded(null);
@@ -986,7 +965,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			//
 			return mapper.writeValueAsString(olderOriginalSourceCopy)
 					.equals(mapper.writeValueAsString(originalSourceCopy));
-		} catch (JsonProcessingException | IllegalAccessException | InstantiationException ex) {
+		} catch (JsonProcessingException | ReflectiveOperationException ex) {
 			LOG.warn("Comparing json for checking duplicate events failed - both events [{}]-[{}] will be executed!", 
 					olderEvent, event, ex);
 			//
@@ -1205,7 +1184,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	}
 	
 	private IdmEntityEventDto prepareEvent(Class<? extends Identifiable> ownerType, UUID ownerId, EntityEvent<? extends Identifiable> originalEvent) {
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerType, "Owner type is required.");
 		Assert.notNull(ownerId, "Change can be published after entity id is assigned at least.");
 		//
 		IdmEntityEventDto savedEvent = toDto(originalEvent);

@@ -40,7 +40,7 @@ public class RoleSaveProcessor
 	public RoleSaveProcessor(ApplicationContext applicationContext) {
 		super(RoleEventType.NOTIFY);
 		//
-		Assert.notNull(applicationContext);
+		Assert.notNull(applicationContext, "Context is required.");
 		//
 		this.applicationContext = applicationContext;
 	}

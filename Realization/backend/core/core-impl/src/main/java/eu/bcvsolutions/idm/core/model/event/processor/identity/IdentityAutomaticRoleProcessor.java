@@ -56,8 +56,8 @@ public class IdentityAutomaticRoleProcessor extends CoreEventProcessor<IdmIdenti
 			IdmIdentityContractService identityContractService) {
 		super(IdentityContractEventType.NOTIFY);
 		//
-		Assert.notNull(automaticRoleAttributeService);
-		Assert.notNull(identityContractService);
+		Assert.notNull(automaticRoleAttributeService, "Service is required.");
+		Assert.notNull(identityContractService, "Service is required.");
 		//
 		this.automaticRoleAttributeService = automaticRoleAttributeService;
 		this.identityContractService = identityContractService;

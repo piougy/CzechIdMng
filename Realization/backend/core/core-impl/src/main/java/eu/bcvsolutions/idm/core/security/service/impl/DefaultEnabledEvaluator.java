@@ -38,7 +38,7 @@ public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	 */
 	@Override
 	public boolean isEnabled(Enabled enabled) {
-		Assert.notNull(enabled);
+		Assert.notNull(enabled, "Enabled annotation is required.");
 		//
 		try {
 			checkEnabled(enabled);
@@ -56,7 +56,7 @@ public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	 */
 	@Override
 	public boolean isEnabled(Object bean) {
-		Assert.notNull(bean);
+		Assert.notNull(bean, "Bean is required.");
 		//		
 		return isEnabled(AopProxyUtils.ultimateTargetClass(bean));
 	}
@@ -69,7 +69,7 @@ public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	 */
 	@Override
 	public boolean isEnabled(Class<?> clazz) {
-		Assert.notNull(clazz);
+		Assert.notNull(clazz, "Class is required.");
 		//
 		Enabled enabled = clazz.getAnnotation(Enabled.class);
 		if (enabled == null) {
@@ -102,7 +102,7 @@ public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	 * @throws ModuleDisabledException
 	 */
 	private boolean checkEnabledModules(String[] modules) throws ModuleDisabledException {
-		Assert.notNull(modules);	
+		Assert.notNull(modules, "Modules are required.");	
 		//
 		for(String moduleId : modules) {
 			if (!moduleService.isEnabled(moduleId)) {
@@ -120,7 +120,7 @@ public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	 * @throws ConfigurationDisabledException
 	 */
 	private boolean checkEnabledProperties(String[] properties) throws ConfigurationDisabledException {
-		Assert.notNull(properties);
+		Assert.notNull(properties, "Properties are required.");
 		//
 		for(String property : properties) {
 			if (!configurationService.getBooleanValue(property, false)) {

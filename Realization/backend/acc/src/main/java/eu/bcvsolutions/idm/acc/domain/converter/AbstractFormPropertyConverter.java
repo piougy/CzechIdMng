@@ -40,7 +40,7 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 	
 	@Override
 	public IdmFormAttributeDto toFormAttribute(IcConfigurationProperty propertyConfiguration) {
-		Assert.notNull(propertyConfiguration);
+		Assert.notNull(propertyConfiguration, "Property configuration is required");
 		//
 		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
 		attribute.setCode(propertyConfiguration.getName());
@@ -57,7 +57,7 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 
 	@Override
 	public IcConfigurationProperty toConnectorProperty(IcConfigurationProperty propertyConfiguration, List<IdmFormValueDto> formValues) {
-		Assert.notNull(propertyConfiguration);
+		Assert.notNull(propertyConfiguration, "Property configuration is required");
 		//
 		IcConfigurationPropertyImpl property = new IcConfigurationPropertyImpl();
 		property.setName(propertyConfiguration.getName());
@@ -67,7 +67,7 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 	
 	@Override
 	public String convertDefaultValue(IcConfigurationProperty propertyConfiguration) {
-		Assert.notNull(propertyConfiguration);
+		Assert.notNull(propertyConfiguration, "Property configuration is required");
 		//
 		if (propertyConfiguration.getValue() == null) {
 			return null;
@@ -150,14 +150,14 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 
 	@Override
 	public boolean supports(IcConfigurationProperty delimiter) {
-		Assert.notNull(delimiter);
+		Assert.notNull(delimiter, "Delimiter to check plugin is supported is required");
 		//
 		return getConnectorPropertyTypes().contains(delimiter.getType());
 	}
 	
 	@Override
 	public boolean supports(String configurationPropertyType) {
-		Assert.notNull(configurationPropertyType);
+		Assert.notNull(configurationPropertyType, "Configuration property type is required.");
 		//
 		return getConnectorPropertyTypes().contains(configurationPropertyType);
 	}

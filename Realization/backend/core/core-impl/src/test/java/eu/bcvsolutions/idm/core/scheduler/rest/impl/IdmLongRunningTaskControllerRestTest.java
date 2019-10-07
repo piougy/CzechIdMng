@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.core.scheduler.rest.impl;
 
 import java.util.List;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +66,7 @@ public class IdmLongRunningTaskControllerRestTest extends AbstractReadWriteDtoCo
 		IdmLongRunningTaskDto taskOne = createDto(task);
 		//
 		getHelper().waitForResult(null, 1, 1); // created is filled automatically
-		DateTime middle = DateTime.now();
+		ZonedDateTime middle = ZonedDateTime.now();
 		getHelper().waitForResult(null, 1, 1);
 		//
 		task = prepareDto();
@@ -85,8 +87,8 @@ public class IdmLongRunningTaskControllerRestTest extends AbstractReadWriteDtoCo
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskOne.getId())));
 		//
-		filter.setFrom(taskOne.getCreated());
-		filter.setTill(taskTwo.getCreated());
+		filter.setFrom(taskOne.getCreated().truncatedTo(ChronoUnit.MILLIS));
+		filter.setTill(taskTwo.getCreated().truncatedTo(ChronoUnit.MILLIS).plus(1, ChronoUnit.MILLIS));
 		results = find(filter);
 		Assert.assertEquals(2, results.size());
 		Assert.assertTrue(results.stream().anyMatch(t -> t.getId().equals(taskOne.getId())));

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import org.activiti.engine.IdentityService;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
+public class OAuthAuthenticationManagerUnitTest extends AbstractUnitTest {
 	
 	public static final String USER_NAME = "test_user";
 
@@ -60,7 +60,7 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 	@Test
 	public void testAuthSuccess() {
 		IdmIdentityDto i = getTestIdentity();
-		IdmJwtAuthentication authentication = getAuthentication(UUID.randomUUID(), i, DateTime.now().plusHours(1), DateTime.now());
+		IdmJwtAuthentication authentication = getAuthentication(UUID.randomUUID(), i, ZonedDateTime.now().plusHours(1), ZonedDateTime.now());
 		when(identityService.get(i.getId())).thenReturn(i);
 		doNothing().when(workflowIdentityService).setAuthenticatedUserId(USER_NAME);
 		doNothing().when(securityService).setAuthentication(authentication);
@@ -88,7 +88,7 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 		IdmIdentityDto i = getTestIdentity(); 
 		IdmJwtAuthentication authentication = getAuthentication(
 				UUID.randomUUID(), i,
-				DateTime.now().plusHours(1), DateTime.now());
+				ZonedDateTime.now().plusHours(1), ZonedDateTime.now());
 		when(identityService.getByUsername(i.getUsername())).thenReturn(null);
 		IdmTokenDto token = new IdmTokenDto(authentication.getId());
 		token.setOwnerId(UUID.randomUUID());
@@ -109,12 +109,11 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 	public void testAuthExpired() {
 		IdmIdentityDto i = getTestIdentity();
 		IdmTokenDto token = new IdmTokenDto(UUID.randomUUID());
-		token.setExpiration(DateTime.now().minusHours(1));
-		when(identityService.get(i.getId())).thenReturn(i);
+		token.setExpiration(ZonedDateTime.now().minusHours(1));
 		when(tokenService.get(token.getId())).thenReturn(token);
 		
 		IdmJwtAuthentication authentication = getAuthentication(token.getId(), i,
-				DateTime.now().minusHours(1), DateTime.now().plusHours(2));
+				ZonedDateTime.now().minusHours(1), ZonedDateTime.now().plusHours(2));
 		
 		authManager.authenticate(authentication);
 		Assert.fail("Cannot authenticate with expired token.");
@@ -126,15 +125,15 @@ public class OAuthAuthenticationManagerTest extends AbstractUnitTest {
 		return i;
 	}
 	
-	private IdmJwtAuthentication getAuthentication(UUID tokenId, IdmIdentityDto identity, DateTime exp, DateTime iat) {
+	private IdmJwtAuthentication getAuthentication(UUID tokenId, IdmIdentityDto identity, ZonedDateTime exp, ZonedDateTime iat) {
 		return getAuthentication(tokenId, identity, exp, iat, new ArrayList<>());
 	}
 
 	private IdmJwtAuthentication getAuthentication(
 			UUID tokenId, 
 			IdmIdentityDto identity, 
-			DateTime exp, 
-			DateTime iat, 
+			ZonedDateTime exp, 
+			ZonedDateTime iat, 
 			Collection<GrantedAuthority> authorities) {
 		return new IdmJwtAuthentication( 
 				tokenId,

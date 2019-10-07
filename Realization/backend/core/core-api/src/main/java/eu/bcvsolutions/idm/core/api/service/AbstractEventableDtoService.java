@@ -70,7 +70,7 @@ public abstract class AbstractEventableDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public DTO save(DTO dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required for save.");
 		//
 		if (isNew(dto)) { // create
 			LOG.debug("Saving new dto[{}]", dto);
@@ -88,7 +88,7 @@ public abstract class AbstractEventableDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public void delete(DTO dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required for delete.");
 		//
 		LOG.debug("Deleting dto [{}]", dto);
 		//

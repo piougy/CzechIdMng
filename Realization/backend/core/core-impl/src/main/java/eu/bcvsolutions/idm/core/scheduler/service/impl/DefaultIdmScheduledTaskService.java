@@ -46,8 +46,8 @@ public class DefaultIdmScheduledTaskService
 			IdmLongRunningTaskService lrtService) {
 		super(repository);
 		//
-		Assert.notNull(itemService);
-		Assert.notNull(lrtService);
+		Assert.notNull(itemService, "Service is required.");
+		Assert.notNull(lrtService, "Service is required.");
 		//
 		this.itemService = itemService;
 		this.lrtService = lrtService;
@@ -58,7 +58,7 @@ public class DefaultIdmScheduledTaskService
 	public IdmScheduledTaskDto findByQuartzTaskName(String taskName) {
 		IdmScheduledTaskFilter filter = new IdmScheduledTaskFilter();
 		filter.setQuartzTaskName(taskName);
-		Page<IdmScheduledTaskDto> results = find(filter, new PageRequest(0, 1));
+		Page<IdmScheduledTaskDto> results = find(filter, PageRequest.of(0, 1));
 		if (results.getTotalElements() == 0) {
 			return null;
 		} else if (results.getTotalElements() == 1) {
@@ -89,7 +89,7 @@ public class DefaultIdmScheduledTaskService
 	@Transactional
 	@Override
 	public void deleteInternal(IdmScheduledTaskDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		itemService.deleteAllByScheduledTask(this.get(dto.getId()));
 		super.deleteInternal(dto);
@@ -97,10 +97,10 @@ public class DefaultIdmScheduledTaskService
 
 	@Override
 	@Transactional(readOnly = true)
-	public IdmScheduledTaskDto findByLongRunningTaskId(UUID lrtId) {
-		Assert.notNull(lrtId);
+	public IdmScheduledTaskDto findByLongRunningTaskId(UUID longRunningTaskId) {
+		Assert.notNull(longRunningTaskId, "Task is required.");
 		//
-		IdmLongRunningTaskDto lrt = lrtService.get(lrtId);
+		IdmLongRunningTaskDto lrt = lrtService.get(longRunningTaskId);
 		//
 		return lrt.getScheduledTask() == null ? null : this.get(lrt.getScheduledTask());
 	}

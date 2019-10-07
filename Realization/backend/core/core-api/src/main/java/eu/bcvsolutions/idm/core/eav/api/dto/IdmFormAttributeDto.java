@@ -7,7 +7,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
@@ -94,8 +94,8 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	}
 	
 	public IdmFormAttributeDto(String code, String name, PersistentType persistentType, String faceType) {
-		Assert.notNull(code);
-		Assert.notNull(persistentType);
+		Assert.notNull(code, "Code is required for form attribute.");
+		Assert.notNull(persistentType, "Persistent type is required for form attribute.");
 		//
 		this.code = code;
 		this.name = name;

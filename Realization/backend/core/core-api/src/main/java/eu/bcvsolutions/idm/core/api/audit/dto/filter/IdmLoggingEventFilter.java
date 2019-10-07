@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.audit.dto.filter;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.LogType;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
@@ -16,8 +16,8 @@ public class IdmLoggingEventFilter implements BaseFilter {
 
 	private Long id;
 	private String text;
-	private DateTime from;
-	private DateTime till;
+	private ZonedDateTime from;
+	private ZonedDateTime till;
 	private String loggerName;
 	private LogType levelString;
 	private String callerFilename;
@@ -33,19 +33,19 @@ public class IdmLoggingEventFilter implements BaseFilter {
 		this.id = id;
 	}
 
-	public DateTime getFrom() {
+	public ZonedDateTime getFrom() {
 		return from;
 	}
 
-	public void setFrom(DateTime from) {
+	public void setFrom(ZonedDateTime from) {
 		this.from = from;
 	}
 
-	public DateTime getTill() {
+	public ZonedDateTime getTill() {
 		return till;
 	}
 
-	public void setTill(DateTime till) {
+	public void setTill(ZonedDateTime till) {
 		this.till = till;
 	}
 

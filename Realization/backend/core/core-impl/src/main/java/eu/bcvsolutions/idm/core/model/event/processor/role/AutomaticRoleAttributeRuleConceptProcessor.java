@@ -34,7 +34,7 @@ public class AutomaticRoleAttributeRuleConceptProcessor extends CoreEventProcess
 			IdmAutomaticRoleAttributeService automactiRoleAttributeService) {
 		super(AutomaticRoleAttributeRuleEventType.CREATE, AutomaticRoleAttributeRuleEventType.DELETE, AutomaticRoleAttributeRuleEventType.UPDATE);
 		//
-		Assert.notNull(automactiRoleAttributeService);
+		Assert.notNull(automactiRoleAttributeService, "Service is required.");
 		//
 		this.automactiRoleAttributeService = automactiRoleAttributeService;
 	}

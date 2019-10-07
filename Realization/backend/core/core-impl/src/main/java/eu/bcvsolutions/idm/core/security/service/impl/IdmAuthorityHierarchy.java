@@ -30,7 +30,7 @@ public class IdmAuthorityHierarchy implements RoleHierarchy {
 	public static final String ADMIN_SUFFIX = String.format("_%s", IdmBasePermission.ADMIN);
 	
 	public IdmAuthorityHierarchy(ModuleService moduleService) {
-		Assert.notNull(moduleService);
+		Assert.notNull(moduleService, "Service is required.");
 		//
 		this.moduleService = moduleService;
 	}

@@ -43,9 +43,9 @@ public class SystemSaveProcessor extends CoreEventProcessor<SysSystemDto> {
 			SysProvisioningBreakConfigService provisioningBreakConfigService) {
 		super(SystemEventType.UPDATE, SystemEventType.CREATE);
 		//
-		Assert.notNull(service);
-		Assert.notNull(confidentialStorage);
-		Assert.notNull(provisioningBreakConfigService);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(confidentialStorage, "Confidential storage is required.");
+		Assert.notNull(provisioningBreakConfigService, "Service is required.");
 		//
 		this.service = service;
 		this.confidentialStorage = confidentialStorage;

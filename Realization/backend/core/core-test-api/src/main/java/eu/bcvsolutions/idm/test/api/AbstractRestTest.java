@@ -52,6 +52,7 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 	//
 	@Autowired private WebApplicationContext webApplicationContext;
 	@Autowired private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
+	@Autowired private ObjectMapper mapper;
 
 	@Before
 	public void setup() throws Exception {
@@ -92,7 +93,7 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 	}
 	
 	protected ObjectMapper getMapper() {
-		return new ObjectMapper();
+		return mapper;
 	}
 	
 	/**

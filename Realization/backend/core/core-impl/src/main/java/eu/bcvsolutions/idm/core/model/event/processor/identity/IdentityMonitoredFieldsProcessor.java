@@ -69,9 +69,9 @@ public class IdentityMonitoredFieldsProcessor
 		ConfigurationService configurationService) {
 		super(IdentityEventType.UPDATE);
 		//
-		Assert.notNull(service);
-		Assert.notNull(notificationManager);
-		Assert.notNull(configurationService);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(notificationManager, "Manager is required.");
+		Assert.notNull(configurationService, "Service is required.");
 		//
 		this.service = service;
 		this.notificationManager = notificationManager;

@@ -34,7 +34,7 @@ public class ContractPositionSaveProcessor
 	public ContractPositionSaveProcessor(IdmContractPositionService contractPositionService) {
 		super(ContractPositionEventType.CREATE, ContractPositionEventType.UPDATE);
 		//
-		Assert.notNull(contractPositionService);
+		Assert.notNull(contractPositionService, "Service is required.");
 		//
 		this.contractPositionService = contractPositionService;
 	}

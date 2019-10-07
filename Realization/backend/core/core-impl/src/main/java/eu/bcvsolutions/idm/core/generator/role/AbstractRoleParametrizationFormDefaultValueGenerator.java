@@ -133,8 +133,8 @@ public abstract class AbstractRoleParametrizationFormDefaultValueGenerator<DTO e
 	 * @return
 	 */
 	private String getDefaultValue(IdmFormAttributeDto attribute, IdmRoleDto role) {
-		Assert.notNull(attribute);
-		Assert.notNull(role);
+		Assert.notNull(attribute, "Attribute is required.");
+		Assert.notNull(role, "Role is required.");
 
 		IdmRoleFormAttributeFilter roleFormAttributeFilter = new IdmRoleFormAttributeFilter();
 		roleFormAttributeFilter.setRole(role.getId());

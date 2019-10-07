@@ -28,8 +28,8 @@ public class TreeNodeCodeGenerator extends AbstractValueGenerator<IdmTreeNodeDto
 
 	@Override
 	public IdmTreeNodeDto generate(IdmTreeNodeDto dto, IdmGenerateValueDto valueGenerator) {
-		Assert.notNull(dto);
-		Assert.notNull(valueGenerator);
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(valueGenerator, "Value generator is required.");
 
 		// Code is based from name
 		String code = dto.getName();

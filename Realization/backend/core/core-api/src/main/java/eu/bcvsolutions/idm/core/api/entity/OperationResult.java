@@ -39,7 +39,7 @@ public class OperationResult implements Serializable {
 	private ResultModel model;
 	
 	@Column(name = "result_cause")
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	private String cause;
 	
 	private transient Throwable exception;

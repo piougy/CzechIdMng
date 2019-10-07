@@ -90,4 +90,4 @@ function select() {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(AutomaticRoleTaskDetail);
+export default connect(select, null, null, { forwardRef: true })(AutomaticRoleTaskDetail);

@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
@@ -37,8 +37,8 @@ public class IdmContractSliceControllerRestTest extends AbstractReadWriteDtoCont
 		slice.setIdentity(identity.getId());
 		slice.setPosition(getHelper().createName());
 		slice.setContractCode(getHelper().createName());
-		slice.setValidFrom(new LocalDate());
-		slice.setContractValidFrom(new LocalDate());
+		slice.setValidFrom(LocalDate.now());
+		slice.setContractValidFrom(LocalDate.now());
 		//
 		return slice;
 	}

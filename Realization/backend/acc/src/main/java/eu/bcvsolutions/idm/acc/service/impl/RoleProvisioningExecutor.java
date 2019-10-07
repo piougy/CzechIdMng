@@ -72,14 +72,14 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
 				systemAttributeMappingService, roleService);
 		//
-		Assert.notNull(roleAccountService);
+		Assert.notNull(roleAccountService, "Service is required.");
 		//
 		this.roleAccountService = roleAccountService;
 		this.roleService = roleService;
 	}
 	
 	public void doProvisioning(AccAccountDto account) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 
 		AccRoleAccountFilter filter = new AccRoleAccountFilter();
 		filter.setAccountId(account.getId());

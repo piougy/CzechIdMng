@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -83,8 +83,8 @@ public class IdentityAddRoleBulkActionTest extends AbstractBulkActionTest {
 		Set<UUID> ids = this.getIdFromList(identities);
 		bulkAction.setIdentifiers(this.getIdFromList(identities));
 		
-		LocalDate validTill = (new LocalDate()).minusDays(5);
-		LocalDate validFrom = (new LocalDate()).plusDays(60);
+		LocalDate validTill = LocalDate.now().minusDays(5);
+		LocalDate validFrom = LocalDate.now().plusDays(60);
 		
 		Map<String, Object> properties = new HashMap<>();
 		properties.put(IdentityAddRoleBulkAction.ROLE_CODE, Lists.newArrayList(createRole.getId().toString(), createRole2.getId().toString()) );

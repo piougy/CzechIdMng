@@ -18,8 +18,8 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
+import javax.validation.constraints.NotEmpty;
+import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -88,7 +88,7 @@ public class AccAccount extends AbstractEntity {
 	
 	@Audited
 	@Column(name = "end_of_protection", nullable = true)
-	private DateTime endOfProtection;
+	private ZonedDateTime endOfProtection;
 
 	public void setAccountType(AccountType accountType) {
 		this.accountType = accountType;
@@ -130,11 +130,11 @@ public class AccAccount extends AbstractEntity {
 		this.inProtection = inProtection;
 	}
 
-	public DateTime getEndOfProtection() {
+	public ZonedDateTime getEndOfProtection() {
 		return endOfProtection;
 	}
 
-	public void setEndOfProtection(DateTime endOfProtection) {
+	public void setEndOfProtection(ZonedDateTime endOfProtection) {
 		this.endOfProtection = endOfProtection;
 	}
 

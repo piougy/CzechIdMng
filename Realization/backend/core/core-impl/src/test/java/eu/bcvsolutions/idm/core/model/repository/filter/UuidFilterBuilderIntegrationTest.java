@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -83,11 +84,17 @@ public class UuidFilterBuilderIntegrationTest extends AbstractIntegrationTest {
 		public Page<E> find(DataFilter filter, Pageable pageable) {
 			// transform filter to criteria
 			Specification<E> criteria = new Specification<E>() {
+				
+				private static final long serialVersionUID = 1L;
+
 				public Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 					Predicate predicate = FindableUuidFilter.this.getPredicate(root, query, builder, filter);
 					return query.where(predicate).getRestriction();
 				}
 			};
+			if (pageable == null) {
+				pageable = PageRequest.of(0, Integer.MAX_VALUE);
+			}
 			return repository.findAll(criteria, pageable);
 		}
 		

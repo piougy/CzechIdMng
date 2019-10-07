@@ -34,7 +34,7 @@ public class PublicIdmConfigurationController implements BaseController {
 	
 	@Autowired
 	public PublicIdmConfigurationController(ConfigurationService configurationService) {
-		Assert.notNull(configurationService);
+		Assert.notNull(configurationService, "Service is required.");
 		//
 		this.configurationService = configurationService;
 	}

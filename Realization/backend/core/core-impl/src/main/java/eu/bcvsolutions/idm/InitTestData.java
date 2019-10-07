@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm;
 
 import java.text.MessageFormat;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -42,8 +41,6 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitTestData.class);
 	private static final String PARAMETER_TEST_DATA_CREATED = "idm.sec.core.test.data";
 	
-	public static final String HAL_CONTENT_TYPE = "application/hal+json";
-	
 	public static final String TEST_ADMIN_USERNAME = InitApplicationData.ADMIN_USERNAME;
 	public static final String TEST_ADMIN_PASSWORD = InitApplicationData.ADMIN_PASSWORD;
 	public static final String TEST_USER_1 = "testUser1";
@@ -83,7 +80,8 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		securityService.setSystemAuthentication();
 		//
 		try {
-			IdmTreeNodeDto rootOrganization = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1)).getContent().get(0);
+			IdmTreeTypeDto treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
+			IdmTreeNodeDto rootOrganization = treeNodeService.findRoots(treeType.getId(), PageRequest.of(0, 1)).getContent().get(0);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		

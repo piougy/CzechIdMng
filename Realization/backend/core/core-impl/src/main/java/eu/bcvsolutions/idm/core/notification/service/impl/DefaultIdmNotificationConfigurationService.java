@@ -72,8 +72,8 @@ public class DefaultIdmNotificationConfigurationService
 			ModuleService moduleService) {
 		super(repository);		
 		//
-		Assert.notEmpty(notificationSenders);
-		Assert.notNull(moduleService);
+		Assert.notEmpty(notificationSenders, "Notification senders are required.");
+		Assert.notNull(moduleService, "Service is required.");
 		//
 		this.repository = repository;
 		this.notificationSenders = OrderAwarePluginRegistry.create(notificationSenders);
@@ -83,7 +83,7 @@ public class DefaultIdmNotificationConfigurationService
 	@Override
 	@Transactional
 	public NotificationConfigurationDto saveInternal(NotificationConfigurationDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		// check duplicity
 		IdmNotificationConfiguration duplicitEntity = repository.findByTopicAndLevelAndNotificationType(dto.getTopic(), dto.getLevel(), dto.getNotificationType());
@@ -133,8 +133,8 @@ public class DefaultIdmNotificationConfigurationService
 	
 	@Override
 	public List<NotificationSender<?>> getSenders(BaseNotification notification) {
-		Assert.notNull(notification);
-		Assert.notNull(notification.getMessage());
+		Assert.notNull(notification, "Notification is required.");
+		Assert.notNull(notification.getMessage(), "Message is required.");
 		//
 		// default senders for unknown topics
 		NotificationLevel level = notification.getMessage().getLevel();

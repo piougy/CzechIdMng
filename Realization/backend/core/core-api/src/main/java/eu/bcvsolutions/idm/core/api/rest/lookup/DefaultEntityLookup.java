@@ -31,8 +31,8 @@ public class DefaultEntityLookup<E extends BaseEntity> implements EntityLookup<E
 	}
 
 	public DefaultEntityLookup(EntityManager entityManager, Class<E> entityClass, DtoLookup<?> dtoLookup) {
-		Assert.notNull(entityManager);
-		Assert.notNull(entityClass);
+		Assert.notNull(entityManager, "Entity manager is required for DTO lookup.");
+		Assert.notNull(entityClass, "Entity class is required for DTO lookup.");
 		//
 		this.entityManager = entityManager;
 		this.entityClass = entityClass;

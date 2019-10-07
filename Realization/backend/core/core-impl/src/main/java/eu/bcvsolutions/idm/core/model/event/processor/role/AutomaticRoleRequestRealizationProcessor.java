@@ -32,7 +32,7 @@ public class AutomaticRoleRequestRealizationProcessor extends CoreEventProcessor
 	public AutomaticRoleRequestRealizationProcessor(IdmAutomaticRoleRequestService service) {
 		super(AutomaticRoleRequestEventType.EXECUTE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

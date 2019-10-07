@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectInputStream.GetField;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.IllegalFormatException;
 import java.util.LinkedHashMap;
@@ -8,12 +11,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Detault response model
@@ -25,7 +29,7 @@ public class DefaultResultModel implements ResultModel {
 	
 	private static final long serialVersionUID = 7396789300001882593L;
 	private UUID id; // TODO: orchestrate with transaction id
-	private DateTime creation;	
+	private ZonedDateTime creation;	
 	/**
 	 * Idm error / message code
 	 */
@@ -37,7 +41,7 @@ public class DefaultResultModel implements ResultModel {
 	/**
 	 * Parameters - for localization etc.
 	 */
-	private final Map<String, Object> parameters = new LinkedHashMap<>();
+	private Map<String, Object> parameters = new LinkedHashMap<>();
 	
 	private String module;
 	
@@ -52,7 +56,7 @@ public class DefaultResultModel implements ResultModel {
 	
 	public DefaultResultModel() {
 		this.id = UUID.randomUUID();
-		this.creation = new DateTime();
+		this.creation = ZonedDateTime.now();
 	}
 	
 	public DefaultResultModel(ResultCode resultCode, Map<String, Object> parameters) {
@@ -94,7 +98,8 @@ public class DefaultResultModel implements ResultModel {
 		return message;
 	}
 
-	public DateTime getCreation() {
+	@Override
+	public ZonedDateTime getCreation() {
 		return creation;
 	}
 	
@@ -131,4 +136,25 @@ public class DefaultResultModel implements ResultModel {
 	public String toString() {
 		return MessageFormat.format("[{1}:{2}:{0}] {3} ({4})", id, module, statusEnum, message, parameters);
 	}
+	
+	/**
+	 * Model is serialized in LRT, WF etc.
+	 * We need to solve legacy issues with joda (old) vs. java time (new) usage.
+	 * 
+	 * @param ois
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream ois) throws Exception {
+		GetField readFields = ois.readFields();
+		//
+		id = (UUID) readFields.get("id", null);
+		creation = DtoUtils.toZonedDateTime(readFields.get("creation", null));
+		statusEnum = (String) readFields.get("statusEnum", null);
+		message = (String) readFields.get("message", null);
+		parameters = (Map<String, Object>) readFields.get("parameters", null);
+		module = (String) readFields.get("module", null);
+		statusCode = readFields.get("statusCode", 0);
+		status = (HttpStatus) readFields.get("status", null);
+    } 
 }

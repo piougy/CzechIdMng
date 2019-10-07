@@ -14,7 +14,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.configuration.spi.AuditConfiguration;
+import org.hibernate.envers.configuration.internal.AuditEntitiesConfiguration;
 import org.hibernate.envers.strategy.DefaultAuditStrategy;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -37,7 +37,7 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 	private Set<String> auditedFieldsFromAbstractEntity;
 	
 	@Override
-	public void perform(Session session, String entityName, AuditConfiguration auditCfg, Serializable id, Object data,
+	public void perform(Session session, String entityName, AuditEntitiesConfiguration auditCfg, Serializable id, Object data,
 			Object revision) {
 		List<String> changedColumns = new ArrayList<>();
 		// data contains hash map with values that will be saved into audit tables (suffix _a)
@@ -46,7 +46,7 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 			fillAbstractAuditedFields(auditCfg);
 			//
 			// get suffix for modified columns (default _m)
-			String modifiedFlagSuffix = auditCfg.getGlobalCfg().getModifiedFlagSuffix();
+			String modifiedFlagSuffix = auditCfg.getEnversService().getGlobalConfiguration().getModifiedFlagSuffix();
 			//
 			@SuppressWarnings("unchecked")
 			Map<String, Object> dataMap = (Map<String, Object>) data;
@@ -81,7 +81,7 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 	 * @param revision
 	 * @param changedColumns
 	 */
-	private void performDefaultStrategy(Session session, String entityName, AuditConfiguration auditCfg, Serializable id, Object data,
+	private void performDefaultStrategy(Session session, String entityName, AuditEntitiesConfiguration auditCfg, Serializable id, Object data,
 			Object revision, List<String> changedColumns) {
 		// fill revision with changed columns
 		if (revision instanceof IdmAudit) {
@@ -105,9 +105,9 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 	 *
 	 * @param auditCfg
 	 */
-	private void fillAbstractAuditedFields(AuditConfiguration auditCfg) {
+	private void fillAbstractAuditedFields(AuditEntitiesConfiguration auditCfg) {
 		if (auditedFieldsFromAbstractEntity == null) {
-			String modifiedFlagSuffix = auditCfg.getGlobalCfg().getModifiedFlagSuffix();
+			String modifiedFlagSuffix = auditCfg.getEnversService().getGlobalConfiguration().getModifiedFlagSuffix();
 			//
 			auditedFieldsFromAbstractEntity = new LinkedHashSet<>();
 			//

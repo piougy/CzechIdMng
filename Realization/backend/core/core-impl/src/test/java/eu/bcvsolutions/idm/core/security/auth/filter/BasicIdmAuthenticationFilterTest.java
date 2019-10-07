@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.security.auth.filter;
 
-import static eu.bcvsolutions.idm.InitTestData.HAL_CONTENT_TYPE;
 import static eu.bcvsolutions.idm.InitTestData.TEST_ADMIN_PASSWORD;
 import static eu.bcvsolutions.idm.InitTestData.TEST_ADMIN_USERNAME;
 import static org.hamcrest.Matchers.equalTo;
@@ -44,6 +43,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test authentication using the basic scheme. 
@@ -78,9 +78,9 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		
 		getMockMvc().perform(get(getSelfPath(TEST_ADMIN_USERNAME))
 				.header("Authorization", "Basic " + basedAuth)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
-			.andExpect(content().contentType(HAL_CONTENT_TYPE))
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(jsonPath("$.username", equalTo(TEST_ADMIN_USERNAME)));
 	}
 	
@@ -90,7 +90,7 @@ public class BasicIdmAuthenticationFilterTest extends AbstractRestTest {
 		
 		getMockMvc().perform(get(getSelfPath(TEST_ADMIN_USERNAME))
 				.header("Authorization", "Basic " + basedAuth)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 	

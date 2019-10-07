@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
@@ -72,12 +71,10 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 
 	@Override
 	protected IdmAttachmentDto generateData(RptReportDto report) {
-		File temp = null;
-		FileOutputStream outputStream = null;
-		try {
-			// prepare temp file for json stream
-			temp = getAttachmentManager().createTempFile();
-			outputStream = new FileOutputStream(temp);
+		// prepare temp file for json stream
+		File temp = getAttachmentManager().createTempFile();
+		//
+		try (FileOutputStream outputStream = new FileOutputStream(temp)) {
 			// write into json stream
 			JsonGenerator jGenerator = getMapper().getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
 			try {
@@ -121,7 +118,7 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 					identityFilter.setDisabled(Boolean.valueOf(disabled));
 				}
 				// find a first page of identities
-				Pageable pageable = new PageRequest(0, 100, new Sort(Direction.ASC, IdmIdentity_.username.getName()));
+				Pageable pageable = PageRequest.of(0, 100, new Sort(Direction.ASC, IdmIdentity_.username.getName()));
 
 				do {
 					Page<IdmIdentityDto> identities =
@@ -154,7 +151,6 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 		} catch (IOException ex) {
 			throw new ReportGenerateException(report.getName(), ex);
 		} finally {
-			IOUtils.closeQuietly(outputStream); // just for sure - jGenerator should close stream itself
 			FileUtils.deleteQuietly(temp);
 		}
 	}

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -95,8 +95,8 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
 		NotificationConfigurationDto config = createConfig();
 		//
-		DateTime from = new DateTime().minusDays(1);
-		DateTime till = new DateTime().minusDays(1);
+		ZonedDateTime from = ZonedDateTime.now().minusDays(1);
+		ZonedDateTime till = ZonedDateTime.now().minusDays(1);
 		notificationManager.send(config.getTopic(), new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 		notificationManager.send(config.getTopic(), new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 

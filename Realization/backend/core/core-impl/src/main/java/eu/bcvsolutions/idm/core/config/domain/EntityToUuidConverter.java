@@ -73,7 +73,7 @@ public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 							if (Modifier.isAbstract(embeddedAnnotation.dtoClass().getModifiers())) {
 								dto = (AbstractDto) getLookupService().lookupDto(entity.getClass(), entity.getId());
 							} else {
-								dto = embeddedAnnotation.dtoClass().newInstance();
+								dto = embeddedAnnotation.dtoClass().getDeclaredConstructor().newInstance();
 							}
 							dto.setTrimmed(true);
 							// Separate map entity to new embedded DTO
@@ -83,8 +83,8 @@ public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 							parentDto.setEmbedded(embedded);
 						}
 					}
-				} catch (InstantiationException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-					throw new CoreException(e);
+				} catch (ReflectiveOperationException ex) {
+					throw new CoreException(ex);
 				}
 			}
 			return (UUID) context.getSource().getId();

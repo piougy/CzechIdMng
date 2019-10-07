@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.eav.api.dto.filter;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -31,7 +31,7 @@ public class IdmFormValueFilter<O extends FormableEntity> extends DataFilter {
 	private Boolean booleanValue; // equals
 	private Long longValue; // equals
 	private BigDecimal doubleValue; // equals
-	private DateTime dateValue; // equals
+	private ZonedDateTime dateValue; // equals
 	private UUID uuidValue; // equals
 
 	public IdmFormValueFilter() {
@@ -114,11 +114,11 @@ public class IdmFormValueFilter<O extends FormableEntity> extends DataFilter {
 		this.doubleValue = doubleValue;
 	}
 
-	public DateTime getDateValue() {
+	public ZonedDateTime getDateValue() {
 		return dateValue;
 	}
 
-	public void setDateValue(DateTime dateValue) {
+	public void setDateValue(ZonedDateTime dateValue) {
 		this.dateValue = dateValue;
 	}
 

@@ -39,7 +39,7 @@ public class DefaultSysSyncActionLogService extends
 			SysSyncItemLogService syncItemLogService) {
 		super(repository);
 		//
-		Assert.notNull(syncItemLogService);
+		Assert.notNull(syncItemLogService, "Service is required.");
 		//
 		this.repository = repository;
 		this.syncItemLogService = syncItemLogService;
@@ -56,7 +56,7 @@ public class DefaultSysSyncActionLogService extends
 	@Override
 	@Transactional
 	public void delete(SysSyncActionLogDto syncLog, BasePermission... permission) {
-		Assert.notNull(syncLog);
+		Assert.notNull(syncLog, "Sync log is required.");
 		checkAccess(this.getEntity(syncLog.getId()), permission);
 		//
 		// remove all synchronization item logs
@@ -71,7 +71,7 @@ public class DefaultSysSyncActionLogService extends
 	
 	@Override
 	public SysSyncActionLogDto save(SysSyncActionLogDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		if (!ObjectUtils.isEmpty(permission)) {
 			SysSyncActionLog persistEntity = null;

@@ -31,8 +31,8 @@ public class DefaultEventResult<E extends Serializable> implements EventResult<E
 	private List<OperationResult> results;
 	
 	public DefaultEventResult(EntityEvent<E> event, EntityEventProcessor<E> processor, boolean closed) {
-		Assert.notNull(event);
-		Assert.notNull(processor);
+		Assert.notNull(event, "Event is required to construct event result.");
+		Assert.notNull(processor, "Processor is required to construct event result.");
 		//
 		// TODO: clone event by clone constructor - mutable previous event content :/
 		this.event = event;

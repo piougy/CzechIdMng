@@ -61,7 +61,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public DTO save(DTO dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required for save.");
 		//
 		if (!ObjectUtils.isEmpty(permission)) {
 			E persistEntity = null;
@@ -83,7 +83,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public DTO saveInternal(DTO dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required for save.");
 		dto = validateDto(dto);
 		//
 		E persistedEntity = null;
@@ -103,7 +103,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public Iterable<DTO> saveAll(Iterable<DTO> dtos, BasePermission... permission) {
-		Assert.notNull(dtos);
+		Assert.notNull(dtos, "DTO is required for save.");
 		//
 		List<DTO> savedDtos = new ArrayList<>();
 		dtos.forEach(entity -> {
@@ -128,7 +128,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public void deleteById(Serializable id, BasePermission... permission) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is required for delete.");
 		//
 		delete(get(id), permission);
 	}
@@ -136,15 +136,15 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	@Override
 	@Transactional
 	public void deleteInternal(DTO dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "Identifier is required for delete.");
 		//
-		getRepository().delete((UUID) dto.getId());
+		getRepository().deleteById((UUID) dto.getId());
 	}
 
 	@Override
 	@Transactional
 	public void deleteInternalById(Serializable id) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is required for delete.");
 		//
 		DTO dto = get(id);
 		if (dto != null) {
@@ -175,14 +175,14 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 			ExternalIdentifiable externalIdentifiable = (ExternalIdentifiable) entity;
 			if (StringUtils.isNotEmpty(externalIdentifiable.getExternalId())) { // empty string are not valid external id	
 				try {
-					ExternalIdentifiable filter = (ExternalIdentifiable) getFilterClass().newInstance();
+					ExternalIdentifiable filter = (ExternalIdentifiable) getFilterClass().getDeclaredConstructor().newInstance();
 					filter.setExternalId(externalIdentifiable.getExternalId());
 					List<DTO> dtos = find((F) filter, null).getContent();
 					DTO other = dtos.stream().filter(dto -> !dto.getId().equals(((E) externalIdentifiable).getId())).findFirst().orElse(null);
 					if (other != null) {
 						throw new DuplicateExternalIdException(getEntityClass().getCanonicalName(), externalIdentifiable.getExternalId(), other.getId());
 					}
-				} catch (InstantiationException | IllegalAccessException ex) {
+				} catch (ReflectiveOperationException ex) {
 					throw new EntityTypeNotExternalIdentifiableException(getFilterClass().getCanonicalName(), ex);
 				}
 			}			
@@ -196,14 +196,14 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 			ExternalCodeable externalCodeable = (ExternalCodeable) entity;
 			if (StringUtils.isNotEmpty(externalCodeable.getExternalCode())) { // empty string are not valid external code	
 				try {
-					ExternalCodeable filter = (ExternalCodeable) getFilterClass().newInstance();
+					ExternalCodeable filter = (ExternalCodeable) getFilterClass().getDeclaredConstructor().newInstance();
 					filter.setExternalCode(externalCodeable.getExternalCode());
 					List<DTO> dtos = find((F) filter, null).getContent();
 					DTO other = dtos.stream().filter(dto -> !dto.getId().equals(((E) externalCodeable).getId())).findFirst().orElse(null);
 					if (other != null) {
 						throw new DuplicateExternalCodeException(getEntityClass().getCanonicalName(), externalCodeable.getExternalCode(), other.getId());
 					}
-				} catch (InstantiationException | IllegalAccessException ex) {
+				} catch (ReflectiveOperationException ex) {
 					throw new EntityTypeNotExternalCodeableException(getFilterClass().getCanonicalName(), ex);
 				}
 			}			
@@ -218,7 +218,7 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	 * @return
 	 */
 	private <T extends Object> T validate(T object) {
-		Assert.notNull(object);
+		Assert.notNull(object, "Object is required for validation.");
 		//
 		if (validatorFactory == null) {
 			LOG.debug("JSR303 Validation are disabled. Configure validation factory properly.");

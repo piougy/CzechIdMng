@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -46,7 +46,7 @@ public interface IdmEntityEventService extends
 	@Deprecated
 	Page<IdmEntityEventDto> findToExecute(
 			String instanceId,
-			DateTime executeDate,
+			ZonedDateTime executeDate,
 			PriorityType priority,
 			Pageable pageable);
 	
@@ -64,7 +64,7 @@ public interface IdmEntityEventService extends
 	 */
 	Page<IdmEntityEventDto> findToExecute(
 			String instanceId,
-			DateTime executeDate,
+			ZonedDateTime executeDate,
 			PriorityType priority,
 			List<UUID> exceptOwnerIds,
 			Pageable pageable);

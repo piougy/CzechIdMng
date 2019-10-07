@@ -33,7 +33,7 @@ public class RoleCanBeRequestedEvaluator extends AbstractAuthorizationEvaluator<
 
 	@Autowired
 	public RoleCanBeRequestedEvaluator(SecurityService securityService) {
-		Assert.notNull(securityService);
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.securityService = securityService;
 	}

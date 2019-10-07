@@ -43,7 +43,7 @@ public class IdmLoggingEventProperty implements BaseEntity {
 
 	@Override
 	public void setId(Serializable id) {
-		Assert.notNull(id);
+		Assert.notNull(id, "id of logging event property is required.");
 		if (id instanceof IdmLoggingEventPropertyPrimaryKey) {
 			IdmLoggingEventPropertyPrimaryKey primaryKey = ((IdmLoggingEventPropertyPrimaryKey)id);
 			this.eventId = primaryKey.getEventId();

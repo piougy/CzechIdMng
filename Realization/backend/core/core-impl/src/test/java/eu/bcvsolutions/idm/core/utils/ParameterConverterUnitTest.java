@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -98,7 +98,7 @@ public class ParameterConverterUnitTest extends AbstractVerifiableUnitTest {
 	@Test
 	public void testDateTimeParameter() {
 		Map<String, Object> parameters = new HashMap<>();
-		DateTime value = new DateTime();
+		ZonedDateTime value = ZonedDateTime.now();
 		parameters.put(PARAMETER_NAME, value.toString());
 		//
 		assertEquals(value, parameterConverter.toDateTime(parameters, PARAMETER_NAME));

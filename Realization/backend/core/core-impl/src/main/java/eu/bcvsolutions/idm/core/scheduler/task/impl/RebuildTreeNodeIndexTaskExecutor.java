@@ -79,12 +79,12 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 		try {
 			configurationService.setValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD), getLongRunningTaskId().toString());
 			//
-			count = treeNodeRepository.findByTreeType_Id(treeType.getId(), new PageRequest(0, 1)).getTotalElements();
+			count = treeNodeRepository.findByTreeType_Id(treeType.getId(), PageRequest.of(0, 1)).getTotalElements();
 			counter = 0L;
 			boolean canContinue = true;
 			Page<IdmTreeNode> roots = treeNodeRepository.findRoots(
 					treeType.getId(), 
-					new PageRequest(
+					PageRequest.of(
 							0, 
 							100,
 							new Sort(Direction.ASC, AbstractEntity_.id.getName())

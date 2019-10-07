@@ -50,9 +50,9 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 			IdmRoleTreeNodeService roleTreeNodeService) {
 		super(TreeNodeEventType.DELETE);
 		//
-		Assert.notNull(service);
-		Assert.notNull(identityContractRepository);
-		Assert.notNull(roleTreeNodeService);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(identityContractRepository, "Repository is required.");
+		Assert.notNull(roleTreeNodeService, "Service is required.");
 		//
 		this.service = service;
 		this.roleTreeNodeService = roleTreeNodeService;	
@@ -67,8 +67,8 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 	@Override
 	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
 		IdmTreeNodeDto treeNode = event.getContent();
-		Assert.notNull(treeNode);
-		Assert.notNull(treeNode.getId());
+		Assert.notNull(treeNode, "Tree node is required.");
+		Assert.notNull(treeNode.getId(), "Tree node identifier is required.");
 		//
 		if (identityContractRepository.countByWorkPosition_Id(treeNode.getId()) > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS, ImmutableMap.of("treeNode", treeNode.getName()));
@@ -82,7 +82,7 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 		//
 		IdmContractPositionFilter positionFilter = new IdmContractPositionFilter();
 		positionFilter.setWorkPosition(treeNode.getId());
-		if (contractPositionService.find(positionFilter, new PageRequest(0, 1)).getTotalElements() > 0) {
+		if (contractPositionService.find(positionFilter, PageRequest.of(0, 1)).getTotalElements() > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACT_POSITIONS, ImmutableMap.of("treeNode", treeNode.getName()));
 		}
 		//

@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor.identity;
 
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -53,13 +53,13 @@ public class IdentityPasswordExpiredProcessor
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
 		//
 		LOG.info("Sending warning notification to identity [{}], password expired in [{}]",  identity.getUsername(), password.getValidTill());
-		DateTimeFormatter dateFormat = DateTimeFormat.forPattern(getConfigurationService().getDateFormat());
+		DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(getConfigurationService().getDateFormat());
 		//
 		notificationManager.send(
 				CoreModuleDescriptor.TOPIC_PASSWORD_EXPIRED, 
 				new IdmMessageDto
 					.Builder(NotificationLevel.WARNING)
-					.addParameter("expiration", dateFormat.print(password.getValidTill()))
+					.addParameter("expiration", password.getValidTill().format(dateFormat))
 					.addParameter("identity", identity)
 					// TODO: where is the best place for FE urls?
 					// TODO: url to password reset?

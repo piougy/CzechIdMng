@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.rpt.acc;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
@@ -29,6 +30,7 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	String ATTRIBUTE_MAPPING_FIRSTNAME = "FIRSTNAME";
 	String ATTRIBUTE_MAPPING_LASTNAME = "LASTNAME";
 	String ATTRIBUTE_MAPPING_EMAIL = "EMAIL";
+	String ATTRIBUTE_MAPPING_DESCRIPTION = "DESCRIP"; // Attribute isn't mapped by default
 
 	/**
 	 * Prepares conntector and system for fiven table name. Test database is used.
@@ -83,6 +85,14 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	SysSystemDto createTestResourceSystem(boolean withMapping, String systemName);
+	
+	/**
+	 * Creates default provisioning mapping for the given system
+	 * 
+	 * @param system
+	 * @return
+	 */
+	SysSystemMappingDto createMapping(SysSystemDto system);
 
 	/**
 	 * Returns default mapping - provisioning, identity
@@ -119,6 +129,21 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	TestResource findResource(String uid);
+	
+	/**
+	 * Delete all data from the target system
+	 */
+	void deleteAllResourceData();
+	
+	/**
+	 * Saves resource on target system
+	 * 
+	 * TODO: support merge (persist only now) 
+	 * 
+	 * @param uid
+	 * @return
+	 */
+	TestResource saveResource(TestResource testResource);
 
 	/**
 	 * Creates system entity (IDENTITY) with random name on given system
@@ -147,5 +172,12 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	SysSystemMappingDto createMappingSystem(SystemEntityType type, SysSchemaObjectClassDto objectClass);
+
+	/**
+	 * Start synchronization by given sync config
+	 * 
+	 * @param syncConfigCustom
+	 */
+	void startSynchronization(AbstractSysSyncConfigDto syncConfigCustom);
 
 }

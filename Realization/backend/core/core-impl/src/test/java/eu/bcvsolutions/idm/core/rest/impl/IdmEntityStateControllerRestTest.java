@@ -4,6 +4,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -281,7 +282,7 @@ public class IdmEntityStateControllerRestTest extends AbstractReadWriteDtoContro
 		state.setOwnerType(ownerType);
 		IdmEntityStateDto stateOne = entityStateService.save(state);
 		//
-		getHelper().waitForResult(null, 1, 1);
+		getHelper().waitForResult(null, 2, 1);
 		//
 		state = prepareDto();
 		state.setOwnerId(ownerTwo);
@@ -289,26 +290,26 @@ public class IdmEntityStateControllerRestTest extends AbstractReadWriteDtoContro
 		IdmEntityStateDto stateTwo = entityStateService.save(state);
 		//
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-		parameters.set("createdFrom", stateOne.getCreated().toString());
+		parameters.set("createdFrom", stateOne.getCreated().truncatedTo(ChronoUnit.MILLIS).toString());
 		parameters.set("ownerType", ownerType);
 		List<IdmEntityStateDto> results = find(parameters);
 		Assert.assertEquals(2, results.size());
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateTwo.getId())));
-		//
-		parameters.set("createdFrom", stateTwo.getCreated().toString());
+		// nanos are not persisted into db ...
+		parameters.set("createdFrom", stateTwo.getCreated().truncatedTo(ChronoUnit.MILLIS).toString());
 		results = find(parameters);
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateTwo.getId())));
 		//
 		parameters.remove("createdFrom");
-		parameters.set("createdTill", stateTwo.getCreated().toString());
+		parameters.set("createdTill", stateTwo.getCreated().truncatedTo(ChronoUnit.MILLIS).plus(1, ChronoUnit.MILLIS).toString());
 		results = find(parameters);
 		Assert.assertEquals(2, results.size());
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateTwo.getId())));
 		//
-		parameters.set("createdTill", stateOne.getCreated().toString());
+		parameters.set("createdTill", stateOne.getCreated().truncatedTo(ChronoUnit.MILLIS).plus(1, ChronoUnit.MILLIS).toString());
 		results = find(parameters);
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateOne.getId())));

@@ -67,8 +67,8 @@ public class DefaultSysProvisioningArchiveServiceIntegrationTest extends Abstrac
 		//
 		service.delete(archiveOne);
 		//
-		Assert.assertNull(provisioningAttributeRepository.findOne(attributeOne.getId()));
-		Assert.assertNotNull(provisioningAttributeRepository.findOne(attributeTwo.getId()));
+		Assert.assertFalse(provisioningAttributeRepository.existsById(attributeOne.getId()));
+		Assert.assertTrue(provisioningAttributeRepository.existsById(attributeTwo.getId()));
 	}
 
 	@Test

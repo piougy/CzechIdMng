@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +78,7 @@ public class AccountProtectionExpirationTaskExecutorIntegrationTest extends Abst
 		
 		// change account expiration
 		
-		account.setEndOfProtection(new DateTime().minusDays(1));
+		account.setEndOfProtection(ZonedDateTime.now().minusDays(1));
 		account = accountService.save(account);
 		
 		taskExecutor = new AccountProtectionExpirationTaskExecutor();

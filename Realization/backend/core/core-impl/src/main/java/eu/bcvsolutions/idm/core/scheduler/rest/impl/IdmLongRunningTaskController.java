@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.scheduler.rest.impl;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +30,6 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
@@ -63,20 +62,14 @@ public class IdmLongRunningTaskController
 	extends AbstractReadWriteDtoController<IdmLongRunningTaskDto, IdmLongRunningTaskFilter> {
 
 	protected static final String TAG = "Long running tasks";
-	private final LongRunningTaskManager longRunningTaskManager;
 	//
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	@Autowired private AttachmentManager attachmentManager;
 
 	@Autowired
 	public IdmLongRunningTaskController(
-			LookupService entityLookupService,
-			IdmLongRunningTaskService service,
-			LongRunningTaskManager longRunningTaskManager) {
+			IdmLongRunningTaskService service) {
 		super(service);
-		//
-		Assert.notNull(longRunningTaskManager);
-		//
-		this.longRunningTaskManager = longRunningTaskManager;
 	}
 
 	@Override
@@ -227,7 +220,12 @@ public class IdmLongRunningTaskController
 				IdmBasePermission.READ);
 		InputStream is = attachmentManager.getAttachmentData(attachmentDto.getId(), IdmBasePermission.READ);
 
-		String attachmentName = SpinalCase.format(longRunningTaskDto.getTaskType()) + "-" + longRunningTaskDto.getCreated().toString("yyyyMMddHHmmss");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+		String attachmentName = String.format(
+				"%s-%s", 
+				SpinalCase.format(longRunningTaskDto.getTaskType()),
+				longRunningTaskDto.getCreated().format(formatter)
+		);
 		return ResponseEntity.ok()
 				.contentLength(attachmentDto.getFilesize())
 				.contentType(MediaType.parseMediaType(attachmentDto.getMimetype()))

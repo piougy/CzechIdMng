@@ -194,4 +194,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(TaskInstanceTable);
+export default connect(select, null, null, { forwardRef: true })(TaskInstanceTable);

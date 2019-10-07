@@ -85,32 +85,17 @@ public class DefaultFormService implements FormService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormService.class);
 	//
-	private final IdmFormDefinitionService formDefinitionService;
-	private final IdmFormAttributeService formAttributeService;
 	private final PluginRegistry<FormValueService<?>, Class<?>> formValueServices;
-	private final EntityEventManager entityEventManager;
-	private final LookupService lookupService;
 	//
+	@Autowired private IdmFormDefinitionService formDefinitionService;
+	@Autowired private IdmFormAttributeService formAttributeService;
+	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private LookupService lookupService;
 	@Autowired private AttachmentManager attachmentManager;
 
 	@Autowired
-	public DefaultFormService(
-			IdmFormDefinitionService formDefinitionService,
-			IdmFormAttributeService formAttributeService,
-			List<? extends FormValueService<?>> formValueServices,
-			EntityEventManager entityEventManager,
-			LookupService lookupService) {
-		Assert.notNull(formDefinitionService);
-		Assert.notNull(formAttributeService);
-		Assert.notNull(formValueServices);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(lookupService);
-		//
-		this.formDefinitionService = formDefinitionService;
-		this.formAttributeService = formAttributeService;
+	public DefaultFormService(List<? extends FormValueService<?>> formValueServices) {
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
-		this.entityEventManager = entityEventManager;
-		this.lookupService = lookupService;
 	}
 	
 	@Override
@@ -134,7 +119,7 @@ public class DefaultFormService implements FormService {
 		return formDefinitionService
 				.find(
 					filter,
-					new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmFormDefinition_.code.getName())),
+					PageRequest.of(0, Integer.MAX_VALUE, Sort.by(IdmFormDefinition_.code.getName())),
 					permission)
 				.getContent();
 	}
@@ -159,7 +144,7 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormDefinitionDto> getDefinitions(Identifiable owner, BasePermission... permission) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return getDefinitions(owner.getClass(), permission);
 	}
@@ -279,13 +264,13 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormAttributeDto> getAttributes(IdmFormDefinitionDto formDefinition, BasePermission... permission) {
-		Assert.notNull(formDefinition);
+		Assert.notNull(formDefinition, "Form definition is required.");
 		//
 		IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
 		filter.setDefinitionType(formDefinition.getType());
 		filter.setDefinitionCode(formDefinition.getCode());
 		//
-		return formAttributeService.find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmFormAttribute_.seq.getName())), permission).getContent();
+		return formAttributeService.find(filter, PageRequest.of(0, Integer.MAX_VALUE, Sort.by(IdmFormAttribute_.seq.getName())), permission).getContent();
 	}
 
 	@Override
@@ -301,7 +286,7 @@ public class DefaultFormService implements FormService {
 			String code,
 			List<IdmFormAttributeDto> formAttributes,
 			BasePermission... permission) {
-		Assert.hasLength(type);
+		Assert.hasLength(type, "Form definition type is required.");
 		//
 		// create definition
 		IdmFormDefinitionDto formDefinition = new IdmFormDefinitionDto();
@@ -352,7 +337,7 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional
 	public IdmFormAttributeDto saveAttribute(IdmFormAttributeDto attribute, BasePermission... permission) {
-		Assert.notNull(attribute);
+		Assert.notNull(attribute, "Form attribute type is required.");
 		Assert.notNull(attribute.getFormDefinition(),
 				String.format("Form definition for attribute [%s] is required!", attribute.getCode()));
 		//
@@ -362,7 +347,7 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional
 	public IdmFormAttributeDto saveAttribute(Class<? extends Identifiable> ownerType, IdmFormAttributeDto attribute, BasePermission... permission) {
-		Assert.notNull(attribute);
+		Assert.notNull(attribute, "Form attribute type is required.");
 		attribute.setFormDefinition(checkDefaultDefinition(ownerType, attribute.getFormDefinition()));
 		//
 		return saveAttribute(attribute, permission);
@@ -1031,8 +1016,8 @@ public class DefaultFormService implements FormService {
 
 	@Override
 	public Serializable getConfidentialPersistentValue(IdmFormValueDto guardedValue) {
-		Assert.notNull(guardedValue);
-		Assert.notNull(guardedValue.getOwnerId());
+		Assert.notNull(guardedValue, "Guarder value is required.");
+		Assert.notNull(guardedValue.getOwnerId(), "Owner identifier is required.");
 		//
 		FormableEntity ownerEntity = getOwnerEntity(guardedValue.getOwnerId(), guardedValue.getOwnerType());
 		FormValueService<?> formValueService = getFormValueService(ownerEntity);
@@ -1053,6 +1038,10 @@ public class DefaultFormService implements FormService {
 		//
 		FormValueService<FormableEntity> formValueService = getFormValueService(ownerType);
 		//
+		if (pageable == null) {
+			// pageable is required now
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
 		Page<FormableEntity> ownerEntities = formValueService.findOwners(attribute, persistentValue, pageable);
 		//
 		// convert to dtos
@@ -1082,7 +1071,7 @@ public class DefaultFormService implements FormService {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Transactional(readOnly = true)
 	public Page<IdmFormValueDto> findValues(IdmFormValueFilter filter, Pageable pageable, BasePermission... permission) {
-		Assert.notNull(filter);
+		Assert.notNull(filter, "Filter is required.");
 		//
 		// resolve owner by definition
 		if (filter.getOwner() == null) {
@@ -1195,7 +1184,7 @@ public class DefaultFormService implements FormService {
 			Class<? extends ConfigurationClass> configurationClass) {
 		Assert.notNull(configurationClass, "Class with the configuration is required!");
 		try {
-			ConfigurationClass configurationClassInstance = configurationClass.newInstance();
+			ConfigurationClass configurationClassInstance = configurationClass.getDeclaredConstructor().newInstance();
 			List<IdmFormAttributeDto> properties = new ArrayList<>();
 
 			PropertyDescriptor[] descriptors = Introspector.getBeanInfo(configurationClass).getPropertyDescriptors();
@@ -1225,8 +1214,8 @@ public class DefaultFormService implements FormService {
 
 			return definition;
 
-		} catch (IntrospectionException | InstantiationException | IllegalAccessException e) {
-			throw new CoreException("Cannot read configuration property!", e);
+		} catch (ReflectiveOperationException | IntrospectionException ex) {
+			throw new CoreException("Cannot read configuration property!", ex);
 		}
 	}
 	
@@ -1262,7 +1251,7 @@ public class DefaultFormService implements FormService {
 			IdmFormDefinitionDto formDefinition,
 			IdmFormAttributeDto formAttribute,
 			List<IdmFormValueDto> formValues) {
-		Assert.notNull(formAttribute);
+		Assert.notNull(formAttribute, "Form attribute is required.");
 		//
 		InvalidFormAttributeDto result = new InvalidFormAttributeDto(formAttribute);
 		if (formAttribute.isRequired()) {
@@ -1348,7 +1337,7 @@ public class DefaultFormService implements FormService {
 					//
 					FormValueService<FormableEntity> formValueService = getFormValueService(owner.getClass());
 					//
-					List<IdmFormValueDto> existValues = formValueService.find(valueFilter, new PageRequest(0, 2)).getContent();
+					List<IdmFormValueDto> existValues = formValueService.find(valueFilter, PageRequest.of(0, 2)).getContent();
 					//
 					if (existValues
 							.stream()
@@ -1367,8 +1356,8 @@ public class DefaultFormService implements FormService {
 	}
 
 	private void initPersistentType(Method readMethod, IdmFormAttributeDto formAttribute) {
-		Assert.notNull(readMethod);
-		Assert.notNull(formAttribute);
+		Assert.notNull(readMethod, "Read metod is required.");
+		Assert.notNull(formAttribute, "Form attribute is required.");
 		
 		String typeName = readMethod.getGenericReturnType().getTypeName();
 		if (typeName.equals(boolean.class.getTypeName())) {
@@ -1436,11 +1425,11 @@ public class DefaultFormService implements FormService {
 	 * @return
 	 */
 	private FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition) {
-		Assert.notNull(formDefinition);
+		Assert.notNull(formDefinition, "Form definition is required.");
 		//
 		try {
-			return (FormableEntity) Class.forName(formDefinition.getType()).newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+			return (FormableEntity) Class.forName(formDefinition.getType()).getDeclaredConstructor().newInstance();
+		} catch (ReflectiveOperationException ex) {
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("formDefinition", formDefinition.getType()), ex);
 		}
 	}

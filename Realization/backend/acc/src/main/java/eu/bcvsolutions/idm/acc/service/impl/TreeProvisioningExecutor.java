@@ -85,15 +85,15 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 				schemaObjectClassService, systemAttributeMappingService,
 				roleService);
 		//
-		Assert.notNull(treeAccountService);
-		Assert.notNull(treeNodeService);
+		Assert.notNull(treeAccountService, "Service is required.");
+		Assert.notNull(treeNodeService, "Service is required.");
 		//
 		this.treeAccountService = treeAccountService;
 		this.treeNodeService = treeNodeService;
 	}
 	
 	public void doProvisioning(AccAccountDto account) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 
 		AccTreeAccountFilter filter = new AccTreeAccountFilter();
 		filter.setAccountId(account.getId());

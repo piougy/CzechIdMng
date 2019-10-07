@@ -8,15 +8,13 @@ import static org.junit.Assert.assertTrue;
 import java.beans.IntrospectionException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,12 +30,21 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultContractByManagerFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultManagersFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultSubordinatesFilter;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -55,16 +62,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityContractService identityContractService;
-	
-	@Before
-	public void init() {
-		getHelper().loginAdmin();
-	}
-	
-	@After
-	public void logout() {
-		super.logout();
-	}
+	@Autowired private FilterManager filterManager;
 	
 	@Test
 	/**
@@ -79,7 +77,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		identity.setExternalId(UUID.randomUUID().toString());
 		identity.setPhone(UUID.randomUUID().toString().substring(0, 29));
 		identity.setRealmId(UUID.randomUUID());
-		identity.setBlockLoginDate(DateTime.now());
+		identity.setBlockLoginDate(ZonedDateTime.now());
 		IdmIdentityDto identityFull = identityService.save(identity);
 
 		ArrayList<Field> fields = Lists.newArrayList(IdmIdentity_.class.getFields());
@@ -241,25 +239,34 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 
 	@Test
 	public void testManagersForFilter(){
+		FilterBuilder<IdmIdentity, DataFilter> filterBuilderSubordinates = filterManager.getBuilder(
+				IdmIdentity.class, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR);
+		FilterBuilder<IdmIdentity, DataFilter> filterBuilderManagers = filterManager.getBuilder(
+				IdmIdentity.class, IdmIdentityFilter.PARAMETER_MANAGERS_FOR);
+		FilterBuilder<IdmIdentityContract, DataFilter> filterBuilderContractByManager = filterManager.getBuilder(
+				IdmIdentityContract.class, IdmIdentityContractFilter.PARAMETER_SUBORDINATES_FOR);
+		Assert.assertEquals(DefaultManagersFilter.FILTER_NAME, filterBuilderManagers.getId());
+		Assert.assertEquals(DefaultSubordinatesFilter.FILTER_NAME, filterBuilderSubordinates.getId());
+		Assert.assertEquals(DefaultContractByManagerFilter.FILTER_NAME, filterBuilderContractByManager.getId());
+		Assert.assertFalse(filterBuilderSubordinates.isDisabled());
+		Assert.assertFalse(filterBuilderManagers.isDisabled());
+		Assert.assertFalse(filterBuilderContractByManager.isDisabled());
+		//
 		IdmIdentityDto person = getIdmIdentity("ThisIsTestName009","ThisIsTestName009","ThisIsTestName009@gemail.eu", "000000009", false);
 		IdmIdentityDto manager = getIdmIdentity("ThisIsTestName010","ThisIsTestName010","ThisIsTestName010@gemail.eu", "000000010", false);
-		UUID person_id = person.getId();
-		manager.getId();
-		IdmTreeTypeDto type1 = getHelper().createTreeType("ThisIsTestType004");
-		IdmTreeNodeDto node2 = getHelper().createTreeNode(type1,"Somename001",null);
-		IdmTreeNodeDto node1 = getHelper().createTreeNode(type1,"ThisIsTestNode004",node2);
-		getHelper().createIdentityContact(manager,node2);
-		getHelper().createIdentityContact(person,node1);
-		//contract.setGuarantee(manager_id);
-		//IdmIdentityContractDto contract2 = idmIdentityContractService.save(contract);
+		IdmTreeTypeDto type1 = getHelper().createTreeType();
+		IdmTreeNodeDto node2 = getHelper().createTreeNode(type1, null);
+		IdmTreeNodeDto node1 = getHelper().createTreeNode(type1, node2);
+		getHelper().createIdentityContact(manager, node2);
+		getHelper().createIdentityContact(person, node1);
+		//
 		IdmIdentityFilter filter = new IdmIdentityFilter();
-		//filter.setIncludeGuarantees(true);
-		filter.setManagersFor(person_id);
+		filter.setIncludeGuarantees(false);
+		filter.setManagersFor(person.getId());
 		filter.setManagersByTreeType(type1.getId());
-		Page<IdmIdentityDto> result = identityService.find(filter, null);
-		assertEquals("Wrong ManagersFor",1, result.getTotalElements());
-		assertEquals("Wrong ManagersFor user ID",manager.getId(),result.getContent().get(0).getId());
-
+		List<IdmIdentityDto> results = identityService.find(filter, null).getContent();
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(manager.getId(), results.get(0).getId());
 	}
 
 	@Test
@@ -277,7 +284,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		filter.setManagersFor(person.getId());
 		filter.setIncludeGuarantees(true);
 		Page<IdmIdentityDto> result = identityService.find(filter, null);
-		assertEquals("Wrong Managers2For",2, result.getTotalElements());
+		assertEquals("Wrong Managers2For", 2, result.getTotalElements());
 		filter.setIncludeGuarantees(false);
 		result = identityService.find(filter, null);
 		assertEquals("Wrong Managers2For test 2",1, result.getTotalElements());
@@ -619,6 +626,7 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 		identity.setEmail(email);
 		identity.setState(disabled ? IdentityState.DISABLED : IdentityState.VALID);
 		identity.setPhone(phone);
+		//
 		return identityService.save(identity);
 	}
 

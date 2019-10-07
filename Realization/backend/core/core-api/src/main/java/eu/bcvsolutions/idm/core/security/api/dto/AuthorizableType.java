@@ -25,7 +25,7 @@ public class AuthorizableType implements BaseDto {
 	}
 	
 	public AuthorizableType(GroupPermission group, Class<? extends Identifiable> type) {
-		Assert.notNull(group);
+		Assert.notNull(group, "Group is required for authorizable type.");
 		//
 		this.group = group;
 		this.type = type;
@@ -83,7 +83,7 @@ public class AuthorizableType implements BaseDto {
 	}
 	
 	public void setGroup(GroupPermission group) {
-		Assert.notNull(group);
+		Assert.notNull(group, "Group is required for authorizable type.");
 		//
 		this.group = group;
 	}

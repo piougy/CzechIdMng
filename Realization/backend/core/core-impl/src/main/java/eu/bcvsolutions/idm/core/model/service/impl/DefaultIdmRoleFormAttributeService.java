@@ -99,8 +99,8 @@ public class DefaultIdmRoleFormAttributeService
 
 	@Override
 	public IdmRoleFormAttributeDto addAttributeToSubdefintion(IdmRoleDto role, IdmFormAttributeDto attribute,  BasePermission... permission) {
-		Assert.notNull(role);
-		Assert.notNull(attribute);
+		Assert.notNull(role, "Role is required.");
+		Assert.notNull(attribute, "Attribute is required.");
 		
 		IdmRoleFormAttributeDto roleFormAttributeDto = new IdmRoleFormAttributeDto();
 		roleFormAttributeDto.setRole(role.getId());

@@ -33,7 +33,7 @@ public class ContractSliceAccountSaveProcessor extends CoreEventProcessor<AccCon
 	public ContractSliceAccountSaveProcessor(AccContractSliceAccountService service, AccAccountService accountService) {
 		super(ContractSliceAccountEventType.CREATE, ContractSliceAccountEventType.UPDATE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

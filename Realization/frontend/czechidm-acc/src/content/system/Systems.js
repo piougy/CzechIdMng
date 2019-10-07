@@ -48,4 +48,4 @@ function select(state) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(Systems);
+export default connect(select, null, null, { forwardRef: true })(Systems);

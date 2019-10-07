@@ -48,11 +48,11 @@ public class IdmMessage {
 	private String subject;
 
 	@Column(name = "text_message")
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	private String textMessage;
 
 	@Column(name = "html_message")
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	private String htmlMessage;
 
 	@Column(name = "result_model", length = Integer.MAX_VALUE)

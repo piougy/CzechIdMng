@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -254,8 +254,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contractToCreate = service.getPrimeContract(identity.getId());
 		contractToCreate.setIdentity(identity.getId());
-		contractToCreate.setValidFrom(new LocalDate().minusDays(1));
-		contractToCreate.setValidTill(new LocalDate().plusMonths(1));
+		contractToCreate.setValidFrom(LocalDate.now().minusDays(1));
+		contractToCreate.setValidTill(LocalDate.now().plusMonths(1));
 		contractToCreate.setWorkPosition(nodeD.getId());
 		contractToCreate.setMain(true);
 		contractToCreate.setDescription("test-node-d");
@@ -301,8 +301,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 			IdmIdentityContractDto contractToCreate = service.getPrimeContract(identity.getId());
 			contractToCreate.setIdentity(identity.getId());
-			contractToCreate.setValidFrom(new LocalDate().minusDays(1));
-			contractToCreate.setValidTill(new LocalDate().plusMonths(1));
+			contractToCreate.setValidFrom(LocalDate.now().minusDays(1));
+			contractToCreate.setValidTill(LocalDate.now().plusMonths(1));
 			contractToCreate.setWorkPosition(nodeD.getId());
 			contractToCreate.setMain(true);
 			contractToCreate.setDescription("test-node-d");
@@ -363,8 +363,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
-		contract.setValidFrom(new LocalDate().minusDays(1));
-		contract.setValidTill(new LocalDate().plusMonths(1));
+		contract.setValidFrom(LocalDate.now().minusDays(1));
+		contract.setValidTill(LocalDate.now().plusMonths(1));
 		contract.setWorkPosition(nodeD.getId());
 		contract = service.save(contract);
 		//
@@ -376,8 +376,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			assertEquals(contract.getValidTill(), identityRole.getValidTill());
 		};
 		// test after change
-		contract.setValidFrom(new LocalDate().minusDays(2));
-		contract.setValidTill(new LocalDate().plusMonths(4));
+		contract.setValidFrom(LocalDate.now().minusDays(2));
+		contract.setValidTill(LocalDate.now().plusMonths(4));
 		contract = service.save(contract);
 		identityRoles = identityRoleService.findAllByContract(contract.getId());
 		assertEquals(3, identityRoles.size());
@@ -540,7 +540,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
 		contractD.setIdentity(identity.getId());
 		contractD.setWorkPosition(nodeD.getId());
-		contractD.setValidFrom(new LocalDate().plusDays(1));
+		contractD.setValidFrom(LocalDate.now().plusDays(1));
 		contractD = service.save(contractD);
 		//
 		// create new automatic role
@@ -563,7 +563,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityContractDto contractD = new IdmIdentityContractDto();
 		contractD.setIdentity(identity.getId());
 		contractD.setWorkPosition(nodeD.getId());
-		contractD.setValidTill(new LocalDate().minusDays(1));
+		contractD.setValidTill(LocalDate.now().minusDays(1));
 		contractD = service.save(contractD);
 		//
 		// create new automatic role
@@ -608,8 +608,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
-		contract.setValidFrom(new LocalDate().minusDays(1));
-		contract.setValidTill(new LocalDate().plusMonths(1));
+		contract.setValidFrom(LocalDate.now().minusDays(1));
+		contract.setValidTill(LocalDate.now().plusMonths(1));
 		contract.setWorkPosition(nodeD.getId());
 		contract = service.save(contract);
 		//
@@ -720,7 +720,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	@Test
 	public void testSetStateByDateValidInFuture() {
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(getHelper().createIdentity((GuardedString) null), null, new LocalDate().plusDays(1), null);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(getHelper().createIdentity((GuardedString) null), null, LocalDate.now().plusDays(1), null);
 		//
 		Assert.assertNull(contract.getState());
 		Assert.assertFalse(((IdmIdentityContract) lookupService.lookupEntity(IdmIdentityContractDto.class, contract.getId())).isDisabled());
@@ -728,7 +728,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	
 	@Test
 	public void testSetStateByDateValidInPast() {
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(getHelper().createIdentity((GuardedString) null), null, new LocalDate().plusDays(1), new LocalDate().minusDays(1));
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(getHelper().createIdentity((GuardedString) null), null, LocalDate.now().plusDays(1), LocalDate.now().minusDays(1));
 		//
 		Assert.assertNull(contract.getState());
 		Assert.assertFalse(((IdmIdentityContract) lookupService.lookupEntity(IdmIdentityContractDto.class, contract.getId())).isDisabled());
@@ -814,10 +814,10 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmTreeNodeDto node3 = getHelper().createTreeNode();
 		IdmTreeNodeDto node4 = getHelper().createTreeNode();
 
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity,node, org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2021-06-05"));
-		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity2,node2,org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2020-05-05"));
-		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity3,node3,org.joda.time.LocalDate.now(),org.joda.time.LocalDate.parse("2016-05-05"));
-		IdmIdentityContractDto contract4 = getHelper().createIdentityContact(identity4,node4,org.joda.time.LocalDate.parse("2018-05-05"),org.joda.time.LocalDate.parse("2025-05-05"));
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity,node, LocalDate.now(), LocalDate.parse("2021-06-05"));
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity2,node2, LocalDate.now(), LocalDate.parse("2020-05-05"));
+		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity3,node3, LocalDate.now(), LocalDate.parse("2016-05-05"));
+		IdmIdentityContractDto contract4 = getHelper().createIdentityContact(identity4,node4, LocalDate.parse("2018-05-05"), LocalDate.parse("2025-05-05"));
 
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setValidFrom(contract.getValidFrom());
@@ -1249,13 +1249,13 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityContractDto contractOne = getHelper().getPrimeContract(identity);
 		contractOne.setWorkPosition(null);
 		contractOne.setMain(false);
-		contractOne.setValidFrom(new LocalDate().minusDays(2));
+		contractOne.setValidFrom(LocalDate.now().minusDays(2));
 		service.save(contractOne);
-		IdmIdentityContractDto contractTwo = getHelper().createIdentityContact(identity, null, new LocalDate().minusDays(1), null);
+		IdmIdentityContractDto contractTwo = getHelper().createIdentityContact(identity, null, LocalDate.now().minusDays(1), null);
 		//
 		Assert.assertEquals(contractOne.getId(), getHelper().getPrimeContract(identity).getId());
 		//
-		contractTwo.setValidFrom(new LocalDate().minusDays(3));
+		contractTwo.setValidFrom(LocalDate.now().minusDays(3));
 		service.save(contractTwo);
 		//
 		Assert.assertEquals(contractTwo.getId(), getHelper().getPrimeContract(identity).getId());
@@ -1276,8 +1276,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contract = service.getPrimeContract(identity.getId());
 		contract.setIdentity(identity.getId());
-		contract.setValidFrom(new LocalDate().minusDays(1));
-		contract.setValidTill(new LocalDate().plusMonths(1));
+		contract.setValidFrom(LocalDate.now().minusDays(1));
+		contract.setValidTill(LocalDate.now().plusMonths(1));
 		contract.setWorkPosition(nodeD.getId());
 		contract.setMain(true);
 		contract.setDescription("test-node-d");

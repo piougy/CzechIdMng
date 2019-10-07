@@ -8,8 +8,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,13 +18,22 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultContractByManagerFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultManagersFilter;
+import eu.bcvsolutions.idm.core.model.repository.filter.DefaultSubordinatesFilter;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -48,19 +56,11 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 	private IdmIdentityContractService identityContractService;	
 	@Autowired
 	private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired 
+	private FilterManager filterManager;
 	
 	@PersistenceContext
 	private EntityManager entityManager;
-	
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-	
-	@After
-	public void deleteIdentity() {
-		logout();
-	}
 	
 	@Test
 	public void findUser() {
@@ -91,6 +91,19 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 	
 	@Test
 	public void findManagers() {
+		FilterBuilder<IdmIdentity, DataFilter> filterBuilderSubordinates = filterManager.getBuilder(
+				IdmIdentity.class, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR);
+		FilterBuilder<IdmIdentity, DataFilter> filterBuilderManagers = filterManager.getBuilder(
+				IdmIdentity.class, IdmIdentityFilter.PARAMETER_MANAGERS_FOR);
+		FilterBuilder<IdmIdentityContract, DataFilter> filterBuilderContractByManager = filterManager.getBuilder(
+				IdmIdentityContract.class, IdmIdentityContractFilter.PARAMETER_SUBORDINATES_FOR);
+		Assert.assertEquals(DefaultManagersFilter.FILTER_NAME, filterBuilderManagers.getId());
+		Assert.assertEquals(DefaultSubordinatesFilter.FILTER_NAME, filterBuilderSubordinates.getId());
+		Assert.assertEquals(DefaultContractByManagerFilter.FILTER_NAME, filterBuilderContractByManager.getId());
+		Assert.assertFalse(filterBuilderSubordinates.isDisabled());
+		Assert.assertFalse(filterBuilderManagers.isDisabled());
+		Assert.assertFalse(filterBuilderContractByManager.isDisabled());
+		//
 		IdmIdentityDto user = createAndSaveIdentity("test_position_01");
 		IdmIdentityDto user2 = createAndSaveIdentity("test_position_02");
 		IdmIdentityDto user3 = createAndSaveIdentity("test_position_03");

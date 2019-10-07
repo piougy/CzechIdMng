@@ -55,9 +55,9 @@ public class DefaultVsAccountService extends AbstractReadWriteDtoService<VsAccou
 			FormService formService, IdmFormAttributeService formAttributeService) {
 		super(repository);
 		//
-		Assert.notNull(formService);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(formAttributeService);
+		Assert.notNull(formService, "Form service (eav) is required.");
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(formAttributeService, "Service is required.");
 		//
 		this.formService = formService;
 		this.formAttributeService = formAttributeService;
@@ -65,7 +65,7 @@ public class DefaultVsAccountService extends AbstractReadWriteDtoService<VsAccou
 
 	@Override
 	public void deleteInternal(VsAccountDto dto) {
-		formService.deleteValues(getRepository().findOne(dto.getId()));
+		formService.deleteValues(getRepository().findById(dto.getId()).get());
 		//
 		super.deleteInternal(dto);
 	}
@@ -138,7 +138,7 @@ public class DefaultVsAccountService extends AbstractReadWriteDtoService<VsAccou
 
 	@Override
 	public List<IcAttribute> getIcAttributes(VsAccountDto account) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 
 		List<IcAttribute> attributes = new ArrayList<>();
 		// Create uid attribute

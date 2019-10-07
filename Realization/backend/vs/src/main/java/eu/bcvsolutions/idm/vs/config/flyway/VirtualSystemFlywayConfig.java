@@ -40,7 +40,7 @@ public class VirtualSystemFlywayConfig extends AbstractFlywayConfiguration {
 	@ConfigurationProperties(prefix = "flyway.vs")
 	public Flyway flywayModuleVirtualSystem() {
 		Flyway flyway = super.createFlyway();		
-		log.info("Starting flyway migration for vs module [{}]: ", flyway.getTable());
+		log.info("Starting flyway migration for vs module [{}]: ", flyway.getConfiguration().getTable());
 		return flyway;
 	}
 }

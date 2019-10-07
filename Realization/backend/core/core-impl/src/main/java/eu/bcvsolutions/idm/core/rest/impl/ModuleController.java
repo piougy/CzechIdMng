@@ -1,18 +1,22 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
@@ -30,7 +35,6 @@ import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
@@ -59,11 +63,12 @@ public class ModuleController {
 	protected static final String TAG = "Modules";
 	//
 	@Autowired private ModuleService moduleService;
-	@Autowired private RequestResourceResolver requestResourceResolver;
 	@Autowired private ModelMapper mapper;
 	@Autowired private LookupService lookupService;
+	@Autowired private ObjectMapper objectMapper;
 	//
 	private ParameterConverter parameterConverter = null;
+	
 
 	/**
 	 * Returns all installed modules
@@ -146,13 +151,13 @@ public class ModuleController {
 	public ModuleDescriptorDto put(
 			@ApiParam(value = "Module's identifier.", required = true)
 			@PathVariable @NotNull String moduleId, 
-			HttpServletRequest nativeRequest) {	
+			@Valid @RequestBody ModuleDescriptorDto dto) {	
 		ModuleDescriptor updatedModuleDescriptor = moduleService.getModule(moduleId);
 		if (updatedModuleDescriptor == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", moduleId));
 		}
-		ModuleDescriptorDto md = (ModuleDescriptorDto) requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, null);
-		moduleService.setEnabled(moduleId, !md.isDisabled());	
+		//
+		moduleService.setEnabled(moduleId, !dto.isDisabled());	
 		return get(moduleId);	
 	}
 	
@@ -185,8 +190,15 @@ public class ModuleController {
 		if (updatedModuleDescriptor == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", moduleId));
 		}
-		ModuleDescriptorDto md = (ModuleDescriptorDto)requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, toResource(updatedModuleDescriptor));
-		moduleService.setEnabled(moduleId, !md.isDisabled());	
+		//
+		ServletServerHttpRequest request = new ServletServerHttpRequest(nativeRequest);
+		try {
+			ModuleDescriptorDto dto = objectMapper.readValue(request.getBody(), ModuleDescriptorDto.class);
+			moduleService.setEnabled(moduleId, !dto.isDisabled());	
+		} catch (IOException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ex);
+		}
+		//
 		return get(moduleId);	
 	}
 	

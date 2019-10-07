@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.ic.czechidm.service.impl;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -67,7 +66,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 
 	@Autowired
 	public CzechIdMIcConfigurationService(ApplicationContext applicationContext) {
-		Assert.notNull(applicationContext);
+		Assert.notNull(applicationContext, "Context is required.");
 		//
 		this.applicationContext = applicationContext;
 	}
@@ -141,7 +140,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	 */
 	@Override
 	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		//
 		if (this.connectorsConfigurations == null) {
 			// Init
@@ -159,7 +158,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	 */
 	@Override
 	public Class<? extends IcConnector> getConnectorClass(IcConnectorInstance connectorInstance) {
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		//
 		if (this.connectorsClass == null) {
 			return null;
@@ -170,9 +169,9 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 
 	@Override
 	public IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Generate schema - CzechIdM {}", key);
 
@@ -229,10 +228,10 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 		Class<? extends IcConnector> connectorClass = this.getConnectorClass(connectorInstance);
 		
 		try {
-			connector = connectorClass.newInstance();
+			connector = connectorClass.getDeclaredConstructor().newInstance();
 			// Manually autowire on this connector instance
 			this.applicationContext.getAutowireCapableBeanFactory().autowireBean(connector);
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (ReflectiveOperationException e) {
 			throw new CoreException(e);
 		}
 		return connector;
@@ -247,7 +246,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 	private IcConnectorConfiguration initDefaultConfiguration(
 			Class<? extends ConfigurationClass> configurationClass) {
 		try {
-			ConfigurationClass configurationClassInstance = configurationClass.newInstance();
+			ConfigurationClass configurationClassInstance = configurationClass.getDeclaredConstructor().newInstance();
 			List<IcConfigurationProperty> properties = new ArrayList<>();
 
 			PropertyDescriptor[] descriptors = Introspector.getBeanInfo(configurationClass).getPropertyDescriptors();
@@ -263,7 +262,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 					icProperty.setType(readMethod.getGenericReturnType().getTypeName());
 					try {
 						icProperty.setValue(readMethod.invoke(configurationClassInstance));
-					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+					} catch (IllegalArgumentException | ReflectiveOperationException e) {
 						throw new CoreException("Cannot read value of connector configuration property!", e);
 					}
 
@@ -282,7 +281,7 @@ public class CzechIdMIcConfigurationService implements IcConfigurationService {
 
 			return configuration;
 
-		} catch (IntrospectionException | InstantiationException | IllegalAccessException e) {
+		} catch (IntrospectionException | ReflectiveOperationException e) {
 			throw new CoreException("Cannot read connector configuration property!", e);
 		}
 	}

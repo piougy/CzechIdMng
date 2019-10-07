@@ -117,7 +117,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	 */
 	@Override
 	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		ConnectorInfo i = null;
 		if (connectorInstance.isRemote()) {
 			i = getRemoteConnIdConnectorInfo(connectorInstance);
@@ -140,7 +140,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	@Override
 	public Set<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server) {
-		Assert.notNull(server);
+		Assert.notNull(server, "Connector server is required.");
 		//
 		List<ConnectorInfo> infos = getAllRemoteConnectors(server);
 		//
@@ -165,8 +165,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	@Override
 	public IcConnectorConfiguration getRemoteConnectorConfiguration(IcConnectorInstance connectorInstance) {
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorInstance.getConnectorServer());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorInstance.getConnectorServer(), "Connector server is required.");
 		ConnectorInfo info = getRemoteConnIdConnectorInfo(connectorInstance);
 		//
 		if (info != null) {
@@ -179,8 +179,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	}
 
 	private ConnectorInfo getRemoteConnIdConnectorInfo(IcConnectorInstance connectorInstance) {
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorInstance.getConnectorServer());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorInstance.getConnectorServer(), "Connector server is required.");
 		ConnectorInfoManager remoteInfoManager = findRemoteConnectorManager(connectorInstance.getConnectorServer());
 
 		for (ConnectorInfo info : remoteInfoManager.getConnectorInfos()) {
@@ -196,9 +196,9 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	}
 
 	public ConnectorInfo getConnIdConnectorInfo(IcConnectorInstance connectorInstance) {
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		if (connectorInstance.isRemote()) {
-			Assert.notNull(connectorInstance.getConnectorServer());
+			Assert.notNull(connectorInstance.getConnectorServer(), "Connector server is required.");
 			return getRemoteConnIdConnectorInfo(connectorInstance);
 		} else {
 			for (ConnectorInfoManager manager : findAllLocalConnectorManagers()) {
@@ -214,8 +214,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	@Override
 	public void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
 		if (connectorInstance.isRemote()) {
 			LOG.debug("Validate remote connector - ConnId ({})",
 					connectorInstance.getConnectorServer().getFullServerName());
@@ -229,10 +229,10 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	@Override
 	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
 		if (connectorInstance.isRemote()) {
-			Assert.notNull(connectorInstance.getConnectorServer());
+			Assert.notNull(connectorInstance.getConnectorServer(), "Connector server is required.");
 			LOG.debug("Validate remote connector - ConnId ({})",
 					connectorInstance.getConnectorServer().getFullServerName());
 		} else {
@@ -245,8 +245,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	@Override
 	public IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
 		if (connectorInstance.isRemote()) {
 			LOG.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})",
 					connectorInstance.getConnectorServer().getFullServerName()));
@@ -343,10 +343,10 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	private ConnectorFacade getConnectorFacade(IcConnectorInstance connectorInstance,
 			IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
 		if (connectorInstance.isRemote()) {
-			Assert.notNull(connectorInstance.getConnectorServer());
+			Assert.notNull(connectorInstance.getConnectorServer(), "Connector server is required.");
 		}
 		ConnectorInfo connIdInfo = this.getConnIdConnectorInfo(connectorInstance);
 		Assert.notNull(connIdInfo, "ConnId connector info not found!");

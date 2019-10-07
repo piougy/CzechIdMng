@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import merge from 'object-assign';
 //
@@ -57,7 +58,7 @@ class BasicForm extends AbstractForm {
 export default BasicForm;
 
 BasicForm.propTypes = {
-  name: React.PropTypes.string.isRequired,
-  saveFunc: React.PropTypes.func
+  name: PropTypes.string.isRequired,
+  saveFunc: PropTypes.func
   // mode: React.PropTypes.symbol
 };

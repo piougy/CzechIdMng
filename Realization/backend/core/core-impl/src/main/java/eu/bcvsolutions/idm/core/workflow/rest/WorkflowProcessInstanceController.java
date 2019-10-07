@@ -58,7 +58,7 @@ public class WorkflowProcessInstanceController extends AbstractReadWriteDtoContr
 			WorkflowProcessInstanceService workflowProcessInstanceService) {
 		super(workflowProcessInstanceService);
 		//
-		Assert.notNull(workflowProcessInstanceService);
+		Assert.notNull(workflowProcessInstanceService, "Service is required.");
 		//
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 	}

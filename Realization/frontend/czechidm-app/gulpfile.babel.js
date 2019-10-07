@@ -599,7 +599,7 @@ gulp.task('watch', cb => {
     'loadModuleComponents',
     'createComponentAssembler',
     'themes',
-    'runTest',
+    // 'runTest',
     'config',
     'copyConfig',
     'styles',

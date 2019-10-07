@@ -43,8 +43,8 @@ public class ContractSliceAccountDeleteProcessor extends CoreEventProcessor<AccC
 			AccAccountService accountService) {
 		super(ContractSliceAccountEventType.DELETE);
 		//
-		Assert.notNull(service);
-		Assert.notNull(accountService);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(accountService, "Service is required.");
 		//
 		this.service = service;
 		this.accountService = accountService;

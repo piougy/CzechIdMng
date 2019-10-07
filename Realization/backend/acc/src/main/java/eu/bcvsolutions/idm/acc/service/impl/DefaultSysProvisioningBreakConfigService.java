@@ -66,9 +66,9 @@ public class DefaultSysProvisioningBreakConfigService extends
 			ProvisioningBreakConfiguration provisioningBreakConfiguration) {
 		super(repository);
 		//
-		Assert.notNull(breakRecipientService);
-		Assert.notNull(cacheManager);
-		Assert.notNull(provisioningBreakConfiguration);
+		Assert.notNull(breakRecipientService, "Service is required.");
+		Assert.notNull(cacheManager, "Manager is required.");
+		Assert.notNull(provisioningBreakConfiguration, "Configuration is required.");
 		//
 		this.breakRecipientService = breakRecipientService;
 		this.cacheManager = cacheManager;
@@ -91,7 +91,7 @@ public class DefaultSysProvisioningBreakConfigService extends
 			List<SysProvisioningBreakConfigDto> configsList = addGlobalConfigs(configs.getContent(), filter.getSystemId());
 			//
 			if (!configsList.isEmpty()) {
-				PageRequest pageRequest = new PageRequest(pageable.getPageNumber(), configsList.size(), pageable.getSort());
+				PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), configsList.size(), pageable.getSort());
 				Page<SysProvisioningBreakConfigDto> dtoPage = new PageImpl<>(configsList, pageRequest, configsList.size());
 				return dtoPage;
 			}
@@ -102,7 +102,7 @@ public class DefaultSysProvisioningBreakConfigService extends
 	
 	@Override
 	public void delete(SysProvisioningBreakConfigDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		// check global configuration
 		if (dto.getGlobalConfiguration() != null && dto.getGlobalConfiguration()) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_BREAK_GLOBAL_CONFIG_DELETE, ImmutableMap.of("operationType", dto.getOperationType()));

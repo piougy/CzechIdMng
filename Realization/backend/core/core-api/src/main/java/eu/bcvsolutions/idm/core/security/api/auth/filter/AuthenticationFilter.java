@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.filter.GenericFilterBean;
 
 import com.google.common.collect.Lists;
@@ -37,7 +38,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationFilter.class);
 	//
 	@Autowired private SecurityService securityService;
-	@Autowired private List<IdmAuthenticationFilter> filters;
+	@Autowired @Lazy private List<IdmAuthenticationFilter> filters;
 	@Autowired private EnabledEvaluator enabledEvaluator;
 
 	/**

@@ -50,10 +50,10 @@ public class TreeTypeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 			SysSyncConfigRepository syncConfigRepository) {
 		super(TreeTypeEventType.DELETE);
 		//
-		Assert.notNull(systemMappingService);
-		Assert.notNull(systemService);
-		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(syncConfigRepository);
+		Assert.notNull(systemMappingService, "Service is required.");
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(schemaObjectClassService, "Service is required.");
+		Assert.notNull(syncConfigRepository, "Repository is required.");
 		//
 		this.systemMappingService = systemMappingService;
 		this.systemService = systemService;

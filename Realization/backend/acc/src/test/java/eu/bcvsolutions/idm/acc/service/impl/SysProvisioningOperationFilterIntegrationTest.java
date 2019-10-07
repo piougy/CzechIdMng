@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -225,7 +225,7 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 
 		getHelper().waitForResult(null, 30, 1);
 		
-		DateTime dateTime = DateTime.now();
+		ZonedDateTime dateTime = ZonedDateTime.now();
 
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
 

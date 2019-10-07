@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.core.rest.impl;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,7 @@ public class IdmTokenControllerRestTest extends AbstractReadWriteDtoControllerRe
 		dto.setOwnerType(tokenManager.getOwnerType(owner));
 		dto.setTokenType("mock");
 		dto.setToken("mock");
-		dto.setIssuedAt(new DateTime());
+		dto.setIssuedAt(ZonedDateTime.now());
 		return dto;
 	}
 	
@@ -105,7 +107,7 @@ public class IdmTokenControllerRestTest extends AbstractReadWriteDtoControllerRe
 	@Test
 	public void testFindByExpirationTill() {
 		UUID mockOwnerId = UUID.randomUUID();
-		DateTime now = new DateTime();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		//
 		IdmTokenDto tokenOne =  prepareDto();
 		tokenOne.setOwnerId(mockOwnerId);

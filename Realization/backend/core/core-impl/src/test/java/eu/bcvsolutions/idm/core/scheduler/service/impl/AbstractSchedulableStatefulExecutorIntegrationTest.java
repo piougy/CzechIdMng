@@ -587,7 +587,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 	
 	private List<IdmIdentityDto> findTestIdentities() {
 		// FIXME: prepare new identities instead ... 
-		return identityService.find(null, new PageRequest(0, 10)).getContent();
+		return identityService.find(null, PageRequest.of(0, 10)).getContent();
 	}
 	
 	private List<IdmIdentityDto> createTestIdentities(int count) {

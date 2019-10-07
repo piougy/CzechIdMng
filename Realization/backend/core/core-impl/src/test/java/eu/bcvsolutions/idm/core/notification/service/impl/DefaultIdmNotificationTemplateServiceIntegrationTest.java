@@ -14,7 +14,7 @@ import java.text.DecimalFormat;
 import javax.validation.ConstraintViolationException;
 
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -149,10 +149,10 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 			IdmNotificationTemplateDto newDto = notificationTemplateService.redeploy(testTemplate);
 			assertEquals(testTemplate.getCode(), newDto.getCode());
 			//
-			DateTime date = new DateTime();
+			ZonedDateTime date = ZonedDateTime.now();
 			DecimalFormat decimalFormat = new DecimalFormat("00");
 			directory = new File(backupFolder + "templates/" + date.getYear()
-					+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
+					+ decimalFormat.format(date.getMonthValue()) + decimalFormat.format(date.getDayOfMonth()) + "/");
 			File[] files = directory.listFiles();
 			assertEquals(1, files.length);
 			File backup = files[0];
@@ -190,10 +190,10 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 		assertEquals(testTemplateNew.getId(), testTemplate.getId());
 		//
 		// after redeploy check directory
-		DateTime date = new DateTime();
+		ZonedDateTime date = ZonedDateTime.now();
 		DecimalFormat decimalFormat = new DecimalFormat("00");
 		directory = new File(backupFolder + "templates/" + date.getYear()
-				+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
+				+ decimalFormat.format(date.getMonthValue()) + decimalFormat.format(date.getDayOfMonth()) + "/");
 		assertTrue(directory.exists());
 		assertTrue(directory.isDirectory());
 		//
@@ -293,10 +293,10 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 		//
 		notificationTemplateService.backup(testTemplate);
 		//
-		DateTime date = new DateTime();
+		ZonedDateTime date = ZonedDateTime.now();
 		DecimalFormat decimalFormat = new DecimalFormat("00");
 		directory = new File(backupFolder + "templates/" + date.getYear()
-				+ decimalFormat.format(date.getMonthOfYear()) + decimalFormat.format(date.getDayOfMonth()) + "/");
+				+ decimalFormat.format(date.getMonthValue()) + decimalFormat.format(date.getDayOfMonth()) + "/");
 		assertTrue(directory.exists());
 		assertTrue(directory.isDirectory());
 		//

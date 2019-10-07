@@ -956,18 +956,6 @@ module.exports = {
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['NOTIFICATION_READ'] } ]
         },
         {
-          path: 'websockets',
-          component: require('./src/content/notification/websocket/Websockets'),
-          _deprecated: '@deprecated @since 9.2.0 websocket notification will be removed',
-          access: [ { type: 'DENY_ALL' } ]
-        },
-        {
-          path: 'websockets/:entityId',
-          component: require('./src/content/notification/websocket/WebsocketContent'),
-          _deprecated: '@deprecated @since 9.2.0 websocket notification will be removed',
-          access: [ { type: 'DENY_ALL' } ]
-        },
-        {
           path: 'sms',
           component: require('./src/content/notification/sms/Sms'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['NOTIFICATION_READ'] } ]

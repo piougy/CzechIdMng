@@ -3,9 +3,8 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 import static eu.bcvsolutions.idm.core.security.service.impl.RecaptchaTestUtil.getRecaptchaRequest;
 import static eu.bcvsolutions.idm.core.security.service.impl.RecaptchaTestUtil.getRecaptchaResponse;
 import static eu.bcvsolutions.idm.core.security.service.impl.RecaptchaTestUtil.getResponse;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -36,53 +35,48 @@ public class DefaultRecaptchaServiceUnitTest extends AbstractUnitTest {
 	private static final String TEST_REQUEST = "";
 	private static final String TEST_SECRET_KEY = "";
 
-	@Mock
-	RestTemplate template;
-
-	@Mock
-	RecaptchaConfiguration config;
-
+	@Mock RestTemplate template;
+	@Mock RecaptchaConfiguration config;
+	//
 	@InjectMocks
 	DefaultRecaptchaService service;
 
-
-
-	@Test()
+	@Test
 	public void testNotValid() {
 		RecaptchaResponse response = getRecaptchaResponse(TEST_HOSTNAME, false, "a", "b");
 		when(config.getSecretKey()).thenReturn(new GuardedString(TEST_SECRET_KEY));
-		when(template.postForEntity(anyString(), any(), eq(RecaptchaResponse.class))).thenReturn(getResponse(response, HttpStatus.OK));
+		when(template.postForEntity((String) any(), any(), eq(RecaptchaResponse.class))).thenReturn(getResponse(response, HttpStatus.OK));
 		try {
 			service.checkRecaptcha(getRecaptchaRequest(TEST_REMOTE_IP, TEST_REQUEST));
 		} catch (ResultCodeException O_o) {
 			Assert.assertEquals(O_o.getStatus(), CoreResultCode.RECAPTCHA_CHECK_FAILED.getStatus());
 		}
-		verify(template).postForEntity(anyString(), any(), eq(RecaptchaResponse.class));
+		verify(template).postForEntity((String) any(), any(), eq(RecaptchaResponse.class));
 		verifyNoMoreInteractions(template);
 	}
 
-	@Test()
+	@Test
 	public void testNotValid2() {
 		RecaptchaResponse response = getRecaptchaResponse(TEST_HOSTNAME, false, "a");
 		when(config.getSecretKey()).thenReturn(new GuardedString(TEST_SECRET_KEY));
-		when(template.postForEntity(anyString(), any(), eq(RecaptchaResponse.class))).thenReturn(getResponse(response, HttpStatus.OK));
+		when(template.postForEntity((String) any(), any(), eq(RecaptchaResponse.class))).thenReturn(getResponse(response, HttpStatus.OK));
 		try {
 			service.checkRecaptcha(getRecaptchaRequest(TEST_REMOTE_IP, TEST_REQUEST));
 		} catch (ResultCodeException O_o) {
 			Assert.assertEquals(O_o.getStatus(), CoreResultCode.RECAPTCHA_CHECK_FAILED.getStatus());
 		}
-		verify(template).postForEntity(anyString(), any(),eq(RecaptchaResponse.class));
+		verify(template).postForEntity((String) any(), any(),eq(RecaptchaResponse.class));
 		verifyNoMoreInteractions(template);
 	}
 
-	@Test()
+	@Test
 	public void testValid() {
 		RecaptchaResponse response = getRecaptchaResponse(TEST_HOSTNAME, true);
 		when(config.getSecretKey()).thenReturn(new GuardedString(TEST_SECRET_KEY));
-		when(template.postForEntity(anyString(), any(), eq(RecaptchaResponse.class))).thenReturn(getResponse(response, HttpStatus.OK));
+		when(template.postForEntity((String) any(), any(), eq(RecaptchaResponse.class))).thenReturn(getResponse(response, HttpStatus.OK));
 		RecaptchaResponse returned = service.checkRecaptcha(getRecaptchaRequest(TEST_REMOTE_IP, TEST_REQUEST));
 		//
-		verify(template).postForEntity(anyString(), any(), eq(RecaptchaResponse.class));
+		verify(template).postForEntity((String) any(), any(), eq(RecaptchaResponse.class));
 		verifyNoMoreInteractions(template);
 		Assert.assertNotNull(returned);
 		Assert.assertEquals(returned.getHostname(), TEST_HOSTNAME);

@@ -95,8 +95,8 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 	public EventResult<IdmRoleRequestDto> process(EntityEvent<IdmRoleRequestDto> event) {
 		IdmRoleRequestDto request = event.getContent();
 		IdmRoleRequestDto currentRequest = event.getOriginalSource();
-		Assert.notNull(request);
-		Assert.notNull(request.getId());
+		Assert.notNull(request, "Request is required.");
+		Assert.notNull(request.getId(), "Request identifier is required.");
 
 		SysProvisioningOperationFilter provisioningOperationFilter = new SysProvisioningOperationFilter();
 		provisioningOperationFilter.setRoleRequestId(request.getId());
@@ -207,7 +207,7 @@ public class RoleRequestCheckSystemStateProcessor extends CoreEventProcessor<Idm
 			List<IdmConceptRoleRequestDto> concepts = loadConcepts(request, null);
 			
 			failedOperations.forEach(operation -> {
-				Assert.notNull(operation.getSystem());
+				Assert.notNull(operation.getSystem(), "System is required.");
 				UUID systemId = operation.getSystem();
 				
 				List<IdmConceptRoleRequestDto> failedConcepts = roleSystemService.getConceptsForSystem(concepts, systemId);

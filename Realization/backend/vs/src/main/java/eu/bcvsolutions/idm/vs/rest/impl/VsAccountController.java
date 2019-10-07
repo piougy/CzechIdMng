@@ -74,7 +74,7 @@ public class VsAccountController extends AbstractReadWriteDtoController<VsAccoun
 			IdmFormDefinitionController formDefinitionController) {
 		super(service);
 		//
-		Assert.notNull(formDefinitionController);
+		Assert.notNull(formDefinitionController, "Controller is required.");
 		//
 		this.formDefinitionController = formDefinitionController;
 	}

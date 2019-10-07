@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -316,7 +316,7 @@ public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 		filter.setIdentityId(identity.getId());
 		filter.setSystemId(systemService.getByCode(SYSTEM_NAME).getId());
 		List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(
-				filter, new PageRequest(0, 1, new Sort(Sort.Direction.ASC, AccIdentityAccount_.created.getName()))).getContent();
+				filter, PageRequest.of(0, 1, new Sort(Sort.Direction.ASC, AccIdentityAccount_.created.getName()))).getContent();
 	
 		TestResource resourceAccount = helper.findResource("x" + IDENTITY_USERNAME);
 

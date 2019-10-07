@@ -28,7 +28,7 @@ public class SingleTextFormPropertyConverter extends AbstractFormPropertyConvert
 	
 	@Autowired
 	public SingleTextFormPropertyConverter(FormService formService) {
-		Assert.notNull(formService);
+		Assert.notNull(formService, "Form service (eav) is required.");
 		//
 		this.formService = formService;
 	}

@@ -97,7 +97,7 @@ public class RoleDeleteProcessor
 		// automatic role attribute has assigned this role
 		IdmAutomaticRoleFilter automaticRoleFilter = new IdmAutomaticRoleFilter();
 		automaticRoleFilter.setRoleId(role.getId());
-		long totalElements = automaticRoleAttributeService.find(automaticRoleFilter, new PageRequest(0, 1)).getTotalElements();
+		long totalElements = automaticRoleAttributeService.find(automaticRoleFilter, PageRequest.of(0, 1)).getTotalElements();
 		if (totalElements > 0) {
 			// some automatic role attribute has assigned this role
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_AUTOMATIC_ROLE_ASSIGNED, ImmutableMap.of("role", role.getCode()));
@@ -106,7 +106,7 @@ public class RoleDeleteProcessor
 		// related automatic roles
 		IdmRoleTreeNodeFilter filter = new IdmRoleTreeNodeFilter();
 		filter.setRoleId(role.getId());
-		if (roleTreeNodeService.find(filter, new PageRequest(0, 1)).getTotalElements() > 0) {
+		if (roleTreeNodeService.find(filter, PageRequest.of(0, 1)).getTotalElements() > 0) {
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_HAS_TREE_NODE, 
 					ImmutableMap.of("role", role.getCode()));
 		}
@@ -114,13 +114,13 @@ public class RoleDeleteProcessor
 		// business roles
 		IdmRoleCompositionFilter compositionFilter = new IdmRoleCompositionFilter();
 		compositionFilter.setSubId(role.getId());
-		if (roleCompositionService.find(compositionFilter, new PageRequest(0, 1)).getTotalElements() > 0) {
+		if (roleCompositionService.find(compositionFilter, PageRequest.of(0, 1)).getTotalElements() > 0) {
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_HAS_COMPOSITION, 
 					ImmutableMap.of("role", role.getCode()));
 		}
 		compositionFilter = new IdmRoleCompositionFilter();
 		compositionFilter.setSuperiorId(role.getId());
-		if (roleCompositionService.find(compositionFilter, new PageRequest(0, 1)).getTotalElements() > 0) {
+		if (roleCompositionService.find(compositionFilter, PageRequest.of(0, 1)).getTotalElements() > 0) {
 			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_HAS_COMPOSITION, 
 					ImmutableMap.of("role", role.getCode()));
 		}

@@ -10,8 +10,8 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -164,7 +164,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		passwordService.setLastSuccessfulLogin(identity.getUsername());
 		//
 		assertNotNull(passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin());
-		assertTrue(DateTime.now().plusMillis(1).isAfter(passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin()));
+		assertTrue(ZonedDateTime.now().plusNanos(1).isAfter(passwordService.findOneByIdentity(identity.getId()).getLastSuccessfulLogin()));
 	}
 
 	@Test
@@ -179,7 +179,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		loginDto.setUsername(identity.getUsername());
 		loginDto.setPassword(new GuardedString("SomePasswd"));
 		loginController.login(loginDto);
-		DateTime timestamp = passwordService.findOneByIdentity(identity.getUsername()).getLastSuccessfulLogin();
+		ZonedDateTime timestamp = passwordService.findOneByIdentity(identity.getUsername()).getLastSuccessfulLogin();
 
 		assertNotNull(passwordService.findOneByIdentity(identity.getUsername()).getLastSuccessfulLogin());
 
@@ -188,7 +188,7 @@ public class DefaultIdmPasswordServiceIntegrationTest extends AbstractIntegratio
 		loginDto.setUsername(identity.getUsername());
 		loginDto.setPassword(new GuardedString("SomePasswd"));
 		loginController.login(loginDto);
-		DateTime timestamp2 = passwordService.findOneByIdentity(identity.getUsername()).getLastSuccessfulLogin();
+		ZonedDateTime timestamp2 = passwordService.findOneByIdentity(identity.getUsername()).getLastSuccessfulLogin();
 
 		assertTrue(timestamp2.isAfter(timestamp));
 	}

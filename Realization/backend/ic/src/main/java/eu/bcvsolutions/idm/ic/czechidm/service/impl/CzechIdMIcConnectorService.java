@@ -50,7 +50,7 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	@Autowired
 	public CzechIdMIcConnectorService(IcConnectorFacade icConnectorAggregator,
 			CzechIdMIcConfigurationService configurationService, ApplicationContext applicationContext) {
-		Assert.notNull(applicationContext);
+		Assert.notNull(applicationContext, "Context is required.");
 
 		this.applicationContext = applicationContext;
 
@@ -75,10 +75,10 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	@Override
 	public IcUidAttribute createObject(IcConnectorInstance connectorInstance,
 			IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass, List<IcAttribute> attributes) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(attributes);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(attributes, "Attributes are required.");
 		String key = connectorInstance.getConnectorKey().toString();
 
 		LOG.debug("Create object - CzechIdM ({} {})", key, attributes.toString());
@@ -102,11 +102,11 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	public IcUidAttribute updateObject(IcConnectorInstance connectorInstance,
 			IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass, IcUidAttribute uid,
 			List<IcAttribute> replaceAttributes) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(replaceAttributes);
-		Assert.notNull(uid);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(replaceAttributes, "Replace attributes are required.");
+		Assert.notNull(uid, "Uid is required.");
 
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Update object - CzechIdM (Uid= {} {} {})", uid, key, replaceAttributes.toString());
@@ -129,10 +129,10 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	@Override
 	public void deleteObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(uid);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(uid, "Uid is required.");
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Delete object - CzechIdM (Uid= {} {})", uid, key);
 
@@ -152,10 +152,10 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	@Override
 	public IcConnectorObject readObject(IcConnectorInstance connectorInstance,
 			IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(uid);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(uid, "Uid is required.");
 
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Read object - CzechIdM (Uid= {} {})", uid, key);
@@ -177,10 +177,10 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	public IcUidAttribute authenticateObject(IcConnectorInstance connectorInstance,
 			IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass, String username,
 			GuardedString password) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(username);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(username, "Username is required.");
 
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Authenticate object - CzechIdM (username= {} {})", username, key);
@@ -191,11 +191,11 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	public IcSyncToken synchronization(IcConnectorInstance connectorInstance,
 			IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass, IcSyncToken token,
 			IcSyncResultsHandler handler) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(objectClass);
-		Assert.notNull(handler);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(objectClass, "Object class is required.");
+		Assert.notNull(handler, "Handler is required.");
 
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Start synchronization for connector {} and objectClass {} - CzechIdM", key,
@@ -207,11 +207,11 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	@Override
 	public void search(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcFilter filter, IcResultsHandler handler) {
-		Assert.notNull(connectorInstance);
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
-		Assert.notNull(objectClass);
-		Assert.notNull(handler);
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
+		Assert.notNull(objectClass, "Object class is required.");
+		Assert.notNull(handler, "Handler is required.");
 
 		String key = connectorInstance.getConnectorKey().toString();
 		LOG.debug("Start search for connector {} and objectClass {} and filter {} - CzechIdM", key,
@@ -229,8 +229,8 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 	@Override
 	public IcConnector getConnectorInstance(IcConnectorInstance connectorInstance,
 			IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorConfiguration);
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorConfiguration, "Configuration is required.");
 
 		// String key = connectorInstance.getConnectorKey().getFullName();
 		// Cache is not thread safety
@@ -243,14 +243,14 @@ public class CzechIdMIcConnectorService implements IcConnectorService {
 		Class<? extends IcConnector> connectorClass = this.configurationService.getConnectorClass(connectorInstance);
 		try {
 
-			IcConnector connector = connectorClass.newInstance();
+			IcConnector connector = connectorClass.getDeclaredConstructor().newInstance();
 			// Manually autowire on this connector instance
 			this.applicationContext.getAutowireCapableBeanFactory().autowireBean(connector);
 			connector.init(connectorConfiguration);
 			// this.connectorInstances.put(key, connector);
 			return connector;
 
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (ReflectiveOperationException e) {
 			throw new IcException(e);
 		}
 	}

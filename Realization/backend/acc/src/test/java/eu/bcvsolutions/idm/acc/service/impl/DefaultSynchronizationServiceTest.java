@@ -1,13 +1,14 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,7 +18,6 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,7 +84,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Rollback(false)
-@Service
 public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private static final String IDENTITY_USERNAME_ONE = "syncUserOneTest";
 	private static final String IDENTITY_USERNAME_TWO = "syncUserTwoTest";
@@ -321,7 +320,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		syncConfigCustom.setCustomFilter(false);
 		syncConfigCustom.setReconciliation(false);
-		syncConfigCustom.setToken(DateTime.now().toString("yyyy-MM-dd HH:mm:ss")); // We want do sync for account changed in future
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		syncConfigCustom.setToken(ZonedDateTime.now().format(formatter)); // We want do sync for account changed in future
 		syncConfigCustom.setFilterOperation(IcFilterOperationType.ENDS_WITH); // We don`t use custom filter. This option will be not used.
 		syncConfigService.save(syncConfigCustom);
 
@@ -382,7 +382,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		syncConfigCustom.setCustomFilter(true);
 		syncConfigCustom.setReconciliation(false);
-		syncConfigCustom.setToken(DateTime.now().toString("yyyy-MM-dd HH:mm:ss"));
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		syncConfigCustom.setToken(ZonedDateTime.now().format(formatter));
 		syncConfigCustom.setFilterOperation(IcFilterOperationType.LESS_THAN);
 		syncConfigService.save(syncConfigCustom);
 		//
@@ -1379,8 +1380,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Query q = entityManager.createNativeQuery("DELETE FROM test_resource");
 		q.executeUpdate();
 		// Insert data to testResource table
-		DateTime paste = DateTime.now().minusYears(1);
-		DateTime future = paste.plusYears(2);
+		ZonedDateTime paste = ZonedDateTime.now().minusYears(1);
+		ZonedDateTime future = paste.plusYears(2);
 		
 		TestResource resourceUserOne = new TestResource();
 		resourceUserOne.setName("x" + IDENTITY_USERNAME_ONE);
@@ -1515,6 +1516,6 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	}
 
 	private DefaultSynchronizationServiceTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 }

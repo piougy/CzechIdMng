@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -35,7 +35,7 @@ public class TestTreeResource {
 	@Column(name = "STATUS", length = DefaultFieldLengths.NAME)
 	private String status;
 	@Column(name = "MODIFIED", length = DefaultFieldLengths.NAME)
-	private DateTime modified;
+	private ZonedDateTime modified;
 
 	public String getName() {
 		return name;
@@ -93,11 +93,11 @@ public class TestTreeResource {
 		this.status = status;
 	}
 
-	public DateTime getModified() {
+	public ZonedDateTime getModified() {
 		return modified;
 	}
 
-	public void setModified(DateTime modified) {
+	public void setModified(ZonedDateTime modified) {
 		this.modified = modified;
 	}
 

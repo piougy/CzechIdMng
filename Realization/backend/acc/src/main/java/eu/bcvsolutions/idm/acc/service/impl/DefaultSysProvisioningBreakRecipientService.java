@@ -57,8 +57,8 @@ public class DefaultSysProvisioningBreakRecipientService extends
 			ProvisioningBreakConfiguration provisioningBreakConfiguration) {
 		super(repository);
 		//
-		Assert.notNull(identityService);
-		Assert.notNull(provisioningBreakConfiguration);
+		Assert.notNull(identityService, "Service is required.");
+		Assert.notNull(provisioningBreakConfiguration, "Configuration is required.");
 		//
 		this.identityService = identityService;
 		this.provisioningBreakConfiguration = provisioningBreakConfiguration;

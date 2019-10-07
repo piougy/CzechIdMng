@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.joda.time.LocalDate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 

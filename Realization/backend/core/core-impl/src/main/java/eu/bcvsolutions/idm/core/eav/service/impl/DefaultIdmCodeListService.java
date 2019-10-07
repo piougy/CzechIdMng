@@ -98,8 +98,8 @@ public class DefaultIdmCodeListService
 	@Override
 	@Transactional
 	public void deleteInternal(IdmCodeListDto dto) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getId());
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(dto.getId(), "DTO identifier is required.");
 		//
 		// delete code list items
 		IdmCodeListItemFilter filter = new IdmCodeListItemFilter();
@@ -127,7 +127,7 @@ public class DefaultIdmCodeListService
 			filter.setDefinitionId(dto.getFormDefinition().getId());
 			dto.getFormDefinition().setFormAttributes(
 					formAttributeService
-					.find(filter, getPageableAll(new Sort(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
+					.find(filter, getPageableAll(Sort.by(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
 					.getContent());
 		}
 		//

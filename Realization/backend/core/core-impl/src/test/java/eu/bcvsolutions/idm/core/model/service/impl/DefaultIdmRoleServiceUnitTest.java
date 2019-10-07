@@ -42,11 +42,8 @@ public class DefaultIdmRoleServiceUnitTest extends AbstractUnitTest {
 	//
 	@InjectMocks private DefaultIdmRoleService service;
 
-
 	@Test
 	public void testGetCodeWithoutEnvironment() {
-		when(roleConfiguration.getCodeEnvironmentSeperator()).thenReturn(RoleConfiguration.DEFAULT_CODE_ENVIRONMENT_SEPARATOR);
-		//
 		String code = "code";
 		String env = "env";
 		IdmRoleDto role = new IdmRoleDto();
@@ -133,8 +130,6 @@ public class DefaultIdmRoleServiceUnitTest extends AbstractUnitTest {
 	
 	@Test(expected = ResultCodeException.class)
 	public void testUpdateRoleWitCodeAndEnvironmentConflict() {
-		when(roleConfiguration.getCodeEnvironmentSeperator()).thenReturn(RoleConfiguration.DEFAULT_CODE_ENVIRONMENT_SEPARATOR);
-		//
 		IdmRoleDto role = new IdmRoleDto();
 		role.setCode("code" + RoleConfiguration.DEFAULT_CODE_ENVIRONMENT_SEPARATOR + "env");
 		role.setBaseCode("code");
@@ -182,8 +177,6 @@ public class DefaultIdmRoleServiceUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testCreateSuccessWithBaseCodeOnly() {
-		when(roleConfiguration.getCodeEnvironmentSeperator()).thenReturn(RoleConfiguration.DEFAULT_CODE_ENVIRONMENT_SEPARATOR);
-		//
 		IdmRoleDto role = new IdmRoleDto();
 		role.setBaseCode("code");
 		//
@@ -196,8 +189,6 @@ public class DefaultIdmRoleServiceUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testCreateSuccessWithCodeOnly() {
-		when(roleConfiguration.getCodeEnvironmentSeperator()).thenReturn(RoleConfiguration.DEFAULT_CODE_ENVIRONMENT_SEPARATOR);
-		//
 		IdmRoleDto role = new IdmRoleDto();
 		role.setCode("code");
 		//
@@ -234,8 +225,6 @@ public class DefaultIdmRoleServiceUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testUpdateSuccessCodeChange() {
-		when(roleConfiguration.getCodeEnvironmentSeperator()).thenReturn(RoleConfiguration.DEFAULT_CODE_ENVIRONMENT_SEPARATOR);
-		//
 		IdmRoleDto role = new IdmRoleDto();
 		role.setCode("code");
 		role.setBaseCode("code");
@@ -280,8 +269,6 @@ public class DefaultIdmRoleServiceUnitTest extends AbstractUnitTest {
 	
 	@Test(expected = ResultCodeException.class)
 	public void testUpdateFailureCodeChangeWithEnvironment() {
-		when(roleConfiguration.getCodeEnvironmentSeperator()).thenReturn(RoleConfiguration.DEFAULT_CODE_ENVIRONMENT_SEPARATOR);
-		//
 		IdmRoleDto role = new IdmRoleDto();
 		role.setCode("code");
 		role.setBaseCode("code");

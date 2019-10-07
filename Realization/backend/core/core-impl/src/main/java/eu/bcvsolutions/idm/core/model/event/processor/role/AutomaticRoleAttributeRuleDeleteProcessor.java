@@ -52,18 +52,18 @@ public class AutomaticRoleAttributeRuleDeleteProcessor extends CoreEventProcesso
 	@Autowired
 	public AutomaticRoleAttributeRuleDeleteProcessor(
 			IdmAutomaticRoleAttributeRuleService automactiRoleAttributeRuleService,
-			LongRunningTaskManager longRunningTaskManage,
+			LongRunningTaskManager longRunningTaskManager,
 			IdmAutomaticRoleAttributeService automaticRoleAttributeRuleService,
 			IdmIdentityService identityService) {
 		super(AutomaticRoleAttributeRuleEventType.DELETE);
 		//
-		Assert.notNull(automactiRoleAttributeRuleService);
-		Assert.notNull(longRunningTaskManage);
-		Assert.notNull(automaticRoleAttributeRuleService);
-		Assert.notNull(identityService);
+		Assert.notNull(automactiRoleAttributeRuleService, "Service is required.");
+		Assert.notNull(longRunningTaskManager, "Task manager is required.");
+		Assert.notNull(automaticRoleAttributeRuleService, "Service is required.");
+		Assert.notNull(identityService, "Service is required.");
 		//
 		this.automactiRoleAttributeRuleService = automactiRoleAttributeRuleService;
-		this.longRunningTaskManager = longRunningTaskManage;
+		this.longRunningTaskManager = longRunningTaskManager;
 		this.automaticRoleAttributeRuleService = automaticRoleAttributeRuleService;
 		this.identityService = identityService;
 	}
@@ -82,7 +82,7 @@ public class AutomaticRoleAttributeRuleDeleteProcessor extends CoreEventProcesso
 				// before we start delete identity role, we check how many identities has the auto role
 				// if doesn't exist identities that has the role, skip remove
 				IdmIdentityFilter identityFilter = new IdmIdentityFilter();
-				long totalElements = identityService.find(identityFilter, new PageRequest(0, 1)).getTotalElements();
+				long totalElements = identityService.find(identityFilter, PageRequest.of(0, 1)).getTotalElements();
 				if (totalElements > 0) {
 					UUID automaticRoleAttributeId = dto.getAutomaticRoleAttribute();
 					removeAllRoles(automaticRoleAttributeId);

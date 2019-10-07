@@ -1,12 +1,12 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
@@ -39,7 +39,7 @@ public class IdmEntityEventDto extends AbstractDto {
 	private Integer processedOrder;
 	private boolean closed;
 	private boolean suspended;
-	private DateTime executeDate;
+	private ZonedDateTime executeDate;
 	private PriorityType priority;
 	@Embedded(dtoClass = IdmEntityEventDto.class)
 	private UUID parent;
@@ -80,11 +80,11 @@ public class IdmEntityEventDto extends AbstractDto {
 		this.superOwnerId = superOwnerId;
 	}
 
-	public DateTime getExecuteDate() {
+	public ZonedDateTime getExecuteDate() {
 		return executeDate;
 	}
 
-	public void setExecuteDate(DateTime executeDate) {
+	public void setExecuteDate(ZonedDateTime executeDate) {
 		this.executeDate = executeDate;
 	}
 

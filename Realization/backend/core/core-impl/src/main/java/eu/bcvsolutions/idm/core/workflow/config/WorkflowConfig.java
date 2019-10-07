@@ -117,7 +117,7 @@ public class WorkflowConfig {
 			config.setIdGenerator(uuidGenerator);
 			// task form types
 			config.setFormTypes(new CustomFormTypes());
-			//Add ours Activiti event listeners to engine configuration
+			// Add ours Activiti event listeners to engine configuration
 			addActivitiEventListeners(config);
 			//
 			return config;

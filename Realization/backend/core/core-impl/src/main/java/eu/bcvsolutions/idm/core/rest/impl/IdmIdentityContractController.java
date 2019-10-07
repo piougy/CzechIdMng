@@ -84,7 +84,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 			IdmFormDefinitionController formDefinitionController) {
 		super(identityContractService);
 		//
-		Assert.notNull(formDefinitionController);
+		Assert.notNull(formDefinitionController, "Controller is required.");
 		//
 		this.formDefinitionController = formDefinitionController;
 	}

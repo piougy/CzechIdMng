@@ -63,7 +63,7 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	@Override
 	public Page<IdmRoleDto> getItemsToProcess(Pageable pageable) {
 		IdmRoleCompositionDto roleComposition = roleCompositionService.get(roleCompositionId);
-		Assert.notNull(roleComposition);
+		Assert.notNull(roleComposition, "Role composition is required.");
 		//
 		List<IdmRoleDto> superiorRoles = roleCompositionService
 				.findAllSuperiorRoles(roleComposition.getSub())

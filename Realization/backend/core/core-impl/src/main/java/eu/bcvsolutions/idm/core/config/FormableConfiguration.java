@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.entity.IdmCodeListItem;
 import eu.bcvsolutions.idm.core.eav.entity.IdmCodeListItemValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmForm;
@@ -47,10 +46,9 @@ public class FormableConfiguration {
 	 */
 	@Bean
 	public AbstractFormValueService<IdmIdentity, IdmIdentityFormValue> identityFormValueService(
-			AbstractFormValueRepository<IdmIdentity, IdmIdentityFormValue> repository, 
-			ConfidentialStorage confidentialStorage) {
+			AbstractFormValueRepository<IdmIdentity, IdmIdentityFormValue> repository) {
 		
-		return new AbstractFormValueService<IdmIdentity, IdmIdentityFormValue>(repository, confidentialStorage) {
+		return new AbstractFormValueService<IdmIdentity, IdmIdentityFormValue>(repository) {
 			
 			@Autowired private PrivateIdentityConfiguration identityConfiguration;
 			
@@ -77,9 +75,8 @@ public class FormableConfiguration {
 	 */
 	@Bean
 	public AbstractFormValueService<IdmRole, IdmRoleFormValue> roleFormValueService(
-			AbstractFormValueRepository<IdmRole, IdmRoleFormValue> repository, 
-			ConfidentialStorage confidentialStorage) {
-		return new AbstractFormValueService<IdmRole, IdmRoleFormValue>(repository, confidentialStorage) {};
+			AbstractFormValueRepository<IdmRole, IdmRoleFormValue> repository) {
+		return new AbstractFormValueService<IdmRole, IdmRoleFormValue>(repository) {};
 	}
 	
 	/**
@@ -91,9 +88,8 @@ public class FormableConfiguration {
 	 */
 	@Bean
 	public AbstractFormValueService<IdmTreeNode, IdmTreeNodeFormValue> treeNodeFormValueService(
-			AbstractFormValueRepository<IdmTreeNode, IdmTreeNodeFormValue> repository, 
-			ConfidentialStorage confidentialStorage) {
-		return new AbstractFormValueService<IdmTreeNode, IdmTreeNodeFormValue>(repository, confidentialStorage) {};
+			AbstractFormValueRepository<IdmTreeNode, IdmTreeNodeFormValue> repository) {
+		return new AbstractFormValueService<IdmTreeNode, IdmTreeNodeFormValue>(repository) {};
 	}
 	
 	/**
@@ -105,9 +101,8 @@ public class FormableConfiguration {
 	 */
 	@Bean
 	public AbstractFormValueService<IdmIdentityContract, IdmIdentityContractFormValue> identityContractFormValueService(
-			AbstractFormValueRepository<IdmIdentityContract, IdmIdentityContractFormValue> repository, 
-			ConfidentialStorage confidentialStorage) {
-		return new AbstractFormValueService<IdmIdentityContract, IdmIdentityContractFormValue>(repository, confidentialStorage) {};
+			AbstractFormValueRepository<IdmIdentityContract, IdmIdentityContractFormValue> repository) {
+		return new AbstractFormValueService<IdmIdentityContract, IdmIdentityContractFormValue>(repository) {};
 	}
 	
 	/**
@@ -119,9 +114,8 @@ public class FormableConfiguration {
 	 */
 	@Bean
 	public AbstractFormValueService<IdmContractSlice, IdmContractSliceFormValue> contractSliceFormValueService(
-			AbstractFormValueRepository<IdmContractSlice, IdmContractSliceFormValue> repository, 
-			ConfidentialStorage confidentialStorage) {
-		return new AbstractFormValueService<IdmContractSlice, IdmContractSliceFormValue>(repository, confidentialStorage) {};
+			AbstractFormValueRepository<IdmContractSlice, IdmContractSliceFormValue> repository) {
+		return new AbstractFormValueService<IdmContractSlice, IdmContractSliceFormValue>(repository) {};
 	}
 	
 	/**
@@ -134,9 +128,8 @@ public class FormableConfiguration {
 	 */
 	@Bean
 	public AbstractFormValueService<IdmForm, IdmFormValue> formValueService(
-			AbstractFormValueRepository<IdmForm, IdmFormValue> repository, 
-			ConfidentialStorage confidentialStorage) {
-		return new AbstractFormValueService<IdmForm, IdmFormValue>(repository, confidentialStorage) {};
+			AbstractFormValueRepository<IdmForm, IdmFormValue> repository) {
+		return new AbstractFormValueService<IdmForm, IdmFormValue>(repository) {};
 	}
 	
 	/**
@@ -148,9 +141,8 @@ public class FormableConfiguration {
 	 */
 	@Bean
 	public AbstractFormValueService<IdmCodeListItem, IdmCodeListItemValue> codeListItemValueService(
-			AbstractFormValueRepository<IdmCodeListItem, IdmCodeListItemValue> repository, 
-			ConfidentialStorage confidentialStorage) {
-		return new AbstractFormValueService<IdmCodeListItem, IdmCodeListItemValue>(repository, confidentialStorage) {};
+			AbstractFormValueRepository<IdmCodeListItem, IdmCodeListItemValue> repository) {
+		return new AbstractFormValueService<IdmCodeListItem, IdmCodeListItemValue>(repository) {};
 	}
 	
 	/**
@@ -162,10 +154,9 @@ public class FormableConfiguration {
 	 */
 	@Bean
 	public AbstractFormValueService<IdmIdentityRole, IdmIdentityRoleFormValue> identityRoleFormValueService(
-			AbstractFormValueRepository<IdmIdentityRole, IdmIdentityRoleFormValue> repository, 
-			ConfidentialStorage confidentialStorage) {
+			AbstractFormValueRepository<IdmIdentityRole, IdmIdentityRoleFormValue> repository) {
 		
-		return new AbstractFormValueService<IdmIdentityRole, IdmIdentityRoleFormValue>(repository, confidentialStorage) {};
+		return new AbstractFormValueService<IdmIdentityRole, IdmIdentityRoleFormValue>(repository) {};
 	}
 	
 	/**
@@ -177,8 +168,7 @@ public class FormableConfiguration {
 	 */
 	@Bean
 	public AbstractFormValueService<IdmConceptRoleRequest, IdmConceptRoleRequestFormValue> conceptRoleRequestFormValueService(
-			AbstractFormValueRepository<IdmConceptRoleRequest, IdmConceptRoleRequestFormValue> repository, 
-			ConfidentialStorage confidentialStorage) {
-		return new AbstractFormValueService<IdmConceptRoleRequest, IdmConceptRoleRequestFormValue>(repository, confidentialStorage) {};
+			AbstractFormValueRepository<IdmConceptRoleRequest, IdmConceptRoleRequestFormValue> repository) {
+		return new AbstractFormValueService<IdmConceptRoleRequest, IdmConceptRoleRequestFormValue>(repository) {};
 	}
 }

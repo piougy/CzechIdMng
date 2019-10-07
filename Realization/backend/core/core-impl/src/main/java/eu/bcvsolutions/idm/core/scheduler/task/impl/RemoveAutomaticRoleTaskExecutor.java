@@ -211,7 +211,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		if (BooleanUtils.isTrue(ended)) {
 			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role);
 			//
-			long assignedRoles = identityRoleService.findByAutomaticRole(getAutomaticRoleId(), new PageRequest(0, 1)).getTotalElements();
+			long assignedRoles = identityRoleService.findByAutomaticRole(getAutomaticRoleId(), PageRequest.of(0, 1)).getTotalElements();
 			if (assignedRoles != 0) {
 				LOG.debug("Remove role [{}] by automatic role [{}] is not complete, some roles [{}] remains assigned to identities.", 
 						role.getCode(), getAutomaticRole().getId(), assignedRoles);

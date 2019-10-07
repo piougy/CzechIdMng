@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
@@ -317,4 +318,4 @@ function select(state) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(RoleConceptDetail);
+export default connect(select, null, null, { forwardRef: true })(RoleConceptDetail);

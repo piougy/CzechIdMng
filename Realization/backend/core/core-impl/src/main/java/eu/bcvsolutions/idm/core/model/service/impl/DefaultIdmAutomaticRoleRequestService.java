@@ -407,8 +407,8 @@ public class DefaultIdmAutomaticRoleRequestService extends
 	
 	@Override
 	public void deleteAutomaticRole(AbstractIdmAutomaticRoleDto automaticRole, AutomaticRoleRequestType type) {
-		Assert.notNull(automaticRole);
-		Assert.notNull(type);
+		Assert.notNull(automaticRole, "Automatic role is required.");
+		Assert.notNull(type, "Type is required.");
 
 		IdmAutomaticRoleRequestDto request = new IdmAutomaticRoleRequestDto();
 		request.setAutomaticRole(automaticRole.getId());
@@ -423,7 +423,7 @@ public class DefaultIdmAutomaticRoleRequestService extends
 	
 	@Override
 	public IdmRoleTreeNodeDto createTreeAutomaticRole(IdmRoleTreeNodeDto automaticRole) {
-		Assert.notNull(automaticRole);
+		Assert.notNull(automaticRole, "Automatic role is required.");
 
 		IdmAutomaticRoleRequestDto request = new IdmAutomaticRoleRequestDto();
 		request.setName(automaticRole.getName());
@@ -438,7 +438,7 @@ public class DefaultIdmAutomaticRoleRequestService extends
 		IdmAutomaticRoleRequestDto result = this.getIdmAutomaticRoleRequestService().startRequest(request.getId(), true);
 		if(RequestState.EXECUTED == result.getState()) {
 			UUID createdAutomaticRoleId = result.getAutomaticRole();
-			Assert.notNull(createdAutomaticRoleId);
+			Assert.notNull(createdAutomaticRoleId, "Automatic role identifier is required.");
 			return automaticRoleTreeService.get(createdAutomaticRoleId);
 		}
 		if(RequestState.IN_PROGRESS == result.getState()) {

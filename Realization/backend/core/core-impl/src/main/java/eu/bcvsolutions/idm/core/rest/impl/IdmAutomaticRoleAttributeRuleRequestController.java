@@ -62,7 +62,7 @@ public class IdmAutomaticRoleAttributeRuleRequestController extends
 			IdmAutomaticRoleRequestService automaticRoleRequestService) {
 		super(service);
 		//
-		Assert.notNull(automaticRoleRequestService);
+		Assert.notNull(automaticRoleRequestService, "Service is required.");
 		//
 		this.automaticRoleRequestService = automaticRoleRequestService;
 	}

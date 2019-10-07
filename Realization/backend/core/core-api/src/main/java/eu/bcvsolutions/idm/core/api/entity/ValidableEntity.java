@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
@@ -34,7 +34,7 @@ public interface ValidableEntity {
 	 * @return
 	 */
 	default boolean isValid() {
-		return isValid(new LocalDate());
+		return isValid(LocalDate.now());
 	}
 	
 	/**

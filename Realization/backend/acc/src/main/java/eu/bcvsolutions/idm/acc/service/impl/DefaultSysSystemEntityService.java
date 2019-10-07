@@ -61,8 +61,8 @@ public class DefaultSysSystemEntityService
 			SysSystemService systemService) {
 		super(systemEntityRepository);
 		//
-		Assert.notNull(accountRepository);
-		Assert.notNull(systemService);
+		Assert.notNull(accountRepository, "Repository is required.");
+		Assert.notNull(systemService, "Service is required.");
 		//
 		this.repository = systemEntityRepository;
 		this.accountRepository = accountRepository;
@@ -80,30 +80,30 @@ public class DefaultSysSystemEntityService
 
 	@Override
 	@Transactional
-	public void delete(SysSystemEntityDto systemEntityDto, BasePermission... permission) {
-		Assert.notNull(systemEntityDto);
+	public void delete(SysSystemEntityDto systemEntity, BasePermission... permission) {
+		Assert.notNull(systemEntity, "System entity is required.");
 		//
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
-		filter.setSystemId(systemEntityDto.getSystem());
-		filter.setEntityType(systemEntityDto.getEntityType());
-		filter.setSystemEntity(systemEntityDto.getId());
+		filter.setSystemId(systemEntity.getSystem());
+		filter.setEntityType(systemEntity.getEntityType());
+		filter.setSystemEntity(systemEntity.getId());
 		// TODO: transform this behavior to events
 		if (provisioningOperationService.count(filter) > 0) {
-			SysSystemDto system = DtoUtils.getEmbedded(systemEntityDto, SysSystemEntity_.system);
+			SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system);
 			throw new ResultCodeException(AccResultCode.SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS,
-					ImmutableMap.of("uid", systemEntityDto.getUid(), "system", system.getName()));
+					ImmutableMap.of("uid", systemEntity.getUid(), "system", system.getName()));
 		}
 		//
 		// clear accounts - only link, can be rebuild
-		accountRepository.clearSystemEntity(systemEntityDto.getId());
+		accountRepository.clearSystemEntity(systemEntity.getId());
 		//
 		// clear batches
-		SysProvisioningBatchDto batch = batchService.findBatch(systemEntityDto.getId());
+		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());
 		if (batch != null) {
 			batchService.delete(batch);
 		}
 		//
-		super.delete(systemEntityDto, permission);
+		super.delete(systemEntity, permission);
 	}
 
 	@Override

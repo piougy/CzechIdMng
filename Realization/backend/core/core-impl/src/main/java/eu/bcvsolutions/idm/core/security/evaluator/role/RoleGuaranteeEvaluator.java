@@ -10,7 +10,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.PageRequest;
@@ -130,7 +130,7 @@ public class RoleGuaranteeEvaluator extends AbstractAuthorizationEvaluator<IdmRo
 		filter.setGuarantee(securityService.getCurrentId());
 		//
 		// by identity
-		if (roleGuaranteeService.find(filter, new PageRequest(0, 1)).getTotalElements() > 0) {
+		if (roleGuaranteeService.find(filter, PageRequest.of(0, 1)).getTotalElements() > 0) {
 			permissions.addAll(policy.getPermissions());
 			return permissions;
 		}

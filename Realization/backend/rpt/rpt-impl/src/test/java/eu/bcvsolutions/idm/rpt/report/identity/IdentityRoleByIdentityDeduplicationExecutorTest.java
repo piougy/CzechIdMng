@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -162,10 +162,10 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 		
 		IdmRoleDto role = getHelper().createRole(roleCode);
 
-		getHelper().createIdentityRole(contact, role, new LocalDate().minusDays(40), new LocalDate().plusDays(40));
-		getHelper().createIdentityRole(contact, role, new LocalDate().minusDays(30), new LocalDate().plusDays(30));
-		getHelper().createIdentityRole(contact, role, new LocalDate().minusDays(20), new LocalDate().plusDays(20));
-		getHelper().createIdentityRole(contact, role, new LocalDate().minusDays(10), new LocalDate().plusDays(10));
+		getHelper().createIdentityRole(contact, role, LocalDate.now().minusDays(40), LocalDate.now().plusDays(40));
+		getHelper().createIdentityRole(contact, role, LocalDate.now().minusDays(30), LocalDate.now().plusDays(30));
+		getHelper().createIdentityRole(contact, role, LocalDate.now().minusDays(20), LocalDate.now().plusDays(20));
+		getHelper().createIdentityRole(contact, role, LocalDate.now().minusDays(10), LocalDate.now().plusDays(10));
 
 		RptReportDto report = new RptReportDto(UUID.randomUUID());
 		report.setExecutorName(reportExecutor.getName());
@@ -193,10 +193,10 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 			if (duplicity.getValidTill().isEqual(duplicity.getValidFrom())) {
 				fail();
 			}
-			if (!duplicity.getValidTill().isBefore(new LocalDate().plusDays(35))) {
+			if (!duplicity.getValidTill().isBefore(LocalDate.now().plusDays(35))) {
 				fail();
 			}
-			if (!duplicity.getValidFrom().isAfter(new LocalDate().minusDays(35))) {
+			if (!duplicity.getValidFrom().isAfter(LocalDate.now().minusDays(35))) {
 				fail();
 			}
 		}

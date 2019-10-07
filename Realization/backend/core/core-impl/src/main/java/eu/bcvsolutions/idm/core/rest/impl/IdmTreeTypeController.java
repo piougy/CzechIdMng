@@ -78,16 +78,16 @@ public class IdmTreeTypeController extends AbstractReadWriteDtoController<IdmTre
 	@Autowired
 	public IdmTreeTypeController(
 			IdmTreeTypeService service, 
-			IdmTreeNodeService treeNodeservice,
+			IdmTreeNodeService treeNodeService,
 			IdmLongRunningTaskController longRunningTaskController) {
 		super(service);
 		//
-		Assert.notNull(longRunningTaskController);
-		Assert.notNull(treeNodeservice);
+		Assert.notNull(longRunningTaskController, "Controller is required.");
+		Assert.notNull(treeNodeService, "Service is required.");
 		//
 		this.service = service;
 		this.longRunningTaskController = longRunningTaskController;
-		this.treeNodeservice = treeNodeservice;
+		this.treeNodeservice = treeNodeService;
 	}
 	
 	

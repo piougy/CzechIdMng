@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.rpt.rest;
 
 import java.io.InputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 import javax.validation.Valid;
@@ -33,6 +34,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.rpt.RptModuleDescriptor;
@@ -239,8 +241,12 @@ public class RptReportController extends AbstractReadWriteDtoController<RptRepor
 			RptRenderedReportDto result = reportManager.render(report, rendererName);
 			InputStream is = result.getRenderedReport();
 			//
-			
-			String reportName = report.getExecutorName() + "-" + report.getCreated().toString("yyyyMMddHHmmss");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+			String reportName = String.format(
+					"%s-%s", 
+					SpinalCase.format(report.getExecutorName()),
+					report.getCreated().format(formatter)
+			);
 			return ResponseEntity.ok()
 					.contentLength(is.available())
 					.contentType(result.getRenderer().getFormat())

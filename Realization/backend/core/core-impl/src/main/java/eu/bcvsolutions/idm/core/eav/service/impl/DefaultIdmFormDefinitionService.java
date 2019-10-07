@@ -109,7 +109,7 @@ public class DefaultIdmFormDefinitionService
 				filter.setDefinitionId(dto.getId());
 				dto.setFormAttributes(
 						formAttributeService
-						.find(filter, getPageableAll(new Sort(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
+						.find(filter, getPageableAll(Sort.by(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
 						.getContent());
 				LOG.trace("Form attributes were loaded for definition [{},{}]", dto.getType(), dto.getCode());
 			}
@@ -131,7 +131,7 @@ public class DefaultIdmFormDefinitionService
 			IdmRoleFilter roleFilter = new IdmRoleFilter();
 			roleFilter.setAttributeFormDefinitionId(dto.getId());
 			
-			List<IdmRoleDto> roles = roleService.find(roleFilter, new PageRequest(0, 1)).getContent();
+			List<IdmRoleDto> roles = roleService.find(roleFilter, PageRequest.of(0, 1)).getContent();
 			if(roles.size() > 0) {
 				throw new ResultCodeException(CoreResultCode.FORM_DEFINITION_DELETE_FAILED_ROLE, ImmutableMap.of("definition", dto.getCode(), "role", roles.get(0).getCode()));
 			}
@@ -193,7 +193,7 @@ public class DefaultIdmFormDefinitionService
 	@Override
 	@Transactional
 	public IdmFormDefinitionDto updateDefinition(Class<? extends Identifiable> ownerType, String definitionCode, List<IdmFormAttributeDto> attributes) {
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		IdmFormDefinitionDto definition = new IdmFormDefinitionDto();
 		definition.setType(getOwnerType(ownerType));
@@ -207,7 +207,7 @@ public class DefaultIdmFormDefinitionService
 	@Override
 	@Transactional
 	public IdmFormDefinitionDto updateDefinition(String definitionType, String definitionCode, List<IdmFormAttributeDto> attributes) {
-		Assert.notNull(definitionType);
+		Assert.notNull(definitionType, "Definition type is required.");
 		//
 		IdmFormDefinitionDto definition = new IdmFormDefinitionDto();
 		definition.setType(definitionType);
@@ -220,9 +220,9 @@ public class DefaultIdmFormDefinitionService
 	@Override
 	@Transactional
 	public IdmFormDefinitionDto updateDefinition(IdmFormDefinitionDto definition) {
-		Assert.notNull(definition);
-		Assert.notNull(definition.getType());
-		Assert.notNull(definition.getCode());
+		Assert.notNull(definition, "Form definition is required.");
+		Assert.notNull(definition.getType(), "Form definition type is required.");
+		Assert.notNull(definition.getCode(), "Form definition code is required.");
 		//
 		IdmFormDefinitionDto formDefinition = findOneByTypeAndCode(definition.getType(), definition.getCode());
 		if (formDefinition == null) {
@@ -295,14 +295,14 @@ public class DefaultIdmFormDefinitionService
 	
 	@Override
 	public String getOwnerType(Identifiable owner) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return getOwnerType(owner.getClass());
 	}
 	
 	@Override
 	public String getOwnerType(Class<? extends Identifiable> ownerType) {
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		// dto class was given
 		Class<? extends FormableEntity> ownerEntityType = getFormableOwnerType(ownerType);

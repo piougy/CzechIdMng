@@ -38,7 +38,7 @@ public abstract class AbstractIdentityPasswordProcessor
 	public AbstractIdentityPasswordProcessor(IdmPasswordService passwordService, EventType... types) {
 		super(types);
 		//
-		Assert.notNull(passwordService);
+		Assert.notNull(passwordService, "Password service is required for password processor.");
 		//
 		this.passwordService = passwordService;
 	}
@@ -47,7 +47,7 @@ public abstract class AbstractIdentityPasswordProcessor
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		IdmIdentityDto identity = event.getContent();
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(PROPERTY_PASSWORD_CHANGE_DTO);
-		Assert.notNull(passwordChangeDto);
+		Assert.notNull(passwordChangeDto, "Password change DTO is required for processing password change.");
 		//
 		if (passwordChangeDto.isIdm()) { // change identity's password
 			savePassword(identity, passwordChangeDto);

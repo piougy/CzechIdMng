@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -69,7 +69,7 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	private String name;
 	
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
-	@Column(name = "description", nullable = true)
+	@Column(name = "description", nullable = true, length = DefaultFieldLengths.DESCRIPTION)
 	private String description;	
 	
 	@Size(max = DefaultFieldLengths.NAME)
@@ -105,7 +105,7 @@ public class IdmFormAttribute extends AbstractEntity implements UnmodifiableEnti
 	@Column(name = "seq")
 	private Short seq;
 	
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "default_value", nullable = true)
 	private String defaultValue;
 	

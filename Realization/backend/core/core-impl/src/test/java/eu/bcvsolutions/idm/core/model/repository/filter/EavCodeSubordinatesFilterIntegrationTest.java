@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * @author Radek Tomiška
  *
  */
+@SuppressWarnings("deprecation")
 public class EavCodeSubordinatesFilterIntegrationTest extends AbstractWorkingPositionFilterIntegrationTest {
 	
 	@Autowired private IdmIdentityRepository repository;

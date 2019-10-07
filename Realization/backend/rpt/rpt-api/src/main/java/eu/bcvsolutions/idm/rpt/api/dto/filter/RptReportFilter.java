@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.rpt.api.dto.filter;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -15,8 +15,8 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
  */
 public class RptReportFilter extends DataFilter {
 	
-	private DateTime from;
-	private DateTime till;
+	private ZonedDateTime from;
+	private ZonedDateTime till;
 
 	public RptReportFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -26,19 +26,19 @@ public class RptReportFilter extends DataFilter {
 		super(RptReportDto.class, data);
 	}
 	
-	public DateTime getFrom() {
+	public ZonedDateTime getFrom() {
 		return from;
 	}
 
-	public void setFrom(DateTime from) {
+	public void setFrom(ZonedDateTime from) {
 		this.from = from;
 	}
 
-	public DateTime getTill() {
+	public ZonedDateTime getTill() {
 		return till;
 	}
 
-	public void setTill(DateTime till) {
+	public void setTill(ZonedDateTime till) {
 		this.till = till;
 	}
 }

@@ -16,7 +16,7 @@ __Other docs:__
 
 __Konvence (draft)__
 * Don't use arrow functions in tests._Their lexical binding of the this value makes them unable to access the Mocha context, and statements like this.timeout(1000); will not work inside an arrow function._
-* Use shallow renderer (`TestUtils.createRenderer()`), if its sufficient (no need for call method on rendered element) - `DOM` init and clean up is not needed.
+* Use shallow renderer (`new ShallowRenderer()`), if its sufficient (no need for call method on rendered element) - `DOM` init and clean up is not needed.
 
 __TODO__
 * Tests with `ref` don't work within any renderer - find the way.

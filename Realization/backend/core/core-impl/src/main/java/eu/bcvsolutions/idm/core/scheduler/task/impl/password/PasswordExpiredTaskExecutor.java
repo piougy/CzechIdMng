@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl.password;
 import java.util.Map;
 import java.util.Optional;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -45,7 +45,7 @@ public class PasswordExpiredTaskExecutor extends AbstractSchedulableStatefulExec
 	@Override
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
-		expiration = new LocalDate();
+		expiration = LocalDate.now();
 		LOG.debug("Publishing [{}] event to identities after password expired. Check date [{}]", IdentityEventType.PASSWORD_EXPIRED, expiration);
 	}
 

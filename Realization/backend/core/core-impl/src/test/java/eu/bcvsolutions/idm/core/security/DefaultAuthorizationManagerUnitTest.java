@@ -34,14 +34,10 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  */
 public class DefaultAuthorizationManagerUnitTest extends AbstractUnitTest {
 
-	@Mock
-	private ApplicationContext context;
-	@Mock
-	private IdmAuthorizationPolicyService service;
-	@Mock
-	private SecurityService securityService;
-	@Mock
-	private ModuleService moduleService;
+	@Mock private ApplicationContext context;
+	@Mock private IdmAuthorizationPolicyService service;
+	@Mock private SecurityService securityService;
+	@Mock private ModuleService moduleService;
 	//
 	private AuthorizationManager manager;
 	private List<IdmAuthorizationPolicyDto> enabledPolicies;
@@ -67,7 +63,6 @@ public class DefaultAuthorizationManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testGetPermissions() {
 		when(service.getEnabledPolicies(any(), any())).thenReturn(enabledPolicies);
-		when(securityService.isAuthenticated()).thenReturn(true);
 		when(context.getBean(BasePermissionEvaluator.class)).thenReturn(evaluator);
 		//
 		Set<String> basePermissions = manager.getPermissions(new IdmRole());
@@ -79,7 +74,6 @@ public class DefaultAuthorizationManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testEvaluate() {
 		when(service.getEnabledPolicies(any(), any())).thenReturn(enabledPolicies);
-		when(securityService.isAuthenticated()).thenReturn(true);
 		when(context.getBean(BasePermissionEvaluator.class)).thenReturn(evaluator);
 		//
 		assertTrue(manager.evaluate(new IdmRole(), IdmBasePermission.READ));

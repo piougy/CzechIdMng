@@ -6,6 +6,9 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,15 +17,12 @@ import javax.persistence.Query;
 import javax.transaction.Transactional;
 
 import org.activiti.engine.ProcessEngine;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
@@ -113,7 +113,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Svanda
  *
  */
-@Service
 public class IdentitySyncTest extends AbstractIntegrationTest {
 
 	private static final String IDENTITY_ONE = "identityOne";
@@ -1016,22 +1015,22 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		manager.createTrigger(dependentTask.getId(), trigger);
 		manager.runTask(initiatorTask.getId());
 
-		DateTime startOne = DateTime.now();
+		ZonedDateTime startOne = ZonedDateTime.now();
 		ObserveLongRunningTaskEndProcessor.waitForEnd(initiatorTask.getId());
-		DateTime endOne = DateTime.now();
+		ZonedDateTime endOne = ZonedDateTime.now();
 		ObserveLongRunningTaskEndProcessor.waitForEnd(dependentTask.getId());
-		DateTime endTwo = DateTime.now();
-		long durationOne = endOne.getMillis() - startOne.getMillis();
-		long durationTwo = endTwo.getMillis() - endOne.getMillis();
+		ZonedDateTime endTwo = ZonedDateTime.now();
+		long durationOne = endOne.toInstant().toEpochMilli() - startOne.toInstant().toEpochMilli();
+		long durationTwo = endTwo.toInstant().toEpochMilli() - endOne.toInstant().toEpochMilli();
 
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
 				OperationResultType.SUCCESS);
 
 		SysSyncLogDto logTwo = checkSyncLog(configTwo, SynchronizationActionType.LINK, 1, OperationResultType.SUCCESS);
 
-		long syncDurationOne = log.getEnded().toDateTime().getMillis() - log.getStarted().toDateTime().getMillis();
-		long syncDurationTwo = logTwo.getEnded().toDateTime().getMillis()
-				- logTwo.getStarted().toDateTime().getMillis();
+		long syncDurationOne = log.getEnded().toInstant().toEpochMilli() - log.getStarted().toInstant().toEpochMilli();
+		long syncDurationTwo = logTwo.getEnded().toInstant().toEpochMilli()
+				- logTwo.getStarted().toInstant().toEpochMilli();
 
 		// We want to check if was the task ended after sync end.
 		assertTrue(durationOne > syncDurationOne);
@@ -1881,7 +1880,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, roles.size());
 
 		// account is linked in protection
-		DateTime protectionEnd = validTill.plusDays(31).toDateTimeAtStartOfDay();
+		ZonedDateTime protectionEnd = validTill.plusDays(31).atStartOfDay(ZoneId.systemDefault());
 		checkAccAccount(1, true, protectionEnd);
 
 		// account is in protection and not assigned by any role
@@ -1932,7 +1931,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// account is linked in protection
 		// end of protection = now + protection interval + 1 day
-		DateTime protectionEnd = LocalDate.now().plusDays(31).toDateTimeAtStartOfDay();
+		ZonedDateTime protectionEnd = LocalDate.now().plusDays(31).atStartOfDay(ZoneId.systemDefault());
 		checkAccAccount(1, true, protectionEnd);
 
 		// account is in protection and not assigned by any role
@@ -1989,7 +1988,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// account is linked in protection
 		// end of protection = validTillNewer + protection interval + 1 day
-		DateTime protectionEnd = validTillNewer.plusDays(31).toDateTimeAtStartOfDay();
+		ZonedDateTime protectionEnd = validTillNewer.plusDays(31).atStartOfDay(ZoneId.systemDefault());
 		checkAccAccount(1, true, protectionEnd);
 
 		// account is in protection and not assigned by any role
@@ -2252,7 +2251,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 
 		// account is linked in protection
 		// end of protection = now + protection interval + 1 day
-		DateTime protectionEnd = LocalDate.now().plusDays(31).toDateTimeAtStartOfDay();
+		ZonedDateTime protectionEnd = LocalDate.now().plusDays(31).atStartOfDay(ZoneId.systemDefault());
 		checkAccAccount(1, true, protectionEnd);
 
 		// account is in protection and not assigned by any role
@@ -2749,7 +2748,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(identityRole, identityAccounts.get(0).getIdentityRole());
 	}
 
-	private void checkAccAccount(int numberOfAccounts, boolean inProtection, DateTime endOfProtection) {
+	private void checkAccAccount(int numberOfAccounts, boolean inProtection, ZonedDateTime endOfProtection) {
 		AccAccountFilter accountFilter = new AccAccountFilter();
 		accountFilter.setUid(IDENTITY_ONE);
 		List<AccAccountDto> accAccounts = accAccountService.find(accountFilter, null).getContent();
@@ -2778,7 +2777,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, accAccounts.size());
 		AccAccountDto account = accAccounts.get(0);
 		account.setInProtection(true); // or disable protection on the provisioning mapping
-		account.setEndOfProtection(DateTime.now().minusMonths(1));
+		account.setEndOfProtection(ZonedDateTime.now().minusMonths(1));
 		account = accAccountService.save(account);
 		accAccountService.delete(account);
 
@@ -2787,6 +2786,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	}
 	
 	private IdentitySyncTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 }

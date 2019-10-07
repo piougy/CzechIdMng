@@ -49,7 +49,7 @@ public class CancelProvisioningQueueTaskExecutor
 
 	@Override
 	public Page<SysProvisioningOperationDto> getItemsToProcess(Pageable pageable) {
-		return provisioningOperationService.find(filter, new PageRequest(0, pageable.getPageSize())); // new pageable is given => records are deleted and we need the first page all time
+		return provisioningOperationService.find(filter, PageRequest.of(0, pageable.getPageSize())); // new pageable is given => records are deleted and we need the first page all time
 	}
 
 	@Override

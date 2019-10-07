@@ -30,7 +30,7 @@ public class AccountSaveProcessor extends CoreEventProcessor<AccAccountDto> impl
 	public AccountSaveProcessor(AccAccountService service) {
 		super(AccountEventType.CREATE, AccountEventType.UPDATE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

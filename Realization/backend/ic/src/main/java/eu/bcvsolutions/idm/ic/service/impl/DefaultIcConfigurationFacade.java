@@ -83,7 +83,7 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 
 	@Override
 	public IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		//
 		return configurationServices.getPluginFor(connectorInstance.getConnectorKey().getFramework()).getSchema(connectorInstance, connectorConfiguration);
@@ -91,10 +91,10 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	
 	@Override
 	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		if (connectorInstance.isRemote()) {
-			Assert.notNull(connectorInstance.getConnectorServer());
+			Assert.notNull(connectorInstance.getConnectorServer(), "Connector server is required.");
 		}
 		configurationServices.getPluginFor(connectorInstance.getConnectorKey().getFramework()).test(connectorInstance, connectorConfiguration);
 		
@@ -102,7 +102,7 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	
 	@Override
 	public void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		configurationServices.getPluginFor(connectorInstance.getConnectorKey().getFramework()).validate(connectorInstance, connectorConfiguration);
 	}
@@ -118,8 +118,8 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 
 	@Override
 	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {
-		Assert.notNull(connectorInstance.getConnectorKey());
-		Assert.notNull(connectorInstance.getConnectorKey().getFramework());
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+		Assert.notNull(connectorInstance.getConnectorKey().getFramework(), "Connector framework is required.");
 		checkIcType(connectorInstance.getConnectorKey());
 		//
 		return configurationServices.getPluginFor(connectorInstance.getConnectorKey().getFramework()).getConnectorConfiguration(connectorInstance);

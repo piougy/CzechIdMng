@@ -1,11 +1,12 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import java.time.ZonedDateTime;
+
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class ModifiedFromableFilter<E extends AbstractEntity> extends BaseFilter
 	@Override
 	public Predicate getPredicate(Root<E> root, AbstractQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
 
-		DateTime modifiedFrom = filter.getModifiedFrom();
+		ZonedDateTime modifiedFrom = filter.getModifiedFrom();
 		
 		if (modifiedFrom == null) {
 			return null;

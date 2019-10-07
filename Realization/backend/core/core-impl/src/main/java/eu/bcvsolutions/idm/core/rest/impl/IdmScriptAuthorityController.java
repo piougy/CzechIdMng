@@ -63,7 +63,7 @@ public class IdmScriptAuthorityController extends AbstractReadWriteDtoController
 	public IdmScriptAuthorityController(IdmScriptAuthorityService service) {
 		super(service);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

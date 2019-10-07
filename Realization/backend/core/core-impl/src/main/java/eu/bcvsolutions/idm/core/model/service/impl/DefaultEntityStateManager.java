@@ -37,13 +37,13 @@ public class DefaultEntityStateManager implements EntityStateManager {
 
 	@Override
 	public IdmEntityStateDto saveState(Identifiable owner, IdmEntityStateDto state) {
-		Assert.notNull(state);
+		Assert.notNull(state, "State is required.");
 		//
 		if (state.getOwnerId() == null) {
 			state.setOwnerId(lookupService.getOwnerId(owner));
 		}
 		if (state.getOwnerType() == null) {
-			Assert.notNull(owner);
+			Assert.notNull(owner, "Owner is required.");
 			state.setOwnerType(getOwnerType(owner));
 		}
 		if (state.getInstanceId() == null) {

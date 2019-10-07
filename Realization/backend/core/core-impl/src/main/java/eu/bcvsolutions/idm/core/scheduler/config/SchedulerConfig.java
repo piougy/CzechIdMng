@@ -108,7 +108,7 @@ public class SchedulerConfig implements SchedulerConfiguration {
 						return null;
 					}
 					// test task is still installed
-					jobDetail.getJobClass().newInstance();
+					jobDetail.getJobClass().getDeclaredConstructor().newInstance();
 				} catch (org.quartz.SchedulerException ex) {
 					if (ex.getCause() instanceof ClassNotFoundException) {
 						manager.deleteTask(jobKey.getName());
@@ -117,7 +117,7 @@ public class SchedulerConfig implements SchedulerConfiguration {
 					} else {
 						throw new CoreException(ex);
 					}
-				} catch (InstantiationException | IllegalAccessException| BeansException | IllegalArgumentException ex) {
+				} catch (ReflectiveOperationException | BeansException | IllegalArgumentException ex) {
 					manager.deleteTask(jobKey.getName());
 					//
 					LOG.warn("Job [{}] inicialization failed, scheduled task is removed", jobKey, ex);

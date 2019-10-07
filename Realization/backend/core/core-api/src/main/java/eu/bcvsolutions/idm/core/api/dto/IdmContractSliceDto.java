@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
-import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;

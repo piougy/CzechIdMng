@@ -9,8 +9,7 @@ import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.repository.query.spi.EvaluationContextExtension;
-import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
+import org.springframework.data.spel.spi.EvaluationContextExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
@@ -27,7 +26,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.filter.RequestContextFilter;
 
 import com.google.common.collect.Sets;
 
@@ -61,6 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	 LOG.debug("Resolved public paths [{}]", publicPaths);
     	 //
     	 http
+    	 	.addFilterBefore(requestContextFilter(), BasicAuthenticationFilter.class)
     	 	.addFilterBefore(startUserTransactionFilter(), BasicAuthenticationFilter.class)
     	 	.addFilterAfter(authenticationFilter(), BasicAuthenticationFilter.class)
     	 	.addFilterAfter(extendExpirationFilter(), BasicAuthenticationFilter.class)
@@ -74,8 +77,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		// public controllers
-		web //
+		web // allow url encoded params
+			.httpFirewall(allowUrlEncodedSlashHttpFirewall())
+			// public controllers
 			.ignoring()
 			.antMatchers( //
 					BaseDtoController.BASE_PATH, // endpoint with supported services list
@@ -120,6 +124,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return publicPaths;
 	}
 	
+	@Bean
+	public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+	    StrictHttpFirewall firewall = new StrictHttpFirewall();
+	    firewall.setAllowUrlEncodedSlash(true);
+	    firewall.setAllowSemicolon(true);
+	    firewall.setAllowUrlEncodedPercent(true);
+	    return firewall;
+	}
+	
 	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -136,9 +149,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new ExtendExpirationFilter();
 	}
 	
+	/**
+	 * User transaction holder.
+	 * 
+	 * @return
+	 */
 	@Bean
 	public StartUserTransactionFilter startUserTransactionFilter() {
 		return new StartUserTransactionFilter();
+	}
+	
+	/**
+	 * Request scope bean will be available in deferred requests.
+	 * 
+	 * @return
+	 */
+	@Bean
+	public RequestContextFilter requestContextFilter() {
+	    return new RequestContextFilter();
 	}
 	
 	/**
@@ -151,7 +179,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	    MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
 	    methodInvokingFactoryBean.setTargetClass(SecurityContextHolder.class);
 	    methodInvokingFactoryBean.setTargetMethod("setStrategyName");
-	    methodInvokingFactoryBean.setArguments(new String[]{SecurityContextHolder.MODE_INHERITABLETHREADLOCAL});
+	    methodInvokingFactoryBean.setArguments(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 	    return methodInvokingFactoryBean;
 	}
 	
@@ -162,7 +190,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Bean
 	public EvaluationContextExtension securityExtension() {
-		return new EvaluationContextExtensionSupport() {
+		return new EvaluationContextExtension() {
 			
 			@Override
 			public String getExtensionId() {

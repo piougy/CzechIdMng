@@ -46,7 +46,7 @@ public abstract class AbstractValueGenerator<DTO extends AbstractDto> implements
 
 	@Override
 	public boolean supports(Class<?> dtoType) {
-		Assert.notNull(dtoType);
+		Assert.notNull(dtoType, "DTO type is required for value generator.");
 		//
 		return this.getDtoClass().isAssignableFrom(dtoType);
 	}

@@ -78,11 +78,11 @@ public class DefaultIdmRoleCatalogueService
 			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager);
 		//
-		Assert.notNull(baseTreeService);
-		Assert.notNull(roleCatalogueRoleService);
-		Assert.notNull(forestContentService);
-		Assert.notNull(configurationService);
-		Assert.notNull(longRunningTaskManager);
+		Assert.notNull(baseTreeService, "Service is required.");
+		Assert.notNull(roleCatalogueRoleService, "Service is required.");
+		Assert.notNull(forestContentService, "Service is required.");
+		Assert.notNull(configurationService, "Service is required.");
+		Assert.notNull(longRunningTaskManager, "Manager is required.");
 		//
 		this.repository = repository;
 		this.baseTreeService = baseTreeService;
@@ -113,7 +113,7 @@ public class DefaultIdmRoleCatalogueService
 			IdmForestIndexEntity index = forestContentService.createIndex(IdmRoleCatalogue.FOREST_TREE_TYPE, roleCatalogue.getId(), roleCatalogue.getParent());
 			return setForestIndex(roleCatalogue, index);
 		}
-		this.validate(toEntity(roleCatalogue, repository.findOne(roleCatalogue.getId())));
+		this.validate(toEntity(roleCatalogue, repository.findById(roleCatalogue.getId()).orElse(null)));
 		// update - we need to reindex first
 		IdmForestIndexEntity index = forestContentService.updateIndex(IdmRoleCatalogue.FOREST_TREE_TYPE, roleCatalogue.getId(), roleCatalogue.getParent());
 		roleCatalogue = super.saveInternal(roleCatalogue);
@@ -123,7 +123,7 @@ public class DefaultIdmRoleCatalogueService
 	@Override
 	@Transactional
 	public void deleteInternal(IdmRoleCatalogueDto roleCatalogue) {
-		Page<IdmRoleCatalogue> nodes = repository.findChildren(roleCatalogue.getId(), new PageRequest(0, 1));
+		Page<IdmRoleCatalogue> nodes = repository.findChildren(roleCatalogue.getId(), PageRequest.of(0, 1));
 		if (nodes.getTotalElements() != 0) {
 			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN, ImmutableMap.of("roleCatalogue", roleCatalogue.getCode()));
 		}
@@ -163,7 +163,7 @@ public class DefaultIdmRoleCatalogueService
 	
 	@Override
 	public String getConfigurationPropertyName(String propertyName) {
-		Assert.notNull(propertyName);
+		Assert.notNull(propertyName, "Property name is required.");
 		//
 		return String.format("%s%s", CONFIGURATION_PREFIX, propertyName);
 	}
@@ -249,7 +249,7 @@ public class DefaultIdmRoleCatalogueService
 	 * @param roleCatalogue
 	 */
 	private void validate(IdmRoleCatalogue roleCatalogue) {
-		Assert.notNull(roleCatalogue);
+		Assert.notNull(roleCatalogue, "Role catalogue is required.");
 		//
 		// test role catalogue to parent and children
 		if (this.baseTreeService.validateTreeNodeParents(roleCatalogue)) {

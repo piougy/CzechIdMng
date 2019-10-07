@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -14,7 +15,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
-import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
@@ -111,7 +111,7 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity, 
 	}
 	
 	public IdmIdentityRole(IdmIdentityContract identityContract) {
-		Assert.notNull(identityContract);
+		Assert.notNull(identityContract, "Contract is required, when has to be set into assigned role.");
 		//
 		this.identityContract = identityContract;
 		this.validFrom = identityContract.getValidFrom();

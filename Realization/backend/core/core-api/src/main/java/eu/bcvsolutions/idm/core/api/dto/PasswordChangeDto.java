@@ -6,10 +6,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 import io.swagger.annotations.ApiModelProperty;
 
-import org.joda.time.DateTime;
-
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class PasswordChangeDto implements Serializable {
     @ApiModelProperty(notes = "Selected AccAccounts uuids.")
     private List<String> accounts; // selected AccAccounts uuids
     @JsonIgnore
-    private DateTime maxPasswordAge = null; // max password age for new password, get by password policy
+    private ZonedDateTime maxPasswordAge = null; // max password age for new password, get by password policy
 
     public GuardedString getOldPassword() {
         return oldPassword;
@@ -82,11 +81,11 @@ public class PasswordChangeDto implements Serializable {
         return all;
     }
 
-    public DateTime getMaxPasswordAge() {
+    public ZonedDateTime getMaxPasswordAge() {
         return maxPasswordAge;
     }
 
-    public void setMaxPasswordAge(DateTime maxPasswordAge) {
+    public void setMaxPasswordAge(ZonedDateTime maxPasswordAge) {
         this.maxPasswordAge = maxPasswordAge;
     }
 }

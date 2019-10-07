@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.security.auth.filter;
 
-import static eu.bcvsolutions.idm.InitTestData.HAL_CONTENT_TYPE;
 import static eu.bcvsolutions.idm.InitTestData.TEST_ADMIN_USERNAME;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,6 +23,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test authentication using SSO.
@@ -63,9 +63,9 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 	public void testSsoAuthSuccess() throws Exception {
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_USER_SSO_ENABLED)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
-			.andExpect(content().contentType(HAL_CONTENT_TYPE))
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(jsonPath("$.username", equalTo(TEST_SSO_USER_SSO_ENABLED)));
 	}
 	
@@ -75,14 +75,14 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 		//
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_USER_SSO_ENABLED)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 
 	@Test
 	public void testSsoAuthNoToken() throws Exception {
 		getMockMvc().perform(get(getRemotePath())
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 
@@ -90,7 +90,7 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 	public void testSsoAuthEmptyToken() throws Exception {
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, "")
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 
@@ -98,7 +98,7 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 	public void testSsoAuthNonExistingUser() throws Exception {
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_NON_EXISTING_USER)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 	
@@ -109,21 +109,21 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 		// Check first suffix
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_USER_SSO_ENABLED + TEST_SSO_UID_SUFFIX1)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
-			.andExpect(content().contentType(HAL_CONTENT_TYPE))
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(jsonPath("$.username", equalTo(TEST_SSO_USER_SSO_ENABLED)));
 		// Check second suffix
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_USER_SSO_ENABLED + TEST_SSO_UID_SUFFIX2)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
-			.andExpect(content().contentType(HAL_CONTENT_TYPE))
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(jsonPath("$.username", equalTo(TEST_SSO_USER_SSO_ENABLED)));
 		// Check unsupported suffix
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_USER_SSO_ENABLED + "@unsupporteddomain.tld")
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 
@@ -134,12 +134,12 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 		// Check first forbidden uid
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_USER_SSO_ENABLED)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 		// Check second forbidden uid
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_FORBIDDEN_UID_NULL)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 		//
 		configurationService.setValue(filter.getConfigurationPropertyName(SsoIdmAuthenticationFilter.PARAMETER_FORBIDDEN_UIDS), 
@@ -148,9 +148,9 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 		// Check that the uid can be authenticated when removed from the configuration
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_USER_SSO_ENABLED)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().isOk())
-			.andExpect(content().contentType(HAL_CONTENT_TYPE))
+			.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(jsonPath("$.username", equalTo(TEST_SSO_USER_SSO_ENABLED)));
 	}
 	
@@ -164,7 +164,7 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 		// Check forbidden identity
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, identity.getUsername())
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 
@@ -177,7 +177,7 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 		//
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_USER_SSO_ENABLED + TEST_SSO_UID_SUFFIX1)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 
@@ -185,7 +185,7 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 	public void testSsoAuthAdminDisabledSso() throws Exception {
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_ADMIN_USERNAME)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 
@@ -193,7 +193,7 @@ public class SsoIdmAuthenticationFilterTest extends AbstractRestTest {
 	public void testSsoAuthUserDisabledSso() throws Exception {
 		getMockMvc().perform(get(getRemotePath())
 				.header(TEST_SSO_HEADER, TEST_SSO_USER_SSO_DISABLED)
-				.contentType(HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 			.andExpect(status().is(403));
 	}
 	

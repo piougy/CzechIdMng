@@ -43,7 +43,7 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoServ
 		super(repository);
 		//
 		Assert.notNull(sysSchemaAttributeService, "Schema attribute service is required!");
-		Assert.notNull(systemMappingService);
+		Assert.notNull(systemMappingService, "Service is required.");
 		//
 		this.repository = repository;
 		this.sysSchemaAttributeService = sysSchemaAttributeService;
@@ -61,7 +61,7 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteDtoServ
 	@Override
 	@Transactional
 	public void delete(SysSchemaObjectClassDto schemaObjectClass, BasePermission... permission) {
-		Assert.notNull(schemaObjectClass);
+		Assert.notNull(schemaObjectClass, "Schema object class is required.");
 		//
 		// remove all schema attributes for 
 		SysSchemaAttributeFilter filter = new SysSchemaAttributeFilter();

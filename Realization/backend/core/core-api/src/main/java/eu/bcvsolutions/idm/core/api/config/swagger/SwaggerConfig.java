@@ -8,7 +8,7 @@ package eu.bcvsolutions.idm.core.api.config.swagger;
  */
 public interface SwaggerConfig {
 
-	static final String AUTHENTICATION_BASIC = "Basic authentization";
-	static final String AUTHENTICATION_CIDMST = "Token authentization";
-	static final String AUTHENTICATION_CIDMST_TOKEN = "CIDMST";
+	String AUTHENTICATION_BASIC = "Basic authentization";
+	String AUTHENTICATION_CIDMST = "Token authentization";
+	String AUTHENTICATION_CIDMST_TOKEN = "CIDMST";
 }

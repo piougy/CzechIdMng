@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [10.0.0]
+
+- Default database name configured for the all ``dev`` profiles was renamed to ``bcv_idm_10`` to prevent update (by flyway) old database on the background - **old database can be used for LTS version 9.7.x development**, so clone database is needed.
+
 ## [9.7.8]
 
 - [#1887](https://redmine.czechidm.com/issues/1887) - Filling the value of ``validTill`` automatically for newly created assigned roles in bulk action for role assignment (``IdentityAddRoleBulkAction``) and in synchronization (default role creation) by related contract validity was removed.

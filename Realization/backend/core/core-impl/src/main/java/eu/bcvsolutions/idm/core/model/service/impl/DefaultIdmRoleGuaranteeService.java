@@ -51,7 +51,7 @@ public class DefaultIdmRoleGuaranteeService
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmRoleGuaranteeDto> findByRole(UUID roleId, Pageable pageable, BasePermission... permission) {
-		Assert.notNull(roleId);
+		Assert.notNull(roleId, "Role identifier is required.");
 		//
 		IdmRoleGuaranteeFilter filter = new IdmRoleGuaranteeFilter();
 		filter.setRole(roleId);

@@ -64,11 +64,11 @@ public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTa
 		try {
 			configurationService.setValue(roleCatalogueService.getConfigurationPropertyName(IdmRoleCatalogueService.CONFIGURATION_PROPERTY_REBUILD), getLongRunningTaskId().toString());
 			//
-			count = roleCatalogueRepository.findAll(new PageRequest(0, 1)).getTotalElements();
+			count = roleCatalogueRepository.findAll(PageRequest.of(0, 1)).getTotalElements();
 			counter = 0L;
 			boolean canContinue = true;
 			Page<IdmRoleCatalogue> roots = roleCatalogueRepository.findRoots(
-					new PageRequest(
+					PageRequest.of(
 							0, 
 							100,
 							new Sort(Direction.ASC, AbstractEntity_.id.getName())

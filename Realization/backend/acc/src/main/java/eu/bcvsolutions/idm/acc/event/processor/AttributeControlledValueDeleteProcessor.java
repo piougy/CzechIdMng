@@ -30,7 +30,7 @@ public class AttributeControlledValueDeleteProcessor extends CoreEventProcessor<
 	public AttributeControlledValueDeleteProcessor(SysAttributeControlledValueService service) {
 		super(AttributeControlledValueEventType.DELETE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

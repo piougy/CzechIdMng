@@ -157,7 +157,7 @@ public class RoleAccountManagementBulkAction extends AbstractBulkAction<IdmRoleD
 			identityRoleFilter.setRoleId(roleId);
 			IdmRoleDto role = getService().get(roleId);
 
-			long count = identityRoleService.find(identityRoleFilter, new PageRequest(0, 1)).getTotalElements();
+			long count = identityRoleService.find(identityRoleFilter, PageRequest.of(0, 1)).getTotalElements();
 			if (count > 0) {
 				models.put(new DefaultResultModel(AccResultCode.ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES,
 						ImmutableMap.of("role", role.getCode(), "count", count)), count);

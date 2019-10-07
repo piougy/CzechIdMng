@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -21,22 +21,22 @@ public class IdmRequestFilter extends DataFilter {
 	private List<RequestState> states;
 	private String ownerType;
 	private UUID ownerId;
-	private DateTime createdAfter;
-	private DateTime createdBefore;
+	private ZonedDateTime createdAfter;
+	private ZonedDateTime createdBefore;
 
-	public DateTime getCreatedAfter() {
+	public ZonedDateTime getCreatedAfter() {
 		return createdAfter;
 	}
 
-	public void setCreatedAfter(DateTime createdAfter) {
+	public void setCreatedAfter(ZonedDateTime createdAfter) {
 		this.createdAfter = createdAfter;
 	}
 
-	public DateTime getCreatedBefore() {
+	public ZonedDateTime getCreatedBefore() {
 		return createdBefore;
 	}
 
-	public void setCreatedBefore(DateTime createdBefore) {
+	public void setCreatedBefore(ZonedDateTime createdBefore) {
 		this.createdBefore = createdBefore;
 	}
 

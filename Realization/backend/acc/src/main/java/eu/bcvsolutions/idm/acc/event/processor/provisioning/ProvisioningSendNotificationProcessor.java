@@ -50,10 +50,10 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 			SysSystemService systemService) {
 		super(ProvisioningEventType.CREATE);
 		//
-		Assert.notNull(notificationManager);
-		Assert.notNull(provisioningOperationService);
-		Assert.notNull(identityService);
-		Assert.notNull(systemService);
+		Assert.notNull(notificationManager, "Manager is required.");
+		Assert.notNull(provisioningOperationService, "Service is required.");
+		Assert.notNull(identityService, "Service is required.");
+		Assert.notNull(systemService, "Service is required.");
 		//
 		this.identityService = identityService;
 		this.notificationManager = notificationManager;

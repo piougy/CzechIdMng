@@ -38,7 +38,7 @@ public class RoleRequestApprovalProcessor extends CoreEventProcessor<IdmRoleRequ
 	public RoleRequestApprovalProcessor(IdmRoleRequestService service) {
 		super(RoleRequestEventType.EXCECUTE); 
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

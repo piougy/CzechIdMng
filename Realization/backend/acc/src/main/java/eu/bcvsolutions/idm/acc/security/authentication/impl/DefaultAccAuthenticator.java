@@ -93,15 +93,15 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			SysSystemEntityService systemEntityService,
 			LookupService lookupService) {
 		//
-		Assert.notNull(accountService);
-		Assert.notNull(configurationService);
-		Assert.notNull(systemService);
-		Assert.notNull(provisioningService);
-		Assert.notNull(systemAttributeMappingService);
-		Assert.notNull(jwtAuthenticationService);
-		Assert.notNull(schemaAttributeService);
-		Assert.notNull(systemEntityService);
-		Assert.notNull(lookupService);
+		Assert.notNull(accountService, "Service is required.");
+		Assert.notNull(configurationService, "Service is required.");
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(provisioningService, "Service is required.");
+		Assert.notNull(systemAttributeMappingService, "Service is required.");
+		Assert.notNull(jwtAuthenticationService, "Service is required.");
+		Assert.notNull(schemaAttributeService, "Service is required.");
+		Assert.notNull(systemEntityService, "Service is required.");
+		Assert.notNull(lookupService, "Service is required.");
 		//
 		this.systemService = systemService;
 		this.configurationService = configurationService;

@@ -22,8 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
@@ -224,7 +223,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// Create basic synchronization log
 		SysSyncLogDto log = new SysSyncLogDto();
 		log.setSynchronizationConfig(config.getId());
-		log.setStarted(LocalDateTime.now());
+		log.setStarted(ZonedDateTime.now());
 		log.setRunning(true);
 		log.setToken(lastToken != null ? lastToken.toString() : null);
 		log = syncStarted(log, context);
@@ -284,7 +283,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			LOG.error(message, e);
 		} finally {
 			log.setRunning(false);
-			log.setEnded(LocalDateTime.now());
+			log.setEnded(ZonedDateTime.now());
 			log = synchronizationLogService.save(log);
 			//
 			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
@@ -312,13 +311,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param context
 	 */
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
-		log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
+		log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", ZonedDateTime.now()));
 		return log;
 	}
 
 	@Override
 	public boolean doItemSynchronization(SynchronizationContext context) {
-		Assert.notNull(context);
+		Assert.notNull(context, "Context is required.");
 
 		String uid = context.getUid();
 		IcConnectorObject icObject = context.getIcObject();
@@ -353,7 +352,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			if (IcSyncDeltaTypeEnum.CREATE == type || IcSyncDeltaTypeEnum.UPDATE == type
 					|| IcSyncDeltaTypeEnum.CREATE_OR_UPDATE == type) {
 				// Update or create
-				Assert.notNull(icObject);
+				Assert.notNull(icObject, "Connector object is required.");
 				List<IcAttribute> icAttributes = icObject.getAttributes();
 
 				if (account == null) {
@@ -433,7 +432,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected void resolveAccountNotExistSituation(SynchronizationContext context, SysSystemEntityDto systemEntity,
 			List<IcAttribute> icAttributes) {
-		Assert.notNull(context);
+		Assert.notNull(context, "Context is required.");
 
 		AbstractSysSyncConfigDto config = context.getConfig();
 		SysSyncItemLogDto logItem = context.getLogItem();
@@ -483,7 +482,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @return
 	 */
 	protected boolean handleIcObject(SynchronizationContext itemContext) {
-		Assert.notNull(itemContext);
+		Assert.notNull(itemContext, "Item context is required.");
 
 		IcConnectorObject icObject = itemContext.getIcObject();
 		AbstractSysSyncConfigDto config = itemContext.getConfig();
@@ -798,10 +797,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
-		Assert.notNull(mapping);
+		Assert.notNull(mapping, "Mapping is required.");
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(mapping.getObjectClass());
 		SysSystemDto system = DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system);
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 
 		// System must be enabled
 		if (system.isDisabled()) {
@@ -1335,7 +1334,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected void addToItemLog(Loggable logItem, String text) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(DateTime.now());
+		sb.append(ZonedDateTime.now());
 		sb.append(": ");
 		sb.append(text);
 		text = sb.toString();
@@ -1420,8 +1419,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	@SuppressWarnings("unchecked")
 	protected DTO findByCorrelationAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes,
 			SynchronizationContext context) {
-		Assert.notNull(attribute);
-		Assert.notNull(icAttributes);
+		Assert.notNull(attribute, "Attribute is required.");
+		Assert.notNull(icAttributes, "Connector attribues are required.");
 
 		Object value = getValueByMappedAttribute(attribute, icAttributes, context);
 		if (value == null) {
@@ -1684,7 +1683,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @return
 	 */
 	protected boolean canSetValue(String uid, SysSystemAttributeMappingDto attribute, DTO dto, boolean create) {
-		Assert.notNull(attribute);
+		Assert.notNull(attribute, "Attribute is required.");
 		AttributeMappingStrategyType strategyType = attribute.getStrategyType();
 		switch (strategyType) {
 		case CREATE: {
@@ -2055,7 +2054,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		entityAccountFilter.setAccountId(accountId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);
 		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.find(entityAccountFilter, new PageRequest(0, 1)).getContent();
+				.find(entityAccountFilter, PageRequest.of(0, 1)).getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		} else {
@@ -2276,8 +2275,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		@Override
 		public boolean handle(IcConnectorObject connectorObject) {
-			Assert.notNull(connectorObject);
-			Assert.notNull(connectorObject.getUidValue());
+			Assert.notNull(connectorObject, "Connector object is required.");
+			Assert.notNull(connectorObject.getUidValue(), "Connector object uid is required.");
 			String uid = connectorObject.getUidValue();
 
 			if (context.getConfig().isReconciliation()) {
@@ -2316,8 +2315,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			AbstractSysSyncConfigDto config = context.getConfig();
 			SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 
-			Assert.notNull(delta);
-			Assert.notNull(delta.getUid());
+			Assert.notNull(delta, "Synchronization delta is required.");
+			Assert.notNull(delta.getUid(), "Synchronization delta uid is required.");
 			String uid = delta.getUid().getUidValue();
 			IcSyncDeltaTypeEnum type = delta.getDeltaType();
 			IcConnectorObject icObject = delta.getObject();

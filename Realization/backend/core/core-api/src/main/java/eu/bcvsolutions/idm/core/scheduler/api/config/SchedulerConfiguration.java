@@ -11,7 +11,7 @@ public interface SchedulerConfiguration {
 	/**
 	 * Common thread pool, used mainly for asynchronous long running tasks
 	 */
-	String TASK_EXECUTOR_NAME = "taskExecutor";
+	String TASK_EXECUTOR_NAME = "idmTaskExecutor";
 	
 	/**
 	 * Used with event processing.

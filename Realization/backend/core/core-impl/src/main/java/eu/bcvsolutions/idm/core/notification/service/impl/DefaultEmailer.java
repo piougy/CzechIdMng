@@ -17,7 +17,7 @@ import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.support.SynchronizationAdapter;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -259,7 +259,7 @@ public class DefaultEmailer implements Emailer {
 	    public void onComplete(Exchange exchange) {
 	    	try {
 	    		LOG.info("Sending email [id:{}] succeeded", emailLogId);
-		    	emailLogService.setEmailSent(emailLogId, new DateTime());
+		    	emailLogService.setEmailSent(emailLogId, ZonedDateTime.now());
 	    	} catch (Exception ex) {
 	    		LOG.error("Unspecified error while save emailLog, with id: [{}].", emailLogId, ex);
 	    		throw ex;

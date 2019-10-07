@@ -8,11 +8,12 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.activiti.engine.runtime.ProcessInstance;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
@@ -151,7 +152,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		IdmIdentityDto assigneeIdentity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(assignee);
 		WorkflowHistoricTaskInstanceDto taskHistory = historicTaskService.get(taskId);
 		assertNotNull(taskHistory);
-		assertEquals("completed", taskHistory.getDeleteReason());
+		assertNull(taskHistory.getDeleteReason());
 		assertEquals(assigneeIdentity.getId().toString(), taskHistory.getAssignee());
 		assertEquals(taskId, taskHistory.getId());
 	}

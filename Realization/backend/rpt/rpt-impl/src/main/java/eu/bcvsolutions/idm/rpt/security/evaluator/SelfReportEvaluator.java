@@ -33,7 +33,7 @@ public class SelfReportEvaluator extends AbstractAuthorizationEvaluator<RptRepor
 	
 	@Autowired
 	public SelfReportEvaluator(SecurityService securityService) {
-		Assert.notNull(securityService);
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.securityService = securityService;
 	}

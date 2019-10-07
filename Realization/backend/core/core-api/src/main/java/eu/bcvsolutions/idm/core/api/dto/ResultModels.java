@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 
 /**
@@ -14,7 +15,6 @@ import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
  * @author Radek Tomiška 
  */
 @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
-@org.codehaus.jackson.map.annotate.JsonSerialize(include=org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_EMPTY)
 public class ResultModels implements Serializable {
 	
 	private static final long serialVersionUID = 130622622063070662L;
@@ -59,19 +59,16 @@ public class ResultModels implements Serializable {
 	}
 	
 	@com.fasterxml.jackson.annotation.JsonProperty("_errors")
-	@org.codehaus.jackson.annotate.JsonProperty("_errors")
 	public List<ResultModel> getErrors() {
 		return Collections.unmodifiableList(errors);
 	}
 	
 	@com.fasterxml.jackson.annotation.JsonProperty("_infos")
-	@org.codehaus.jackson.annotate.JsonProperty("_infos")
 	public List<ResultModel> getInfos() {
 		return Collections.unmodifiableList(infos);
 	}
 	
 	@com.fasterxml.jackson.annotation.JsonIgnore
-	@org.codehaus.jackson.annotate.JsonIgnore
 	public ErrorModel getError() {
 		if(this.errors.isEmpty()) {
 			return null;

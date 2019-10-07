@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils'; import ShallowRenderer from 'react-test-renderer/shallow';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
@@ -13,14 +13,14 @@ import { IdentityInfo } from '../../../../src/components/advanced/IdentityInfo/I
  */
 describe('Advanced IdentityInfo', function identityInfo() {
   it('[not rendered] - component should not be rendered', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<IdentityInfo rendered={false}/>);
     const component = shallowRenderer.getRenderOutput();
     expect(component).to.be.null();
   });
 
   it('[showloading] - component should not be the same, when showLoading changes', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<IdentityInfo showLoading={false}/>);
     const renderedComponent = shallowRenderer.getRenderOutput();
     shallowRenderer.render(<IdentityInfo showLoading/>);
@@ -29,14 +29,14 @@ describe('Advanced IdentityInfo', function identityInfo() {
   });
 
   it('without identity defined should not be rendered', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<IdentityInfo />);
     const renderedComponent = shallowRenderer.getRenderOutput();
     expect(renderedComponent).to.be.null();
   });
 
   it.skip('internist versus externe identity should not be the same', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<IdentityInfo identity={{ name: 'jn', firstName: 'Jan', lastName: 'Novák'}}/>);
     const internist = shallowRenderer.getRenderOutput();
     shallowRenderer.render(<IdentityInfo identity={{ name: 'jn', firstName: 'Jan', lastName: 'Novák', externe: true }}/>);

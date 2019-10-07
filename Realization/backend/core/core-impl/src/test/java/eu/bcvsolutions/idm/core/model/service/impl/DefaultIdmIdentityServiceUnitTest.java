@@ -2,9 +2,10 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -123,7 +124,7 @@ public class DefaultIdmIdentityServiceUnitTest extends AbstractUnitTest {
 		IdmIdentityContractDto contractOne = new IdmIdentityContractDto();
 		contractOne.setState(ContractState.DISABLED);
 		IdmIdentityContractDto contractTwo = new IdmIdentityContractDto();
-		when(repository.findOne(identity.getId())).thenReturn(identity);	
+		when(repository.findById(identity.getId())).thenReturn(Optional.of(identity));	
 		when(identityContractService.findAllByIdentity(identity.getId())).thenReturn(Lists.newArrayList(contractOne, contractTwo));	
 		//
 		Assert.assertEquals(IdentityState.VALID, service.evaluateState(identity.getId()));
@@ -136,7 +137,7 @@ public class DefaultIdmIdentityServiceUnitTest extends AbstractUnitTest {
 		contractOne.setState(ContractState.DISABLED);
 		IdmIdentityContractDto contractTwo = new IdmIdentityContractDto();
 		contractTwo.setState(ContractState.DISABLED);
-		when(repository.findOne(identity.getId())).thenReturn(identity);	
+		when(repository.findById(identity.getId())).thenReturn(Optional.of(identity));	
 		when(identityContractService.findAllByIdentity(identity.getId())).thenReturn(Lists.newArrayList(contractOne, contractTwo));	
 		//
 		Assert.assertEquals(IdentityState.LEFT, service.evaluateState(identity.getId()));
@@ -145,7 +146,7 @@ public class DefaultIdmIdentityServiceUnitTest extends AbstractUnitTest {
 	@Test
 	public void testNoContractState() {
 		IdmIdentity identity = new IdmIdentity(UUID.randomUUID());
-		when(repository.findOne(identity.getId())).thenReturn(identity);	
+		when(repository.findById(identity.getId())).thenReturn(Optional.of(identity));	
 		when(identityContractService.findAllByIdentity(identity.getId())).thenReturn(Lists.newArrayList());	
 		//
 		Assert.assertEquals(IdentityState.NO_CONTRACT, service.evaluateState(identity.getId()));
@@ -155,10 +156,7 @@ public class DefaultIdmIdentityServiceUnitTest extends AbstractUnitTest {
 	public void testDisabledManuallyState() {
 		IdmIdentity identity = new IdmIdentity(UUID.randomUUID());
 		identity.setState(IdentityState.DISABLED_MANUALLY);
-		IdmIdentityContractDto contractOne = new IdmIdentityContractDto();
-		IdmIdentityContractDto contractTwo = new IdmIdentityContractDto();
-		when(repository.findOne(identity.getId())).thenReturn(identity);	
-		when(identityContractService.findAllByIdentity(identity.getId())).thenReturn(Lists.newArrayList(contractOne, contractTwo));	
+		when(repository.findById(identity.getId())).thenReturn(Optional.of(identity));		
 		//
 		Assert.assertEquals(IdentityState.DISABLED_MANUALLY, service.evaluateState(identity.getId()));
 	}
@@ -169,8 +167,8 @@ public class DefaultIdmIdentityServiceUnitTest extends AbstractUnitTest {
 		IdmIdentityContractDto contractOne = new IdmIdentityContractDto();
 		contractOne.setState(ContractState.DISABLED);
 		IdmIdentityContractDto contractTwo = new IdmIdentityContractDto();
-		contractTwo.setValidFrom(new LocalDate().plusDays(1));
-		when(repository.findOne(identity.getId())).thenReturn(identity);	
+		contractTwo.setValidFrom(LocalDate.now().plusDays(1));
+		when(repository.findById(identity.getId())).thenReturn(Optional.of(identity));	
 		when(identityContractService.findAllByIdentity(identity.getId())).thenReturn(Lists.newArrayList(contractOne, contractTwo));	
 		//
 		Assert.assertEquals(IdentityState.FUTURE_CONTRACT, service.evaluateState(identity.getId()));

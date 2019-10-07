@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -10,8 +13,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.envers.Audited;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -56,7 +57,7 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 
 	@Audited
 	@Column(name = "last_successful_login")
-	private DateTime lastSuccessfulLogin;
+	private ZonedDateTime lastSuccessfulLogin;
 
 	@Audited
 	@Column(name = "unsuccessful_attempts", nullable = false)
@@ -64,25 +65,25 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity, Audi
 
 	@Audited
 	@Column(name = "block_login_date")
-	private DateTime blockLoginDate;
+	private ZonedDateTime blockLoginDate;
 
 	@Audited
 	@Column(name = "password_never_expires")
 	private boolean passwordNeverExpires = false;
 	
-	public DateTime getBlockLoginDate() {
+	public ZonedDateTime getBlockLoginDate() {
 		return blockLoginDate;
 	}
 
-	public void setBlockLoginDate(DateTime blockLoginDate) {
+	public void setBlockLoginDate(ZonedDateTime blockLoginDate) {
 		this.blockLoginDate = blockLoginDate;
 	}
 
-	public DateTime getLastSuccessfulLogin() {
+	public ZonedDateTime getLastSuccessfulLogin() {
 		return lastSuccessfulLogin;
 	}
 
-	public void setLastSuccessfulLogin(DateTime lastSuccessfulLogin) {
+	public void setLastSuccessfulLogin(ZonedDateTime lastSuccessfulLogin) {
 		this.lastSuccessfulLogin = lastSuccessfulLogin;
 	}
 

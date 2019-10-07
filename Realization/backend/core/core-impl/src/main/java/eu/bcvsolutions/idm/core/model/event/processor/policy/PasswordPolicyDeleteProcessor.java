@@ -32,7 +32,7 @@ public class PasswordPolicyDeleteProcessor extends CoreEventProcessor<IdmPasswor
 	public PasswordPolicyDeleteProcessor(IdmPasswordPolicyService passwordPolicyService) {
 		super(PasswordPolicyEvenType.DELETE);
 		//
-		Assert.notNull(passwordPolicyService);
+		Assert.notNull(passwordPolicyService, "Service is required.");
 		//
 		this.passwordPolicyService = passwordPolicyService;
 	}

@@ -49,8 +49,8 @@ public class DefaultLookupService implements LookupService {
 			EntityManager entityManager,
 			List<? extends EntityLookup<?>> entityLookups,
 			List<? extends DtoLookup<?>> dtoLookups) {
-		Assert.notNull(context);
-		Assert.notNull(entityManager);
+		Assert.notNull(context, "Context is required.");
+		Assert.notNull(entityManager, "Manager is required.");
 		Assert.notNull(entityLookups, "Entity lookups are required");
 		Assert.notNull(dtoLookups, "Dto lookups are required");
 		//
@@ -165,7 +165,7 @@ public class DefaultLookupService implements LookupService {
 	
 	@Override
 	public UUID getOwnerId(Identifiable owner) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		if (owner.getId() == null) {
 			return null;
 		}		
@@ -176,14 +176,14 @@ public class DefaultLookupService implements LookupService {
 	
 	@Override
 	public String getOwnerType(Identifiable owner) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return getOwnerType(owner.getClass());
 	}
 	
 	@Override
 	public String getOwnerType(Class<? extends Identifiable> ownerType) {
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		// dto class was given
 		Class<? extends BaseEntity> ownerEntityType = getOwnerClass(ownerType);

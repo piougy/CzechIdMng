@@ -9,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.tomcat.util.http.fileupload.FileUploadBase.FileSizeLimitExceededException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,17 +74,6 @@ public class ExceptionControllerAdvice {
 		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage());
 		LOG.warn("[" + errorModel.getId() + "] ", ex);
         return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
-    }
-	
-	@ExceptionHandler(RepositoryConstraintViolationException.class)
-	ResponseEntity<ResultModels> handle(RepositoryConstraintViolationException ex) {
-		List<ErrorModel> errorModels = ex.getErrors().getFieldErrors().stream()
-			.map(fieldError -> new FieldErrorModel(fieldError))
-			.peek(errorModel -> LOG.warn("[" + errorModel.getId() + "] ", ex))
-			.collect(Collectors.toList());
-		// TODO: global errors
-		// TODO: better errorModel logging - move source exception to errorModel?		
-        return new ResponseEntity<>(new ResultModels(errorModels), new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)

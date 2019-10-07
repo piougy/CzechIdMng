@@ -16,8 +16,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
+import javax.validation.constraints.NotEmpty;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -71,7 +71,7 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 	private String threadName;
 
 	@Column(name = "task_started")
-	private DateTime taskStarted;
+	private ZonedDateTime taskStarted;
 
 	@NotNull
 	@Embedded
@@ -91,11 +91,11 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 	@Column(name = "dry_run", nullable = false)
 	private boolean dryRun;
 
-	public void setTaskStarted(DateTime date){
+	public void setTaskStarted(ZonedDateTime date){
 		taskStarted = date;
 	}
 
-	public DateTime getTaskStarted(){
+	public ZonedDateTime getTaskStarted(){
 		return taskStarted;
 	}
 

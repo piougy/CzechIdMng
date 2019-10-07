@@ -39,7 +39,7 @@ public class RoleCodeEnvironmentProcessor
 	public RoleCodeEnvironmentProcessor(IdmRoleService service) {
 		super(RoleEventType.UPDATE, RoleEventType.CREATE);
 		//
-		Assert.notNull(service);		
+		Assert.notNull(service, "Service is required.");		
 		//
 		this.service = service;
 	}

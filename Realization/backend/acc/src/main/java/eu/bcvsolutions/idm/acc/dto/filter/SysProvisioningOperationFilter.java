@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -52,19 +52,19 @@ public class SysProvisioningOperationFilter extends DataFilter {
 		super(null, data, parameterConverter); // FIXME: filter used for two DTOs - operation and archive
 	}
 
-	public DateTime getFrom() {
+	public ZonedDateTime getFrom() {
 		return getParameterConverter().toDateTime(data, PARAMETER_FROM);
 	}
 
-	public void setFrom(DateTime from) {
+	public void setFrom(ZonedDateTime from) {
 		data.set(PARAMETER_FROM, from);
 	}
 
-	public DateTime getTill() {
+	public ZonedDateTime getTill() {
 		return getParameterConverter().toDateTime(data, PARAMETER_TILL);
 	}
 
-	public void setTill(DateTime till) {
+	public void setTill(ZonedDateTime till) {
 		data.set(PARAMETER_TILL, till);
 	}
 

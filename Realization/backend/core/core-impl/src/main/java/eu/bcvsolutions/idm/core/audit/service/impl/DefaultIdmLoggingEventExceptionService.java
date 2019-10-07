@@ -43,8 +43,6 @@ public class DefaultIdmLoggingEventExceptionService extends
 	public DefaultIdmLoggingEventExceptionService(IdmLoggingEventExceptionRepository repository) {
 		super(repository);
 		//
-		Assert.notNull(repository);
-		//
 		this.repository = repository;
 	}
 
@@ -82,7 +80,7 @@ public class DefaultIdmLoggingEventExceptionService extends
 	
 	@Override
 	protected IdmLoggingEventException getEntity(Serializable id, BasePermission... permission) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is requiered for load an log event.");
 		IdmLoggingEventExceptionFilter filter = new IdmLoggingEventExceptionFilter();
 		filter.setId(Long.valueOf(id.toString()));
 		List<IdmLoggingEventExceptionDto> entities = this.find(filter, null, permission).getContent();

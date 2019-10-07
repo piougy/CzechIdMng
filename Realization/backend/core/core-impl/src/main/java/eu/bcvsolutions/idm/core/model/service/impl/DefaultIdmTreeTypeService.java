@@ -44,8 +44,8 @@ public class DefaultIdmTreeTypeService
 			EntityEventManager entityEventManager) {
 		super(treeTypeRepository, entityEventManager);
 		//
-		Assert.notNull(configurationService);
-		Assert.notNull(treeConfiguration);
+		Assert.notNull(configurationService, "Service is required.");
+		Assert.notNull(treeConfiguration, "Configuration is required.");
 		//
 		this.repository = treeTypeRepository;
 		this.configurationService = configurationService;
@@ -72,22 +72,22 @@ public class DefaultIdmTreeTypeService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmConfigurationDto> getConfigurations(UUID treeTypeId) {
-		Assert.notNull(treeTypeId);
+		Assert.notNull(treeTypeId, "Tree type identifier is required.");
 		IdmTreeTypeDto treeType = get(treeTypeId);
-		Assert.notNull(treeType);
+		Assert.notNull(treeType, "Tree type is required.");
 		//
 		return new ArrayList<>(configurationService.getConfigurations(getConfigurationPrefix(treeType.getCode())).values());
 	}
 	
 	private static String getConfigurationPrefix(String treeTypeCode) {
-		Assert.notNull(treeTypeCode);
+		Assert.notNull(treeTypeCode, "Tree type code is required.");
 		//
 		return String.format("%s%s.", CONFIGURATION_PREFIX, SpinalCase.format(treeTypeCode));
 	}
 	
 	@Override
 	public String getConfigurationPropertyName(String treeTypeCode, String propertyName) {
-		Assert.notNull(propertyName);
+		Assert.notNull(propertyName, "Property name is required.");
 		//
 		return String.format("%s%s", getConfigurationPrefix(treeTypeCode), propertyName);
 	}

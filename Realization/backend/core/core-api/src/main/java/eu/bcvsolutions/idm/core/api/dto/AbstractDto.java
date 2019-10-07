@@ -1,7 +1,10 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectInputStream.GetField;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -10,7 +13,6 @@ import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,6 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import io.swagger.annotations.ApiModelProperty;
 import joptsimple.internal.Strings;
@@ -40,9 +43,9 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	@ApiModelProperty(required = true, notes = "Unique uuid identifier. Used as identifier in rest endpoints", dataType = "java.util.UUID")
 	private UUID id;
 	@ApiModelProperty(readOnly = true)
-	private DateTime created;
+	private ZonedDateTime created;
 	@ApiModelProperty(readOnly = true)
-	private DateTime modified;
+	private ZonedDateTime modified;
 	@Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(readOnly = true)
 	private String creator;
@@ -69,7 +72,6 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	@JsonProperty(value = "_embedded", access = Access.READ_ONLY)
 	@ApiModelProperty(readOnly = true)
 	private Map<String, BaseDto> embedded;
-	@JsonProperty(access = Access.READ_ONLY)
 	@ApiModelProperty(readOnly = true)
 	private UUID transactionId;
 	@JsonIgnore
@@ -116,22 +118,22 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	}
 
 	@Override
-	public DateTime getCreated() {
+	public ZonedDateTime getCreated() {
 		return created;
 	}
 
 	@Override
-	public void setCreated(DateTime created) {
+	public void setCreated(ZonedDateTime created) {
 		this.created = created;
 	}
 	
 	@Override
-	public DateTime getModified() {
+	public ZonedDateTime getModified() {
 		return modified;
 	}
 
 	@Override
-	public void setModified(DateTime modified) {
+	public void setModified(ZonedDateTime modified) {
 		this.modified = modified;
 	}
 
@@ -289,4 +291,32 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 				 .append(id)
 				 .toHashCode();
 	}
+	
+	/**
+	 * DTO are serialized in WF and embedded objects.
+	 * We need to solve legacy issues with joda (old) vs. java time (new) usage.
+	 * 
+	 * @param ois
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream ois) throws Exception {
+		GetField readFields = ois.readFields();
+		//
+		id = (UUID) readFields.get("id", null);
+		created = DtoUtils.toZonedDateTime(readFields.get("created", null));
+		modified = DtoUtils.toZonedDateTime(readFields.get("modified", null));
+		creator = (String) readFields.get("creator", null);
+		creatorId = (UUID) readFields.get("creatorId", null);
+		modifier = (String) readFields.get("modifier", null);
+		modifierId = (UUID) readFields.get("modifierId", null);
+		originalCreator = (String) readFields.get("originalCreator", null);
+		originalCreatorId = (UUID) readFields.get("originalCreatorId", null);
+		originalModifier = (String) readFields.get("originalModifier", null);
+		originalModifierId = (UUID) readFields.get("originalModifierId", null);
+		trimmed = readFields.get("trimmed", false);
+		embedded = (Map<String, BaseDto>) readFields.get("embedded", null);
+		transactionId = (UUID) readFields.get("transactionId", null);
+		realmId = (UUID) readFields.get("realmId", null);
+    }
 }

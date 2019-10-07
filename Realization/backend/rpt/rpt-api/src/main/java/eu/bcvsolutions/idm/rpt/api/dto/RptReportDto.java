@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.rpt.api.dto;
 
 import java.util.UUID;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -40,7 +40,7 @@ public class AccFlywayConfig extends AbstractFlywayConfiguration {
 	@ConfigurationProperties(prefix = "flyway.acc")
 	public Flyway flywayAcc() {
 		Flyway flyway = super.createFlyway();		
-		log.info("Starting flyway migration for module acc [{}]: ", flyway.getTable());
+		log.info("Starting flyway migration for module acc [{}]: ", flyway.getConfiguration().getTable());
 		return flyway;
 	}
 }

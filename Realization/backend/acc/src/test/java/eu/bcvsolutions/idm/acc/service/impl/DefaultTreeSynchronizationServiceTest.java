@@ -18,7 +18,6 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,7 +84,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Rollback(false)
-@Service
 public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	private static final String SYNC_CONFIG_NAME = "syncConfigName";
@@ -834,6 +832,6 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	}
 
 	private DefaultTreeSynchronizationServiceTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 }

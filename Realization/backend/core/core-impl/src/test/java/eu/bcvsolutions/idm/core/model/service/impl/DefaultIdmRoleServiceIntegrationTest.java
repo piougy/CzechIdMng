@@ -13,6 +13,7 @@ import java.beans.IntrospectionException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +22,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -96,9 +95,6 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	@Autowired private IdmConceptRoleRequestService conceptRoleService;
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
-	@Autowired(required = false)
-	@Qualifier("objectMapper")
-	private ObjectMapper mapper;
 	//
 	private final static String IP = "IP";
 	private DefaultIdmRoleService roleService;
@@ -202,6 +198,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 		Assert.assertEquals("Wrong text filter description", true, result.getContent().contains(role5));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void typeFilterTest(){
 		IdmRoleDto role = getHelper().createRole();
@@ -307,22 +304,25 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 		IdmRoleFilter filter = new IdmRoleFilter();
 
 		fields.forEach(field -> {
-			filter.setProperty(field.getName());
-
-			try {
-				Object value = EntityUtils.getEntityValue(roleFull, field.getName());
-				if (value == null || !(value instanceof String)) {
-					return;
+			if (Modifier.isStatic(field.getModifiers())) {
+				// static filter properties cannot be used by simple correlable filter
+			} else {
+				filter.setProperty(field.getName());
+	
+				try {
+					Object value = EntityUtils.getEntityValue(roleFull, field.getName());
+					if (value == null || !(value instanceof String)) {
+						return;
+					}
+					filter.setValue(value.toString());
+					List<IdmRoleDto> identities = roleService.find(filter, null).getContent();
+					Assert.assertTrue(identities.contains(roleFull));
+	
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+						| IntrospectionException e) {
+					e.printStackTrace();
 				}
-				filter.setValue(value.toString());
-				List<IdmRoleDto> identities = roleService.find(filter, null).getContent();
-				Assert.assertTrue(identities.contains(roleFull));
-
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| IntrospectionException e) {
-				e.printStackTrace();
 			}
-
 		});
 
 	}
@@ -455,7 +455,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	                .getResponse()
 	                .getContentAsString();
 		
-		IdmRoleRequestDto createdDto = (IdmRoleRequestDto) mapper.readValue(response, roleRequest.getClass());
+		IdmRoleRequestDto createdDto = (IdmRoleRequestDto) getMapper().readValue(response, roleRequest.getClass());
 		// Request from REST doesn't contains concept (from version 9.7.0!)
 		assertTrue(createdDto.getConceptRoles().isEmpty());
 		roleRequestService.validate(createdDto);
@@ -506,7 +506,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	                .getResponse()
 	                .getContentAsString();
 		
-		IdmRoleRequestDto restRequest = (IdmRoleRequestDto) mapper.readValue(response, request.getClass());
+		IdmRoleRequestDto restRequest = (IdmRoleRequestDto) getMapper().readValue(response, request.getClass());
 		// Validate request
 		roleRequestService.validate(restRequest);
 		
@@ -519,7 +519,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	                .getResponse()
 	                .getContentAsString();
 		
-		IdmConceptRoleRequestDto restConcept = (IdmConceptRoleRequestDto) mapper.readValue(responseConcept, conceptRole.getClass());
+		IdmConceptRoleRequestDto restConcept = (IdmConceptRoleRequestDto) getMapper().readValue(responseConcept, conceptRole.getClass());
 
 		assertTrue(!restConcept.getEavs().isEmpty());
 		formInstance = conceptRoleService.getRoleAttributeValues(restConcept, false);

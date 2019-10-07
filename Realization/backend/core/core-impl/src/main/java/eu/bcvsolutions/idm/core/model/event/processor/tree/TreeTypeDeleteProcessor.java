@@ -44,9 +44,9 @@ public class TreeTypeDeleteProcessor extends CoreEventProcessor<IdmTreeTypeDto> 
 			IdmIdentityContractRepository identityContractRepository) {
 		super(TreeTypeEventType.DELETE);
 		//
-		Assert.notNull(service);
-		Assert.notNull(nodeRepository);
-		Assert.notNull(identityContractRepository);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(nodeRepository, "Repository is required.");
+		Assert.notNull(identityContractRepository, "Repository is required.");
 		//
 		this.service = service;
 		this.nodeRepository = nodeRepository;
@@ -62,9 +62,9 @@ public class TreeTypeDeleteProcessor extends CoreEventProcessor<IdmTreeTypeDto> 
 	public EventResult<IdmTreeTypeDto> process(EntityEvent<IdmTreeTypeDto> event) {
 		IdmTreeTypeDto treeType = event.getContent();
 		
-		Assert.notNull(treeType);
+		Assert.notNull(treeType, "Tree type is required.");
 		//	
-		Page<IdmTreeNode> nodes = nodeRepository.findChildren(treeType.getId(), null, new PageRequest(0, 1));
+		Page<IdmTreeNode> nodes = nodeRepository.findChildren(treeType.getId(), null, PageRequest.of(0, 1));
 		if (nodes.getTotalElements() > 0) {
 			throw new TreeTypeException(CoreResultCode.TREE_TYPE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeType", treeType.getName()));
 		}		

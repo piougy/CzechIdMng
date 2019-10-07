@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +38,7 @@ public class DefaultIdmEmailLogService
 	public DefaultIdmEmailLogService(IdmEmailLogRepository repository, IdmIdentityService identityService) {
 		super(repository);
 		//
-		Assert.notNull(identityService);
+		Assert.notNull(identityService, "Service is required.");
 		//
 		this.identityService = identityService;
 	}
@@ -90,7 +90,7 @@ public class DefaultIdmEmailLogService
 	 */
 	@Override
 	@Transactional
-	public void setEmailSent(UUID emailLogId, DateTime sent) {
+	public void setEmailSent(UUID emailLogId, ZonedDateTime sent) {
 		IdmEmailLogDto emailLog = get(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//

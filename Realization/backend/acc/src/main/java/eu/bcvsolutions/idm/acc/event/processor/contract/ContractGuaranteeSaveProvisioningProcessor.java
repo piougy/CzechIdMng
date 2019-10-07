@@ -47,7 +47,7 @@ public class ContractGuaranteeSaveProvisioningProcessor extends CoreEventProcess
 	public ContractGuaranteeSaveProvisioningProcessor(IdmIdentityContractService identityContractService) {
 		super(ContractGuaranteeEventType.NOTIFY);
 		//
-		Assert.notNull(identityContractService);
+		Assert.notNull(identityContractService, "Service is required.");
 		//
 		this.identityContractService = identityContractService;
 	}

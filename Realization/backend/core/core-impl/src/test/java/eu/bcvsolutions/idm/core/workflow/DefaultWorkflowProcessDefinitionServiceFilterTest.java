@@ -97,7 +97,7 @@ public class DefaultWorkflowProcessDefinitionServiceFilterTest extends AbstractC
 		Page<WorkflowProcessDefinitionDto> processesDefinitionDto =
 				definitionService.find(
 						filterDto,
-						new PageRequest(0, 3, Sort.Direction.DESC, SORT_BY_NAME)
+						PageRequest.of(0, 3, Sort.Direction.DESC, SORT_BY_NAME)
 				);
 		assertEquals("Process for test filtering #3", processesDefinitionDto.getContent().get(0).getName());
 	}
@@ -109,7 +109,7 @@ public class DefaultWorkflowProcessDefinitionServiceFilterTest extends AbstractC
 		Page<WorkflowProcessDefinitionDto> processesDefinitionDto =
 				definitionService.find(
 						filterDto,
-						new PageRequest(0, 3, Sort.Direction.ASC, SORT_BY_NAME)
+						PageRequest.of(0, 3, Sort.Direction.ASC, SORT_BY_NAME)
 				);
 		assertEquals("Process for test filtering #1", processesDefinitionDto.getContent().get(0).getName());
 	}

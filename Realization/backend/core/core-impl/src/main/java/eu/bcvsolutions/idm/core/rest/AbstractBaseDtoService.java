@@ -57,7 +57,7 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 
 	@Override
 	public boolean isNew(DTO dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		return dto.getId() == null;
 	}

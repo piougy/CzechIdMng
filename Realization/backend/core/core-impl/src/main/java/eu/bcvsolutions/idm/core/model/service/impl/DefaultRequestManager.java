@@ -26,8 +26,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -132,6 +134,7 @@ public class DefaultRequestManager implements RequestManager {
 	private IdmFormDefinitionService formDefinitionService;
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
+	@Lazy
 	@Autowired
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
@@ -328,8 +331,8 @@ public class DefaultRequestManager implements RequestManager {
 		R dto = dtoReadService.get(dtoId, permission);
 		if (dto == null) {
 			try {
-				dto = dtoClass.newInstance();
-			} catch (InstantiationException | IllegalAccessException e) {
+				dto = dtoClass.getDeclaredConstructor().newInstance();
+			} catch (ReflectiveOperationException e) {
 				throw new CoreException(e);
 			}
 			dto.setId(dtoId);
@@ -341,6 +344,10 @@ public class DefaultRequestManager implements RequestManager {
 	@Override
 	public <R extends Requestable> Page<R> find(Class<? extends R> dtoClass, Serializable requestId, BaseFilter filter,
 			Pageable pageable, IdmBasePermission... permission) {
+		if (pageable == null) {
+			// pageable is required in spring data
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
 		ReadDtoService<R, BaseFilter> dtoReadService = getDtoService(dtoClass);
 		Page<R> originalPage = dtoReadService.find(filter, pageable, permission);
 		List<R> originals = originalPage.getContent();
@@ -375,8 +382,7 @@ public class DefaultRequestManager implements RequestManager {
 				results.add(requestedDto);
 				return;
 
-			} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| InstantiationException | IntrospectionException | ClassNotFoundException e) {
+			} catch (IOException | ReflectiveOperationException | IllegalArgumentException | IntrospectionException e) {
 				throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
 						ImmutableMap.of("json", item.getData()));
 			}
@@ -513,9 +519,9 @@ public class DefaultRequestManager implements RequestManager {
 		Requestable currentDto = (Requestable) readService.get(item.getOwnerId(), permission);
 		if (currentDto == null) {
 			try {
-				currentDto = (Requestable) dtoClass.newInstance();
+				currentDto = (Requestable) dtoClass.getDeclaredConstructor().newInstance();
 				currentDto.setId(item.getOwnerId());
-			} catch (InstantiationException | IllegalAccessException e) {
+			} catch (ReflectiveOperationException e) {
 				throw new CoreException(e);
 			}
 		}
@@ -697,7 +703,7 @@ public class DefaultRequestManager implements RequestManager {
 	@Override
 	@Transactional(noRollbackFor = { AcceptedException.class })
 	public <R extends Requestable> IdmRequestDto deleteRequestable(R dto, boolean executeImmediately) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		Assert.notNull(dto.getId(), "Requestable DTO cannot be null!");
 
 		// Create and save request
@@ -947,8 +953,7 @@ public class DefaultRequestManager implements RequestManager {
 			this.addEmbedded((AbstractDto) requestedDto, requestId);
 			return (R) requestedDto;
 
-		} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| IntrospectionException | InstantiationException | ClassNotFoundException e) {
+		} catch (IOException | ReflectiveOperationException | IllegalArgumentException | IntrospectionException e) {
 			throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
 					ImmutableMap.of("json", item.getData()), e);
 		}
@@ -1164,8 +1169,7 @@ public class DefaultRequestManager implements RequestManager {
 						requestables.add((R) requestedDto);
 						return;
 
-					} catch (IOException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-							| IntrospectionException | InstantiationException | ClassNotFoundException e) {
+					} catch (IOException | ReflectiveOperationException | IllegalArgumentException | IntrospectionException e) {
 						throw new ResultCodeException(CoreResultCode.JSON_CANNOT_BE_CONVERT_TO_DTO,
 								ImmutableMap.of("json", item.getData()), e);
 					}
@@ -1367,8 +1371,8 @@ public class DefaultRequestManager implements RequestManager {
 	 * @throws IntrospectionException
 	 * @throws InstantiationException
 	 */
-	private void addEmbedded(AbstractDto dto, UUID requestId) throws IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, IntrospectionException, InstantiationException {
+	private void addEmbedded(AbstractDto dto, UUID requestId) throws ReflectiveOperationException,
+			IllegalArgumentException, IntrospectionException {
 		Assert.notNull(dto, "DTO is required!");
 
 		Field[] fields = dto.getClass().getDeclaredFields();
@@ -1386,7 +1390,7 @@ public class DefaultRequestManager implements RequestManager {
 						UUID id = (UUID) value;
 						AbstractDto embeddedDto = null;
 						if (Requestable.class.isAssignableFrom(embeddedAnnotation.dtoClass())) {
-							embeddedDto = embeddedAnnotation.dtoClass().newInstance();
+							embeddedDto = embeddedAnnotation.dtoClass().getDeclaredConstructor().newInstance();
 							embeddedDto.setId(id);
 							Requestable originalEmbeddedDto = this.getDtoService((Requestable) embeddedDto).get(embeddedDto.getId());
 							if (originalEmbeddedDto != null) {
@@ -1548,12 +1552,12 @@ public class DefaultRequestManager implements RequestManager {
 				confidentialFormValue.setShortTextValue(GuardedString.SECRED_PROXY_STRING);
 			}
 		}
-		Assert.notNull(confidentialFormValue);
+		Assert.notNull(confidentialFormValue, "Confidential form value is required.");
 		// Save DTO without confidential value
 		Requestable persistedRequestDto = this.post(requestId, (Requestable) confidentialFormValue,
 				this.isFormValueNew(confidentialFormValue));
 		UUID requestItem = persistedRequestDto.getRequestItem();
-		Assert.notNull(requestItem);
+		Assert.notNull(requestItem, "Request item is required.");
 
 		// Save confidential value to ConfidentialStorage - owner is request item
 		confidentialStorage.save(requestItem, IdmRequestItem.class,
@@ -1598,7 +1602,7 @@ public class DefaultRequestManager implements RequestManager {
 	}
 
 	private Serializable getConfidentialPersistentValue(IdmRequestItemDto confidentialItem) {
-		Assert.notNull(confidentialItem);
+		Assert.notNull(confidentialItem, "Confidetial request item is required.");
 		//
 		return confidentialStorage.get(confidentialItem.getId(), IdmRequestItem.class,
 				RequestManager.getConfidentialStorageKey(confidentialItem.getId()));

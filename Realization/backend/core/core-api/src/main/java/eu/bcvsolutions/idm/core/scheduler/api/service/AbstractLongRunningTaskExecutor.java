@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +127,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	 * @return
 	 */
 	protected boolean start() {
-		Assert.notNull(longRunningTaskId);
+		Assert.notNull(longRunningTaskId, "LRT has to be persisted before task starts.");
 		IdmLongRunningTaskDto task = longRunningTaskService.get(longRunningTaskId);
 		Map<String, Object> taskProperties = task.getTaskProperties();
 		//
@@ -146,7 +146,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		setStateProperties(task);
 		//
 		task.setRunning(true);
-		task.setTaskStarted(DateTime.now());
+		task.setTaskStarted(ZonedDateTime.now());
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
 		task.setStateful(isStateful());
 		taskProperties.put(LongRunningTaskExecutor.PARAMETER_INSTANCE_ID, task.getInstanceId());
@@ -217,7 +217,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	 * @return
 	 */
 	protected V end(V result, Exception ex) {
-		Assert.notNull(longRunningTaskId);
+		Assert.notNull(longRunningTaskId, "LRT has to be persisted before task starts.");
 		IdmLongRunningTaskDto task = longRunningTaskService.get(longRunningTaskId);
 		Assert.notNull(task, "Long running task has to be prepared before task is ended");
 		LOG.debug("Long running task ends [{}] with result [{}].", longRunningTaskId, result, ex);
@@ -322,7 +322,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	
 	@Override
 	public <DTO extends AbstractDto> IdmProcessedTaskItemDto logItemProcessed(DTO item, OperationResult opResult) {
-		Assert.notNull(item);
+		Assert.notNull(item, "Item is required for logging.");
 		//
 		if (opResult == null) {
 			// default result - executed

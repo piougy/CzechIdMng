@@ -49,8 +49,8 @@ public class IdentityRoleSaveProcessor
 			IdmIdentityRoleValidRequestService validRequestService) {
 		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
 		//
-		Assert.notNull(service);
-		Assert.notNull(validRequestService);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(validRequestService, "Service is required.");
 		//
 		this.service = service;
 		this.validRequestService = validRequestService;

@@ -7,10 +7,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -74,7 +74,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 		//
 		IdmIdentityDto identity = helper.createIdentity();
 		List<IdmIdentityDto> recipients = identityService.findAllByRoleName("superAdminRole");
-		Assert.notEmpty(recipients, "Test need some recipients");
+		Assert.assertFalse("Test need some recipients", recipients.isEmpty());
 
 		// Test before notify
 		IdmNotificationFilter filter = new IdmNotificationFilter();
@@ -92,9 +92,9 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 
 		assertEquals(1, notifications.size());
 		assertEquals(CoreModuleDescriptor.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS, notifications.get(0).getTopic());
-		Assert.isTrue(notifications.get(0).getMessage().getHtmlMessage().contains(identity.getFirstName()));
+		Assert.assertTrue(notifications.get(0).getMessage().getHtmlMessage().contains(identity.getFirstName()));
 		// Last name is not monitored
-		Assert.isTrue(!notifications.get(0).getMessage().getHtmlMessage().contains(identity.getLastName()));
+		Assert.assertTrue(!notifications.get(0).getMessage().getHtmlMessage().contains(identity.getLastName()));
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 		//
 		IdmIdentityDto identity = helper.createIdentity();
 		List<IdmIdentityDto> recipients = identityService.findAllByRoleName("superAdminRole");
-		Assert.notEmpty(recipients, "Test need some recipients");
+		Assert.assertFalse("Test need some recipients", recipients.isEmpty());
 
 		// Test before notify
 		IdmNotificationFilter filter = new IdmNotificationFilter();
@@ -139,7 +139,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 		//
 		IdmIdentityDto identity = helper.createIdentity();
 		List<IdmIdentityDto> recipients = identityService.findAllByRoleName("superAdminRole");
-		Assert.notEmpty(recipients, "Test need some recipients");
+		Assert.assertFalse("Test need some recipients", recipients.isEmpty());
 
 		// Test before notify
 		IdmNotificationFilter filter = new IdmNotificationFilter();
@@ -168,7 +168,7 @@ public class IdentityMonitoredFieldsProcessorTest extends AbstractIntegrationTes
 		//
 		IdmIdentityDto identity = helper.createIdentity();
 		List<IdmIdentityDto> recipients = identityService.findAllByRoleName("superAdminRole");
-		Assert.notEmpty(recipients, "Test need some recipients");
+		Assert.assertFalse("Test need some recipients", recipients.isEmpty());
 
 		// Test before notify
 		IdmNotificationFilter filter = new IdmNotificationFilter();

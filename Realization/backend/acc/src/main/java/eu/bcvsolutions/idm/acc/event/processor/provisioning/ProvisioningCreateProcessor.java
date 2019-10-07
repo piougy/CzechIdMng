@@ -44,8 +44,8 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		super(connectorFacade, systemService, provisioningOperationService, systemEntityService, 
 				ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
-		Assert.notNull(provisioningOperationService);
-		Assert.notNull(systemService);
+		Assert.notNull(provisioningOperationService, "Service is required.");
+		Assert.notNull(systemService, "Service is required.");
 		//
 		this.provisioningOperationService = provisioningOperationService;
 		this.systemService = systemService;

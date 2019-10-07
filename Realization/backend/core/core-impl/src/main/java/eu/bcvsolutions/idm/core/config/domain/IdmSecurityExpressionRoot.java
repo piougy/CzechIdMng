@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 
 /**
- * Adds admin evaluation
+ * Adds admin wildcard evaluation into spring security expression.
  * 
  * @author Radek Tomiška
  *
@@ -33,7 +33,7 @@ public class IdmSecurityExpressionRoot implements SecurityExpressionOperations {
 	 * @param authentication the {@link Authentication} to use. Cannot be null.
 	 */
 	public IdmSecurityExpressionRoot(Authentication authentication) {
-		Assert.notNull(authentication);
+		Assert.notNull(authentication, "Authentication is required for SecurityExpressionRoot.");
 		//
 		this.authentication = authentication;
 	}

@@ -30,7 +30,7 @@ public class IdmRoleEntityLookup extends AbstractEntityLookup<IdmRole> {
 	public IdmRole lookup(Serializable id) {
 		IdmRole entity = null;
 		try {
-			entity = roleRepository.findOne(EntityUtils.toUuid(id));
+			entity = roleRepository.findById(EntityUtils.toUuid(id)).orElse(null);
 		} catch (ClassCastException ex) {
 			// simply not found
 		}

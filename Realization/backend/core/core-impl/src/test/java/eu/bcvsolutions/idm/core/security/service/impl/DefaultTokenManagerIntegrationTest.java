@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,7 +87,7 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 		//
 		Assert.assertEquals(token.getId(), manager.verifyToken(token.getId()).getId());
 		
-		token = createToken(owner, null, DateTime.now().plusMinutes(1));
+		token = createToken(owner, null, ZonedDateTime.now().plusMinutes(1));
 		//
 		Assert.assertEquals(token.getId(), manager.verifyToken(token.getId()).getId());
 	}
@@ -98,7 +100,7 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 	@Test(expected = ResultCodeException.class)
 	public void testVerifyTokenDisabled() {
 		IdmIdentityDto owner = new IdmIdentityDto(UUID.randomUUID());
-		IdmTokenDto token = createToken(owner, null, DateTime.now().minusMillis(1));
+		IdmTokenDto token = createToken(owner, null, ZonedDateTime.now().minusNanos(1));
 		token.setDisabled(true);
 		token = manager.saveToken(owner, token);
 		//
@@ -108,7 +110,7 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 	@Test(expected = ResultCodeException.class)
 	public void testVerifyTokenExpired() {
 		IdmIdentityDto owner = new IdmIdentityDto(UUID.randomUUID());
-		IdmTokenDto token = createToken(owner, null, DateTime.now().minusMillis(1));
+		IdmTokenDto token = createToken(owner, null, ZonedDateTime.now().minusNanos(1));
 		//
 		manager.verifyToken(token.getId());
 	}
@@ -126,18 +128,18 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 		token = manager.getToken(token.getId());
 		Assert.assertTrue(token.isDisabled());
 		Assert.assertNotNull(token.getExpiration());
-		Assert.assertFalse(token.getExpiration().isAfter(DateTime.now()));
+		Assert.assertFalse(token.getExpiration().isAfter(ZonedDateTime.now()));
 		//
-		token = createToken(owner, null, DateTime.now().plusDays(1));
+		token = createToken(owner, null, ZonedDateTime.now().plusDays(1));
 		//
 		manager.disableTokens(owner);
 		//
 		token = manager.getToken(token.getId());
 		Assert.assertTrue(token.isDisabled());
 		Assert.assertNotNull(token.getExpiration());
-		Assert.assertFalse(token.getExpiration().isAfter(DateTime.now()));
+		Assert.assertFalse(token.getExpiration().isAfter(ZonedDateTime.now()));
 		//
-		DateTime expired = DateTime.now().minusDays(1);
+		ZonedDateTime expired = ZonedDateTime.now().minusDays(1);
 		token = createToken(owner, null, expired);
 		//
 		manager.disableTokens(owner);
@@ -150,7 +152,7 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 	
 	@Test
 	public void testPurgeTokens() {
-		DateTime now = new DateTime();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		String typeOne = getHelper().createName();
 		String typeTwo = getHelper().createName();
 		IdmIdentityDto owner = new IdmIdentityDto(UUID.randomUUID());
@@ -212,9 +214,9 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 		Assert.assertTrue(token.isDisabled());
 	}
 	
-	protected IdmTokenDto createToken(IdmIdentityDto owner, String tokenType, DateTime expiration) {
+	protected IdmTokenDto createToken(IdmIdentityDto owner, String tokenType, ZonedDateTime expiration) {
 		IdmTokenDto token = new IdmTokenDto();
-		token.setIssuedAt(new DateTime());
+		token.setIssuedAt(ZonedDateTime.now());
 		token.setToken("mock");
 		token.setExpiration(expiration);
 		if (tokenType != null) {

@@ -141,7 +141,7 @@ public interface RequestManager extends RequestService<IdmRequestDto> {
 	 * @return
 	 */
 	public static String getConfidentialStorageKey(UUID itemId) {
-		Assert.notNull(itemId);
+		Assert.notNull(itemId, "Item id is required to get confidential storage key.");
 		//
 		return FormValueService.CONFIDENTIAL_STORAGE_VALUE_PREFIX + ":" + itemId;
 	}

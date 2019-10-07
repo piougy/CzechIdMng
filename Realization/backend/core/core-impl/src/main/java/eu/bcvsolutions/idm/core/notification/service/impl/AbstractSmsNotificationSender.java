@@ -28,8 +28,8 @@ public abstract class AbstractSmsNotificationSender extends AbstractNotification
     private final IdmIdentityService identityService;
 
     public AbstractSmsNotificationSender(IdmSmsLogService idmSmsLogService, IdmIdentityService identityService) {
-        Assert.notNull(idmSmsLogService);
-        Assert.notNull(identityService);
+        Assert.notNull(idmSmsLogService, "Service is required.");
+        Assert.notNull(identityService, "Service is required.");
         //
         this.idmSmsLogService = idmSmsLogService;
         this.identityService = identityService;
@@ -93,8 +93,8 @@ public abstract class AbstractSmsNotificationSender extends AbstractNotification
     }
 
     protected IdmSmsLogDto createLog(IdmNotificationDto notification) {
-        Assert.notNull(notification);
-        Assert.notNull(notification.getMessage());
+        Assert.notNull(notification, "Notification is required.");
+        Assert.notNull(notification.getMessage(), "Message is required.");
         //
         IdmSmsLogDto smsLogDto = new IdmSmsLogDto();
         // parent message

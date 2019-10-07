@@ -1,9 +1,8 @@
 package eu.bcvsolutions.idm.core.api.audit.dto.filter;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
-
-import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
@@ -21,8 +20,8 @@ public class IdmAuditFilter implements BaseFilter {
     private Long id;
     private String text;
     private String type;
-    private DateTime from;
-    private DateTime till;
+    private ZonedDateTime from;
+    private ZonedDateTime till;
     private String modification;
     private String modifier;
     /**
@@ -80,19 +79,19 @@ public class IdmAuditFilter implements BaseFilter {
         this.type = type;
     }
 
-    public DateTime getFrom() {
+    public ZonedDateTime getFrom() {
         return from;
     }
 
-    public void setFrom(DateTime from) {
+    public void setFrom(ZonedDateTime from) {
         this.from = from;
     }
 
-    public DateTime getTill() {
+    public ZonedDateTime getTill() {
         return till;
     }
 
-    public void setTill(DateTime till) {
+    public void setTill(ZonedDateTime till) {
         this.till = till;
     }
 

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+
 import org.springframework.web.context.request.async.DeferredResult;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -50,7 +51,7 @@ public interface LongPollingManager {
 	 * @param dto
 	 * @return
 	 */
-	DateTime getLastTimeStamp(AbstractDto dto);
+	ZonedDateTime getLastTimeStamp(AbstractDto dto);
 
 	/**
 	 * Base implementation for check changes for given deferred result. 
@@ -72,7 +73,7 @@ public interface LongPollingManager {
 	 * 
 	 * @param clearBeforIt
 	 */
-	void clearUnUseSubscribers(DateTime clearBeforIt);
+	void clearUnUseSubscribers(ZonedDateTime clearBeforIt);
 	
 
 }

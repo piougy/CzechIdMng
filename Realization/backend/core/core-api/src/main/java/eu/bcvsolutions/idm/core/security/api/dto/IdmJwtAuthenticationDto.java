@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.security.api.dto;
 
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -19,9 +19,9 @@ public class IdmJwtAuthenticationDto {
 	private String originalUsername;
 	private UUID originalIdentityId;
 	@JsonProperty("exp") // by rfc7519
-	private DateTime expiration;
+	private ZonedDateTime expiration;
 	@JsonProperty("iat") // by rfc7519
-	private DateTime issuedAt;
+	private ZonedDateTime issuedAt;
 	private String fromModule;
 
 	public IdmJwtAuthenticationDto() {
@@ -51,19 +51,19 @@ public class IdmJwtAuthenticationDto {
 		this.originalUsername = originalUsername;
 	}
 
-	public DateTime getExpiration() {
+	public ZonedDateTime getExpiration() {
 		return expiration;
 	}
 
-	public void setExpiration(DateTime expiration) {
+	public void setExpiration(ZonedDateTime expiration) {
 		this.expiration = expiration;
 	}
 
-	public DateTime getIssuedAt() {
+	public ZonedDateTime getIssuedAt() {
 		return issuedAt;
 	}
 
-	public void setIssuedAt(DateTime issuedAt) {
+	public void setIssuedAt(ZonedDateTime issuedAt) {
 		this.issuedAt = issuedAt;
 	}
 
@@ -87,7 +87,7 @@ public class IdmJwtAuthenticationDto {
 		if (expiration == null) {
 			return false;
 		}
-		return expiration.isBefore(DateTime.now());
+		return expiration.isBefore(ZonedDateTime.now());
 	}
 	
 	public String getFromModule() {

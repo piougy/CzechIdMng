@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

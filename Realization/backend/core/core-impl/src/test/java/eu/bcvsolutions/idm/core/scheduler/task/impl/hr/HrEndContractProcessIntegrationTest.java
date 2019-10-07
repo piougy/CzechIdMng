@@ -6,7 +6,7 @@ import static org.mockito.Mockito.spy;
 
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -166,7 +166,7 @@ public class HrEndContractProcessIntegrationTest extends AbstractHrProcessIntegr
 	}
 
 	private void addRolesToContract(IdmIdentityContractDto contract) {
-		roleService.find(new PageRequest(0, 5)).forEach(role -> {
+		roleService.find(PageRequest.of(0, 5)).forEach(role -> {
 			IdmIdentityRoleDto d = new IdmIdentityRoleDto();
 			d.setRole(role.getId());
 			d.setIdentityContract(contract.getId());

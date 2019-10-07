@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.model.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

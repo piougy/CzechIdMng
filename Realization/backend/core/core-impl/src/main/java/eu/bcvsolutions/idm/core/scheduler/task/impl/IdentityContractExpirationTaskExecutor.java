@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl;
 import java.util.Map;
 import java.util.Optional;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -41,7 +41,7 @@ public class IdentityContractExpirationTaskExecutor extends AbstractSchedulableS
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		//
-		expiration = new LocalDate();
+		expiration = LocalDate.now();
 		LOG.debug("Remove roles  expired identity contracts was inintialized for expiration less than [{}]", expiration);
 	}
 

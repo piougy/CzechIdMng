@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -211,7 +211,7 @@ public class IdmTreeNode
 	 * @return
 	 */
 	public static UUID toTreeTypeId(String forestTreeType) {
-		Assert.hasLength(forestTreeType);
+		Assert.hasLength(forestTreeType, "Forest tree type is required.");
 		//
 		return UUID.fromString(forestTreeType.replaceFirst(TREE_TYPE_PREFIX, ""));
 	}
@@ -223,7 +223,7 @@ public class IdmTreeNode
 	 * @return
 	 */
 	public static String toForestTreeType(IdmTreeType treeType) {
-		Assert.notNull(treeType);
+		Assert.notNull(treeType, "Tree type is required.");
 		//
 		return toForestTreeType(treeType.getId());
 	}
@@ -235,7 +235,7 @@ public class IdmTreeNode
 	 * @return
 	 */
 	public static String toForestTreeType(UUID treeTypeId) {
-		Assert.notNull(treeTypeId);
+		Assert.notNull(treeTypeId, "Tree type is required.");
 		//
 		return String.format("%s%s", TREE_TYPE_PREFIX, treeTypeId);
 	}

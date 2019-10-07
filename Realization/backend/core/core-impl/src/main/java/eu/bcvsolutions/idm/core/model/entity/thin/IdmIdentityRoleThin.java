@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.entity.thin;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -13,7 +14,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Immutable;
-import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;

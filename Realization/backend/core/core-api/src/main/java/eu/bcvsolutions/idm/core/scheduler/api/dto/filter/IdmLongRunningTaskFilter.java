@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.api.dto.filter;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -57,19 +57,19 @@ public class IdmLongRunningTaskFilter extends DataFilter {
 		data.set(PARAMETER_TASK_TYPE, taskType);
 	}
 
-	public DateTime getFrom() {
+	public ZonedDateTime getFrom() {
 		return getParameterConverter().toDateTime(data, PARAMETER_FROM);
 	}
 
-	public void setFrom(DateTime from) {
+	public void setFrom(ZonedDateTime from) {
 		data.set(PARAMETER_FROM, from);
 	}
 
-	public DateTime getTill() {
+	public ZonedDateTime getTill() {
 		return getParameterConverter().toDateTime(data, PARAMETER_TILL);
 	}
 
-	public void setTill(DateTime till) {
+	public void setTill(ZonedDateTime till) {
 		data.set(PARAMETER_TILL, till);
 	}
 	

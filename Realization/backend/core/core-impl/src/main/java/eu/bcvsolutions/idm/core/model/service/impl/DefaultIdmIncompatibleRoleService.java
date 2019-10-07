@@ -76,7 +76,7 @@ public class DefaultIdmIncompatibleRoleService
 		List<IdmIncompatibleRole> results = new ArrayList<>();
 		//
 		int pageSize = 500; // prevent to exceed IN limit sql clause
-		Page<UUID> roleIdPages = new PageImpl<UUID>(roleIds, new PageRequest(0, pageSize), roleIds.size());
+		Page<UUID> roleIdPages = new PageImpl<UUID>(roleIds, PageRequest.of(0, pageSize), roleIds.size());
 		for(int page = 0; page < roleIdPages.getTotalPages(); page++) {
 			int end = (page + 1) * pageSize;
 			if (end > roleIds.size()) {

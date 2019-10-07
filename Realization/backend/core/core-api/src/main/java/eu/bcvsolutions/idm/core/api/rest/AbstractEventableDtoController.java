@@ -52,7 +52,7 @@ public class AbstractEventableDtoController<DTO extends BaseDto, F extends BaseF
 	 */
 	@Override
 	public DTO saveDto(DTO dto, BasePermission... permission) {
-		Assert.notNull(dto, "DTO is required");
+		Assert.notNull(dto, "DTO is required.");
 		//
 		if (this.isRequestModeEnabled()) {
 			throw new ResultCodeException(CoreResultCode.REQUEST_CUD_OPERATIONS_NOT_ALLOWED,

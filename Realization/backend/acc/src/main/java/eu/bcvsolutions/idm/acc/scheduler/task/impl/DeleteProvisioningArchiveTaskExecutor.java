@@ -1,11 +1,12 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -99,9 +100,9 @@ public class DeleteProvisioningArchiveTaskExecutor
 		filter.setSystemId(systemId);
 		filter.setEmptyProvisioning(emptyProvisioning);
 		if (numberOfDays > 0) {
-			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
+			filter.setTill(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusDays(numberOfDays));
 		}
-		return service.find(filter, new PageRequest(0, pageable.getPageSize())); // new pageable is given => records are deleted and we need the first page all time
+		return service.find(filter, PageRequest.of(0, pageable.getPageSize())); // new pageable is given => records are deleted and we need the first page all time
 	}
 
 	@Override

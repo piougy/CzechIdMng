@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,8 +48,8 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		IdmIdentityRoleDto dto = new IdmIdentityRoleDto();
 		dto.setIdentityContractDto(getHelper().getPrimeContract(getHelper().createIdentity().getId()));
 		dto.setRole(getHelper().createRole().getId());
-		dto.setValidFrom(new LocalDate());
-		dto.setValidTill(new LocalDate().plusDays(1));
+		dto.setValidFrom(LocalDate.now());
+		dto.setValidTill(LocalDate.now().plusDays(1));
 		return dto;
 	}
 	

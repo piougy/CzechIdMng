@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -21,6 +19,7 @@ import javax.persistence.EntityManager;
 import org.hibernate.Session;
 import org.junit.Test;
 import org.mockito.AdditionalAnswers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -42,7 +41,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmProcessedTaskItemFil
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
-import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultIdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
@@ -64,15 +62,15 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 
 	@Test
 	public void testParentMocking() {
-		when(itemService.find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class)))
+		when(itemService.find(ArgumentMatchers.any(IdmProcessedTaskItemFilter.class), (Pageable) ArgumentMatchers.any()))
 			.thenReturn(new PageImpl<>(Lists.newArrayList()));
 		//
 		Optional<OperationResult> result = executor.processItem(getTestIdentityDto());
 		//
 		assertTrue(result.isPresent());
 		assertEquals(OperationState.NOT_EXECUTED, result.get().getState());
-		verify(executor, times(1)).processItem(any(IdmIdentityDto.class));
-		verify(itemService, times(1)).find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class));
+		verify(executor, times(1)).processItem(ArgumentMatchers.any(IdmIdentityDto.class));
+		verify(itemService, times(1)).find(ArgumentMatchers.any(IdmProcessedTaskItemFilter.class), (Pageable) ArgumentMatchers.any());
 	}
 	
 	@Test
@@ -85,7 +83,7 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		//
 		List<IdmProcessedTaskItemDto> items = Lists.newArrayList(new IdmProcessedTaskItemDto());
 		//
-		when(itemService.find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class)))
+		when(itemService.find(ArgumentMatchers.any(IdmProcessedTaskItemFilter.class), ArgumentMatchers.any(Pageable.class)))
 			.thenReturn(new PageImpl<>(items));
 		//
 		when(executor.getLongRunningTaskId()).thenReturn(randomId);
@@ -93,28 +91,26 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		boolean inProcessedQueue = executor.isInProcessedQueue(getTestIdentityDto());
 		assertTrue(inProcessedQueue);
 		//
-		when(itemService.find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class)))
+		when(itemService.find(ArgumentMatchers.any(IdmProcessedTaskItemFilter.class), ArgumentMatchers.any(Pageable.class)))
 			.thenReturn(new PageImpl<>(Lists.newArrayList()));
 		//
 		inProcessedQueue = executor.isInProcessedQueue(getTestIdentityDto());
 		assertFalse(inProcessedQueue);
 		//
-		verify(executor, times(2)).isInProcessedQueue(any(IdmIdentityDto.class));
+		verify(executor, times(2)).isInProcessedQueue(ArgumentMatchers.any(IdmIdentityDto.class));
 		verify(scheduledTaskService, times(1)).findByLongRunningTaskId(randomId);
-		verify(itemService, times(2)).find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class));
+		verify(itemService, times(2)).find(ArgumentMatchers.any(IdmProcessedTaskItemFilter.class), ArgumentMatchers.any(Pageable.class));
 	}
 	
 	@Test
 	public void testAddToProcessedQueue() {
 		IdmScheduledTaskDto scheduledTask = new IdmScheduledTaskDto();
 		scheduledTask.setId(UUID.randomUUID());
-		when(scheduledTaskService.findByLongRunningTaskId(any(UUID.class)))
+		when(scheduledTaskService.findByLongRunningTaskId(ArgumentMatchers.any()))
 			.thenReturn(scheduledTask);
-		when(scheduledTaskService.get(any(UUID.class)))
-			.thenReturn(scheduledTask);
-		when(itemService.saveInternal(any(IdmProcessedTaskItemDto.class)))
+		when(itemService.saveInternal(ArgumentMatchers.any()))
 			.then(AdditionalAnswers.returnsFirstArg());
-		when(itemService.createQueueItem(any(AbstractDto.class), any(OperationResult.class), any(UUID.class)))
+		when(itemService.createQueueItem(ArgumentMatchers.any(), ArgumentMatchers.any(), (UUID) ArgumentMatchers.any()))
 			.thenCallRealMethod();
 		//
 		IdmIdentityDto dto = getTestIdentityDto();
@@ -127,10 +123,10 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		assertEquals(dto.getId(), qItem.getReferencedEntityId());
 		assertNull(qItem.getLongRunningTask());
 		//
-		verify(itemService, times(1)).saveInternal(any(IdmProcessedTaskItemDto.class));
-		verify(executor, times(1)).addToProcessedQueue(any(IdmIdentityDto.class), any(OperationResult.class));
-		verify(scheduledTaskService, times(1)).findByLongRunningTaskId(any(UUID.class));
-		verify(itemService, times(1)).createQueueItem(any(AbstractDto.class), any(OperationResult.class), any(UUID.class));
+		verify(itemService, times(1)).saveInternal(ArgumentMatchers.any(IdmProcessedTaskItemDto.class));
+		verify(executor, times(1)).addToProcessedQueue(ArgumentMatchers.any(IdmIdentityDto.class), ArgumentMatchers.any(OperationResult.class));
+		verify(scheduledTaskService, times(1)).findByLongRunningTaskId(ArgumentMatchers.any());
+		verify(itemService, times(1)).createQueueItem(ArgumentMatchers.any(AbstractDto.class), ArgumentMatchers.any(OperationResult.class), ArgumentMatchers.any(UUID.class));
 	}
 	
 	@Test
@@ -138,11 +134,9 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		IdmLongRunningTaskDto lrt = new IdmLongRunningTaskDto();
 		lrt.setId(UUID.randomUUID());
 		executor.setLongRunningTaskId(lrt.getId());
-		when(itemService.saveInternal(any(IdmProcessedTaskItemDto.class)))
+		when(itemService.saveInternal(ArgumentMatchers.any(IdmProcessedTaskItemDto.class)))
 			.then(AdditionalAnswers.returnsFirstArg());
-		when(longRunningTaskService.get(any(UUID.class)))
-			.thenReturn(lrt);
-		when(itemService.createLogItem(any(AbstractDto.class), any(OperationResult.class), any(UUID.class)))
+		when(itemService.createLogItem(ArgumentMatchers.any(AbstractDto.class), ArgumentMatchers.any(OperationResult.class), ArgumentMatchers.any(UUID.class)))
 			.thenCallRealMethod();
 		//
 		IdmIdentityDto dto = getTestIdentityDto();
@@ -155,10 +149,10 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		assertEquals(dto.getId(), qItem.getReferencedEntityId());
 		assertNull(qItem.getScheduledTaskQueueOwner());
 		//
-		verify(itemService, times(1)).saveInternal(any(IdmProcessedTaskItemDto.class));
-		verify(executor, times(1)).logItemProcessed(any(IdmIdentityDto.class), any(OperationResult.class));
+		verify(itemService, times(1)).saveInternal(ArgumentMatchers.any(IdmProcessedTaskItemDto.class));
+		verify(executor, times(1)).logItemProcessed(ArgumentMatchers.any(IdmIdentityDto.class), ArgumentMatchers.any(OperationResult.class));
 		verify(executor, times(1)).getLongRunningTaskId();
-		verify(itemService, times(1)).createLogItem(any(AbstractDto.class), any(OperationResult.class), any(UUID.class));
+		verify(itemService, times(1)).createLogItem(ArgumentMatchers.any(AbstractDto.class), ArgumentMatchers.any(OperationResult.class), ArgumentMatchers.any(UUID.class));
 	}
 
 	private IdmIdentityDto getTestIdentityDto() {
@@ -179,28 +173,20 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		IdmIdentityDto dto3 = getTestIdentityDto();
 		// stubs
 		doReturn(Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build()))
-			.when(executor).processItem(any(IdmIdentityDto.class));
+			.when(executor).processItem(ArgumentMatchers.any());
 		doReturn(false)
-			.when(executor).isInProcessedQueue(any(IdmIdentityDto.class));
-		doNothing()
-			.when(itemService).deleteInternal(any(IdmProcessedTaskItemDto.class));
+			.when(executor).isInProcessedQueue(ArgumentMatchers.any());
 		doReturn(Lists.newArrayList(UUID.randomUUID(), UUID.randomUUID()))
 			.when(executor).getProcessedItemRefsFromQueue();
 		doReturn(scheduledTask.getId())
 			.when(executor).getScheduledTaskId();
 		// matchers
-		when(longRunningTaskService.get(any(UUID.class)))
+		when(longRunningTaskService.get(ArgumentMatchers.any()))
 			.thenReturn(lrt);
-		when(scheduledTaskService.get(any(UUID.class)))
-			.thenReturn(scheduledTask);
-		when(executor.getItemsToProcess(any(Pageable.class)))
-			.thenReturn(new PageImpl<>(Lists.newArrayList(dto1, dto2), new PageRequest(0, 2), 6))
-			.thenReturn(new PageImpl<>(Lists.newArrayList(dto3), new PageRequest(0, 2), 6))
+		when(executor.getItemsToProcess(ArgumentMatchers.any()))
+			.thenReturn(new PageImpl<>(Lists.newArrayList(dto1, dto2), PageRequest.of(0, 2), 6))
+			.thenReturn(new PageImpl<>(Lists.newArrayList(dto3), PageRequest.of(0, 2), 6))
 			.thenReturn(new PageImpl<>(Lists.newArrayList()));
-		when(itemService.saveInternal(any(IdmProcessedTaskItemDto.class)))
-			.then(AdditionalAnswers.returnsFirstArg());
-		when(itemService.find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class)))
-			.thenReturn(new PageImpl<>(Lists.newArrayList(new IdmProcessedTaskItemDto())));
 		when(entityManager.getDelegate()).thenReturn(hiberanteSession);
 		when(hiberanteSession.isOpen()).thenReturn(false);
 		//
@@ -209,26 +195,26 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		assertTrue(processingResult);
 		//
 		//
-		verify(longRunningTaskService, times(2)).get(any(UUID.class));
+		verify(longRunningTaskService, times(2)).get(ArgumentMatchers.any());
 		//
-		verify(executor, times(3)).getItemsToProcess(any(Pageable.class));
+		verify(executor, times(3)).getItemsToProcess(ArgumentMatchers.any());
 		verify(executor, times(1)).isInProcessedQueue(dto1);
 		verify(executor, times(1)).isInProcessedQueue(dto2);
 		verify(executor, times(1)).isInProcessedQueue(dto3);
 		verify(executor, times(1)).getProcessedItemRefsFromQueue();
-		verify(executor, times(2)).removeFromProcessedQueue(any(UUID.class));
-		verify(executor, times(3)).addToProcessedQueue(any(IdmIdentityDto.class), any(OperationResult.class));
-		verify(executor, times(3)).logItemProcessed(any(IdmIdentityDto.class), any(OperationResult.class));
+		verify(executor, times(2)).removeFromProcessedQueue((UUID) ArgumentMatchers.any());
+		verify(executor, times(3)).addToProcessedQueue(ArgumentMatchers.any(), ArgumentMatchers.any());
+		verify(executor, times(3)).logItemProcessed(ArgumentMatchers.any(), ArgumentMatchers.any());
 		// session
 		verify(entityManager, times(3)).getDelegate();
 		verify(hiberanteSession, times(3)).isOpen();
 		// 6x addToProcessQueue, 2x removeItemFromQueue
 		verify(executor, times(8)).getScheduledTaskId();
-		verify(executor, times(3)).processItem(any(IdmIdentityDto.class));
+		verify(executor, times(3)).processItem(ArgumentMatchers.any(IdmIdentityDto.class));
 		// 3x addToProcessQueue, 3x logItemProcessed
-		verify(itemService, times(2)).deleteItem(any(UUID.class), any(UUID.class));
-		verify(itemService, times(3)).createLogItem(any(AbstractDto.class), any(OperationResult.class), any(UUID.class));
-		verify(itemService, times(3)).createQueueItem(any(AbstractDto.class), any(OperationResult.class), any(UUID.class));	
+		verify(itemService, times(2)).deleteItem(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(UUID.class));
+		verify(itemService, times(3)).createLogItem(ArgumentMatchers.any(), ArgumentMatchers.any(), (UUID) ArgumentMatchers.any());
+		verify(itemService, times(3)).createQueueItem(ArgumentMatchers.any(), ArgumentMatchers.any(), (UUID) ArgumentMatchers.any());	
 	}
 	
 	@Test
@@ -242,16 +228,14 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		IdmIdentityDto dto2 = getTestIdentityDto();
 		// stubs
 		doReturn(true)
-			.when(executor).isInProcessedQueue(any(IdmIdentityDto.class));
+			.when(executor).isInProcessedQueue(ArgumentMatchers.any(IdmIdentityDto.class));
 		doReturn(Lists.newArrayList(dto1.getId(), dto2.getId()))
 			.when(executor).getProcessedItemRefsFromQueue();
-		doReturn(scheduledTask.getId())
-			.when(executor).getScheduledTaskId();
 
 		// matchers
-		when(longRunningTaskService.get(any(UUID.class)))
+		when(longRunningTaskService.get(ArgumentMatchers.any()))
 				.thenReturn(lrt);
-		when(executor.getItemsToProcess(any(Pageable.class)))
+		when(executor.getItemsToProcess((Pageable) ArgumentMatchers.any()))
 			.thenReturn(new PageImpl<>(Lists.newArrayList(dto1, dto2)))
 			.thenReturn(new PageImpl<>(Lists.newArrayList()));
 		when(entityManager.getDelegate()).thenReturn(hiberanteSession);
@@ -262,21 +246,21 @@ public class AbstractSchedulableStatefulExecutorUnitTest extends AbstractVerifia
 		assertTrue(processingResult);
 		//
 		//
-		verify(longRunningTaskService, times(2)).get(any(UUID.class));
+		verify(longRunningTaskService, times(2)).get(ArgumentMatchers.any());
 		//
-		verify(executor, times(1)).getItemsToProcess(any(Pageable.class));
+		verify(executor, times(1)).getItemsToProcess((Pageable) ArgumentMatchers.any());
 		verify(executor, times(1)).isInProcessedQueue(dto1);
 		verify(executor, times(1)).isInProcessedQueue(dto2);
 		verify(executor, times(1)).getProcessedItemRefsFromQueue();
 		verify(entityManager, times(2)).getDelegate();
 		verify(hiberanteSession, times(2)).isOpen();
 		verify(executor, never()).getScheduledTaskId();
-		verify(executor, never()).removeFromProcessedQueue(any(UUID.class));
-		verify(executor, never()).addToProcessedQueue(any(IdmIdentityDto.class), any(OperationResult.class));
-		verify(executor, never()).processItem(any(IdmIdentityDto.class));
-		verify(itemService, never()).saveInternal(any(IdmProcessedTaskItemDto.class));
-		verify(itemService, never()).deleteInternal(any(IdmProcessedTaskItemDto.class));
-		verify(itemService, never()).find(any(IdmProcessedTaskItemFilter.class), any(Pageable.class));
+		verify(executor, never()).removeFromProcessedQueue(ArgumentMatchers.any(UUID.class));
+		verify(executor, never()).addToProcessedQueue(ArgumentMatchers.any(IdmIdentityDto.class), ArgumentMatchers.any(OperationResult.class));
+		verify(executor, never()).processItem(ArgumentMatchers.any(IdmIdentityDto.class));
+		verify(itemService, never()).saveInternal(ArgumentMatchers.any(IdmProcessedTaskItemDto.class));
+		verify(itemService, never()).deleteInternal(ArgumentMatchers.any(IdmProcessedTaskItemDto.class));
+		verify(itemService, never()).find(ArgumentMatchers.any(IdmProcessedTaskItemFilter.class), ArgumentMatchers.any(Pageable.class));
 	}
 	
 	

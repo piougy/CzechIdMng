@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.acc.config;
 
-import javax.persistence.EntityManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +13,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysProvisioningAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemFormValueService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSysProvisioningAttributeService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSysSystemFormValueService;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
 
 /**
@@ -40,10 +37,8 @@ public class AccServiceConfiguration {
 	 * @return
 	 */
 	@Bean
-	public SysSystemFormValueService systemFormValueService(
-			AbstractFormValueRepository<SysSystem, SysSystemFormValue> repository, 
-			ConfidentialStorage confidentialStorage, EntityManager entityManager) {
-		return new DefaultSysSystemFormValueService(repository, confidentialStorage);
+	public SysSystemFormValueService systemFormValueService(AbstractFormValueRepository<SysSystem, SysSystemFormValue> repository) {
+		return new DefaultSysSystemFormValueService(repository);
 	}
 	
 	/**

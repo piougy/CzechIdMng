@@ -1,9 +1,10 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -47,7 +48,7 @@ public class ExceptionUtilsUnitTest extends AbstractVerifiableUnitTest {
 	public void testLogModelWithoutException() {
 		ExceptionUtils.log(LOG, new DefaultErrorModel(CoreResultCode.INTERNAL_SERVER_ERROR), null);
 		// error is logged without model is specified
-		verify(LOG).error(any(String.class), any(Exception.class));
+		verify(LOG).error(any(String.class), (Throwable) ArgumentMatchers.isNull());
 	}
 	
 	@Test

@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.acc.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -71,5 +71,5 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	 * @param pageable
 	 * @return
 	 */
-	Page<AccAccount> findByEndOfProtectionLessThanAndInProtectionIsTrue(@Param("endOfProtection") DateTime endOfProtection, Pageable pageable);
+	Page<AccAccount> findByEndOfProtectionLessThanAndInProtectionIsTrue(@Param("endOfProtection") ZonedDateTime endOfProtection, Pageable pageable);
 }

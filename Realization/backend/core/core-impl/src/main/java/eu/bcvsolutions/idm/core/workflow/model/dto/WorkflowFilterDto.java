@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.workflow.model.dto;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -33,8 +33,8 @@ public class WorkflowFilterDto extends QuickFilter {
 	private String name;
 	private String category;
 	private String candidateOrAssigned;
-	private DateTime createdBefore;
-	private DateTime createdAfter;
+	private ZonedDateTime createdBefore;
+	private ZonedDateTime createdAfter;
 
 	@Deprecated
 	public WorkflowFilterDto(int defaultPageSize) {
@@ -183,19 +183,19 @@ public class WorkflowFilterDto extends QuickFilter {
 		this.candidateOrAssigned = candidateOrAssigned;
 	}
 
-	public DateTime getCreatedBefore() {
+	public ZonedDateTime getCreatedBefore() {
 		return createdBefore;
 	}
 
-	public void setCreatedBefore(DateTime createdBefore) {
+	public void setCreatedBefore(ZonedDateTime createdBefore) {
 		this.createdBefore = createdBefore;
 	}
 
-	public DateTime getCreatedAfter() {
+	public ZonedDateTime getCreatedAfter() {
 		return createdAfter;
 	}
 
-	public void setCreatedAfter(DateTime createdAfter) {
+	public void setCreatedAfter(ZonedDateTime createdAfter) {
 		this.createdAfter = createdAfter;
 	}
 }

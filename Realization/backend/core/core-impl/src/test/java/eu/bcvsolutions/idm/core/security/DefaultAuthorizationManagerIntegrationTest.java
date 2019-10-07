@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Set;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -215,7 +215,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			// assign role
 			helper.createIdentityRole(identity, role);
 			IdmIdentityRoleDto assignedRole = helper.createIdentityRole(identity, role2);
-			assignedRole.setValidFrom(new LocalDate().plusDays(1));
+			assignedRole.setValidFrom(LocalDate.now().plusDays(1));
 			identityRoleService.save(assignedRole);
 			//
 			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getId(), IdmRole.class);
@@ -269,7 +269,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 			IdmIdentityContractDto contract = new IdmIdentityContractDto();
 			contract.setIdentity(identity.getId());
 			contract.setPosition("position-" + System.currentTimeMillis());
-			contract.setValidFrom(new LocalDate().plusDays(1));
+			contract.setValidFrom(LocalDate.now().plusDays(1));
 			contract = identityContractService.save(contract);
 			helper.createIdentityRole(contract, role2);
 			//

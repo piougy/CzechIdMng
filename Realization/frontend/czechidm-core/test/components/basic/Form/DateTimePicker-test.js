@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils'; import ShallowRenderer from 'react-test-renderer/shallow';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import ReactDOM from 'react-dom';
@@ -40,7 +40,7 @@ describe('DateTimePicker', function dateTimePickerTest() {
   });
 
   it('- DateTimePicker create two different dateTimePicker', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.DateTimePicker value="2000-11-11" readOnly/>);
     const dateTime1 = shallowRenderer.getRenderOutput();
 

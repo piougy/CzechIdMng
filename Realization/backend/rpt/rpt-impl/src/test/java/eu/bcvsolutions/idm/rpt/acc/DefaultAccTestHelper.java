@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -15,9 +17,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+import com.zaxxer.hikari.HikariDataSource;
+
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
@@ -29,10 +35,10 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
+import eu.bcvsolutions.idm.acc.scheduler.task.impl.SynchronizationSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -66,15 +72,33 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	@Autowired private SysRoleSystemService roleSystemService;
 	@Autowired private FormService formService;
 	@Autowired private DataSource dataSource;
-	@Autowired private SysSystemRepository systemRepository;
 	@Autowired private SysSystemEntityService systemEntityService;
 	@Autowired private AccAccountService accountService;
 	@Autowired private AccIdentityAccountService identityAccountService;
 	@Autowired private DefaultSysSystemMappingService mappingService;
+	@Autowired private ApplicationContext context;
 	
+	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public TestResource findResource(String uid) {
 		return entityManager.find(TestResource.class, uid);
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public TestResource saveResource(TestResource testResource) {
+		entityManager.persist(testResource);
+		//
+		return testResource;
+	}
+	
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void deleteAllResourceData() {
+		// Delete all
+		Query q = entityManager.createNativeQuery("DELETE FROM " + TestResource.TABLE_NAME);
+		q.executeUpdate();
 	}
 	
 	/**
@@ -111,7 +135,6 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	@SuppressWarnings("deprecation")
 	public SysSystemDto createSystem(String tableName, String systemName, String statusColumnName, String keyColumnName) {
 		// create owner
-		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
 		SysSystemDto system = new SysSystemDto();
 		system.setName(systemName == null ? tableName + "_" + System.currentTimeMillis() : systemName);
 
@@ -125,18 +148,18 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 
 		IdmFormValueDto jdbcUrlTemplate = new IdmFormValueDto(
 				savedFormDefinition.getMappedAttributeByCode("jdbcUrlTemplate"));
-		jdbcUrlTemplate.setValue(tomcatDataSource.getUrl());
+		jdbcUrlTemplate.setValue(((HikariDataSource) dataSource).getJdbcUrl());
 		values.add(jdbcUrlTemplate);
 		IdmFormValueDto jdbcDriver = new IdmFormValueDto(
 				savedFormDefinition.getMappedAttributeByCode("jdbcDriver"));
-		jdbcDriver.setValue(tomcatDataSource.getDriverClassName());
+		jdbcDriver.setValue(((HikariDataSource) dataSource).getDriverClassName());
 		values.add(jdbcDriver);
 
 		IdmFormValueDto user = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("user"));
-		user.setValue(tomcatDataSource.getUsername());
+		user.setValue(((HikariDataSource) dataSource).getUsername());
 		values.add(user);
 		IdmFormValueDto password = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("password"));
-		password.setValue(tomcatDataSource.getPoolProperties().getPassword());
+		password.setValue(((HikariDataSource) dataSource).getPassword());
 		values.add(password);
 		IdmFormValueDto table = new IdmFormValueDto(savedFormDefinition.getMappedAttributeByCode("table"));
 		table.setValue(tableName);
@@ -177,11 +200,8 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 				savedFormDefinition.getMappedAttributeByCode("changeLogColumn"));
 		changeLogColumnValue.setValue(null);
 		values.add(changeLogColumnValue);
-
-		// TODO: eav to dto
-		SysSystem systemEntity = systemRepository.findOne(system.getId());
 		
-		formService.saveValues(systemEntity, savedFormDefinition, values);
+		formService.saveValues(system, savedFormDefinition, values);
 
 		return system;
 	}
@@ -196,9 +216,15 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		// create test system
 		SysSystemDto system = createSystem(TestResource.TABLE_NAME, systemName);
 		//
-		if (!withMapping) {
-			return system;
-		}		
+		if (withMapping) {
+			createMapping(system);
+		}
+		//
+		return system;
+	}
+	
+	@Override
+	public SysSystemMappingDto createMapping(SysSystemDto system) {
 		//
 		// generate schema for system
 		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
@@ -230,7 +256,7 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 				attributeMapping.setEntityAttribute(true);
 				attributeMapping.setIdmPropertyName("disabled");
 				attributeMapping.setTransformToResourceScript("return String.valueOf(!attributeValue);");
-				attributeMapping.setTransformFromResourceScript("return !attributeValue;");
+				attributeMapping.setTransformFromResourceScript("return String.valueOf(attributeValue);");
 				attributeMapping.setName(schemaAttr.getName());
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setSystemMapping(systemMapping.getId());
@@ -240,6 +266,7 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 				attributeMapping.setIdmPropertyName("password");
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setName(schemaAttr.getName());
+				attributeMapping.setPasswordAttribute(true);
 				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
 			} else if (ATTRIBUTE_MAPPING_FIRSTNAME.equalsIgnoreCase(schemaAttr.getName())) {
@@ -264,13 +291,13 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);
 			}
-		}		
-		return system;
+		}
+		return systemMapping;
 	}
 	
 	@Override
 	public SysSystemMappingDto getDefaultMapping(SysSystemDto system) {
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required to get mapping.");
 		//
 		return getDefaultMapping(system.getId());
 	}
@@ -292,8 +319,9 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		roleSystem.setSystem(system.getId());
 		// default mapping
 		List<SysSystemMappingDto> mappings = systemMappingService.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
-		//
+		// required ...
 		roleSystem.setSystemMapping(mappings.get(0).getId());
+		//
 		return roleSystemService.save(roleSystem);
 	}
 	
@@ -311,6 +339,7 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		account.setSystem(system.getId());
 		account.setUid(identity.getUsername());
 		account.setAccountType(AccountType.PERSONAL);
+		account.setEntityType(SystemEntityType.IDENTITY);
 		account = accountService.save(account);
 
 		AccIdentityAccountDto accountIdentity = new AccIdentityAccountDto();
@@ -331,5 +360,14 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		mapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
 		//
 		return mappingService.save(mapping);
+	}
+
+	@Override
+	public void startSynchronization(AbstractSysSyncConfigDto config) {
+		Assert.notNull(config, "Sync config is required to be start.");
+		SynchronizationSchedulableTaskExecutor lrt = context.getAutowireCapableBeanFactory()
+		.createBean(SynchronizationSchedulableTaskExecutor.class);
+		lrt.init(ImmutableMap.of(SynchronizationService.PARAMETER_SYNCHRONIZATION_ID, config.getId().toString()));
+		lrt.process();
 	}
 }

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -119,7 +118,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 		try {
 			IdmIdentityDto identityAdmin = this.identityService.getByUsername(InitApplicationData.ADMIN_USERNAME);
 			//
-			Page<IdmTreeNodeDto> rootsList = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1));
+			IdmTreeTypeDto treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
+			Page<IdmTreeNodeDto> rootsList = treeNodeService.findRoots(treeType.getId(), PageRequest.of(0, 1));
 			IdmTreeNodeDto rootOrganization = null;
 			if (!rootsList.getContent().isEmpty()) {
 				rootOrganization = rootsList.getContent().get(0);
@@ -360,9 +360,6 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity3.setEmail("jan.novak@bcvsolutions.eu");
 				identity3 = this.identityService.save(identity3);
 				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
-				//
-				// get tree type for organization
-				IdmTreeTypeDto treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
 				//
 				IdmTreeNodeDto organization1 = new IdmTreeNodeDto();
 				organization1.setCode("one");

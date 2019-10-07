@@ -57,10 +57,10 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			IdmAuthorizationPolicyService service,
 			SecurityService securityService,
 			ModuleService moduleService) {
-		Assert.notNull(service);
-		Assert.notNull(context);
-		Assert.notNull(securityService);
-		Assert.notNull(moduleService);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(context, "Context is required.");
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(moduleService, "Service is required.");
 		//
 		this.service = service;
 		this.context = context;
@@ -70,7 +70,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	
 	@Override
 	public <E extends Identifiable> Predicate getPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder, BasePermission... permission) {
-		Assert.notNull(permission);
+		Assert.notNull(permission, "Permission is required");
 		//
 		// check super admin
 		if(securityService.isAdmin()) {
@@ -101,7 +101,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 
 	@Override
 	public <E extends Identifiable> Set<String> getPermissions(E entity) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		//
 		final Set<String> permissions = new HashSet<>();
 		service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass()).forEach(policy -> {
@@ -116,7 +116,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	
 	@Override
 	public <E extends Identifiable> Set<String> getPermissions(E entity, AuthorizationPolicy policy) {
-		Assert.notNull(policy);
+		Assert.notNull(policy, "Policy is required.");
 		//
 		final Set<String> permissions = new HashSet<>();
 		AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
@@ -139,7 +139,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	
 	@Override
 	public <E extends Identifiable> Set<String> getAuthorities(UUID identityId, Class<E> authorizableType) {
-		Assert.notNull(authorizableType);
+		Assert.notNull(authorizableType, "Authorizable type is required.");
 		//
 		final Set<String> authorities = new HashSet<>();
 		service.getEnabledPolicies(identityId, authorizableType).forEach(policy -> {
@@ -154,7 +154,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	
 	@Override
 	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
-		Assert.notNull(policy);
+		Assert.notNull(policy, "Policy is required.");
 		//
 		final Set<String> authorities = new HashSet<>();
 		AuthorizationEvaluator<?> evaluator = getEvaluator(policy);
@@ -178,8 +178,8 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	
 	@Override
 	public <E extends Identifiable> boolean evaluate(E entity, BasePermission... permission) {
-		Assert.notNull(entity);
-		Assert.notNull(permission);
+		Assert.notNull(entity, "Entity is required.");
+		Assert.notNull(permission, "Permission is required");
 		//
 		// check super admin
 		if(securityService.isAdmin()) {

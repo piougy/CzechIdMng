@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import javax.validation.constraints.NotNull;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 

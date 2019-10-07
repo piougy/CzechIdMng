@@ -34,7 +34,7 @@ public class SelfRoleRequestEvaluator extends AbstractAuthorizationEvaluator<Idm
 	
 	@Autowired
 	public SelfRoleRequestEvaluator(SecurityService securityService) {
-		Assert.notNull(securityService);
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.securityService = securityService;
 	}

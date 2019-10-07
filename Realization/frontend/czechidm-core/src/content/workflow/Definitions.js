@@ -119,4 +119,4 @@ function select() {
   return {};
 }
 
-export default connect(select, null, null, { withRef: true})(Definitions);
+export default connect(select, null, null, { forwardRef: true})(Definitions);

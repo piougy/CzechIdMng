@@ -63,7 +63,7 @@ public class DefaultFilterManager implements FilterManager {
 	public DefaultFilterManager(
 			ApplicationContext context,
 			List<? extends FilterBuilder<?, ?>> builders) {
-		Assert.notNull(context);
+		Assert.notNull(context, "Spring context is required.");
 		Assert.notNull(builders, "Filter builders are required");
 		//
 		this.context = context;

@@ -32,8 +32,8 @@ public class RoleRequestByWfInvolvedIdentityEvaluator extends AbstractAuthorizat
 	public RoleRequestByWfInvolvedIdentityEvaluator(
 			SecurityService securityService,
 			WorkflowProcessInstanceService processService) {
-		Assert.notNull(securityService);
-		Assert.notNull(processService);
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(processService, "Service is required.");
 		//
 		this.securityService = securityService;
 		this.processService = processService;

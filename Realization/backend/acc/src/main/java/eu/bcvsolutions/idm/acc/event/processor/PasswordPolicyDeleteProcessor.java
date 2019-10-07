@@ -31,8 +31,8 @@ public class PasswordPolicyDeleteProcessor extends CoreEventProcessor<IdmPasswor
 			IdmPasswordPolicyRepository passwordPolicyRepository) {
 		super(PasswordPolicyEvenType.DELETE);
 		//
-		Assert.notNull(systemRepository);
-		Assert.notNull(passwordPolicyRepository);
+		Assert.notNull(systemRepository, "Repository is required.");
+		Assert.notNull(passwordPolicyRepository, "Repository is required.");
 		//
 		this.systemRepository = systemRepository;
 		this.passwordPolicyRepository = passwordPolicyRepository;
@@ -45,7 +45,7 @@ public class PasswordPolicyDeleteProcessor extends CoreEventProcessor<IdmPasswor
 		// remove references to password policy 
 		// this information it will not be saved in audit
 		// TODO: remove repository after refactor system to DTO
-		systemRepository.clearPasswordPolicy(passwordPolicyRepository.findOne(dto.getId()));
+		systemRepository.clearPasswordPolicy(passwordPolicyRepository.findById(dto.getId()).get());
 		//
 		return new DefaultEventResult<>(event, this);
 	}

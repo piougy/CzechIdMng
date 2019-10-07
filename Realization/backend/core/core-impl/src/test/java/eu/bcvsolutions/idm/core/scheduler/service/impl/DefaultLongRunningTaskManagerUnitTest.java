@@ -5,8 +5,6 @@ import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.Executor;
 
-import javax.xml.ws.Holder;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,7 +53,7 @@ public class DefaultLongRunningTaskManagerUnitTest extends AbstractUnitTest {
 		IdmLongRunningTaskDto mockTask = new IdmLongRunningTaskDto();
 		mockTask.setInstanceId("instanceId");
 		mockTask.setResult(new OperationResult(OperationState.RUNNING));
-		Holder<IdmLongRunningTaskDto> holder = new Holder<>(mockTask);
+		Holder holder = new Holder(mockTask);
 		Mockito.when(service.save(Mockito.any())).thenAnswer(new Answer<IdmLongRunningTaskDto>() {
 		    @Override
 		    public IdmLongRunningTaskDto answer(InvocationOnMock invocation) throws Throwable {
@@ -73,5 +71,14 @@ public class DefaultLongRunningTaskManagerUnitTest extends AbstractUnitTest {
 		ArgumentCaptor<IdmLongRunningTaskDto> argument = ArgumentCaptor.forClass(IdmLongRunningTaskDto.class);
 		verify(service, times(1)).save(argument.capture());
 		Assert.assertEquals(OperationState.RUNNING, argument.getValue().getResultState());		
+	}
+	
+	private static class Holder {
+		
+		IdmLongRunningTaskDto value;
+		
+		public Holder(IdmLongRunningTaskDto value) {
+			this.value = value;
+		}
 	}
 }

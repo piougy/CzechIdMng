@@ -301,4 +301,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(EntityStateTable);
+export default connect(select, null, null, { forwardRef: true })(EntityStateTable);

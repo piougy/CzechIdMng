@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import java.text.MessageFormat;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +30,7 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 	
 	@Autowired
 	public DefaultConsoleNotificationSender(IdmConsoleLogService consoleService) {
-		Assert.notNull(consoleService);
+		Assert.notNull(consoleService, "Service is required.");
 		//
 		this.consoleService = consoleService;
 	}
@@ -77,11 +77,11 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 	 * @return
 	 */
 	private IdmConsoleLogDto createLogForSend(IdmNotificationDto notification, boolean showGuardedString) {
-		Assert.notNull(notification);
-		Assert.notNull(notification.getMessage());
+		Assert.notNull(notification, "Notification is required.");
+		Assert.notNull(notification.getMessage(), "Message is required.");
 		//
 		IdmConsoleLogDto notificationLog = new IdmConsoleLogDto();
-		notificationLog.setSent(new DateTime());
+		notificationLog.setSent(ZonedDateTime.now());
 		notificationLog.setParent(notification.getId());
 		// clone message
 		notificationLog.setMessage(getMessage(notification, showGuardedString));

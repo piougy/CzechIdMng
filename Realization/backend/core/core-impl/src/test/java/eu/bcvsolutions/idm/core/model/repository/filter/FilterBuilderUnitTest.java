@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -70,7 +70,7 @@ public class FilterBuilderUnitTest extends AbstractUnitTest {
 		}
 
 		@Override
-		public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+		public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder,
 				IdmIdentityFilter filter) {
 			return null;
 		}
@@ -90,7 +90,7 @@ public class FilterBuilderUnitTest extends AbstractUnitTest {
 		}
 
 		@Override
-		public Predicate getPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+		public Predicate getPredicate(Root<IdmRole> root, AbstractQuery<?> query, CriteriaBuilder builder,
 				IdmRoleFilter filter) {
 			return null;
 		}
@@ -110,7 +110,7 @@ public class FilterBuilderUnitTest extends AbstractUnitTest {
 		}
 
 		@Override
-		public Predicate getPredicate(Root<AbstractEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder,
+		public Predicate getPredicate(Root<AbstractEntity> root, AbstractQuery<?> query, CriteriaBuilder builder,
 				DataFilter filter) {
 			return null;
 		}

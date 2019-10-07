@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +15,6 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +23,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
@@ -138,8 +140,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		provisioningOperationService.delete(operationOne);
 		//
-		Assert.assertNull(provisioningAttributeRepository.findOne(attributeOne.getId()));
-		Assert.assertNotNull(provisioningAttributeRepository.findOne(attributeTwo.getId()));
+		Assert.assertFalse(provisioningAttributeRepository.existsById(attributeOne.getId()));
+		Assert.assertTrue(provisioningAttributeRepository.existsById(attributeTwo.getId()));
 	}
 	
 	@Test
@@ -455,7 +457,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, "firstname");
 			Map<ProvisioningAttributeDto, Object> accoutObject = provisioningOperation.getProvisioningContext().getAccountObject();
 			String uid = (String) accoutObject.get(getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME));
-			DateTime now = new DateTime();
+			ZonedDateTime now = ZonedDateTime.now();
 			//
 			// publish event
 			provisioningExecutor.execute(provisioningOperation); // 1 - create
@@ -477,14 +479,14 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			List<SysProvisioningArchiveDto> archived = provisioningArchiveService
 					.find(
 						filter, 
-						new PageRequest(0, 10, new Sort(Direction.DESC, SysProvisioningArchive_.created.getName()))
+						PageRequest.of(0, 10, new Sort(Direction.DESC, SysProvisioningArchive_.created.getName()))
 					)
 					.getContent();
 			Assert.assertEquals(1, archived.size());
 			Assert.assertEquals(OperationState.EXCEPTION, archived.get(0).getResultState());
 			Assert.assertEquals(AccResultCode.PROVISIONING_FAILED.name(), archived.get(0).getResult().getModel().getStatusEnum());
 			//
-			batch.setNextAttempt(new DateTime());
+			batch.setNextAttempt(ZonedDateTime.now());
 			provisioningBatchService.save(batch);
 			//
 			// retry - the same exception expected
@@ -499,14 +501,14 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			archived = provisioningArchiveService
 					.find(
 						filter, 
-						new PageRequest(0, 10, new Sort(Direction.DESC, SysProvisioningArchive_.created.getName()))
+						PageRequest.of(0, 10, new Sort(Direction.DESC, SysProvisioningArchive_.created.getName()))
 					)
 					.getContent();
 			Assert.assertEquals(2, archived.size());
 			Assert.assertEquals(OperationState.EXCEPTION, archived.get(0).getResultState());
 			Assert.assertEquals(AccResultCode.PROVISIONING_FAILED.name(), archived.get(0).getResult().getModel().getStatusEnum());
 			//
-			batch.setNextAttempt(new DateTime());
+			batch.setNextAttempt(ZonedDateTime.now());
 			provisioningBatchService.save(batch);
 			//
 			// retry - expected success now
@@ -522,7 +524,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			archived = provisioningArchiveService
 					.find(
 						filter, 
-						new PageRequest(0, 10, new Sort(Direction.DESC, SysProvisioningArchive_.created.getName()))
+						PageRequest.of(0, 10, new Sort(Direction.DESC, SysProvisioningArchive_.created.getName()))
 					)
 					.getContent();
 			Assert.assertEquals(3, archived.size());
@@ -546,7 +548,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, "firstname");
 		Map<ProvisioningAttributeDto, Object> accoutObject = provisioningOperation.getProvisioningContext().getAccountObject();
 		String uid = (String) accoutObject.get(getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME));
-		DateTime now = new DateTime();
+		ZonedDateTime now = ZonedDateTime.now();
 		//
 		// publish event
 		// publish event
@@ -566,7 +568,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Assert.assertTrue(systemEntity.isWish());
 		Assert.assertNull(helper.findResource(uid));
 		//
-		batch.setNextAttempt(new DateTime());
+		batch.setNextAttempt(ZonedDateTime.now());
 		provisioningBatchService.save(batch);
 		//
 		// retry - the same exception expected
@@ -579,12 +581,11 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Assert.assertNotNull(batch.getNextAttempt());
 		Assert.assertTrue(batch.getNextAttempt().isAfter(now));
 		//
-		batch.setNextAttempt(new DateTime());
+		batch.setNextAttempt(ZonedDateTime.now());
 		provisioningBatchService.save(batch);
 		//
 		// retry - expected success now - set the good password
-		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
-		password.setValue(tomcatDataSource.getPoolProperties().getPassword());
+		password.setValue(((HikariDataSource) dataSource).getPassword());
 		formService.saveValues(system, savedFormDefinition, values);
 		//
 		retryProvisioningTaskExecutor = new RetryProvisioningTaskExecutor();
@@ -759,8 +760,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Assert.assertEquals(1, provisioningOperationService.find(filter,  null).getTotalElements());
 		//
 		provisioningOperationService.deleteOperations(systemOne.getId());
-		Assert.assertNull(provisioningAttributeRepository.findOne(attributeOne.getId()));
-		Assert.assertNotNull(provisioningAttributeRepository.findOne(attributeTwo.getId()));
+		Assert.assertNull(provisioningAttributeRepository.findById(attributeOne.getId()).orElse(null));
+		Assert.assertNotNull(provisioningAttributeRepository.findById(attributeTwo.getId()).get());
 		//
 		filter.setSystemId(systemOne.getId());
 		Assert.assertEquals(0, provisioningOperationService.find(filter,  null).getTotalElements());

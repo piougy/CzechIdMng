@@ -5,8 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -46,7 +46,7 @@ public class TestContractSliceResource {
 	@Column(name = "WORKPOSITION", length = DefaultFieldLengths.NAME)
 	private String workposition;
 	@Column(name = "MODIFIED")
-	private DateTime modified;
+	private ZonedDateTime modified;
 	@Column(name = "VALIDFROM_SLICE")
 	private LocalDate validFromSlice;
 	@Column(name = "CONTRACT_CODE", length = DefaultFieldLengths.NAME)
@@ -132,11 +132,11 @@ public class TestContractSliceResource {
 		this.owner = owner;
 	}
 
-	public DateTime getModified() {
+	public ZonedDateTime getModified() {
 		return modified;
 	}
 
-	public void setModified(DateTime modified) {
+	public void setModified(ZonedDateTime modified) {
 		this.modified = modified;
 	}
 

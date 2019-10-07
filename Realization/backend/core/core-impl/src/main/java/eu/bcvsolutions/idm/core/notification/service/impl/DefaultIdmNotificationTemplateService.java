@@ -26,7 +26,7 @@ import org.apache.velocity.tools.generic.DateTool;
 import org.apache.velocity.tools.generic.DisplayTool;
 import org.dom4j.CDATA;
 import org.dom4j.DocumentHelper;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
@@ -326,7 +326,7 @@ public class DefaultIdmNotificationTemplateService extends
 
 	@Override
 	public List<IdmNotificationLogDto> prepareNotifications(String topic, IdmMessageDto message) {
-		Assert.notNull(message);
+		Assert.notNull(message, "Message is required.");
 		List<IdmNotificationLogDto> notifications = new ArrayList<>();
 		//
 		// find all configuration by topic and level
@@ -510,9 +510,9 @@ public class DefaultIdmNotificationTemplateService extends
 		// apend template default backup folder
 		backupPath = backupPath + "/" + TEMPLATE_DEFAULT_BACKUP_FOLDER;
 		// add date folder
-		DateTime date = new DateTime();
+		ZonedDateTime date = ZonedDateTime.now();
 		DecimalFormat decimalFormat = new DecimalFormat("00");
-		return backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
+		return backupPath + date.getYear() + decimalFormat.format(date.getMonthValue())
 				+ decimalFormat.format(date.getDayOfMonth()) + "/";
 	}
 

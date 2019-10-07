@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import org.apache.camel.ProducerTemplate;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +32,8 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 	@Autowired
 	public DefaultNotificationManager(IdmNotificationLogService notificationLogService,
 			ProducerTemplate producerTemplate) {
-		Assert.notNull(notificationLogService);
-		Assert.notNull(producerTemplate);
+		Assert.notNull(notificationLogService, "Service is required.");
+		Assert.notNull(producerTemplate, "Producer template is required.");
 		//
 		this.notificationLogService = notificationLogService;
 		this.producerTemplate = producerTemplate;
@@ -79,12 +79,12 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 	 * @return
 	 */
 	private IdmNotificationLogDto createLog(IdmNotificationDto notification) {
-		Assert.notNull(notification);
-		Assert.notNull(notification.getMessage());
+		Assert.notNull(notification, "Notification is required.");
+		Assert.notNull(notification.getMessage(), "Message is required.");
 		// we can only create log, if notification is instance of
 		// IdmNotificationLog
 		if (notification instanceof IdmNotificationLogDto) {
-			notification.setSent(new DateTime());
+			notification.setSent(ZonedDateTime.now());
 			IdmNotificationLogDto notificationLog = notificationLogService.save((IdmNotificationLogDto) notification);
 			notificationLog.setType(notification.getType()); // set previous type - is needed for choose correct notification sender
 			// TODO: remove after attachment will be persisted
@@ -94,7 +94,7 @@ public class DefaultNotificationManager extends AbstractNotificationSender<IdmNo
 		// we need to clone notification
 		IdmNotificationLogDto notificationLog = new IdmNotificationLogDto();
 		notificationLog.setType(notification.getType());
-		notificationLog.setSent(new DateTime());
+		notificationLog.setSent(ZonedDateTime.now());
 		// clone message
 		notificationLog.setMessage(cloneMessage(notification));
 		// clone recipients

@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils'; import ShallowRenderer from 'react-test-renderer/shallow';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
@@ -30,7 +30,7 @@ describe('Basic Alert', function alertComponent() {
   });
 
   it('- with onClose defined, close button is visible', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.Alert title="Title" onClose={()=>{}}/>);
     const alert = shallowRenderer.getRenderOutput();
     const onClose = alert.props.children.find(c => c.ref === 'close');
@@ -38,7 +38,7 @@ describe('Basic Alert', function alertComponent() {
   });
 
   it('- without onClose defined, close button is invisible', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.Alert title="Title" />);
     const alert = shallowRenderer.getRenderOutput();
     const onClose = alert.props.children.find(c => c.ref === 'close');
@@ -58,7 +58,7 @@ describe('Basic Alert', function alertComponent() {
 
   it('- onClose fire - shallow', function test() {
     this.result = null;
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.Alert title="Title" onClose={() => { this.result = 'test'; }}/>);
     const alert = shallowRenderer.getRenderOutput();
     const onClose = alert.props.children.find(c => c.ref === 'close');

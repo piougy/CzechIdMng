@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
@@ -37,8 +36,7 @@ public class IdmRoleDto extends FormableDto implements Disableable, Codeable, Ex
     @ApiModelProperty(notes = "Environment.")
     @Size(max = DefaultFieldLengths.NAME)
     private String environment;
-    @NotEmpty
-    @Size(min = 1, max = DefaultFieldLengths.NAME)
+    @Size(max = DefaultFieldLengths.NAME)
     private String name;
     @Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")

@@ -1,10 +1,9 @@
 package eu.bcvsolutions.idm.test.api;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.UUID;
 import java.util.function.Function;
-
-import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
@@ -64,7 +63,7 @@ public interface TestHelper {
 	String ADMIN_PASSWORD = "admin";
 	String ADMIN_ROLE = "superAdminRole";
 	String DEFAULT_PASSWORD = "password";
-	String HAL_CONTENT_TYPE = "application/hal+json";
+	String HAL_CONTENT_TYPE = "application/hal+json;charset=UTF-8";
 	
 	/**
 	 * Login as test admin
@@ -777,14 +776,15 @@ public interface TestHelper {
 	void disableProcessor(String processorId);
 	
 	/**
-	 * Enables given filter
+	 * Enables given filter (filter will be used ~ will be effective and enabled).
 	 *
 	 * @param processorType
 	 */
 	void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType);
 
 	/**
-	 * Disables given filter
+	 * Disables given filter.
+	 * Lookout: disable filter by configuration.
 	 *
 	 * @param processorType
 	 */

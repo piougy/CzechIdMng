@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,7 +104,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		IdmTreeTypeDto treeType = createAndSaveTreeType();
 		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
-		LocalDate validFrom = new LocalDate();
+		LocalDate validFrom = LocalDate.now();
 		// set minus days
 		validFrom = validFrom.minusDays(5);
 		// provisioning is not executed
@@ -125,7 +125,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		IdmTreeTypeDto treeType = createAndSaveTreeType();
 		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
-		LocalDate validFrom = new LocalDate();
+		LocalDate validFrom = LocalDate.now();
 		// set plus days
 		validFrom = validFrom.plusDays(5);
 		// provisioning is not executed
@@ -146,7 +146,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		IdmTreeTypeDto treeType = createAndSaveTreeType();
 		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		IdmIdentityContractDto identityContract = createAndSaveIdentityContract(identity, treeNode);
-		LocalDate validFrom = new LocalDate();
+		LocalDate validFrom = LocalDate.now();
 		// set plus days
 		validFrom = validFrom.plusDays(5);
 		// provisioning is not executed, role isn't valid from now
@@ -174,7 +174,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		assertEquals(1, roles.size());
 		IdmIdentityRole identityRole = roles.get(0);
 		
-		validFrom = new LocalDate();
+		validFrom = LocalDate.now();
 		validFrom = validFrom.minusDays(5);
 		identityRole.setValidFrom(validFrom);
 		identityRoleRepository.save(identityRole);
@@ -203,7 +203,7 @@ public class IdentityRoleValidRequestSchedulerTest extends AbstractIntegrationTe
 		IdmTreeTypeDto treeType = createAndSaveTreeType();
 		IdmTreeNodeDto treeNode = createAndSaveTreeNode(treeType);
 		
-		LocalDate validFrom = new LocalDate();
+		LocalDate validFrom = LocalDate.now();
 		// set plus days
 		validFrom = validFrom.plusDays(5);
 		

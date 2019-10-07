@@ -88,17 +88,20 @@ public interface IdmProcessedTaskItemService extends
 	 * @deprecated @since 9.3.0 use {@link #createLogItem(AbstractDto, OperationResult, UUID)}
 	 */
 	@Deprecated
-	<DTO extends AbstractDto> IdmProcessedTaskItemDto createLogItem(DTO processedItem, OperationResult result, IdmLongRunningTaskDto lrt);
+	<DTO extends AbstractDto> IdmProcessedTaskItemDto createLogItem(
+			DTO processedItem, 
+			OperationResult result, 
+			IdmLongRunningTaskDto longRunningTask);
 	
 	/**
 	 * Persist processed item in new transaction
 	 * 
 	 * @param processedItem
 	 * @param result
-	 * @param lrtId
+	 * @param longRunningTaskId
 	 * @return
 	 */
-	<DTO extends AbstractDto> IdmProcessedTaskItemDto createLogItem(DTO processedItem, OperationResult result, UUID lrtId);
+	<DTO extends AbstractDto> IdmProcessedTaskItemDto createLogItem(DTO processedItem, OperationResult result, UUID longRunningTaskId);
 	
 	/**
 	 * Persist item into queue

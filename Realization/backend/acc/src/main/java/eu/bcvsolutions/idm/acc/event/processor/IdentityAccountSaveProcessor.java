@@ -38,8 +38,8 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 	public IdentityAccountSaveProcessor(AccIdentityAccountService service, AccAccountService accountService) {
 		super(IdentityAccountEventType.CREATE, IdentityAccountEventType.UPDATE);
 		//
-		Assert.notNull(service);
-		Assert.notNull(accountService);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(accountService, "Service is required.");
 		//
 		this.service = service;
 		this.accountService = accountService;

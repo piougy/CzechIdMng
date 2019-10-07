@@ -53,10 +53,10 @@ public class FormInstanceValidateProcessor
 	@Override
 	public EventResult<IdmFormInstanceDto> process(EntityEvent<IdmFormInstanceDto> event) {
 		IdmFormInstanceDto formInstance = event.getContent();
-		Assert.notNull(formInstance.getFormDefinition());
+		Assert.notNull(formInstance.getFormDefinition(), "Form definition is required for form instance validation.");
 		//
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(formInstance.getFormDefinition().getId());
-		Assert.notNull(formDefinition);
+		Assert.notNull(formDefinition, "Form definition is required for form instance validation.");
 		//
 		// get distinct attributes from the sent values
 		// PATCH is used - only sent attributes are validated

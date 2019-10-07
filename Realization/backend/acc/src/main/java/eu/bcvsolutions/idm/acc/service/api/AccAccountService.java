@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -62,7 +62,7 @@ public interface AccAccountService extends//
 	 * @param pageable
 	 * @return
 	 */
-	Page<AccAccountDto> findExpired(DateTime expirationDate, Pageable pageable);
+	Page<AccAccountDto> findExpired(ZonedDateTime expirationDate, Pageable pageable);
 
 	/**
 	 * Load object from the connector

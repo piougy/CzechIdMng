@@ -2,10 +2,10 @@ package eu.bcvsolutions.idm.core.eav.repository;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -181,7 +181,7 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 			+ " (e.formAttribute.id = :formAttributeId)"
 			+ "	and"
 			+ " (e.dateValue = :persistentValue)")
-	Page<O> findOwnersByDateValue(@Param("formAttributeId") UUID attributeId, @Param("persistentValue") DateTime persistentValue, Pageable pageable);
+	Page<O> findOwnersByDateValue(@Param("formAttributeId") UUID attributeId, @Param("persistentValue") ZonedDateTime persistentValue, Pageable pageable);
 	
 	/**
 	 * Finds owners by given attribute and value

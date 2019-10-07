@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
+import java.time.Instant;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -761,7 +763,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	
 	@Test
 	public void testAutomaticRoleDateEav() {
-		DateTime testValue = new DateTime(1514764800);
+		ZonedDateTime testValue = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1514764800), ZoneId.systemDefault());
 		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		IdmFormAttributeDto createEavAttribute = getHelper().createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.DATE);
@@ -783,7 +785,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	
 	@Test
 	public void testAutomaticRoleDateTimeEav() {
-		DateTime testValue = new DateTime(System.currentTimeMillis());
+		ZonedDateTime testValue = ZonedDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.systemDefault());
 		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		IdmFormAttributeDto createEavAttribute = getHelper().createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.DATETIME);
@@ -1196,8 +1198,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity.getId());
-		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity, null, null, new LocalDate().plusDays(2));
-		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity, null, new LocalDate().minusDays(5), new LocalDate().plusDays(5));
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity, null, null, LocalDate.now().plusDays(2));
+		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity, null, LocalDate.now().minusDays(5), LocalDate.now().plusDays(5));
 		
 		IdmIdentityContractDto primeContractCheck = getHelper().getPrimeContract(identity.getId());
 		assertEquals(primeContract.getId(), primeContractCheck.getId());
@@ -1260,8 +1262,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity.getId());
-		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity, null, null, new LocalDate().plusDays(2));
-		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity, null, new LocalDate().minusDays(2), new LocalDate().plusDays(2));
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity, null, null, LocalDate.now().plusDays(2));
+		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity, null, LocalDate.now().minusDays(2), LocalDate.now().plusDays(2));
 		
 		IdmIdentityContractDto primeContractCheck = getHelper().getPrimeContract(identity.getId());
 		assertEquals(primeContract.getId(), primeContractCheck.getId());
@@ -1484,7 +1486,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, identityRoles.size());
 		//
-		IdmIdentityContractDto expiredContract = getHelper().createIdentityContact(identity, null, new LocalDate().minusDays(10), new LocalDate().minusDays(5));
+		IdmIdentityContractDto expiredContract = getHelper().createIdentityContact(identity, null, LocalDate.now().minusDays(10), LocalDate.now().minusDays(5));
 		// we must save identity, automatic role will be recalculate after identity save
 		identity = identityService.save(identity);
 		//
@@ -1494,7 +1496,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityRoles = identityRoleService.findAllByContract(expiredContract.getId());
 		assertEquals(0, identityRoles.size());
 		//
-		expiredContract.setValidTill(new LocalDate().plusDays(100));
+		expiredContract.setValidTill(LocalDate.now().plusDays(100));
 		expiredContract = identityContractService.save(expiredContract);
 		// we must save identity, automatic role will be recalculate after identity save
 		identity = identityService.save(identity);
@@ -1505,7 +1507,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(2, identityRoles.size());
 		//
-		expiredContract.setValidTill(new LocalDate().minusDays(2));
+		expiredContract.setValidTill(LocalDate.now().minusDays(2));
 		expiredContract = identityContractService.save(expiredContract);
 		// we must save identity, automatic role will be recalculate after identity save
 		identity = identityService.save(identity);
@@ -1538,7 +1540,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, identityRoles.size());
 		//
-		IdmIdentityContractDto futureValidContract = getHelper().createIdentityContact(identity, null, new LocalDate().plusDays(10), new LocalDate().plusDays(50));
+		IdmIdentityContractDto futureValidContract = getHelper().createIdentityContact(identity, null, LocalDate.now().plusDays(10), LocalDate.now().plusDays(50));
 		// we must save identity, automatic role will be recalculate after identity save
 		identity = identityService.save(identity);
 		//
@@ -1556,11 +1558,11 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(0, identityRoles.size());
 		//
-		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity, null, new LocalDate().minusMonths(5), new LocalDate().plusMonths(5));
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identity, null, LocalDate.now().minusMonths(5), LocalDate.now().plusMonths(5));
 		contract2.setState(ContractState.DISABLED);
 		contract2 = identityContractService.save(contract2);
 		//
-		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity, null, null, new LocalDate().plusMonths(5));
+		IdmIdentityContractDto contract3 = getHelper().createIdentityContact(identity, null, null, LocalDate.now().plusMonths(5));
 		contract3.setState(ContractState.DISABLED);
 		contract3 = identityContractService.save(contract3);
 		//
@@ -1568,7 +1570,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		contract4.setState(ContractState.DISABLED);
 		contract4 = identityContractService.save(contract4);
 		//
-		IdmIdentityContractDto contract5 = getHelper().createIdentityContact(identity, null, new LocalDate().minusMonths(5), null);
+		IdmIdentityContractDto contract5 = getHelper().createIdentityContact(identity, null, LocalDate.now().minusMonths(5), null);
 		contract5.setState(ContractState.DISABLED);
 		contract5 = identityContractService.save(contract5);
 		//

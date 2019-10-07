@@ -46,8 +46,6 @@ public class DefaultIdmLoggingEventService
 	public DefaultIdmLoggingEventService(IdmLoggingEventRepository repository) {
 		super(repository);
 		//
-		Assert.notNull(repository);
-		//
 		this.repository = repository;
 	}
 
@@ -103,11 +101,11 @@ public class DefaultIdmLoggingEventService
 		}
 		//
 		if (filter.getFrom() != null) {
-			predicates.add(builder.ge(root.get(IdmLoggingEvent_.timestmp), filter.getFrom().getMillis()));
+			predicates.add(builder.ge(root.get(IdmLoggingEvent_.timestmp), filter.getFrom().toInstant().toEpochMilli()));
 		}
 		//
 		if (filter.getTill() != null) {
-			predicates.add(builder.le(root.get(IdmLoggingEvent_.timestmp), filter.getTill().getMillis()));
+			predicates.add(builder.le(root.get(IdmLoggingEvent_.timestmp), filter.getTill().toInstant().toEpochMilli()));
 		}
 		return predicates;
 	}
@@ -132,7 +130,7 @@ public class DefaultIdmLoggingEventService
 	
 	@Override
 	protected IdmLoggingEvent getEntity(Serializable id, BasePermission... permission) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is requiered for load an log event.");
 		IdmLoggingEventFilter filter = new IdmLoggingEventFilter();
 		filter.setId(Long.valueOf(id.toString()));
 		List<IdmLoggingEventDto> entities = this.find(filter, null, permission).getContent();

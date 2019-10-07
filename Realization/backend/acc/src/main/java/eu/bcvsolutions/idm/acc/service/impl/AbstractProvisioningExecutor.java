@@ -133,20 +133,20 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			SysSchemaObjectClassService schemaObjectClassService,
 			SysSystemAttributeMappingService systemAttributeMappingService, IdmRoleService roleService) {
 
-		Assert.notNull(systemMappingService);
-		Assert.notNull(attributeMappingService);
-		Assert.notNull(connectorFacade);
-		Assert.notNull(systemService);
-		Assert.notNull(roleSystemService);
-		Assert.notNull(roleSystemAttributeService);
-		Assert.notNull(systemEntityService);
-		Assert.notNull(accountService);
-		Assert.notNull(provisioningExecutor);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(schemaAttributeService);
-		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(systemAttributeMappingService);
-		Assert.notNull(roleService);
+		Assert.notNull(systemMappingService, "Service is required.");
+		Assert.notNull(attributeMappingService, "Service is required.");
+		Assert.notNull(connectorFacade, "Connector facade is required.");
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(roleSystemService, "Service is required.");
+		Assert.notNull(roleSystemAttributeService, "Service is required.");
+		Assert.notNull(systemEntityService, "Service is required.");
+		Assert.notNull(accountService, "Service is required.");
+		Assert.notNull(provisioningExecutor, "Provisioning executor is required.");
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(schemaAttributeService, "Service is required.");
+		Assert.notNull(schemaObjectClassService, "Service is required.");
+		Assert.notNull(systemAttributeMappingService, "Service is required.");
+		Assert.notNull(roleService, "Service is required.");
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -180,7 +180,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	@Override
 	public void doProvisioning(AccAccountDto account) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 
 		EntityAccountFilter filter = createEntityAccountFilter();
 		filter.setAccountId(account.getId());
@@ -188,7 +188,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		
 		// Find first entity-account relation (we need Id of entity)
 		List<? extends EntityAccountDto> entityAccoutnList = getEntityAccountService()
-				.find(filter, new PageRequest(0, 1)).getContent();
+				.find(filter, PageRequest.of(0, 1)).getContent();
 		if (entityAccoutnList.isEmpty()) {
 			return;
 		}
@@ -200,7 +200,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	@Override
 	public void doProvisioning(DTO dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		EntityAccountFilter filter = createEntityAccountFilter();
 		filter.setEntityId(dto.getId());
@@ -242,8 +242,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	@Override
 	public void doInternalProvisioning(AccAccountDto account, DTO dto) {
-		Assert.notNull(account);
-		Assert.notNull(dto);
+		Assert.notNull(account, "Account is required.");
+		Assert.notNull(dto, "DTO is required.");
 		//
 		ProvisioningOperationType operationType;
 		SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
@@ -287,7 +287,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	@Override
 	public void doDeleteProvisioning(AccAccountDto account, UUID entityId) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 		SysSystemEntityDto systemEntity = getSystemEntity(account);
 		//
 		if (systemEntity != null) {
@@ -297,9 +297,9 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	@Override
 	public List<OperationResult> changePassword(DTO dto, PasswordChangeDto passwordChange) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		Assert.notNull(dto.getId(), "Password can be changed, when dto is already persisted.");
-		Assert.notNull(passwordChange);
+		Assert.notNull(passwordChange, "Password change dto is required.");
 		List<SysProvisioningOperationDto> preparedOperations = new ArrayList<>();
 		//
 		EntityAccountFilter filter = this.createEntityAccountFilter();
@@ -651,11 +651,10 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	private SysProvisioningOperationDto prepareProvisioning(SysSystemEntityDto systemEntity, DTO dto, UUID entityId,
 			ProvisioningOperationType operationType, List<? extends AttributeMapping> attributes) {
-		Assert.notNull(systemEntity);
-		Assert.notNull(systemEntity.getUid());
-		Assert.notNull(systemEntity.getEntityType());
+		Assert.notNull(systemEntity, "System entity is required.");
+		Assert.notNull(systemEntity.getUid(), "System entity uid is required.");
+		Assert.notNull(systemEntity.getEntityType(), "System entity type is required.");
 		SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system);
-		Assert.notNull(system);
 		//
 		// If are input attributes null, then we load default mapped attributes
 		if (attributes == null) {
@@ -858,11 +857,11 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	private SysProvisioningOperationDto prepareProvisioningForAttribute(SysSystemEntityDto systemEntity,
 			AttributeMapping attributeMapping, Object value, ProvisioningOperationType operationType, DTO dto) {
 
-		Assert.notNull(systemEntity);
-		Assert.notNull(systemEntity.getSystem());
-		Assert.notNull(systemEntity.getEntityType());
-		Assert.notNull(systemEntity.getUid());
-		Assert.notNull(attributeMapping);
+		Assert.notNull(systemEntity, "System entity is required.");
+		Assert.notNull(systemEntity.getSystem(), "Relation to system is required for system entity.");
+		Assert.notNull(systemEntity.getEntityType(), "System entity type is required.");
+		Assert.notNull(systemEntity.getUid(), "System entity uid is required.");
+		Assert.notNull(attributeMapping, "Attribute mapping is required.");
 
 		SysSchemaAttributeDto schemaAttributeDto = getSchemaAttribute(attributeMapping);
 
@@ -900,9 +899,9 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	public IcUidAttribute authenticate(String username, GuardedString password, SysSystemDto system,
 			SystemEntityType entityType) {
 
-		Assert.notNull(username);
-		Assert.notNull(system);
-		Assert.notNull(entityType);
+		Assert.notNull(username, "Username is required.");
+		Assert.notNull(system, "System is required.");
+		Assert.notNull(entityType, "Entity type is required.");
 
 		// Find connector configuration persisted in system
 		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
@@ -1280,7 +1279,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 * @return
 	 */
 	protected SysSystemDto getSytemFromSchemaAttribute(UUID schemaAttributeId) {
-		Assert.notNull(schemaAttributeId);
+		Assert.notNull(schemaAttributeId, "Schema attribute identifier is required.");
 		return getSytemFromSchemaAttribute(schemaAttributeService.get(schemaAttributeId));
 	}
 
@@ -1290,9 +1289,9 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 * @param attributeDto
 	 * @return
 	 */
-	protected SysSystemDto getSytemFromSchemaAttribute(SysSchemaAttributeDto attributeDto) {
-		Assert.notNull(attributeDto);
-		return getSystemFromSchemaObjectClass(schemaObjectClassService.get(attributeDto.getObjectClass()));
+	protected SysSystemDto getSytemFromSchemaAttribute(SysSchemaAttributeDto attribute) {
+		Assert.notNull(attribute, "Attribute is required.");
+		return getSystemFromSchemaObjectClass(schemaObjectClassService.get(attribute.getObjectClass()));
 	}
 
 	/**
@@ -1301,9 +1300,9 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 * @param schemaObjectClassDto
 	 * @return
 	 */
-	protected SysSystemDto getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObjectClassDto) {
-		Assert.notNull(schemaObjectClassDto);
-		return DtoUtils.getEmbedded(schemaObjectClassDto, SysSchemaObjectClass_.system);
+	protected SysSystemDto getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObjectClass) {
+		Assert.notNull(schemaObjectClass, "Schema object class is required.");
+		return DtoUtils.getEmbedded(schemaObjectClass, SysSchemaObjectClass_.system);
 	}
 
 	/**

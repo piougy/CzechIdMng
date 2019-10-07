@@ -30,7 +30,7 @@ public class AttributeControlledValueSaveProcessor extends CoreEventProcessor<Sy
 	public AttributeControlledValueSaveProcessor(SysAttributeControlledValueService service) {
 		super(AttributeControlledValueEventType.CREATE, AttributeControlledValueEventType.UPDATE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

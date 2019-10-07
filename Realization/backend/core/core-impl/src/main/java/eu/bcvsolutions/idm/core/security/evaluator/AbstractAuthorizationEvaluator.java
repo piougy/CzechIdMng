@@ -75,7 +75,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 
 	@Override
 	public boolean supports(Class<?> authorizableType) {
-		Assert.notNull(authorizableType);
+		Assert.notNull(authorizableType, "Authorizable type is required.");
 		//
 		return entityClass.isAssignableFrom(authorizableType);
 	}
@@ -102,7 +102,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 */
 	@Override
 	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
-		Assert.notNull(policy);
+		Assert.notNull(policy, "Policy is required.");
 		//
 		return policy.getPermissions();
 	}
@@ -112,7 +112,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 */
 	@Override
 	public boolean evaluate(E authorizable, AuthorizationPolicy policy, BasePermission... permission) {
-		Assert.notEmpty(permission);
+		Assert.notEmpty(permission, "Permission is required.");
 		//		
 		return PermissionUtils.hasPermission(getPermissions(authorizable, policy), permission);
 	}
@@ -135,7 +135,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 * @return
 	 */
 	protected boolean hasPermission(AuthorizationPolicy policy, BasePermission... permission) {
-		Assert.notNull(permission);
+		Assert.notNull(permission, "Permission is required");
 		//
 		return PermissionUtils.hasPermission(policy.getPermissions(), permission);
 	}
@@ -148,7 +148,7 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 * @return
 	 */
 	protected boolean hasAuthority(UUID identityId, AuthorizationPolicy policy, BasePermission... authority) {
-		Assert.notNull(authority);
+		Assert.notNull(authority, "Authority is required");
 		Set<String> authorities = getAuthorities(identityId, policy);
 		//
 		return authorities.contains(IdmBasePermission.ADMIN.getName())

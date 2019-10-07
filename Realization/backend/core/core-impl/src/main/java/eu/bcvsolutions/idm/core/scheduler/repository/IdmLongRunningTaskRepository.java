@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.scheduler.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -50,5 +50,5 @@ public interface IdmLongRunningTaskRepository extends AbstractEntityRepository<I
 	 */
 	@Modifying
 	@Query("update #{#entityName} e set e.count = ?2, e.counter = ?3, modified = ?4 where e.id = ?1")
-	void updateState(UUID id, Long count, Long counter, DateTime modified);
+	void updateState(UUID id, Long count, Long counter, ZonedDateTime modified);
 }

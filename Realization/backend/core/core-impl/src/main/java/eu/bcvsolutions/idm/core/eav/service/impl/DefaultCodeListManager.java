@@ -33,7 +33,7 @@ public class DefaultCodeListManager implements CodeListManager {
 	
 	@Override
 	public IdmCodeListDto get(Serializable codeListIdentifier, BasePermission... permission) {
-		Assert.notNull(codeListIdentifier);
+		Assert.notNull(codeListIdentifier, "CodeList identifier is required.");
 		//
 		IdmCodeListDto codeList = (IdmCodeListDto) lookupService.lookupDto(IdmCodeListDto.class, codeListIdentifier);
 		if (codeList == null) {
@@ -76,9 +76,9 @@ public class DefaultCodeListManager implements CodeListManager {
 	
 	@Override
 	public List<IdmCodeListItemDto> getItems(Serializable codeListIdentifier, Pageable pageable, BasePermission... permission) {
-		Assert.notNull(codeListIdentifier);
+		Assert.notNull(codeListIdentifier, "CodeList identifier is required.");
 		IdmCodeListDto codeList = get(codeListIdentifier);
-		Assert.notNull(codeList);
+		Assert.notNull(codeList, "CodeList is required.");
 		//
 		IdmCodeListItemFilter filter = new IdmCodeListItemFilter();
 		filter.setCodeListId(codeList.getId());
@@ -88,8 +88,8 @@ public class DefaultCodeListManager implements CodeListManager {
 
 	@Override
 	public IdmCodeListItemDto getItem(Serializable codeListIdentifier, String itemCode, BasePermission... permission) {
-		Assert.notNull(codeListIdentifier);
-		Assert.notNull(itemCode);
+		Assert.notNull(codeListIdentifier, "CodeList identifier is required.");
+		Assert.notNull(itemCode, "Item code is required.");
 		//
 		IdmCodeListDto codeList = get(codeListIdentifier);
 		if (codeList == null) {
@@ -102,12 +102,12 @@ public class DefaultCodeListManager implements CodeListManager {
 	@Override
 	@Transactional
 	public IdmCodeListItemDto createItem(Serializable codeListIdentifier, String code, String name, BasePermission... permission) {
-		Assert.notNull(codeListIdentifier);
-		Assert.notNull(code);
-		Assert.notNull(name);
+		Assert.notNull(codeListIdentifier, "CodeList identifier is required.");
+		Assert.notNull(code, "Item code is required.");
+		Assert.notNull(name, "Item name is required.");
 		//
 		IdmCodeListDto codeList = get(codeListIdentifier);
-		Assert.notNull(codeList);	
+		Assert.notNull(codeList, "CodeList is required.");	
 		//
 		IdmCodeListItemDto item = new IdmCodeListItemDto();
 		item.setCodeList(codeList.getId());

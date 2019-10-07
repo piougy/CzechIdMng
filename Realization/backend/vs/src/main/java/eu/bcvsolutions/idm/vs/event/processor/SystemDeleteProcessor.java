@@ -50,10 +50,10 @@ public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSyste
 			IdmFormDefinitionService formDefinitionService, VsSystemImplementerService systemImplementerService) {
 		super(SystemEventType.DELETE);
 		//
-		Assert.notNull(requestService);
-		Assert.notNull(accountService);
-		Assert.notNull(formDefinitionService);
-		Assert.notNull(systemImplementerService);
+		Assert.notNull(requestService, "Service is required.");
+		Assert.notNull(accountService, "Service is required.");
+		Assert.notNull(formDefinitionService, "Service is required.");
+		Assert.notNull(systemImplementerService, "Service is required.");
 		//
 		this.requestService = requestService;
 		this.accountService = accountService;
@@ -70,7 +70,7 @@ public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSyste
 	public boolean conditional(EntityEvent<SysSystemDto> event) {
 		// We want execute this processor only for virtual system
 		SysSystemDto system = event.getContent();
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 		return system.isVirtual();
 	}
 	
@@ -79,8 +79,8 @@ public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSyste
 	public EventResult<SysSystemDto> process(EntityEvent<SysSystemDto> event) {
 
 		SysSystemDto system = event.getContent();
-		Assert.notNull(system);
-		Assert.notNull(system.getId());
+		Assert.notNull(system, "System is required.");
+		Assert.notNull(system.getId(), "System identifier is required.");
 		//
 		// If exists unresolved vs request, then is not possible to delete
 		// system

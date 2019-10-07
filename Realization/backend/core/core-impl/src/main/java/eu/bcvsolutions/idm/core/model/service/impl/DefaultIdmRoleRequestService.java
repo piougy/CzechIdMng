@@ -29,17 +29,15 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fusesource.hawtbuf.ByteArrayInputStream;
 import org.hibernate.Session;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -131,13 +129,18 @@ public class DefaultIdmRoleRequestService
 		implements IdmRoleRequestService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
-	private IdmRoleRequestService roleRequestService;
-	private final IdmConceptRoleRequestService conceptRoleRequestService;
-	private final IdmIdentityRoleService identityRoleService;
-	private final IdmIdentityService identityService;
-	private final SecurityService securityService;
-	private final ApplicationContext applicationContext;
-	private final WorkflowProcessInstanceService workflowProcessInstanceService;
+	@Autowired
+	private ApplicationContext applicationContext;
+	@Autowired
+	private IdmConceptRoleRequestService conceptRoleRequestService;
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmIdentityService identityService;
+	@Autowired
+	private SecurityService securityService;
+	@Autowired
+	private WorkflowProcessInstanceService workflowProcessInstanceService;
 	@Autowired
 	private FormService formService;
 	@Autowired
@@ -158,28 +161,13 @@ public class DefaultIdmRoleRequestService
 	private ValueGeneratorManager valueGeneratorManager;
 	@Autowired
 	private IdmIdentityRoleThinService identityRoleThinService;
+	//
+	private IdmRoleRequestService roleRequestService;
 
 	@Autowired
 	public DefaultIdmRoleRequestService(IdmRoleRequestRepository repository,
-			IdmConceptRoleRequestService conceptRoleRequestService, IdmIdentityRoleService identityRoleService,
-			IdmIdentityService identityService, @Qualifier("objectMapper") ObjectMapper objectMapper, SecurityService securityService,
-			ApplicationContext applicationContext, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityEventManager entityEventManager) {
+			IdmConceptRoleRequestService conceptRoleRequestService, EntityEventManager entityEventManager) {
 		super(repository, entityEventManager);
-		//
-		Assert.notNull(conceptRoleRequestService, "Concept role request service is required!");
-		Assert.notNull(identityRoleService, "Identity role service is required!");
-		Assert.notNull(identityService, "Identity service is required!");
-		Assert.notNull(securityService, "Security service is required!");
-		Assert.notNull(applicationContext, "Application context is required!");
-		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
-		//
-		this.conceptRoleRequestService = conceptRoleRequestService;
-		this.identityRoleService = identityRoleService;
-		this.identityService = identityService;
-		this.securityService = securityService;
-		this.applicationContext = applicationContext;
-		this.workflowProcessInstanceService = workflowProcessInstanceService;
 	}
 
 	@Override
@@ -295,7 +283,7 @@ public class DefaultIdmRoleRequestService
 			if (!(service instanceof DefaultIdmRoleRequestService)) {
 				throw new CoreException("We expects instace of DefaultIdmRoleRequestService!");
 			}
-			return ((DefaultIdmRoleRequestService) service).startRequestNewTransactional(event);
+			return ((DefaultIdmRoleRequestService) roleRequestService).startRequestNewTransactional(event);
 		} catch (Exception ex) {
 			LOG.error(ex.getLocalizedMessage(), ex);
 			IdmRoleRequestDto request = get(event.getContent().getId());
@@ -310,17 +298,17 @@ public class DefaultIdmRoleRequestService
 	}
 	
 	@Override
-	public IdmRoleRequestDto processException(UUID requestId, Exception ex) {
-		Assert.notNull(requestId);
-		Assert.notNull(ex);
+	public IdmRoleRequestDto processException(UUID requestId, Exception exception) {
+		Assert.notNull(requestId, "Request identifier is required.");
+		Assert.notNull(exception, "Exception is required.");
 		IdmRoleRequestDto request = this.get(requestId);
-		Assert.notNull(request);
+		Assert.notNull(request, "Request is required.");
 		
-		LOG.error(ex.getLocalizedMessage(), ex);
-		Throwable exceptionToLog = ExceptionUtils.resolveException(ex);
+		LOG.error(exception.getLocalizedMessage(), exception);
+		Throwable exceptionToLog = ExceptionUtils.resolveException(exception);
 		// Whole stack trace is too big, so we will save only message to the request log.
 		String message = exceptionToLog.getLocalizedMessage();
-		this.addToLog(request, message != null ? message : ex.getLocalizedMessage());
+		this.addToLog(request, message != null ? message : exception.getLocalizedMessage());
 		request.setState(RoleRequestState.EXCEPTION);
 		
 		return save(request);
@@ -559,7 +547,7 @@ public class DefaultIdmRoleRequestService
 	
 	@Override
 	public void validate(IdmRoleRequestDto request) {
-		Assert.notNull(request);
+		Assert.notNull(request, "Request is required.");
 
 		List<IdmConceptRoleRequestDto> conceptRoles = request.getConceptRoles();
 		
@@ -665,7 +653,7 @@ public class DefaultIdmRoleRequestService
 	@Override
 	public void addToLog(Loggable logItem, String text) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(DateTime.now());
+		sb.append(ZonedDateTime.now());
 		sb.append(": ");
 		sb.append(text);
 		text = sb.toString();
@@ -677,8 +665,8 @@ public class DefaultIdmRoleRequestService
 	@Override
 	@Transactional
 	public void deleteInternal(IdmRoleRequestDto dto) {
-		Assert.notNull(dto);
-		Assert.notNull(dto.getId());
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(dto.getId(), "DTO identifier is required.");
 
 		// Find all request where is this request duplicated and remove relation
 		IdmRoleRequestFilter conceptRequestFilter = new IdmRoleRequestFilter();
@@ -798,9 +786,8 @@ public class DefaultIdmRoleRequestService
 							IdmAttachmentDto originalAttachmentDto = attachmentManager.get(value.getUuidValue());
 
 							ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-							InputStream inputStream = null;
-							try {
-								inputStream = attachmentManager.getAttachmentData(originalAttachmentDto.getId());
+							
+							try (InputStream inputStream = attachmentManager.getAttachmentData(originalAttachmentDto.getId())) {
 								IOUtils.copy(inputStream, outputStream);
 							} catch (IOException e) {
 								LOG.error("Error during copy attachment data.", e);
@@ -809,8 +796,6 @@ public class DefaultIdmRoleRequestService
 										"ownerType", originalAttachmentDto.getOwnerType(),
 										"ownerId", originalAttachmentDto.getOwnerId() == null ? "" : originalAttachmentDto.getOwnerId().toString())
 										, e);
-							} finally {
-								IOUtils.closeQuietly(inputStream);
 							}
 
 							IdmAttachmentDto attachmentCopy = new IdmAttachmentDto();
@@ -905,7 +890,7 @@ public class DefaultIdmRoleRequestService
 
 	@Override
 	public List<IdmConceptRoleRequestDto> markDuplicates(List<IdmConceptRoleRequestDto> concepts, List<IdmIdentityRoleDto> allByIdentity) {
-		Assert.notNull(concepts);
+		Assert.notNull(concepts, "Role request concepts are required.");
 
 		// Check duplicates between concepts
 		markDuplicatesInConcepts(concepts);
@@ -961,8 +946,8 @@ public class DefaultIdmRoleRequestService
 
 	@Override
 	public List<IdmConceptRoleRequestDto> removeDuplicities(List<IdmConceptRoleRequestDto> concepts, UUID identityId) {
-		Assert.notNull(identityId);
-		Assert.notNull(concepts);
+		Assert.notNull(identityId, "Identity identifier is required.");
+		Assert.notNull(concepts, "Role request concepts are required.");
 
 		// TODO: check duplicity between concepts
 
@@ -1011,7 +996,7 @@ public class DefaultIdmRoleRequestService
 			//
 			return null;
 		}
-		Assert.notNull(applicant);
+		Assert.notNull(applicant, "Applicant is required.");
 		//
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 		roleRequest.setState(RoleRequestState.CONCEPT);
@@ -1259,7 +1244,7 @@ public class DefaultIdmRoleRequestService
 	private void refillDeletedAttributeValue(IdmFormInstanceDto formInstance) {
 		Assert.notNull(formInstance, "Form instnace if mandatory!");
 		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
-		Assert.notNull(formDefinition);
+		Assert.notNull(formDefinition, "Form definition (eav) is required.");
 		//
 		formDefinition
 			.getFormAttributes()
@@ -1278,13 +1263,6 @@ public class DefaultIdmRoleRequestService
 					formInstance.setValues(newValues);
 				}
 			});
-	}
-
-	private IdmRoleRequestService getIdmRoleRequestService() {
-		if (this.roleRequestService == null) {
-			this.roleRequestService = applicationContext.getBean(IdmRoleRequestService.class);
-		}
-		return this.roleRequestService;
 	}
 
 	/**
@@ -1336,7 +1314,7 @@ public class DefaultIdmRoleRequestService
 				tempIdentityRoleSub.setValidFrom(concept.getValidFrom());
 				tempIdentityRoleSub.setValidTill(concept.getValidTill());
 				tempIdentityRoleSub.setIdentityContractDto(identityContract);
-				tempIdentityRoleSub.setCreated(DateTime.now());
+				tempIdentityRoleSub.setCreated(ZonedDateTime.now());
 				// This automatically add default values. This is also expensive operation.
 				tempIdentityRoleSub = valueGeneratorManager.generate(tempIdentityRoleSub);
 
@@ -1399,7 +1377,7 @@ public class DefaultIdmRoleRequestService
 			temp.setIdentityContractDto(identityContract);
 		}
 		// Created is set to now (with founded duplicity, this will be marked as duplicated)
-		temp.setCreated(DateTime.now());
+		temp.setCreated(ZonedDateTime.now());
 		return temp;
 	}
 
@@ -1468,6 +1446,13 @@ public class DefaultIdmRoleRequestService
 		}
 	}
 	
+	private IdmRoleRequestService getIdmRoleRequestService() {
+		if (this.roleRequestService == null) {
+			this.roleRequestService = applicationContext.getBean(IdmRoleRequestService.class);
+		}
+		return this.roleRequestService;
+	}
+
 	/**
 	 * Check and cancel invalid concept => concept is canceled, when required entities as role, contract
 	 * or assigned role is removed in the mean time in other session.

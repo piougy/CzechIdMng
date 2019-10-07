@@ -191,7 +191,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotificationDto> i
 	 * @return
 	 */
 	protected IdmMessageDto getMessage(IdmNotificationDto notification, boolean showGuardedString) {
-		Assert.notNull(notification.getMessage());
+		Assert.notNull(notification.getMessage(), "Message is required.");
 		if (notification.getMessage().getTemplate() == null) {
 			return notification.getMessage();
 		}

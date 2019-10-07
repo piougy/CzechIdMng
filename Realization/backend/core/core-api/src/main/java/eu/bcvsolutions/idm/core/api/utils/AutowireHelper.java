@@ -158,7 +158,7 @@ public final class AutowireHelper implements ApplicationContextAware {
 	 * @since 9.7.0
 	 */
 	public static Class<?> getTargetClass(Object beanInstance) {
-		Assert.notNull(beanInstance);
+		Assert.notNull(beanInstance, "Bean instance is required.");
 		//
 		Class<?> targetClass = beanInstance.getClass();
 		//
@@ -179,7 +179,7 @@ public final class AutowireHelper implements ApplicationContextAware {
 	 * @since 9.7.0
 	 */
 	public static String getTargetType(Object beanInstance) {
-		Assert.notNull(beanInstance);
+		Assert.notNull(beanInstance, "Bean instance is required.");
 		//
 		return getTargetClass(beanInstance).getCanonicalName();
 	}

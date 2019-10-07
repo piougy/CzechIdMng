@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
@@ -33,7 +33,7 @@ public class EntityUtilsUnitTest extends AbstractUnitTest {
 	@Test
 	public void testIsNotValid_TillInHistory() {
 		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
-		role.setValidTill(new LocalDate().minusDays(1));
+		role.setValidTill(LocalDate.now().minusDays(1));
 		//
 		assertFalse(EntityUtils.isValid(role));
 	}
@@ -41,8 +41,8 @@ public class EntityUtilsUnitTest extends AbstractUnitTest {
 	@Test
 	public void testIsNotValid_ValidInFuture() {
 		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
-		role.setValidFrom(new LocalDate().plusDays(1));
-		role.setValidTill(new LocalDate().plusDays(2));
+		role.setValidFrom(LocalDate.now().plusDays(1));
+		role.setValidTill(LocalDate.now().plusDays(2));
 		//
 		assertFalse(EntityUtils.isValid(role));
 	}
@@ -50,8 +50,8 @@ public class EntityUtilsUnitTest extends AbstractUnitTest {
 	@Test
 	public void testIsValidInFuture() {
 		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
-		role.setValidFrom(new LocalDate().plusDays(1));
-		role.setValidTill(new LocalDate().plusDays(2));
+		role.setValidFrom(LocalDate.now().plusDays(1));
+		role.setValidTill(LocalDate.now().plusDays(2));
 		//
 		assertTrue(EntityUtils.isValidInFuture(role));
 	}
@@ -59,8 +59,8 @@ public class EntityUtilsUnitTest extends AbstractUnitTest {
 	@Test
 	public void testIsValidNowOrInFuture() {
 		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
-		role.setValidFrom(new LocalDate().plusDays(1));
-		role.setValidTill(new LocalDate().plusDays(2));
+		role.setValidFrom(LocalDate.now().plusDays(1));
+		role.setValidTill(LocalDate.now().plusDays(2));
 		//
 		assertTrue(EntityUtils.isValidNowOrInFuture(role));
 	}
@@ -81,7 +81,7 @@ public class EntityUtilsUnitTest extends AbstractUnitTest {
 		
 	@Test 
 	public void testValidableChanged() {
-		LocalDate now = new LocalDate();
+		LocalDate now = LocalDate.now();
 		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
 		role.setValidFrom(now.plusDays(1));
 		role.setValidTill(now.plusDays(2));
@@ -95,7 +95,7 @@ public class EntityUtilsUnitTest extends AbstractUnitTest {
 	
 	@Test 
 	public void testValidableNotChanged() {
-		LocalDate now = new LocalDate();
+		LocalDate now = LocalDate.now();
 		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
 		role.setValidFrom(now.plusDays(1));
 		role.setValidTill(now.plusDays(2));

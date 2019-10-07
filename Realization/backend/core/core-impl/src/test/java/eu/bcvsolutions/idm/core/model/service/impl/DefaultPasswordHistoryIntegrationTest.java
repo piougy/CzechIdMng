@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -240,7 +240,7 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 
 		IdmIdentityDto identity = testHelper.createIdentity(passwordAsGuardedString); // Change 1
 		
-		long tillOne = System.currentTimeMillis();
+		ZonedDateTime tillOne = ZonedDateTime.now();
 
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setOldPassword(passwordAsGuardedString);
@@ -248,28 +248,28 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		passwordChange.setIdm(true);
 		passwordChange.setNewPassword(new GuardedString(password));
 		identityService.passwordChange(identity, passwordChange); // Change 2
-		long tillTwo = System.currentTimeMillis();
+		ZonedDateTime tillTwo = ZonedDateTime.now();
 		identityService.passwordChange(identity, passwordChange); // Change 3
-		long tillThree = System.currentTimeMillis();
+		ZonedDateTime tillThree = ZonedDateTime.now();
 		identityService.passwordChange(identity, passwordChange); // Change 4
-		long tillFour = System.currentTimeMillis();
+		ZonedDateTime tillFour = ZonedDateTime.now();
 		
 		IdmPasswordHistoryFilter filter = new IdmPasswordHistoryFilter();
 		filter.setIdentityId(identity.getId());
-		filter.setTill(new DateTime(tillOne));
+		filter.setTill(tillOne);
 		List<IdmPasswordHistoryDto> content = passwordHistoryService.find(filter, null).getContent();
 		assertEquals(1, content.size());
 
-		filter.setTill(new DateTime(tillTwo));
+		filter.setTill(tillTwo);
 		content = passwordHistoryService.find(filter, null).getContent();
 		assertEquals(2, content.size());
 
-		filter.setTill(new DateTime(tillThree));
+		filter.setTill(tillThree);
 		content = passwordHistoryService.find(filter, null).getContent();
 		assertEquals(3, content.size());
 		
 
-		filter.setTill(new DateTime(tillFour));
+		filter.setTill(tillFour);
 		content = passwordHistoryService.find(filter, null).getContent();
 		assertEquals(4, content.size());
 	}
@@ -280,7 +280,7 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		GuardedString passwordAsGuardedString = new GuardedString(password);
 
 		IdmIdentityDto identity = testHelper.createIdentity(passwordAsGuardedString); // Change 1
-		long fromOne = System.currentTimeMillis();
+		ZonedDateTime fromOne = ZonedDateTime.now();
 
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setOldPassword(passwordAsGuardedString);
@@ -288,28 +288,28 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		passwordChange.setIdm(true);
 		passwordChange.setNewPassword(new GuardedString(password));
 		identityService.passwordChange(identity, passwordChange); // Change 2
-		long fromTwo = System.currentTimeMillis();
+		ZonedDateTime fromTwo = ZonedDateTime.now();
 		identityService.passwordChange(identity, passwordChange); // Change 3
-		long fromThree = System.currentTimeMillis();
+		ZonedDateTime fromThree = ZonedDateTime.now();
 		identityService.passwordChange(identity, passwordChange); // Change 4
-		long fromFour = System.currentTimeMillis();
+		ZonedDateTime fromFour = ZonedDateTime.now();
 		
 		IdmPasswordHistoryFilter filter = new IdmPasswordHistoryFilter();
 		filter.setIdentityId(identity.getId());
-		filter.setFrom(new DateTime(fromOne));
+		filter.setFrom(fromOne);
 		List<IdmPasswordHistoryDto> content = passwordHistoryService.find(filter, null).getContent();
 		assertEquals(3, content.size());
 
-		filter.setFrom(new DateTime(fromTwo));
+		filter.setFrom(fromTwo);
 		content = passwordHistoryService.find(filter, null).getContent();
 		assertEquals(2, content.size());
 
-		filter.setFrom(new DateTime(fromThree));
+		filter.setFrom(fromThree);
 		content = passwordHistoryService.find(filter, null).getContent();
 		assertEquals(1, content.size());
 		
 
-		filter.setFrom(new DateTime(fromFour));
+		filter.setFrom(fromFour);
 		content = passwordHistoryService.find(filter, null).getContent();
 		assertEquals(0, content.size());
 	}
@@ -321,7 +321,7 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 
 		IdmIdentityDto identity = testHelper.createIdentity(passwordAsGuardedString); // Change 1
 		
-		long from = System.currentTimeMillis();
+		ZonedDateTime from = ZonedDateTime.now();
 
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setOldPassword(passwordAsGuardedString);
@@ -330,13 +330,13 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		passwordChange.setNewPassword(new GuardedString(password));
 		identityService.passwordChange(identity, passwordChange); // Change 2
 		identityService.passwordChange(identity, passwordChange); // Change 3
-		long till = System.currentTimeMillis();
+		ZonedDateTime till = ZonedDateTime.now();
 		identityService.passwordChange(identity, passwordChange); // Change 4
 		
 		IdmPasswordHistoryFilter filter = new IdmPasswordHistoryFilter();
 		filter.setIdentityId(identity.getId());
-		filter.setFrom(new DateTime(from));
-		filter.setTill(new DateTime(till));
+		filter.setFrom(from);
+		filter.setTill(till);
 		List<IdmPasswordHistoryDto> content = passwordHistoryService.find(filter, null).getContent();
 		assertEquals(2, content.size());
 	}

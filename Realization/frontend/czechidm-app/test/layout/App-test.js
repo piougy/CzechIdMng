@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils'; import ShallowRenderer from 'react-test-renderer/shallow';
 import Immutable from 'immutable';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
@@ -12,7 +12,7 @@ chai.use(dirtyChai);
 describe('App', function appTestSuite() {
   describe.skip('[without redux connected]', function appTest() {
     it('- without setting loding is rendered', function test() {
-      const shallowRenderer = TestUtils.createRenderer();
+      const shallowRenderer = new ShallowRenderer();
       shallowRenderer.render(<App location={{}} userContext={{ username: 'johndoe'}}/>);
       const app = shallowRenderer.getRenderOutput();
       expect(app.props.id).to.equal('content-wrapper');
@@ -21,7 +21,7 @@ describe('App', function appTestSuite() {
     });
 
     it('- should contain flash messages', function test() {
-      const shallowRenderer = TestUtils.createRenderer();
+      const shallowRenderer = new ShallowRenderer();
       shallowRenderer.render(<App location={{}} userContext={{ username: 'johndoe'}}/>);
       const app = shallowRenderer.getRenderOutput();
       const flashMessages = app.props.children.find(c => c && c.type === Basic.FlashMessages);
@@ -32,7 +32,7 @@ describe('App', function appTestSuite() {
       let setting = new Immutable.Map({});
       setting = setting.set('1', {});
       //
-      const shallowRenderer = TestUtils.createRenderer();
+      const shallowRenderer = new ShallowRenderer();
       shallowRenderer.render(<App location={{}} setting={setting} userContext={{ username: 'johndoe'}}/>);
       const app = shallowRenderer.getRenderOutput();
       expect(app.props.id).to.equal('content-wrapper');

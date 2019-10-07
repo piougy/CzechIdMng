@@ -10,8 +10,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,9 +105,9 @@ public class DefaultIdmPasswordService
 	@Override
 	@Transactional
 	public IdmPasswordDto save(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
-		Assert.notNull(identity);
-		Assert.notNull(passwordChangeDto);
-		Assert.notNull(passwordChangeDto.getNewPassword());
+		Assert.notNull(identity, "Identity is required.");
+		Assert.notNull(passwordChangeDto, "Password change dto is required.");
+		Assert.notNull(passwordChangeDto.getNewPassword(), "New password is required.");
 		GuardedString password = passwordChangeDto.getNewPassword();
 		//
 		IdmPasswordDto passwordDto = getPasswordByIdentity(identity.getId());
@@ -124,7 +124,7 @@ public class DefaultIdmPasswordService
 			passwordDto.setValidTill(null);
 		}
 		// set valid from now
-		passwordDto.setValidFrom(new LocalDate());
+		passwordDto.setValidFrom(LocalDate.now());
 		//
 		passwordDto.setPassword(this.generateHash(password, getSalt()));
 		//
@@ -146,7 +146,7 @@ public class DefaultIdmPasswordService
 	@Override
 	@Transactional
 	public void delete(IdmIdentityDto identity) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required.");
 		//
 		IdmPasswordDto passwordDto = getPasswordByIdentity(identity.getId());
 		if (passwordDto != null) {
@@ -220,7 +220,7 @@ public class DefaultIdmPasswordService
 	@Override
 	public IdmPasswordDto setLastSuccessfulLogin(IdmPasswordDto passwordDto) {
 		Assert.notNull(passwordDto, "Password DTO cannot be null!");
-		passwordDto.setLastSuccessfulLogin(new DateTime());
+		passwordDto.setLastSuccessfulLogin(ZonedDateTime.now());
 		passwordDto.resetUnsuccessfulAttempts();
 		passwordDto.setBlockLoginDate(null);
 		return save(passwordDto);
@@ -246,7 +246,7 @@ public class DefaultIdmPasswordService
 		passwordDto = new IdmPasswordDto();
 		passwordDto.setIdentity(identityId);
 		passwordDto.setMustChange(false);
-		passwordDto.setValidFrom(new LocalDate());
+		passwordDto.setValidFrom(LocalDate.now());
 		//
 		return this.save(passwordDto);
 	}
@@ -263,7 +263,7 @@ public class DefaultIdmPasswordService
 	 * @return Object IdmIdentityPassword when password for identity was founded otherwise null.
 	 */
 	private IdmPasswordDto getPasswordByIdentity(UUID identityId) {
-		Assert.notNull(identityId);
+		Assert.notNull(identityId, "Identity identifier is required.");
 		//
 		IdmPasswordFilter filter = new IdmPasswordFilter();
 		filter.setIdentityId(identityId);
@@ -278,7 +278,7 @@ public class DefaultIdmPasswordService
 	 * @return Object IdmIdentityPassword when password for identity was founded otherwise null.
 	 */
 	private IdmPasswordDto getPasswordByIdentityUsername(String username) {
-		Assert.notNull(username);
+		Assert.notNull(username, "Username is required.");
 		//
 		IdmPasswordFilter filter = new IdmPasswordFilter();
 		filter.setIdentityUsername(username);

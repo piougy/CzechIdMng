@@ -22,9 +22,8 @@ public class DynamicCorsConfiguration extends CorsConfiguration {
 	
 	public static final String PROPERTY_ALLOWED_ORIGIN = "idm.pub.security.allowed-origins";
 	public static final String PROPERTY_ALLOWED_ORIGIN_SEPARATOR = ",";
-	
-	@Autowired
-	private ConfigurationService configurationService;
+	//
+	@Autowired private ConfigurationService configurationService;
 	
 	/**
 	 * Check the origin of the request against the configured allowed origins. 

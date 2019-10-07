@@ -9,7 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +59,7 @@ public class DefaultIdmTokenService
 	
 	@Override
 	@Transactional
-	public void purgeTokens(String tokenType, DateTime olderThan) {
+	public void purgeTokens(String tokenType, ZonedDateTime olderThan) {
 		if (olderThan == null && StringUtils.isEmpty(tokenType)) {
 			repository.deleteAll();
 			LOG.warn("Purged all tokens.");
@@ -101,7 +101,7 @@ public class DefaultIdmTokenService
 			predicates.add(builder.equal(root.get(IdmToken_.disabled), disabled));
 		}
 		// expiration
-		DateTime expirationTill = filter.getExpirationTill();
+		ZonedDateTime expirationTill = filter.getExpirationTill();
 		if (expirationTill != null) {
 			predicates.add(builder.lessThanOrEqualTo(root.get(IdmToken_.expiration), expirationTill));
 		}

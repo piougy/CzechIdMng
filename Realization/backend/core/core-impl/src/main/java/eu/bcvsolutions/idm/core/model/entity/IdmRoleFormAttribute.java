@@ -54,7 +54,7 @@ public class IdmRoleFormAttribute extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmRole role;
 
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "default_value", nullable = true)
 	private String defaultValue;
 	

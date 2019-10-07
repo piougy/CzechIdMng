@@ -128,7 +128,6 @@ public class DefaultGrantedAuthoritiesFactoryUnitTest extends AbstractUnitTest {
 		identityRole.setRole(role.getId());
 		List<IdmIdentityRoleDto> roles = Lists.newArrayList();
 		
-		when(moduleService.getAvailablePermissions()).thenReturn(groupPermissions);
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(identityRoleService.findValidRoles(identity.getId(), null)).thenReturn(new PageImpl<>(new ArrayList<>(roles)));
 		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(Sets.newHashSet(
@@ -162,7 +161,6 @@ public class DefaultGrantedAuthoritiesFactoryUnitTest extends AbstractUnitTest {
 		identityRole.setRole(role.getId());
 		List<IdmIdentityRoleDto> roles = Lists.newArrayList(identityRole);
 		
-		when(moduleService.getAvailablePermissions()).thenReturn(groupPermissions);
 		when(identityService.getByUsername(identity.getUsername())).thenReturn(identity);
 		when(roleService.get(role.getId())).thenReturn(role);
 		when(identityRoleService.findValidRoles(identity.getId(), null)).thenReturn(new PageImpl<>(new ArrayList<>(roles)));
@@ -181,7 +179,6 @@ public class DefaultGrantedAuthoritiesFactoryUnitTest extends AbstractUnitTest {
 	@Test
 	public void testDefaultRoleAutorities() {
 		when(identityService.getByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
-		when(identityRoleService.findAllByIdentity(TEST_IDENTITY.getId())).thenReturn(new ArrayList<>());
 		when(identityRoleService.findValidRoles(TEST_IDENTITY.getId(), null)).thenReturn(new PageImpl<>(new ArrayList<>()));
 		when(authorizationPolicyService.getDefaultAuthorities(any())).thenReturn(DEFAULT_AUTHORITIES);
 		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());

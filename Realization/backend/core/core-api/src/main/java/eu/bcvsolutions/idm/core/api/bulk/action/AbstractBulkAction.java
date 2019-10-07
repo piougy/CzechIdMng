@@ -169,7 +169,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	@Override
 	public OperationResult process() {
 		IdmBulkActionDto action = this.getAction();
-		Assert.notNull(action);
+		Assert.notNull(action, "Bulk action is required.");
 		//
 		StringBuilder description = new StringBuilder();
 		IdmLongRunningTaskDto longRunningTask = this.getLongRunningTaskService().get(this.getLongRunningTaskId());

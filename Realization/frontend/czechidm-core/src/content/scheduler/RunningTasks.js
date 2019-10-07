@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
@@ -103,7 +104,7 @@ class RunningTasks extends Basic.AbstractContent {
 RunningTasks.propTypes = {
   creatorId: PropTypes.string,
   _showLoading: PropTypes.bool,
-  _entities: PropTypes.arrayOf(React.PropTypes.object)
+  _entities: PropTypes.arrayOf(PropTypes.object)
 };
 RunningTasks.defaultProps = {
   uiKey: UIKEY,

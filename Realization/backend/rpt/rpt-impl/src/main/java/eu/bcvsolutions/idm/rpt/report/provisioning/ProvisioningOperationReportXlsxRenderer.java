@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.rpt.report.provisioning;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.Map.Entry;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -30,8 +31,12 @@ import eu.bcvsolutions.idm.rpt.dto.RptProvisioningOperationDto;
 @Description(AbstractXlsxRenderer.RENDERER_EXTENSION) // will be show as format for download
 public class ProvisioningOperationReportXlsxRenderer extends AbstractXlsxRenderer implements RendererRegistrar {
 
+	private DateTimeFormatter formatter = null;
+	
 	@Override
 	public InputStream render(RptReportDto report) {
+		formatter = DateTimeFormatter.ofPattern(getConfigurationService().getDateFormat());
+		//
 		try {
 			// read json stream
 			JsonParser jParser = getMapper().getFactory().createParser(getReportData(report));
@@ -89,7 +94,7 @@ public class ProvisioningOperationReportXlsxRenderer extends AbstractXlsxRendere
 	
 	private void createStartCells(Row row, RptProvisioningOperationDto idmProvisioningOperationDto) {
 		Cell cell = row.createCell(0);
-		cell.setCellValue(idmProvisioningOperationDto.getCreated().toString(getConfigurationService().getDateTimeFormat()));
+		cell.setCellValue(idmProvisioningOperationDto.getCreated().format(formatter));
 		cell = row.createCell(1);
 		cell.setCellValue(idmProvisioningOperationDto.getSystem());
 		cell = row.createCell(2);

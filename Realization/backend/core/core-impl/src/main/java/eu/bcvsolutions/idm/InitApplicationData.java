@@ -160,7 +160,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			//
 			// create super admin role
 			IdmRoleDto existsSuperAdminRole = this.roleService.getByCode(ADMIN_ROLE);
-			if (existsSuperAdminRole == null && this.roleService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
+			if (existsSuperAdminRole == null && this.roleService.find(PageRequest.of(0, 1)).getTotalElements() == 0) {
 				//
 				final IdmRoleDto superAdminRole = new IdmRoleDto();
 				superAdminRole.setCode(ADMIN_ROLE);
@@ -179,7 +179,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			//
 			// create super admin
 			IdmIdentityDto existsSuperAdmin = this.identityService.getByUsername(ADMIN_USERNAME);
-			if (existsSuperAdmin == null || this.identityService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
+			if (existsSuperAdmin == null || this.identityService.find(PageRequest.of(0, 1)).getTotalElements() == 0) {
 				//
 				IdmIdentityDto identityAdmin = new IdmIdentityDto();
 				identityAdmin.setUsername(ADMIN_USERNAME);
@@ -209,7 +209,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			//
 			// create Node type for organization			
 			IdmTreeTypeDto treeType = treeTypeService.getByCode(DEFAULT_TREE_TYPE);
-			if (treeType == null && this.treeTypeService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
+			if (treeType == null && this.treeTypeService.find(PageRequest.of(0, 1)).getTotalElements() == 0) {
 				treeType = new IdmTreeTypeDto();
 				treeType.setCode(DEFAULT_TREE_TYPE);
 				treeType.setName("Organization structure");
@@ -217,7 +217,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				treeConfiguration.setDefaultType(treeType.getId());
 				//
 				// create organization root
-				if (treeNodeService.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
+				if (treeNodeService.findRoots(treeType.getId(), PageRequest.of(0, 1)).getTotalElements() == 0) {
 					IdmTreeNodeDto organizationRoot = new IdmTreeNodeDto();
 					organizationRoot.setCode("root");
 					organizationRoot.setName("Root organization");

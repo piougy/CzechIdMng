@@ -101,7 +101,7 @@ public class IdentitySetPasswordProcessor
 		filter.setIdentityId(identity.getId());
 		filter.setSupportChangePassword(Boolean.TRUE);
 		//
-		return accountService.find(filter, new PageRequest(0, 1)).getTotalElements() > 0;
+		return accountService.find(filter, PageRequest.of(0, 1)).getTotalElements() > 0;
 	}
 	
 	/**

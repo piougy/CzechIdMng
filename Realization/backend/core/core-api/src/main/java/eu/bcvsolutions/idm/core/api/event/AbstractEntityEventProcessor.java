@@ -95,7 +95,7 @@ public abstract class AbstractEntityEventProcessor<E extends Serializable> imple
 
 	@Override
 	public boolean supports(EntityEvent<?> event) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required to processing.");
 		Assert.notNull(event.getContent(), "Entity event does not contain content, content is required!");
 		//
 		final List<String> supportedEventTypes = Arrays.asList(getEventTypes());

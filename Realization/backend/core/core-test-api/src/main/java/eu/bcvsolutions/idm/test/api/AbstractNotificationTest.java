@@ -15,6 +15,7 @@ import com.nilhcem.fakesmtp.server.SMTPServerHandler;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
+@SuppressWarnings("deprecation")
 public class AbstractNotificationTest extends AbstractIntegrationTest {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractNotificationTest.class);

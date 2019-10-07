@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +21,6 @@ import javax.persistence.criteria.Subquery;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -65,21 +66,12 @@ public class DefaultAttachmentManager
 	// or create "temp" attachment without owner in the same storage?
 	private static final String DEFAULT_TEMP_FILE_EXTENSION = "tmp";
 	//
-	private final AttachmentConfiguration attachmentConfiguration;
-	private final LookupService lookupService;
+	@Autowired private AttachmentConfiguration attachmentConfiguration;
+	@Autowired private LookupService lookupService;
 	
 	@Autowired
-	public DefaultAttachmentManager(
-			IdmAttachmentRepository repository,
-			AttachmentConfiguration attachmentConfiguration,
-			LookupService lookupService) {
+	public DefaultAttachmentManager(IdmAttachmentRepository repository) {
 		super(repository);
-		//
-		Assert.notNull(attachmentConfiguration);
-		Assert.notNull(lookupService);
-		//
-		this.lookupService = lookupService;
-		this.attachmentConfiguration = attachmentConfiguration;
 	}
 	
 	@Override
@@ -125,12 +117,12 @@ public class DefaultAttachmentManager
 			attachment.setVersionLabel(attachment.getVersionNumber() + ".0");
 		}
 		File targetFile = null;
-		try {
+		try (InputStream attachmentData = attachment.getInputData()) {
             // save to FS
 			// generate guid
 			attachment.setContentId(UUID.randomUUID());
 			// save file
-			targetFile = saveFile(attachment, attachment.getInputData());
+			targetFile = saveFile(attachment, attachmentData);
 			return save(attachment, permission);
 		} catch (Exception ex) {
 			FileUtils.deleteQuietly(targetFile);
@@ -139,8 +131,6 @@ public class DefaultAttachmentManager
 					"ownerType", attachment.getOwnerType(),
 					"ownerId", attachment.getOwnerId() == null ? "" : attachment.getOwnerId().toString())
 					, ex);
-		} finally {
-			IOUtils.closeQuietly(attachment.getInputData());
 		}
 	}
 	
@@ -166,7 +156,7 @@ public class DefaultAttachmentManager
 	@Override
 	@Transactional
 	public IdmAttachmentDto saveAttachmentVersion(Identifiable owner, IdmAttachmentDto attachment, IdmAttachmentDto previousVersion, BasePermission... permission) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		Assert.notNull(attachment, "Insert attachment");
 		//
 		if (previousVersion == null) {
@@ -202,12 +192,11 @@ public class DefaultAttachmentManager
 			attachment.setEncoding(AttachableEntity.DEFAULT_ENCODING);
 		}
 		File targetFile = null;
-		try {
-
+		try (InputStream attachmentData = attachment.getInputData()) {
 			String previousPath = null;
-			if (attachment.getInputData() != null) {
+			if (attachmentData != null) {
 				previousPath = attachment.getContentPath();
-				targetFile = saveFile(attachment, attachment.getInputData());
+				targetFile = saveFile(attachment, attachmentData);
 			}
 			attachment = save(attachment, permission);
 			if (previousPath != null) {
@@ -220,8 +209,6 @@ public class DefaultAttachmentManager
 					"ownerType", attachment.getOwnerType(),
 					"ownerId", attachment.getOwnerId() == null ? "" : attachment.getOwnerId().toString())
 					, ex);
-		} finally {
-			IOUtils.closeQuietly(attachment.getInputData());
 		}
 		return attachment;
 	}
@@ -251,7 +238,7 @@ public class DefaultAttachmentManager
 	@Override
 	@Transactional
 	public void deleteAttachments(Identifiable owner, BasePermission... permission) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		deleteAttachments(getOwnerId(owner), getOwnerType(owner), permission);
 	}
@@ -259,8 +246,8 @@ public class DefaultAttachmentManager
 	@Override
 	@Transactional
 	public void deleteAttachments(UUID ownerId, String ownerType, BasePermission... permission) {
-		Assert.notNull(ownerId);
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerId, "Owner identifier is required");
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		getAttachments(ownerId, ownerType, null).forEach(attachment -> {
 			deleteAttachment(attachment, permission);
@@ -270,7 +257,7 @@ public class DefaultAttachmentManager
 	@Override
 	@Transactional
 	public Page<IdmAttachmentDto> getAttachments(Identifiable owner, Pageable pageable, BasePermission... permission) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return getAttachments(getOwnerId(owner), getOwnerType(owner), pageable, permission);
 	}
@@ -278,8 +265,8 @@ public class DefaultAttachmentManager
 	@Override
 	@Transactional
 	public Page<IdmAttachmentDto> getAttachments(UUID ownerId, String ownerType, Pageable pageable, BasePermission... permission) {
-		Assert.notNull(ownerId);
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerId, "Owner identifier is required");
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		IdmAttachmentFilter filter = new IdmAttachmentFilter();
 		filter.setOwnerType(ownerType);
@@ -292,14 +279,14 @@ public class DefaultAttachmentManager
 	@Override
 	@Transactional
 	public List<IdmAttachmentDto> getAttachmentVersions(UUID attachmentId, BasePermission... permission) {
-		Assert.notNull(attachmentId);
+		Assert.notNull(attachmentId, "Attachment identifier is required");
 		//
 		IdmAttachmentFilter filter = new IdmAttachmentFilter();
 		filter.setVersionsFor(attachmentId);
 		//
 		return find(
 				filter, 
-				new PageRequest(0, Integer.MAX_VALUE, new Sort(Direction.DESC, IdmAttachment_.versionNumber.getName())),
+				PageRequest.of(0, Integer.MAX_VALUE, new Sort(Direction.DESC, IdmAttachment_.versionNumber.getName())),
 				permission)
 				.getContent();
 	}
@@ -356,7 +343,7 @@ public class DefaultAttachmentManager
 		// purge temporary attachments
 		IdmAttachmentFilter filter = new IdmAttachmentFilter();
 		filter.setOwnerType(TEMPORARY_ATTACHMENT_OWNER_TYPE);
-		filter.setCreatedBefore(DateTime.now().minusMillis(Math.toIntExact(ttl)));
+		filter.setCreatedBefore(ZonedDateTime.now().minus(Math.toIntExact(ttl), ChronoField.MILLI_OF_DAY.getBaseUnit()));
 		for (IdmAttachmentDto attachment : find(filter, null)) {
 			delete(attachment);
 			purgedFiles++;
@@ -367,7 +354,7 @@ public class DefaultAttachmentManager
 	
 	@Override
 	public String getOwnerType(Identifiable owner) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return getOwnerType(owner.getClass());
 	}
@@ -380,7 +367,7 @@ public class DefaultAttachmentManager
 	 */
 	@Override
 	public String getOwnerType(Class<? extends Identifiable> ownerType) {
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		// dto class was given
 		Class<? extends AttachableEntity> ownerEntityType = getAttachableOwnerType(ownerType);
@@ -440,12 +427,12 @@ public class DefaultAttachmentManager
 			));
 		}
 		// created before
-		DateTime createdBefore = filter.getCreatedBefore();
+		ZonedDateTime createdBefore = filter.getCreatedBefore();
 		if (createdBefore != null) {
 			predicates.add(builder.lessThan(root.get(IdmAttachment_.created), createdBefore));
 		}
 		// created after
-		DateTime createdAfter = filter.getCreatedAfter();
+		ZonedDateTime createdAfter = filter.getCreatedAfter();
 		if (createdAfter != null) {
 			predicates.add(builder.greaterThan(root.get(IdmAttachment_.created), createdAfter));
 		}
@@ -478,38 +465,34 @@ public class DefaultAttachmentManager
 		filter.setName(name);
 		filter.setLastVersionOnly(Boolean.TRUE);
 		//
-		return find(filter, new PageRequest(0, Integer.MAX_VALUE, new Sort(Direction.ASC, IdmAttachment_.name.getName())), permission).getContent();
+		return find(filter, PageRequest.of(0, Integer.MAX_VALUE, new Sort(Direction.ASC, IdmAttachment_.name.getName())), permission).getContent();
 	}
 	
 	private File saveFile(IdmAttachmentDto attachment, InputStream in) throws Exception {
-		
-		File targetFile = null;
-		FileOutputStream os = null;
-		try {
-			// create path
-			Calendar calendar = Calendar.getInstance();
-			String path = "/" + calendar.get(Calendar.YEAR)
-							+ "/" + (calendar.get(Calendar.MONTH) + 1)
-							+ "/" + calendar.get(Calendar.DATE);
-			File directory = new File(getStoragePath() + path);
-			if (!directory.exists()) {
-				directory.mkdirs();
-			}
-			// file not has same guid as on FS - guid attachment is not change, will be create new version
-			attachment.setContentPath(path + "/" + UUID.randomUUID() + ".bin");
-			// save binary data
-			targetFile = new File(getStoragePath() + attachment.getContentPath());
-			os = new FileOutputStream(targetFile);
+		// create path
+		Calendar calendar = Calendar.getInstance();
+		String path = "/" + calendar.get(Calendar.YEAR)
+						+ "/" + (calendar.get(Calendar.MONTH) + 1)
+						+ "/" + calendar.get(Calendar.DATE);
+		File directory = new File(getStoragePath() + path);
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
+		// file not has same guid as on FS - guid attachment is not change, will be create new version
+		attachment.setContentPath(path + "/" + UUID.randomUUID() + ".bin");
+		// save binary data
+		File targetFile = new File(getStoragePath() + attachment.getContentPath());
+		try (FileOutputStream os = new FileOutputStream(targetFile)) {
 			IOUtils.copy(in, os);
 			attachment.setFilesize(targetFile.length());
+			//
 			return targetFile;
 		} catch (Exception ex) {
 			FileUtils.deleteQuietly(targetFile);
 			throw ex;
 		} finally {
 			attachment.setInputData(null);
-			IOUtils.closeQuietly(in);
-			IOUtils.closeQuietly(os);
+			// Input stream is closed in caller method.
 		}
 	}
 	

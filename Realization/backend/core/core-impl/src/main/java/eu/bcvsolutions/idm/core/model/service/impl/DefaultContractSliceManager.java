@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,10 +78,10 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	public IdmIdentityContractDto updateContractBySlice(IdmIdentityContractDto contract, IdmContractSliceDto slice,
 			Map<String, Serializable> eventProperties) {
 
-		Assert.notNull(contract);
+		Assert.notNull(contract, "Contract is required.");
 		Assert.notNull(slice, "Contract slice cannot be null!");
-		Assert.notNull(slice.getIdentity());
-		Assert.isTrue(slice.isUsingAsContract());
+		Assert.notNull(slice.getIdentity(), "Contract slice identity is required.");
+		Assert.isTrue(slice.isUsingAsContract(), "Contract slice has to be actualy used for contract.");
 
 		boolean isNew = contractService.isNew(contract);
 
@@ -120,8 +120,8 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	 */
 	private void resolveProtectionInterval(IdmContractSliceDto slice, IdmIdentityContractDto contract,
 			int protectionInterval) {
-		Assert.notNull(contract);
-		Assert.notNull(contract.getId());
+		Assert.notNull(contract, "Contract is required.");
+		Assert.notNull(contract.getId(), "Contract identifier is required.");
 		
 		List<IdmContractSliceDto> slices = this.findAllSlices(contract.getId());
 		IdmContractSliceDto nextSlice = this.findNextSlice(slice, slices);
@@ -162,7 +162,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	@Transactional
 	public void updateValidTillOnPreviousSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
 		Assert.notNull(slice, "Contract slice cannot be null!");
-		Assert.notNull(slices);
+		Assert.notNull(slices, "Contract slices are required.");
 		if (slice.getValidFrom() == null) {
 			return;
 		}
@@ -181,7 +181,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	@Transactional
 	public IdmContractSliceDto findNextSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
 		Assert.notNull(slice, "Contract slice cannot be null!");
-		Assert.notNull(slices);
+		Assert.notNull(slices, "Contract slices are required.");
 		Comparator<IdmContractSliceDto> comparatorValidFrom = Comparator.comparing(IdmContractSliceDto::getValidFrom);
 		if (slice.getValidFrom() == null) {
 			return slices.stream() //
@@ -201,7 +201,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	@Transactional
 	public IdmContractSliceDto findPreviousSlice(IdmContractSliceDto slice, List<IdmContractSliceDto> slices) {
 		Assert.notNull(slice, "Contract slice cannot be null!");
-		Assert.notNull(slices);
+		Assert.notNull(slices, "Contract slices are required.");
 		if (slice.getValidFrom() == null) {
 			return null;
 		}
@@ -333,10 +333,10 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	 * @param contract
 	 */
 	private void copyExtendedAttributes(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
-		Assert.notNull(contract);
-		Assert.notNull(contract.getId());
-		Assert.notNull(slice);
-		Assert.notNull(slice.getId());
+		Assert.notNull(contract, "Contract is required.");
+		Assert.notNull(contract.getId(), "Contract identifier is required.");
+		Assert.notNull(slice, "Contract slice is required.");
+		Assert.notNull(slice.getId(), "Contract slice identifier is required.");
 		// TODO: all definitions should be copied - fix acc sync, i don't know why IdentityContractSyncTest fails ... (RT)
 		IdmFormDefinitionDto definition = formService.getDefinition(contract.getClass());
 		// delete all current values
@@ -354,10 +354,10 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	@Transactional
 	@Override
 	public void copyGuarantees(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
-		Assert.notNull(slice);
-		Assert.notNull(slice.getId());
-		Assert.notNull(contract);
-		Assert.notNull(contract.getId());
+		Assert.notNull(slice, "Contract slice is required.");
+		Assert.notNull(slice.getId(), "Contract slice identifier is required.");
+		Assert.notNull(contract, "Contract is required.");
+		Assert.notNull(contract.getId(), "Contract identifier is required.");
 
 		IdmContractSliceGuaranteeFilter guaranteeFilter = new IdmContractSliceGuaranteeFilter();
 		guaranteeFilter.setContractSliceId(slice.getId());
@@ -398,7 +398,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	@Transactional
 	@Override
 	public List<IdmContractSliceGuaranteeDto> findSliceGuarantees(UUID sliceId) {
-		Assert.notNull(sliceId);
+		Assert.notNull(sliceId, "Contract slice identifier is required.");
 
 		IdmContractSliceGuaranteeFilter guaranteeFilter = new IdmContractSliceGuaranteeFilter();
 		guaranteeFilter.setContractSliceId(sliceId);

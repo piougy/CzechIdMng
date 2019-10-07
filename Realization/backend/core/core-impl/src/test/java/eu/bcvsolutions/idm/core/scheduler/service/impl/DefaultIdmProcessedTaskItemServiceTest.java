@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -166,12 +167,12 @@ public class DefaultIdmProcessedTaskItemServiceTest extends AbstractIntegrationT
 		IdmProcessedTaskItemDto item3 = service.saveInternal(getHelper().prepareProcessedItem(d));
 		//
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
-		filter.setFrom(item.getCreated());
+		filter.setFrom(item.getCreated().truncatedTo(ChronoUnit.MILLIS));
 		Page<IdmProcessedTaskItemDto> result = service.find(filter,null);
-		assertTrue("#1",result.getContent().contains(item));
-		assertTrue("#2",result.getContent().contains(item2));
+		assertTrue("#1", result.getContent().contains(item));
+		assertTrue("#2", result.getContent().contains(item2));
 		filter.setFrom(null);
-		filter.setTill(item3.getCreated());
+		filter.setTill(item3.getCreated().truncatedTo(ChronoUnit.MILLIS).plus(1, ChronoUnit.MILLIS));
 		result = service.find(filter,null);
 		assertTrue("#4",result.getContent().contains(item3));
 	}

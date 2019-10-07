@@ -28,7 +28,7 @@ boolean skip = false;
 List candidates = null;
 
 // Find guarantees for that role or approvers for approving change of role
-candidates = new ArrayList(roleService.findApproversByRoleId(entityEvent.content.ownerId, new PageRequest(0, 100)).getContent());
+candidates = new ArrayList(roleService.findApproversByRoleId(entityEvent.content.ownerId, PageRequest.of(0, 100)).getContent());
 if(candidates.isEmpty()){
 	// Only last fuse
   candidates.add(identityService.getByUsername("admin"));

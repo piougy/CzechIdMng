@@ -44,10 +44,10 @@ public class IdentitySaveProcessor
 			IdentityConfiguration identityConfiguration) {
 		super(IdentityEventType.UPDATE, IdentityEventType.CREATE);
 		//
-		Assert.notNull(service);
-		Assert.notNull(passwordProcessor);
-		Assert.notNull(identityContractService);
-		Assert.notNull(identityConfiguration);
+		Assert.notNull(service, "Service is required.");
+		Assert.notNull(passwordProcessor, "Processor is required.");
+		Assert.notNull(identityContractService, "Service is required.");
+		Assert.notNull(identityConfiguration, "Configuration is required.");
 		//
 		this.service = service;
 		this.passwordProcessor = passwordProcessor;

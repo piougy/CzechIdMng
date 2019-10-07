@@ -51,7 +51,7 @@ public class DefaultAccRoleAccountService
 	public DefaultAccRoleAccountService(AccRoleAccountRepository repository, AccAccountService accountService) {
 		super(repository);
 		//
-		Assert.notNull(accountService);
+		Assert.notNull(accountService, "Service is required.");
 		//
 		this.accountService = accountService;
 	}
@@ -70,7 +70,7 @@ public class DefaultAccRoleAccountService
 	@Override
 	@Transactional
 	public void delete(AccRoleAccountDto entity, boolean deleteTargetAccount, BasePermission... permission) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		super.delete(entity, permission);
 
 		UUID account = entity.getAccount();

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class CreatedComparatorUnitTest extends AbstractUnitTest {
 	@Test
 	public void testCompareEquals() {
 		List<IdmIdentityDto> identities = new ArrayList<>();
-		DateTime created = new DateTime();
+		ZonedDateTime created = ZonedDateTime.now();
 		IdmIdentityDto one = new IdmIdentityDto(UUID.randomUUID());
 		one.setCreated(created);
 		IdmIdentityDto two = new IdmIdentityDto(UUID.randomUUID());
@@ -44,7 +44,7 @@ public class CreatedComparatorUnitTest extends AbstractUnitTest {
 	@Test
 	public void testCompareAsc() {
 		List<IdmIdentityDto> identities = new ArrayList<>();
-		DateTime created = new DateTime();
+		ZonedDateTime created = ZonedDateTime.now();
 		IdmIdentityDto one = new IdmIdentityDto(UUID.randomUUID());
 		one.setCreated(created.minusSeconds(1));
 		IdmIdentityDto two = new IdmIdentityDto(UUID.randomUUID());

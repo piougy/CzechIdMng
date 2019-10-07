@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -8,7 +9,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
-import org.joda.time.LocalDate;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.util.Assert;
 
@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
- * Utils for Spring Data repositories
+ * Utils for Spring Data repositories.
  * 
  * @author Radek Tomiška
  */
@@ -73,10 +73,10 @@ public abstract class RepositoryUtils {
 	 * @return
 	 */
 	public static Predicate getValidPredicate(Path<? extends ValidableEntity> path, CriteriaBuilder builder, LocalDate date) {
-		Assert.notNull(path);
-		Assert.notNull(builder);
+		Assert.notNull(path, "Path is required  to get predicate.");
+		Assert.notNull(builder, "Initialized criteria builder is required to get predicate.");
 		if (date == null) {
-			date = new LocalDate();
+			date = LocalDate.now();
 		}
 		//
 		return builder.and(

@@ -37,8 +37,8 @@ public abstract class AbstractReportRenderer implements ReportRenderer {
 	 * @return
 	 */
 	protected InputStream getReportData(RptReportDto report) {
-		Assert.notNull(report);
-		Assert.notNull(report.getData());
+		Assert.notNull(report, "Report is required.");
+		Assert.notNull(report.getData(), "Report data are required.");
 		//
 		return attachmentManager.getAttachmentData(report.getData());
 	}

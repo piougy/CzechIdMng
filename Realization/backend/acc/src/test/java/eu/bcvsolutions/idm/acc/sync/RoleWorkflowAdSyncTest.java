@@ -17,7 +17,6 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
@@ -83,8 +82,12 @@ import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
+/**
+ * 
+ * @author Vít Švanda
+ *
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Service
 public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 
 	private static final String ROLE_NAME = "nameOfRole";
@@ -467,11 +470,10 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 	@Test
 	public void n91_testSyncWithWfSituationMissingResolveMember() {
 		
-		String valueOfMemberAtt = "" + System.currentTimeMillis();
+		String valueOfMemberAtt = getHelper().createName();
 		String nameOfEav = "externalIdentifier";
 		configurationService.setValue("idm.pub.acc.syncRole.identity.eav.externalIdentifier.code", nameOfEav);
 		configurationService.setValue("idm.pub.acc.syncRole.roles.attributeNameOfMembership", ATTRIBUTE_MEMBER);
-		
 		
 		IdmIdentityDto identity = this.getHelper().createIdentity();
 		IdmFormAttributeDto attribute = helper.createEavAttribute(nameOfEav, IdmIdentity.class, PersistentType.SHORTTEXT);
@@ -760,7 +762,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 	}
 	
 	private RoleWorkflowAdSyncTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 	
 	private IdmRoleCatalogueDto getCatalogueByCode(String code) {

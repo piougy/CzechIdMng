@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +15,6 @@ import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -134,8 +134,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		IdmIdentityDto identity = createIdentity(username);
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
-		contract.setValidFrom(new LocalDate().minusDays(1));
-		contract.setValidTill(new LocalDate().plusMonths(1));
+		contract.setValidFrom(LocalDate.now().minusDays(1));
+		contract.setValidTill(LocalDate.now().plusMonths(1));
 		contract.setMain(true);
 		contract.setDescription(username);
 		identityContractService.save(contract);
@@ -167,8 +167,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 
 		Assert.assertEquals(RoleRequestState.CONCEPT, request.getState());
 
-		LocalDate validFrom = new LocalDate().minusDays(1);
-		LocalDate validTill = new LocalDate().plusMonths(1);
+		LocalDate validFrom = LocalDate.now().minusDays(1);
+		LocalDate validTill = LocalDate.now().plusMonths(1);
 		IdmConceptRoleRequestDto conceptA = new IdmConceptRoleRequestDto();
 		conceptA.setRoleRequest(request.getId());
 		conceptA.setState(RoleRequestState.EXECUTED); // can not be saved (after
@@ -212,7 +212,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(testA.getId());
 		Assert.assertEquals(1, identityRoles.size());
 
-		LocalDate validFrom = new LocalDate().minusDays(1);
+		LocalDate validFrom = LocalDate.now().minusDays(1);
 		IdmConceptRoleRequestDto conceptA = new IdmConceptRoleRequestDto();
 		conceptA.setRoleRequest(request.getId());
 		conceptA.setRole(identityRoles.get(0).getRole());
@@ -703,50 +703,47 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		Assert.assertEquals(subRolesCount + 1, identityRoleService.findAllByIdentity(identity.getId()).size());
 	}
 	
-//	@Test
-//	public void testExecuteConcurentRoleRequests() {
-//		// prepare two requests with assigned roles
-//		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-//		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
-//		IdmRoleDto role = getHelper().createRole();
-//		//
-//		for (int i = 0; i < 10; i++) {
-//			getHelper().createIdentityRole(contract, role);
-//		}
-//		//
-//		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
-//		Assert.assertEquals(10, assignedRoles.size());
-//		//
-//		IdmRoleRequestDto requestOne = createDeleteRoleRequest(contract, assignedRoles);
-//		IdmRoleRequestDto requestTwo = createDeleteRoleRequest(contract, assignedRoles);
-//		//
-//		// execute request in two threads
-//		FutureTask<?> taskOne = new FutureTask<Boolean>(() -> { 
-//			roleRequestService.startRequest(requestOne.getId(), false);
-//			return true; 
-//		});
-//		FutureTask<?> taskTwo = new FutureTask<Boolean>(() -> { 
-//			roleRequestService.startRequest(requestTwo.getId(), false);
-//			return true; 
-//		});
-//		executor.execute(taskOne);
-//		executor.execute(taskTwo);
-//		//
-//		while (true) {
-//			if (taskOne.isDone() && taskTwo.isDone()){
-//				break;
-//			}
-//		}
-//		//
-//		IdmRoleRequestDto executedRequestOne = roleRequestService.get(requestOne, new IdmRoleRequestFilter(true));
-//		IdmRoleRequestDto executedRequestTwo = roleRequestService.get(requestTwo, new IdmRoleRequestFilter(true));
-//		// Both of requests ends with exception, but can be read => referential integrity is ok
-//		Assert.assertTrue(executedRequestOne.getState().isTerminatedState());
-//		Assert.assertTrue(executedRequestTwo.getState().isTerminatedState());
-//		//
-//		assignedRoles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
-//		Assert.assertEquals(10, assignedRoles.size());
-//	}
+	@Test
+	public void testExecuteConcurentRoleRequests() {
+		// prepare two requests with assigned roles
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+		IdmRoleDto role = getHelper().createRole();
+		//
+		for (int i = 0; i < 10; i++) {
+			getHelper().createIdentityRole(contract, role);
+		}
+		//
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
+		Assert.assertEquals(10, assignedRoles.size());
+		//
+		IdmRoleRequestDto requestOne = createDeleteRoleRequest(contract, assignedRoles);
+		IdmRoleRequestDto requestTwo = createDeleteRoleRequest(contract, assignedRoles);
+		//
+		// execute request in two threads
+		FutureTask<?> taskOne = new FutureTask<Boolean>(() -> { 
+			roleRequestService.startRequest(requestOne.getId(), false);
+			return true; 
+		});
+		FutureTask<?> taskTwo = new FutureTask<Boolean>(() -> { 
+			roleRequestService.startRequest(requestTwo.getId(), false);
+			return true; 
+		});
+		executor.execute(taskOne);
+		executor.execute(taskTwo);
+		//
+		while (true) {
+			if (taskOne.isDone() && taskTwo.isDone()){
+				break;
+			}
+		}
+		//
+		IdmRoleRequestDto executedRequestOne = roleRequestService.get(requestOne, new IdmRoleRequestFilter(true));
+		IdmRoleRequestDto executedRequestTwo = roleRequestService.get(requestTwo, new IdmRoleRequestFilter(true));
+		// One of requests ends with exception, but can be read => referential integrity is ok
+		Assert.assertTrue(executedRequestOne.getState().isTerminatedState());
+		Assert.assertTrue(executedRequestTwo.getState().isTerminatedState());
+	}
 
 	private IdmAttachmentDto prepareAttachment(String content) {
 		IdmAttachmentDto attachment = new IdmAttachmentDto();

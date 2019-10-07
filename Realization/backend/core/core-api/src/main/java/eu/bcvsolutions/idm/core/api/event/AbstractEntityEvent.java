@@ -2,13 +2,13 @@ package eu.bcvsolutions.idm.core.api.event;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
@@ -203,12 +203,12 @@ public abstract class AbstractEntityEvent<E extends Serializable> extends Applic
 	}
 	
 	@Override
-	public DateTime getExecuteDate() {
-		return (DateTime) getProperties().get(EVENT_PROPERTY_EXECUTE_DATE);
+	public ZonedDateTime getExecuteDate() {
+		return (ZonedDateTime) getProperties().get(EVENT_PROPERTY_EXECUTE_DATE);
 	}
 	
 	@Override
-	public void setExecuteDate(DateTime executeDate) {
+	public void setExecuteDate(ZonedDateTime executeDate) {
 		getProperties().put(EVENT_PROPERTY_EXECUTE_DATE, executeDate);
 	}
 	

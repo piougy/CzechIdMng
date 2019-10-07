@@ -31,7 +31,7 @@ public class RoleCatalogueDeleteProcessor extends CoreEventProcessor<IdmRoleCata
 	public RoleCatalogueDeleteProcessor(AccRoleCatalogueAccountService service) {
 		super(RoleCatalogueEventType.DELETE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.catalogueAccountService = service;
 	}

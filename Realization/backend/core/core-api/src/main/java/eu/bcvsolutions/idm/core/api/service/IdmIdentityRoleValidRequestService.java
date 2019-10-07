@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
@@ -30,7 +30,7 @@ public interface IdmIdentityRoleValidRequestService extends ReadWriteDtoService<
 	 * @param from
 	 * @return
 	 */
-	List<IdmIdentityRoleValidRequestDto> findAllValidFrom(DateTime from);
+	List<IdmIdentityRoleValidRequestDto> findAllValidFrom(ZonedDateTime from);
 	
 	/**
 	 * Find all {@link IdmIdentityRoleValidRequestDto} for role

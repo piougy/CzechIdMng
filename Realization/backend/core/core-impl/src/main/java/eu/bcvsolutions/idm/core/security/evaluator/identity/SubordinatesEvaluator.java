@@ -62,7 +62,7 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		filter.setManagersFor(entity.getId());
 		filter.setUsername(securityService.getUsername());
 		boolean isManager = identityService
-				.findIds(filter, new PageRequest(0, 1))
+				.findIds(filter, PageRequest.of(0, 1))
 				.getTotalElements() > 0;
 		if (isManager) {
 			permissions.addAll(policy.getPermissions());

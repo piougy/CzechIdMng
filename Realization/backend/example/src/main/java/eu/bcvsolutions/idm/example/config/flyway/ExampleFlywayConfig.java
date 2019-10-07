@@ -40,7 +40,7 @@ public class ExampleFlywayConfig extends AbstractFlywayConfiguration {
 	@ConfigurationProperties(prefix = "flyway.example")
 	public Flyway flywayModuleExample() {
 		Flyway flyway = super.createFlyway();		
-		log.info("Starting flyway migration for example module [{}]: ", flyway.getTable());
+		log.info("Starting flyway migration for example module [{}]: ", flyway.getConfiguration().getTable());
 		return flyway;
 	}
 }

@@ -32,11 +32,11 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -83,8 +83,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		if (!supportsQueue()) {
 			return null;
 		}
-		Assert.notNull(dto);
-		Assert.notNull(opResult);
+		Assert.notNull(dto, "DTO is required for LRT processing.");
+		Assert.notNull(opResult, "Result is required for add item into queue.");
 		//
 		if (this.getScheduledTaskId() == null) {
 			// manually executed task -> ignore stateful queue
@@ -114,7 +114,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		if (!supportsQueue()) {
 			return false;
 		}
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required for LRT processing.");
 		//
 		Page<IdmProcessedTaskItemDto> p = getItemFromQueue(dto.getId());
 		
@@ -126,7 +126,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		if (!supportsQueue()) {
 			return;
 		}
-		Assert.notNull(entityRef);
+		Assert.notNull(entityRef, "Entity identifier is requred for remove from queue.");
 		UUID scheduledTaskId = this.getScheduledTaskId();
 		if (scheduledTaskId == null) {
 			// nothing to delete
@@ -138,7 +138,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 
 	@Override
 	public void removeFromProcessedQueue(DTO dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required for remove from queue.");
 		//
 		removeFromProcessedQueue(dto.getId());
 	}
@@ -190,10 +190,10 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		//
 		boolean canContinue = true;
 		boolean dryRun = longRunningTaskService.get(this.getLongRunningTaskId()).isDryRun();
-		Pageable pageable = new PageRequest(
+		Pageable pageable = PageRequest.of(
 				0, 
-				PAGE_SIZE, 
-				new Sort(Direction.ASC, Auditable.PROPERTY_ID)
+				PAGE_SIZE,
+				new Sort(Direction.ASC, BaseEntity.PROPERTY_ID)
 		);
 		//
 		do {
@@ -205,8 +205,8 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			//
 			for (Iterator<DTO> i = candidates.iterator(); i.hasNext() && canContinue;) {
 				DTO candidate = i.next();
-				Assert.notNull(candidate);
-				Assert.notNull(candidate.getId());
+				Assert.notNull(candidate, "DTO candidate is required for LRT processing.");
+				Assert.notNull(candidate.getId(), "DTO candidate has to be persisted for LRT processing.");
 				//
 				Optional<OperationResult> result = processCandidate(candidate, dryRun);
 				if (!result.isPresent() 
@@ -353,7 +353,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
 		filter.setReferencedEntityId(entityRef);
 		filter.setScheduledTaskId(this.getScheduledTaskId());
-		Page<IdmProcessedTaskItemDto> p = itemService.find(filter, new PageRequest(0, 1));
+		Page<IdmProcessedTaskItemDto> p = itemService.find(filter, PageRequest.of(0, 1));
 		if (p.getTotalElements() > 1) {
 			LOG.warn("Multiple same item references found in [{}] process queue.", this.getClass());
 		}

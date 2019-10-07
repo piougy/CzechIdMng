@@ -1,11 +1,11 @@
 package eu.bcvsolutions.idm.test.api;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -50,6 +50,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
@@ -138,6 +139,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
 	@Autowired private ModuleService moduleService;
 	@Autowired private IdmPasswordService passwordService;
+	@Autowired private FilterManager filterManager;
 	
 	@Override
 	public LoginDto loginAdmin() {
@@ -351,8 +353,8 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNodeDto treeNode, boolean skipLongRunningTask) {
-		Assert.notNull(role);
-		Assert.notNull(treeNode);
+		Assert.notNull(role, "Role is required.");
+		Assert.notNull(treeNode, "Tree node is required.");
 		//
 		IdmRoleTreeNodeDto roleTreeNode = new IdmRoleTreeNodeDto();
 		roleTreeNode.setRole(role.getId());
@@ -416,16 +418,16 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmAuthorizationPolicyDto createUuidPolicy(IdmRoleDto role, Identifiable authorizableEntity, BasePermission... permission) {
-		Assert.notNull(role);
-		Assert.notNull(authorizableEntity);
+		Assert.notNull(role, "Role is required to create policy.");
+		Assert.notNull(authorizableEntity, "Authorizable entity is required to create policy.");
 		//
 		return createUuidPolicy(role.getId(), (UUID) authorizableEntity.getId(), permission);
 	}
 
 	@Override
 	public IdmAuthorizationPolicyDto createUuidPolicy(UUID role, UUID authorizableEntity, BasePermission... permission) {
-		Assert.notNull(role);
-		Assert.notNull(authorizableEntity);
+		Assert.notNull(role, "Role identifier is required to create policy.");
+		Assert.notNull(authorizableEntity, "Authorizable entity identifier is required to create policy.");
 		//
 		IdmAuthorizationPolicyDto dto = new IdmAuthorizationPolicyDto();
 		dto.setRole(role);
@@ -488,14 +490,14 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmIdentityContractDto getPrimeContract(IdmIdentityDto identity) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required to get main contract.");
 		//
 		return getPrimeContract(identity.getId());
 	}
 	
 	@Override
 	public IdmPasswordDto getPassword(IdmIdentityDto identity) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required to get password");
 		//
 		return passwordService.findOrCreateByIdentity(identity.getId());
 	}
@@ -560,8 +562,8 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmContractGuaranteeDto createContractGuarantee(IdmIdentityContractDto identityContract, IdmIdentityDto guarantee) {
-		Assert.notNull(identityContract);
-		Assert.notNull(guarantee);
+		Assert.notNull(identityContract, "Contract is required to create guarantee.");
+		Assert.notNull(guarantee, "Guarantee is required to create contract guarantee.");
 		//
 		return createContractGuarantee(identityContract.getId(), guarantee.getId());
 	}
@@ -583,14 +585,14 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmContractPositionDto createContractPosition(IdmIdentityContractDto contract) {
-		Assert.notNull(contract);
+		Assert.notNull(contract, "Contract is required to create other position.");
 		//
 		return createContractPosition(contract.getId());
 	}
 	
 	@Override
 	public IdmContractPositionDto createContractPosition(IdmIdentityContractDto contract, IdmTreeNodeDto treeNode) {
-		Assert.notNull(contract);
+		Assert.notNull(contract, "Contract is required to create other position.");
 		//
 		return createContractPosition(contract.getId(), treeNode == null ? null : treeNode.getId());
 	}
@@ -737,14 +739,14 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public void setConfigurationValue(String configurationPropertyName, boolean value) {
-		Assert.notNull(configurationPropertyName);
+		Assert.notNull(configurationPropertyName, "Configuration property name is required to set its value.");
 		//
 		configurationService.setBooleanValue(configurationPropertyName, value);
 	}
 	
 	@Override
 	public void setConfigurationValue(String configurationPropertyName, String value) {
-		Assert.notNull(configurationPropertyName);
+		Assert.notNull(configurationPropertyName, "Configuration property name is required to set its value.");
 		//
 		configurationService.setValue(configurationPropertyName, value);
 	}
@@ -779,12 +781,16 @@ public class DefaultTestHelper implements TestHelper {
 	}
 	
 	private void enableFilter(Class<? extends FilterBuilder<?, ?>> filterType, boolean enabled) {
-		Assert.notNull(filterType);
+		Assert.notNull(filterType, "Filter type is requered to enable / disable him.");
 		//
 		FilterBuilder<?, ?> filter = context.getBean(filterType);
-		Assert.notNull(filter);
+		Assert.notNull(filter, String.format("Filter type [%s] not found.", filterType));
 		String enabledPropertyName = filter.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
 		configurationService.setBooleanValue(enabledPropertyName, enabled);
+		// switch impl property
+		if (enabled) {
+			filterManager.enable(filter.getId());
+		}
 	}
 
 	@Override

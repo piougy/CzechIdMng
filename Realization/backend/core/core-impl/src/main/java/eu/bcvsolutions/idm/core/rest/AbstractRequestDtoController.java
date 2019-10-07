@@ -301,8 +301,8 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 	
 	public Resource<?> saveFormValues(String requestId, DTO dto, IdmFormDefinitionDto formDefinition,
 			List<IdmFormValueDto> formValues, BasePermission... permission) {
-		Assert.notNull(dto);
-		Assert.notNull(requestId);
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(requestId, "Request identifier is required.");
 
 		IdmFormInstanceDto formInstance = requestManager.saveFormInstance(UUID.fromString(requestId), dto,
 				formDefinition, formValues, permission);
@@ -311,8 +311,8 @@ public abstract class AbstractRequestDtoController<DTO extends Requestable, F ex
 
 	public Resource<IdmFormInstanceDto> getFormValues(String requestId, Identifiable owner,
 			IdmFormDefinitionDto formDefinition, BasePermission... permission) {
-		Assert.notNull(owner);
-		Assert.notNull(requestId);
+		Assert.notNull(owner, "Owner is required.");
+		Assert.notNull(requestId, "Request identifier is required.");
 
 		@SuppressWarnings("unchecked")
 		IdmFormInstanceDto formInstance = requestManager.getFormInstance(UUID.fromString(requestId), (DTO) owner,

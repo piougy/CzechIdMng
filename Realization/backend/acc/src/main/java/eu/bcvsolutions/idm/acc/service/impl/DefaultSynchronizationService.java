@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.LocalDateTime;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
@@ -97,16 +97,16 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			AccAccountService accountService, SysSystemEntityService systemEntityService, LongRunningTaskManager longRunningTaskManager,
 			List<SynchronizationEntityExecutor> executors, SysSystemMappingService systemMappingService,
 			SysSystemService systemService, SysSchemaObjectClassService schemaObjectClassService) {
-		Assert.notNull(attributeHandlingService);
-		Assert.notNull(synchronizationConfigService);
-		Assert.notNull(synchronizationLogService);
-		Assert.notNull(accountService);
-		Assert.notNull(systemEntityService);
-		Assert.notNull(longRunningTaskManager);
-		Assert.notNull(executors);
-		Assert.notNull(systemMappingService);
-		Assert.notNull(systemService);
-		Assert.notNull(schemaObjectClassService);
+		Assert.notNull(attributeHandlingService, "Service is required.");
+		Assert.notNull(synchronizationConfigService, "Service is required.");
+		Assert.notNull(synchronizationLogService, "Service is required.");
+		Assert.notNull(accountService, "Service is required.");
+		Assert.notNull(systemEntityService, "Service is required.");
+		Assert.notNull(longRunningTaskManager, "Manager is required.");
+		Assert.notNull(executors, "Executors are required.");
+		Assert.notNull(systemMappingService, "Service is required.");
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(schemaObjectClassService, "Service is required.");
 		//
 		this.attributeHandlingService = attributeHandlingService;
 		this.synchronizationConfigService = synchronizationConfigService;
@@ -158,7 +158,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	@Override
 	public AbstractSysSyncConfigDto startSynchronization(AbstractSysSyncConfigDto config) {
-		Assert.notNull(config);
+		Assert.notNull(config, "Configuration is required.");
 		Assert.notNull(config.getId(), "Id of sync config is required!");
 		SynchronizationSchedulableTaskExecutor lrt = new SynchronizationSchedulableTaskExecutor(config.getId());
 		longRunningTaskManager.execute(lrt);
@@ -182,7 +182,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		
 		UUID syncConfigId = config.getId();
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
-		Assert.notNull(mapping);
+		Assert.notNull(mapping, "Mapping is required.");
 		SystemEntityType entityType = mapping.getEntityType();
 
 		SynchronizationEntityExecutor executor = getSyncExecutor(entityType, syncConfigId);
@@ -192,7 +192,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	@Override
 	public AbstractSysSyncConfigDto stopSynchronization(AbstractSysSyncConfigDto config) {
-		Assert.notNull(config);
+		Assert.notNull(config, "Configuration is required.");
 		// Synchronization must be running
 		SysSyncLogFilter logFilter = new SysSyncLogFilter();
 		logFilter.setSynchronizationConfigId(config.getId());
@@ -206,7 +206,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 		logs.forEach(log -> {
 			log.setRunning(false);
-			log.setEnded(LocalDateTime.now());
+			log.setEnded(ZonedDateTime.now());
 		});
 		synchronizationLogService.saveAll(logs);
 		return config;
@@ -215,18 +215,18 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 	public boolean doItemSynchronization(SynchronizationContext context) {
-		Assert.notNull(context);
+		Assert.notNull(context, "Context is required.");
 		return getSyncExecutor(context.getEntityType(), context.getConfig().getId()).doItemSynchronization(context);
 	}
 
 	@Override
 	public SysSyncItemLogDto resolveMissingEntitySituation(String uid, SystemEntityType entityType,
 			List<IcAttribute> icAttributes, UUID configId, String actionType) {
-		Assert.notNull(uid);
-		Assert.notNull(entityType);
-		Assert.notNull(icAttributes);
-		Assert.notNull(configId);
-		Assert.notNull(actionType);
+		Assert.notNull(uid, "Uid is required.");
+		Assert.notNull(entityType, "Entity type is required.");
+		Assert.notNull(icAttributes, "Connector attribues are required.");
+		Assert.notNull(configId, "Configuration identifier is required.");
+		Assert.notNull(actionType, "Action type is required.");
 
 		AbstractSysSyncConfigDto config = synchronizationConfigService.get(configId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
@@ -262,12 +262,12 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	@Override
 	public SysSyncItemLogDto resolveLinkedSituation(String uid, SystemEntityType entityType,
 			List<IcAttribute> icAttributes, UUID accountId, UUID configId, String actionType) {
-		Assert.notNull(uid);
-		Assert.notNull(entityType);
-		Assert.notNull(icAttributes);
-		Assert.notNull(configId);
-		Assert.notNull(actionType);
-		Assert.notNull(accountId);
+		Assert.notNull(uid, "Uid is required.");
+		Assert.notNull(entityType, "Entity type is required.");
+		Assert.notNull(icAttributes, "Connector attribues are required.");
+		Assert.notNull(configId, "Configuration identifier is required.");
+		Assert.notNull(actionType, "Action type is required.");
+		Assert.notNull(accountId, "Account identifier is required.");
 
 		SysSyncItemLogDto itemLog = new SysSyncItemLogDto();
 
@@ -302,11 +302,11 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	@Override
 	public SysSyncItemLogDto resolveUnlinkedSituation(String uid, SystemEntityType entityType, UUID entityId,
 			UUID configId, String actionType, List<IcAttribute> icAttributes) {
-		Assert.notNull(uid);
-		Assert.notNull(entityType);
-		Assert.notNull(configId);
-		Assert.notNull(actionType);
-		Assert.notNull(entityId);
+		Assert.notNull(uid, "Uid is required.");
+		Assert.notNull(entityType, "Entity type is required.");
+		Assert.notNull(configId, "Configuration identifier is required.");
+		Assert.notNull(actionType, "Action type is required.");
+		Assert.notNull(entityId, "Entity identifier is required.");
 
 		AbstractSysSyncConfigDto config = synchronizationConfigService.get(configId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());
@@ -346,11 +346,11 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	@Override
 	public SysSyncItemLogDto resolveMissingAccountSituation(String uid, SystemEntityType entityType, UUID accountId,
 			UUID configId, String actionType) {
-		Assert.notNull(uid);
-		Assert.notNull(entityType);
-		Assert.notNull(configId);
-		Assert.notNull(actionType);
-		Assert.notNull(accountId);
+		Assert.notNull(uid, "Uid is required.");
+		Assert.notNull(entityType, "Entity type is required.");
+		Assert.notNull(configId, "Configuration identifier is required.");
+		Assert.notNull(actionType, "Action type is required.");
+		Assert.notNull(accountId, "Account identifier is required.");
 
 		AbstractSysSyncConfigDto config = synchronizationConfigService.get(configId);
 		SysSystemMappingDto mapping = systemMappingService.get(config.getSystemMapping());

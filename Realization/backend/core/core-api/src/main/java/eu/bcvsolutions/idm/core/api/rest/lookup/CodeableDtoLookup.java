@@ -31,7 +31,7 @@ public class CodeableDtoLookup<DTO extends BaseDto> extends AbstractDtoLookup<DT
 	}
 	
 	protected void setService(CodeableService<DTO> service) {
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required for DTO lookup.");
 		//
 		this.service = service;
 	}

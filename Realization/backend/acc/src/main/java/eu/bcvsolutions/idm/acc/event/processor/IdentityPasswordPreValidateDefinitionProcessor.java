@@ -48,8 +48,8 @@ public class IdentityPasswordPreValidateDefinitionProcessor extends CoreEventPro
 			AccAccountService accountService) {
 		super(PasswordChangeEventType.PASSWORD_PREVALIDATION);
 		//
-		Assert.notNull(accountService);
-		Assert.notNull(passwordPolicyService);
+		Assert.notNull(accountService, "Service is required.");
+		Assert.notNull(passwordPolicyService, "Service is required.");
 		//
 		this.passwordPolicyService = passwordPolicyService;
 		this.accountService = accountService;

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -284,4 +285,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(RequestTable);
+export default connect(select, null, null, { forwardRef: true })(RequestTable);

@@ -49,10 +49,10 @@ public class SystemMappingDeleteProcessor extends CoreEventProcessor<SysSystemMa
 			SysSyncConfigService configService) {
 		super(SystemMappingEventType.DELETE);
 		//
-		Assert.notNull(roleSystemService);
-		Assert.notNull(systemAttributeMappingService);
-		Assert.notNull(systemMappingService);
-		Assert.notNull(configService);
+		Assert.notNull(roleSystemService, "Service is required.");
+		Assert.notNull(systemAttributeMappingService, "Service is required.");
+		Assert.notNull(systemMappingService, "Service is required.");
+		Assert.notNull(configService, "Service is required.");
 		//
 		this.roleSystemService = roleSystemService;
 		this.systemAttributeMappingService = systemAttributeMappingService;

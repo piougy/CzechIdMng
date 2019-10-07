@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils'; import ShallowRenderer from 'react-test-renderer/shallow';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
@@ -13,21 +13,21 @@ import * as Basic from '../../../../src/components/basic';
  */
 describe('Basic Icon', function iconTest() {
   it('- without icon defined is not rendered', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.Icon />);
     const icon = shallowRenderer.getRenderOutput();
     expect(icon).to.be.null();
   });
 
   it('- without type defined - type is set to glyph', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.Icon icon="user" />);
     const icon = shallowRenderer.getRenderOutput();
     expect(icon.props.type).to.equal(Basic.Icon.TYPE_GLYPHICON);
   });
 
   it('- property icon and value alias', function test() {
-    const shallowRenderer = TestUtils.createRenderer();
+    const shallowRenderer = new ShallowRenderer();
     shallowRenderer.render(<Basic.Icon icon="user" />);
     const iconByIcon = shallowRenderer.getRenderOutput();
     shallowRenderer.render(<Basic.Icon value="user" />);

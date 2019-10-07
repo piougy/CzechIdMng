@@ -124,16 +124,16 @@ public class DefaultSysSystemAttributeMappingService extends
 			SysSchemaObjectClassService schemaObjectClassService, SysSystemMappingService systemMappingService) {
 		super(repository);
 		//
-		Assert.notNull(groovyScriptService);
-		Assert.notNull(formService);
-		Assert.notNull(roleSystemAttributeRepository);
-		Assert.notNull(formPropertyManager);
-		Assert.notNull(syncConfigRepository);
-		Assert.notNull(evaluators);
-		Assert.notNull(confidentialStorage);
-		Assert.notNull(schemaAttributeService);
-		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(systemMappingService);
+		Assert.notNull(groovyScriptService, "Groovy script service is required.");
+		Assert.notNull(formService, "Form service (eav) is required.");
+		Assert.notNull(roleSystemAttributeRepository, "Repository is required.");
+		Assert.notNull(formPropertyManager, "Manager is required.");
+		Assert.notNull(syncConfigRepository, "Repository is required.");
+		Assert.notNull(evaluators, "Script evaluators is required.");
+		Assert.notNull(confidentialStorage, "Confidential storage is required.");
+		Assert.notNull(schemaAttributeService, "Service is required.");
+		Assert.notNull(schemaObjectClassService, "Service is required.");
+		Assert.notNull(systemMappingService, "Service is required.");
 		//
 		this.formService = formService;
 		this.repository = repository;
@@ -161,7 +161,7 @@ public class DefaultSysSystemAttributeMappingService extends
 	@Override
 	@Transactional(readOnly = true)
 	public List<SysSystemAttributeMappingDto> findBySystemMapping(SysSystemMappingDto systemMapping) {
-		Assert.notNull(systemMapping);
+		Assert.notNull(systemMapping, "System mapping is required.");
 		//
 		return toDtos(repository.findAllBySystemMapping_Id(systemMapping.getId()), true);
 	}
@@ -175,7 +175,7 @@ public class DefaultSysSystemAttributeMappingService extends
 	@Override
 	public Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping,
 			AbstractDto entity) {
-		Assert.notNull(attributeMapping);
+		Assert.notNull(attributeMapping, "Attribute mapping is required.");
 		return transformValueToResource(uid, value, attributeMapping.getTransformToResourceScript(), entity,
 				getSystemFromAttributeMapping(attributeMapping));
 	}
@@ -213,7 +213,7 @@ public class DefaultSysSystemAttributeMappingService extends
 	@Override
 	public Object transformValueFromResource(Object value, AttributeMapping attributeMapping,
 			List<IcAttribute> icAttributes) {
-		Assert.notNull(attributeMapping);
+		Assert.notNull(attributeMapping, "Attribute mapping is required.");
 		//
 		return transformValueFromResource(value, attributeMapping.getTransformFromResourceScript(), icAttributes,
 				getSystemFromAttributeMapping(attributeMapping));
@@ -350,9 +350,9 @@ public class DefaultSysSystemAttributeMappingService extends
 	@Override
 	@Transactional
 	public void delete(SysSystemAttributeMappingDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		SysSystemAttributeMapping entity = this.getEntity(dto.getId());
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 
 		if (syncConfigRepository.countByCorrelationAttribute_Id(dto.getId()) > 0) {
 			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC,
@@ -489,8 +489,8 @@ public class DefaultSysSystemAttributeMappingService extends
 
 	@Override
 	public SysSystemAttributeMappingDto getAuthenticationAttribute(UUID systemId, SystemEntityType entityType) {
-		Assert.notNull(systemId);
-		Assert.notNull(entityType);
+		Assert.notNull(systemId, "System identifier is required.");
+		Assert.notNull(entityType, "Entity type is required.");
 		// authentication attribute is only from provisioning operation type
 		SysSystemAttributeMappingDto attr = toDto(
 				this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING, entityType));
@@ -792,17 +792,16 @@ public class DefaultSysSystemAttributeMappingService extends
 			
 			// Convert attachment to attachment with data
 			IdmAttachmentWithDataDto attachmentWithDataDto = this.convertAttachment(attachmentDto);
-			InputStream inputStream = attachmentManager.getAttachmentData((UUID) value);
-			if (inputStream != null) {
-				try {
+			
+			try (InputStream inputStream = attachmentManager.getAttachmentData((UUID) value)) {
+				if (inputStream != null) {
 					byte[] bytes = IOUtils.toByteArray(inputStream);
 					attachmentWithDataDto.setData(bytes);
-				} catch (IOException e) {
-					throw new CoreException(e);
-				} finally {
-					IOUtils.closeQuietly(inputStream);
-				}
+				}	
+			} catch (IOException e) {
+				throw new CoreException(e);
 			}
+			
 			return attachmentWithDataDto;
 		}
 		
@@ -894,9 +893,9 @@ public class DefaultSysSystemAttributeMappingService extends
 	 */
 	private List<SysSystemAttributeMappingDto> getAttributeMapping(String schemaAttributeName,
 			SysSystemMappingDto mapping, UUID systemId) {
-		Assert.notNull(schemaAttributeName);
-		Assert.notNull(mapping);
-		Assert.notNull(systemId);
+		Assert.notNull(schemaAttributeName, "Schema attribute is required.");
+		Assert.notNull(mapping, "Mapping is required.");
+		Assert.notNull(systemId, "System identifier is required.");
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSchemaAttributeName(schemaAttributeName);

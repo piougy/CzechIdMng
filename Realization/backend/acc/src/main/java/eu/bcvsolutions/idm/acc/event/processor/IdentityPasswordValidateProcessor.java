@@ -73,12 +73,12 @@ public class IdentityPasswordValidateProcessor
 			IdentityConfiguration identityConfiguration) {
 		super(IdentityEventType.PASSWORD);
 		//
-		Assert.notNull(identityAccountService);
-		Assert.notNull(identityAccountRepository);
-		Assert.notNull(passwordPolicyService);
-		Assert.notNull(passwordService);
-		Assert.notNull(securityService);
-		Assert.notNull(identityConfiguration);
+		Assert.notNull(identityAccountService, "Service is required.");
+		Assert.notNull(identityAccountRepository, "Repository is required.");
+		Assert.notNull(passwordPolicyService, "Service is required.");
+		Assert.notNull(passwordService, "Service is required.");
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(identityConfiguration, "Configuration is required.");
 		//
 		this.passwordPolicyService = passwordPolicyService;
 		this.identityAccountService = identityAccountService;
@@ -99,8 +99,8 @@ public class IdentityPasswordValidateProcessor
 				.get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
 		IdmIdentityDto identity = event.getContent();
 		//
-		Assert.notNull(passwordChangeDto);
-		Assert.notNull(identity);
+		Assert.notNull(passwordChangeDto, "Password change dto is required.");
+		Assert.notNull(identity, "Identity is required.");
 		//
 		LOG.debug("Call validate password for systems and default password policy for identity username [{}]",
 				event.getContent().getUsername());
@@ -177,7 +177,7 @@ public class IdentityPasswordValidateProcessor
 		}).forEach(identityAccount -> {
 			// get validate password policy from system
 			// TODO: change to DTO after refactoring
-			IdmPasswordPolicy passwordPolicyEntity = identityAccountRepository.findOne(identityAccount.getId()).getAccount()
+			IdmPasswordPolicy passwordPolicyEntity = identityAccountRepository.findById(identityAccount.getId()).get().getAccount()
 					.getSystem().getPasswordPolicyValidate();
 			IdmPasswordPolicyDto passwordPolicy = null;
 			if (passwordPolicyEntity != null) {

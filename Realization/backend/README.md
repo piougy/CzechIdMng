@@ -1,15 +1,15 @@
 # CzechIdM backend
 
-Java application deployable to Tomcat 8 application server.
+Java application deployable to Tomcat 9 application server.
 
 ## Requirements
 
-* Install `JDK 8`
+* Install `JDK`, tested versions:
+  * `jdk-11.0.2`
+  * `openjdk 13.33`
 * Install `maven` - at least version `3.1` is required
-* Install `Tomcat 8.0.*`, tested versions:
-  * 8.0.24
-  * 8.0.35
-  * 8.0.36
+* Install `Tomcat`, tested versions:
+  * `9.0.24`
 
 ## Project modules [mandatory]
 * `parent` - maven parent of all following submodules with common dependencies.

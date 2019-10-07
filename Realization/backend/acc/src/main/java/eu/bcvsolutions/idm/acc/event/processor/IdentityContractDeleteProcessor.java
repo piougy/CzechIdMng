@@ -40,7 +40,7 @@ public class IdentityContractDeleteProcessor
 			AccContractAccountService entityAccountService) {
 		super(IdentityContractEventType.DELETE);
 		//
-		Assert.notNull(entityAccountService);
+		Assert.notNull(entityAccountService, "Service is required.");
 		//
 		this.entityAccountService = entityAccountService;
 	}

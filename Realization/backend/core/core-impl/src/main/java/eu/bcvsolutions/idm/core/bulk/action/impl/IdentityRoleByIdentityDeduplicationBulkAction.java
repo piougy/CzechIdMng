@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.PageRequest;
@@ -199,7 +199,7 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 		Boolean skipSubdefinition = !isCheckSubdefinition();
 
 		// Identity roles must be sorted by create, for duplicities with manually will be removed always the newer.
-		Pageable page = new PageRequest(0, Integer.MAX_VALUE, new Sort(Direction.DESC, IdmIdentityRole_.created.getName()));
+		Pageable page = PageRequest.of(0, Integer.MAX_VALUE, new Sort(Direction.DESC, IdmIdentityRole_.created.getName()));
 		
 		List<IdmIdentityRoleDto> duplicities = new ArrayList<>();
 

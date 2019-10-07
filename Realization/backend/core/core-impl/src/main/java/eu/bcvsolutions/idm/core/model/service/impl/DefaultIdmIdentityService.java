@@ -15,7 +15,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -107,11 +107,11 @@ public class DefaultIdmIdentityService
 			IdmPasswordService passwordService) {
 		super(repository, entityEventManager, formService);
 		//
-		Assert.notNull(roleService);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(roleConfiguration);
-		Assert.notNull(identityContractService);
-		Assert.notNull(tokenManager);
+		Assert.notNull(roleService, "Service is required.");
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(roleConfiguration, "Configuration is required.");
+		Assert.notNull(identityContractService, "Service is required.");
+		Assert.notNull(tokenManager, "Manager is required.");
 		//
 		this.repository = repository;
 		this.roleService = roleService;
@@ -141,7 +141,7 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional
 	public IdmIdentityDto saveInternal(IdmIdentityDto identity) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required.");
 		//
 		if (identity.getState() == null) {
 			identity.setState(evaluateState(identity));
@@ -272,7 +272,7 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional
 	public List<OperationResult> passwordChange(IdmIdentityDto identity, PasswordChangeDto passwordChangeDto) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required.");
 		//
 		return passwordChange(new IdentityEvent(
 				IdentityEventType.PASSWORD,
@@ -283,8 +283,9 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional
 	public List<OperationResult> passwordChange(CoreEvent<IdmIdentityDto> passwordChangeEvent) {
-		Assert.notNull(passwordChangeEvent);
-		Assert.notNull(passwordChangeEvent.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO));
+		Assert.notNull(passwordChangeEvent, "Password change event is required.");
+		Assert.notNull(passwordChangeEvent.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO),
+				"Password change DTO is required.");
 		//
 		LOG.debug("Changing password for identity [{}]", passwordChangeEvent.getContent().getUsername());
 		EventContext<IdmIdentityDto> context = entityEventManager.process(passwordChangeEvent);
@@ -368,6 +369,9 @@ public class DefaultIdmIdentityService
 		Assert.notNull(roleId, "Role is required");
 		//
 		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
+
+			private static final long serialVersionUID = 1L;
+
 			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				Subquery<IdmIdentityRole> subquery = query.subquery(IdmIdentityRole.class);
 				Root<IdmIdentityRole> subRoot = subquery.from(IdmIdentityRole.class);
@@ -432,7 +436,7 @@ public class DefaultIdmIdentityService
 		filter.setManagersByTreeType(byTreeType);
 		//
 		List<IdmIdentityDto> results = new ArrayList<>();
-		Page<IdmIdentityDto> managers = find(filter, new PageRequest(0, 50, Sort.Direction.ASC, IdmIdentity_.username.getName()));
+		Page<IdmIdentityDto> managers = find(filter, PageRequest.of(0, 50, Sort.Direction.ASC, IdmIdentity_.username.getName()));
 		results.addAll(managers.getContent());
 		while (managers.hasNext()) {
 			managers = find(filter, managers.nextPageable());
@@ -499,7 +503,7 @@ public class DefaultIdmIdentityService
 	@Override
 	@Deprecated
 	@Transactional
-	public void updateAuthorityChange(List<UUID> identities, DateTime changeTime) {
+	public void updateAuthorityChange(List<UUID> identities, ZonedDateTime changeTime) {
 		Assert.notNull(identities);
 		//
 		if (identities.isEmpty()) {
@@ -521,7 +525,7 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional
 	public IdmIdentityDto enable(UUID identityId, BasePermission... permission) {
-		Assert.notNull(identityId);
+		Assert.notNull(identityId, "Identity identifier is required.");
 		IdmIdentityDto identity = get(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId.toString()));
@@ -540,7 +544,7 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional
 	public IdmIdentityDto disable(UUID identityId, BasePermission... permission) {
-		Assert.notNull(identityId);
+		Assert.notNull(identityId, "Identity identifier is required.");
 		IdmIdentityDto identity = get(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId.toString()));
@@ -559,7 +563,7 @@ public class DefaultIdmIdentityService
 	@Override
 	@Transactional(readOnly = true)
 	public IdentityState evaluateState(UUID identityId) {
-		Assert.notNull(identityId);
+		Assert.notNull(identityId, "Identity identifier is required.");
 		IdmIdentityDto identity = get(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId.toString()));
@@ -634,6 +638,9 @@ public class DefaultIdmIdentityService
 	 */
 	private Specification<IdmIdentity> findValidByRoleSpecification(UUID roleId) {
 		Specification<IdmIdentity> criteria = new Specification<IdmIdentity>() {
+
+			private static final long serialVersionUID = 1L;
+
 			public Predicate toPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				List<Predicate> predicates = new ArrayList<>();
 				//

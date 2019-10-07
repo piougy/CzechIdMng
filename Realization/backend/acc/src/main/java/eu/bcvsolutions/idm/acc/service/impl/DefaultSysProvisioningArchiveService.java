@@ -10,7 +10,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -74,7 +74,7 @@ public class DefaultSysProvisioningArchiveService
 	@Override
 	@Transactional
 	public void deleteInternal(SysProvisioningArchiveDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		// delete attributes
 		provisioningAttributeService.deleteAttributes(dto);
 		//
@@ -102,7 +102,7 @@ public class DefaultSysProvisioningArchiveService
 		// preserve original created => operation was created
 		archive.setCreated(provisioningOperation.getCreated());
 		// archive modified is used as the executed / canceled 
-		archive.setModified(DateTime.now());
+		archive.setModified(ZonedDateTime.now());
 		// archive relation on the role-request
 		archive.setRoleRequestId(provisioningOperation.getRoleRequestId());
 		//
@@ -145,12 +145,12 @@ public class DefaultSysProvisioningArchiveService
 			predicates.add(builder.equal(root.get(SysProvisioningArchive_.system).get(SysSystem_.id), systemId));
 		}
 		// From
-		DateTime from = filter.getFrom();
+		ZonedDateTime from = filter.getFrom();
 		if (from != null) {
 			predicates.add(builder.greaterThanOrEqualTo(root.get(SysProvisioningArchive_.created), from));
 		}
 		// Till
-		DateTime till = filter.getTill();
+		ZonedDateTime till = filter.getTill();
 		if (till != null) {
 			predicates.add(builder.lessThanOrEqualTo(root.get(SysProvisioningArchive_.created), till));
 		}

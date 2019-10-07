@@ -17,7 +17,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -102,45 +102,22 @@ public class DefaultSysProvisioningOperationService
 	private static final String CONNECTOR_OBJECT_PROPERTY_PREFIX = "sys:connector:";
 	
 	private final SysProvisioningOperationRepository repository;
-	private final SysProvisioningArchiveService provisioningArchiveService;
-	private final SysProvisioningBatchService batchService;
-	private final NotificationManager notificationManager;
-	private final ConfidentialStorage confidentialStorage;
-	private final SysSystemService systemService;
-	private final SecurityService securityService;
-	private final SysSystemEntityService systemEntityService;
 	//
+	@Autowired private SysProvisioningArchiveService provisioningArchiveService;
+	@Autowired private SysProvisioningBatchService batchService;
+	@Autowired private NotificationManager notificationManager;
+	@Autowired private ConfidentialStorage confidentialStorage;
+	@Autowired private SysSystemService systemService;
+	@Autowired private SecurityService securityService;
+	@Autowired private SysSystemEntityService systemEntityService;
 	@Autowired private ProvisioningConfiguration provisioningConfiguration;
 	@Autowired private SysProvisioningAttributeService provisioningAttributeService;
 
 	@Autowired
-	public DefaultSysProvisioningOperationService(
-			SysProvisioningOperationRepository repository,
-			SysProvisioningArchiveService provisioningArchiveService,
-			SysProvisioningBatchService batchService,
-			NotificationManager notificationManager,
-			ConfidentialStorage confidentialStorage,
-			SysSystemService systemService,
-			SecurityService securityService,
-			SysSystemEntityService systemEntityService) {
+	public DefaultSysProvisioningOperationService(SysProvisioningOperationRepository repository) {
 		super(repository);
 		//
-		Assert.notNull(provisioningArchiveService);
-		Assert.notNull(batchService);
-		Assert.notNull(notificationManager);
-		Assert.notNull(confidentialStorage);
-		Assert.notNull(systemService);
-		Assert.notNull(securityService);
-		Assert.notNull(systemEntityService);
-		//
 		this.repository = repository;
-		this.provisioningArchiveService = provisioningArchiveService;
-		this.batchService = batchService;
-		this.notificationManager = notificationManager;
-		this.confidentialStorage = confidentialStorage;
-		this.systemService = systemService;
-		this.securityService = securityService;
-		this.systemEntityService = systemEntityService;
 	}
 	
 	@Override
@@ -163,12 +140,12 @@ public class DefaultSysProvisioningOperationService
 			predicates.add(builder.equal(root.get(SysProvisioningOperation_.system).get(SysSystem_.id), systemId));
 		}
 		// From
-		DateTime from = filter.getFrom();
+		ZonedDateTime from = filter.getFrom();
 		if (from != null) {
 			predicates.add(builder.greaterThanOrEqualTo(root.get(SysProvisioningOperation_.created), from));
 		}
 		// Till
-		DateTime till = filter.getTill();
+		ZonedDateTime till = filter.getTill();
 		if (till != null) {
 			predicates.add(builder.lessThanOrEqualTo(root.get(SysProvisioningOperation_.created), till));
 		}
@@ -335,7 +312,7 @@ public class DefaultSysProvisioningOperationService
 	@Override
 	@Transactional
 	public void deleteInternal(SysProvisioningOperationDto provisioningOperation) {
-		Assert.notNull(provisioningOperation);
+		Assert.notNull(provisioningOperation, "Operation is required for delete.");
 		//
 		// delete persisted confidential storage values
 		deleteConfidentialStrings(provisioningOperation);
@@ -363,7 +340,7 @@ public class DefaultSysProvisioningOperationService
 		List<SysProvisioningOperationDto> sortedList = this
 				.findByBatchId(
 					batchId, 
-					new PageRequest(0, Integer.MAX_VALUE, new Sort(Direction.ASC, SysProvisioningOperation_.created.getName()))
+					PageRequest.of(0, Integer.MAX_VALUE, new Sort(Direction.ASC, SysProvisioningOperation_.created.getName()))
 				)
 				.getContent();
 		
@@ -736,7 +713,7 @@ public class DefaultSysProvisioningOperationService
 	@Override
 	@Transactional
 	public long deleteOperations(UUID systemId) {
-		Assert.notNull(systemId);
+		Assert.notNull(systemId, "System identifier is requred for delete provisioning operations.");
 		//
 		long deleted = repository.deleteBySystem(systemId);
 		// delete attributes for the deleted operations
@@ -764,7 +741,7 @@ public class DefaultSysProvisioningOperationService
 	 * @param provisioningOperation
 	 */
 	protected void deleteConfidentialStrings(SysProvisioningOperationDto provisioningOperation) {
-		Assert.notNull(provisioningOperation);
+		Assert.notNull(provisioningOperation, "Provisioning operation is required for delete related confidential values.");
 		//
 		ProvisioningContext context = provisioningOperation.getProvisioningContext();
 		if (context == null) {

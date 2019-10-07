@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -62,17 +62,6 @@ public interface IdmIdentityContractService extends
 	 * @return
 	 */	
 	Page<IdmIdentityContractDto> findExpiredContracts(LocalDate expiration, Pageable pageable);
-	
-	/**
-	 * Constructs main contract for given identity by configuration.
-	 * 
-	 * @see {@link IdmTreeTypeService#getDefaultTreeType()}
-	 * @param identityId
-	 * @return
-	 * @deprecated see {@link #prepareMainContract(UUID)}
-	 */
-	@Deprecated
-	IdmIdentityContractDto prepareDefaultContract(UUID identityId);	
 	
 	/**
 	 * Constructs main contract for given identity by configuration.

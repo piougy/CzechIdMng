@@ -34,7 +34,7 @@ public class RoleCatalogueSaveProcessor extends CoreEventProcessor<IdmRoleCatalo
 	public RoleCatalogueSaveProcessor(ApplicationContext applicationContext) {
 		super(RoleCatalogueEventType.NOTIFY);
 		//
-		Assert.notNull(applicationContext);
+		Assert.notNull(applicationContext, "Context is required.");
 		//
 		this.applicationContext = applicationContext;
 	}

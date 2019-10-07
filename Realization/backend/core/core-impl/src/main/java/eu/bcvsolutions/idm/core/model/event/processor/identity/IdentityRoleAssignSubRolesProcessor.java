@@ -63,7 +63,7 @@ public class IdentityRoleAssignSubRolesProcessor
 	@Override
 	public EventResult<IdmIdentityRoleDto> process(EntityEvent<IdmIdentityRoleDto> event) {
 		IdmIdentityRoleDto identityRole = event.getContent();
-		Assert.notNull(identityRole.getId());
+		Assert.notNull(identityRole, "Identity role identifier is required.");
 		//
 		if (CoreEventType.CREATE.name().equals(event.getParentType())) {
 			// create

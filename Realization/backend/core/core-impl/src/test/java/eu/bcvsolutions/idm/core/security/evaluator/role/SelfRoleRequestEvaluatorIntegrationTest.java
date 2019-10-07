@@ -107,7 +107,7 @@ public class SelfRoleRequestEvaluatorIntegrationTest extends AbstractIntegration
 			roleRequest.setRequestedByType(RoleRequestedByType.MANUALLY);
 			roleRequest = roleRequestService.save(roleRequest, IdmBasePermission.CREATE);
 			//
-			Assert.notNull(roleRequest.getId());
+			Assert.notNull(roleRequest.getId(), "Request identifier is required.");
 		} finally {
 			logout();
 		}

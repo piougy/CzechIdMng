@@ -72,9 +72,9 @@ public class FilterBuilderController  {
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
 		List<FilterBuilderDto> filterBuilderDtos = filterManager.find(toFilter(parameters));
-		PageImpl page = new PageImpl(filterBuilderDtos, new PageRequest(0, filterBuilderDtos.size() == 0 ? 10 : filterBuilderDtos.size()), filterBuilderDtos.size());
+		PageImpl page = new PageImpl(filterBuilderDtos, PageRequest.of(0, filterBuilderDtos.size() == 0 ? 10 : filterBuilderDtos.size()), filterBuilderDtos.size());
 		if (page.getContent().isEmpty()) {
-			return pagedResourcesAssembler.toEmptyResource(page, FilterBuilderDto.class, null);
+			return pagedResourcesAssembler.toEmptyResource(page, FilterBuilderDto.class);
 		}
 		return pagedResourcesAssembler.toResource(page);
 	}

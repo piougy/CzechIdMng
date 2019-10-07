@@ -41,7 +41,7 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 			SysSystemEntityService systemEntityService) {
 		super(connectorFacade, systemService, provisioningOperationService, systemEntityService, ProvisioningEventType.DELETE);
 		//
-		Assert.notNull(systemService);
+		Assert.notNull(systemService, "Service is required.");
 		//
 		this.systemService = systemService;
 	}

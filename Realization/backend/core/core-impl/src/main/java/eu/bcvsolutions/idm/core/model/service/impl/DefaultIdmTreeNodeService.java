@@ -88,11 +88,11 @@ public class DefaultIdmTreeNodeService
 		IdmTreeNodeForestContentService forestContentService) {
 		super(treeNodeRepository, entityEventManager, formService);
 		//
-		Assert.notNull(treeTypeService);
-		Assert.notNull(configurationService);
-		Assert.notNull(longRunningTaskManager);
-		Assert.notNull(baseTreeService);
-		Assert.notNull(forestContentService);
+		Assert.notNull(treeTypeService, "Service is required.");
+		Assert.notNull(configurationService, "Service is required.");
+		Assert.notNull(longRunningTaskManager, "Manager is required.");
+		Assert.notNull(baseTreeService, "Service is required.");
+		Assert.notNull(forestContentService, "Service is required.");
 		//
 		this.repository = treeNodeRepository;
 		this.treeTypeService = treeTypeService;
@@ -135,14 +135,14 @@ public class DefaultIdmTreeNodeService
 	@Override
 	@Transactional
 	public void deleteInternal(IdmTreeNodeDto treeNode) {
-		Assert.notNull(treeNode);
-		Assert.notNull(treeNode.getTreeType());
+		Assert.notNull(treeNode, "Tree node is required.");
+		Assert.notNull(treeNode.getTreeType(), "Tree type is required.");
 		LOG.debug("Deleting tree node [{}] - [{}]", treeNode.getTreeType(), treeNode.getCode());
 		//
 		// if index rebuild is in progress, then throw exception
 		checkTreeType(treeNode.getTreeType());
 		//
-		Page<IdmTreeNode> nodes = repository.findChildren(null, treeNode.getId(), new PageRequest(0, 1));
+		Page<IdmTreeNode> nodes = repository.findChildren(null, treeNode.getId(), PageRequest.of(0, 1));
 		if (nodes.getTotalElements() > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}
@@ -154,7 +154,7 @@ public class DefaultIdmTreeNodeService
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmTreeNodeDto> findRoots(UUID treeTypeId, Pageable pageable) {
-		return toDtoPage(this.repository.findChildren(treeTypeId, null, pageable));
+		return toDtoPage(this.repository.findRoots(treeTypeId, pageable));
 	}
 
 	@Override
@@ -172,7 +172,7 @@ public class DefaultIdmTreeNodeService
 	@Override
 	@Transactional
 	public UUID rebuildIndexes(UUID treeTypeId) {
-		Assert.notNull(treeTypeId);
+		Assert.notNull(treeTypeId, "Tree type identifier is required.");
 		IdmTreeTypeDto treeType = treeTypeService.get(treeTypeId);
 		Assert.notNull(treeType, "Tree type is required");
 		//
@@ -268,7 +268,7 @@ public class DefaultIdmTreeNodeService
 		if (checkCorrectType(node, isNew)) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_TYPE,  "TreeNode ["+node.getName() +"] have bad type.");
 		}
-		if (this.baseTreeService.validateTreeNodeParents(isNew ? toEntity(node) : toEntity(node, repository.findOne(node.getId())))) {
+		if (this.baseTreeService.validateTreeNodeParents(isNew ? toEntity(node) : toEntity(node, repository.findById(node.getId()).get()))) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
 		}
 	}
@@ -289,7 +289,7 @@ public class DefaultIdmTreeNodeService
 			return false;
 		}
 		
-		IdmTreeNode currentNode = repository.findOne(treeNode.getId());
+		IdmTreeNode currentNode = repository.findById(treeNode.getId()).orElse(null);
 		
 		if (currentNode != null) {
 			return !currentNode.getTreeType().getId().equals(treeNode.getTreeType());

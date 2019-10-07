@@ -48,8 +48,8 @@ public class IdentityScriptValueGenerator extends AbstractValueGenerator<IdmIden
 
 	@Override
 	public IdmIdentityDto generate(IdmIdentityDto dto, IdmGenerateValueDto valueGenerator) {
-		Assert.notNull(dto);
-		Assert.notNull(valueGenerator);
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(valueGenerator, "Value generator is required.");
 		//
 		String scriptCode = getScriptCode(valueGenerator);
 		Object returnValue = systemScriptEvaluator.evaluate(new AbstractScriptEvaluator.Builder()

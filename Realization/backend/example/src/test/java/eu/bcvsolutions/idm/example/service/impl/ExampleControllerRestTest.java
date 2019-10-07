@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Example service - rest tests
@@ -49,7 +50,7 @@ public class ExampleControllerRestTest extends AbstractRestTest {
 		getMockMvc().perform(get(BaseController.BASE_PATH + "/examples/ping")
 				.with(authentication(getAuthentication()))
 				.param("message", message)
-				.contentType(InitTestData.HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$.message", equalTo(message)));
     }

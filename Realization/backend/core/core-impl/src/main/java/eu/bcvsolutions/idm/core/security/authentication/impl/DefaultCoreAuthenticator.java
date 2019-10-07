@@ -34,7 +34,7 @@ public class DefaultCoreAuthenticator extends AbstractAuthenticator implements A
 	public DefaultCoreAuthenticator(LoginService loginService) {
 		super();
 		//
-		Assert.notNull(loginService);
+		Assert.notNull(loginService, "Service is required.");
 		//
 		this.loginService = loginService;
 	}

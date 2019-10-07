@@ -7,12 +7,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import org.joda.time.DateTime;
-import org.joda.time.DurationFieldType;
-import org.joda.time.LocalDate;
-import org.joda.time.Seconds;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +49,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Ondrej Kopr
  *
  */
-public class AuthenticationManagerTest extends AbstractIntegrationTest {
+public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -155,7 +154,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		tryLoginExceptFail(identity.getUsername(), "badPassword" + System.currentTimeMillis());
 		
 		identity = identityService.get(identity.getId());
-		DateTime blockLoginDate = identity.getBlockLoginDate();
+		ZonedDateTime blockLoginDate = identity.getBlockLoginDate();
 		assertNull(blockLoginDate); // blockLoginDate isn't filled by service more
 		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
 		assertNotNull(password);
@@ -378,7 +377,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		GuardedString oldPassword = new GuardedString(String.valueOf(System.currentTimeMillis()));
 		loginDto.setPassword(oldPassword);
 
-		DateTime start = DateTime.now();
+		ZonedDateTime start = ZonedDateTime.now();
 		try {
 			authenticationManager.authenticate(loginDto);
 			fail();
@@ -390,15 +389,15 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		assertNotNull(passwordDto);
 		assertNotNull(passwordDto.getBlockLoginDate());
 		assertEquals(1, passwordDto.getUnsuccessfulAttempts());
-		DateTime blockLoginDate = passwordDto.getBlockLoginDate();
+		ZonedDateTime blockLoginDate = passwordDto.getBlockLoginDate();
 
-		int seconds = Seconds.secondsBetween(start, blockLoginDate).get(DurationFieldType.seconds());
+		long seconds = ChronoUnit.SECONDS.between(start, blockLoginDate);
 		if (seconds > 3) { // correct is 2 second but some machine can be slower
 			fail("Diff between start and block date is more than 3 second. Current: " + seconds);
 		}
 		Thread.sleep(1000 * seconds);
 
-		start = DateTime.now();
+		start = ZonedDateTime.now();
 		try {
 			authenticationManager.authenticate(loginDto);
 			fail();
@@ -411,7 +410,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		assertNotNull(passwordDto.getBlockLoginDate());
 		assertEquals(2, passwordDto.getUnsuccessfulAttempts()); // Attempts are increased
 		blockLoginDate = passwordDto.getBlockLoginDate();
-		seconds = Seconds.secondsBetween(start, blockLoginDate).get(DurationFieldType.seconds());
+		seconds = ChronoUnit.SECONDS.between(start, blockLoginDate);
 		if (seconds > 5) { // correct is 4 second but some machine can be slower
 			fail("Diff between start and block date is more than 5 second. Current: " + seconds);
 		}
@@ -526,10 +525,10 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identityDto.getId());
 		
 		assertFalse(passwordDto.isPasswordNeverExpires());
-		passwordDto.setValidTill(new LocalDate().plusDays(10));
+		passwordDto.setValidTill(LocalDate.now().plusDays(10));
 		passwordDto = passwordService.save(passwordDto);
 		assertFalse(passwordDto.isPasswordNeverExpires());
-		assertEquals(new LocalDate().plusDays(10), passwordDto.getValidTill());
+		assertEquals(LocalDate.now().plusDays(10), passwordDto.getValidTill());
 		
 		passwordDto.setPasswordNeverExpires(true);
 
@@ -552,7 +551,7 @@ public class AuthenticationManagerTest extends AbstractIntegrationTest {
 		IdmIdentityDto identityDto = this.getHelper().createIdentity(new GuardedString(password));
 		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identityDto.getId());
 
-		assertEquals(new LocalDate().plusDays(10), passwordDto.getValidTill());
+		assertEquals(LocalDate.now().plusDays(10), passwordDto.getValidTill());
 		
 		
 		PasswordChangeDto passwordChange = new PasswordChangeDto();

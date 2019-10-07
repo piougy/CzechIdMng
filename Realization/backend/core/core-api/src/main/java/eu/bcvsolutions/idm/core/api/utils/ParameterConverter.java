@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -10,8 +12,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 
@@ -54,7 +54,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public String toString(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 	    //
 		return toString(toSingleValueMap(parameters), parameterName);
 	}
@@ -67,8 +67,8 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public String toString(Map<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
-	    Assert.notNull(parameterName);
+		Assert.notNull(parameters, "Input parameters are required.");
+	    Assert.notNull(parameterName, "Parameter name is required.");
 	    //
 		return toString(parameters.get(parameterName));
 	}
@@ -97,7 +97,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public List<String> toStrings(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 		//
 		List<String> results = new ArrayList<>();
 		//
@@ -121,7 +121,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public Boolean toBoolean(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 		//
 		return toBoolean(toSingleValueMap(parameters), parameterName);
 	}
@@ -135,7 +135,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public boolean toBoolean(MultiValueMap<String, Object> parameters, String parameterName, boolean deafultValue) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 	    //
 		return toBoolean(toSingleValueMap(parameters), parameterName, deafultValue);
 	}
@@ -149,7 +149,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public boolean toBoolean(Map<String, Object> parameters, String parameterName, boolean deafultValue) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 		//
 		Boolean result = toBoolean(parameters, parameterName);
 		return result == null ? deafultValue : result;
@@ -188,7 +188,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public Long toLong(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 		//
 		return toLong(toSingleValueMap(parameters), parameterName);
 	}
@@ -220,7 +220,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public UUID toUuid(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 	    //
 		return toUuid(toSingleValueMap(parameters), parameterName);
 	}
@@ -233,7 +233,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public List<UUID> toUuids(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 		//
 		List<UUID> results = new ArrayList<>();
 		//
@@ -257,7 +257,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public List<UUID> toUuids(Map<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 		//
 		List<UUID> results = new ArrayList<>();
 		//
@@ -299,7 +299,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public <T extends Enum<T>> T toEnum(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 	    //
 		return toEnum(toSingleValueMap(parameters), parameterName, enumClass);
 	}
@@ -313,7 +313,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public <T extends Enum<T>> List<T> toEnums(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 		//
 		List<T> results = new ArrayList<>();
 		List<Object> parameterValues = parameters.get(parameterName);
@@ -337,7 +337,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public <T extends Enum<T>> T toEnum(Map<String, Object> parameters, String parameterName, Class<T> enumClass) {
-		Assert.notNull(enumClass);
+		Assert.notNull(enumClass, "Enum class name is required.");
 	    //
 	    return toEnum(toString(parameters, parameterName), parameterName, enumClass);
 	}
@@ -351,7 +351,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public <T extends Enum<T>> T toEnum(String parameterValue, String parameterName, Class<T> enumClass) {
-		Assert.notNull(enumClass);
+		Assert.notNull(enumClass, "Enum class name is required.");
 	    //
 	    if(StringUtils.isEmpty(parameterValue)) {
 	    	return null;
@@ -372,7 +372,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public <T extends BaseEntity> T toEntity(MultiValueMap<String, Object> parameters, String parameterName, Class<T> identifiableType) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 	    //
 		return toEntity(toSingleValueMap(parameters), parameterName, identifiableType);
 	}
@@ -419,7 +419,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public UUID toEntityUuid(MultiValueMap<String, Object> parameters, String parameterName, Class<? extends Identifiable> identifiableType) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 		//
 		return toEntityUuid(toSingleValueMap(parameters), parameterName, identifiableType);
 	}
@@ -457,8 +457,8 @@ public class ParameterConverter {
 	 * @param parameterName
 	 * @return
 	 */
-	public DateTime toDateTime(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
+	public ZonedDateTime toDateTime(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters, "Input parameters are required.");
 	    //
 		return toDateTime(toSingleValueMap(parameters), parameterName);
 	}
@@ -470,16 +470,16 @@ public class ParameterConverter {
 	 * @param parameterName
 	 * @return
 	 */
-	public DateTime toDateTime(Map<String, Object> parameters, String parameterName) {
+	public ZonedDateTime toDateTime(Map<String, Object> parameters, String parameterName) {
 		Object valueAsObject = parameters.get(parameterName);
-		if (valueAsObject instanceof DateTime) {
-			return (DateTime) valueAsObject;
+		if (valueAsObject instanceof ZonedDateTime) {
+			return (ZonedDateTime) valueAsObject;
 		}
 		String valueAsString = toString(parameters, parameterName);
 		if (valueAsString == null || valueAsString.isEmpty()) {
 			return null;
 		} else {
-			return new DateTime(valueAsString);
+			return ZonedDateTime.parse(valueAsString);
 		}
 	}
 	
@@ -491,7 +491,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public LocalDate toLocalDate(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
+		Assert.notNull(parameters, "Input parameters are required.");
 	    //
 		return toLocalDate(toSingleValueMap(parameters), parameterName);
 	}
@@ -508,7 +508,7 @@ public class ParameterConverter {
 		if (valueAsString == null || valueAsString.isEmpty()) {
 			return null;
 		} else {
-			return new LocalDate(valueAsString);
+			return LocalDate.parse(valueAsString);
 		}
 	}
 	

@@ -72,7 +72,7 @@ public class DefaultIdmFormAttributeService
 			List<? extends FormValueService<?>> formValueServices) {
 		super(repository, entityEventManager);
 		//
-		Assert.notNull(formValueServices);
+		Assert.notNull(formValueServices, "Service is required.");
 		//
 		this.repository = repository;
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
@@ -140,12 +140,12 @@ public class DefaultIdmFormAttributeService
 	@Transactional
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void deleteInternal(IdmFormAttributeDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		// attribute with filled values cannot be deleted
 		IdmFormValueFilter filter = new IdmFormValueFilter();
 		filter.setAttributeId(dto.getId());
 		formValueServices.getPlugins().forEach(formValueService -> {
-			if (formValueService.find(filter, new PageRequest(0, 1)).getTotalElements() > 0) {
+			if (formValueService.find(filter, PageRequest.of(0, 1)).getTotalElements() > 0) {
 				throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES, ImmutableMap.of("formAttribute", dto.getCode()));
 			}
 		});
@@ -161,7 +161,7 @@ public class DefaultIdmFormAttributeService
 		// check rules for automatic role attributes
 		IdmAutomaticRoleAttributeRuleFilter automaticRoleRuleFilter = new IdmAutomaticRoleAttributeRuleFilter();
 		automaticRoleRuleFilter.setFormAttributeId(dto.getId());
-		long totalElements = automaticRoleAttributeService.find(automaticRoleRuleFilter, new PageRequest(0, 1)).getTotalElements();
+		long totalElements = automaticRoleAttributeService.find(automaticRoleRuleFilter, PageRequest.of(0, 1)).getTotalElements();
 		if (totalElements > 0) {
 			// some automatic roles use this attribute
 			throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_AUTOMATIC_ROLE_RULE_ASSIGNED, ImmutableMap.of("formAttribute", dto.getId()));
@@ -171,7 +171,7 @@ public class DefaultIdmFormAttributeService
 		if(dto.getId() != null) {
 			IdmRoleFormAttributeFilter roleFormAttributeFilter = new IdmRoleFormAttributeFilter();
 			roleFormAttributeFilter.setFormAttribute(dto.getId());
-			List<IdmRoleFormAttributeDto> attributes = roleFormAttributeService.find(roleFormAttributeFilter, new PageRequest(0, 1)).getContent();
+			List<IdmRoleFormAttributeDto> attributes = roleFormAttributeService.find(roleFormAttributeFilter, PageRequest.of(0, 1)).getContent();
 			if(attributes.size() > 0) {
 				IdmRoleDto roleDto = DtoUtils.getEmbedded(attributes.get(0), IdmRoleFormAttribute_.role.getName(), IdmRoleDto.class);
 				throw new ResultCodeException(CoreResultCode.FORM_ATTRIBUTE_DELETE_FAILED_ROLE_ATTRIBUTE, ImmutableMap.of("definition", dto.getCode(), "role", roleDto.getCode()));

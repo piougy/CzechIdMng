@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,6 +73,12 @@ public class DefaultSysSyncItemLogService
 					.get(SysSystemMapping_.objectClass) //
 					.get(SysSchemaObjectClass_.system) //
 					.get(AbstractEntity_.id), systemId));
+		}
+
+		// Modified from
+		ZonedDateTime modifiedFrom = filter.getModifiedFrom();
+		if (modifiedFrom != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncItemLog_.modified), modifiedFrom));
 		}
 
 		return predicates;

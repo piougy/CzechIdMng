@@ -1,15 +1,14 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
@@ -40,11 +39,8 @@ public class DefaultSysProvisioningBatchService
 	@Autowired private ProvisioningConfiguration provisioningConfiguration;
 	
 	@Autowired
-	public DefaultSysProvisioningBatchService(
-			SysProvisioningBatchRepository repository) {
+	public DefaultSysProvisioningBatchService(SysProvisioningBatchRepository repository) {
 		super(repository);
-		//
-		Assert.notNull(repository);
 		//
 		this.repository = repository;
 	}
@@ -55,22 +51,22 @@ public class DefaultSysProvisioningBatchService
 	 * @return Date of the next attempt. Null if there should be no next attempt 
 	 */
 	@Override
-	public DateTime calculateNextAttempt(SysProvisioningOperationDto operation) {		
+	public ZonedDateTime calculateNextAttempt(SysProvisioningOperationDto operation) {		
 		if (operation.getCurrentAttempt() >= operation.getMaxAttempts()) {
 			LOG.debug("All attemts for retry mechanism for operation [{}] was used current [{}] - max [{}].",
 					operation.getId(), operation.getCurrentAttempt(), operation.getMaxAttempts());
 			return null;
 		}
 		//
-		DateTime nextAttempt;
+		ZonedDateTime nextAttempt;
 		if (operation.getCurrentAttempt() == 0) {
-			nextAttempt = new DateTime();
+			nextAttempt = ZonedDateTime.now();
 		} else {
 			List<Integer> sequence = provisioningConfiguration.getRetrySequence();
 			int indexToSequence = Math.min(operation.getCurrentAttempt() - 1, sequence.size() - 1);
 			Integer secInterval = sequence.get(indexToSequence);
 			//
-			nextAttempt = new DateTime().plusSeconds(secInterval);
+			nextAttempt = ZonedDateTime.now().plusSeconds(secInterval);
 		}
 		//
 		LOG.trace("Next retry attempt for operation [{}] will be executed [{}].", operation.getId(), nextAttempt);
@@ -89,7 +85,7 @@ public class DefaultSysProvisioningBatchService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<SysProvisioningBatchDto> findBatchesToRetry(DateTime date, Pageable pageable) {
+	public Page<SysProvisioningBatchDto> findBatchesToRetry(ZonedDateTime date, Pageable pageable) {
 		return toDtoPage(repository.findByNextAttemptLessThanEqual(date, pageable));
 	}
 	

@@ -91,7 +91,7 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			eventFilter.getStates().add(OperationState.RUNNING);
 			eventFilter.getStates().add(OperationState.CREATED);
 			getHelper().waitForResult(res -> {
-				return entityEventService.find(eventFilter, new PageRequest(0, 1)).getTotalElements() != 0;
+				return entityEventService.find(eventFilter, PageRequest.of(0, 1)).getTotalElements() != 0;
 			}, 1000, 30);
 			//
 			// check after create
@@ -142,7 +142,7 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			// wait for executed events
 			eventFilter.setOwnerId(roleRequestTwo.getId());
 			getHelper().waitForResult(res -> {
-				return entityEventService.find(eventFilter, new PageRequest(0, 1)).getTotalElements() != 0;
+				return entityEventService.find(eventFilter, PageRequest.of(0, 1)).getTotalElements() != 0;
 			}, 1000, 30);
 			//
 			// check after role request is executed
@@ -378,7 +378,7 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			final IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
 			eventFilter.setOwnerId(roleRequestOne.getId());
 			getHelper().waitForResult(res -> {
-				IdmEntityEventDto event = entityEventService.find(eventFilter, new PageRequest(0, 1)).getContent().get(0);
+				IdmEntityEventDto event = entityEventService.find(eventFilter, PageRequest.of(0, 1)).getContent().get(0);
 				return OperationState.EXCEPTION != event.getResult().getState();
 			}, 1000, Integer.MAX_VALUE);
 			

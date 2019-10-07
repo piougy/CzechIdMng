@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.security.auth.filter;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,18 +20,19 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
-import org.springframework.security.oauth2.common.util.JsonParser;
-import org.springframework.security.oauth2.common.util.JsonParserFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -51,11 +53,12 @@ import eu.bcvsolutions.idm.core.security.rest.impl.LoginController;
 //@Component
 public class TestAppAuthenticationFilter extends AbstractAuthenticationFilter {
 	
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
+	@Lazy
 	@Autowired
-	private IdmIdentityService identityService;
-	
-	@Autowired
-	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
 	
 	@Override
 	public boolean authorize(String token, HttpServletRequest request, HttpServletResponse response) {
@@ -69,7 +72,7 @@ public class TestAppAuthenticationFilter extends AbstractAuthenticationFilter {
 			String userName = (String) claims.get(HttpFilterUtils.JWT_USER_NAME);
 			IdmIdentityDto identity = identityService.getByUsername(userName);
 			// not important - either new refreshed token or data are returned to user
-			DateTime expiration = null; 
+			ZonedDateTime expiration = null; 
 			
 			Collection<GrantedAuthority> authorities = null;
 			if (shouldGrantAuthoritiesForPath(request.getServletPath())) {
@@ -119,14 +122,20 @@ public class TestAppAuthenticationFilter extends AbstractAuthenticationFilter {
 		return claims;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Map<String, Object> getClaimsAsMap(Jwt jwt) {
-		JsonParser parser = JsonParserFactory.create();
-		Map<String, Object> map = parser.parseMap(jwt.getClaims());
-		if (map.containsKey(HttpFilterUtils.JWT_EXP) && map.get(HttpFilterUtils.JWT_EXP) instanceof Integer) {
-			Integer intValue = (Integer) map.get(HttpFilterUtils.JWT_EXP);
-			map.put(HttpFilterUtils.JWT_EXP, Long.valueOf(intValue));
-		}
-		return map;
+		try {
+			Map<String, Object> map = (Map<String, Object>) mapper.readValue(jwt.getClaims(), Map.class);
+			//
+			if (map.containsKey(HttpFilterUtils.JWT_EXP) && map.get(HttpFilterUtils.JWT_EXP) instanceof Integer) {
+				Integer intValue = (Integer) map.get(HttpFilterUtils.JWT_EXP);
+				map.put(HttpFilterUtils.JWT_EXP, Long.valueOf(intValue));
+			}
+			return map;
+		} catch (IOException ex) {
+            throw new CoreException(ex);
+        }
+
 	}
 
 	

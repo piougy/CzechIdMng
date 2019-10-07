@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +89,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 
 	@Override
 	public void init(IcConnectorConfiguration configuration) {
-		Assert.notNull(configuration);
+		Assert.notNull(configuration, "Configuration is required.");
 		this.configuration = configuration;
 
 		if (!(configuration instanceof IcConnectorConfigurationCzechIdMImpl)) {
@@ -394,7 +394,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 		}
 
 		if (filter == null) {
-			Pageable pageable = new PageRequest(0, 10);
+			Pageable pageable = PageRequest.of(0, 10);
 			searchByPage(handler, pageable);
 		} else {
 			// TODO: Search by filter
@@ -577,8 +577,8 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 	 * @return
 	 */
 	private IcAttribute geAttribute(List<IcAttribute> attributes, String name) {
-		Assert.notNull(attributes);
-		Assert.notNull(name);
+		Assert.notNull(attributes, "Attributes are required.");
+		Assert.notNull(name, "Attribute name is required.");
 
 		return attributes.stream().filter(attribute -> name.equals(attribute.getName())).findFirst().orElse(null);
 	}
@@ -593,7 +593,7 @@ public class BasicVirtualConnector implements VsVirtualConnector {
 			return Boolean.class.getName();
 		case DATE:
 		case DATETIME:
-			return DateTime.class.getName();
+			return ZonedDateTime.class.getName();
 		case DOUBLE:
 			return Double.class.getName();
 		case CHAR:

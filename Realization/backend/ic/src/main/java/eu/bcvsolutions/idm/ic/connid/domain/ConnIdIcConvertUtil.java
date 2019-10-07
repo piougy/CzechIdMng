@@ -95,9 +95,9 @@ import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 public class ConnIdIcConvertUtil {
 
 	public static ConnectorKey convertConnectorKeyFromDto(IcConnectorKey dto, String icImplementationType) {
-		Assert.notNull(dto);
-		Assert.notNull(icImplementationType);
-		Assert.isTrue(icImplementationType.equals(dto.getFramework()));
+		Assert.notNull(dto, "DTO is required for get a connector key.");
+		Assert.notNull(icImplementationType, "IC implementation is required for get a connector key.");
+		Assert.isTrue(icImplementationType.equals(dto.getFramework()), "Given IC implementation and dto framework differs.");
 
 		return new ConnectorKey(dto.getBundleName(), dto.getBundleVersion(), dto.getConnectorName());
 	}

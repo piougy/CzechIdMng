@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,7 +27,7 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
     private String topic;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private DateTime sent;
+    private ZonedDateTime sent;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String sentLog;
     private List<IdmNotificationRecipientDto> recipients; // recipients are sent in one request
@@ -100,11 +100,11 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
         this.recipients = recipients;
     }
 
-    public DateTime getSent() {
+    public ZonedDateTime getSent() {
         return sent;
     }
 
-    public void setSent(DateTime sent) {
+    public void setSent(ZonedDateTime sent) {
         this.sent = sent;
     }
 

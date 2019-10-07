@@ -6,9 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -28,6 +29,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
  * 
  * @author Radek Tomiška
  */
+@Relation(collectionRelation = "tasks")
 public class Task implements BaseDto {
 
 	private static final long serialVersionUID = 1L;

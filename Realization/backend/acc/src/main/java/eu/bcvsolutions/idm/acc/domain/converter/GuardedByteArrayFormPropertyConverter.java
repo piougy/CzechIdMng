@@ -28,7 +28,7 @@ public class GuardedByteArrayFormPropertyConverter extends AbstractFormPropertyC
 	
 	@Autowired
 	public GuardedByteArrayFormPropertyConverter(FormService formService) {
-		Assert.notNull(formService);
+		Assert.notNull(formService, "Form service (eav) is required.");
 		//
 		this.formService = formService;
 	}

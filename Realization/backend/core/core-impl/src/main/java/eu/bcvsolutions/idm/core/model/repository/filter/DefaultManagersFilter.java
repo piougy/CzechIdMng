@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * @author Radek Tomiška
  *
  */
-@Component("defaultManagersFilter")
+@Component(DefaultManagersFilter.FILTER_NAME)
 @Description("Filter for find managers for given identity. "
 		+ "Supports managers by guarantee and tree structure - finds parent tree node standardly by tree structure. "
 		+ "Manager from tree structure - only direct managers are supported now. "
@@ -44,6 +44,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 public class DefaultManagersFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	
+	public static final String FILTER_NAME = "defaultManagersFilter";
+	//
 	@Autowired private GuaranteeManagersFilter guaranteeManagersFilter;
 	
 	@Override

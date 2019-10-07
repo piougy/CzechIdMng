@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,7 +129,7 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 		identityRoleFilter.setIdentityId(identity.getId());
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService
 				.find(identityRoleFilter,
-						new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmIdentityRole_.created.getName())))
+						PageRequest.of(0, Integer.MAX_VALUE, Sort.by(IdmIdentityRole_.created.getName())))
 				.getContent();
 
 		TestResource resource = helper.findResource(identity.getUsername());

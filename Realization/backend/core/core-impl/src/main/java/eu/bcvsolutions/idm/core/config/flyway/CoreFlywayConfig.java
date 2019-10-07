@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayPostProcessor;
  */
 @Configuration
 @ConditionalOnClass(Flyway.class)
-// @ConditionalOnProperty(prefix = "flyway", name = "enabled", matchIfMissing = false)
 @AutoConfigureAfter(IdmFlywayAutoConfiguration.IdmFlywayConfiguration.class)
 @EnableConfigurationProperties(FlywayProperties.class)
 @PropertySource("classpath:/flyway-core.properties")
@@ -41,7 +40,7 @@ public class CoreFlywayConfig extends AbstractFlywayConfiguration {
 	@ConfigurationProperties(prefix = "flyway.core")
 	public Flyway flywayCore() {
 		Flyway flyway = super.createFlyway();		
-		log.info("Starting flyway migration for module core [{}]: ", flyway.getTable());
+		log.info("Starting flyway migration for module core [{}]: ", flyway.getConfiguration().getTable());
 		return flyway;
 	}
 	

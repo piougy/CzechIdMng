@@ -3,11 +3,9 @@ package eu.bcvsolutions.idm.core.workflow.domain;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.impl.bpmn.behavior.MailActivityBehavior;
-import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -28,17 +26,17 @@ import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender
 public class CustomMailActivityBehavior extends MailActivityBehavior {
 
 	private static final long serialVersionUID = 1L;
-	private static final transient Logger log = LoggerFactory.getLogger(CustomMailActivityBehavior.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(CustomMailActivityBehavior.class);
 
 	private transient EmailNotificationSender emailService;
 	private transient IdmIdentityService identityService;
 
 	/**
-	 * Sending emails through {@link EmailNotificationSender}
+	 * Sending email through {@link EmailNotificationSender}.
 	 */
 	@Override
-	public void execute(ActivityExecution execution) {
-		log.trace("Sending email from workflow execution [{}]", execution.getId());
+	public void execute(DelegateExecution execution) {
+		LOG.trace("Sending email from workflow execution [{}]", execution.getId());
 		IdmEmailLogDto emailLog = new IdmEmailLogDto();
 		// recipients
 		String[] tos = splitAndTrim(getStringFromField(to, execution));
@@ -60,13 +58,13 @@ public class CustomMailActivityBehavior extends MailActivityBehavior {
 				.build());
 
 		IdmNotificationDto result = emailService.send(emailLog);
-		log.trace("Email from workflow execution [{}] was sent with result [{}]", execution.getId(), result == null ? false : true);
+		LOG.trace("Email from workflow execution [{}] was sent with result [{}]", execution.getId(), result == null ? false : true);
 		
 		leave(execution);
 	}
 
 	private IdmNotificationRecipientDto prepareRecipient(String identityOrAddress) {
-		Assert.hasText(identityOrAddress);
+		Assert.hasText(identityOrAddress, "Identity username or email address is required.");
 		//
 		IdmIdentityDto identity = getIdentity(identityOrAddress);
 		if (identity != null) {

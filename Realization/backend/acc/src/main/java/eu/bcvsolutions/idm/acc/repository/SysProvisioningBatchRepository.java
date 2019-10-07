@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.acc.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -71,7 +71,7 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 	 * @param pageable
 	 * @return
 	 */
-	Page<SysProvisioningBatch> findByNextAttemptLessThanEqual(@Param("nextAttempt") DateTime date, Pageable pageable);
+	Page<SysProvisioningBatch> findByNextAttemptLessThanEqual(@Param("nextAttempt") ZonedDateTime date, Pageable pageable);
 	
 	/**
 	 * Merge batches for provisioning operations

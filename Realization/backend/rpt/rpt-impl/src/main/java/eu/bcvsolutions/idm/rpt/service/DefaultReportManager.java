@@ -66,13 +66,13 @@ public class DefaultReportManager implements ReportManager {
 			EnabledEvaluator enabledEvaluator,
 			EntityEventManager entityEventManager,
 			LongRunningTaskManager taskManager) {
-		Assert.notNull(context);
+		Assert.notNull(context, "Context is required.");
 		Assert.notNull(reportExecutorRegistry, "Report executor registry is required!");
 		Assert.notNull(reportRendererRegistry, "Report renderer registry is required!");
-		Assert.notNull(reportService);
-		Assert.notNull(enabledEvaluator);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(taskManager);
+		Assert.notNull(reportService, "Service is required.");
+		Assert.notNull(enabledEvaluator, "Enabled evaluator is required.");
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(taskManager, "Manager is required.");
 		//
 		this.context = context;
 		this.reportExecutorRegistry = reportExecutorRegistry;
@@ -127,8 +127,8 @@ public class DefaultReportManager implements ReportManager {
 
 	@Override
 	public RptRenderedReportDto render(RptReportDto report, String rendererName) {
-		Assert.notNull(report);
-		Assert.hasLength(rendererName);
+		Assert.notNull(report, "Report is required.");
+		Assert.hasLength(rendererName, "Renderer name is required.");
 		//
 		ReportRenderer renderer = reportRendererRegistry.getPluginFor(rendererName);
 		if (renderer == null) {

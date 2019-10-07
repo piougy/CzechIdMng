@@ -48,8 +48,8 @@ public class DefaultRptReportService
 			AttachmentManager attachmentManager) {
 		super(repository);
 		//
-		Assert.notNull(commonFormService);
-		Assert.notNull(attachmentManager);
+		Assert.notNull(commonFormService, "Service is required.");
+		Assert.notNull(attachmentManager, "Manager is required.");
 		//
 		this.commonFormService = commonFormService;
 		this.attachmentManager = attachmentManager;

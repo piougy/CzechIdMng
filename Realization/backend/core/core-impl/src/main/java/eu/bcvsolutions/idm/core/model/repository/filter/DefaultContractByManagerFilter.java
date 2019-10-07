@@ -32,10 +32,12 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
  * @author Radek Tomiška
  * @since 9.7.0
  */
-@Component(DefaultContractByManagerFilter.BEAN_NAME)
+@Component(DefaultContractByManagerFilter.FILTER_NAME)
 public class DefaultContractByManagerFilter extends AbstractFilterBuilder<IdmIdentityContract, IdmIdentityContractFilter> {
 	
-	public static final String BEAN_NAME = "default-contract-by-manager-filter";
+	public static final String FILTER_NAME = "default-contract-by-manager-filter";
+	@Deprecated // @since 10.0.0 - use FILTER_NAME
+	public static final String BEAN_NAME = FILTER_NAME;
 	//
 	@Autowired private ContractByGuaranteeFilter contractByGuaranteeFilter;
 	

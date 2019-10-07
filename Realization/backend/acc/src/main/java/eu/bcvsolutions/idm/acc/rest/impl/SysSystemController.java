@@ -121,10 +121,10 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			ConfidentialStorage confidentialStorage) {
 		super(systemService);
 		//
-		Assert.notNull(systemService);
-		Assert.notNull(formDefinitionController);
-		Assert.notNull(icConfiguration);
-		Assert.notNull(confidentialStorage);
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(formDefinitionController, "Controller is required.");
+		Assert.notNull(icConfiguration, "Configuration is required.");
+		Assert.notNull(confidentialStorage, "Confidential storage is required.");
 		//
 		this.systemService = systemService;
 		this.formDefinitionController = formDefinitionController;
@@ -693,7 +693,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			return new ResponseEntity<Map<String, Set<IcConnectorInfo>>>(infos, HttpStatus.OK);
 		}
 
- 		Assert.notNull(dto.getConnectorServer());
+ 		Assert.notNull(dto.getConnectorServer(), "Connector server is required.");
  		//
  		try {
  			for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
@@ -860,8 +860,8 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 * @param subscriber
 	 */
 	public void checkDeferredRequest(DeferredResult<OperationResultDto> deferredResult, LongPollingSubscriber subscriber) {
-		Assert.notNull(deferredResult);
-		Assert.notNull(subscriber.getEntityId());
+		Assert.notNull(deferredResult, "Deferred result is required.");
+		Assert.notNull(subscriber.getEntityId(), "Entity identifier is required.");
 		
 		SysSyncLogFilter filterLog = new SysSyncLogFilter();
 		filterLog.setSystemId(subscriber.getEntityId());
@@ -883,7 +883,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	 * @return
 	 */
 	private synchronized IdmFormDefinitionDto getConnectorFormDefinition(SysSystemDto system) {
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 		//
 		// connector key can't be null
 		if (system.getConnectorKey() == null) {
@@ -900,7 +900,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	}
 	
 	private synchronized IdmFormDefinitionDto getPoolingConnectorFormDefinition(SysSystemDto system) {
-		Assert.notNull(system);
+		Assert.notNull(system, "System is required.");
 		//
 		// connector key can't be null
 		if (system.getConnectorKey() == null) {

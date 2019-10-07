@@ -97,13 +97,13 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			SysSystemMappingService systemMappingService, SysSchemaObjectClassService schemaObjectClassService) {
 		super();
 		//
-		Assert.notNull(identityAccountService);
-		Assert.notNull(roleSystemService);
-		Assert.notNull(accountService);
-		Assert.notNull(roleSystemAttributeService);
-		Assert.notNull(systemAttributeMappingService);
-		Assert.notNull(systemMappingService);
-		Assert.notNull(schemaObjectClassService);
+		Assert.notNull(identityAccountService, "Service is required.");
+		Assert.notNull(roleSystemService, "Service is required.");
+		Assert.notNull(accountService, "Service is required.");
+		Assert.notNull(roleSystemAttributeService, "Service is required.");
+		Assert.notNull(systemAttributeMappingService, "Service is required.");
+		Assert.notNull(systemMappingService, "Service is required.");
+		Assert.notNull(schemaObjectClassService, "Service is required.");
 		//
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
@@ -116,7 +116,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 	@Override
 	public boolean resolveIdentityAccounts(IdmIdentityDto identity) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required.");
 		// find not deleted identity accounts
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
@@ -181,7 +181,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	
 	@Override
 	public List<UUID> resolveNewIdentityRoles(IdmIdentityDto identity, IdmIdentityRoleDto... identityRoles) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required.");
 
 		if (identityRoles == null || identityRoles.length == 0) {
 			// No identity-roles ... we don't have anything to do
@@ -208,7 +208,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	
 	@Override
 	public  List<UUID>  resolveUpdatedIdentityRoles(IdmIdentityDto identity, IdmIdentityRoleDto... identityRoles) {
-		Assert.notNull(identity);
+		Assert.notNull(identity, "Identity is required.");
 
 		if (identityRoles == null || identityRoles.length == 0) {
 			// No identity-roles ... we don't have anything to do
@@ -351,10 +351,10 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	@Override
 	@Transactional
 	public void deleteIdentityAccount(EntityEvent<IdmIdentityRoleDto> event) {
-		Assert.notNull(event);
+		Assert.notNull(event, "Event is required.");
 		IdmIdentityRoleDto identityRole = event.getContent();
-		Assert.notNull(identityRole);
-		Assert.notNull(identityRole.getId());
+		Assert.notNull(identityRole, "Identity role is required.");
+		Assert.notNull(identityRole, "Identity role identifier is required.");
 		//
 		boolean skipPropagate = event.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE);
 		boolean bulk = event.getRootId() != null && entityEventManager.isRunnable(event.getRootId());
@@ -625,7 +625,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			if (identityRole.getId().equals(identityAccount.getIdentityRole())
 					&& !identityAccountsToDelete.contains(identityAccount)) {
 				AccAccountDto account = DtoUtils.getEmbedded(identityAccount, AccIdentityAccount_.account.getName(), AccAccountDto.class);
-				Assert.notNull(account.getSystem());
+				Assert.notNull(account.getSystem(), "System is required for account.");
 				if(account.getSystem().equals(roleSystem.getSystem())) {
 					return true;
 				}
@@ -668,8 +668,8 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	 */
 	private void notingIdentityAccountForDelayedAcm(EntityEvent<IdmIdentityRoleDto> event,
 			AccIdentityAccountDto identityAccount) {
-		Assert.notNull(identityAccount);
-		Assert.notNull(identityAccount.getId());
+		Assert.notNull(identityAccount, "Identity account is required.");
+		Assert.notNull(identityAccount.getId(), "Identity account identifier is required.");
 
 		if (!event.getProperties().containsKey(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM)) {
 			event.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM,

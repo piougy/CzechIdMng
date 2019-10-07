@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -13,11 +14,9 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -84,7 +83,7 @@ public class IdmEntityEvent extends AbstractEntity {
 	private boolean suspended;
 	
 	@Column(name = "execute_date")
-	private DateTime executeDate;
+	private ZonedDateTime executeDate;
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
@@ -135,11 +134,11 @@ public class IdmEntityEvent extends AbstractEntity {
 		this.superOwnerId = superOwnerId;
 	}
 
-	public DateTime getExecuteDate() {
+	public ZonedDateTime getExecuteDate() {
 		return executeDate;
 	}
 
-	public void setExecuteDate(DateTime executeDate) {
+	public void setExecuteDate(ZonedDateTime executeDate) {
 		this.executeDate = executeDate;
 	}
 

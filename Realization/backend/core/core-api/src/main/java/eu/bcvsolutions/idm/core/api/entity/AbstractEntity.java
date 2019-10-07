@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.entity;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -15,7 +16,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
-import org.joda.time.DateTime;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -53,12 +53,12 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	@CreatedDate
 	@Column(name = "created", nullable = false)
 	@JsonProperty(access = Access.READ_ONLY)
-	private DateTime created;
+	private ZonedDateTime created;
 
 	@LastModifiedDate
 	@Column(name = "modified")
 	@JsonProperty(access = Access.READ_ONLY)
-	private DateTime modified;
+	private ZonedDateTime modified;
 
 	@Audited
 	@CreatedBy
@@ -142,22 +142,22 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	 * Created date
 	 */
 	@Override
-	public DateTime getCreated() {
+	public ZonedDateTime getCreated() {
 		return created;
 	}
 
 	@Override
-	public void setCreated(DateTime created) {
+	public void setCreated(ZonedDateTime created) {
 		this.created = created;
 	}
 	
 	@Override
-	public DateTime getModified() {
+	public ZonedDateTime getModified() {
 		return modified;
 	}
 
 	@Override
-	public void setModified(DateTime modified) {
+	public void setModified(ZonedDateTime modified) {
 		this.modified = modified;
 	}
 	

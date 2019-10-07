@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.util.UUID;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -28,11 +27,6 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
 	 * @since 9.4.0
 	 */
 	public static final String PARAMETER_PARENT = "parent";
-	/**
-	 * Parent tree node identifier (PARAMETER_PARENT alias)
-	 * @deprecated @since 9.4.0 use "parent"
-	 */
-	public static final String PARAMETER_PARENT_TREE_NODE_ID = "treeNodeId";
 	/**
 	 * Search for tree nodes within the default tree type 
 	 */
@@ -66,42 +60,15 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
     }
     
     public UUID getParent() {
-    	UUID parent = DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT));
-    	if (parent != null) {
-    		return parent;
-    	}
-    	// TODO: remove after 10.x will be released
-    	return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT_TREE_NODE_ID));
+    	return getParameterConverter().toUuid(data, PARAMETER_PARENT);
 	}
 
 	public void setParent(UUID parent) {
-		data.set(PARAMETER_PARENT_TREE_NODE_ID, parent);
 		data.set(PARAMETER_PARENT, parent);
 	}
 
-	/**
-	 * @deprecated @since 9.4.0 use {@link #setParent(UUID)}
-	 * @param treeNode
-	 */
-	@Deprecated
-    public void setTreeNode(UUID treeNode) {
-		setParent(treeNode);
-    }
-
-	/**
-	 * @deprecated @since 9.4.0 use {@link #getParent()}
-	 * @return
-	 */
-    public UUID getTreeNode() {
-    	return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT_TREE_NODE_ID));
-    }
-
     public Boolean getDefaultTreeType() {
-    	Object first = data.getFirst(PARAMETER_DEFAULT_TREE_TYPE);
-    	if (first == null) {
-    		return null;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+    	return getParameterConverter().toBoolean(data, PARAMETER_DEFAULT_TREE_TYPE);
     }
 
     public void setDefaultTreeType(Boolean defaultTreeType) {
@@ -109,11 +76,7 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
     }
 
     public boolean isRecursively() {
-    	Object first = data.getFirst(PARAMETER_RECURSIVELY);
-    	if (first == null) {
-    		return DEFAULT_RECURSIVELY;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+    	return getParameterConverter().toBoolean(data, PARAMETER_RECURSIVELY, DEFAULT_RECURSIVELY);
     }
 
     public void setRecursively(boolean recursively) {
@@ -163,11 +126,7 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
 	 * @return
 	 */
 	public Boolean getRoots() {
-		Object first = data.getFirst(PARAMETER_ROOTS);
-    	if (first == null) {
-    		return null;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+    	return getParameterConverter().toBoolean(data, PARAMETER_ROOTS);
 	}
 	
 	/**

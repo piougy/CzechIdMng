@@ -6,12 +6,11 @@ import java.util.Map;
 import org.activiti.engine.ActivitiIllegalArgumentException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
- * Form type for joda LocalDate
+ * Form type for java 8 LocalDate
  * 
  * @author Radek Tomiška
  *
@@ -21,7 +20,7 @@ public class LocalDateFormType extends AbstractComponentFormType {
 	private static final long serialVersionUID = 1L;
 	public static final String TYPE_NAME = "localDate";
 	private static final Format dateFormat = FastDateFormat.getInstance(CustomFormTypes.DATE_FORMAT_PATTERN);
-	private static final DateTimeFormatter localDateFormat = DateTimeFormat.forPattern(CustomFormTypes.DATE_FORMAT_PATTERN);
+	private static final DateTimeFormatter localDateFormat = DateTimeFormatter.ofPattern(CustomFormTypes.DATE_FORMAT_PATTERN);
 	
 	public LocalDateFormType(Map<String, String> values) {
 		super(values);
@@ -45,7 +44,7 @@ public class LocalDateFormType extends AbstractComponentFormType {
 			return null;
 		}
 		try {
-			return localDateFormat.parseLocalDate(propertyValue);
+			return localDateFormat.parse(propertyValue);
 		} catch (IllegalArgumentException ex) {
 			throw new ActivitiIllegalArgumentException("invalid local date value " + propertyValue, ex);
 		}
@@ -57,7 +56,7 @@ public class LocalDateFormType extends AbstractComponentFormType {
 			return null;
 		}
 		if (modelValue instanceof LocalDate) {
-			return localDateFormat.print((LocalDate) modelValue);
+			return localDateFormat.format((LocalDate) modelValue);
 		}
 		// other dates (java.util, sql date etc.)
 		return dateFormat.format(modelValue);

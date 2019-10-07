@@ -41,8 +41,8 @@ public class IdentitySaveProvisioningProcessor
 	public IdentitySaveProvisioningProcessor(ApplicationContext applicationContext, IdmIdentityRepository identityRepository) {
 		super(IdentityEventType.NOTIFY);
 		//
-		Assert.notNull(applicationContext);
-		Assert.notNull(identityRepository);
+		Assert.notNull(applicationContext, "Context is required.");
+		Assert.notNull(identityRepository, "Repository is required.");
 		//
 		this.applicationContext = applicationContext;
 	}

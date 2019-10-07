@@ -34,7 +34,7 @@ public class SelfLongRunningTaskEvaluator extends AbstractAuthorizationEvaluator
 	
 	@Autowired
 	public SelfLongRunningTaskEvaluator(SecurityService securityService) {
-		Assert.notNull(securityService);
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.securityService = securityService;
 	}

@@ -1,12 +1,11 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl.password;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -64,7 +63,7 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 					CoreResultCode.PASSWORD_EXPIRATION_TASK_DAYS_BEFORE, 
 					ImmutableMap.of("daysBefore", daysBefore == null ? "null" : daysBefore));
 		}
-		expiration = new LocalDate().plusDays(daysBefore.intValue() - 1); // valid till filter <=
+		expiration = LocalDate.now().plusDays(daysBefore.intValue() - 1); // valid till filter <=
 		LOG.debug("Send warning to identities with password expiration less than [{}]", expiration);
 	}
 
@@ -82,13 +81,13 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 		IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, dto.getIdentity());
 		LOG.info("Sending warning notification to identity [{}], password expires in [{}]",  identity.getUsername(), dto.getValidTill());
 		try {
-			DateTimeFormatter dateFormat = DateTimeFormat.forPattern(configurationService.getDateFormat());
+			DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(configurationService.getDateFormat());
 			//
 			notificationManager.send(
 					CoreModuleDescriptor.TOPIC_PASSWORD_EXPIRATION_WARNING, 
 					new IdmMessageDto
 						.Builder(NotificationLevel.WARNING)
-						.addParameter("expiration", dateFormat.print(dto.getValidTill()))
+						.addParameter("expiration", dateFormat.format(dto.getValidTill()))
 						.addParameter("identity", identity)
 						// TODO: where is the best place for FE urls?
 						.addParameter("url", configurationService.getFrontendUrl(String.format("password/change?username=%s", identity.getUsername())))

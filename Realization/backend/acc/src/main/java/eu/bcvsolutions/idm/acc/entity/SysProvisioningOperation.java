@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
@@ -185,7 +185,7 @@ public class SysProvisioningOperation extends AbstractEntity {
 		return null;
 	}
 	
-	public DateTime getNextAttempt() {
+	public ZonedDateTime getNextAttempt() {
 		if (batch == null) {
 			return null;
 		}

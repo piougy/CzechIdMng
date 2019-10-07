@@ -17,38 +17,37 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public interface ProvisioningBreakConfiguration extends Configurable {
 
-	static final String REQEX_FOR_RECIPIENTS = ",";
+	String REQEX_FOR_RECIPIENTS = ",";
 	
-	static final String PROPERTY_DISABLED = "disabled";
+	String PROPERTY_DISABLED = "disabled";
 	
-	static final String PROPERTY_WARNING_LIMIT = "warningLimit";	
+	String PROPERTY_WARNING_LIMIT = "warningLimit";	
 	
-	static final String PROPERTY_DISABLE_LIMIT = "disableLimit";	
+	String PROPERTY_DISABLE_LIMIT = "disableLimit";	
 	
-	static final String PROPERTY_PERIOD = "period";
+	String PROPERTY_PERIOD = "period";
 	
-	static final String PROPERTY_TEMPLATE_WARNING = "templateWarning";	
+	String PROPERTY_TEMPLATE_WARNING = "templateWarning";	
 	
-	static final String PROPERTY_TEMPLATE_DISABLE = "templateDisable";	
+	String PROPERTY_TEMPLATE_DISABLE = "templateDisable";	
 	
-	static final String PROPERTY_IDENTITY_RECIPIENTS = "identityRecipients";
+	String PROPERTY_IDENTITY_RECIPIENTS = "identityRecipients";
 	
-	static final String PROPERTY_ROLE_RECIPIENTS = "roleRecipients";
+	String PROPERTY_ROLE_RECIPIENTS = "roleRecipients";
 
-	static final String GLOBAL_BREAK_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX +
+	String GLOBAL_BREAK_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX +
 			AccModuleDescriptor.MODULE_ID + ConfigurationService.PROPERTY_SEPARATOR + "provisioning.break" + ConfigurationService.PROPERTY_SEPARATOR;
 	
-	static final String GLOBAL_BREAK_UPDATE_OPERATION = "update" + ConfigurationService.PROPERTY_SEPARATOR;
+	String GLOBAL_BREAK_UPDATE_OPERATION = "update" + ConfigurationService.PROPERTY_SEPARATOR;
 	
-	static final String GLOBAL_BREAK_CREATE_OPERATION = "create" + ConfigurationService.PROPERTY_SEPARATOR;
+	String GLOBAL_BREAK_CREATE_OPERATION = "create" + ConfigurationService.PROPERTY_SEPARATOR;
 	
-	static final String GLOBAL_BREAK_DELETE_OPERATION = "delete" + ConfigurationService.PROPERTY_SEPARATOR;
+	String GLOBAL_BREAK_DELETE_OPERATION = "delete" + ConfigurationService.PROPERTY_SEPARATOR;
 	
 	@Override
-	default java.lang.String getConfigurableType() {
+	default String getConfigurableType() {
 		return "provisioning.break";
 	}
 	

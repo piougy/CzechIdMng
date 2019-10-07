@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.scheduler.api.dto;
 
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,7 +38,7 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 	@Embedded(dtoClass = IdmScheduledTaskDto.class)
 	private UUID scheduledTask;
 	private boolean stateful;
-	private DateTime taskStarted;
+	private ZonedDateTime taskStarted;
 	private boolean dryRun;
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long successItemCount;
@@ -47,11 +47,11 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long warningItemCount;
 
-	public void setTaskStarted(DateTime date){
+	public void setTaskStarted(ZonedDateTime date){
 		taskStarted = date;
 	}
 
-	public DateTime getTaskStarted(){
+	public ZonedDateTime getTaskStarted(){
 		return taskStarted;
 	}
 

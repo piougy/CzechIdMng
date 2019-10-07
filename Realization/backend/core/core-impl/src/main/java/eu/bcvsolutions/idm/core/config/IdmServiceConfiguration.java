@@ -8,7 +8,6 @@ import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -181,7 +180,6 @@ public class IdmServiceConfiguration {
 	// Spring environment
 	@Autowired private ConfigurableEnvironment environment;
 	@Autowired private ApplicationContext context;
-	@Autowired private ApplicationEventPublisher publisher;
 	@Autowired private Executor executor;
 	@Autowired private EntityManager entityManager;
 	//
@@ -315,7 +313,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(EntityEventManager.class)
 	public EntityEventManager entityEventManager() {
-		return new DefaultEntityEventManager(context, publisher, enabledEvaluator(), lookupService());
+		return new DefaultEntityEventManager();
 	}
 	
 	/**
@@ -434,10 +432,10 @@ public class IdmServiceConfiguration {
 	 * 
 	 * @return
 	 */
-	@Bean
+	@Bean(name = { "formService", "idmFormService" })
 	@ConditionalOnMissingBean(FormService.class)
 	public FormService formService() {
-		return new DefaultFormService(formDefinitionService(), formAttributeService(), formValueServices, entityEventManager(), lookupService());
+		return new DefaultFormService(formValueServices);
 	}
 
 	/**
@@ -448,7 +446,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(RoleConfiguration.class)
 	public RoleConfiguration roleConfiguration() {
-		return new DefaultRoleConfiguration(lookupService());
+		return new DefaultRoleConfiguration();
 	}
 	
 	/**
@@ -473,9 +471,7 @@ public class IdmServiceConfiguration {
 		return new DefaultIdmRoleService(
 				roleRepository,
 				entityEventManager(), 
-				formService(), 
-				configurationService(),
-				roleConfiguration());
+				formService());
 	}
 	
 	/**
@@ -520,7 +516,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmLongRunningTaskService.class)
 	public IdmLongRunningTaskService longRunningTaskService() {
-		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository, processedTaskItemService());
+		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository);
 	}
 	
 	/**
@@ -596,7 +592,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(TreeConfiguration.class)
 	public TreeConfiguration treeConfiguration() {
-		return new DefaultTreeConfiguration(lookupService());
+		return new DefaultTreeConfiguration();
 	}
 	
 	/**
@@ -693,9 +689,7 @@ public class IdmServiceConfiguration {
 		return new DefaultIdmIdentityContractService(
 				identityContractRepository,
 				formService(),
-				entityEventManager(),
-				treeConfiguration(),
-				treeNodeRepository);
+				entityEventManager());
 	}
 	
 	/**
@@ -841,7 +835,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(AttachmentManager.class)
 	public AttachmentManager attachmentManager() {
-		return new DefaultAttachmentManager(attachmentRepository, attachmentConfiguration(), lookupService());
+		return new DefaultAttachmentManager(attachmentRepository);
 	}
 	
 	/**

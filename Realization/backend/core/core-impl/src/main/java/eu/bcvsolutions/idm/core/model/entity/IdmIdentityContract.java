@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +20,6 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
-import org.joda.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

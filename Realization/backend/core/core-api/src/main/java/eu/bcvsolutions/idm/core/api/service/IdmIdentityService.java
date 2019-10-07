@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -176,7 +176,7 @@ public interface IdmIdentityService extends
 	 * @deprecated @since 8.2.0 - use {@link TokenManager#disableTokens(eu.bcvsolutions.idm.core.api.domain.Identifiable, BasePermission...)} 
 	 */
 	@Deprecated
-	void updateAuthorityChange(List<UUID> identities, DateTime changeTime);
+	void updateAuthorityChange(List<UUID> identities, ZonedDateTime changeTime);
 	
 	/**
 	 * Method create new IdentityEvent for pre validate password

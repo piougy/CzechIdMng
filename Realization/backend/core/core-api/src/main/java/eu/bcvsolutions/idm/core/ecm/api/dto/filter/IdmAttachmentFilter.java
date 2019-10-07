@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.ecm.api.dto.filter;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -79,20 +79,15 @@ public class IdmAttachmentFilter extends DataFilter {
 		this.versionsFor = versionsFor;
 	}
 
-	public DateTime getCreatedAfter() {
-		// FIXME: parameter converter
-		IdmFormValueDto value = new IdmFormValueDto();
-		value.setPersistentType(PersistentType.DATETIME);
-		value.setValue((Serializable) data.getFirst(PARAMETER_CREATED_AFTER));
-		//
-		return value.getDateValue();
+	public ZonedDateTime getCreatedAfter() {
+		return getParameterConverter().toDateTime(data, PARAMETER_CREATED_AFTER);
 	}
 
-	public void setCreatedAfter(DateTime createdAfter) {
+	public void setCreatedAfter(ZonedDateTime createdAfter) {
 		data.set(PARAMETER_CREATED_AFTER, createdAfter);
 	}
 
-	public DateTime getCreatedBefore() {
+	public ZonedDateTime getCreatedBefore() {
 		// FIXME: parameter converter
 		IdmFormValueDto value = new IdmFormValueDto();
 		value.setPersistentType(PersistentType.DATETIME);
@@ -101,7 +96,7 @@ public class IdmAttachmentFilter extends DataFilter {
 		return value.getDateValue();
 	}
 
-	public void setCreatedBefore(DateTime createdBefore) {
+	public void setCreatedBefore(ZonedDateTime createdBefore) {
 		data.set(PARAMETER_CREATED_BEFORE, createdBefore);
 	}
 }

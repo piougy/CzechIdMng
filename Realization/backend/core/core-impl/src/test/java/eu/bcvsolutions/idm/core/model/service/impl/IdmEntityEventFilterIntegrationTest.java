@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -116,18 +117,18 @@ public class IdmEntityEventFilterIntegrationTest extends AbstractIntegrationTest
 		entityEventTwo = service.save(entityEventTwo);
 		//
 		IdmEntityEventFilter filter = new IdmEntityEventFilter();
-		filter.setCreatedFrom(entityEventTwo.getCreated());
+		filter.setCreatedFrom(entityEventTwo.getCreated().truncatedTo(ChronoUnit.MILLIS));
 		filter.setOwnerType("mockType");
 		List<IdmEntityEventDto> events = service.find(filter, null).getContent();
 		Assert.assertEquals(1, events.size());
 		Assert.assertEquals(entityEventTwo.getId(), events.get(0).getId());
 		//
 		filter.setCreatedFrom(null);
-		filter.setCreatedTill(entityEventTwo.getCreated());
+		filter.setCreatedTill(entityEventTwo.getCreated().truncatedTo(ChronoUnit.MILLIS).plus(1, ChronoUnit.MILLIS));
 		events = service.find(filter, null).getContent();
 		Assert.assertEquals(2, events.size());
 		//
-		filter.setCreatedTill(entityEventOne.getCreated());
+		filter.setCreatedTill(entityEventOne.getCreated().truncatedTo(ChronoUnit.MILLIS).plus(1, ChronoUnit.MILLIS));
 		events = service.find(filter, null).getContent();
 		Assert.assertEquals(1, events.size());
 		Assert.assertEquals(entityEventOne.getId(), events.get(0).getId());

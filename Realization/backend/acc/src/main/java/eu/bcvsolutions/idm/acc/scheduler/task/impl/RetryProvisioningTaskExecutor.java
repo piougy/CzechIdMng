@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +30,11 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 	@Autowired private ProvisioningExecutor provisioningExecutor;	
 	@Autowired private SysProvisioningBatchService provisioningBatchService;
 	//
-	private DateTime start;	
+	private ZonedDateTime start;	
 	
 	@Override
 	protected boolean start() {
-		start = new DateTime();
+		start = ZonedDateTime.now();
 		LOG.debug("Retry provisioning executor was inintialized for all next attmepts old than [{}]", start);
 		//
 		return super.start();
@@ -47,7 +47,7 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 		boolean canContinue = true;
 		while(canContinue) {
 			// we process all batches
-			Page<SysProvisioningBatchDto> batches = provisioningBatchService.findBatchesToRetry(start, new PageRequest(0, 100));
+			Page<SysProvisioningBatchDto> batches = provisioningBatchService.findBatchesToRetry(start, PageRequest.of(0, 100));
 			// init count
 			if (count == null) {
 				count = batches.getTotalElements();

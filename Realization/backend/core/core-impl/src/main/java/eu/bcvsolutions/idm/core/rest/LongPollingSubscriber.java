@@ -1,8 +1,7 @@
 package eu.bcvsolutions.idm.core.rest;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
-
-import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
@@ -15,13 +14,13 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 public class LongPollingSubscriber{
 
 	private UUID entityId;
-	private DateTime lastTimeStamp;
+	private ZonedDateTime lastTimeStamp;
 	private Long lastNumberOfEntities;
 	private Class<? extends AbstractDto> type;
 	/**
 	 * Time stamp when was this subscriber last used. It important for clearing map of subscribers.
 	 */
-	private DateTime lastUsingSubscriber;
+	private ZonedDateTime lastUsingSubscriber;
 
 	public LongPollingSubscriber(UUID entityId, Class<? extends AbstractDto> type) {
 		this.entityId = entityId;
@@ -29,11 +28,11 @@ public class LongPollingSubscriber{
 	}
 	
 
-	public DateTime getLastTimeStamp() {
+	public ZonedDateTime getLastTimeStamp() {
 		return lastTimeStamp;
 	}
 
-	public void setLastTimeStamp(DateTime lastTimeStamp) {
+	public void setLastTimeStamp(ZonedDateTime lastTimeStamp) {
 		this.lastTimeStamp = lastTimeStamp;
 	}
 
@@ -53,11 +52,11 @@ public class LongPollingSubscriber{
 		return type;
 	}
 	
-	public DateTime getLastUsingSubscriber() {
+	public ZonedDateTime getLastUsingSubscriber() {
 		return lastUsingSubscriber;
 	}
 
-	public void setLastUsingSubscriber(DateTime lastUsingSubscriber) {
+	public void setLastUsingSubscriber(ZonedDateTime lastUsingSubscriber) {
 		this.lastUsingSubscriber = lastUsingSubscriber;
 	}
 

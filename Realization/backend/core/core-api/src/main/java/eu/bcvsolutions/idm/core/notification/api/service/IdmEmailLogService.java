@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.notification.api.service;
 
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -41,7 +41,7 @@ public interface IdmEmailLogService extends
 	 * @param emailLogId
 	 * @param sent
 	 */
-	void setEmailSent(UUID emailLogId, DateTime sent);
+	void setEmailSent(UUID emailLogId, ZonedDateTime sent);
 	
 	/**
 	 * Persists sent log to given emailLog

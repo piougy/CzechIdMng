@@ -63,7 +63,7 @@ public class IdmLongRunningTaskItemControllerRestTest extends AbstractRestTest {
 	public void itemNotFound() throws Exception {
 		getMockMvc().perform(get(BaseController.BASE_PATH + PATH + "/n_a_item_found")
 				.with(authentication(getAuthentication()))
-				.contentType(InitTestData.HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isNotFound());
 	}
 
@@ -73,9 +73,9 @@ public class IdmLongRunningTaskItemControllerRestTest extends AbstractRestTest {
 		IdmProcessedTaskItemDto taskItem = service.saveInternal(helper.prepareProcessedItem(scheduledTaskDto));
 		getMockMvc().perform(get(BaseController.BASE_PATH + PATH + "/" + taskItem.getId())
 				.with(authentication(getAuthentication()))
-				.contentType(InitTestData.HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isOk())
-				.andExpect(MockMvcResultMatchers.content().contentType(InitTestData.HAL_CONTENT_TYPE))
+				.andExpect(MockMvcResultMatchers.content().contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(jsonPath("$.id", equalTo(taskItem.getId().toString())));
 	}
 
@@ -102,9 +102,9 @@ public class IdmLongRunningTaskItemControllerRestTest extends AbstractRestTest {
 		IdmProcessedTaskItemDto taskItem = service.saveInternal(helper.prepareProcessedItem(scheduledTaskDto));
 		getMockMvc().perform(get(BaseController.BASE_PATH + PATH + "/" + taskItem.getId())
 				.with(authentication(getAuthentication()))
-				.contentType(InitTestData.HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isOk())
-				.andExpect(MockMvcResultMatchers.content().contentType(InitTestData.HAL_CONTENT_TYPE))
+				.andExpect(MockMvcResultMatchers.content().contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(jsonPath("$.id", equalTo(taskItem.getId().toString())));
 
 		int status = getMockMvc().perform(delete(BaseController.BASE_PATH + PATH + "/" + taskItem.getId()).contentType(MediaType.APPLICATION_JSON))
@@ -116,7 +116,7 @@ public class IdmLongRunningTaskItemControllerRestTest extends AbstractRestTest {
 
 		getMockMvc().perform(get(BaseController.BASE_PATH + PATH + taskItem.getId())
 				.with(authentication(getAuthentication()))
-				.contentType(InitTestData.HAL_CONTENT_TYPE))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
 				.andExpect(status().isNotFound());
 	}
 

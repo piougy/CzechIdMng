@@ -84,17 +84,13 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmFormDefinitionController extends AbstractReadWriteDtoController<IdmFormDefinitionDto, IdmFormDefinitionFilter>  {
 
 	protected static final String TAG = "Form definitions";
-	private final FormService formService;
 	//
+	@Autowired private FormService formService;
 	@Autowired private AttachmentManager attachmentManager;
 	
 	@Autowired
-	public IdmFormDefinitionController(IdmFormDefinitionService service, FormService formService) {
+	public IdmFormDefinitionController(IdmFormDefinitionService service) {
 		super(service);
-		//
-		Assert.notNull(formService);
-		//
-		this.formService = formService;
 	}
 	
 	@Override
@@ -419,7 +415,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * @return
 	 */
 	private IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerClass, IdmFormDefinitionDto formDefinition, BasePermission... permission) {
-		Assert.notNull(ownerClass);
+		Assert.notNull(ownerClass, "Owner class is required to get form definition.");
 		//
 		if (formDefinition != null) {
 			return formDefinition;
@@ -467,7 +463,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * @return
 	 */
 	public Resource<IdmFormInstanceDto> getFormValues(Identifiable owner, IdmFormDefinitionDto formDefinition, BasePermission... permission) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required to get form values.");
 		//
 		return new Resource<>(formService.getFormInstance(owner, getDefinition(owner.getClass(), formDefinition, permission), permission));
 	}
@@ -505,8 +501,8 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * @since 9.4.0
 	 */
 	public Resource<?> saveFormValue(Identifiable owner, IdmFormValueDto formValue, BasePermission... permission) {		
-		Assert.notNull(owner);
-		Assert.notNull(formValue);
+		Assert.notNull(owner, "Owner is required to save form value.");
+		Assert.notNull(formValue, "Form value is required to save her.");
 		//
 		IdmFormAttributeDto attribute = formService.getAttribute(formValue.getFormAttribute());
 		if (attribute == null) {
@@ -532,7 +528,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * @since 9.4.0
 	 */
 	public ResponseEntity<InputStreamResource> downloadAttachment(IdmFormValueDto value) {
-		Assert.notNull(value);
+		Assert.notNull(value, "Form value holds the attachment identifier is required to download the attachment.");
 		//
 		if (value.getPersistentType() != PersistentType.ATTACHMENT) {
 			throw new ResultCodeException(
@@ -585,7 +581,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * @since 9.4.0
 	 */
 	public ResponseEntity<InputStreamResource> previewAttachment(IdmFormValueDto value) {
-		Assert.notNull(value);
+		Assert.notNull(value, "Form value holds the attachment identifier is required to download the attachment.");
 		//
 		if (value.getPersistentType() != PersistentType.ATTACHMENT) {
 			throw new ResultCodeException(

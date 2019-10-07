@@ -51,7 +51,7 @@ public class DefaultIdmRoleCatalogueRoleService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogueRoleDto> findAllByRole(UUID roleId) {
-		Assert.notNull(roleId);
+		Assert.notNull(roleId, "Role identifier is required.");
 		//
 		IdmRoleCatalogueRoleFilter filter = new IdmRoleCatalogueRoleFilter();
 		filter.setRoleId(roleId);
@@ -62,7 +62,7 @@ public class DefaultIdmRoleCatalogueRoleService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogueRoleDto> findAllByRoleCatalogue(UUID roleCatalogueId) {
-		Assert.notNull(roleCatalogueId);
+		Assert.notNull(roleCatalogueId, "Role catalogue identifier is required.");
 		//
 		IdmRoleCatalogueRoleFilter filter = new IdmRoleCatalogueRoleFilter();
 		filter.setRoleCatalogueId(roleCatalogueId);

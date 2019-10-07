@@ -45,8 +45,8 @@ public class IdmFormInstanceDto implements Serializable {
 	}
 	
 	public IdmFormInstanceDto(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values) {
-		Assert.notNull(owner);
-		Assert.notNull(formDefinition);
+		Assert.notNull(owner, "Owner is required for form instance.");
+		Assert.notNull(formDefinition, "Form definition is required for form instance.");
 		//
 		this.ownerId = owner.getId();
 		this.ownerType = owner.getClass();
@@ -63,7 +63,7 @@ public class IdmFormInstanceDto implements Serializable {
 	}
 
 	public void setFormDefinition(IdmFormDefinitionDto formDefinition) {
-		Assert.notNull(formDefinition);
+		Assert.notNull(formDefinition, "Form definition is required for form instance.");
 		//
 		this.formDefinition = formDefinition;
 	}

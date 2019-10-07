@@ -36,7 +36,7 @@ public class VsRequestRealizationProcessor extends CoreEventProcessor<VsRequestD
 	public VsRequestRealizationProcessor(VsRequestService service) {
 		super(VsRequestEventType.EXCECUTE); 
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

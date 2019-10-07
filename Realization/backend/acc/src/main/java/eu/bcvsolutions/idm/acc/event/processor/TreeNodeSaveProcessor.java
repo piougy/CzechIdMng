@@ -37,7 +37,7 @@ public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeN
 	public TreeNodeSaveProcessor(ApplicationContext applicationContext) {
 		super(TreeNodeEventType.NOTIFY);
 		//
-		Assert.notNull(applicationContext);
+		Assert.notNull(applicationContext, "Context is required.");
 		//
 		this.applicationContext = applicationContext;
 	}

@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.core.Relation;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -91,7 +90,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Radek Tomiška
  *
  */
-@Transactional
+//@Transactional
 public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends AbstractDto> extends AbstractRestTest {	
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReadWriteDtoControllerRestTest.class);
@@ -264,6 +263,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 			return;
 		}
 		DTO dto = createDto();
+		dto.setModifier("mock"); // some change is needed, but modifier will be replaced any way by logged used on jpa listener ... but change is made
 		//
 		getMockMvc().perform(put(getDetailUrl(dto.getId()))
         		.with(authentication(getAdminAuthentication()))
@@ -287,6 +287,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 			return;
 		}
 		DTO dto = createDto();
+		dto.setModifier("mock"); // some change is needed, but modifier will be replaced any way by logged used on jpa listener ... but change is made
 		//
 		getMockMvc().perform(patch(getDetailUrl(dto.getId()))
         		.with(authentication(getAdminAuthentication()))

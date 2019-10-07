@@ -35,8 +35,8 @@ public class TreeNodeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 			SysSyncConfigRepository syncConfigRepository) {
 		super(TreeNodeEventType.DELETE);
 		//
-		Assert.notNull(treeAccountService);
-		Assert.notNull(syncConfigRepository);
+		Assert.notNull(treeAccountService, "Service is required.");
+		Assert.notNull(syncConfigRepository, "Repository is required.");
 		//
 		this.treeAccountService = treeAccountService;
 		this.syncConfigRepository = syncConfigRepository;
@@ -50,7 +50,7 @@ public class TreeNodeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 	@Override
 	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
 		IdmTreeNodeDto node = event.getContent();
-		Assert.notNull(node);
+		Assert.notNull(node, "Tree node is required.");
 		AccTreeAccountFilter filter = new AccTreeAccountFilter();
 		filter.setTreeNodeId(node.getId());
 		treeAccountService.find(filter, null).forEach(treeAccount -> {

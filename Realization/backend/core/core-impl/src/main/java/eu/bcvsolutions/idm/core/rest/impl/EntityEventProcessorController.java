@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -65,6 +66,7 @@ public class EntityEventProcessorController {
 	@Autowired private PagedResourcesAssembler<Object> pagedResourcesAssembler;
 	
 	private FilterConverter filterConverter;
+	@Lazy
 	@Autowired(required = false)
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
@@ -96,9 +98,9 @@ public class EntityEventProcessorController {
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
 		List<EntityEventProcessorDto> records = entityEventManager.find(toFilter(parameters));
-		PageImpl page = new PageImpl(records, new PageRequest(0, records.size() == 0 ? 10 : records.size()), records.size());
+		PageImpl page = new PageImpl(records, PageRequest.of(0, records.size() == 0 ? 10 : records.size()), records.size());
 		if (page.getContent().isEmpty()) {
-			return pagedResourcesAssembler.toEmptyResource(page, EntityEventProcessorDto.class, null);
+			return pagedResourcesAssembler.toEmptyResource(page, EntityEventProcessorDto.class);
 		}
 		return pagedResourcesAssembler.toResource(page);
 	}

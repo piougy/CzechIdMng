@@ -21,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,16 +74,14 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmAuditController.class);
 	//
 	private final IdmAuditService auditService;
-	private final ModelMapper mapper;
+	//
+	@Autowired private ModelMapper mapper;
 	
 	@Autowired
-	public IdmAuditController(IdmAuditService auditService, ModelMapper mapper) {
+	public IdmAuditController(IdmAuditService auditService) {
 		super(auditService);
 		//
-		Assert.notNull(mapper);
-		//
 		this.auditService = auditService;
-		this.mapper = mapper;
 	}
 	
 	@ResponseBody

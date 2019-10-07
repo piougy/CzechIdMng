@@ -71,7 +71,7 @@ public class WorkflowDefinitionController extends AbstractReadDtoController<Work
 	public WorkflowDefinitionController(WorkflowProcessDefinitionService service, WorkflowDeploymentService deploymentService) {
 		super(service);
 		//
-		Assert.notNull(deploymentService);
+		Assert.notNull(deploymentService, "Service is required.");
 		//
 		this.definitionService = service;
 		this.deploymentService = deploymentService;

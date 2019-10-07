@@ -66,11 +66,11 @@ public class PasswordChangeController {
 			IdmIdentityService identityService,
 			AuthenticationManager authenticationManager,
 			IdentityConfiguration identityConfiguration) {
-		Assert.notNull(entityLookupService);
-		Assert.notNull(securityService);
-		Assert.notNull(identityService);
-		Assert.notNull(authenticationManager);
-		Assert.notNull(identityConfiguration);
+		Assert.notNull(entityLookupService, "Service is required.");
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(identityService, "Service is required.");
+		Assert.notNull(authenticationManager, "Manager is required.");
+		Assert.notNull(identityConfiguration, "Configuration is required.");
 		//
 		this.entityLookupService = entityLookupService;
 		this.securityService = securityService;

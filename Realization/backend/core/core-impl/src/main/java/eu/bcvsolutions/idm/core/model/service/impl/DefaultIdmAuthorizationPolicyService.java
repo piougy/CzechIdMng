@@ -12,7 +12,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -63,9 +63,9 @@ public class DefaultIdmAuthorizationPolicyService
 			EntityEventManager eventManager) {
 		super(repository, eventManager);
 		//
-		Assert.notNull(roleService);
-		Assert.notNull(moduleService);
-		Assert.notNull(eventManager);
+		Assert.notNull(roleService, "Service is required.");
+		Assert.notNull(moduleService, "Service is required.");
+		Assert.notNull(eventManager, "Manager is required.");
 		//
 		this.repository = repository;
 		this.roleService = roleService;
@@ -90,9 +90,9 @@ public class DefaultIdmAuthorizationPolicyService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmAuthorizationPolicyDto> getEnabledPolicies(UUID identityId, Class<? extends Identifiable> entityType) {
-		Assert.notNull(entityType);
+		Assert.notNull(entityType, "Entity type is required.");
 		//
-		List<IdmAuthorizationPolicyDto> results = toDtos(repository.getPolicies(identityId, entityType.getCanonicalName(), false, new LocalDate()), false);
+		List<IdmAuthorizationPolicyDto> results = toDtos(repository.getPolicies(identityId, entityType.getCanonicalName(), false, LocalDate.now()), false);
 		results.addAll(getDefaultPolicies(entityType));
 		return results;
 	}

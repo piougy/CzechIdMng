@@ -29,7 +29,7 @@ public class IdmConfigurationEntityLookup extends AbstractEntityLookup<IdmConfig
 	public IdmConfiguration lookup(Serializable id) {
 		IdmConfiguration entity = null;
 		try {
-			entity = repository.findOne(EntityUtils.toUuid(id));
+			entity = repository.findById(EntityUtils.toUuid(id)).orElse(null);
 		} catch (ClassCastException ex) {
 			// simply not found
 		}

@@ -45,8 +45,8 @@ public class RoleCompositionAfterCreateProcessor
 	@Override
 	public EventResult<IdmRoleCompositionDto> process(EntityEvent<IdmRoleCompositionDto> event) {
 		IdmRoleCompositionDto roleComposition = event.getContent();
-		Assert.notNull(roleComposition.getId());
-		Assert.notNull(roleComposition.getSub()); // just for sure
+		Assert.notNull(roleComposition.getId(), "Composition identifier is required.");
+		Assert.notNull(roleComposition.getSub(), "Composition sub role is required."); // just for sure
 		//
 		AddNewRoleCompositionTaskExecutor addRoleCompositionTask = AutowireHelper.createBean(AddNewRoleCompositionTaskExecutor.class);
 		addRoleCompositionTask.setRoleCompositionId(roleComposition.getId());

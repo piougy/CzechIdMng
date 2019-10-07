@@ -65,7 +65,7 @@ public class IdmLongRunningTaskItemController extends AbstractReadWriteDtoContro
 	public IdmLongRunningTaskItemController(IdmProcessedTaskItemService itemService) {
 		super(itemService);
 		//
-		Assert.notNull(itemService);
+		Assert.notNull(itemService, "Service is required.");
 		//
 		this.itemService = itemService;
 	}

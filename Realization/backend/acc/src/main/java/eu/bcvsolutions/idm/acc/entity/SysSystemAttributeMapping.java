@@ -85,12 +85,12 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 	private boolean uid = false;
 
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "transform_from_res_script")
 	private String transformFromResourceScript;
 
 	@Audited
-	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "transform_to_res_script")
 	private String transformToResourceScript;
 	

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,14 +31,8 @@ public class RecaptchaController implements BaseController {
 	
 	protected static final String TAG = "Recaptcha";
 	public static final String URL_PATH = "/public/recaptcha";
-	private final RecaptchaService recaptchaService;
-	
-	@Autowired
-	public RecaptchaController(RecaptchaService recaptchaService) {
-		Assert.notNull(recaptchaService);
-		//
-		this.recaptchaService = recaptchaService;
-	}
+	//
+	@Autowired private RecaptchaService recaptchaService;
 	
 	/**
 	 * ReCaptcha confirmation.

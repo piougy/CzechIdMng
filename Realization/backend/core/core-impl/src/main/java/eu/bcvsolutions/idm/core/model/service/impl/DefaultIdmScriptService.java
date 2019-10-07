@@ -21,7 +21,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
@@ -98,13 +98,13 @@ public class DefaultIdmScriptService
 			SecurityService securityService) {
 		super(repository);
 		//
-		Assert.notNull(scriptAuthorityService);
-		Assert.notNull(groovyScriptService);
-		Assert.notNull(repository);
-		Assert.notNull(evaluators);
-		Assert.notNull(applicationContext);
-		Assert.notNull(configurationService);
-		Assert.notNull(securityService);
+		Assert.notNull(scriptAuthorityService, "Service is required.");
+		Assert.notNull(groovyScriptService, "Groovy script service is required.");
+		Assert.notNull(repository, "Repository is required.");
+		Assert.notNull(evaluators, "Script evaluators is required.");
+		Assert.notNull(applicationContext, "Context is required.");
+		Assert.notNull(configurationService, "Service is required.");
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.scriptAuthorityService = scriptAuthorityService;
 		this.groovyScriptService = groovyScriptService;
@@ -388,9 +388,9 @@ public class DefaultIdmScriptService
 		// apend script default backup folder
 		backupPath = backupPath + "/" + SCRIPT_DEFAULT_BACKUP_FOLDER;
 		// add date folder
-		DateTime date = new DateTime();
+		ZonedDateTime date = ZonedDateTime.now();
 		DecimalFormat decimalFormat = new DecimalFormat("00");
-		return backupPath + date.getYear() + decimalFormat.format(date.getMonthOfYear())
+		return backupPath + date.getYear() + decimalFormat.format(date.getMonthValue())
 				+ decimalFormat.format(date.getDayOfMonth()) + "/";
 	}
 

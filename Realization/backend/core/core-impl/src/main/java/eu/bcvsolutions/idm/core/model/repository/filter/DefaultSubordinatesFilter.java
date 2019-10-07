@@ -27,11 +27,13 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * @author Radek Tomiška
  * 
  */
-@Component
+@Component(DefaultSubordinatesFilter.FILTER_NAME)
 @Description("Filter for find subordinates for given identity. "
 		+ "Supports subordinates by guarantee and tree structure - finds parent tree node standardly by tree structure.")
 public class DefaultSubordinatesFilter extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	
+	public static final String FILTER_NAME = "defaultSubordinatesFilter";
+	//
 	@Autowired @Lazy FilterManager filterManager;
 	
 	@Override

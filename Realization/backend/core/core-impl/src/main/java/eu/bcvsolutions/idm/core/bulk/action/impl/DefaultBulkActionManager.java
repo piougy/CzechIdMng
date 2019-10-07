@@ -55,7 +55,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	public IdmBulkActionDto processAction(IdmBulkActionDto action) {
 		AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> executor = getOperationForDto(action);
 		//
-		executor = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(executor.getClass());
+		executor = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(AutowireHelper.getTargetClass(executor));
 		//
 		executor.setAction(action);
 		//
@@ -76,7 +76,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	public ResultModels prevalidate(IdmBulkActionDto action) {
 		AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> executor = getOperationForDto(action);
 		//
-		executor = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(executor.getClass());
+		executor = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(AutowireHelper.getTargetClass(executor));
 		//
 		executor.setAction(action);
 		//
@@ -94,8 +94,8 @@ public class DefaultBulkActionManager implements BulkActionManager {
 
 	@SuppressWarnings("unchecked")
 	private AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> getOperationForDto(IdmBulkActionDto actionDto) {
-		Assert.notNull(actionDto);
-		Assert.notNull(actionDto.getEntityClass());
+		Assert.notNull(actionDto, "Action DTO is required to get action executor.");
+		Assert.notNull(actionDto.getEntityClass(), "Action has to be assigned to some entity, which can action process.");
 		try {
 			Class<?> forName = Class.forName(actionDto.getEntityClass());
 			if (AbstractEntity.class.isAssignableFrom(forName)) {

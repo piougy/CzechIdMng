@@ -565,7 +565,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		//
 		String fileName = "file.png";
 		String content = "some image";
-		String response = getMockMvc().perform(MockMvcRequestBuilders.fileUpload(getDetailUrl(owner.getId()) + "/profile/image")
+		String response = getMockMvc().perform(MockMvcRequestBuilders.multipart(getDetailUrl(owner.getId()) + "/profile/image")
 				.file("data", IOUtils.toByteArray(IOUtils.toInputStream(content)))
         		.param("fileName", fileName)
         		.with(authentication(getAdminAuthentication())))

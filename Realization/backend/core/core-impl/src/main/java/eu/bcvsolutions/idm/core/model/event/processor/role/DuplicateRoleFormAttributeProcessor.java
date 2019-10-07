@@ -74,7 +74,7 @@ public class DuplicateRoleFormAttributeProcessor
 	public EventResult<IdmRoleDto> process(EntityEvent<IdmRoleDto> event) {
 		IdmRoleDto duplicate = event.getContent(); // newly setted role
 		IdmRoleDto originalSource = event.getOriginalSource(); // cloned role
-		Assert.notNull(originalSource.getId()); // just for sure
+		Assert.notNull(originalSource.getId(), "Original source identifier is required."); // just for sure
 		//
 		// search current, create, update, remove
 		IdmRoleFormAttributeFilter filter = new IdmRoleFormAttributeFilter();

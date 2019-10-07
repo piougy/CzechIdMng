@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmToken;
@@ -19,7 +19,7 @@ public interface IdmTokenRepository extends AbstractEntityRepository<IdmToken> {
 	 * @param olderThan
 	 * @return
 	 */
-	public long deleteByExpirationLessThan(DateTime olderThan);
+	long deleteByExpirationLessThan(ZonedDateTime olderThan);
 	
 	/**
 	 * Delete all tokens with token type
@@ -27,7 +27,7 @@ public interface IdmTokenRepository extends AbstractEntityRepository<IdmToken> {
 	 * @param tokenType
 	 * @return
 	 */
-	public long deleteByTokenType(String tokenType);
+	long deleteByTokenType(String tokenType);
 	
 	/**
 	 * Delete tokens with token type and expiration older than given
@@ -36,5 +36,5 @@ public interface IdmTokenRepository extends AbstractEntityRepository<IdmToken> {
 	 * @param olderThan
 	 * @return
 	 */
-	public long deleteByTokenTypeAndExpirationLessThan(String tokenType, DateTime olderThan);
+	long deleteByTokenTypeAndExpirationLessThan(String tokenType, ZonedDateTime olderThan);
 }

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -109,9 +110,9 @@ public class DefaultWorkflowTaskInstanceService extends
 			} else {
 				sort = new Sort(Direction.DESC, filter.getSortByFields());
 			}
-			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize(), sort);
+			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize(), sort);
 		} else {
-			pageable = new PageRequest(filter.getPageNumber(), filter.getPageSize());
+			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
 		}
 		filter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		Page<WorkflowTaskInstanceDto> page = this.find(filter, pageable, IdmBasePermission.READ);
@@ -174,13 +175,13 @@ public class DefaultWorkflowTaskInstanceService extends
 
 	@Override
 	public Set<String> getPermissions(Serializable id) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is required.");
 		return this.getPermissions(this.get(id));
 	}
 
 	@Override
 	public WorkflowTaskInstanceDto get(Serializable id, BasePermission... permission) {
-		Assert.notNull(id);
+		Assert.notNull(id, "Identifier is required.");
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setId(UUID.fromString(String.valueOf(id)));
 		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null,  permission).getContent();
@@ -190,7 +191,7 @@ public class DefaultWorkflowTaskInstanceService extends
 
 	@Override
 	public Set<String> getPermissions(WorkflowTaskInstanceDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		final Set<String> permissions = new HashSet<>();
 		String loggedUserId = securityService.getCurrentId().toString();
@@ -301,7 +302,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		} else if (formType instanceof TaskHistoryFormType) {
 			WorkflowFilterDto filterDto = new WorkflowFilterDto();
 			filterDto.setProcessInstanceId(dto.getProcessInstanceId());
-			List<WorkflowHistoricTaskInstanceDto> tasks = historicTaskInstanceService.find(filterDto, new PageRequest(0, 50)).getContent();
+			List<WorkflowHistoricTaskInstanceDto> tasks = historicTaskInstanceService.find(filterDto, PageRequest.of(0, 50)).getContent();
 
 			List<WorkflowHistoricTaskInstanceDto> history = tasks.stream()
 					.filter(workflowHistoricTaskInstanceDto -> workflowHistoricTaskInstanceDto.getEndTime() != null)
@@ -446,10 +447,10 @@ public class DefaultWorkflowTaskInstanceService extends
 			query.taskId(filter.getId().toString());
 		}
 		if (filter.getCreatedAfter() != null) {
-			query.taskCreatedAfter(filter.getCreatedAfter().toDate());
+			query.taskCreatedAfter(Date.from(filter.getCreatedAfter().toInstant()));
 		}
 		if (filter.getCreatedBefore() != null) {
-			query.taskCreatedBefore(filter.getCreatedBefore().toDate());
+			query.taskCreatedBefore(Date.from(filter.getCreatedBefore().toInstant()));
 		}
 		if (equalsVariables != null) {
 			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
@@ -459,7 +460,7 @@ public class DefaultWorkflowTaskInstanceService extends
 
 		if (filter.getCandidateOrAssigned() != null) {
 			BaseDto dto = lookupService.lookupDto(IdmIdentityDto.class, filter.getCandidateOrAssigned());
-			Assert.notNull(dto);
+			Assert.notNull(dto, "DTO is required.");
 			query.taskCandidateOrAssigned(String.valueOf(dto.getId()));
 		}
 		
@@ -485,10 +486,9 @@ public class DefaultWorkflowTaskInstanceService extends
 		// it's possible that pageable is null
 		List<Task> tasks = null;
 		if (pageable == null) {
-			tasks = query.list();
-		} else {
-			tasks = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
 		}
+		tasks = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
 
 		List<WorkflowTaskInstanceDto> dtos = new ArrayList<>();
 		if (tasks != null) {

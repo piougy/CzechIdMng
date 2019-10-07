@@ -242,7 +242,7 @@ import org.springframework.data.domain.Page;
                   if (STRUCTURE_FORM_ATTRIBUTE != null) {
                     IdmTreeTypeDto treeType = treeTypeService.getByCode(CODE_OF_TYPE_STRUCTURE);
                     String abbrevitation = name//.substring(2); // value of EAV
-                    def pomList = formService.findOwners(IdmTreeNodeDto.class, STRUCTURE_FORM_ATTRIBUTE, abbrevitation, null).getContent(); // class of EAV, code of EAV, value of EAV , returns IdmTreeNodeDto
+                    def pomList = idmFormService.findOwners(IdmTreeNodeDto.class, STRUCTURE_FORM_ATTRIBUTE, abbrevitation, null).getContent(); // class of EAV, code of EAV, value of EAV , returns IdmTreeNodeDto
 
                     if (treeType != null) {
                       pomList = pomList.stream().filter({pom -&gt; pom.getTreeType() == treeType.getId()}).collect(Collectors.toList());
@@ -960,7 +960,7 @@ execution.setVariable("logItem", logItem);
                 }
 
                 def resolveMemberId(member) {
-                    def owners = formService.findOwners(IdmIdentityDto.class, identityIdentificatorFormAttributeCode, member, null)?.getContent();
+                    def owners = idmFormService.findOwners(IdmIdentityDto.class, identityIdentificatorFormAttributeCode, member, null)?.getContent();
                     return Optional.ofNullable(owners).orElse(Collections.&amp;emptyList()).stream()
                             .map({o -&gt; o.getId()})
                             .findAny()

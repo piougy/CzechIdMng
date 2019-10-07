@@ -31,7 +31,7 @@ public class RoleRequestDeleteProcessor extends CoreEventProcessor<IdmRoleReques
 	public RoleRequestDeleteProcessor(IdmRoleRequestService service) {
 		super(RoleRequestEventType.DELETE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

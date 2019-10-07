@@ -20,7 +20,7 @@ public class UuidEvaluator extends AbstractUuidEvaluator<Identifiable> {
 	
 	@Override
 	public boolean supports(Class<?> authorizableType) {
-		Assert.notNull(authorizableType);
+		Assert.notNull(authorizableType, "Authorizable type is required.");
 		// uuid superclasses only
 		return super.supports(authorizableType)
 				&& (AbstractEntity.class.isAssignableFrom(authorizableType) || AbstractDto.class.isAssignableFrom(authorizableType));

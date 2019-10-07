@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
 //
@@ -307,8 +308,8 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
 
 ValidationMessage.propTypes = {
   ...Basic.AbstractFormComponent.propTypes,
-  error: React.PropTypes.object,
-  validationDefinition: React.PropTypes.object
+  error: PropTypes.object,
+  validationDefinition: PropTypes.object
 };
 
 ValidationMessage.defaultProps = {

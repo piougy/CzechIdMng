@@ -44,8 +44,8 @@ public class ConceptRoleRequestFormDefaultValueGenerator
 
 	@Override
 	public IdmConceptRoleRequestDto generate(IdmConceptRoleRequestDto dto, IdmGenerateValueDto valueGenerator) {
-		Assert.notNull(dto);
-		Assert.notNull(valueGenerator);
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(valueGenerator, "Value generator is required.");
 
 		// For remove concept is useless generate default values
 		if (ConceptRoleRequestOperation.REMOVE == dto.getOperation()) {

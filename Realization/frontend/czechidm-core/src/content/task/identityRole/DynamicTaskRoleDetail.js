@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Helmet from 'react-helmet';
 //
 import { connect } from 'react-redux';
@@ -105,4 +106,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(DynamicTaskRoleDetail);
+export default connect(select, null, null, { forwardRef: true })(DynamicTaskRoleDetail);

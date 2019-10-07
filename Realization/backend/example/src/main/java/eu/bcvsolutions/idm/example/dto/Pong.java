@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.example.dto;
 import java.io.Serializable;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -26,7 +26,7 @@ public class Pong implements BaseDto {
 	@ApiModelProperty(notes = "Ping - Pong response message")
 	private String message;
 	@ApiModelProperty(required = true, notes = "Creation time")
-	private DateTime created;
+	private ZonedDateTime created;
 
 	@Override
 	public Serializable getId() {
@@ -35,7 +35,7 @@ public class Pong implements BaseDto {
 	
 	public Pong() {
 		id = UUID.randomUUID();
-		created = DateTime.now(); 
+		created = ZonedDateTime.now(); 
 	}
 	
 	public Pong(String message) {
@@ -59,11 +59,11 @@ public class Pong implements BaseDto {
 		this.message = message;
 	}
 
-	public DateTime getCreated() {
+	public ZonedDateTime getCreated() {
 		return created;
 	}
 	
-	public void setCreated(DateTime created) {
+	public void setCreated(ZonedDateTime created) {
 		this.created = created;
 	}
 }

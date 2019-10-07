@@ -2,10 +2,11 @@ package eu.bcvsolutions.idm.core.exception;
 
 import java.util.Map;
 
-import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes;
-import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
+import org.springframework.web.context.request.WebRequest;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
@@ -21,8 +22,8 @@ public class RestErrorAttributes extends DefaultErrorAttributes {
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RestErrorAttributes.class);
 	
 	@Override
-    public Map<String, Object> getErrorAttributes(RequestAttributes requestAttributes, boolean includeStackTrace) {        	
-        Map<String, Object> errorAttributes = super.getErrorAttributes(requestAttributes, includeStackTrace);
+    public Map<String, Object> getErrorAttributes(WebRequest webRequest, boolean includeStackTrace) {
+        Map<String, Object> errorAttributes = super.getErrorAttributes(webRequest, includeStackTrace);
         ErrorModel errorModel = null;
         if (errorAttributes.containsKey("status")) {
         	int status = (int) errorAttributes.get("status");

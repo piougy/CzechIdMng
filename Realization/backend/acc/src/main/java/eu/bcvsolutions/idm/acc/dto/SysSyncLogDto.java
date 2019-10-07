@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.LocalDateTime;
 import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -28,8 +28,8 @@ public class SysSyncLogDto extends AbstractDto implements Loggable {
 	private UUID synchronizationConfig;
 	private boolean running;
 	private boolean containsError;
-	private LocalDateTime started;
-	private LocalDateTime ended;
+	private ZonedDateTime started;
+	private ZonedDateTime ended;
 	private String token;
 	private String log;
 	private List<SysSyncActionLogDto> syncActionLogs;
@@ -58,19 +58,19 @@ public class SysSyncLogDto extends AbstractDto implements Loggable {
 		this.containsError = containsError;
 	}
 
-	public LocalDateTime getStarted() {
+	public ZonedDateTime getStarted() {
 		return started;
 	}
 
-	public void setStarted(LocalDateTime started) {
+	public void setStarted(ZonedDateTime started) {
 		this.started = started;
 	}
 
-	public LocalDateTime getEnded() {
+	public ZonedDateTime getEnded() {
 		return ended;
 	}
 
-	public void setEnded(LocalDateTime ended) {
+	public void setEnded(ZonedDateTime ended) {
 		this.ended = ended;
 	}
 

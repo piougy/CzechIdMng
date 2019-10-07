@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl.password;
 import java.util.HashMap;
 import java.util.UUID;
 
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -61,7 +61,7 @@ public class PasswordExpiredIntegrationTest extends AbstractIntegrationTest {
 		//
 		try {
 			IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-			password.setValidTill(new LocalDate().minusDays(1));		
+			password.setValidTill(LocalDate.now().minusDays(1));		
 			passwordService.save(password);
 			// prepare task
 			IdmScheduledTaskDto scheduledTask = scheduledTaskService.save(SchedulerTestUtils.createIdmScheduledTask(UUID.randomUUID().toString()));
@@ -106,7 +106,7 @@ public class PasswordExpiredIntegrationTest extends AbstractIntegrationTest {
 		//
 		try{
 			IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-			password.setValidTill(new LocalDate().minusDays(1));		
+			password.setValidTill(LocalDate.now().minusDays(1));		
 			passwordService.save(password);
 			// disable identity
 			identity.setState(IdentityState.DISABLED_MANUALLY);

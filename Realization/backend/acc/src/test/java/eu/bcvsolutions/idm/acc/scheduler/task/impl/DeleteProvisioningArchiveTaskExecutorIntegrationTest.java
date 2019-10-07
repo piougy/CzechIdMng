@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import org.joda.time.DateTime;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,18 +44,18 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 		// prepare provisioning operations
 		SysSystemDto system = getHelper().createTestResourceSystem(false);
 		SysSystemDto systemOther = getHelper().createTestResourceSystem(false);
-		DateTime createdOne = DateTime.now().minusDays(2);
+		ZonedDateTime createdOne = ZonedDateTime.now().minusDays(2);
 		SysProvisioningArchiveDto operationOne = createDto(system, createdOne, OperationState.EXECUTED, ProvisioningEventType.CANCEL);
 		// all other variants for not removal
 		createDto(system, createdOne, OperationState.EXECUTED, ProvisioningEventType.DELETE);
 		SysProvisioningArchiveDto operationTwo = createDto(system, createdOne, OperationState.EXECUTED, ProvisioningEventType.CANCEL);
 		createAttribute(operationTwo.getId(), getHelper().createName(), true);
-		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
-		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.CREATED, ProvisioningEventType.CANCEL);
-		createDto(system, DateTime.now().withTimeAtStartOfDay().plusMinutes(1), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
-		createDto(system, DateTime.now().minusDays(2), OperationState.EXCEPTION, ProvisioningEventType.CANCEL);
-		createDto(system, DateTime.now().withTimeAtStartOfDay().minusHours(23), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
-		SysProvisioningArchiveDto operationOther = createDto(systemOther, DateTime.now().minusDays(2), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
+		createDto(system, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
+		createDto(system, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.CREATED, ProvisioningEventType.CANCEL);
+		createDto(system, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).plusMinutes(1), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
+		createDto(system, ZonedDateTime.now().minusDays(2), OperationState.EXCEPTION, ProvisioningEventType.CANCEL);
+		createDto(system, LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusHours(23), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
+		SysProvisioningArchiveDto operationOther = createDto(systemOther, ZonedDateTime.now().minusDays(2), OperationState.EXECUTED, ProvisioningEventType.CANCEL);
 		//
 		Assert.assertEquals(createdOne, operationOne.getCreated());
 		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
@@ -101,7 +102,7 @@ public class DeleteProvisioningArchiveTaskExecutorIntegrationTest extends Abstra
 	
 	private SysProvisioningArchiveDto createDto(
 			SysSystemDto system, 
-			DateTime created,
+			ZonedDateTime created,
 			OperationState state, 
 			ProvisioningEventType provisioningEventType) {
 		SysProvisioningArchiveDto dto = new SysProvisioningArchiveDto();

@@ -20,7 +20,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
 
@@ -60,10 +59,10 @@ public class DefaultCryptService implements CryptService {
 	private final ConfigurableEnvironment env;
 	private SecretKey key;
 	
-	public DefaultCryptService(ConfigurableEnvironment env) {
-		Assert.notNull(env);
+	public DefaultCryptService(ConfigurableEnvironment environment) {
+		Assert.notNull(environment, "Environment is required.");
 		//
-		this.env = env;
+		this.env = environment;
 	}
 	
 	@PostConstruct
@@ -98,7 +97,7 @@ public class DefaultCryptService implements CryptService {
 	
 	@Override
 	public byte[] decryptWithKey(byte[] value, GuardedString guardedKey) {
-		Assert.notNull(value);
+		Assert.notNull(value, "Value is required.");
 
 		SecretKey key = this.key;
 		if (guardedKey != null) {
@@ -142,7 +141,6 @@ public class DefaultCryptService implements CryptService {
 	 */
 	private SecretKey getKey() throws UnsupportedEncodingException {
 		String key;
-		BufferedReader in = null;
 		// try found key in application properties
 		key = env.getProperty(APPLICATION_PROPERTIES_KEY);
 		if (!Strings.isNullOrEmpty(key)) {
@@ -154,8 +152,7 @@ public class DefaultCryptService implements CryptService {
 		if (!Strings.isNullOrEmpty(keyPath)) {
 			File keyFile = new File(keyPath);
 			if (keyFile.exists()) {
-				try {
-					in = new BufferedReader(new FileReader(keyPath));
+				try (BufferedReader in = new BufferedReader(new FileReader(keyPath))) {
 					key = in.readLine();
 					if (key == null || key.isEmpty()) {
 						LOG.warn("File with key is empty or not found. Key path: [{}].", keyPath);
@@ -165,8 +162,6 @@ public class DefaultCryptService implements CryptService {
 					return new SecretKeySpec(key.getBytes(ENCODING), ALGORITHM);
 				} catch (IOException e) {
 					LOG.warn("Error while read file: [{}], error message: [{}]", keyPath, e.getMessage(), e);
-				} finally {
-					IOUtils.closeQuietly(in);
 				}
 			} else {
 				LOG.info("For crypt service is define key with path: [{}], but this file isn't exist.", keyPath);

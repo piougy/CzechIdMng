@@ -41,7 +41,7 @@ public class CodeableEvaluator extends AbstractAuthorizationEvaluator<Identifiab
 	
 	@Override
 	public boolean supports(Class<?> authorizableType) {
-		Assert.notNull(authorizableType);
+		Assert.notNull(authorizableType, "Authorizable type is required.");
 		// support for all classes - found nothing, if class is not supported
 		return super.supports(authorizableType)
 				&& (AbstractEntity.class.isAssignableFrom(authorizableType) || AbstractDto.class.isAssignableFrom(authorizableType));

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.entity;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
-import org.joda.time.LocalDateTime;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -51,12 +51,12 @@ public class SysSyncLog extends AbstractEntity  {
 	private boolean containsError = false;
 
 	@Column(name = "started")
-	private LocalDateTime started;
+	private ZonedDateTime started;
 
 	@Column(name = "ended")
-	private LocalDateTime ended;
+	private ZonedDateTime ended;
 
-	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "token")
 	private String token;
 
@@ -66,7 +66,7 @@ public class SysSyncLog extends AbstractEntity  {
 	@OneToMany(mappedBy = "syncLog", fetch = FetchType.LAZY)
 	private List<SysSyncActionLog> syncActionLogs;
 
-	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "log")
 	private String log;
 
@@ -86,19 +86,19 @@ public class SysSyncLog extends AbstractEntity  {
 		this.running = running;
 	}
 
-	public LocalDateTime getStarted() {
+	public ZonedDateTime getStarted() {
 		return started;
 	}
 
-	public void setStarted(LocalDateTime started) {
+	public void setStarted(ZonedDateTime started) {
 		this.started = started;
 	}
 
-	public LocalDateTime getEnded() {
+	public ZonedDateTime getEnded() {
 		return ended;
 	}
 
-	public void setEnded(LocalDateTime ended) {
+	public void setEnded(ZonedDateTime ended) {
 		this.ended = ended;
 	}
 

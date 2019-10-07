@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
@@ -578,8 +578,8 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(owner.getClass());
 		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_DATETIME);
 		// save values
-		DateTime now = new DateTime();
-		DateTime tomorrow =  now.plusDays(1);
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		ZonedDateTime tomorrow =  now.plusDays(1).truncatedTo(ChronoUnit.MILLIS);
 		formService.saveValues(owner, attribute, Lists.newArrayList(now));
 		formService.saveValues(ownerTwo, attribute, Lists.newArrayList(tomorrow));
 		//
@@ -713,6 +713,8 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		formService.saveValues(ownerTwo.getId(), IdmRole.class, attribute, Lists.newArrayList("test2"));
 		
 		Specification<IdmRole> criteria = new Specification<IdmRole>() {
+			private static final long serialVersionUID = 1L;
+
 			public Predicate toPredicate(Root<IdmRole> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 				Subquery<IdmRoleFormValue> subquery = query.subquery(IdmRoleFormValue.class);
 				Root<IdmRoleFormValue> subRoot = subquery.from(IdmRoleFormValue.class);
@@ -727,7 +729,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 				return query.where(builder.exists(subquery)).getRestriction();
 			}
 		};
-		List<IdmRole> roles = roleRepository.findAll(criteria, (Pageable) null).getContent();
+		List<IdmRole> roles = roleRepository.findAll(criteria);
 		assertEquals(1, roles.size());
 		assertEquals(owner.getId(), roles.get(0).getId());
 	}
@@ -1753,7 +1755,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 			filter.setEventType(IdentityEventType.NOTIFY.name());
 			//
 			List<IdmEntityEventDto> events = entityEventService
-				.find(filter, new PageRequest(0, 1, new Sort(Direction.DESC, IdmEntityEvent_.created.getName())))
+				.find(filter, PageRequest.of(0, 1, new Sort(Direction.DESC, IdmEntityEvent_.created.getName())))
 				.getContent();
 			//
 			Assert.assertFalse(events.isEmpty());
@@ -1811,7 +1813,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//find
 		IdmFormValueFilter<?> filter = new IdmFormValueFilter<>();
 		filter.setDefinitionId(definition.getId());
-		Page<IdmFormValueDto> result = formService.findValues(filter, new PageRequest(0, Integer.MAX_VALUE));
+		Page<IdmFormValueDto> result = formService.findValues(filter, PageRequest.of(0, Integer.MAX_VALUE));
 		return result.getTotalElements();
 	}
 	

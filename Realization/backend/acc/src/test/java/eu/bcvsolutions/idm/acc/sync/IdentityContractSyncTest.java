@@ -6,13 +6,13 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
-import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
@@ -102,7 +101,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Svanda
  *
  */
-@Service
 public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 	private static final String CONTRACT_OWNER_ONE = "contractOwnerOne";
@@ -1147,7 +1145,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				attributeHandlingName.setTransformFromResourceScript(
-						"return attributeValue == null ? null : org.joda.time.LocalDate.parse(attributeValue);");
+						"return attributeValue == null ? null : java.time.LocalDate.parse(attributeValue);");
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("validtill".equalsIgnoreCase(schemaAttr.getName())) {
@@ -1159,7 +1157,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 				attributeHandlingName.setSchemaAttribute(schemaAttr.getId());
 				attributeHandlingName.setSystemMapping(entityHandlingResult.getId());
 				attributeHandlingName.setTransformFromResourceScript(
-						"return attributeValue == null ? null : org.joda.time.LocalDate.parse(attributeValue);");
+						"return attributeValue == null ? null : java.time.LocalDate.parse(attributeValue);");
 				schemaAttributeMappingService.save(attributeHandlingName);
 
 			} else if ("description".equalsIgnoreCase(schemaAttr.getName())) {
@@ -1182,7 +1180,7 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	}
 
 	private IdentityContractSyncTest getBean() {
-		return applicationContext.getBean(this.getClass());
+		return applicationContext.getAutowireCapableBeanFactory().createBean(this.getClass());
 	}
 
 	private Task findTask(Class<? extends SchedulableTaskExecutor<?>> taskType) {

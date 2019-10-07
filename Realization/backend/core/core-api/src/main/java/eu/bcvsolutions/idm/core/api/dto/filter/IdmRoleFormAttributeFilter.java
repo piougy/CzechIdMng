@@ -16,6 +16,10 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
  */
 public class IdmRoleFormAttributeFilter extends DataFilter {
 
+	private UUID role;
+	private UUID formDefinition;
+	private UUID formAttribute;
+	
 	public IdmRoleFormAttributeFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
@@ -23,10 +27,6 @@ public class IdmRoleFormAttributeFilter extends DataFilter {
 	public IdmRoleFormAttributeFilter(MultiValueMap<String, Object> data) {
 		super(IdmRoleFormAttributeDto.class, data);
 	}
-
-	private UUID role;
-	private UUID formDefinition;
-	private UUID formAttribute;
 
 	public UUID getFormDefinition() {
 		return formDefinition;

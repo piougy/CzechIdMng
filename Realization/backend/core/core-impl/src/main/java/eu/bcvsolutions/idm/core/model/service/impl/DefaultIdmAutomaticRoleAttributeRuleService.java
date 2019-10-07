@@ -58,7 +58,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 			EntityEventManager entityEventManager) {
 		super(repository);
 		//
-		Assert.notNull(entityEventManager);
+		Assert.notNull(entityEventManager, "Manager is required.");
 		//
 		this.entityEventManager = entityEventManager;
 	}

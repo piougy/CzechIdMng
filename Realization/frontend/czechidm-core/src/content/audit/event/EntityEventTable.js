@@ -499,4 +499,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(EntityEventTable);
+export default connect(select, null, null, { forwardRef: true })(EntityEventTable);

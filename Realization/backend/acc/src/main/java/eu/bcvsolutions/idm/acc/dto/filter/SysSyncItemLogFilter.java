@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.dto.filter;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import org.springframework.util.LinkedMultiValueMap;
@@ -20,6 +21,7 @@ public class SysSyncItemLogFilter extends DataFilter {
 	private UUID syncActionLogId;
 	private String displayName; //Search with like
 	private UUID systemId;
+	private ZonedDateTime modifiedFrom;
 	
 	public SysSyncItemLogFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -32,7 +34,6 @@ public class SysSyncItemLogFilter extends DataFilter {
 	public SysSyncItemLogFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
 		super(SysSyncItemLogDto.class, data, parameterConverter);
 	}
-	
 
 	public UUID getSyncActionLogId() {
 		return syncActionLogId;
@@ -50,11 +51,21 @@ public class SysSyncItemLogFilter extends DataFilter {
 		this.displayName = displayName;
 	}
 
-	public UUID getSystemId() {
+	public UUID	 getSystemId() {
 		return systemId;
 	}
 
 	public void setSystemId(UUID systemId) {
 		this.systemId = systemId;
+	}
+
+	@Override
+	public ZonedDateTime getModifiedFrom() {
+		return modifiedFrom;
+	}
+
+	@Override
+	public void setModifiedFrom(ZonedDateTime modifiedFrom) {
+		this.modifiedFrom = modifiedFrom;
 	}
 }

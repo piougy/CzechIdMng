@@ -32,7 +32,7 @@ public class ContractGuaranteeSaveProcessor extends CoreEventProcessor<IdmContra
 	public ContractGuaranteeSaveProcessor(IdmContractGuaranteeService contractGuaranteeService) {
 		super(ContractGuaranteeEventType.CREATE, ContractGuaranteeEventType.UPDATE);
 		//
-		Assert.notNull(contractGuaranteeService);
+		Assert.notNull(contractGuaranteeService, "Service is required.");
 		//
 		this.contractGuaranteeService = contractGuaranteeService;
 	}

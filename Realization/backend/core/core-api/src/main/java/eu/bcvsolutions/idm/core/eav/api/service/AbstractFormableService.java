@@ -53,7 +53,7 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 			FormService formService) {
 		super(repository, entityEventManager);
 		//
-		Assert.notNull(formService);
+		Assert.notNull(formService, "Form service is required for formable service.");
 		//
 		this.formService = formService;
 	}
@@ -149,7 +149,7 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 	 * @return
 	 */
 	private FormableEntity getOwner(DTO dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required for get owner.");
 		//
 		FormableEntity formableEntity = null;
 		if (dto.getId() != null) {
@@ -158,10 +158,10 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 		// prepare empty owner
 		if (formableEntity == null) {
 			try {
-				formableEntity = (FormableEntity) lookupService.getEntityClass(dto.getClass()).newInstance();
+				formableEntity = (FormableEntity) lookupService.getEntityClass(dto.getClass()).getDeclaredConstructor().newInstance();
 				// FIXME: #978 - map dto to entity. Some evaluator could intercept something else than class and identifier ...
 				formableEntity.setId(dto.getId());
-			} catch (InstantiationException | IllegalAccessException ex) {
+			} catch (ReflectiveOperationException ex) {
 				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("identifiableType", dto.getClass()), ex);
 			}
 		}

@@ -5,10 +5,12 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
+
 import org.quartz.Trigger;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -38,8 +40,8 @@ public abstract class AbstractTaskTrigger implements BaseDto {
 	private String taskId;
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;	
-	private DateTime nextFireTime;
-	private DateTime previousFireTime;
+	private ZonedDateTime nextFireTime;
+	private ZonedDateTime previousFireTime;
 	private TaskTriggerState state;
 	
 	public AbstractTaskTrigger() {
@@ -66,8 +68,12 @@ public abstract class AbstractTaskTrigger implements BaseDto {
 		this(taskId, trigger.getKey().getName());
 		//
 		this.description = trigger.getDescription();
-		this.nextFireTime = new DateTime(trigger.getNextFireTime());
-		this.previousFireTime = new DateTime(trigger.getPreviousFireTime());
+		if (trigger.getNextFireTime() != null) {
+			this.nextFireTime = trigger.getNextFireTime().toInstant().atZone(ZoneId.systemDefault());
+		}
+		if (trigger.getPreviousFireTime() != null) {
+			this.previousFireTime = trigger.getPreviousFireTime().toInstant().atZone(ZoneId.systemDefault());
+		}
 		this.state = state;
 	}
 	
@@ -97,19 +103,19 @@ public abstract class AbstractTaskTrigger implements BaseDto {
 		this.description = description;
 	}
 	
-	public DateTime getNextFireTime() {
+	public ZonedDateTime getNextFireTime() {
 		return nextFireTime;
 	}
 	
-	public void setNextFireTime(DateTime nextFireTime) {
+	public void setNextFireTime(ZonedDateTime nextFireTime) {
 		this.nextFireTime = nextFireTime;
 	}
 	
-	public DateTime getPreviousFireTime() {
+	public ZonedDateTime getPreviousFireTime() {
 		return previousFireTime;
 	}
 	
-	public void setPreviousFireTime(DateTime previousFireTime) {
+	public void setPreviousFireTime(ZonedDateTime previousFireTime) {
 		this.previousFireTime = previousFireTime;
 	}
 	

@@ -58,8 +58,8 @@ public class DefaultAccIdentityAccountService extends
 			EntityEventManager entityEventManager) {
 		super(identityAccountRepository, entityEventManager);
 		//
-		Assert.notNull(entityEventManager);
-		Assert.notNull(identityAccountRepository);
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(identityAccountRepository, "Repository is required.");
 		//
 		this.entityEventManager = entityEventManager;
 	}
@@ -71,7 +71,7 @@ public class DefaultAccIdentityAccountService extends
 	
 	@Override
 	public AccIdentityAccountDto save(AccIdentityAccountDto dto, BasePermission... permission) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		checkAccess(toEntity(dto, null), permission);
 		//
 		LOG.debug("Saving identity-account [{}]", dto);
@@ -101,7 +101,7 @@ public class DefaultAccIdentityAccountService extends
 	}
 
 	private void delete(AccIdentityAccountDto entity, boolean deleteTargetAccount, boolean forceDelete, BasePermission... permission) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity is required.");
 		checkAccess(this.getEntity(entity.getId()), permission);
 		//
 		LOG.debug("Deleting identity account [{}]", entity);

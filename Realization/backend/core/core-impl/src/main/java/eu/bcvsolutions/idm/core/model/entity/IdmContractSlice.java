@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -17,7 +18,6 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
-import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.AuditSearchable;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;

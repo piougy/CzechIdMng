@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.security.api.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
@@ -104,7 +104,7 @@ public interface TokenManager {
 	 * @param tokenType - [optional] - given type only (e.g. cidmst)
 	 * @param olderThan - [optional] - with expiration older than given, all otherwise
 	 */
-	void purgeTokens(String tokenType, DateTime olderThan);
+	void purgeTokens(String tokenType, ZonedDateTime olderThan);
 	
 	/**
 	 * Returns owner type - owner type has to be entity class - dto class can be given.

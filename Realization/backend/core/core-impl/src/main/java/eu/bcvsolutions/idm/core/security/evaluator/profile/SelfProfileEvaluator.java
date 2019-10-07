@@ -35,7 +35,7 @@ public class SelfProfileEvaluator extends AbstractAuthorizationEvaluator<IdmProf
 	
 	@Autowired
 	public SelfProfileEvaluator(SecurityService securityService) {
-		Assert.notNull(securityService);
+		Assert.notNull(securityService, "Service is required.");
 		//
 		this.securityService = securityService;
 	}

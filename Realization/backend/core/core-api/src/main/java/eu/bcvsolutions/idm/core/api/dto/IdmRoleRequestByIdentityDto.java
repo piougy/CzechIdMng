@@ -1,11 +1,11 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.LocalDate;
+import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;

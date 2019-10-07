@@ -80,8 +80,8 @@ public class DefaultSysRoleSystemService
 			AccIdentityAccountRepository identityAccountRepository, IdmRoleService roleService) {
 		super(repository);
 		//
-		Assert.notNull(identityAccountRepository);
-		Assert.notNull(roleService);
+		Assert.notNull(identityAccountRepository, "Repository is required.");
+		Assert.notNull(roleService, "Service is required.");
 		//
 		this.identityAccountRepository = identityAccountRepository;
 		this.roleService = roleService;
@@ -90,8 +90,8 @@ public class DefaultSysRoleSystemService
 	@Override
 	@Transactional
 	public void delete(SysRoleSystemDto roleSystem, BasePermission... permission) {
-		Assert.notNull(roleSystem);
-		Assert.notNull(roleSystem.getId());
+		Assert.notNull(roleSystem, "Role system relation is required.");
+		Assert.notNull(roleSystem.getId(), "Role system relation identifier is required.");
 
 		SysRoleSystem roleSystemEntity = this.getEntity(roleSystem.getId());
 		//

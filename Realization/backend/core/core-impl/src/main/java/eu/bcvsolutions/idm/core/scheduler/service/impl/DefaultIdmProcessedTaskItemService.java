@@ -56,7 +56,7 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional
 	public IdmProcessedTaskItemDto saveInternal(IdmProcessedTaskItemDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		if (dto.getLongRunningTask() != null && dto.getScheduledTaskQueueOwner() != null) {
 			throw new CoreException("Item cannot be in both scheduled task queue and long running task log.");
@@ -108,7 +108,7 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional
 	public void deleteAllByLongRunningTask(IdmLongRunningTaskDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		repository.deleteAllByLongRunningTaskId(dto.getId());
 	}
@@ -116,7 +116,7 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional
 	public void deleteAllByScheduledTask(IdmScheduledTaskDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		repository.deleteAllByScheduledTaskId(dto.getId());
 	}
@@ -124,8 +124,8 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional
 	public void deleteItem(UUID scheduledTaskId, UUID referencedEntityId) {
-		Assert.notNull(scheduledTaskId);
-		Assert.notNull(referencedEntityId);
+		Assert.notNull(scheduledTaskId, "Scheduled task identifier is required.");
+		Assert.notNull(referencedEntityId, "Referenced entity identifier is required.");
 		//
 		repository.deleteItem(scheduledTaskId, referencedEntityId);
 	}
@@ -133,7 +133,7 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional(readOnly = true)
 	public List<UUID> findAllRefEntityIdsInQueueByScheduledTask(IdmScheduledTaskDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		//
 		return findAllRefEntityIdsInQueueByScheduledTaskId(dto.getId());
 	}
@@ -141,7 +141,7 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional(readOnly = true)
 	public List<UUID> findAllRefEntityIdsInQueueByScheduledTaskId(UUID scheduledTaskId) {
-		Assert.notNull(scheduledTaskId);
+		Assert.notNull(scheduledTaskId, "Scheduled task identifier is required.");
 		//
 		return repository.findAllRefEntityIdsByScheduledTaskId(scheduledTaskId);
 	}
@@ -149,7 +149,7 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmProcessedTaskItemDto> findQueueItems(IdmScheduledTaskDto scheduledTask, Pageable pageable) {
-		Assert.notNull(scheduledTask);
+		Assert.notNull(scheduledTask, "Scheduled task is required.");
 		//
 		IdmProcessedTaskItemFilter f = new IdmProcessedTaskItemFilter();
 		f.setScheduledTaskId(scheduledTask.getId());
@@ -159,7 +159,7 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmProcessedTaskItemDto> findLogItems(IdmLongRunningTaskDto longRunningTask, Pageable pageable) {
-		Assert.notNull(longRunningTask);
+		Assert.notNull(longRunningTask, "Task is required.");
 		//
 		IdmProcessedTaskItemFilter f = new IdmProcessedTaskItemFilter();
 		f.setLongRunningTaskId(longRunningTask.getId());
@@ -169,21 +169,27 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional
 	@Deprecated
-	public <E extends AbstractDto> IdmProcessedTaskItemDto createLogItem(E processedItem, OperationResult result, IdmLongRunningTaskDto lrt) {
-		Assert.notNull(lrt);
+	public <E extends AbstractDto> IdmProcessedTaskItemDto createLogItem(
+			E processedItem, 
+			OperationResult result, 
+			IdmLongRunningTaskDto longRunningTask) {
+		Assert.notNull(longRunningTask, "Task is required.");
 		//
-		return createLogItem(processedItem, result, lrt.getId());
+		return createLogItem(processedItem, result, longRunningTask.getId());
 	}
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public <E extends AbstractDto> IdmProcessedTaskItemDto createLogItem(E processedItem, OperationResult result, UUID lrtId) {
-		Assert.notNull(processedItem);
-		Assert.notNull(result);
-		Assert.notNull(lrtId);
+	public <E extends AbstractDto> IdmProcessedTaskItemDto createLogItem(
+			E processedItem, 
+			OperationResult result, 
+			UUID longRunningTaskId) {
+		Assert.notNull(processedItem, "Item is required.");
+		Assert.notNull(result, "Result is required.");
+		Assert.notNull(longRunningTaskId, "Task task is required.");
 		//
 		IdmProcessedTaskItemDto item = createProcessedItemDto(processedItem, result);
-		item.setLongRunningTask(lrtId);
+		item.setLongRunningTask(longRunningTaskId);
 		//
 		return this.saveInternal(item);
 	}
@@ -200,9 +206,9 @@ public class DefaultIdmProcessedTaskItemService
 	@Override
 	@Transactional
 	public <E extends AbstractDto> IdmProcessedTaskItemDto createQueueItem(E processedItem, OperationResult result, UUID scheduledTaskId) {
-		Assert.notNull(processedItem);
-		Assert.notNull(result);
-		Assert.notNull(scheduledTaskId);
+		Assert.notNull(processedItem, "Item is required.");
+		Assert.notNull(result, "Result is required.");
+		Assert.notNull(scheduledTaskId, "Scheduled task identifier is required.");
 		//
 		IdmProcessedTaskItemDto item = createProcessedItemDto(processedItem, result);
 		item.setScheduledTaskQueueOwner(scheduledTaskId);

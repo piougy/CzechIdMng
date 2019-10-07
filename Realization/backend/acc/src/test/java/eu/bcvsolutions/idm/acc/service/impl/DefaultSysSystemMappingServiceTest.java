@@ -6,8 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,16 +39,6 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired private IdmTreeTypeService treeTypeService;
 	@Autowired private TestHelper testHelper;
-
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		super.logout();
-	}
 
 	@Test
 	public void textFilterTest() {

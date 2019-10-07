@@ -1,11 +1,11 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,16 +34,16 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
     private LocalDate validTill;
     private LocalDate validFrom;
     private boolean mustChange = false;
-    private DateTime lastSuccessfulLogin;
+    private ZonedDateTime lastSuccessfulLogin;
     private int unsuccessfulAttempts;
-    private DateTime blockLoginDate = null;
+    private ZonedDateTime blockLoginDate = null;
     private boolean passwordNeverExpires = false;
 
-    public DateTime getLastSuccessfulLogin() {
+    public ZonedDateTime getLastSuccessfulLogin() {
         return lastSuccessfulLogin;
     }
 
-    public void setLastSuccessfulLogin(DateTime lastSuccessfulLogin) {
+    public void setLastSuccessfulLogin(ZonedDateTime lastSuccessfulLogin) {
         this.lastSuccessfulLogin = lastSuccessfulLogin;
     }
 
@@ -105,11 +105,11 @@ public class IdmPasswordDto extends AbstractDto implements ValidableEntity  {
         this.mustChange = mustChange;
     }
 
-	public DateTime getBlockLoginDate() {
+	public ZonedDateTime getBlockLoginDate() {
 		return blockLoginDate;
 	}
 
-	public void setBlockLoginDate(DateTime blockLoginDate) {
+	public void setBlockLoginDate(ZonedDateTime blockLoginDate) {
 		this.blockLoginDate = blockLoginDate;
 	}
 

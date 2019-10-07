@@ -59,10 +59,10 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			ProvisioningEventType... provisioningOperationType) {
 		super(provisioningOperationType);
 		//
-		Assert.notNull(connectorFacade);
-		Assert.notNull(systemService);
-		Assert.notNull(provisioningOperationService);
-		Assert.notNull(systemEntityService);
+		Assert.notNull(connectorFacade, "Connector facade is required.");
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(provisioningOperationService, "Service is required.");
+		Assert.notNull(systemEntityService, "Service is required.");
 		//
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;

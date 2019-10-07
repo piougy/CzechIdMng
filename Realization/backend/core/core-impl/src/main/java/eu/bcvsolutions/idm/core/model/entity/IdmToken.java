@@ -9,8 +9,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
+import javax.validation.constraints.NotEmpty;
+import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -65,10 +65,10 @@ public class IdmToken extends AbstractEntity implements Disableable, ExternalIde
 	
 	@NotNull
 	@Column(name = "issued_at")
-	private DateTime issuedAt;
+	private ZonedDateTime issuedAt;
 	
 	@Column(name = "expiration")
-	private DateTime expiration;
+	private ZonedDateTime expiration;
 
 	@NotNull
 	@Column(name = "disabled", nullable = false)
@@ -100,11 +100,11 @@ public class IdmToken extends AbstractEntity implements Disableable, ExternalIde
 		this.disabled = disabled;
 	}
 
-	public DateTime getExpiration() {
+	public ZonedDateTime getExpiration() {
 		return expiration;
 	}
 
-	public void setExpiration(DateTime expiration) {
+	public void setExpiration(ZonedDateTime expiration) {
 		this.expiration = expiration;
 	}
 	
@@ -119,11 +119,11 @@ public class IdmToken extends AbstractEntity implements Disableable, ExternalIde
 		return properties;
 	}
 	
-	public DateTime getIssuedAt() {
+	public ZonedDateTime getIssuedAt() {
 		return issuedAt;
 	}
 	
-	public void setIssuedAt(DateTime issuedAt) {
+	public void setIssuedAt(ZonedDateTime issuedAt) {
 		this.issuedAt = issuedAt;
 	}
 	

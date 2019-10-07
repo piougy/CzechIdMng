@@ -73,7 +73,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 		// found all IdmAutomaticRoleAttributeDto for process
 		Page<IdmAutomaticRoleAttributeDto> toProcessOthers = automaticRoleAttributeService.findAllToProcess(
 				null, 
-				new PageRequest(
+				PageRequest.of(
 						0, 
 						DEFAULT_PAGE_SIZE_ROLE,
 						new Sort(Direction.ASC, AbstractEntity_.id.getName())
@@ -114,7 +114,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 	private void processAutomaticRoleForContract(IdmAutomaticRoleAttributeDto automaticRolAttributeDto) {
 		UUID automaticRoleId = automaticRolAttributeDto.getId();
 		// For every query is get first page with 100 rows
-		PageRequest defaultPageRequest = new PageRequest(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES);
+		PageRequest defaultPageRequest = PageRequest.of(0, DEFAULT_PAGE_SIZE_PAGE_SIZE_IDENTITIES);
 
 		//
     	// process contracts

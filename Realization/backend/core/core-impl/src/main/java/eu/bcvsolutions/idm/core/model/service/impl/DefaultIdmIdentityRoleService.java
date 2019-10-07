@@ -16,7 +16,7 @@ import javax.persistence.criteria.Subquery;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -97,7 +97,7 @@ public class DefaultIdmIdentityRoleService
 	
 	@Override
 	public IdmFormInstanceDto getRoleAttributeValues(IdmIdentityRoleDto dto) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		// If given identity-role contains one formInstance, then will be returned
 		List<IdmFormInstanceDto> eavs = dto.getEavs();
 		if(eavs != null && eavs.size() == 1) {
@@ -168,7 +168,7 @@ public class DefaultIdmIdentityRoleService
 		// set additional automatic role
 		if (resultEntity != null && dto.getAutomaticRole() != null) {
 			// it isn't possible use lookupService entity lookup
-			IdmAutomaticRole automaticRole = automaticRoleRepository.findOne(dto.getAutomaticRole());
+			IdmAutomaticRole automaticRole = automaticRoleRepository.findById(dto.getAutomaticRole()).orElse(null);
 			resultEntity.setAutomaticRole(automaticRole);
 		}
 		return resultEntity;
@@ -306,14 +306,14 @@ public class DefaultIdmIdentityRoleService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityRoleDto> findAllByContract(UUID identityContractId) {
-		Assert.notNull(identityContractId);
+		Assert.notNull(identityContractId, "contract identifier is required.");
 		//
 		return toDtos(repository.findAllByIdentityContract_Id(identityContractId, getDefaultSort()), false);
 	}
 	
 	@Override
 	public List<IdmIdentityRoleDto> findAllByContractPosition(UUID contractPositionId) {
-		Assert.notNull(contractPositionId);
+		Assert.notNull(contractPositionId, "contract position identifier is required.");
 		//
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
 		filter.setContractPositionId(contractPositionId);
@@ -347,7 +347,7 @@ public class DefaultIdmIdentityRoleService
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmIdentityRoleDto> findExpiredRoles(LocalDate expirationDate, Pageable page) {
-		Assert.notNull(expirationDate);
+		Assert.notNull(expirationDate, "Expiration date is required.");
 		//
 		return toDtoPage(repository.findExpiredRoles(expirationDate, page));
 	}
@@ -514,7 +514,7 @@ public class DefaultIdmIdentityRoleService
 	 * @return
 	 */
 	private Sort getDefaultSort() {
-		return new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.code.getName());
+		return Sort.by(IdmIdentityRole_.role.getName() + "." + IdmRole_.code.getName());
 	}
 
 	/**

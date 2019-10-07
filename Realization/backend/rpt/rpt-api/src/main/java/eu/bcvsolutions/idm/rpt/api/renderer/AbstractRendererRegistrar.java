@@ -19,8 +19,8 @@ public abstract class AbstractRendererRegistrar implements RendererRegistrar {
 	 * @param rendererName
 	 */
 	public AbstractRendererRegistrar(String reportName, String... rendererName) {
-		Assert.hasLength(reportName);
-		Assert.notNull(rendererName);
+		Assert.hasLength(reportName, "Report name is required.");
+		Assert.notNull(rendererName, "Report renderer is required.");
 		//
 		this.reportName = reportName;
 		this.rendererNames = rendererName;

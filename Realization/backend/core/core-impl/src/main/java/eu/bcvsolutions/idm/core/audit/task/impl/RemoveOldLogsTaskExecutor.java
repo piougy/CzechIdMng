@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.audit.task.impl;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,20 +56,20 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 			LOG.warn("Parameter {} is not filled. This task will be skipped.", PARAMETER_DAYS);
 			return Boolean.TRUE;
 		}
-		DateTime dateTimeTill = DateTime.now().minusDays(days.intValue());
+		ZonedDateTime dateTimeTill = ZonedDateTime.now().minusDays(days.intValue());
 		//
 		IdmLoggingEventFilter filter = new IdmLoggingEventFilter();
 		filter.setTill(dateTimeTill);
 		
 		// only for get total elements
 		Page<IdmLoggingEventDto> loggingEvents = loggingEventService.find(
-				filter, new PageRequest(0, 1, new Sort(IdmLoggingEvent_.timestmp.getName())));
+				filter, PageRequest.of(0, 1, Sort.by(IdmLoggingEvent_.timestmp.getName())));
 		//
 		this.count = loggingEvents.getTotalElements();
 		this.setCounter(0l);
 		this.updateState();
 		//
-		int deletedItems = loggingEventService.deleteLowerOrEqualTimestamp(dateTimeTill.getMillis());
+		int deletedItems = loggingEventService.deleteLowerOrEqualTimestamp(dateTimeTill.toInstant().toEpochMilli());
 		this.setCounter(Long.valueOf(deletedItems));
 		//
 		LOG.info("Removed logs older than [{}] days was successfully completed. Removed logs [{}].", days, this.counter);

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -19,7 +20,6 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
-import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -116,7 +116,7 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	@Column(name = "wf_process_id")
 	private String wfProcessId;
 	
-	@Type(type = "org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "log")
 	private String log;
 

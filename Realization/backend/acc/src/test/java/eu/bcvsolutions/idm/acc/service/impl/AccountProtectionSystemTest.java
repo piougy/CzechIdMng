@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -479,7 +479,7 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 
 		// Set account as expired
-		account.setEndOfProtection(DateTime.now().minusMonths(1));
+		account.setEndOfProtection(ZonedDateTime.now().minusMonths(1));
 		account = accountService.save(account);
 
 		// Delete AccAccount directly

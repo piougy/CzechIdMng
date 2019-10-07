@@ -85,7 +85,7 @@ public class ChangeConfidentialStorageKeyTaskExecutor extends AbstractSchedulabl
 		//
 		do {
 			Page<IdmConfidentialStorageValueDto> values = confidetialStorageValueService.find(
-					new PageRequest(
+					PageRequest.of(
 							page, 
 							PAGE_SIZE, 
 							new Sort(Direction.ASC, AbstractEntity_.id.getName())
@@ -98,8 +98,8 @@ public class ChangeConfidentialStorageKeyTaskExecutor extends AbstractSchedulabl
 			//
 			for (Iterator<IdmConfidentialStorageValueDto> iterator = values.iterator(); iterator.hasNext() && canContinue;) {
 				IdmConfidentialStorageValueDto value = iterator.next();
-				Assert.notNull(value);
-				Assert.notNull(value.getId());
+				Assert.notNull(value, "Value is required.");
+				Assert.notNull(value.getId(), "Value identifier is required.");
 				//
 				try {
 					confidentialStorage.changeCryptKey(value, oldCryptKey);

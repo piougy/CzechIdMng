@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -7,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 					}
 					CheckLongPollingResult checkResultCallback = request.getCheckResultCallback();
 					if (checkResultCallback != null) {
-						subscriber.setLastUsingSubscriber(DateTime.now());
+						subscriber.setLastUsingSubscriber(ZonedDateTime.now());
 						checkResultCallback.checkDeferredResult(request.getResult(), subscriber);
 					}
 				});
@@ -115,8 +116,8 @@ public class DefaultLongPollingManager implements LongPollingManager{
 	public void baseCheckDeferredResult(DeferredResult<OperationResultDto> deferredResult,
 			LongPollingSubscriber subscriber, ModifiedFromFilter filter,
 			ReadDtoService service, boolean checkCount) {
-		Assert.notNull(deferredResult);
-		Assert.notNull(subscriber.getEntityId());
+		Assert.notNull(deferredResult, "Deferred result is required to check.");
+		Assert.notNull(subscriber.getEntityId(), "Subscriber is required to check deferred result.");
 		
 		LOG.debug("Start baseCheckDeferredResult for deferred-result [{}] and subscriber [{}]", deferredResult, subscriber);
 		
@@ -131,32 +132,32 @@ public class DefaultLongPollingManager implements LongPollingManager{
 			}
 		}
 
-		DateTime timeStamp = subscriber.getLastTimeStamp();
+		ZonedDateTime timeStamp = subscriber.getLastTimeStamp();
 		if (timeStamp == null) {
 			List<AbstractDto> entities = service
-					.find(filter, new PageRequest(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName(),
+					.find(filter, PageRequest.of(0, 1, new Sort(Direction.DESC, AbstractEntity_.created.getName(),
 							AbstractEntity_.modified.getName())))
 					.getContent();
 
 			if (entities.isEmpty()) {
-				subscriber.setLastTimeStamp(DateTime.now());
+				subscriber.setLastTimeStamp(ZonedDateTime.now());
 				return;
 			}
 			
-			DateTime lastModified = this.getLastTimeStamp(entities.get(0));
+			ZonedDateTime lastModified = this.getLastTimeStamp(entities.get(0));
 			subscriber.setLastTimeStamp(lastModified);
 			return;
 
 		}
 		// Try to find, if some from not finished entities were changed
 		filter.setModifiedFrom(timeStamp);
-		List<AbstractDto> changedRequestsFromLastChecks = service.find(filter, new PageRequest(0, 1,
-				new Sort(Direction.DESC, AbstractEntity_.created.getName(), AbstractEntity_.modified.getName())))
+		List<AbstractDto> changedRequestsFromLastChecks = service.find(filter, PageRequest.of(0, 1,
+				Sort.by(Direction.DESC, AbstractEntity_.created.getName(), AbstractEntity_.modified.getName())))
 				.getContent();
 		
 		if (!changedRequestsFromLastChecks.isEmpty()) {
 			AbstractDto changedRequestsFromLastCheck = changedRequestsFromLastChecks.get(0);
-			DateTime lastModified = this.getLastTimeStamp(changedRequestsFromLastCheck);
+			ZonedDateTime lastModified = this.getLastTimeStamp(changedRequestsFromLastCheck);
 			subscriber.setLastTimeStamp(lastModified);
 			// Notify FE -> Some of the role-request was changed (refresh must be executed)
 			deferredResult.setResult(new OperationResultDto(OperationState.RUNNING));
@@ -172,11 +173,11 @@ public class DefaultLongPollingManager implements LongPollingManager{
 	}
 	
 	@Override
-	public void clearUnUseSubscribers(DateTime clearBeforIt) {
+	public void clearUnUseSubscribers(ZonedDateTime clearBeforIt) {
 		if (clearBeforIt == null) {
-			clearBeforIt = DateTime.now().minusHours(1);
+			clearBeforIt = ZonedDateTime.now().minusHours(1);
 		}
-		DateTime timeStamp = clearBeforIt;
+		ZonedDateTime timeStamp = clearBeforIt;
 		LOG.debug("Start clearUnUseSubscribers [{}] ...", timeStamp);
 		
 		this.registredSubscribers.values().stream() //
@@ -196,8 +197,8 @@ public class DefaultLongPollingManager implements LongPollingManager{
 	}
 	
 	@Override
-	public DateTime getLastTimeStamp(AbstractDto dto) {
-		DateTime lastModified = dto.getModified();
+	public ZonedDateTime getLastTimeStamp(AbstractDto dto) {
+		ZonedDateTime lastModified = dto.getModified();
 		if (lastModified == null) {
 			lastModified = dto.getCreated();
 		}
@@ -210,7 +211,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 			lastModified = dto.getCreated();
 		}
 		
-		return lastModified.plusMillis(1);
+		return lastModified.plus(1, ChronoUnit.MILLIS);
 	}
 
 	/**

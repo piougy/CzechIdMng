@@ -9,9 +9,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -255,8 +256,8 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	@Override
 	protected EntityAccountDto createEntityAccount(AccAccountDto account, IdmIdentityDto entity,
 			SynchronizationContext context) {
-		Assert.notNull(account);
-		Assert.notNull(entity);
+		Assert.notNull(account, "Account is required.");
+		Assert.notNull(entity, "Entity is required.");
 
 		EntityAccountDto entityAccount = super.createEntityAccount(account, entity, context);
 		Assert.isInstanceOf(AccIdentityAccountDto.class, entityAccount,
@@ -447,12 +448,12 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 
 		log.addToLog(MessageFormat.format(
 				"An automatic role by attribute recalculation has to be start after the synchronization end. We start it (synchronously) now [{0}].",
-				LocalDateTime.now()));
+				ZonedDateTime.now()));
 		Boolean executed = longRunningTaskManager.executeSync(executor);
 
 		if (BooleanUtils.isTrue(executed)) {
 			log.addToLog(MessageFormat.format("Recalculation of automatic roles by attribute ended in [{0}].",
-					LocalDateTime.now()));
+					ZonedDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation of automatic roles by attribute was not executed correctly.");
 		}
@@ -474,9 +475,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	 * @return
 	 */
 	private AccIdentityAccountDto findDuplicate(AccIdentityAccountDto identityAccount) {
-		Assert.notNull(identityAccount);
-		Assert.notNull(identityAccount.getAccount());
-		Assert.notNull(identityAccount.getIdentity());
+		Assert.notNull(identityAccount, "Identity account is required.");
+		Assert.notNull(identityAccount.getAccount(), "Account is required.");
+		Assert.notNull(identityAccount.getIdentity(), "Identity is required.");
 
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setAccountId(identityAccount.getAccount());
@@ -609,16 +610,16 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		
 		// Compute the values for the protection
 		Integer protectionInterval = context.getProtectionInterval();
-		DateTime endOfProtection = null;
+		ZonedDateTime endOfProtection = null;
 		LocalDate protectionStart = null;
 		IdmIdentityContractDto lastExpiredContract = null;
 		if (protectionInterval != null) {
-			LocalDate now = new LocalDate();
+			LocalDate now = LocalDate.now();
 			lastExpiredContract = entity != null ? identityContractService.findLastExpiredContract(entity.getId(), now) : null;
 			protectionStart = (lastExpiredContract != null) ? lastExpiredContract.getValidTill() : now;
 			// interval + 1 day = ensure that the account is in protection for at least specified number of days
 			// after the contract ended. This can be in the past.
-			endOfProtection = protectionStart.toDateTimeAtStartOfDay().plusDays(protectionInterval+1);
+			endOfProtection = protectionStart.atStartOfDay(ZoneId.systemDefault()).plusDays(protectionInterval+1);
 		}
 		
 		// Set the values to the account

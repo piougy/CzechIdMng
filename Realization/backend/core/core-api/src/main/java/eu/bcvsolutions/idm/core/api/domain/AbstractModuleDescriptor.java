@@ -145,7 +145,7 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	 * @throws IllegalArgumentException if template by given code is not found
 	 */
 	protected UUID getNotificationTemplateId(String code) {
-		Assert.hasLength(code);
+		Assert.hasLength(code, "Notification template code is required.");
 		//
 		IdmNotificationTemplateDto notificationTemplate = notificationTemplateService.getByCode(code);
 		if (notificationTemplate == null) {

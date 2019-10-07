@@ -106,11 +106,11 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 				entityEventManager, schemaAttributeService, schemaObjectClassService, systemAttributeMappingService,
 				roleService);
 		//
-		Assert.notNull(identityAccountService);
-		Assert.notNull(roleSystemService);
-		Assert.notNull(roleService);
-		Assert.notNull(identityService);
-		Assert.notNull(accountManagementService);
+		Assert.notNull(identityAccountService, "Service is required.");
+		Assert.notNull(roleSystemService, "Service is required.");
+		Assert.notNull(roleService, "Service is required.");
+		Assert.notNull(identityService, "Service is required.");
+		Assert.notNull(accountManagementService, "Service is required.");
 		//
 		this.identityAccountService = identityAccountService;
 		this.identityService = identityService;
@@ -118,7 +118,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	}
 
 	public void doProvisioning(AccAccountDto account) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 		//
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setAccountId(account.getId());
@@ -235,7 +235,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			identityRoleFilter.setValid(Boolean.TRUE);
 			List<IdmIdentityRoleDto> identityRoles = identityRoleService
 					.find(identityRoleFilter,
-							new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmIdentityRole_.created.getName())))
+							PageRequest.of(0, Integer.MAX_VALUE, Sort.by(IdmIdentityRole_.created.getName())))
 					.getContent();
 			List<IdmIdentityRoleDto> identityRolesToProcess = Lists.newArrayList();
 

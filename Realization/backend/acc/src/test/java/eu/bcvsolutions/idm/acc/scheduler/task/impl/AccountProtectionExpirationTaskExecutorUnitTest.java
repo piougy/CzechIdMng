@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class AccountProtectionExpirationTaskExecutorUnitTest extends AbstractUni
 		accounts.add(new AccAccountDto());
 		accounts.add(new AccAccountDto());
 		//
-		when(service.findExpired(any(DateTime.class), any(PageRequest.class)))
+		when(service.findExpired((ZonedDateTime) any(), (PageRequest) any()))
 			.thenReturn(new PageImpl<AccAccountDto>(accounts));
 		//
 		doNothing().when(service).delete(any(AccAccountDto.class));

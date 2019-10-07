@@ -31,7 +31,7 @@ public class AuthorizationPolicySaveProcessor extends CoreEventProcessor<IdmAuth
 	public AuthorizationPolicySaveProcessor(IdmAuthorizationPolicyService service) {
 		super(AuthorizationPolicyEventType.CREATE, AuthorizationPolicyEventType.UPDATE);
 		//
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		//
 		this.service = service;
 	}

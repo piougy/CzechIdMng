@@ -78,7 +78,7 @@ public class IdentityRoleProvisioningExecutor extends AbstractProvisioningExecut
 	}
 	
 	public void doProvisioning(AccAccountDto account) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 
 		AccIdentityRoleAccountFilter filter = new AccIdentityRoleAccountFilter();
 		filter.setAccountId(account.getId());

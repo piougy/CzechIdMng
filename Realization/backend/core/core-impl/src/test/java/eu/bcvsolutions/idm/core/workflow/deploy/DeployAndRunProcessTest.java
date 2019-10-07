@@ -32,7 +32,8 @@ public class DeployAndRunProcessTest extends AbstractCoreWorkflowIntegrationTest
 	public void deployAndRunScript() {
 		RuntimeService runtimeService = activitiRule.getRuntimeService();
 		ProcessInstance instance = runtimeService.startProcessInstanceByKey(PROCESS_KEY);
-		assertEquals(instance.getActivityId(), "endevent");
+		//
+		Assert.assertTrue(instance.isEnded());
 		long count = runtimeService.createProcessInstanceQuery().processDefinitionKey(PROCESS_KEY).count();
 		assertEquals(0, count);
 	}

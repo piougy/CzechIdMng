@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import * as Basic from '../../components/basic';
@@ -185,4 +186,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(HistoricProcessInstanceTable);
+export default connect(select, null, null, { forwardRef: true })(HistoricProcessInstanceTable);

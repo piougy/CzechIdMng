@@ -16,7 +16,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,8 +111,8 @@ public class DefaultIdmConceptRoleRequestService extends
 		super(repository);
 		//
 		Assert.notNull(workflowProcessInstanceService, "Workflow process instance service is required!");
-		Assert.notNull(lookupService);
-		Assert.notNull(automaticRoleRepository);
+		Assert.notNull(lookupService, "Service is required.");
+		Assert.notNull(automaticRoleRepository, "Repository is required.");
 		//
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.lookupService = lookupService;
@@ -231,7 +231,7 @@ public class DefaultIdmConceptRoleRequestService extends
 		if (entity != null) {
 			if (dto.getAutomaticRole() != null) {
 				// it isn't possible use lookupService entity lookup
-				IdmAutomaticRole automaticRole = automaticRoleRepository.findOne(dto.getAutomaticRole());
+				IdmAutomaticRole automaticRole = automaticRoleRepository.findById(dto.getAutomaticRole()).orElse(null);
 				entity.setAutomaticRole(automaticRole);
 			} else {
 				// relation was removed
@@ -292,7 +292,7 @@ public class DefaultIdmConceptRoleRequestService extends
 
 	@Override
 	public IdmFormInstanceDto getRoleAttributeValues(IdmConceptRoleRequestDto dto, boolean checkChanges) {
-		Assert.notNull(dto);
+		Assert.notNull(dto, "DTO is required.");
 		UUID roleId = dto.getRole();
 		if (roleId != null) {
 			IdmRoleDto role = DtoUtils.getEmbedded(dto, IdmConceptRoleRequest_.role, IdmRoleDto.class, null);
@@ -365,9 +365,7 @@ public class DefaultIdmConceptRoleRequestService extends
 									.orElse(null); //
 							
 							if(missingConceptFormValue == null) {
-								IdmFormAttributeDto formAttributeDto = DtoUtils.getEmbedded(formValue,
-										IdmFormValue_.formAttribute.getName(), (IdmFormAttributeDto) null);
-								Assert.notNull(formAttributeDto);
+								IdmFormAttributeDto formAttributeDto = DtoUtils.getEmbedded(formValue, IdmFormValue_.formAttribute.getName());
 								
 								missingConceptFormValue = new IdmFormValueDto(formAttributeDto);
 								missingConceptFormValue.setChanged(true);
@@ -440,7 +438,7 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmConceptRoleRequestDto> findAllByRoleRequest(UUID roleRequestId) {
-		Assert.notNull(roleRequestId);
+		Assert.notNull(roleRequestId, "Role request identifier is required.");
 		// find concepts by filter (fetch mode is applied)
 		IdmConceptRoleRequestFilter filter = new IdmConceptRoleRequestFilter();
 		filter.setRoleRequestId(roleRequestId);
@@ -463,7 +461,7 @@ public class DefaultIdmConceptRoleRequestService extends
 	@Override
 	public void addToLog(Loggable logItem, String text) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(DateTime.now());
+		sb.append(ZonedDateTime.now());
 		sb.append(": ");
 		sb.append(text);
 		text = sb.toString();

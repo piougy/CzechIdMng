@@ -13,7 +13,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -100,11 +100,11 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 			EntityEventManager entityEventManager) {
 		super(accountRepository, entityEventManager);
 		//
-		Assert.notNull(identityAccountService);
-		Assert.notNull(accountRepository);
-		Assert.notNull(systemService);
-		Assert.notNull(schemaObjectClassService);
-		Assert.notNull(schemaAttributeService);
+		Assert.notNull(identityAccountService, "Service is required.");
+		Assert.notNull(accountRepository, "Repository is required.");
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(schemaObjectClassService, "Service is required.");
+		Assert.notNull(schemaAttributeService, "Service is required.");
 
 		//
 		this.identityAccountService = identityAccountService;
@@ -148,7 +148,7 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 	@Override
 	@Transactional
 	public void delete(AccAccountDto account, BasePermission... permission) {
-		Assert.notNull(account);
+		Assert.notNull(account, "Account is required.");
 		// delete all identity accounts (call event)
 		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
 		identityAccountFilter.setAccountId(account.getId());
@@ -199,8 +199,8 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<AccAccountDto> findExpired(DateTime expirationDate, Pageable pageable) {
-		Assert.notNull(expirationDate);
+	public Page<AccAccountDto> findExpired(ZonedDateTime expirationDate, Pageable pageable) {
+		Assert.notNull(expirationDate, "Expiration date is required.");
 		//
 		return toDtoPage(
 				accountRepository.findByEndOfProtectionLessThanAndInProtectionIsTrue(expirationDate, pageable));

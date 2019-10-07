@@ -50,9 +50,9 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 			SysSystemService systemService) {
 		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE);
 		//
-		Assert.notNull(notificationManager);
-		Assert.notNull(provisioningOperationService);
-		Assert.notNull(systemService);
+		Assert.notNull(notificationManager, "Manager is required.");
+		Assert.notNull(provisioningOperationService, "Service is required.");
+		Assert.notNull(systemService, "Service is required.");
 		//
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;

@@ -40,7 +40,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 			IdmConfidentialStorageValueRepository repository,
 			CryptService encryptService) {
 		Assert.notNull(repository, "Confidential storage repository is required");
-		Assert.notNull(encryptService);
+		Assert.notNull(encryptService, "Service is required.");
 		//
 		this.repository = repository;
 		this.cryptService = encryptService;
@@ -52,9 +52,9 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional
 	public void save(UUID ownerId, Class<? extends Identifiable> ownerType, String key, Serializable value) {
-		Assert.notNull(ownerId);
-		Assert.notNull(ownerType);
-		Assert.hasLength(key);
+		Assert.notNull(ownerId, "Owner identifier is required");
+		Assert.notNull(ownerType, "Owner type is required.");
+		Assert.hasLength(key,"Key is required.");
 		//
 		LOG.debug("Saving value for owner [{},{}] and key [{}] to confidential storage", ownerId, ownerType, key);
 		IdmConfidentialStorageValue storage = getStorageValue(ownerId, ownerType, key);
@@ -74,7 +74,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional
 	public void save(Identifiable owner, String key, Serializable value) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		save(getOwnerId(owner), owner.getClass(), key, value);
 	}
@@ -82,11 +82,11 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional
 	public void changeCryptKey(IdmConfidentialStorageValueDto value, GuardedString oldCryptKey) {
-		Assert.notNull(value);
-		Assert.notNull(oldCryptKey);
+		Assert.notNull(value, "Value is required.");
+		Assert.notNull(oldCryptKey, "Old crypt key is required.");
 		//
 		IdmConfidentialStorageValue storage = getStorageValue(value.getOwnerId(), value.getOwnerType(), value.getKey());
-		Assert.notNull(storage);
+		Assert.notNull(storage, "Storage is required.");
 		//
 		// decrypt value with old key
 		byte[] decryptedValue = cryptService.decryptWithKey(storage.getValue(), oldCryptKey);
@@ -100,9 +100,9 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional
 	public void delete(UUID ownerId, Class<? extends Identifiable> ownerType, String key) {
-		Assert.notNull(ownerId);
-		Assert.notNull(ownerType);
-		Assert.hasLength(key);
+		Assert.notNull(ownerId, "Owner identifier is required");
+		Assert.notNull(ownerType, "Owner type is required.");
+		Assert.hasLength(key, "Key is required.");
 		//
 		LOG.debug("Delete value for owner [{},{}] and key [{}] from confidential storage", ownerId, ownerType, key);
 		IdmConfidentialStorageValue storageValue = getStorageValue(ownerId, ownerType, key);
@@ -114,7 +114,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional
 	public void delete(Identifiable owner, String key) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		delete(getOwnerId(owner), owner.getClass(), key);
 	}
@@ -122,8 +122,8 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional
 	public void deleteAll(UUID ownerId, Class<? extends Identifiable> ownerType) {
-		Assert.notNull(ownerId);
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerId, "Owner identifier is required");
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		LOG.debug("Delete all values for owner [{},{}] from confidential storage", ownerId, ownerType);
 		this.repository.deleteByOwnerIdAndOwnerType(ownerId, getOwnerType(ownerType));
@@ -132,7 +132,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional
 	public void deleteAll(Identifiable owner) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		deleteAll(getOwnerId(owner), owner.getClass());
 	}
@@ -140,9 +140,9 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional(readOnly = true)
 	public Serializable get(UUID ownerId, Class<? extends Identifiable> ownerType, String key) {
-		Assert.notNull(ownerId);
-		Assert.notNull(ownerType);
-		Assert.hasLength(key);
+		Assert.notNull(ownerId, "Owner identifier is required");
+		Assert.notNull(ownerType, "Owner type is required.");
+		Assert.hasLength(key, "Key is required.");
 		//
 		IdmConfidentialStorageValue storageValue = getStorageValue(ownerId, ownerType, key);
 		return storageValue == null ? null : fromStorageValue(storageValue.getValue());
@@ -151,7 +151,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional(readOnly = true)
 	public Serializable get(Identifiable owner, String key) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return get(getOwnerId(owner), owner.getClass(), key);
 	}
@@ -175,7 +175,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional(readOnly = true)
 	public <T extends Serializable> T get(Identifiable owner, String key, Class<T> valueType) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return get(getOwnerId(owner), owner.getClass(), key, valueType);
 	}
@@ -195,7 +195,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional(readOnly = true)
 	public <T extends Serializable> T get(Identifiable owner, String key, Class<T> valueType, T defaultValue) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return get(getOwnerId(owner), owner.getClass(), key, valueType, defaultValue);
 	}
@@ -213,7 +213,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional(readOnly = true)
 	public GuardedString getGuardedString(Identifiable owner, String key) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return getGuardedString(getOwnerId(owner), owner.getClass(), key);
 	}
@@ -227,21 +227,21 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Override
 	@Transactional
 	public void saveGuardedString(Identifiable owner, String key, GuardedString value) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		saveGuardedString(getOwnerId(owner), owner.getClass(), key, value);
 	}
 	
 	@Override
 	public String getOwnerType(Identifiable owner) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		//
 		return getOwnerType(owner.getClass());
 	}
 	
 	@Override
 	public String getOwnerType(Class<? extends Identifiable> ownerType) {
-		Assert.notNull(ownerType);
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		Class<? extends BaseEntity> ownerEntityType = getLookupService().getEntityClass(ownerType);
 		if (ownerEntityType == null) {
@@ -266,9 +266,9 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		//
 		LOG.debug("Get value for owner [{},{}] and key [{}] from confidential storage", ownerId, ownerType, key);
 		//
-		Assert.notNull(ownerId);
-		Assert.notNull(ownerType);
-		Assert.notNull(key);
+		Assert.notNull(ownerId, "Owner identifier is required");
+		Assert.notNull(ownerType, "Owner type is required.");
+		Assert.notNull(key, "Key is required.");
 		//
 		return repository.findOneByOwnerIdAndOwnerTypeAndKey(ownerId, ownerType, key);
 	}
@@ -306,7 +306,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	 * @return
 	 */
 	private UUID getOwnerId(Identifiable owner) {
-		Assert.notNull(owner);
+		Assert.notNull(owner, "Owner is required.");
 		if (owner.getId() == null) {
 			return null;
 		}		

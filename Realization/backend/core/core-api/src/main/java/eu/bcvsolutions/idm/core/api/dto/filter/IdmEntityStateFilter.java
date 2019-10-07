@@ -1,14 +1,14 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 
 /**
@@ -23,8 +23,8 @@ public class IdmEntityStateFilter extends DataFilter {
 	private UUID ownerId;
 	private UUID superOwnerId;
 	private UUID eventId;
-	private DateTime createdFrom;
-    private DateTime createdTill;
+	private ZonedDateTime createdFrom;
+    private ZonedDateTime createdTill;
     private String resultCode;
     private List<OperationState> states;
 
@@ -60,19 +60,19 @@ public class IdmEntityStateFilter extends DataFilter {
 		this.eventId = eventId;
 	}
 
-	public DateTime getCreatedFrom() {
+	public ZonedDateTime getCreatedFrom() {
 		return createdFrom;
 	}
 
-	public void setCreatedFrom(DateTime createdFrom) {
+	public void setCreatedFrom(ZonedDateTime createdFrom) {
 		this.createdFrom = createdFrom;
 	}
 
-	public DateTime getCreatedTill() {
+	public ZonedDateTime getCreatedTill() {
 		return createdTill;
 	}
 
-	public void setCreatedTill(DateTime createdTill) {
+	public void setCreatedTill(ZonedDateTime createdTill) {
 		this.createdTill = createdTill;
 	}
 	

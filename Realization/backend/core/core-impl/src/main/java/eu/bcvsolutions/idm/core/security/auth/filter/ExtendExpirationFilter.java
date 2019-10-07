@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,9 +48,10 @@ public class ExtendExpirationFilter extends GenericFilterBean {
 	public static final String PROPERTY_EXTEND_TOKEN_EXPIRATION = "idm.sec.security.jwt.token.extend.expiration";
 	
 	@Autowired private SecurityService securityService;
-	@Autowired private JwtAuthenticationMapper jwtTokenMapper;
+	@Autowired @Lazy private JwtAuthenticationMapper jwtTokenMapper;
 	@Autowired private AuthenticationExceptionContext ctx;
 	@Autowired private ConfigurationService configService;
+	@Lazy
 	@Autowired 
 	@Qualifier("objectMapper") 
 	private ObjectMapper mapper;

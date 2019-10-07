@@ -1,12 +1,12 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.Email;
-import org.joda.time.DateTime;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -72,7 +72,7 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 	private boolean disabled;
 	@JsonProperty(access = Access.READ_ONLY)
 	private IdentityState state;
-	private DateTime blockLoginDate = null;
+	private transient ZonedDateTime blockLoginDate = null;
 	@JsonIgnore
 	private Map<String, Object> context = null;
 
@@ -208,11 +208,11 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 		this.state = state;
 	}
 
-	public DateTime getBlockLoginDate() {
+	public ZonedDateTime getBlockLoginDate() {
 		return blockLoginDate;
 	}
 
-	public void setBlockLoginDate(DateTime blockLoginDate) {
+	public void setBlockLoginDate(ZonedDateTime blockLoginDate) {
 		this.blockLoginDate = blockLoginDate;
 	}
 

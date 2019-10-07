@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import EnumSelectBox from '../EnumSelectBox/EnumSelectBox';
 
@@ -52,7 +51,7 @@ export default class BooleanSelectBox extends EnumSelectBox {
 
 BooleanSelectBox.propTypes = {
   ...EnumSelectBox.propTypes,
-  value: PropTypes.oneOfType([PropTypes.object, React.PropTypes.string])
+  value: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
 };
 BooleanSelectBox.defaultProps = {
   ...EnumSelectBox.defaultProps

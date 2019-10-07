@@ -41,7 +41,7 @@ public class ContractSliceDeleteProcessor
 			AccContractSliceAccountService entityAccountService) {
 		super(IdentityContractEventType.DELETE);
 		//
-		Assert.notNull(entityAccountService);
+		Assert.notNull(entityAccountService, "Service is required.");
 		//
 		this.entityAccountService = entityAccountService;
 	}

@@ -164,7 +164,7 @@ public interface Configurable {
 	 * @return
 	 */
 	default String getConfigurationPropertyName(String propertyName) {
-		Assert.hasLength(propertyName);
+		Assert.hasLength(propertyName, "Property name is required to get configuration property.");
 		//
 		return getConfigurationPrefix()
 				+ ConfigurationService.PROPERTY_SEPARATOR
@@ -178,7 +178,7 @@ public interface Configurable {
 	 * @return
 	 */
 	default String getPropertyName(String configurationPropertyName) {
-		Assert.hasLength(configurationPropertyName);
+		Assert.hasLength(configurationPropertyName, "Configuration property is required to get property name.");
 		//
 		return configurationPropertyName.replaceFirst(getConfigurationPrefix(), "");
 	}

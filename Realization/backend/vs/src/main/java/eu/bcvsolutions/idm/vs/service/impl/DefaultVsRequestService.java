@@ -112,15 +112,15 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			VsAccountService accountService, ConfigurationService configurationService) {
 		super(repository);
 		//
-		Assert.notNull(entityEventManager);
-		Assert.notNull(requestImplementerService);
-		Assert.notNull(czechIdMConnectorService);
-		Assert.notNull(czechIdMConfigurationService);
-		Assert.notNull(systemService);
-		Assert.notNull(notificationManager);
-		Assert.notNull(identityService);
-		Assert.notNull(accountService);
-		Assert.notNull(configurationService);
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(requestImplementerService, "Service is required.");
+		Assert.notNull(czechIdMConnectorService, "Service is required.");
+		Assert.notNull(czechIdMConfigurationService, "Service is required.");
+		Assert.notNull(systemService, "Service is required.");
+		Assert.notNull(notificationManager, "Manager is required.");
+		Assert.notNull(identityService, "Service is required.");
+		Assert.notNull(accountService, "Service is required.");
+		Assert.notNull(configurationService, "Service is required.");
 
 		this.entityEventManager = entityEventManager;
 		this.requestImplementerService = requestImplementerService;
@@ -477,7 +477,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		filter.setSystemId(systemId);
 		filter.setState(VsRequestState.IN_PROGRESS);
 		Sort sort = new Sort(Direction.DESC, VsRequest_.created.getName());
-		return this.find(filter, new PageRequest(0, Integer.MAX_VALUE, sort)).getContent();
+		return this.find(filter, PageRequest.of(0, Integer.MAX_VALUE, sort)).getContent();
 	}
 
 	@Override
@@ -568,7 +568,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	 * @return
 	 */
 	private VsVirtualConnector getVirtualConnector(VsRequestDto request) {
-		Assert.notNull(request.getSystem());
+		Assert.notNull(request.getSystem(), "System is required.");
 		return vsSystemService.getVirtualConnector(request.getSystem(), request.getConnectorKey());
 	}
 

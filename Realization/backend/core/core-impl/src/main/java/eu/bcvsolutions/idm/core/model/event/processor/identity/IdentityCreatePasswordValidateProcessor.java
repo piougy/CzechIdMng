@@ -38,7 +38,7 @@ public class IdentityCreatePasswordValidateProcessor
 			IdmPasswordPolicyService passwordPolicyService) {
 		super(IdentityEventType.CREATE, IdentityEventType.UPDATE);
 		//
-		Assert.notNull(passwordPolicyService);
+		Assert.notNull(passwordPolicyService, "Service is required.");
 		//
 		this.passwordPolicyService = passwordPolicyService;
 	}

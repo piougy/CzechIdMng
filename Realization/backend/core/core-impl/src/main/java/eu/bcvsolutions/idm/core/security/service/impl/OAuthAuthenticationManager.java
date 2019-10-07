@@ -38,10 +38,10 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 			IdentityService workflowIdentityService,
 			SecurityService securityService,
 			TokenManager tokenManager) {
-		Assert.notNull(identityService);
-		Assert.notNull(workflowIdentityService);
-		Assert.notNull(securityService);
-		Assert.notNull(tokenManager);
+		Assert.notNull(identityService, "Service is required.");
+		Assert.notNull(workflowIdentityService, "Service is required.");
+		Assert.notNull(securityService, "Service is required.");
+		Assert.notNull(tokenManager, "Manager is required.");
 		//
 		this.identityService = identityService;
 		this.workflowIdentityService = workflowIdentityService;

@@ -70,8 +70,8 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 				provisioningExecutor, entityEventManager, schemaAttributeService, schemaObjectClassService,
 				systemAttributeMappingService, roleService);
 		
-		Assert.notNull(catalogueAccountService);
-		Assert.notNull(catalogueService);
+		Assert.notNull(catalogueAccountService, "Service is required.");
+		Assert.notNull(catalogueService, "Service is required.");
 		
 		this.catalogueAccountService = catalogueAccountService;
 		this.catalogueService = catalogueService;

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -9,6 +10,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.config.domain.RecaptchaConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -25,14 +27,8 @@ import eu.bcvsolutions.idm.core.security.api.service.RecaptchaService;
 @Service("recaptchaService")
 public class DefaultRecaptchaService implements RecaptchaService {
 
-	private final RestTemplate restTemplate;
-	private final RecaptchaConfiguration recaptchaConfiguration;
-
-	@Autowired
-	public DefaultRecaptchaService(RecaptchaConfiguration recaptchaConfiguration, RestTemplate template) {
-		this.recaptchaConfiguration = recaptchaConfiguration;
-		this.restTemplate = template;
-	}
+	@Autowired @Lazy private RestTemplate restTemplate;
+	@Autowired private RecaptchaConfiguration recaptchaConfiguration;
 
 	@Override
 	public RecaptchaResponse checkRecaptcha(RecaptchaRequest req) {

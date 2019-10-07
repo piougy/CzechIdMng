@@ -1,12 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Service;
@@ -63,8 +62,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
-		Assert.notNull(authenticators);
-		//
 		List<LoginDto> resultsList = new LinkedList<>();
 		RuntimeException firstFailture = null;
 		//
@@ -73,18 +70,18 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		if (passwordDto == null) {
 			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Invalid login or password.");
 		}
-		if (passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfterNow()) {
+		if (passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfter(ZonedDateTime.now())) {
 			LOG.info("Identity {} has blocked login to IdM.",
 					loginDto.getUsername());
 			IdmIdentityDto identityDto = DtoUtils.getEmbedded(passwordDto, IdmPassword_.identity);
-			DateTimeFormatter formatter = DateTimeFormat.forPattern(configurationService.getDateTimeSecondsFormat());
-			DateTime blockLoginDate = passwordDto.getBlockLoginDate();
-			String dateAsString = blockLoginDate.toString(formatter);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(configurationService.getDateTimeSecondsFormat());
+			ZonedDateTime blockLoginDate = passwordDto.getBlockLoginDate();
+			String dateAsString = blockLoginDate.format(formatter);
 
 			// Block login date can be set manually by password metadata,
 			// so block login date can be more than int amount.
-			long blockMillies = blockLoginDate.getMillis();
-			long nowMillis = DateTime.now().getMillis();
+			long blockMillies = blockLoginDate.toInstant().toEpochMilli();
+			long nowMillis = ZonedDateTime.now().toInstant().toEpochMilli();
 			long different = blockMillies - nowMillis;
 			different = different / 1000;
 
@@ -170,7 +167,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	 * @param loginDto
 	 */
 	private void blockLogin(IdmPasswordDto passwordDto, LoginDto loginDto) {
-		Assert.notNull(passwordDto);
+		Assert.notNull(passwordDto, "Password DTO is required for block login.");
 		// In first increase unsuccessful attempts
 		passwordDto.increaseUnsuccessfulAttempts();
 
@@ -208,13 +205,13 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			// Multiplier is for increase block time
 			int multiplier = currentUnsuccessfulAttempts / maxUnsuccessfulAttempts;
 			int seconds = blockForSeconds * multiplier;
-			DateTime blockFinalTime = new DateTime().plusSeconds(seconds);
+			ZonedDateTime blockFinalTime = ZonedDateTime.now().plusSeconds(seconds);
 			passwordDto.setBlockLoginDate(blockFinalTime);
 			passwordDto = passwordService.save(passwordDto);
 			IdmIdentityDto identityDto = DtoUtils.getEmbedded(passwordDto, IdmPassword_.identity);
 
-			DateTimeFormatter formatter = DateTimeFormat.forPattern(configurationService.getDateTimeSecondsFormat());
-			String dateAsString = passwordDto.getBlockLoginDate().toString(formatter);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(configurationService.getDateTimeSecondsFormat());
+			String dateAsString = passwordDto.getBlockLoginDate().format(formatter);
 			//
 			LOG.warn("For identity username: {} was lock authentization to IdM for {} seconds. Authentization will be available after: {}.",
 					loginDto.getUsername(), blockFinalTime, dateAsString);

@@ -225,7 +225,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	@Test(expected = ConcurrentExecutionException.class)
 	public void testDisallowConcurrentExecution() {
 		TestTaskExecutor executorOne = new TestTaskExecutor();
-		executorOne.setCount(300L);
+		executorOne.setCount(50L);
 		LongRunningFutureTask<Boolean> longRunningFutureTask = manager.execute(executorOne);
 		getHelper().waitForResult(res -> {
 			return !service.get(longRunningFutureTask.getExecutor().getLongRunningTaskId()).isRunning();

@@ -33,7 +33,7 @@ public class RoleRequestRealizationFinisherProcessor extends CoreEventProcessor<
 	@Autowired
 	public RoleRequestRealizationFinisherProcessor(IdmRoleRequestService service) {
 		super(RoleRequestEventType.NOTIFY);
-		Assert.notNull(service);
+		Assert.notNull(service, "Service is required.");
 		this.service = service;
 	}
 

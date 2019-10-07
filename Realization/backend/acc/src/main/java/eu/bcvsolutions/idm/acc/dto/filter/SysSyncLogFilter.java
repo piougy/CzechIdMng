@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.dto.filter;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import org.springframework.util.LinkedMultiValueMap;
@@ -55,5 +56,13 @@ public class SysSyncLogFilter extends DataFilter {
 
 	public void setSystemId(UUID systemId) {
 		data.set(PARAMETER_SYSTEM_ID, systemId);
+	}
+	
+	public ZonedDateTime getModifiedFrom() {
+		return getParameterConverter().toDateTime(data, PARAMETER_MODIFIED_FROM);
+	}
+
+	public void setModifiedFrom(ZonedDateTime dateTime) {
+		data.set(PARAMETER_MODIFIED_FROM, dateTime);
 	}
 }

@@ -67,7 +67,7 @@ public class SysProvisioningBatchController
 			ProvisioningExecutor provisioningExecutor) {
 		super(service);
 		//
-		Assert.notNull(provisioningExecutor);
+		Assert.notNull(provisioningExecutor, "Provisioning executor is required.");
 		//
 		this.provisioningExecutor = provisioningExecutor;
 	}

@@ -81,14 +81,14 @@ public class AccountDeleteProcessor extends CoreEventProcessor<AccAccountDto> im
 			AccIdentityAccountService identityAccountService, ProvisioningService provisioningService) {
 		super(AccountEventType.DELETE);
 		//
-		Assert.notNull(accountService);
-		Assert.notNull(entityEventManager);
-		Assert.notNull(roleAccountService);
-		Assert.notNull(roleCatalogueAccountService);
-		Assert.notNull(treeAccountService);
-		Assert.notNull(contractAccountService);
-		Assert.notNull(identityAccountService);
-		Assert.notNull(provisioningService);
+		Assert.notNull(accountService, "Service is required.");
+		Assert.notNull(entityEventManager, "Manager is required.");
+		Assert.notNull(roleAccountService, "Service is required.");
+		Assert.notNull(roleCatalogueAccountService, "Service is required.");
+		Assert.notNull(treeAccountService, "Service is required.");
+		Assert.notNull(contractAccountService, "Service is required.");
+		Assert.notNull(identityAccountService, "Service is required.");
+		Assert.notNull(provisioningService, "Service is required.");
 		//
 		this.accountService = accountService;
 		this.roleAccountService = roleAccountService;

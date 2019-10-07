@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -263,7 +264,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		// set information about password
 		// password may not exist, set block login date only if active
 		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identityDto.getId());
-		if (passwordDto != null && passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfterNow()) {
+		if (passwordDto != null && passwordDto.getBlockLoginDate() != null && passwordDto.getBlockLoginDate().isAfter(ZonedDateTime.now())) {
 			identityDto.setBlockLoginDate(passwordDto.getBlockLoginDate());
 		}
 		//
@@ -588,7 +589,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService
 				.find(
 					filter, 
-					new PageRequest(0, Integer.MAX_VALUE, new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.name.getName())), 
+					PageRequest.of(0, Integer.MAX_VALUE, new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.name.getName())), 
 					IdmBasePermission.READ)
 				.getContent();
 		// clear embedded, with is not needed for FE (cannot be disabled globally) 
@@ -1328,8 +1329,8 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	 * @param subscriber
 	 */
 	private void checkDeferredRequest(DeferredResult<OperationResultDto> deferredResult, LongPollingSubscriber subscriber) {
-		Assert.notNull(deferredResult);
-		Assert.notNull(subscriber.getEntityId());
+		Assert.notNull(deferredResult, "Deferred result is required.");
+		Assert.notNull(subscriber.getEntityId(), "Subscriber identifier is required.");
 				
 		IdmRoleRequestFilter filter = new IdmRoleRequestFilter();
 		filter.setApplicantId(subscriber.getEntityId());

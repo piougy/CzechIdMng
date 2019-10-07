@@ -30,7 +30,8 @@ export default class VsRequests extends Basic.AbstractContent {
 
   render() {
     const searchActive = new Domain.SearchParameters().setFilter('state', 'IN_PROGRESS');
-    const searchArchive = new Domain.SearchParameters().setFilter('onlyArchived', true).clearSort().setSort('modified', 'desc');
+    const searchArchive = new Domain.SearchParameters().setFilter('onlyArchived', true);
+    const searchArchiveDefault = new Domain.SearchParameters().setSort('modified', 'desc');
 
     return (
       <div>
@@ -47,9 +48,10 @@ export default class VsRequests extends Basic.AbstractContent {
             <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
               <VsRequestTable
                 uiKey="vs-request-table-archive"
-                columns= {['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'created', 'creator', 'modified', 'roleRequestId']}
+                columns={['uid', 'systemId', 'operationType', 'executeImmediately', 'created', 'creator', 'roleRequestId', 'modifier', 'modified', 'state']}
                 showRowSelection={false}
                 forceSearchParameters={searchArchive}
+                defaultSearchParameters={searchArchiveDefault}
                 filterOpened />
             </Basic.Tab>
           </Basic.Tabs>

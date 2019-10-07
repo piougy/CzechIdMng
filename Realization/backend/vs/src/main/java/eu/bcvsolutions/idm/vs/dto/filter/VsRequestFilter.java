@@ -28,6 +28,8 @@ public class VsRequestFilter extends DataFilter {
 	private DateTime createdBefore;
 	private Boolean onlyArchived;
 	private UUID roleRequestId;
+	private DateTime modifiedAfter;
+	private DateTime modifiedBefore;
 	
 	public VsRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -99,6 +101,22 @@ public class VsRequestFilter extends DataFilter {
 
 	public void setCreatedBefore(DateTime createdBefore) {
 		this.createdBefore = createdBefore;
+	}
+	
+	public DateTime getModifiedAfter() {
+		return modifiedAfter;
+	}
+
+	public void setModifiedAfter(DateTime modifiedAfter) {
+		this.modifiedAfter = modifiedAfter;
+	}
+
+	public DateTime getModifiedBefore() {
+		return modifiedBefore;
+	}
+
+	public void setModifiedBefore(DateTime modifiedBefore) {
+		this.modifiedBefore = modifiedBefore;
 	}
 
 	public UUID getRoleRequestId() {

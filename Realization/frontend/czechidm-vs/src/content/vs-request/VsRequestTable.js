@@ -194,11 +194,19 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <Basic.Col lg={ 8 }>
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.FilterDate
-                      ref="fromTill"
-                      fromProperty="createdAfter"
-                      tillProperty="createdBefore"/>
+                    ref="fromTill"  
+                    facePlaceholder={this.i18n('vs:entity.VsRequest.created.label')}
+                    fromProperty="createdAfter"
+                    tillProperty="createdBefore"/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.FilterDate
+                      ref="fromTillmodified"
+                      facePlaceholder={this.i18n('vs:entity.VsRequest.modified.label')}
+                      fromProperty="modifiedAfter"
+                      tillProperty="modifiedBefore" />
                   </Basic.Col>
                   <Basic.Col lg={ 4 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -213,7 +221,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.SelectBox
                       ref="systemId"
-                      placeholder={this.i18n('acc:entity.System._type')}
+                      placeholder={this.i18n('acc:entity.System._type')}  
                       multiSelect={false}
                       forceSearchParameters={new Domain.SearchParameters().setName(Domain.SearchParameters.NAME_AUTOCOMPLETE).setFilter('virtual', true)}
                       manager={systemManager}/>

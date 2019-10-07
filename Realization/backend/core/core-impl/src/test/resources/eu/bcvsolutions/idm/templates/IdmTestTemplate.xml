@@ -5,9 +5,9 @@ Template for tests
 
 <template
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">>
-	<name>Test notification template</name>
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>testTemplate</code>
+	<name>Test notification template</name>
 	<subject>CzechIdM - test template $code</subject>
 	<bodyHtml>
 <![CDATA[

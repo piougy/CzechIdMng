@@ -120,7 +120,7 @@ public class DuplicateRoleAutomaticByAttributeProcessor
 					}
 					AutomaticRoleAttributeEvent automaticRoleEvent = new AutomaticRoleAttributeEvent(AutomaticRoleAttributeEventType.UPDATE, clonedAutomaticRole);
 					automaticRoleEvent.setPriority(PriorityType.IMMEDIATE); // execute sync
-					// FIXME: event parent, setTransactionId ...
+					// FIXME: event parent ...
 					automaticRoleAttributeService.recalculate(automaticRoleEvent);
 				}
 			});

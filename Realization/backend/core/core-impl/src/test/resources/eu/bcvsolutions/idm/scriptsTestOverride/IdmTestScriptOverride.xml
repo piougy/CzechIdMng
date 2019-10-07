@@ -2,7 +2,8 @@
 <!--
 	Test script 2, for testing backup, deploy, redeploy.
 -->
-<script>
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
 	<code>testScriptOverride</code>
 	<name>Test script override</name>
 	<body>
@@ -13,6 +14,6 @@ String overrideUpdate;
 	<type>groovy</type>
 	<category>DEFAULT</category>
 	<parameters>test</parameters>
+	<services/>
 	<allowClasses />
-    <services/>
 </script>

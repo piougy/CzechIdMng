@@ -5,9 +5,9 @@ Template for tests
 
 <template
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">>
-	<name>Test notification template - override</name>
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>testTemplateOverride</code>
+	<name>Test notification template - override</name>
 	<subject>CzechIdM - test isOverriden</subject>
 	<bodyHtml>
 <![CDATA[

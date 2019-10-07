@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.approve.add">
+<definitions 
+	xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:activiti="http://activiti.org/bpmn" 
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+	xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" 
+	xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" 
+	typeLanguage="http://www.w3.org/2001/XMLSchema" 
+	expressionLanguage="http://www.w3.org/1999/XPath" 
+	targetNamespace="eu.bcvsolutions.role.approve.add"
+	xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL ../../BPMN20.xsd">
   <process id="approve-role-by-guarantee" name="Assign role idenity.  Approvers are all guarantees for given role." isExecutable="true">
     <documentation>Approval workflow for assign new role to identity or change validity dates on assigned role. Approvers are all guarantees for given role.
 

@@ -2,7 +2,8 @@
 <!--
 	Test script 2, for testing backup, deploy, redeploy.
 -->
-<script>
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
 	<code>testScript3</code>
 	<name>Test script 3</name>
 	<body>
@@ -13,6 +14,6 @@ String s3;
 	<type>groovy</type>
 	<category>DEFAULT</category>
 	<parameters>test3</parameters>
+	<services/>
 	<allowClasses />
-    <services/>
 </script>

@@ -2,7 +2,8 @@
 <!--
 	Test script 1, for testing backup, deploy, redeploy.
 -->
-<script>
+<script xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="IdmScript.xsd">
 	<code>testScript1</code>
 	<name>Test script 1</name>
 	<body>
@@ -13,6 +14,16 @@ String s;
 	<type>groovy</type>
 	<category>DEFAULT</category>
 	<parameters>test1</parameters>
+	<services>
+        <service>
+        	<name>treeNodeService</name>
+            <className>eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeNodeService</className>
+        </service>
+        <service>
+        	<name>identityService</name>
+            <className>eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService</className>
+        </service>
+    </services>
 	<allowClasses>
         <allowClass>
             <className>eu.bcvsolutions.idm.core.model.entity.IdmTreeNode</className>
@@ -21,14 +32,4 @@ String s;
             <className>eu.bcvsolutions.idm.core.model.entity.IdmIdentity</className>
         </allowClass>
     </allowClasses>
-    <services>
-        <service>
-            <className>eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeNodeService</className>
-            <name>treeNodeService</name>
-        </service>
-        <service>
-            <className>eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService</className>
-            <name>identityService</name>
-        </service>
-    </services>
 </script>

@@ -362,7 +362,22 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(request, "VS request cannot be null!");
 
 		List<VsAttributeDto> resultAttributes = new ArrayList<>();
-		IcConnectorObject realConnectorObject = this.getVsConnectorObject(request);
+		IcConnectorObject realConnectorObject = null;
+
+		boolean isArchived = false;
+		if (VsRequestState.REALIZED == request.getState() 
+				|| VsRequestState.CANCELED != request.getState() 
+				|| VsRequestState.DUPLICATED != request.getState() 
+				|| VsRequestState.REJECTED != request.getState()) {
+			isArchived = true;
+		}
+		
+		// We don't want use current object, when request is archived. We want to show
+		// only changes.
+		if (!isArchived) {
+			realConnectorObject = this.getVsConnectorObject(request);
+		}
+
 		IcConnectorObject currentObject = realConnectorObject != null ? realConnectorObject
 				: new IcConnectorObjectImpl();
 		IcConnectorObject changeObject = request.getConnectorObject() != null ? request.getConnectorObject()
@@ -520,6 +535,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Created after
 		if (filter.getCreatedAfter() != null) {
 			predicates.add(builder.greaterThan(root.get(VsRequest_.created), filter.getCreatedAfter()));
+		}
+		
+		// Modified before
+		if (filter.getModifiedBefore() != null) {
+			predicates.add(builder.lessThan(root.get(VsRequest_.modified), filter.getModifiedBefore()));
+		}
+
+		// Modified after
+		if (filter.getModifiedAfter() != null) {
+			predicates.add(builder.greaterThan(root.get(VsRequest_.modified), filter.getModifiedAfter()));
 		}
 
 		// Only archived

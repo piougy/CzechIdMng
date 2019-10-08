@@ -805,6 +805,36 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(3, requests.size());
 	}
+	
+	@Test
+	public void createAndRealizeRequestWithNoteTest() {
+
+		SysSystemDto system = this.createVirtualSystem(USER_IMPLEMENTER_NAME, null);
+		this.assignRoleSystem(system, helper.createIdentity(USER_ONE_NAME), ROLE_ONE_NAME);
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(system.getId());
+		requestFilter.setUid(USER_ONE_NAME);
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		VsRequestDto request = requests.get(0);
+		Assert.assertEquals(USER_ONE_NAME, request.getUid());
+		Assert.assertEquals(VsOperationType.CREATE, request.getOperationType());
+		Assert.assertEquals(VsRequestState.IN_PROGRESS, request.getState());
+
+		VsAccountDto account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNull("Account must be null, because request was not realized yet!", account);
+		// We try realize the request
+		super.logout();
+		loginService.login(new LoginDto(USER_IMPLEMENTER_NAME, new GuardedString("password")));
+		String note = helper.createName();
+		request = requestService.realize(request, note);
+		Assert.assertEquals(VsRequestState.REALIZED, request.getState());
+		account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNotNull("Account cannot be null, because request was realized!", account);
+		request = requestService.get(request.getId());
+		Assert.assertEquals(note, request.getReason());
+	}
 
 	/**
 	 * Method for create role, assign role to system and to user.

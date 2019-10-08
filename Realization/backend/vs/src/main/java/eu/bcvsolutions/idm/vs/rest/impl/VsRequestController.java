@@ -123,6 +123,24 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
 	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countRequests", 
+			tags = { VsRequestController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
 
 	@Override
 	@ResponseBody
@@ -307,7 +325,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 
 	@Override
 	protected VsRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		VsRequestFilter filter = new VsRequestFilter();
+		VsRequestFilter filter = new VsRequestFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", VsRequestState.class));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));

@@ -20,6 +20,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -36,8 +37,9 @@ import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 @Table(name = "vs_request", indexes = {
 		@Index(name = "idx_vs_request_uid", columnList = "uid"),
 		@Index(name = "idx_vs_request_system", columnList = "system_id"),
-		@Index(name = "idx_vs_request_role_request_id", columnList = "role_request_id")})
-public class VsRequest extends AbstractEntity {
+		@Index(name = "idx_vs_request_role_request_id", columnList = "role_request_id"),
+		@Index(name = "idx_vs_request_external_id", columnList = "external_id")})
+public class VsRequest extends AbstractEntity implements ExternalIdentifiable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -124,6 +126,11 @@ public class VsRequest extends AbstractEntity {
 	// doesn't have to exist!
 	@Column(name = "role_request_id")
 	private UUID roleRequestId;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "external_id", length = DefaultFieldLengths.NAME)
+	private String externalId;
 
 	public VsOperationType getOperationType() {
 		return operationType;
@@ -219,6 +226,22 @@ public class VsRequest extends AbstractEntity {
 
 	public void setRoleRequestId(UUID roleRequestId) {
 		this.roleRequestId = roleRequestId;
+	}
+	
+	/**
+	 * @since 9.7.9
+	 */
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	/**
+	 * @since 9.7.9
+	 */
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 	
 }

@@ -701,6 +701,39 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(0, requests.size());
 	}
+	
+	@Test
+	public void modifiedDateTest() {
+		SysSystemDto virtualSystem = helper.createVirtualSystem(helper.createName());
+		IdmRoleDto roleOne = helper.createRole();
+		IdmIdentityDto identity = helper.createIdentity((GuardedString) null);
+		
+		// Assign system to role
+		helper.createRoleSystem(roleOne, virtualSystem);
+		helper.assignRoles(helper.getPrimeContract(identity.getId()), false, roleOne);
+		
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(virtualSystem.getId());
+		requestFilter.setUid(identity.getUsername());
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		
+		requestFilter.setModifiedAfter(new DateTime().minusSeconds(10));
+		requestFilter.setModifiedBefore(new DateTime());
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		
+		requestFilter.setModifiedAfter(new DateTime().plusMinutes(10));
+		requestFilter.setModifiedBefore(new DateTime().plusMinutes(11));
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(0, requests.size());
+		
+		requestFilter.setModifiedAfter(new DateTime().minusMinutes(10));
+		requestFilter.setModifiedBefore(new DateTime().minusMinutes(9));
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(0, requests.size());
+	}
 
 	@Test
 	public void systemTest() {

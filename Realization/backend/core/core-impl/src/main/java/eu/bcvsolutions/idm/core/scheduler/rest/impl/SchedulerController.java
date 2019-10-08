@@ -460,7 +460,7 @@ public class SchedulerController implements BaseController {
 	protected Resources<?> pageToResources(Page<Object> page, Class<?> domainType) {
 
 		if (page.getContent().isEmpty()) {
-			return pagedResourcesAssembler.toEmptyResource(page, domainType, null);
+			return pagedResourcesAssembler.toEmptyResource(page, domainType);
 		}
 
 		return pagedResourcesAssembler.toResource(page);

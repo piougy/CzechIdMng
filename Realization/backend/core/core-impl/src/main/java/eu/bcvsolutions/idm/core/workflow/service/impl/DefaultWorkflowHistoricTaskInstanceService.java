@@ -63,6 +63,11 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 	@Override
 	public Page<WorkflowHistoricTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
+		if (pageable == null) {
+			// pageable is required
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
+		
 		String processDefinitionId = filter.getProcessDefinitionId();
 		String processInstanceId = filter.getProcessInstanceId();
 
@@ -94,24 +99,23 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 		String fieldForSort = null;
 		boolean ascSort = false;
 		boolean descSort = false;
-		if (pageable != null) {
-			Sort sort = pageable.getSort();
-			if (sort != null) {
-				for (Order order : sort) {
-					if (!StringUtils.isEmpty(order.getProperty())) {
-						// TODO: now is implemented only one property sort 
-						fieldForSort = order.getProperty();
-						if (order.getDirection() == Direction.ASC) {
-							ascSort = true;
-						} else if (order.getDirection() == Direction.DESC) {
-							descSort = true;
-						}
-						break;
+		Sort sort = pageable.getSort();
+		if (sort != null) {
+			for (Order order : sort) {
+				if (!StringUtils.isEmpty(order.getProperty())) {
+					// TODO: now is implemented only one property sort 
+					fieldForSort = order.getProperty();
+					if (order.getDirection() == Direction.ASC) {
+						ascSort = true;
+					} else if (order.getDirection() == Direction.DESC) {
+						descSort = true;
 					}
-					
+					break;
 				}
+				
 			}
 		}
+			
 		if (WorkflowHistoricTaskInstanceService.SORT_BY_CREATE_TIME.equals(fieldForSort)) {
 			query.orderByTaskCreateTime();
 		} else if (WorkflowHistoricTaskInstanceService.SORT_BY_END_TIME.equals(fieldForSort)) {
@@ -129,13 +133,8 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 		}
 		long count = query.count();
 		
-		List<HistoricTaskInstance> processInstances = null;
-		if (pageable == null) {
-			processInstances = query.list();
-		} else {
-			processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(),
-					pageable.getPageSize());
-		}
+		List<HistoricTaskInstance> processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(),
+				pageable.getPageSize());
 		List<WorkflowHistoricTaskInstanceDto> dtos = new ArrayList<>();
 
 		if (processInstances != null) {

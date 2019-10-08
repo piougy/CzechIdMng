@@ -25,7 +25,7 @@
         "label": "Implementers"
       },
       "reason": {
-        "label": "Reason of cancel"
+        "label": "Note"
       },
       "created": {
         "label": "Created"
@@ -117,6 +117,9 @@
       },
       "cancel-reason": {
         "placeholder": "Fill the reason for canceling ..."
+      },
+      "realize-reason": {
+        "placeholder": "Fill the note ..."
       },
       "tabs": {
         "active": {

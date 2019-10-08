@@ -163,7 +163,16 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Basic.Confirm ref="confirm-realize" level="danger"/>
+        <Basic.Confirm ref="confirm-realize" level="success">
+          <div style={{ marginTop: '20px' }}>
+            <Basic.AbstractForm ref="realize-form" uiKey="confirm-realize" >
+              <Basic.TextArea
+                ref="realize-reason"
+                placeholder={this.i18n('vs:content.vs-requests.realize-reason.placeholder')}
+              />
+            </Basic.AbstractForm>
+          </div>
+        </Basic.Confirm>
         <Basic.Confirm ref="confirm-cancel" level="danger">
           <div style={{marginTop: '20px'}}>
             <Basic.AbstractForm ref="cancel-form" uiKey="confirm-cancel" >
@@ -196,7 +205,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
                 <Basic.Row>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.FilterDate
-                    ref="fromTill"  
+                    ref="fromTill"
                     facePlaceholder={this.i18n('vs:entity.VsRequest.created.label')}
                     fromProperty="createdAfter"
                     tillProperty="createdBefore"/>

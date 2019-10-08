@@ -55,6 +55,15 @@ public interface VsRequestService
 	 * @return
 	 */
 	VsRequestDto realize(VsRequestDto request);
+	
+	/**
+	 * Realize request. Request will be marked as realized (only change state).
+	 * @param request
+	 * @param reason - Optional note by implementer
+	 * 
+	 * @return
+	 */
+	VsRequestDto realize(VsRequestDto request, String reason);
 
 	/**
 	 * Cancel request. Reason must be not null. Request will be only mark as cancel (change state)

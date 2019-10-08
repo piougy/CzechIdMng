@@ -75,7 +75,7 @@ public class ModelMapperChecker {
 			} catch (MappingException ex) {
 				// Throw exception => prevent to IdM starts in invalid state.
 				throw new CoreException(
-						String.format("Service [%s] cannot be used, model mapper is wrongly inited, try to restart server.", service.getClass()), 
+						String.format("Service [%s] cannot be used, model mapper is wrongly inited, try to restart this application.", service.getClass()), 
 						ex);
 			} catch (Exception ex) {
 				LOG.error("Service [{}] cannot be checked. Find method cannot be called.", service.getClass(), ex);

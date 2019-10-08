@@ -146,8 +146,21 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
         )
       },
       {
-        label: this.i18n('entity.created'),
+        label: this.i18n('vs:entity.VsRequest.created.label'),
         value: (<Advanced.DateValue value={ entity.created } showTime/>)
+      },
+      {
+        label: this.i18n('vs:entity.VsRequest.modifier.label'),
+        value: (
+          <Advanced.EntityInfo
+            entityType="identity"
+            entityIdentifier={entity.modifier}
+            face="popover" />
+        )
+      },
+      {
+        label: this.i18n('vs:entity.VsRequest.modified.label'),
+        value: (<Advanced.DateValue value={entity.modified} showTime />)
       }
     ]);
 

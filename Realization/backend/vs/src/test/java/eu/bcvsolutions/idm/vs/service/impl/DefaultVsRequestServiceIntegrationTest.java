@@ -701,6 +701,39 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(0, requests.size());
 	}
+	
+	@Test
+	public void modifiedDateTest() {
+		SysSystemDto virtualSystem = helper.createVirtualSystem(helper.createName());
+		IdmRoleDto roleOne = helper.createRole();
+		IdmIdentityDto identity = helper.createIdentity((GuardedString) null);
+		
+		// Assign system to role
+		helper.createRoleSystem(roleOne, virtualSystem);
+		helper.assignRoles(helper.getPrimeContract(identity.getId()), false, roleOne);
+		
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(virtualSystem.getId());
+		requestFilter.setUid(identity.getUsername());
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		
+		requestFilter.setModifiedAfter(new DateTime().minusSeconds(10));
+		requestFilter.setModifiedBefore(new DateTime());
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		
+		requestFilter.setModifiedAfter(new DateTime().plusMinutes(10));
+		requestFilter.setModifiedBefore(new DateTime().plusMinutes(11));
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(0, requests.size());
+		
+		requestFilter.setModifiedAfter(new DateTime().minusMinutes(10));
+		requestFilter.setModifiedBefore(new DateTime().minusMinutes(9));
+		requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(0, requests.size());
+	}
 
 	@Test
 	public void systemTest() {
@@ -771,6 +804,36 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		requestFilter.setConnectorKey(request.getConnectorKey());
 		requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(3, requests.size());
+	}
+	
+	@Test
+	public void createAndRealizeRequestWithNoteTest() {
+
+		SysSystemDto system = this.createVirtualSystem(USER_IMPLEMENTER_NAME, null);
+		this.assignRoleSystem(system, helper.createIdentity(USER_ONE_NAME), ROLE_ONE_NAME);
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(system.getId());
+		requestFilter.setUid(USER_ONE_NAME);
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		VsRequestDto request = requests.get(0);
+		Assert.assertEquals(USER_ONE_NAME, request.getUid());
+		Assert.assertEquals(VsOperationType.CREATE, request.getOperationType());
+		Assert.assertEquals(VsRequestState.IN_PROGRESS, request.getState());
+
+		VsAccountDto account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNull("Account must be null, because request was not realized yet!", account);
+		// We try realize the request
+		super.logout();
+		loginService.login(new LoginDto(USER_IMPLEMENTER_NAME, new GuardedString("password")));
+		String note = helper.createName();
+		request = requestService.realize(request, note);
+		Assert.assertEquals(VsRequestState.REALIZED, request.getState());
+		account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNotNull("Account cannot be null, because request was realized!", account);
+		request = requestService.get(request.getId());
+		Assert.assertEquals(note, request.getReason());
 	}
 
 	/**

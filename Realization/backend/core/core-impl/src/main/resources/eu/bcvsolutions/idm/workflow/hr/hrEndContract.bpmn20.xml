@@ -55,6 +55,7 @@ try {
 		if (binding.hasVariable('skip_recalculation')) {
 			event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skip_recalculation);
 		}
+		event.setPriority(eu.bcvsolutions.idm.core.api.domain.PriorityType.IMMEDIATE);
     	identityService.publish(event);
 	}
 	//

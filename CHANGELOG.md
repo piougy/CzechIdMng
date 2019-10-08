@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.7.9]
+
+- [#1894](https://redmine.czechidm.com/issues/1894) - Virtual system request - Note for implementer was added. New method in service VsRequestService was added `realize(request, reason)`. From the FE is call only new method `realize(request, reason)` now! If some project overridden old method `realize(request)`, then you may be need to change it to the new one.
+
 ## [9.7.8]
 
 - [#1887](https://redmine.czechidm.com/issues/1887) - Filling the value of ``validTill`` automatically for newly created assigned roles in bulk action for role assignment (``IdentityAddRoleBulkAction``) and in synchronization (default role creation) by related contract validity was removed.

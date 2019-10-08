@@ -41,7 +41,7 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
  */
 @Ignore
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = IdmApplication.class, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = IdmApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @Rollback(true)
 public abstract class AbstractIntegrationTest {
 	

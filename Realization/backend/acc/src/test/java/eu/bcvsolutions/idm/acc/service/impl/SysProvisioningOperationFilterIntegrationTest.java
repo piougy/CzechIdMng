@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.UUID;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -225,7 +227,7 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 
 		getHelper().waitForResult(null, 30, 1);
 		
-		ZonedDateTime dateTime = ZonedDateTime.now();
+		ZonedDateTime dateTime = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);
 

@@ -412,7 +412,7 @@ class CronGenerator extends AbstractFormComponent {
           </div>
         </div>
 
-        <div className="text-group">
+        <div className="text-group cron-expression">
           { this.i18n('cronExpression') }
           { ' ' }
           { cronExpression }

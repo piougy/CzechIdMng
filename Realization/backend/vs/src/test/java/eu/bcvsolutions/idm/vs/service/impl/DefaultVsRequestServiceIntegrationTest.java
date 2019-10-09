@@ -426,6 +426,8 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 				definition.getCode(), ldapGroupsName);
 		Assert.assertNotNull("Ldap attribute muste exist!", ldapGroupsFormAttr);
 		ldapGroupsFormAttr.setMultiple(true);
+		// Change the name of this attribute. We want to check that logic no depends on the attribute name.
+		ldapGroupsFormAttr.setName(helper.createName());
 		formService.saveAttribute(ldapGroupsFormAttr);
 
 		// Generate schema for system (we need propagate multivalue setting)

@@ -230,7 +230,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.SelectBox
                       ref="systemId"
-                      placeholder={this.i18n('acc:entity.System._type')}  
+                      placeholder={this.i18n('acc:entity.System._type')}
                       multiSelect={false}
                       forceSearchParameters={new Domain.SearchParameters().setName(Domain.SearchParameters.NAME_AUTOCOMPLETE).setFilter('virtual', true)}
                       manager={systemManager}/>
@@ -275,10 +275,10 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               header={this.i18n('vs:entity.VsRequest.implementers.label')}
               rendered={_.includes(columns, 'implementers')}
               cell={this._getImplementersCell.bind(this)}/>
-          <Advanced.Column property="modified" width="30%" sort face="datetime" rendered={_.includes(columns, 'modified')}/>
-          <Advanced.Column property="modifier" width="15%" sort face="text" rendered={_.includes(columns, 'modifier')}/>
           <Advanced.Column property="created" width="30%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
           <Advanced.Column property="creator" width="15%" sort face="text" rendered={_.includes(columns, 'creator')}/>
+          <Advanced.Column property="modified" width="30%" sort face="datetime" rendered={_.includes(columns, 'modified')}/>
+          <Advanced.Column property="modifier" width="15%" sort face="text" rendered={_.includes(columns, 'modifier')}/>
           <Advanced.Column
             property="roleRequestId"
             header={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.label') }
@@ -335,7 +335,7 @@ VsRequestTable.propTypes = {
 };
 
 VsRequestTable.defaultProps = {
-  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator', 'modifier', 'modified', 'operations', 'roleRequestId'],
+  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator', 'modified', 'modifier', 'operations', 'roleRequestId'],
   filterOpened: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,

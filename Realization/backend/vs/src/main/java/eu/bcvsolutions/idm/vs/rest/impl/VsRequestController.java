@@ -193,7 +193,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> realize(
 			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
-			@ApiParam(value = "Reason in request DTO. Reason can be null!", required = false) @RequestBody(required = false) VsRequestDto reason){
+			@ApiParam(value = "Reason in request DTO. Reason is optional.", required = false) @RequestBody(required = false) VsRequestDto reason){
 		VsRequestDto request = ((VsRequestService) getService()).realize(getService().get(backendId), reason == null ? null : reason.getReason());
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}

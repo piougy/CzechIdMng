@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -31,7 +32,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Relation(collectionRelation = "requests")
 @ApiModel(description = "Request in virtual system")
-public class VsRequestDto extends AbstractDto {
+public class VsRequestDto extends AbstractDto implements ExternalIdentifiable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -60,6 +61,9 @@ public class VsRequestDto extends AbstractDto {
 	private String reason;
 	// ID of request, without DB relation on the request -> Request can be null or doesn't have to exist!
     private UUID roleRequestId;
+    @Size(max = DefaultFieldLengths.NAME)
+	@ApiModelProperty(notes = "Unique external identifier.")
+	private String externalId;
 
 	public String getUid() {
 		return uid;
@@ -163,5 +167,21 @@ public class VsRequestDto extends AbstractDto {
 
 	public void setRoleRequestId(UUID roleRequestId) {
 		this.roleRequestId = roleRequestId;
+	}
+	
+	/**
+	 * @since 9.7.9
+	 */
+	@Override
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+	
+	/**
+	 * @since 9.7.9
+	 */
+	@Override
+	public String getExternalId() {
+		return externalId;
 	}
 }

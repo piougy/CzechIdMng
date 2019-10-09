@@ -136,9 +136,12 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 			LOG.info("Change identity [{}] state [{}]", identity.getUsername(), newState);
 			//
 			identity.setState(newState);
-			// is neccessary publish new event with skip recalculation automatic roles
+			// is necessary publish new event with skip recalculation automatic roles
 			IdentityEvent identityEvent = new IdentityEvent(IdentityEventType.UPDATE, identity);
 			identityEvent.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skipRecalculation);
+			if (priority != null) {
+				identityEvent.setPriority(priority);
+			}
 			identityService.publish(identityEvent);
 		}
 		//
@@ -184,6 +187,8 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 				if (priority != null) {
 					requestEvent.setPriority(priority);
 				}
+				// prevent to start asynchronous event before previous update event is completed. 
+				requestEvent.setSuperOwnerId(identity.getId());
 				//
 				roleRequestService.startRequestInternal(requestEvent);
 			}

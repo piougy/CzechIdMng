@@ -38,11 +38,11 @@ export default class VsRequestManager extends Managers.EntityManager {
   /**
   * Mark virtual system request as realized (changes will be propagated to VsAccount)
   */
-  _realize(entityId, uiKey = null, cb = null) {
+  _realize(entityId, reason, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey, entityId);
     return (dispatch) => {
       dispatch(this.requestEntity(entityId, uiKey));
-      this.getService().realize(entityId)
+      this.getService().realize(entityId, reason)
       .then(json => {
         dispatch(this.receiveEntity(entityId, json, uiKey, cb));
       })
@@ -70,6 +70,7 @@ export default class VsRequestManager extends Managers.EntityManager {
           detail.setState({
             showLoading: false
           });
+          
           if (detail.refs.table) {
             detail.refs.table.getWrappedInstance().reload();
           }
@@ -88,11 +89,13 @@ export default class VsRequestManager extends Managers.EntityManager {
         }
       };
 
+      const reason = detail.refs['realize-form'].getData()['realize-reason'];
+
       for (const id of ids) {
         detail.setState({
           showLoading: true
         });
-        dispatch(this._realize(id, null, cb));
+        dispatch(this._realize(id, reason, null, cb));
       }
     }, () => {
       // Rejected

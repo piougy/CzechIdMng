@@ -62,7 +62,8 @@ class VsRequestDetail extends Basic.AbstractContent {
       return;
     }
     manager.realize('realize', [entity ? entity.id : null], this, () => {
-      this._initConnectorObject(entity.id);
+      this.context.router.goBack();
+      // this._initConnectorObject(entity.id);
     });
   }
 
@@ -71,7 +72,8 @@ class VsRequestDetail extends Basic.AbstractContent {
       return;
     }
     manager.cancel('cancel', [entity ? entity.id : null], this, () => {
-      this._initConnectorObject(entity.id);
+      this.context.router.goBack();
+      // this._initConnectorObject(entity.id);
     });
   }
 
@@ -245,7 +247,16 @@ class VsRequestDetail extends Basic.AbstractContent {
     const isCreateOperation = entity ? (entity.operationType === 'CREATE') : false;
     return (
       <div>
-        <Basic.Confirm ref="confirm-realize" level="danger"/>
+        <Basic.Confirm ref="confirm-realize" level="success">
+          <div style={{ marginTop: '20px' }}>
+            <Basic.AbstractForm ref="realize-form" uiKey="confirm-realize" >
+              <Basic.TextArea
+                ref="realize-reason"
+                placeholder={this.i18n('vs:content.vs-requests.realize-reason.placeholder')}
+                />
+            </Basic.AbstractForm>
+          </div>
+        </Basic.Confirm>
         <Basic.Confirm ref="confirm-cancel" level="danger">
           <div style={{marginTop: '20px'}}>
             <Basic.AbstractForm ref="cancel-form" uiKey="confirm-cancel" >
@@ -275,7 +286,7 @@ class VsRequestDetail extends Basic.AbstractContent {
                       label={this.i18n('vs:entity.VsRequest.reason.label')}
                       readOnly
                       rows={6}
-                      rendered={entity && entity.state === 'CANCELED' }
+                      rendered={entity && entity.reason }
                       value={entity ? entity.reason : null}/>
                   </Basic.Col>
                 </Basic.Row>

@@ -156,7 +156,7 @@ public class DefaultVsAccountService extends AbstractReadWriteDtoService<VsAccou
 			return attributes;
 		}
 		definition.getFormAttributes().forEach(formAttribute -> {
-			attributes.add(this.getIcAttribute(account.getId(), formAttribute.getName(), definition));
+			attributes.add(this.getIcAttribute(account.getId(), formAttribute.getCode(), definition));
 		});
 		return attributes;
 	}

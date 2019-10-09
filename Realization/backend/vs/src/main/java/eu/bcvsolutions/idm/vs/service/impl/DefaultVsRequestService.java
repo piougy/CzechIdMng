@@ -130,10 +130,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		this.accountService = accountService;
 		this.configurationService = configurationService;
 	}
-
+	
 	@Override
 	@Transactional
 	public VsRequestDto realize(VsRequestDto request) {
+		return this.realize(request, null);
+	}
+
+	@Override
+	@Transactional
+	public VsRequestDto realize(VsRequestDto request, String reason) {
 		LOG.info(MessageFormat.format("Start realize virtual system request [{0}].", request));
 
 		Assert.notNull(request, "VS request cannot be null!");
@@ -143,8 +149,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			throw new VsException(VsResultCode.VS_REQUEST_REALIZE_WRONG_STATE,
 					ImmutableMap.of("state", VsRequestState.IN_PROGRESS.name(), "currentState", request.getState()));
 		}
-
+		
 		request.setState(VsRequestState.REALIZED);
+		request.setReason(reason);
 		// Realize request ... propagate change to VS account.
 		IcUidAttribute uidAttribute = this.internalExecute(request);
 		// Save realized request
@@ -362,7 +369,22 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		Assert.notNull(request, "VS request cannot be null!");
 
 		List<VsAttributeDto> resultAttributes = new ArrayList<>();
-		IcConnectorObject realConnectorObject = this.getVsConnectorObject(request);
+		IcConnectorObject realConnectorObject = null;
+
+		boolean isArchived = false;
+		if (VsRequestState.REALIZED == request.getState() 
+				|| VsRequestState.CANCELED == request.getState() 
+				|| VsRequestState.DUPLICATED == request.getState() 
+				|| VsRequestState.REJECTED == request.getState()) {
+			isArchived = true;
+		}
+		
+		// We don't want use current object, when request is archived. We want to show
+		// only changes.
+		if (!isArchived) {
+			realConnectorObject = this.getVsConnectorObject(request);
+		}
+
 		IcConnectorObject currentObject = realConnectorObject != null ? realConnectorObject
 				: new IcConnectorObjectImpl();
 		IcConnectorObject changeObject = request.getConnectorObject() != null ? request.getConnectorObject()
@@ -520,6 +542,16 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		// Created after
 		if (filter.getCreatedAfter() != null) {
 			predicates.add(builder.greaterThan(root.get(VsRequest_.created), filter.getCreatedAfter()));
+		}
+		
+		// Modified before
+		if (filter.getModifiedBefore() != null) {
+			predicates.add(builder.lessThan(root.get(VsRequest_.modified), filter.getModifiedBefore()));
+		}
+
+		// Modified after
+		if (filter.getModifiedAfter() != null) {
+			predicates.add(builder.greaterThan(root.get(VsRequest_.modified), filter.getModifiedAfter()));
 		}
 
 		// Only archived

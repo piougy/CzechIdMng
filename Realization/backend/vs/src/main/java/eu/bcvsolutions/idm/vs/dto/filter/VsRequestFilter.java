@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
@@ -17,7 +18,7 @@ import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
  * @author Svanda
  *
  */
-public class VsRequestFilter extends DataFilter {
+public class VsRequestFilter extends DataFilter implements ExternalIdentifiable {
 
 	private String uid;
 	private UUID systemId;
@@ -28,6 +29,8 @@ public class VsRequestFilter extends DataFilter {
 	private ZonedDateTime createdBefore;
 	private Boolean onlyArchived;
 	private UUID roleRequestId;
+	private ZonedDateTime modifiedAfter;
+	private ZonedDateTime modifiedBefore;
 	
 	public VsRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -100,6 +103,22 @@ public class VsRequestFilter extends DataFilter {
 	public void setCreatedBefore(ZonedDateTime createdBefore) {
 		this.createdBefore = createdBefore;
 	}
+	
+	public ZonedDateTime getModifiedAfter() {
+		return modifiedAfter;
+	}
+
+	public void setModifiedAfter(ZonedDateTime modifiedAfter) {
+		this.modifiedAfter = modifiedAfter;
+	}
+
+	public ZonedDateTime getModifiedBefore() {
+		return modifiedBefore;
+	}
+
+	public void setModifiedBefore(ZonedDateTime modifiedBefore) {
+		this.modifiedBefore = modifiedBefore;
+	}
 
 	public UUID getRoleRequestId() {
 		return roleRequestId;
@@ -107,5 +126,21 @@ public class VsRequestFilter extends DataFilter {
 
 	public void setRoleRequestId(UUID roleRequestId) {
 		this.roleRequestId = roleRequestId;
+	}
+	
+	/**
+	 * @since 9.7.9
+	 */
+	@Override
+	public String getExternalId() {
+		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
+	}
+	
+	/**
+	 * @since 9.7.9
+	 */
+	@Override
+	public void setExternalId(String externalId) {
+		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 }

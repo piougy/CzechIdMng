@@ -24,7 +24,8 @@ public enum VirtualSystemGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE),
 	VSREQUEST(
-			IdmBasePermission.ADMIN, 
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
@@ -42,6 +43,7 @@ public enum VirtualSystemGroupPermission implements GroupPermission {
 	public static final String VS_ACCOUNT_DELETE = "VSACCOUNT" + BasePermission.SEPARATOR + "DELETE";
 	// VS Request
 	public static final String VS_REQUEST_ADMIN = "VSREQUEST" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String VS_REQUEST_COUNT = "VSREQUEST" + BasePermission.SEPARATOR + "COUNT";
 	public static final String VS_REQUEST_AUTOCOMPLETE = "VSREQUEST" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String VS_REQUEST_READ = "VSREQUEST" + BasePermission.SEPARATOR + "READ";
 	public static final String VS_REQUEST_CREATE = "VSREQUEST" + BasePermission.SEPARATOR + "CREATE";

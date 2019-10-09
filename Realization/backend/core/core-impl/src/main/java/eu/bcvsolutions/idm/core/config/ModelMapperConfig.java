@@ -83,7 +83,7 @@ public class ModelMapperConfig {
 		modeler.createTypeMap(OperationResult.class, OperationResult.class).setConverter(new OperationResultConverter(modeler));
 		// Simple ConfigurationMap converter - map without template is not provided by model mapper out of box.
 		modeler.createTypeMap(ConfigurationMap.class, ConfigurationMap.class).setConverter(new ConfigurationMapToConfigurationMapConverter());
-		 
+
 		// Condition for property ... if is property list and dto is trimmed,
 		// then will be not used (set null)
 		// or if is property list and have parent dto, then will be to set null

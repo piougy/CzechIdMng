@@ -158,13 +158,22 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, columns, forceSearchParameters, showRowSelection, showFilter, showToolbar, showPageSize, showId, className } = this.props;
+    const { uiKey, columns, forceSearchParameters, showRowSelection, showFilter, showToolbar, showPageSize, showId, className, defaultSearchParameters } = this.props;
     const { filterOpened, showLoading} = this.state;
 
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Basic.Confirm ref="confirm-realize" level="danger"/>
+        <Basic.Confirm ref="confirm-realize" level="success">
+          <div style={{ marginTop: '20px' }}>
+            <Basic.AbstractForm ref="realize-form" uiKey="confirm-realize" >
+              <Basic.TextArea
+                ref="realize-reason"
+                placeholder={this.i18n('vs:content.vs-requests.realize-reason.placeholder')}
+              />
+            </Basic.AbstractForm>
+          </div>
+        </Basic.Confirm>
         <Basic.Confirm ref="confirm-cancel" level="danger">
           <div style={{marginTop: '20px'}}>
             <Basic.AbstractForm ref="cancel-form" uiKey="confirm-cancel" >
@@ -188,17 +197,26 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
           filterOpened={filterOpened}
           showLoading={showLoading}
           forceSearchParameters={ forceSearchParameters }
+          defaultSearchParameters={defaultSearchParameters}
           showRowSelection={ Managers.SecurityManager.hasAuthority('VSREQUEST_UPDATE') && showRowSelection }
           className={ className }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
-                  <Basic.Col lg={ 8 }>
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.FilterDate
-                      ref="fromTill"
-                      fromProperty="createdAfter"
-                      tillProperty="createdBefore"/>
+                    ref="fromTill"
+                    facePlaceholder={this.i18n('vs:entity.VsRequest.created.label')}
+                    fromProperty="createdAfter"
+                    tillProperty="createdBefore"/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.FilterDate
+                      ref="fromTillmodified"
+                      facePlaceholder={this.i18n('vs:entity.VsRequest.modified.label')}
+                      fromProperty="modifiedAfter"
+                      tillProperty="modifiedBefore" />
                   </Basic.Col>
                   <Basic.Col lg={ 4 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -215,7 +233,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
                       ref="systemId"
                       placeholder={this.i18n('acc:entity.System._type')}
                       multiSelect={false}
-                      forceSearchParameters={new Domain.SearchParameters().setFilter('virtual', true)}
+                      forceSearchParameters={new Domain.SearchParameters().setName(Domain.SearchParameters.NAME_AUTOCOMPLETE).setFilter('virtual', true)}
                       manager={systemManager}/>
                   </Basic.Col>
                 </Basic.Row>
@@ -258,9 +276,10 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
               header={this.i18n('vs:entity.VsRequest.implementers.label')}
               rendered={_.includes(columns, 'implementers')}
               cell={this._getImplementersCell.bind(this)}/>
-          <Advanced.Column property="modified" width="30%" sort face="datetime" rendered={_.includes(columns, 'modified')}/>
           <Advanced.Column property="created" width="30%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
           <Advanced.Column property="creator" width="15%" sort face="text" rendered={_.includes(columns, 'creator')}/>
+          <Advanced.Column property="modified" width="30%" sort face="datetime" rendered={_.includes(columns, 'modified')}/>
+          <Advanced.Column property="modifier" width="15%" sort face="text" rendered={_.includes(columns, 'modifier')}/>
           <Advanced.Column
             property="roleRequestId"
             header={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.label') }
@@ -317,7 +336,7 @@ VsRequestTable.propTypes = {
 };
 
 VsRequestTable.defaultProps = {
-  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator', 'operations', 'roleRequestId'],
+  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator', 'modified', 'modifier', 'operations', 'roleRequestId'],
   filterOpened: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,

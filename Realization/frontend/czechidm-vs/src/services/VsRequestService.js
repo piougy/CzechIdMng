@@ -53,9 +53,9 @@ export default class VsRequestService extends Services.AbstractService {
   /**
   * Mark virtual system request as realized (changes will be propagated to VsAccount)
   */
-  realize(id) {
+  realize(id, reason) {
     return Services.RestApiService
-      .put(this.getApiPath() + `/${encodeURIComponent(id)}/realize`)
+      .put(this.getApiPath() + `/${encodeURIComponent(id)}/realize`, {reason})
       .then(response => {
         return response.json();
       })

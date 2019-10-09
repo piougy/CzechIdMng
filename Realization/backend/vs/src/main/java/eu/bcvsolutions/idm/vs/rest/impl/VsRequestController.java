@@ -123,6 +123,24 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
 	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + VirtualSystemGroupPermission.VS_REQUEST_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countRequests", 
+			tags = { VsRequestController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
 
 	@Override
 	@ResponseBody
@@ -174,8 +192,9 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 							@AuthorizationScope(scope = VirtualSystemGroupPermission.VS_REQUEST_UPDATE, description = "") }) })
 	public ResponseEntity<?> realize(
-			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId) {
-		VsRequestDto request = ((VsRequestService) getService()).realize(getService().get(backendId));
+			@ApiParam(value = "Request's uuid identifier.", required = true) @PathVariable @NotNull String backendId,
+			@ApiParam(value = "Reason in request DTO. Reason is optional.", required = false) @RequestBody(required = false) VsRequestDto reason){
+		VsRequestDto request = ((VsRequestService) getService()).realize(getService().get(backendId), reason == null ? null : reason.getReason());
 		return new ResponseEntity<>(request, HttpStatus.OK);
 	}
 
@@ -306,13 +325,15 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 
 	@Override
 	protected VsRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		VsRequestFilter filter = new VsRequestFilter();
+		VsRequestFilter filter = new VsRequestFilter(parameters);
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", VsRequestState.class));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setUid(getParameterConverter().toString(parameters, "uid"));
 		filter.setCreatedAfter(getParameterConverter().toDateTime(parameters, "createdAfter"));
 		filter.setCreatedBefore(getParameterConverter().toDateTime(parameters, "createdBefore"));
+		filter.setModifiedAfter(getParameterConverter().toDateTime(parameters, "modifiedAfter"));
+		filter.setModifiedBefore(getParameterConverter().toDateTime(parameters, "modifiedBefore"));
 		filter.setOnlyArchived(getParameterConverter().toBoolean(parameters, "onlyArchived"));
 
 		return filter;

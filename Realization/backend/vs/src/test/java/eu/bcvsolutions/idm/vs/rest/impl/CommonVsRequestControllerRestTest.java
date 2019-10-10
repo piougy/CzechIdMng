@@ -13,16 +13,13 @@ import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
 /**
  * CRUD rest test.
  * 
- * 
  * @author Radek Tomiška
  *
  */
 public class CommonVsRequestControllerRestTest extends AbstractReadWriteDtoControllerRestTest<VsRequestDto> {
 
-	@Autowired
-	private TestHelper helper;
-	@Autowired 
-	private VsRequestController controller;
+	@Autowired private TestHelper helper;
+	@Autowired private VsRequestController controller;
 	
 	@Override
 	protected AbstractReadWriteDtoController<VsRequestDto, ?> getController() {

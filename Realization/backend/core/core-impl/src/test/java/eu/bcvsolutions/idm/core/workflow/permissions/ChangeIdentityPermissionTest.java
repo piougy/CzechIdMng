@@ -6,15 +6,15 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -57,7 +57,6 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test change permissions for identity
@@ -65,7 +64,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author svandav
  *
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Transactional
 public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegrationTest {
 
 	private static final String APPROVE_ROLE_BY_GUARANTEE_KEY = "approve-role-by-guarantee";
@@ -83,8 +82,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private static final String APPROVE_INCOMPATIBLE_ROLE = "idm.sec.core.wf.approval.incompatibility.role";
 	private static final String INCOMPATIBILITY_ROLE_TEST = "IncompatibilityRoleTest";
 	//
-	@Autowired
-	private TestHelper helper;
 	@Autowired
 	private WorkflowTaskInstanceService workflowTaskInstanceService;
 	@Autowired
@@ -113,8 +110,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private IdmIdentityRoleService identityRoleService;
 
 	@Before
-	public void login() {
-		super.loginAsAdmin();
+	public void init() {
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "true");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "true");
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
@@ -127,7 +123,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void addSuperAdminRoleTest() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -173,7 +168,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void addSuperAdminRoleSkipTest() {
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
@@ -215,7 +209,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void addSuperAdminRoleDisapproveTest() {
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
@@ -252,7 +245,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void addSuperAdminRoleWithSubprocessTest() {
 
 		loginAsAdmin();
@@ -312,8 +304,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void addSuperAdminRoleApproveBySecurityTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "true");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "false");
@@ -322,7 +314,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(APPROVE_BY_SECURITY_ROLE, SECURITY_ROLE_TEST);
 		// Create test role for load candidates on security department (TEST_USER_1)
 		IdmRoleDto role = getHelper().createRole(SECURITY_ROLE_TEST);
-		helper.createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
+		getHelper().createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
 
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -341,6 +333,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
 
@@ -360,7 +353,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 	
 	@Test
-	@Transactional
 	public void approveIncompatibleRolesTest() {
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
@@ -371,7 +363,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(APPROVE_INCOMPATIBLE_ROLE, INCOMPATIBILITY_ROLE_TEST);
 		// Create test role for load candidates on approval incompatibility (TEST_USER_1)
 		IdmRoleDto role = getHelper().createRole(INCOMPATIBILITY_ROLE_TEST);
-		helper.createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
+		getHelper().createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
 		
 		IdmIdentityDto applicant = getHelper().createIdentity();
 		
@@ -441,7 +433,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 	
 	@Test
-	@Transactional
 	public void defaultWithoutApproveTest() {
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
@@ -452,7 +443,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(APPROVE_INCOMPATIBLE_ROLE, INCOMPATIBILITY_ROLE_TEST);
 		// Create test role for load candidates on approval incompatibility (TEST_USER_1)
 		IdmRoleDto role = getHelper().createRole(INCOMPATIBILITY_ROLE_TEST);
-		helper.createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
+		getHelper().createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
 		
 		IdmIdentityDto applicant = getHelper().createIdentity();
 		
@@ -490,7 +481,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void testTaskCount() {
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
@@ -498,12 +488,12 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
 		//
 		loginAsAdmin();
-		IdmIdentityDto test1 = helper.createIdentity();
-		IdmIdentityDto guarantee = helper.createIdentity();
+		IdmIdentityDto test1 = getHelper().createIdentity();
+		IdmIdentityDto guarantee = getHelper().createIdentity();
 
 		// Guarantee
 		int priority = 500;
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		role.setPriority(priority);
 		role = roleService.save(role);
 		getHelper().createRoleGuarantee(role, guarantee);
@@ -513,13 +503,13 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 				APPROVE_ROLE_BY_GUARANTEE_KEY);
 
 		// helpdesk role and identity
-		IdmRoleDto helpdeskRole = helper.createRole();
-		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		IdmIdentityDto helpdeskIdentity = getHelper().createIdentity();
 		// add role directly
-		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		getHelper().createIdentityRole(helpdeskIdentity, helpdeskRole);
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
 
-		IdmIdentityContractDto contract = helper.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		// check task before create request
 		loginAsAdmin(test1.getUsername());
@@ -581,18 +571,18 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
 		//
 		loginAsAdmin();
-		IdmIdentityDto test1 = helper.createIdentity();
+		IdmIdentityDto test1 = getHelper().createIdentity();
 		//
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		//
 		// helpdesk role and identity
-		IdmRoleDto helpdeskRole = helper.createRole();
-		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		IdmIdentityDto helpdeskIdentity = getHelper().createIdentity();
 		// add role directly
-		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		getHelper().createIdentityRole(helpdeskIdentity, helpdeskRole);
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
 
-		IdmIdentityContractDto contract = helper.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		loginAsNoAdmin(test1.getUsername());
 		IdmRoleRequestDto request = createRoleRequest(test1);
@@ -633,19 +623,19 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
 
 		loginAsAdmin();
-		IdmIdentityDto test1 = helper.createIdentity();
-		IdmIdentityDto test2 = helper.createIdentity();
+		IdmIdentityDto test1 = getHelper().createIdentity();
+		IdmIdentityDto test2 = getHelper().createIdentity();
 		//
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		//
 		// helpdesk role and identity
-		IdmRoleDto helpdeskRole = helper.createRole();
-		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		IdmIdentityDto helpdeskIdentity = getHelper().createIdentity();
 		// add role directly
-		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		getHelper().createIdentityRole(helpdeskIdentity, helpdeskRole);
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
 
-		IdmIdentityContractDto contract = helper.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		loginAsNoAdmin(test1.getUsername());
 		IdmRoleRequestDto request = createRoleRequest(test1);
@@ -687,12 +677,12 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
 		//
 		loginAsAdmin();
-		IdmIdentityDto test1 = helper.createIdentity();
-		IdmIdentityDto guarantee = helper.createIdentity();
+		IdmIdentityDto test1 = getHelper().createIdentity();
+		IdmIdentityDto guarantee = getHelper().createIdentity();
 
 		// Guarantee
 		int priority = 500;
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		role.setPriority(priority);
 		getHelper().createRoleGuarantee(role, guarantee);
 		role = roleService.save(role);
@@ -701,13 +691,13 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 				APPROVE_ROLE_BY_GUARANTEE_KEY);
 		//
 		// helpdesk role and identity
-		IdmRoleDto helpdeskRole = helper.createRole();
-		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		IdmIdentityDto helpdeskIdentity = getHelper().createIdentity();
 		// add role directly
-		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		getHelper().createIdentityRole(helpdeskIdentity, helpdeskRole);
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
 
-		IdmIdentityContractDto contract = helper.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		loginAsNoAdmin(test1.getUsername());
 		IdmRoleRequestDto request = createRoleRequest(test1);
@@ -770,7 +760,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@SuppressWarnings("deprecation")
 	@Test
-	@Transactional
 	public void testGetTaskByAnotherUser() {
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
@@ -778,19 +767,19 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
 		//
 		loginAsAdmin();
-		IdmIdentityDto test1 = helper.createIdentity();
-		IdmIdentityDto anotherUser = helper.createIdentity();
+		IdmIdentityDto test1 = getHelper().createIdentity();
+		IdmIdentityDto anotherUser = getHelper().createIdentity();
 
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 
 		// helpdesk role and identity
-		IdmRoleDto helpdeskRole = helper.createRole();
-		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		IdmIdentityDto helpdeskIdentity = getHelper().createIdentity();
 		// add role directly
-		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		getHelper().createIdentityRole(helpdeskIdentity, helpdeskRole);
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
 
-		IdmIdentityContractDto contract = helper.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		// check task before create request
 		loginAsAdmin(test1.getUsername());
@@ -856,7 +845,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void addSuperAdminRoleWithSubprocessSecurityTest() {
 
 		loginAsAdmin(InitTestData.TEST_USER_2);
@@ -929,7 +917,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void addSuperAdminRoleWithSubprocessManagerTest() {
 
 		loginAsAdmin();
@@ -990,7 +977,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void addSuperAdminRoleWithSubprocessDisapproveTest() {
 
 		loginAsAdmin();
@@ -1056,15 +1042,14 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void addSuperAdminRoleWithSubprocessRemoveTest() {
 
-		IdmIdentityDto test1 = helper.createIdentity("TestUser" + System.currentTimeMillis());
+		IdmIdentityDto test1 = getHelper().createIdentity("TestUser" + System.currentTimeMillis());
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
 
 		loginAsAdmin(InitTestData.TEST_USER_2);
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
-		IdmRoleDto adminRole = helper.createRole("testRole" + System.currentTimeMillis());
+		IdmRoleDto adminRole = getHelper().createRole("testRole" + System.currentTimeMillis());
 		adminRole.setApproveRemove(true);
 		roleService.save(adminRole);
 
@@ -1171,7 +1156,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void cancelWfOnRoleRequestDeleteTest() {
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
@@ -1218,7 +1202,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void cancelSubprocessOnContractDeleteTest() {
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		loginAsAdmin();
@@ -1289,7 +1272,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 	
 	@Test
-	@Transactional
 	public void cancelSubprocessOnRoleDeleteTest() {
 
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
@@ -1375,18 +1357,18 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
 		//
 		loginAsAdmin();
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
-		IdmRoleDto role = helper.createRole();
+		IdmRoleDto role = getHelper().createRole();
 		//
 		// helpdesk role and identity
-		IdmRoleDto helpdeskRole = helper.createRole();
-		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		IdmIdentityDto helpdeskIdentity = getHelper().createIdentity();
 		// add role directly
-		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		getHelper().createIdentityRole(helpdeskIdentity, helpdeskRole);
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
 
-		IdmIdentityContractDto contract = helper.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 
 		loginAsNoAdmin(identity.getUsername());
 		IdmRoleRequestDto request = createRoleRequest(identity);
@@ -1425,7 +1407,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@Transactional
 	public void testFindCandidatesWithSubprocess() {
 		// approve only by help desk
 		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
@@ -1436,10 +1417,10 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		loginAsAdmin();
 
 		// helpdesk role and identity
-		IdmRoleDto helpdeskRole = helper.createRole();
-		IdmIdentityDto helpdeskIdentity = helper.createIdentity();
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		IdmIdentityDto helpdeskIdentity = getHelper().createIdentity();
 		// add role directly
-		helper.createIdentityRole(helpdeskIdentity, helpdeskRole);
+		getHelper().createIdentityRole(helpdeskIdentity, helpdeskRole);
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
 				
 		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);

@@ -14,7 +14,7 @@ public class WorkflowFilterDto extends QuickFilter {
 	public static final String ORDER_ASC = "asc";
 	public static final String ORDER_DESC = "desc";
 	
-	@Deprecated
+	@Deprecated // @since 7.7.0 - use pageable
 	private int pageNumber = 0;
 	@Deprecated
 	private int pageSize = 10;

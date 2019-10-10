@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.modelmapper.MappingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -32,9 +31,7 @@ public class ModelMapperChecker {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ModelMapperChecker.class);
 	//
 	@Autowired private ApplicationContext context;
-	@Autowired
-	@Qualifier("objectMapper")
-	private ObjectMapper mapper;
+	@Autowired private ObjectMapper mapper;
 	
 	/**
 	 * Check registered services and their conversions to dto provided by model mapper.
@@ -67,7 +64,7 @@ public class ModelMapperChecker {
 								service.getClass(), service.getFilterClass());
 					}
 				}
-				if (!service.find(filter, new PageRequest(0, 1)).getContent().isEmpty()) {
+				if (!service.find(filter, PageRequest.of(0, 1)).getContent().isEmpty()) {
 					modelMapperUsed++;
 				}
 			} catch (UnsupportedOperationException ex) {

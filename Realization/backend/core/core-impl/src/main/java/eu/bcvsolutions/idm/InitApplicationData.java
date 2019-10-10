@@ -96,7 +96,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	@Autowired private IdmGenerateValueService generateValueService;
 	@Autowired private CodeListManager codeListManager;
 	@Autowired private IdmPasswordService passwordService;
-	@Autowired private ModelMapperChecker modelMapperChecker;
+//	@Autowired private ModelMapperChecker modelMapperChecker;
 	//
 	private static final UUID DEFAULT_FORM_GENERATE_VALUE_ID = UUID.fromString("61ae4b97-421d-4075-8911-8003989f30df"); // static system generate value uuid
 	private static final UUID DEFAULT_CONCEPT_ROLE_REQUEST_FORM_GENERATE_VALUE_ID = UUID.fromString("f1752a83-c496-4f94-8e5d-e1705cbd76ee"); // static system generate value uuid
@@ -244,7 +244,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			//
 			// Check model mapper is properly initialized to prevent:
 			// org.modelmapper.MappingException: ModelMapper mapping errors: Converter org.modelmapper.internal.converter.CollectionConverter@7214dbf8 failed to convert 
-			modelMapperChecker.verify();
+			// modelMapperChecker.verify();
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

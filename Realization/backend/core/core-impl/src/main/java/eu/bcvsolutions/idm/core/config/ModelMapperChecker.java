@@ -26,8 +26,10 @@ import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowHistoricTas
  * 
  * @author Radek Tomiška
  * @since 9.7.9
+ * 
+ * FIXME: check is called before model mapper is fully inited (list to list conversion fails), why?
  */
-@Component
+//@Component
 public class ModelMapperChecker {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ModelMapperChecker.class);

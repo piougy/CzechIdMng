@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowHistoricTaskInstanceService;
@@ -32,6 +33,7 @@ public class ModelMapperChecker {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ModelMapperChecker.class);
 	//
 	@Autowired private ApplicationContext context;
+	@Autowired private ConfigurationService configurationService;
 	@Autowired
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
@@ -41,6 +43,11 @@ public class ModelMapperChecker {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void verify() {
+		if (!configurationService.getBooleanValue("idm.sec.core.modelmapper.checker.enabled", true)) {
+			LOG.warn("Init: check registered IdM services is disabled.");
+			//
+			return;
+		}
 		long start = System.currentTimeMillis();
 		int modelMapperUsed = 0;
 		Map<String, ReadDtoService> services = context.getBeansOfType(ReadDtoService.class);

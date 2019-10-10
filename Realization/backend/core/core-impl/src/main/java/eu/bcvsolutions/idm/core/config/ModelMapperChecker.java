@@ -14,30 +14,39 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowHistoricTaskInstanceService;
 
 /**
  * Check model mapper is properly initialized to prevent:
- * org.modelmapper.MappingException: ModelMapper mapping errors: Converter org.modelmapper.internal.converter.CollectionConverter@7214dbf8 failed to convert 
- * 
+ * org.modelmapper.MappingException: ModelMapper mapping errors: Converter org.modelmapper.internal.converter.CollectionConverter@7214dbf8 failed to convert
+ *
  * @author Radek Tomiška
  * @since 9.7.9
+ *
+ * FIXME: check is called before model mapper is fully inited (list to list conversion fails), why?
  */
 @Component
 public class ModelMapperChecker {
-	
+
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ModelMapperChecker.class);
 	//
 	@Autowired private ApplicationContext context;
 	@Autowired private ObjectMapper mapper;
-	
+	@Autowired private ConfigurationService configurationService;
+
 	/**
 	 * Check registered services and their conversions to dto provided by model mapper.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void verify() {
+		if (!configurationService.getBooleanValue("idm.sec.core.modelmapper.checker.enabled", true)) {
+			LOG.warn("Init: check registered IdM services is disabled.");
+			//
+			return;
+		}
 		long start = System.currentTimeMillis();
 		int modelMapperUsed = 0;
 		Map<String, ReadDtoService> services = context.getBeansOfType(ReadDtoService.class);
@@ -72,7 +81,7 @@ public class ModelMapperChecker {
 			} catch (MappingException ex) {
 				// Throw exception => prevent to IdM starts in invalid state.
 				throw new CoreException(
-						String.format("Service [%s] cannot be used, model mapper is wrongly inited, try to restart this application.", service.getClass()), 
+						String.format("Service [%s] cannot be used, model mapper is wrongly inited, try to restart this application.", service.getClass()),
 						ex);
 			} catch (Exception ex) {
 				LOG.error("Service [{}] cannot be checked. Find method cannot be called.", service.getClass(), ex);

@@ -61,10 +61,10 @@ import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
  * Initialize required application data:
  * * admin user admin/admin
  * * superAdminRole with system admin authority
- * 
+ *
  * FIXME: split initializations - in order - eav first, then users, LRT etc.
- * 
- * @author Radek Tomiška 
+ *
+ * @author Radek Tomiška
  *
  */
 @DependsOn(CoreFlywayConfig.NAME)
@@ -81,14 +81,14 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmRoleService roleService;
-	@Autowired private IdmIdentityRoleService identityRoleService;	
-	@Autowired private IdmTreeNodeService treeNodeService;	
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmTreeNodeService treeNodeService;
 	@Autowired private IdmTreeTypeService treeTypeService;
-	@Autowired private SecurityService securityService;	
-	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;	
-	@Autowired private IdmNotificationTemplateService notificationTemplateService;	
-	@Autowired private LongRunningTaskManager longRunningTaskManager;	
-	@Autowired private FormService formService;	
+	@Autowired private SecurityService securityService;
+	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;
+	@Autowired private IdmNotificationTemplateService notificationTemplateService;
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private FormService formService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmScriptService scriptService;
 	@Autowired private TreeConfiguration treeConfiguration;
@@ -106,7 +106,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		init();
 	}
-	
+
 	protected void init() {
 		securityService.setSystemAuthentication();
 		//
@@ -209,7 +209,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				identityRoleService.save(identityRole);
 			}
 			//
-			// create Node type for organization			
+			// create Node type for organization
 			IdmTreeTypeDto treeType = treeTypeService.getByCode(DEFAULT_TREE_TYPE);
 			if (treeType == null && this.treeTypeService.find(PageRequest.of(0, 1)).getTotalElements() == 0) {
 				treeType = new IdmTreeTypeDto();
@@ -243,7 +243,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			entityEventManager.init();
 			//
 			// Check model mapper is properly initialized to prevent:
-			// org.modelmapper.MappingException: ModelMapper mapping errors: Converter org.modelmapper.internal.converter.CollectionConverter@7214dbf8 failed to convert 
+			// org.modelmapper.MappingException: ModelMapper mapping errors: Converter org.modelmapper.internal.converter.CollectionConverter@7214dbf8 failed to convert
 			modelMapperChecker.verify();
 		} finally {
 			SecurityContextHolder.clearContext();

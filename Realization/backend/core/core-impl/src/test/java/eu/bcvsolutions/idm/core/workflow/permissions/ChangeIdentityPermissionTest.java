@@ -124,6 +124,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void addSuperAdminRoleTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		loginAsAdmin(InitTestData.TEST_USER_1);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
@@ -140,6 +142,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -169,6 +172,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void addSuperAdminRoleSkipTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
 		loginAsAdmin();
@@ -187,6 +192,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -210,6 +216,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void addSuperAdminRoleDisapproveTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
 		loginAsAdmin();
@@ -228,6 +236,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -246,7 +255,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void addSuperAdminRoleWithSubprocessTest() {
-
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -273,6 +283,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -332,8 +343,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
-		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		taskFilter.setCreatedAfter(now);
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
 
@@ -354,6 +365,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	
 	@Test
 	public void approveIncompatibleRolesTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "false");
@@ -394,6 +407,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -482,6 +496,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void testTaskCount() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
@@ -513,7 +529,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 		// check task before create request
 		loginAsAdmin(test1.getUsername());
-		int taskCount = getHistoricProcess().size();
+		int taskCount = getHistoricProcess(now).size();
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -526,13 +542,14 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
 
 		// check tasks after create request, must be +1
 		loginAsAdmin(test1.getUsername());
-		int taksCountAfter = getHistoricProcess().size();
+		int taksCountAfter = getHistoricProcess(now).size();
 		assertEquals(taskCount + 1, taksCountAfter);
 
 		// HELPDESK
@@ -542,7 +559,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 		// check tasks by identity, must be + 2 (main process + sub process)
 		loginAsAdmin(test1.getUsername());
-		taksCountAfter = getHistoricProcess().size();
+		taksCountAfter = getHistoricProcess(now).size();
 		assertEquals(taskCount + 2, taksCountAfter);
 
 		// Subprocess - approve by GUARANTEE
@@ -558,7 +575,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 		// check task on the end (same as before)
 		loginAsAdmin(test1.getUsername());
-		taksCountAfter = getHistoricProcess().size();
+		taksCountAfter = getHistoricProcess(now).size();
 		assertEquals(taskCount + 2, taksCountAfter);
 	}
 
@@ -758,9 +775,11 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testGetTaskByAnotherUser() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
@@ -795,6 +814,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -846,6 +866,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void addSuperAdminRoleWithSubprocessSecurityTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
 		loginAsAdmin(InitTestData.TEST_USER_2);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -874,6 +895,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -918,7 +940,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void addSuperAdminRoleWithSubprocessManagerTest() {
-
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -945,6 +968,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -978,7 +1002,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void addSuperAdminRoleWithSubprocessDisapproveTest() {
-
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -1005,6 +1030,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -1043,6 +1069,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void addSuperAdminRoleWithSubprocessRemoveTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
 		IdmIdentityDto test1 = getHelper().createIdentity("TestUser" + System.currentTimeMillis());
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -1064,6 +1091,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -1157,6 +1185,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void cancelWfOnRoleRequestDeleteTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
 		loginAsAdmin();
@@ -1175,6 +1205,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -1203,6 +1234,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void cancelSubprocessOnContractDeleteTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -1230,6 +1263,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -1273,6 +1307,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	
 	@Test
 	public void cancelSubprocessOnRoleDeleteTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		loginAsAdmin();
@@ -1301,6 +1336,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -1408,6 +1444,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	@Test
 	public void testFindCandidatesWithSubprocess() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		// approve only by help desk
 		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
@@ -1457,6 +1495,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCreatedAfter(now);
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
 		List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
 		assertEquals(0, tasks.size());
@@ -1541,9 +1580,10 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	 * 
 	 * @return
 	 */
-	private List<WorkflowHistoricProcessInstanceDto> getHistoricProcess() {
+	private List<WorkflowHistoricProcessInstanceDto> getHistoricProcess(ZonedDateTime from) {
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(from);
 		return workflowHistoricProcessInstanceService.find(taskFilter, null).getContent();
 	}
 

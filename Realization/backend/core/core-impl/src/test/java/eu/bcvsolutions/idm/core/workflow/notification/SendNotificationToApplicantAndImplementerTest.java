@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
+import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -42,7 +43,6 @@ import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test for request role notification. Testing if notification is send right with dependency on two boolean flags and if applicant == implementer
@@ -69,8 +69,6 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
-	private TestHelper helper;
-	@Autowired
 	private WorkflowTaskInstanceService workflowTaskInstanceService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
@@ -89,23 +87,21 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Before
 	public void login() {
-		super.loginAsAdmin();
-		//
-		helper.setConfigurationValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, true);
-		helper.setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, true);
-		helper.setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, true);
-		helper.setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, true);
-		helper.setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, true);
+		getHelper().setConfigurationValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, true);
+		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, true);
+		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, true);
+		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, true);
+		getHelper().setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, true);
 		createStructure();
 	}
 
 	@After
 	public void logout() {
-		helper.setConfigurationValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, false);
-		helper.setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
-		helper.setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
-		helper.setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, false);
-		helper.setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, false);
+		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, false);
 		super.logout();
 	}
 
@@ -116,7 +112,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -158,7 +154,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -207,7 +203,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -249,7 +245,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -296,7 +292,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -338,7 +334,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -385,7 +381,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -425,7 +421,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -469,7 +465,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -519,7 +515,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -575,7 +571,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -625,7 +621,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -680,7 +676,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -730,7 +726,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -785,7 +781,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -833,7 +829,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -885,7 +881,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -927,7 +923,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -976,7 +972,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -1018,7 +1014,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -1065,7 +1061,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -1107,7 +1103,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -1154,7 +1150,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		loginAsAdmin(test1.getUsername());
 
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
@@ -1194,7 +1190,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto testUser3 = createTestUser();
 		loginAsAdmin(testUser3.getUsername());
 		IdmIdentityDto test1 = createTestUser();
-		IdmRoleDto test_role = createRole("test_role" + System.currentTimeMillis());
+		IdmRoleDto test_role = createRole();
 		//
 		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
 
@@ -1283,8 +1279,9 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	 * @param code
 	 * @return IdmRoleDto
 	 */
-	private IdmRoleDto createRole(String code) {
-		IdmRoleDto role = helper.createRole(code);
+	private IdmRoleDto createRole() {
+		IdmRoleDto role = new IdmRoleDto();
+		role.setBaseCode(getHelper().createName());
 		role.setCanBeRequested(true);
 		//
 		return roleService.save(role);
@@ -1297,8 +1294,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	 */
 	private IdmIdentityDto createTestUser() {
 		IdmIdentityDto testUser = new IdmIdentityDto();
-		testUser.setUsername("" + System.currentTimeMillis());
-		testUser.setPassword(new GuardedString("heslo"));
+		testUser.setUsername(getHelper().createName());
+		testUser.setPassword(new GuardedString(InitApplicationData.ADMIN_PASSWORD));
 		testUser.setFirstName("Test");
 		testUser.setLastName("User");
 		testUser.setEmail(testUser.getUsername() + "@bscsolutions.eu");
@@ -1329,7 +1326,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 		testUser2 = new IdmIdentityDto();
 		testUser2.setUsername("Test_user_Manager" + System.currentTimeMillis());
-		testUser2.setPassword(new GuardedString("heslo"));
+		testUser2.setPassword(new GuardedString(InitApplicationData.ADMIN_PASSWORD));
 		testUser2.setFirstName("Test");
 		testUser2.setLastName("Second User");
 		testUser2.setEmail("test2@bscsolutions.eu");

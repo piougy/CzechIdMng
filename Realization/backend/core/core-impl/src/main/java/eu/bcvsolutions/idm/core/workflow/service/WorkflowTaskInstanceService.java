@@ -41,7 +41,7 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	 * @param filter
 	 * @return
 	 */
-	@Deprecated
+	@Deprecated // @since 7.7.0
 	ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter);
 
 	/**

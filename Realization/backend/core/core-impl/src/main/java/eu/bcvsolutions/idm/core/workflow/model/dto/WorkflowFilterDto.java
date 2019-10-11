@@ -1,29 +1,12 @@
 package eu.bcvsolutions.idm.core.workflow.model.dto;
 
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
-import java.time.ZonedDateTime;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 public class WorkflowFilterDto extends QuickFilter {
-	
-	public static final String ORDER_ASC = "asc";
-	public static final String ORDER_DESC = "desc";
-	
-	@Deprecated // @since 7.7.0 - use pageable
-	private int pageNumber = 0;
-	@Deprecated
-	private int pageSize = 10;
-	@Deprecated
-	private boolean sortAsc = false;
-	@Deprecated
-	private boolean sortDesc = false;
-	@Deprecated
-	private String sortByFields;
 	
 	private Map<String, Object> equalsVariables;
 	private String processDefinitionId;
@@ -35,11 +18,6 @@ public class WorkflowFilterDto extends QuickFilter {
 	private String candidateOrAssigned;
 	private ZonedDateTime createdBefore;
 	private ZonedDateTime createdAfter;
-
-	@Deprecated
-	public WorkflowFilterDto(int defaultPageSize) {
-		this.pageSize = defaultPageSize;
-	}
 	
 	public WorkflowFilterDto() {
 	}
@@ -69,56 +47,6 @@ public class WorkflowFilterDto extends QuickFilter {
 
 	public void setProcessDefinitionKey(String processDefinitionKey) {
 		this.processDefinitionKey = processDefinitionKey;
-	}
-
-	@Deprecated
-	public int getPageNumber() {
-		return pageNumber;
-	}
-
-	@Deprecated
-	public void setPageNumber(int pageNumber) {
-		this.pageNumber = pageNumber;
-	}
-
-	@Deprecated
-	public int getPageSize() {
-		return pageSize;
-	}
-
-	@Deprecated
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
-
-	@Deprecated
-	public boolean isSortAsc() {
-		return sortAsc;
-	}
-
-	@Deprecated
-	public void setSortAsc(boolean sortAsc) {
-		this.sortAsc = sortAsc;
-	}
-
-	@Deprecated
-	public boolean isSortDesc() {
-		return sortDesc;
-	}
-
-	@Deprecated
-	public void setSortDesc(boolean sortDesc) {
-		this.sortDesc = sortDesc;
-	}
-
-	@Deprecated
-	public String getSortByFields() {
-		return sortByFields;
-	}
-
-	@Deprecated
-	public void setSortByFields(String sortByFields) {
-		this.sortByFields = sortByFields;
 	}
 
 	public String getProcessInstanceId() {
@@ -151,28 +79,6 @@ public class WorkflowFilterDto extends QuickFilter {
 
 	public void setCategory(String category) {
 		this.category = category;
-	}
-
-	@JsonIgnore
-	@Deprecated
-	public void initSort(String sort) {
-		if (sort == null) {
-			this.setSortByFields(null);
-			this.setSortAsc(true);
-			this.setSortDesc(false);
-			return;
-		}
-		String[] sorts = sort.split(",");
-		if(sorts != null && sorts.length > 1){
-			this.setSortByFields(sorts[0]);
-			String order = sorts[sorts.length-1];
-			if(WorkflowFilterDto.ORDER_ASC.equals(order)){
-				this.setSortAsc(true);
-			}
-			if(WorkflowFilterDto.ORDER_DESC.equals(order)){
-				this.setSortDesc(true);
-			}
-		}	
 	}
 
 	public String getCandidateOrAssigned() {

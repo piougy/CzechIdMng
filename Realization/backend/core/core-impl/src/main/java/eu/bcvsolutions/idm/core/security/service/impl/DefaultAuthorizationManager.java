@@ -45,6 +45,7 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 public class DefaultAuthorizationManager implements AuthorizationManager {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultAuthorizationManager.class);
+	//
 	private IdmAuthorizationPolicyService service;
 	private final ApplicationContext context;
 	private final SecurityService securityService;
@@ -182,8 +183,9 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		Assert.notNull(permission, "Permission is required");
 		//
 		// check super admin
-		if(securityService.isAdmin()) {
+		if (securityService.isAdmin()) {
 			LOG.debug("Logged as admin [{}], authorization granted", securityService.getCurrentUsername());
+			//
 			return true;
 		}
 		//

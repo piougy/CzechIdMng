@@ -12,7 +12,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.task.IdentityLink;
+import org.activiti.engine.task.IdentityLinkType;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +53,12 @@ import eu.bcvsolutions.idm.core.api.service.IdmRequestIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -108,6 +114,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private IdmRequestIdentityRoleService requestIdentityRoleService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private RuntimeService runtimeService;
 
 	@Before
 	public void init() {
@@ -129,7 +137,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		loginAsAdmin(InitTestData.TEST_USER_1);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1);
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -179,7 +187,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -223,7 +231,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -270,7 +278,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_GUARANTEE_KEY);
 
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -330,7 +338,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -395,7 +403,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// Create request
 		IdmRoleRequestDto request = createRoleRequest(applicant);
 		request = roleRequestService.save(request);
-		IdmIdentityContractDto applicantContract = identityContractService.getPrimeContract(applicant.getId());
+		IdmIdentityContractDto applicantContract = getHelper().getPrimeContract(applicant.getId());
 		IdmConceptRoleRequestDto concept = createRoleConcept(incompatibleRoleTwo, applicantContract, request);
 		concept = conceptRoleRequestService.save(concept);
 		// Check on incompatible role in the request
@@ -476,7 +484,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// Create request
 		IdmRoleRequestDto request = createRoleRequest(applicant);
 		request = roleRequestService.save(request);
-		IdmIdentityContractDto applicantContract = identityContractService.getPrimeContract(applicant.getId());
+		IdmIdentityContractDto applicantContract = getHelper().getPrimeContract(applicant.getId());
 		IdmConceptRoleRequestDto concept = createRoleConcept(incompatibleRoleTwo, applicantContract, request);
 		concept = conceptRoleRequestService.save(concept);
 		// Check on incompatible role in the request
@@ -882,7 +890,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 				APPROVE_ROLE_BY_SECURITY_KEY);
 		configurationService.setValue("idm.sec.core.wf.approval.security.enabled", "true");
 
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -955,7 +963,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_MANAGER_KEY);
 
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -1017,7 +1025,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_GUARANTEE_KEY);
 
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -1075,8 +1083,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
 
 		loginAsAdmin(InitTestData.TEST_USER_2);
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
-		IdmRoleDto adminRole = getHelper().createRole("testRole" + System.currentTimeMillis());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
+		IdmRoleDto adminRole = getHelper().createRole();
 		adminRole.setApproveRemove(true);
 		roleService.save(adminRole);
 
@@ -1193,7 +1201,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -1251,7 +1259,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_MANAGER_KEY);
 
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -1324,7 +1332,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_MANAGER_KEY);
 
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(test1.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(test1.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(test1);
 		request = roleRequestService.save(request);
@@ -1474,7 +1482,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		configurationService.setValue(IdmRoleService.WF_BY_ROLE_PRIORITY_PREFIX + priority,
 				APPROVE_ROLE_BY_MANAGER_KEY);
 
-		IdmIdentityContractDto contract = identityContractService.getPrimeContract(identity.getId());
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
 
 		IdmRoleRequestDto request = createRoleRequest(identity);
 		request = roleRequestService.save(request);
@@ -1574,6 +1582,78 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		filter.setIncludeApprovers(false);
 		requestDto = roleRequestService.get(request.getId(), filter);
 		assertNull(requestDto.getApprovers());
+	}
+	
+	@Test
+	public void testAccessIsAddedForOwnerAndImplementerToSubprocesses() {
+		// reset approvers
+		getHelper().setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, false);
+		// role with guarantees and critical 2 => approve by guarantee
+		IdmRoleDto role = new IdmRoleDto();
+		role.setCode(getHelper().createName());
+		role.setPriority(2); // default by configuration
+		IdmRoleDto roleOne = roleService.save(role);
+		role = new IdmRoleDto();
+		role.setCode(getHelper().createName());
+		role.setPriority(2); // default by configuration
+		IdmRoleDto roleTwo = roleService.save(role);
+		//
+		IdmIdentityDto implementer = getHelper().createIdentity();
+		IdmIdentityDto applicant = getHelper().createIdentity();
+		IdmIdentityContractDto applicantContract = getHelper().getPrimeContract(applicant);
+		IdmIdentityDto guaranteeOne = getHelper().createIdentity();
+		IdmIdentityDto guaranteeTwo = getHelper().createIdentity();
+		//
+		getHelper().createRoleGuarantee(roleOne, guaranteeOne);
+		getHelper().createRoleGuarantee(roleTwo, guaranteeTwo);
+		//
+		loginAsAdmin(implementer.getUsername()); // login as implementer
+		//
+		IdmRoleRequestDto request = createRoleRequest(applicant);
+		request = roleRequestService.save(request);
+		IdmConceptRoleRequestDto concept = createRoleConcept(roleOne, applicantContract, request);
+		conceptRoleRequestService.save(concept);
+		concept = createRoleConcept(roleTwo, applicantContract, request);
+		conceptRoleRequestService.save(concept);
+		roleRequestService.startRequestInternal(request.getId(), true);
+		request = roleRequestService.get(request.getId());
+		Assert.assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+		
+		IdmRequestIdentityRoleFilter requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
+		requestIdentityRoleFilter.setIncludeCandidates(true);
+		requestIdentityRoleFilter.setRoleRequestId(request.getId());
+		requestIdentityRoleFilter.setIdentityId(applicant.getId());
+		List<IdmRequestIdentityRoleDto> requestIdentityRoles = requestIdentityRoleService.find(requestIdentityRoleFilter, null).getContent();
+		Assert.assertEquals(2, requestIdentityRoles.size());
+		Assert.assertTrue(requestIdentityRoles.stream().anyMatch(rir -> rir.getRole().equals(roleOne.getId())
+				&& rir.getCandidates().size() == 1
+				&& rir.getCandidates().iterator().next().getId().equals(guaranteeOne.getId())));
+		Assert.assertTrue(requestIdentityRoles.stream().anyMatch(rir -> rir.getRole().equals(roleTwo.getId())
+				&& rir.getCandidates().size() == 1
+				&& rir.getCandidates().iterator().next().getId().equals(guaranteeTwo.getId())));
+		//
+		// check applicant and implemented can read process instance
+		getHelper().login(implementer);
+		List<WorkflowProcessInstanceDto> processes = workflowProcessInstanceService.find(new WorkflowFilterDto(), null, IdmBasePermission.READ).getContent();
+		Assert.assertEquals(3, processes.size());
+		getHelper().login(applicant);
+		Assert.assertEquals(3, workflowProcessInstanceService.find(new WorkflowFilterDto(), null, IdmBasePermission.READ).getTotalElements());
+		getHelper().login(guaranteeOne);
+		Assert.assertEquals(1, workflowProcessInstanceService.find(new WorkflowFilterDto(), null, IdmBasePermission.READ).getTotalElements());
+		getHelper().login(guaranteeTwo);
+		Assert.assertEquals(1, workflowProcessInstanceService.find(new WorkflowFilterDto(), null, IdmBasePermission.READ).getTotalElements());
+		//
+		// test identity links are created (=> access added)
+		processes.forEach(process -> {
+			List<IdentityLink> links = runtimeService.getIdentityLinksForProcessInstance(process.getProcessInstanceId());
+			Assert.assertTrue(links.stream().anyMatch(l -> l.getUserId().equals(implementer.getId().toString())
+					&& l.getType().equals(IdentityLinkType.STARTER)));
+			Assert.assertTrue(links.stream().anyMatch(l -> l.getUserId().equals(applicant.getId().toString())
+					&& l.getType().equals(IdentityLinkType.OWNER)));
+		});
 	}
 
 	/**

@@ -244,7 +244,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			//
 			// Check model mapper is properly initialized to prevent:
 			// org.modelmapper.MappingException: ModelMapper mapping errors: Converter org.modelmapper.internal.converter.CollectionConverter@7214dbf8 failed to convert
-			modelMapperChecker.verify();
+			// modelMapperChecker.verify();
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

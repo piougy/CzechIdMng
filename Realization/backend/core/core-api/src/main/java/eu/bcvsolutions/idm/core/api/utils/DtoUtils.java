@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -172,6 +173,23 @@ public abstract class DtoUtils {
 			return ZonedDateTime.ofInstant(Instant.ofEpochMilli(((org.joda.time.DateTime) dateTime).getMillis()), ZoneId.systemDefault());
 		}
 		return (ZonedDateTime) dateTime;
+	}
+	
+	/**
+	 * Util to solve legacy issues with joda (old) vs. java time (new) usage.
+	 * 
+	 * @param localDate as java time
+	 * @return
+	 */
+	public static LocalDate toLocalDate(Object localDate) {
+		if (localDate == null) {
+			return null;
+		}
+		if (localDate instanceof org.joda.time.LocalDate) {
+			org.joda.time.LocalDate joda = (org.joda.time.LocalDate) localDate;
+			return LocalDate.of(joda.getYear(), joda.getMonthOfYear(), joda.getDayOfMonth());
+		}
+		return (LocalDate) localDate;
 	}
 	
 }

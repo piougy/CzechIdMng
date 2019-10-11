@@ -2,8 +2,8 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,7 +16,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.collections.CollectionUtils;
-import java.time.ZonedDateTime;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -474,9 +473,8 @@ public class DefaultIdmConceptRoleRequestService extends
 			WorkflowFilterDto filter = new WorkflowFilterDto();
 			filter.setProcessInstanceId(dto.getWfProcessId());
 
-			@SuppressWarnings("deprecation")
-			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
-					.searchInternal(filter, false).getResources();
+			List<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
+					.find(filter, null).getContent();
 			if (resources.isEmpty()) {
 				// Process with this ID not exist ... maybe was ended
 				this.addToLog(dto, MessageFormat.format(

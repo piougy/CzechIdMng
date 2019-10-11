@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectInputStream.GetField;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -11,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Dto for concept role request
@@ -283,5 +286,32 @@ public class IdmConceptRoleRequestDto extends FormableDto implements Loggable {
             return false;
         }
         return true;
+    }
+    
+    /**
+	 * DTO are serialized in WF and embedded objects.
+	 * We need to solve legacy issues with joda (old) vs. java time (new) usage.
+	 * 
+	 * @param ois
+	 * @throws Exception
+	 */
+	private void readObject(ObjectInputStream ois) throws Exception {
+		GetField readFields = ois.readFields();
+		//
+		roleRequest = (UUID) readFields.get("roleRequest", null);
+	    identityContract = (UUID) readFields.get("identityContract", null);
+	    contractPosition = (UUID) readFields.get("contractPosition", null);
+	    role = (UUID) readFields.get("role", null);
+	    identityRole = (UUID) readFields.get("identityRole", null);
+	    roleTreeNode = (UUID) readFields.get("roleTreeNode", null);
+	    validFrom = DtoUtils.toLocalDate(readFields.get("validFrom", null));
+	    validTill = DtoUtils.toLocalDate(readFields.get("validTill", null));
+	    operation = (ConceptRoleRequestOperation) readFields.get("operation", null);
+	    state = (RoleRequestState) readFields.get("state", null);
+	    wfProcessId = (String) readFields.get("wfProcessId", null);
+	    log = (String) readFields.get("log", null);
+	    valid = readFields.get("valid", false);
+	    duplicate = (Boolean) readFields.get("duplicate", null);
+	    systemState = (OperationResultDto) readFields.get("systemState", null);
     }
  }

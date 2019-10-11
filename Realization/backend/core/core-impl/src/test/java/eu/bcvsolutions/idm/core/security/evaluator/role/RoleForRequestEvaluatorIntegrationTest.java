@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -41,6 +42,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Peter Sourek
  * @author Radek Tomiška
  */
+@Transactional
 public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationTest {
 
 	private final String TEST_PWD = "aaaAAAa12345789000*bcv";
@@ -59,26 +61,24 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 
 	@Before
 	public void prepareTestData() {
-		loginAsAdmin();
 		evaluator = new RoleCanBeRequestedEvaluator(securityService);
 
-		hasNoRole = createUser(uniqueString(), TEST_PWD);
+		hasNoRole = createUser(TEST_PWD);
 		//
-		IdmRoleDto noRightsRole = createRole(uniqueString(), false);
-		hasNoRights = createUser(uniqueString(), TEST_PWD, noRightsRole);
+		IdmRoleDto noRightsRole = createRole(false);
+		hasNoRights = createUser(TEST_PWD, noRightsRole);
 		//
-		IdmRoleDto readRightsRole = createRole(uniqueString(), false, IdmBasePermission.READ);
-		hasRoleEvaluator = createUser(uniqueString(), TEST_PWD, readRightsRole);
+		IdmRoleDto readRightsRole = createRole(false, IdmBasePermission.READ);
+		hasRoleEvaluator = createUser(TEST_PWD, readRightsRole);
 		//
-		IdmRoleDto writeRightsRole = createRole(uniqueString(), false, IdmBasePermission.UPDATE, IdmBasePermission.READ);
-		hasEvaluatorUpdate = createUser(uniqueString(), TEST_PWD, writeRightsRole);
+		IdmRoleDto writeRightsRole = createRole(false, IdmBasePermission.UPDATE, IdmBasePermission.READ);
+		hasEvaluatorUpdate = createUser(TEST_PWD, writeRightsRole);
 		//
-		IdmRoleDto allRightsRole = createRole(uniqueString(), false, IdmBasePermission.ADMIN);
-		hasEvaluatorAllRights = createUser(uniqueString(), TEST_PWD, allRightsRole);
+		IdmRoleDto allRightsRole = createRole(false, IdmBasePermission.ADMIN);
+		hasEvaluatorAllRights = createUser(TEST_PWD, allRightsRole);
 		//
-		canBeRequested = createRole(uniqueString(), true);
-		cannotBeRequested = createRole(uniqueString(), false);
-		logout();
+		canBeRequested = createRole(true);
+		cannotBeRequested = createRole(false);
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		IdmRoleDto found1 = res1.getContent().get(0);
 		assertEquals(found1.getId(), canBeRequested.getId());
 		//
-		final String testDescription = uniqueString();
+		final String testDescription = getHelper().createName();
 		saveRoleAsUser(hasEvaluatorUpdate, found1, testDescription);
 		Page<IdmRoleDto> res2 = getRoleAsUser(hasEvaluatorUpdate, canBeRequested);
 		IdmRoleDto found2 = res2.getContent().get(0);
@@ -159,7 +159,7 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		IdmRoleDto found1 = res1.getContent().get(0);
 		assertEquals(found1.getId(), canBeRequested.getId());
 		//
-		final String testDescription = uniqueString();
+		final String testDescription = getHelper().createName();
 		Exception e = saveRoleAsUser(hasEvaluatorAllRights, found1, testDescription);
 		assertNull(e);
 		Page<IdmRoleDto> res2 = getRoleAsUser(hasEvaluatorAllRights, canBeRequested);
@@ -232,11 +232,11 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		return rf;
 	}
 
-	private IdmRoleDto createRole(String code, boolean canBeRequested, IdmBasePermission... permissions) {
+	private IdmRoleDto createRole(boolean canBeRequested, IdmBasePermission... permissions) {
 		IdmRoleDto roleWithNoRights = new IdmRoleDto();
 		roleWithNoRights.setCanBeRequested(canBeRequested);
-		roleWithNoRights.setCode(code);
-		final IdmRoleDto result = this.roleService.save(roleWithNoRights);
+		roleWithNoRights.setCode(getHelper().createName());
+		final IdmRoleDto result = roleService.save(roleWithNoRights);
 		//
 		if (permissions != null && permissions.length > 0) {
 			createPolicy(result.getId(), permissions);
@@ -256,12 +256,10 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		return authorizationPolicyService.save(policy);
 	}
 
-	private IdmIdentityDto createUser(String name, String password, IdmRoleDto... roles) {
+	private IdmIdentityDto createUser(String password, IdmRoleDto... roles) {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setEmail(RandomStringUtils.randomAlphabetic(10) + "@email.com");
-		identity.setLastName(name);
-		identity.setFirstName(name);
-		identity.setUsername(name);
+		identity.setUsername(getHelper().createName());
 		identity.setPassword(new GuardedString(password));
 		final IdmIdentityDto result = identityService.save(identity);
 		//
@@ -286,11 +284,4 @@ public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationT
 		dto.setPosition("MY_DEFAULT");
 		return contractService.save(dto);
 	}
-
-	private String uniqueString() {
-		String rnd = RandomStringUtils.randomAlphabetic(10);
-		final long time = System.nanoTime();
-		return rnd + "_" + time;
-	}
-
 }

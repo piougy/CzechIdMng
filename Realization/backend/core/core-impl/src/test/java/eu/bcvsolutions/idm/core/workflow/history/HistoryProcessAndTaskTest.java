@@ -18,8 +18,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
@@ -35,7 +35,6 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  *
  * @author svandav
  */
-@SuppressWarnings("deprecation")
 public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTest {
 
 	private static final String PROCESS_KEY = "testHistoryProcessAndTask";
@@ -72,9 +71,9 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		loginAsNoAdmin(InitTestData.TEST_USER_1);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(instance.getId());
-		ResourcesWrapper<WorkflowProcessInstanceDto> processes = processInstanceService.searchInternal(filter, true);
+		List<WorkflowProcessInstanceDto> processes = processInstanceService.find(filter, null, IdmBasePermission.READ).getContent();
 
-		assertEquals(PROCESS_KEY, ((List<WorkflowProcessInstanceDto>) processes.getResources()).get(0).getName());
+		assertEquals(PROCESS_KEY, processes.get(0).getName());
 		WorkflowHistoricProcessInstanceDto historicProcessDto = historicProcessService.get(instance.getId());
 		assertNotNull(historicProcessDto);
 

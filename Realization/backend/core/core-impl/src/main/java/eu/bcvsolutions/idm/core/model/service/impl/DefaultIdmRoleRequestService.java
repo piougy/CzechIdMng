@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +30,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fusesource.hawtbuf.ByteArrayInputStream;
 import org.hibernate.Session;
-import java.time.ZonedDateTime;
-import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -1184,9 +1183,9 @@ public class DefaultIdmRoleRequestService
 			WorkflowFilterDto filter = new WorkflowFilterDto();
 			filter.setProcessInstanceId(dto.getWfProcessId());
 
-			@SuppressWarnings("deprecation")
-			Collection<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
-					.searchInternal(filter, false).getResources();
+			List<WorkflowProcessInstanceDto> resources = workflowProcessInstanceService
+					.find(filter, null)
+					.getContent();
 			if (resources.isEmpty()) {
 				// Process with this ID not exist ... maybe was ended
 				this.addToLog(dto, MessageFormat.format(

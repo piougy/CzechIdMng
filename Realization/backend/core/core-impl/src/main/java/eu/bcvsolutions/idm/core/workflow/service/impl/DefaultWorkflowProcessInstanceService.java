@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,18 +23,15 @@ import org.activiti.engine.runtime.ProcessInstanceBuilder;
 import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -43,13 +39,12 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcePage;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
@@ -65,6 +60,8 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 public class DefaultWorkflowProcessInstanceService 
 		extends AbstractBaseDtoService<WorkflowProcessInstanceDto, WorkflowFilterDto> 
 		implements WorkflowProcessInstanceService {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultWorkflowProcessInstanceService.class);
 
 	@Autowired
 	private RuntimeService runtimeService;
@@ -106,18 +103,40 @@ public class DefaultWorkflowProcessInstanceService
 		}
 
 		ProcessInstance instance = builder.start();
-		if(!instance.isEnded()){
+		if (!instance.isEnded()) {
 			// must explicit check null, else throw org.activiti.engine.ActivitiIllegalArgumentException: userId and groupId cannot both be null
 			if (applicantIdentity != null) {
-				// Set applicant as owner of process
+				// Set applicant as owner of process.
 				runtimeService.addUserIdentityLink(instance.getId(), applicantIdentity.getId().toString(), IdentityLinkType.OWNER);
 			}
 			if (implementerId != null) {
-				// Set current logged user (implementer) as starter of process
+				// Set current logged user (implementer) as starter of process.
 				runtimeService.addUserIdentityLink(instance.getId(), implementerId.toString(), IdentityLinkType.STARTER);
 			}
-			// TODO: search subprocesses and add create links for the
-			
+			// Search subprocesses and add create links to add access for applicant and implementer.
+			runtimeService
+				.createProcessInstanceQuery()
+				.active()
+				.includeProcessVariables()
+				.superProcessInstanceId(instance.getId())
+				.list()
+				.forEach(subProcess-> {
+					subProcess.getProcessVariables().forEach((k, v) -> {
+						if (WorkflowProcessInstanceService.APPLICANT_IDENTIFIER.equals(k)) {
+							String value = v == null ? null : v.toString();
+							// Set applicant as owner of process.
+							runtimeService.addUserIdentityLink(subProcess.getProcessInstanceId(), value, IdentityLinkType.OWNER);
+							LOG.debug("StartProcesEventListener - set process [{}]-[{}] owner [{}]",
+									subProcess.getName(), subProcess.getProcessInstanceId(), value);
+						} else if (WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER.equals(k)) {
+							String value = v == null ? null : v.toString();
+							// Set implementer as starter of process.
+							runtimeService.addUserIdentityLink(subProcess.getProcessInstanceId(), value, IdentityLinkType.STARTER);
+							LOG.debug("StartProcesEventListener - set process [{}]-[{}] starter [{}]",
+									subProcess.getName(), subProcess.getProcessInstanceId(), value);
+						}
+					});
+				});
 		}
 		return instance;
 	}
@@ -135,52 +154,8 @@ public class DefaultWorkflowProcessInstanceService
 			pageable = PageRequest.of(0, Integer.MAX_VALUE);
 		}
 		
-		// we must call original method search because is there check flag checkRight
-		filter.setPageNumber(pageable.getPageNumber());
-		filter.setPageSize(pageable.getPageSize());
-		//
-		String fieldForSort = null;
-		boolean ascSort = false;
-		boolean descSort = false;
-		//
-		Sort sort = pageable.getSort();
-		if (sort != null) {
-			for (Order order : sort) {
-				if (!StringUtils.isEmpty(order.getProperty())) {
-					// TODO: now is implemented only one property sort 
-					fieldForSort = order.getProperty();
-					if (order.getDirection() == Direction.ASC) {
-						ascSort = true;
-					} else if (order.getDirection() == Direction.DESC) {
-						descSort = true;
-					}
-					break;
-				}
-				
-			}
-		}
-		filter.setSortAsc(ascSort);
-		filter.setSortDesc(descSort);
-		filter.setSortByFields(fieldForSort);
-		ResourcesWrapper<WorkflowProcessInstanceDto> search = this.searchInternal(filter, true);
-		//
-		ResourcePage pages = search.getPage();
-		List<WorkflowProcessInstanceDto> processes = (List<WorkflowProcessInstanceDto>) search.getResources();
-		//
-		return new PageImpl<WorkflowProcessInstanceDto>(processes, pageable, pages.getTotalElements());
-	}
-	
-	@Override
-	public Page<WorkflowProcessInstanceDto> find(Pageable pageable, BasePermission... permission) {
-		return this.find(new WorkflowFilterDto(), pageable, permission);
-	}
-
-	@Override
-	public ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight) {
 		String processDefinitionId = filter.getProcessDefinitionId();
-
 		Map<String, Object> equalsVariables = filter.getEqualsVariables();
-
 		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery();
 
 		query.active();
@@ -220,7 +195,8 @@ public class DefaultWorkflowProcessInstanceService
 		// check security ... only involved user or applicant can work with process instance
 		// Applicant and Implementer is added to involved user after process
 		// (subprocess) started. This modification allow not use OR clause.
-		if(checkRight && !securityService.isAdmin()){
+		boolean checkRight = !ObjectUtils.isEmpty(PermissionUtils.trimNull(permission));
+		if (checkRight && !securityService.isAdmin()){
 			UUID currentId = securityService.getCurrentId();
 			if (currentId == null) {
 				currentId = UUID.randomUUID();
@@ -228,11 +204,14 @@ public class DefaultWorkflowProcessInstanceService
 			query.involvedUser(currentId.toString());
 		}
 
+		if (pageable.getSort() != null) {
+			LOG.warn("Sort is not supported, will be ignored.");
+		}
+		
 		query.orderByProcessDefinitionId();
 		query.desc();
 		long count = query.count();
-		List<ProcessInstance> processInstances = query.listPage((filter.getPageNumber()) * filter.getPageSize(),
-				filter.getPageSize());
+		List<ProcessInstance> processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
 		List<WorkflowProcessInstanceDto> dtos = new ArrayList<>();
 
 		if (processInstances != null) {
@@ -240,15 +219,13 @@ public class DefaultWorkflowProcessInstanceService
 				dtos.add(toResource(instance));
 			}
 		}
-		double totalPageDouble = ((double) count / filter.getPageSize());
-		double totlaPageFlorred = Math.floor(totalPageDouble);
-		long totalPage = 0;
-		if (totalPageDouble > totlaPageFlorred) {
-			totalPage = (long) (totlaPageFlorred + 1);
-		}
 
-		return new ResourcesWrapper<>(dtos, count, totalPage,
-				filter.getPageNumber(), filter.getPageSize());
+		return new PageImpl<WorkflowProcessInstanceDto>(dtos, pageable, count);
+	}
+	
+	@Override
+	public Page<WorkflowProcessInstanceDto> find(Pageable pageable, BasePermission... permission) {
+		return this.find(new WorkflowFilterDto(), pageable, permission);
 	}
 	
 	@Override
@@ -263,7 +240,7 @@ public class DefaultWorkflowProcessInstanceService
 		List<WorkflowProcessInstanceDto> resources = this
 				.find(filter, PageRequest.of(0, 1), checkRight ? IdmBasePermission.READ : null)
 				.getContent();
-		return !resources.isEmpty() ? resources.iterator().next() : null;
+		return !resources.isEmpty() ? resources.get(0) : null;
 	}
 	
 	@Override
@@ -320,7 +297,7 @@ public class DefaultWorkflowProcessInstanceService
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processInstanceId);
 		
-		Collection<WorkflowProcessInstanceDto> resources = this.searchInternal(filter, false).getResources();
+		List<WorkflowProcessInstanceDto> resources = this.find(filter, null).getContent();
 		WorkflowProcessInstanceDto processInstanceToDelete = null;
 		if(!resources.isEmpty()){
 			processInstanceToDelete = resources.iterator().next();

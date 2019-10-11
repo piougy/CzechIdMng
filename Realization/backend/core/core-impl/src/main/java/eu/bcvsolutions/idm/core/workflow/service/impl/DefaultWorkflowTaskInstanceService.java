@@ -90,7 +90,6 @@ public class DefaultWorkflowTaskInstanceService extends
 	@Override
 	public Page<WorkflowTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
-	
 		return internalSearch(filter, pageable, permission);
 	}
 
@@ -382,7 +381,9 @@ public class DefaultWorkflowTaskInstanceService extends
 	}
 
 	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable, BasePermission... permission) {
-		
+		if (pageable == null) {
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
 		// if currently logged user can read all task continue
 		if (!canReadAllTask(permission)) {
 			// if user can't read all task check filter
@@ -436,7 +437,7 @@ public class DefaultWorkflowTaskInstanceService extends
 			query.taskCandidateOrAssigned(String.valueOf(dto.getId()));
 		}
 		
-		if (pageable != null && pageable.getSort() != null) {
+		if (pageable.getSort() != null) {
 			pageable.getSort().forEach(order -> {
 				if (SORT_BY_TASK_CREATED.equals(order.getProperty())) {
 					// Sort by key
@@ -448,19 +449,12 @@ public class DefaultWorkflowTaskInstanceService extends
 					}
 				}
 			});
-
 		}
-
 		query.orderByTaskCreateTime();
 		query.desc();
+		
 		long count = query.count();
-
-		// it's possible that pageable is null
-		List<Task> tasks = null;
-		if (pageable == null) {
-			pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		}
-		tasks = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
+		List<Task> tasks = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
 
 		List<WorkflowTaskInstanceDto> dtos = new ArrayList<>();
 		if (tasks != null) {

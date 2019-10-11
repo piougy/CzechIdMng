@@ -23,11 +23,10 @@ public class DefaultWorkflowDeploymentService implements WorkflowDeploymentServi
 	@Autowired
 	private RepositoryService repositoryService;
 
-
-	@Override
 	/**
 	 * Upload new deployment to Activiti
 	 */
+	@Override
 	public WorkflowDeploymentDto create(String deploymentName, String fileName, InputStream inputStream) {
 		Deployment deployment = repositoryService.createDeployment().addInputStream(fileName, inputStream)
 				.name(deploymentName).deploy();

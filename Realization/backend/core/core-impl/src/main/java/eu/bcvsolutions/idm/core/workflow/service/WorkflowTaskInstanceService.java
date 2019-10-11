@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.workflow.service;
 import java.util.Map;
 import java.util.Set;
 
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -15,7 +14,6 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
  * @author svandav
  *
  */
-@SuppressWarnings("deprecation")
 public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTaskInstanceDto, WorkflowFilterDto> {
 
 	String WORKFLOW_DECISION = "decision";
@@ -26,26 +24,23 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	String SORT_BY_TASK_CREATED = "taskCreated";
 
 	/**
-	 * Complete task
+	 * Complete task.
 	 * 
 	 * @param taskId
 	 * @param decision
 	 */
 	void completeTask(String taskId, String decision);
 
+	/**
+	 * Complete task.
+	 * 
+	 * @param taskId
+	 * @param decision
+	 */
 	void completeTask(String taskId, String decision, Map<String, String> map);
 
 	/**
-	 * Search tasks by filter. Only candidate or assigned user can read task.
-	 * 
-	 * @param filter
-	 * @return
-	 */
-	@Deprecated // @since 7.7.0
-	ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter);
-
-	/**
-	 * Complete task
+	 * Complete task.
 	 * 
 	 * @param taskId
 	 * @param decision

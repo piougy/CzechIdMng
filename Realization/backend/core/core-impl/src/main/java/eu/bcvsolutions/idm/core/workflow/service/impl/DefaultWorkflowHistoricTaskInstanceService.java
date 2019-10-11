@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,7 +24,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
 
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -42,9 +40,10 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
  * @author svandav
  *
  */
-@SuppressWarnings("deprecation")
 @Service
-public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoService<WorkflowHistoricTaskInstanceDto, WorkflowFilterDto> implements WorkflowHistoricTaskInstanceService {
+public class DefaultWorkflowHistoricTaskInstanceService 
+		extends AbstractBaseDtoService<WorkflowHistoricTaskInstanceDto, WorkflowFilterDto> 
+		implements WorkflowHistoricTaskInstanceService {
 
 	@Autowired
 	private HistoryService historyService;
@@ -147,28 +146,6 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 	}
 	
 	@Override
-	public ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter) {
-		Pageable pageable = null;
-		// get pageable setting from filter - backward compatibility
-		if (StringUtils.isNotEmpty(filter.getSortByFields())) {
-			Sort sort = null;
-			if (filter.isSortAsc()) {
-				sort = new Sort(Direction.ASC, filter.getSortByFields());	
-			} else {
-				sort = new Sort(Direction.DESC, filter.getSortByFields());
-			}
-			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize(), sort);
-		} else {
-			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
-		}
-		
-		Page<WorkflowHistoricTaskInstanceDto> page = this.find(filter, pageable);
-
-		return new ResourcesWrapper<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
-				filter.getPageNumber(), filter.getPageSize());
-	}
-	
-	@Override
 	public WorkflowHistoricTaskInstanceDto get(Serializable id, BasePermission... permission) {
 		Assert.notNull(id, "Identifier is required.");
 		return this.get(String.valueOf(id));
@@ -178,18 +155,20 @@ public class DefaultWorkflowHistoricTaskInstanceService extends AbstractBaseDtoS
 	public WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setId(UUID.fromString(historicTaskInstanceId));
-		filter.setSortAsc(true);
-		Collection<WorkflowHistoricTaskInstanceDto> resources = this.search(filter).getResources();
-		return !resources.isEmpty() ? resources.iterator().next() : null;
+		List<WorkflowHistoricTaskInstanceDto> resources = this
+				.find(filter, PageRequest.of(0, 1))
+				.getContent();
+		return !resources.isEmpty() ? resources.get(0) : null;
 	}
 	
 	@Override
 	public WorkflowHistoricTaskInstanceDto getTaskByProcessId(String processId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processId);
-		filter.setSortDesc(true);
-		List<WorkflowHistoricTaskInstanceDto> resources = (List<WorkflowHistoricTaskInstanceDto>) this.search(filter).getResources();
-		return !resources.isEmpty() ? resources.get(resources.size()-1) : null;
+		List<WorkflowHistoricTaskInstanceDto> resources = (List<WorkflowHistoricTaskInstanceDto>) this
+				.find(filter, PageRequest.of(0, 1))
+				.getContent();
+		return !resources.isEmpty() ? resources.get(0) : null;
 	}
 
 	private WorkflowHistoricTaskInstanceDto toResource(HistoricTaskInstance instance) {

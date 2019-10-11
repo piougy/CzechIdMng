@@ -105,7 +105,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessDefinitionKey(PROCESS_KEY);
-		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
+		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.find(filter, null).getContent();
 		assertEquals(1, tasks.size());
 		assertEquals("userTaskFirst", tasks.get(0).getName());
 		String taskId = tasks.get(0).getId();
@@ -118,13 +118,13 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 
 		//Second task is for testUser2 (is candidate) for testUser1 must be null
 		filter.setCandidateOrAssigned(InitTestData.TEST_USER_1);
-		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
+		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.find(filter, null).getContent();
 		assertEquals(0, tasks.size());
 
 		this.logout();
 		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		filter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
-		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
+		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.find(filter, null).getContent();
 		assertEquals(1, tasks.size());
 		assertEquals("userTaskSecond", tasks.get(0).getName());
 		taskId = tasks.get(0).getId();
@@ -133,7 +133,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		//Check task history
 		checkTaskHistory(taskId, InitTestData.TEST_USER_2);
 
-		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
+		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.find(filter, null).getContent();
 		assertEquals(0, tasks.size());
 
 		//Find history of process. Historic process must exist and must be ended.

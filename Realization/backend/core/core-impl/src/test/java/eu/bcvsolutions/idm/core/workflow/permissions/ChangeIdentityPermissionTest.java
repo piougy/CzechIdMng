@@ -1144,6 +1144,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		assertEquals(RoleRequestState.IN_PROGRESS, requestRemove.getState());
 
 		WorkflowFilterDto taskRemoveFilter = new WorkflowFilterDto();
+		taskRemoveFilter.setCreatedAfter(now);
 
 		// HELPDESK
 		requestRemove = roleRequestService.get(requestRemove.getId());

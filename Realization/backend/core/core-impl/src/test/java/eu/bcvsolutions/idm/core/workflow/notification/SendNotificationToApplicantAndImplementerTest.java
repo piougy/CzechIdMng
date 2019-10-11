@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.workflow.notification;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,18 +41,19 @@ import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilte
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.config.WorkflowConfig;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
 /**
- * Test for request role notification. Testing if notification is send right with dependency on two boolean flags and if applicant == implementer
+ * Test for request role notification. 
+ * Testing if notification is send right with dependency on two boolean flags and if applicant == implementer.
  * 
  * @author Patrik Stloukal
- *
  */
-@SuppressWarnings("deprecation")
 public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreWorkflowIntegrationTest {
 
 	private static final String APPROVE_BY_SECURITY_ENABLE = "idm.sec.core.wf.approval.security.enabled";
@@ -84,6 +87,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	private IdmTreeTypeService treeTypeService;
 	@Autowired
 	private IdmContractGuaranteeService contractGuaranteeService;
+	@Autowired
+	private SecurityService securityService;
 
 	@Before
 	public void login() {
@@ -107,7 +112,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskApplicantImplementerSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -128,11 +134,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 		// test notification
@@ -147,7 +156,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskApplicantImplementerNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -169,11 +179,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 
@@ -198,9 +211,10 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskApplicantSameTest() {
-		loginAsAdmin();
-		configurationService.setValue(SENT_TO_APPLICANT, "true");
-		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
+		getHelper().setConfigurationValue(SENT_TO_APPLICANT, true);
+		getHelper().setConfigurationValue(SENT_TO_IMPLEMENTER, false);
 		//
 		IdmIdentityDto test1 = createTestUser();
 		IdmRoleDto test_role = createRole();
@@ -219,11 +233,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 		// test notification
@@ -238,7 +255,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskApplicantNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -260,11 +278,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 
@@ -287,7 +308,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskImplementerSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -308,11 +330,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 		// test notification
@@ -327,7 +352,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskImplementerNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -349,11 +375,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 
@@ -376,7 +405,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -397,11 +427,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 		// test notification
@@ -414,7 +447,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -436,11 +470,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "disapprove");
 
@@ -460,7 +497,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedApplicantImplementerSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -481,18 +519,23 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -508,7 +551,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedApplicantImplementerNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -530,18 +574,23 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -566,7 +615,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedApplicantSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -587,18 +637,23 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -614,7 +669,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedApplicantNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -636,18 +692,23 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -671,7 +732,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedImplementerSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -692,18 +754,23 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -719,7 +786,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedImplementerNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -741,18 +809,23 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -776,7 +849,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -797,18 +871,23 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -822,7 +901,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestApprovedNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -844,18 +924,23 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// MANAGER
 		loginAsAdmin(testUser2.getUsername());
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// USER MANAGER
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
 		// SECURITY
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "approve");
@@ -876,7 +961,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskApplicantImplementerSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -897,11 +983,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 		// test notification
@@ -916,7 +1005,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskApplicantImplementerNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -938,11 +1028,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 
@@ -967,7 +1060,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskApplicantSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -988,11 +1082,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 		// test notification
@@ -1007,7 +1104,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskApplicantNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -1029,11 +1127,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 
@@ -1056,7 +1157,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskImplementerSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -1077,11 +1179,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 		// test notification
@@ -1096,7 +1201,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskImplementerNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -1118,11 +1224,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 
@@ -1145,7 +1254,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -1166,11 +1276,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 		// test notification
@@ -1183,7 +1296,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestReturnedByHelpdeskNotSameTest() {
-		loginAsAdmin();
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -1205,11 +1319,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(now);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.search(taskFilter).getResources();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(0, tasks.size());
 
 		loginAsAdmin();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		// HELPDESK
 		checkAndCompleteOneTask(taskFilter, test1.getUsername(), "backToApplicant");
 
@@ -1266,7 +1383,9 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	private void checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String userName, String decision) {
 		IdmIdentityDto identity = identityService.getByUsername(userName);
 		List<WorkflowTaskInstanceDto> tasks;
-		tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(taskFilter).getResources();
+		tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
+				.find(taskFilter, null, IdmBasePermission.READ)
+				.getContent();
 		assertEquals(1, tasks.size());
 		assertEquals(identity.getId().toString(), tasks.get(0).getApplicant());
 

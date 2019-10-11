@@ -88,7 +88,7 @@ public class ModelMapperConfig {
 		// then will be not used (set null)
 		// or if is property list and have parent dto, then will be to set null
 		// (only two levels are allowed).
-		Condition<Object, Object> trimmListCondition = new Condition<Object, Object>() {
+		Condition<Object, Object> trimListCondition = new Condition<Object, Object>() {
 
 			@Override
 			public boolean applies(MappingContext<Object, Object> context) {
@@ -112,7 +112,7 @@ public class ModelMapperConfig {
 
 		};
 
-		modeler.getConfiguration().setPropertyCondition(trimmListCondition);
+		modeler.getConfiguration().setPropertyCondition(trimListCondition);
 
 		// entity to uuid converters will be set for all entities
 		entityManager.getMetamodel().getEntities().forEach(entityType -> {

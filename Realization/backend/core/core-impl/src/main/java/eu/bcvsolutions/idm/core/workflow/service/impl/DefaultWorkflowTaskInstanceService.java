@@ -22,14 +22,11 @@ import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -43,7 +40,6 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
@@ -72,7 +68,6 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  * @author svandav
  *
  */
-@SuppressWarnings("deprecation")
 @Service
 public class DefaultWorkflowTaskInstanceService extends
 		AbstractBaseDtoService<WorkflowTaskInstanceDto, WorkflowFilterDto> implements WorkflowTaskInstanceService {
@@ -98,29 +93,6 @@ public class DefaultWorkflowTaskInstanceService extends
 	
 		return internalSearch(filter, pageable, permission);
 	}
-
-	@Override
-	public ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter) {
-		Pageable pageable = null;
-		// get pageable setting from filter - backward compatibility
-		if (StringUtils.isNotEmpty(filter.getSortByFields())) {
-			Sort sort = null;
-			if (filter.isSortAsc()) {
-				sort = new Sort(Direction.ASC, filter.getSortByFields());
-			} else {
-				sort = new Sort(Direction.DESC, filter.getSortByFields());
-			}
-			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize(), sort);
-		} else {
-			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
-		}
-		filter.setCandidateOrAssigned(securityService.getCurrentId().toString());
-		Page<WorkflowTaskInstanceDto> page = this.find(filter, pageable, IdmBasePermission.READ);
-
-		return new ResourcesWrapper<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
-				filter.getPageNumber(), filter.getPageSize());
-	}
-
 
 	@Override
 	public void completeTask(String taskId, String decision) {

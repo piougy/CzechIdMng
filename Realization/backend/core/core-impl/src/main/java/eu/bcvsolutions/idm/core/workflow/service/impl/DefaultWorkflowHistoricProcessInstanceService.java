@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,7 +36,6 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -47,14 +45,15 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstance
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
 
 /**
- * Default implementation of workflow process historic service
+ * Default implementation of workflow process historic service.
  * 
  * @author svandav
  *
  */
-@SuppressWarnings("deprecation")
 @Service
-public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseDtoService<WorkflowHistoricProcessInstanceDto, WorkflowFilterDto> implements WorkflowHistoricProcessInstanceService {
+public class DefaultWorkflowHistoricProcessInstanceService 
+		extends AbstractBaseDtoService<WorkflowHistoricProcessInstanceDto, WorkflowFilterDto> 
+		implements WorkflowHistoricProcessInstanceService {
 
 	private static final String DEFINITION_ID_DELIMITER = ":";
 
@@ -170,34 +169,6 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 		return new PageImpl<WorkflowHistoricProcessInstanceDto>(dtos, pageable, count);
 	}
 	
-	/**
-	 * Search process history. Process variables will be included only for get
-	 * specific process history. It means filter.processInstanceId is filled.
-	 * 
-	 * @param filter
-	 * @return
-	 */
-	@Override
-	public ResourcesWrapper<WorkflowHistoricProcessInstanceDto> search(WorkflowFilterDto filter) {
-		Pageable pageable = null;
-		// get pageable setting from filter - backward compatibility
-		if (StringUtils.isNotEmpty(filter.getSortByFields())) {
-			Sort sort = null;
-			if (filter.isSortAsc()) {
-				sort = new Sort(Direction.ASC, filter.getSortByFields());	
-			} else {
-				sort = new Sort(Direction.DESC, filter.getSortByFields());
-			}
-			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize(), sort);
-		} else {
-			pageable = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
-		}
-		Page<WorkflowHistoricProcessInstanceDto> page = this.find(filter, pageable);
-		
-		return new ResourcesWrapper<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
-				filter.getPageNumber(), filter.getPageSize());
-	}
-	
 	@Override
 	public WorkflowHistoricProcessInstanceDto get(Serializable id, BasePermission... permission) {
 		Assert.notNull(id, "Identifier is required.");
@@ -208,9 +179,11 @@ public class DefaultWorkflowHistoricProcessInstanceService extends AbstractBaseD
 	public WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(historicProcessInstanceId);
-		filter.setSortAsc(true);
-		Collection<WorkflowHistoricProcessInstanceDto> resources = this.search(filter).getResources();
-		return !resources.isEmpty() ? resources.iterator().next() : null;
+		
+		List<WorkflowHistoricProcessInstanceDto> resources = this
+				.find(filter, PageRequest.of(0, 1))
+				.getContent();
+		return !resources.isEmpty() ? resources.get(0) : null;
 	}
 
 	/**

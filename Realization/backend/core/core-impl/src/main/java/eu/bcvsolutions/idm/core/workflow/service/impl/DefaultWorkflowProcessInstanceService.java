@@ -48,6 +48,7 @@ import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
@@ -58,11 +59,12 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  * Default implementation of workflow process instance service
  * 
  * @author svandav
- *
+ * @author Radek Tomiška
  */
-@SuppressWarnings("deprecation")
 @Service
-public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoService<WorkflowProcessInstanceDto, WorkflowFilterDto> implements WorkflowProcessInstanceService {
+public class DefaultWorkflowProcessInstanceService 
+		extends AbstractBaseDtoService<WorkflowProcessInstanceDto, WorkflowFilterDto> 
+		implements WorkflowProcessInstanceService {
 
 	@Autowired
 	private RuntimeService runtimeService;
@@ -127,8 +129,7 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 	}
 	
 	@Override
-	public Page<WorkflowProcessInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
-			BasePermission... permission) {
+	public Page<WorkflowProcessInstanceDto> find(WorkflowFilterDto filter, Pageable pageable, BasePermission... permission) {
 		if (pageable == null) {
 			// pageable is required now
 			pageable = PageRequest.of(0, Integer.MAX_VALUE);
@@ -174,13 +175,7 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 		return this.find(new WorkflowFilterDto(), pageable, permission);
 	}
 
-	@Override
-	public ResourcesWrapper<WorkflowProcessInstanceDto> search(WorkflowFilterDto filter) {
-		return searchInternal(filter, true);
-	}
-	
-	@Override
-	public ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight) {
+	private ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight) {
 		String processDefinitionId = filter.getProcessDefinitionId();
 
 		Map<String, Object> equalsVariables = filter.getEqualsVariables();
@@ -257,19 +252,16 @@ public class DefaultWorkflowProcessInstanceService extends AbstractBaseDtoServic
 	
 	@Override
 	public WorkflowProcessInstanceDto get(String processInstanceId) {
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessInstanceId(processInstanceId);
-		filter.setSortAsc(true);
-		Collection<WorkflowProcessInstanceDto> resources = this.search(filter).getResources();
-		return !resources.isEmpty() ? resources.iterator().next() : null;
+		return get(processInstanceId, false);
 	}
 	
 	@Override
 	public WorkflowProcessInstanceDto get(String processInstanceId, boolean checkRight) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processInstanceId);
-		filter.setSortAsc(true);
-		Collection<WorkflowProcessInstanceDto> resources = this.searchInternal(filter, checkRight).getResources();
+		List<WorkflowProcessInstanceDto> resources = this
+				.find(filter, PageRequest.of(0, 1), checkRight ? IdmBasePermission.READ : null)
+				.getContent();
 		return !resources.isEmpty() ? resources.iterator().next() : null;
 	}
 	

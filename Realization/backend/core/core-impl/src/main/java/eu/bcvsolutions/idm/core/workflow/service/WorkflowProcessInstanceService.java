@@ -8,7 +8,6 @@ import org.activiti.engine.runtime.ProcessInstance;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
@@ -18,34 +17,33 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
  * @author svandav
  *
  */
-@SuppressWarnings("deprecation")
 public interface WorkflowProcessInstanceService extends ReadWriteDtoService<WorkflowProcessInstanceDto, WorkflowFilterDto> {
 	
-	final static String OBJECT_TYPE = "objectType";
-	final static String OBJECT_IDENTIFIER = "objectIdentifier";
-	final static String APPLICANT_USERNAME = "applicantUsername";
-	final static String APPLICANT_IDENTIFIER = "applicantIdentifier";
-	final static String ACTIVITI_SKIP_EXPRESSION_ENABLED = "_ACTIVITI_SKIP_EXPRESSION_ENABLED";
-	final static String PROCESS_INSTANCE_ID = "processInstanceId"; // we need processInstanceId have accessible in subprocess (set in wf start listener)
+	String OBJECT_TYPE = "objectType";
+	String OBJECT_IDENTIFIER = "objectIdentifier";
+	String APPLICANT_USERNAME = "applicantUsername";
+	String APPLICANT_IDENTIFIER = "applicantIdentifier";
+	String ACTIVITI_SKIP_EXPRESSION_ENABLED = "_ACTIVITI_SKIP_EXPRESSION_ENABLED";
+	String PROCESS_INSTANCE_ID = "processInstanceId"; // we need processInstanceId have accessible in subprocess (set in wf start listener)
 	
 	/**
 	 * Implementer is user really start the process (For example implementer is administrator given permission to user)
 	 */
-	final static String IMPLEMENTER_IDENTIFIER = "implementerIdentifier";
+	String IMPLEMENTER_IDENTIFIER = "implementerIdentifier";
 	
 	/**
 	 * Name of the workflow variable which stores the operation result
 	 * 
 	 * of type {@link OperationResult}.
 	 */
-	final static String VARIABLE_OPERATION_RESULT = "operationResult";
+	String VARIABLE_OPERATION_RESULT = "operationResult";
 	
 	/**
 	 * Name of the workflow variable which stores the input dto
 	 * 
 	 * of type {@link BaseDto}.
 	 */
-	final static String VARIABLE_DTO = "dto";
+	String VARIABLE_DTO = "dto";
 	
 	/**
 	 * Start new workflow process. To new process instance will be put variables objectType, objectIdentifier, applicant, implementer
@@ -60,14 +58,6 @@ public interface WorkflowProcessInstanceService extends ReadWriteDtoService<Work
 	 */
 	ProcessInstance startProcess(String definitionKey, String objectType, String applicant, String objectIdentifier,
 			Map<String, Object> variables);
-
-	/**
-	 * Search process instance by filter
-	 * @param filter
-	 * @return
-	 */
-	@Deprecated
-	ResourcesWrapper<WorkflowProcessInstanceDto> search(WorkflowFilterDto filter);
 
 	/**
 	 * Delete specific process instance. Only applicant or implementor can delete process instance.
@@ -92,9 +82,6 @@ public interface WorkflowProcessInstanceService extends ReadWriteDtoService<Work
 	 * @return
 	 */
 	WorkflowProcessInstanceDto get(String processInstanceId, boolean checkRight);
-
-	@Deprecated
-	ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight);
 
 	/**
 	 * Return unique set of all approvers for all subprocess of given parent process id in parameters.

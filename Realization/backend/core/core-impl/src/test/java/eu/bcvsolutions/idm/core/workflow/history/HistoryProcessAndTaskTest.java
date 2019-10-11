@@ -72,7 +72,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		loginAsNoAdmin(InitTestData.TEST_USER_1);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(instance.getId());
-		ResourcesWrapper<WorkflowProcessInstanceDto> processes = processInstanceService.search(filter);
+		ResourcesWrapper<WorkflowProcessInstanceDto> processes = processInstanceService.searchInternal(filter, true);
 
 		assertEquals(PROCESS_KEY, ((List<WorkflowProcessInstanceDto>) processes.getResources()).get(0).getName());
 		WorkflowHistoricProcessInstanceDto historicProcessDto = historicProcessService.get(instance.getId());

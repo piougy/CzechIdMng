@@ -8,6 +8,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
@@ -98,4 +99,7 @@ public interface WorkflowProcessInstanceService extends ReadWriteDtoService<Work
 	 * @return
 	 */
 	Set<IdmIdentityDto> getApproversForProcess(String processInstaceId);
+	
+	// FIXME: remove
+	ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight);
 }

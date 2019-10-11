@@ -162,7 +162,7 @@ public class DefaultWorkflowProcessInstanceService
 		filter.setSortAsc(ascSort);
 		filter.setSortDesc(descSort);
 		filter.setSortByFields(fieldForSort);
-		ResourcesWrapper<WorkflowProcessInstanceDto> search = this.search(filter);
+		ResourcesWrapper<WorkflowProcessInstanceDto> search = this.searchInternal(filter, true);
 		//
 		ResourcePage pages = search.getPage();
 		List<WorkflowProcessInstanceDto> processes = (List<WorkflowProcessInstanceDto>) search.getResources();
@@ -175,7 +175,8 @@ public class DefaultWorkflowProcessInstanceService
 		return this.find(new WorkflowFilterDto(), pageable, permission);
 	}
 
-	private ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight) {
+	@Override
+	public ResourcesWrapper<WorkflowProcessInstanceDto> searchInternal(WorkflowFilterDto filter, boolean checkRight) {
 		String processDefinitionId = filter.getProcessDefinitionId();
 
 		Map<String, Object> equalsVariables = filter.getEqualsVariables();

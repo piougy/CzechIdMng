@@ -300,7 +300,7 @@ public class DefaultWorkflowProcessInstanceService
 		List<WorkflowProcessInstanceDto> resources = this.find(filter, null).getContent();
 		WorkflowProcessInstanceDto processInstanceToDelete = null;
 		if(!resources.isEmpty()){
-			processInstanceToDelete = resources.iterator().next();
+			processInstanceToDelete = resources.get(0);
 		}
 
 		if (processInstanceToDelete == null) {

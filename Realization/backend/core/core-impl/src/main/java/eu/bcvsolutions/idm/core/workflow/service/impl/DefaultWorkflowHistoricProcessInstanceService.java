@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.SequenceFlow;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ActivitiIllegalArgumentException;
 import org.activiti.engine.ActivitiObjectNotFoundException;
@@ -36,6 +38,8 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Maps;
+
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -59,16 +63,12 @@ public class DefaultWorkflowHistoricProcessInstanceService
 
 	@Autowired
 	private HistoryService historyService;
-
 	@Autowired
 	private SecurityService securityService;
-
 	@Autowired
 	private RuntimeService runtimeService;
-
 	@Autowired
 	private RepositoryService repositoryService;
-
 	@Autowired
 	private WorkflowProcessDefinitionService definitionService;
 
@@ -158,11 +158,11 @@ public class DefaultWorkflowHistoricProcessInstanceService
 		}
 		long count = query.count();
 		List<HistoricProcessInstance> processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
-		//
+		
 		List<WorkflowHistoricProcessInstanceDto> dtos = new ArrayList<>();
 		if (processInstances != null) {
 			for (HistoricProcessInstance instance : processInstances) {
-				dtos.add(toResource(instance, trimmed));
+				dtos.add(toDto(instance, trimmed));
 			}
 		}
 		
@@ -211,7 +211,7 @@ public class DefaultWorkflowHistoricProcessInstanceService
 			BpmnModel bpmnModel = repositoryService.getBpmnModel(pde.getId());
 			List<String> historicActivityInstanceList = new ArrayList<String>();
 			List<String> highLightedFlows = new ArrayList<String>();
-			historicActivityInstanceList = getHighLightedFlows(pde, processInstanceId, historicActivityInstanceList,
+			historicActivityInstanceList = getHighLightedFlows(bpmnModel, processInstanceId, historicActivityInstanceList,
 					highLightedFlows);
 
 			ProcessDiagramGenerator diagramGenerator = new DefaultProcessDiagramGenerator();
@@ -237,29 +237,61 @@ public class DefaultWorkflowHistoricProcessInstanceService
 		return processId.split(DEFINITION_ID_DELIMITER)[0];
 	}
 
-	private List<String> getHighLightedFlows(ProcessDefinitionEntity processDefinition, String processInstanceId,
-			List<String> historicActivityInstanceList, List<String> highLightedFlows) {
+	private List<String> getHighLightedFlows(
+			BpmnModel bpmnModel, 
+			String processInstanceId,
+			List<String> historicActivityInstanceList, 
+			List<String> highLightedFlows) {
 
-		List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery()
-				.processInstanceId(processInstanceId).orderByHistoricActivityInstanceEndTime().asc().list();
+		List<HistoricActivityInstance> historicActivityInstances = historyService
+				.createHistoricActivityInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.orderByHistoricActivityInstanceEndTime()
+				.asc()
+				.list();
 
+		Map<String, HistoricActivityInstance> activitiCache = Maps.newHashMap();
 		for (HistoricActivityInstance hai : historicActivityInstances) {
 			historicActivityInstanceList.add(hai.getActivityId());
+			activitiCache.put(hai.getActivityId(), hai);
 		}
 
-		// Check if is process still active
-		boolean isProcessActive = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId)
-				.active().count() > 0;
+		// Check if is process still active.
+		boolean isProcessActive = runtimeService
+				.createProcessInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.active()
+				.count() > 0;
 		List<String> currentHighLightedActivities = null;
 		if (isProcessActive) {
 			// add current activities to list
 			currentHighLightedActivities = runtimeService.getActiveActivityIds(processInstanceId);
 			historicActivityInstanceList.addAll(currentHighLightedActivities);
 		}
-		// activities and their sequence-flows
-		// ProcessDefinitionUtil.getProcess(processDefinition.getId());
 		
-		// getHighLightedFlows(processDefinition.getActivities(), historicActivityInstanceList, highLightedFlows);
+		// Activities and their sequence-flows.
+		List<SequenceFlow> flows = bpmnModel
+				.getMainProcess()
+				.getFlowElements()
+				.stream()
+				.filter(flow -> flow instanceof SequenceFlow)
+				.map(flow -> (SequenceFlow) flow)
+				.collect(Collectors.toList());
+		
+		flows.forEach(association -> {
+			int usedSourceRef = historicActivityInstanceList.indexOf(association.getSourceRef());
+			// target ref should be next started activity
+			if (usedSourceRef >= 0) {
+				int usedTargetRef = historicActivityInstanceList.indexOf(association.getTargetRef());
+				if (usedTargetRef >= 0) {
+					HistoricActivityInstance sourceActivity = activitiCache.get(association.getSourceRef());
+					HistoricActivityInstance targetActivity = activitiCache.get(association.getTargetRef());
+					if (sourceActivity.getStartTime().compareTo(targetActivity.getStartTime()) <= 0) {
+						highLightedFlows.add(association.getId());
+					}
+				}
+			}
+		});
 
 		if (isProcessActive) {
 			return currentHighLightedActivities;
@@ -267,78 +299,7 @@ public class DefaultWorkflowHistoricProcessInstanceService
 		return historicActivityInstanceList;
 	}
 
-	/**
-	 * Add highlight flows by historic activity list
-	 * 
-	 * @param activityList
-	 * @param historicActivityInstanceList
-	 * @param highLightedFlows
-	 */
-//	private void getHighLightedFlows(List<ActivityImpl> activityList, List<String> historicActivityInstanceList,
-//			List<String> highLightedFlows) {
-//		Map<Integer, String> usedActivityFlow = new HashMap<Integer, String>();
-//		/**
-//		 * Iterate all used activity (start to end)
-//		 */
-//		for (int i = 0; i < historicActivityInstanceList.size(); i++) {
-//			String activityId = historicActivityInstanceList.get(i);
-//			ActivityImpl currentActivity = null;
-//			for (ActivityImpl activity : activityList) {
-//				if (activityId.equals(activity.getId())) {
-//					currentActivity = activity;
-//					break;
-//				}
-//			}
-//			if (currentActivity == null) {
-//				continue;
-//			}
-//			/**
-//			 * Get incoming transitions from current activity 
-//			 */
-//			List<PvmTransition> pvmTransitionList = currentActivity.getIncomingTransitions();
-//			boolean findedFlow = false;
-//			// create index previous activity
-//			int prevIndex = i - 1;
-//			/**
-//			 * We will finding flow for highlight. We will start with previous activity. 
-//			 * if we find nothing, then we will continuing with previous activity (index = index -1).
-//			 */
-//			while (!findedFlow) {
-//				if (prevIndex < 0) {
-//					// We are on begin .. nothing to highlight
-//					break;
-//				}
-//				String tempActivity = historicActivityInstanceList.get(prevIndex);
-//				for (PvmTransition pvmTransition : pvmTransitionList) {
-//					String destinationFlowId = pvmTransition.getSource().getId();
-//					if (tempActivity != null && destinationFlowId.equals(tempActivity)) {
-//						highLightedFlows.add(pvmTransition.getId());
-//						findedFlow = true;
-//						for (ActivityImpl activity : activityList) {
-//							if (tempActivity.equals(activity.getId())
-//									&& !(activity.getActivityBehavior() instanceof ParallelGatewayActivityBehavior)) {
-//								// We use activity in other cycle if is ParallelGate. 
-//								// Its means, we don't put parralel gate to usedActivityFlow map.
-//								usedActivityFlow.put(prevIndex, tempActivity);
-//							}
-//						}
-//
-//					}
-//				}
-//				if (!findedFlow) {
-//					// If we don't find flow for highlight, we have to continue with previous historic activity
-//					while (true) {
-//						prevIndex = prevIndex - 1;
-//						if (!usedActivityFlow.containsKey(prevIndex)) {
-//							break;
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
-
-	private WorkflowHistoricProcessInstanceDto toResource(HistoricProcessInstance instance, boolean trimmed) {
+	private WorkflowHistoricProcessInstanceDto toDto(HistoricProcessInstance instance, boolean trimmed) {
 		if (instance == null) {
 			return null;
 		}

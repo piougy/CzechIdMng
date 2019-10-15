@@ -89,8 +89,8 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
-public class DefaultSysSystemAttributeMappingService extends
-		AbstractReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMapping, SysSystemAttributeMappingFilter>
+public class DefaultSysSystemAttributeMappingService 
+		extends AbstractReadWriteDtoService<SysSystemAttributeMappingDto, SysSystemAttributeMapping, SysSystemAttributeMappingFilter>
 		implements SysSystemAttributeMappingService {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
@@ -255,7 +255,15 @@ public class DefaultSysSystemAttributeMappingService extends
 		// If exists, then we will set they to uid = false. Only currently saving
 		// attribute will be unique identifier
 		if (dto.isUid() && dto.getSystemMapping() != null) {
-			this.repository.clearIsUidAttribute(dto.getSystemMapping(), dto.getId());
+			SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+			filter.setSystemMappingId(dto.getSystemMapping());
+			find(filter, null).forEach(attributeMapping -> {
+				if (dto.getId() == null || !dto.getId().equals(attributeMapping.getId())) {
+					attributeMapping.setUid(false);
+					//
+					save(attributeMapping);
+				}
+			});
 		}
 		// We will do script validation (on compilation errors), before save
 		if (dto.getTransformFromResourceScript() != null) {

@@ -292,7 +292,7 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		attributeMappingService.save(attributeMapping1);
 		SysSystemAttributeMappingDto attributeMapping2 = createAttributeMappingSystem(systemMapping,
 				AttributeMappingStrategyType.CREATE, schemaAttribute.getId());
-		attributeMapping2.setIdmPropertyName("PropName42");
+		attributeMapping2.setIdmPropertyName("PropName4");
 		attributeMappingService.save(attributeMapping2);
 
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();

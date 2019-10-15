@@ -122,12 +122,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(entityType, "Entity type is required.");
 		return this.getExecutor(entityType).compileAttributes(defaultAttributes, overloadingAttributes, entityType);
 	}
-
-	@Override
-	public void createAccountsForAllSystems(AbstractDto entity) {
-		Assert.notNull(entity, "Entity is required.");
-		this.getExecutor(SystemEntityType.getByClass(entity.getClass())).createAccountsForAllSystems(entity);
-	}
 	
 	@Override
 	public boolean accountManagement(AbstractDto entity) {

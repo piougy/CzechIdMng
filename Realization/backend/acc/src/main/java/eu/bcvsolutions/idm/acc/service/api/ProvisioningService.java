@@ -133,16 +133,6 @@ public interface ProvisioningService {
 	 */
 	List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttributeDto> overloadingAttributes, SystemEntityType entityType);
-
-	@Deprecated
-	/**
-	 * Create accounts for given content (dto) on all systems with provisioning mapping and same entity type.
-	 * 
-	 * @param entity
-	 * @param entityType
-	 * @deprecated (from 7.6) This method was replaced by accountManagement(AbstractDto entity).
-	 */
-	void createAccountsForAllSystems(AbstractDto dto);
 	
 	/**
 	 * Do provisioning for given account and dto. For internal purpose without emit event.

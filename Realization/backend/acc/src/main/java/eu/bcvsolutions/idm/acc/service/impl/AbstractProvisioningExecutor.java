@@ -512,12 +512,6 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	
 	@Override
 	public boolean accountManagement(DTO dto) {
-		this.createAccountsForAllSystems(dto);
-		return true;
-	}
-
-	@Override
-	public void createAccountsForAllSystems(DTO dto) {
 		SystemEntityType entityType = SystemEntityType.getByClass(dto.getClass());
 		List<SysSystemMappingDto> systemMappings = findSystemMappingsForEntityType(dto, entityType);
 		systemMappings.forEach(mapping -> {
@@ -552,6 +546,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			// Create AccAccount and relation between account and entity
 			createEntityAccount(uid, dto.getId(), systemId);
 		});
+		
+		return true;
 	}
 
 	private boolean canBeAccountCreated(String uid, DTO dto, SysSystemMappingDto mapping, SysSystemDto system) {

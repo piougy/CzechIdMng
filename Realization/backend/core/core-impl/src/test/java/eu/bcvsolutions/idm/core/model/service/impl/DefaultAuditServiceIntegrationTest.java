@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,7 +17,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.hibernate.envers.RevisionType;
-import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,10 +29,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
@@ -302,12 +299,12 @@ public class DefaultAuditServiceIntegrationTest extends AbstractIntegrationTest 
 			}
 		});
 		assertEquals(newIdentity.getUsername(), username);
-		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
-		parameters.put("username", ImmutableList.of(username));
+		IdmAuditFilter auditFilter = new IdmAuditFilter();
+		auditFilter.setOwnerCode(username);
+		auditFilter.setOwnerType(IdmIdentity.class.getCanonicalName());
 		
 		List<IdmAuditDto> audits = auditService.findEntityWithRelation(
-				IdmIdentity.class, 
-				parameters, 
+				auditFilter, 
 				PageRequest.of(0, Integer.MAX_VALUE, Sort.by("id"))).getContent();
 		assertEquals(2, audits.size());
 		//
@@ -346,9 +343,10 @@ public class DefaultAuditServiceIntegrationTest extends AbstractIntegrationTest 
 			}
 		});
 		assertEquals(newIdentity.getUsername(), username);
-		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
-		parameters.put("username", ImmutableList.of(username));
-		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
+		IdmAuditFilter auditFilter = new IdmAuditFilter();
+		auditFilter.setOwnerCode(username);
+		auditFilter.setOwnerType(IdmIdentity.class.getCanonicalName());
+		List<IdmAuditDto> audits = auditService.findEntityWithRelation(auditFilter, null).getContent();
 		assertEquals(3, audits.size());
 	}
 	
@@ -373,9 +371,10 @@ public class DefaultAuditServiceIntegrationTest extends AbstractIntegrationTest 
 			}
 		});
 		assertEquals(newIdentity, null);
-		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
-		parameters.put("username", ImmutableList.of(username));
-		List<IdmAuditDto> audits = auditService.findEntityWithRelation(IdmIdentity.class, parameters, null).getContent();
+		IdmAuditFilter auditFilter = new IdmAuditFilter();
+		auditFilter.setOwnerCode(username);
+		auditFilter.setOwnerType(IdmIdentity.class.getCanonicalName());
+		List<IdmAuditDto> audits = auditService.findEntityWithRelation(auditFilter, null).getContent();
 		// add idenity + contract -- delete identity + contract	
 		assertEquals(4, audits.size());
 	}

@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -76,7 +75,6 @@ import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.audit.entity.IdmAudit_;
 import eu.bcvsolutions.idm.core.audit.repository.IdmAuditRepository;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword_;
 import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
@@ -128,6 +126,7 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 
 		// Id in audit is long
+		// TODO: id - use DataFilter super class some way (long id ...). 
 		if (filter.getId() != null) {
 			predicates.add(builder.equal(root.get(IdmAudit_.id), filter.getId()));
 		}
@@ -136,7 +135,6 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 		if (transactionId != null) {
 			predicates.add(builder.equal(root.get(IdmAudit_.transactionId), transactionId));
 		}
-
 		// Text filtering is by id, is this really mandatory?
 		// TODO: thing about it
 		if (StringUtils.isNotEmpty(filter.getText())) {
@@ -145,13 +143,6 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 
 		if (StringUtils.isNotEmpty(filter.getModification())) {
 			predicates.add(builder.equal(root.get(IdmAudit_.modification), filter.getModification()));
-		}
-
-		/*
-		 * Changed attribute is deprecated and it will be removed
-		 */
-		if (StringUtils.isNotEmpty(filter.getChangedAttributes())) {
-			predicates.add(builder.like(builder.lower(root.get(IdmAudit_.changedAttributes)), "%" + filter.getChangedAttributes().toLowerCase() + "%"));
 		}
 
 		List<String> changedAttributes = filter.getChangedAttributesList();
@@ -304,72 +295,6 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 	@Override
 	public <T> T findVersion(Class<T> entityClass, UUID entityId, Long currentRevId) {
 		return this.find(entityClass, entityId, currentRevId);
-	}
-
-	@Override
-	public <T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, Long currentRevId,
-			T currentEntity) {
-		List<String> changedColumns = new ArrayList<>();
-		
-		T previousEntity = null;
-		
-		if (currentRevId == null) {
-			IdmAudit currentRevision = this.getAuditReader().getCurrentRevision(IdmAudit.class, true);
-			// current revision doesn't exist return empty list
-			if (currentRevision == null) {
-				return Collections.emptyList();
-			}
-			currentRevId = Long.valueOf(currentRevision.getId().toString());
-		}
-		previousEntity = this.findPreviousVersion(entityClass, entityId, currentRevId);
-		
-		// previous revision doesn't exist return empty list
-		if (previousEntity == null) {
-			return Collections.emptyList();
-		}
-		
-		Class<?> clazz = entityClass;
-		while (!(clazz.equals(AbstractEntity.class))) {
-			Field[] fields = clazz.getDeclaredFields();
-			
-			for (Field field : fields) {
-				if (field.getAnnotation(Audited.class) != null) {
-					Object previousValue;
-					Object currentValue;
-					try {
-						PropertyDescriptor propertyDescriptor = PropertyUtils.getPropertyDescriptor(currentEntity, field.getName());
-						Assert.notNull(propertyDescriptor, MessageFormat.format("DefaultAuditService: read method for audited field {0}, can't be null.", field.getName()));
-						//
-						Method readMethod = propertyDescriptor.getReadMethod();
-						// check if exists readMethod
-						Assert.notNull(readMethod, MessageFormat.format("DefaultAuditService: read method for audited field {0}, can't be null.", field.getName()));
-						
-						previousValue = readMethod.invoke(previousEntity);
-						currentValue = readMethod.invoke(currentEntity);
-						
-						if (previousValue == null && currentValue == null) {
-							continue;
-						}
-						
-						if (previousValue == null || !previousValue.equals(currentValue)) {
-							changedColumns.add(field.getName());
-						}
-					} catch (IllegalArgumentException | IllegalAccessException | 
-							NoSuchMethodException | InvocationTargetException ex) {
-						throw new IllegalArgumentException(
-								MessageFormat.format("For entity class [{0}] with id [{1}] and revision id [{2}], name of changed columns cannot be found.",
-										clazz, entityId, currentRevId), ex);
-					} catch (EntityNotFoundException e) {
-						// TODO: Try to found better solution for get entity that was not found
-						LOG.info("Audit service entity not found. Method [getNameChangedColumns]", e);
-						break;
-					}
-				}
-			}
-			clazz = clazz.getSuperclass();
-		}
-
-		return changedColumns;
 	}
 
 	@Override
@@ -769,21 +694,6 @@ public class DefaultAuditService extends AbstractReadWriteDtoService<IdmAuditDto
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public Page<IdmAuditDto> findEntityWithRelation(Class<? extends AbstractEntity> clazz, MultiValueMap<String, Object> parameters, Pageable pageable) {
-		
-		IdmAuditFilter filter = this.getFilter(parameters);
-
-		// Backward compatibility
-		if (parameters.containsKey(IdmIdentity_.username.getName())) {
-			Object first = parameters.getFirst(IdmIdentity_.username.getName());
-			filter.setOwnerCode(String.valueOf(first));
-		}
-
-		filter.setOwnerType(clazz.getName());
-		return findEntityWithRelation(filter, pageable);
 	}
 
 	@Override

@@ -371,7 +371,6 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmTreeNodeDto organization2 = new IdmTreeNodeDto();
 				organization2.setCode("two");
 				organization2.setName("Organization Two");
-				organization2.setCreator("ja");
 				organization2.setParent(rootOrganization.getId());
 				organization2.setTreeType(treeType.getId());
 				organization2 = this.treeNodeService.save(organization2);

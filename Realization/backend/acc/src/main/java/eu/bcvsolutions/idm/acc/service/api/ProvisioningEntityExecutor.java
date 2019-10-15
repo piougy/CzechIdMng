@@ -121,19 +121,6 @@ public interface ProvisioningEntityExecutor<DTO extends AbstractDto> extends Plu
 	List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttributeDto> overloadingAttributes, SystemEntityType entityType);
 
-	
-	@Deprecated
-	/**
-	 * Create accounts for given dto on all systems with provisioning mapping and
-	 * same entity type. Is using default account management. It means 'Can be
-	 * account created?' script on the system mapping will be executed.
-	 * 
-	 * @param dto
-	 * @param entityType
-	 * @deprecated (from 7.6) This method was replaced by accountManagement(AbstractDto entity).
-	 */
-	void createAccountsForAllSystems(DTO dto);
-
 	/**
 	 * Do provisioning for given account and identity. For internal purpose without
 	 * emit event.

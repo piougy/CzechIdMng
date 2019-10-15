@@ -24,15 +24,6 @@ public class IdmAuditFilter implements BaseFilter {
     private ZonedDateTime till;
     private String modification;
     private String modifier;
-    /**
-     * Field changedAttributes is deprecated, please use filed {@link #changedAttributesList}
-     * @deprecated
-     * @since 9.5.0
-     */
-    private String changedAttributes;
-    /**
-     * @since 9.5.0
-     */
     private List<String> changedAttributesList;
     private UUID entityId;
     private Boolean withVersion;
@@ -96,33 +87,17 @@ public class IdmAuditFilter implements BaseFilter {
     }
 
     /**
-     * Attribute {@link #changedAttributes} is deprecated please use getters and setters
-     * for attribute {@link #changedAttributesList}
-     *
      * @since 9.5.0
-     * @deprecated
      * @return
      */
-    public String getChangedAttributes() {
-        return changedAttributes;
-    }
-
-    /**
-     * Attribute {@link #changedAttributes} is deprecated please use getters and setters
-     * for attribute {@link #changedAttributesList}
-     *
-     * @since 9.5.0
-     * @deprecated
-     * @param changedAttributes
-     */
-    public void setChangedAttributes(String changedAttributes) {
-        this.changedAttributes = changedAttributes;
-    }
-
     public List<String> getChangedAttributesList() {
 		return changedAttributesList;
 	}
 
+    /**
+     * @since 9.5.0
+     * @param changedAttributesList
+     */
 	public void setChangedAttributesList(List<String> changedAttributesList) {
 		this.changedAttributesList = changedAttributesList;
 	}

@@ -35,6 +35,8 @@ import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 public class IdmAuditStrategy extends DefaultAuditStrategy {
 	
 	private Set<String> auditedFieldsFromAbstractEntity;
+    // Configurable (spring.jpa.properties.org.hibernate.envers.modified_flag_suffix), but hard coded in flyway scripts.
+	private static final String MODIFIED_FLAG_SUFFIX = "_m";
 	
 	@Override
 	public void perform(Session session, String entityName, AuditEntitiesConfiguration auditCfg, Serializable id, Object data,
@@ -45,9 +47,6 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 			// Initialize audited fields by abstract entity class
 			fillAbstractAuditedFields(auditCfg);
 			//
-			// get suffix for modified columns (default _m)
-			String modifiedFlagSuffix = auditCfg.getEnversService().getGlobalConfiguration().getModifiedFlagSuffix();
-			//
 			@SuppressWarnings("unchecked")
 			Map<String, Object> dataMap = (Map<String, Object>) data;
 			//
@@ -56,11 +55,11 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 			// in this case is classic for each faster than stream
 			for (Entry<String, Object> entry : dataMap.entrySet()) {
 				String key = entry.getKey();
-				if (key.endsWith(modifiedFlagSuffix)) {
+				if (key.endsWith(MODIFIED_FLAG_SUFFIX)) {
 					// fill changed columns, except attributes from abstract entity
 					Boolean modValue = BooleanUtils.toBoolean(entry.getValue().toString());
 					if (!this.auditedFieldsFromAbstractEntity.contains(key) && BooleanUtils.isTrue(modValue)) {
-						changedColumns.add(StringUtils.remove(key, modifiedFlagSuffix));
+						changedColumns.add(StringUtils.remove(key, MODIFIED_FLAG_SUFFIX));
 					}
 				}
 			}
@@ -107,14 +106,12 @@ public class IdmAuditStrategy extends DefaultAuditStrategy {
 	 */
 	private void fillAbstractAuditedFields(AuditEntitiesConfiguration auditCfg) {
 		if (auditedFieldsFromAbstractEntity == null) {
-			String modifiedFlagSuffix = auditCfg.getEnversService().getGlobalConfiguration().getModifiedFlagSuffix();
-			//
 			auditedFieldsFromAbstractEntity = new LinkedHashSet<>();
 			//
 			for (Field field : AbstractEntity.class.getDeclaredFields()) {
 				Audited annotation = field.getAnnotation(Audited.class);
 				if (annotation != null) {
-					auditedFieldsFromAbstractEntity.add(field.getName() + modifiedFlagSuffix);
+					auditedFieldsFromAbstractEntity.add(field.getName() + MODIFIED_FLAG_SUFFIX);
 				}
 			}
 		}

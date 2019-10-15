@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -37,7 +36,7 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	        + " and"
 	        + " (?#{[0].isUid} is null or e.uid = ?#{[0].isUid})"
 	        + " and"
-			+ " (?#{[0].idmPropertyName} is null or lower(e.idmPropertyName) like ?#{[0].idmPropertyName == null ? '%' : '%'.concat([0].idmPropertyName.toLowerCase()).concat('%')})"
+			+ " (?#{[0].idmPropertyName} is null or e.idmPropertyName = ?#{[0].idmPropertyName})"
 			+ " and"
 	        + " (?#{[0].sendOnPasswordChange} is null or e.sendOnPasswordChange = ?#{[0].sendOnPasswordChange})"
 	        + " and"
@@ -87,16 +86,4 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	 * @return
 	 */
 	List<SysSystemAttributeMapping> findAllBySystemMapping_Id(@Param("systemMappingId") UUID systemMappingId);
-	
-	/**
-	 * Remove the primary attribute tag (isUid) for all attributes in that system-mapping except the given updatedEntityId
-	 * 
-	 * @param updatedEntityId
-	 * @param systemMappingId
-	 * @deprecated - skips audit, will be removed
-	 */
-	@Deprecated
-	@Modifying
-	@Query("update #{#entityName} e set e.uid = false where e.systemMapping.id = :systemMappingId and (:updatedEntityId is null or e.id != :updatedEntityId)")
-	void clearIsUidAttribute(@Param("systemMappingId") UUID systemMappingId, @Param("updatedEntityId") UUID updatedEntityId);
 }

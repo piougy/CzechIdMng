@@ -18,13 +18,13 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity_;
-import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -47,26 +47,18 @@ public class DefaultSysSystemEntityService
 		implements SysSystemEntityService {
 
 	private final SysSystemEntityRepository repository;
-	private final AccAccountRepository accountRepository;
-	private final SysSystemService systemService;
 	//
 	// TODO: after transformation to events can be this removed
 	@Autowired @Lazy private SysProvisioningOperationService provisioningOperationService;
-	//
+	@Autowired @Lazy private AccAccountService accountService;
 	@Autowired private SysProvisioningBatchService batchService;
+	@Autowired private SysSystemService systemService;
 
 	@Autowired
-	public DefaultSysSystemEntityService(SysSystemEntityRepository systemEntityRepository,
-			AccAccountRepository accountRepository, SysProvisioningOperationRepository provisioningOperationRepository,
-			SysSystemService systemService) {
+	public DefaultSysSystemEntityService(SysSystemEntityRepository systemEntityRepository) {
 		super(systemEntityRepository);
 		//
-		Assert.notNull(accountRepository, "Repository is required.");
-		Assert.notNull(systemService, "Service is required.");
-		//
 		this.repository = systemEntityRepository;
-		this.accountRepository = accountRepository;
-		this.systemService = systemService;
 	}
 
 	@Override
@@ -95,7 +87,14 @@ public class DefaultSysSystemEntityService
 		}
 		//
 		// clear accounts - only link, can be rebuild
-		accountRepository.clearSystemEntity(systemEntity.getId());
+		AccAccountFilter accountFilter = new AccAccountFilter();
+		accountFilter.setSystemEntityId(systemEntity.getId());
+		accountService
+			.find(accountFilter, null)
+			.forEach(account -> {
+				account.setSystemEntity(null);
+				accountService.save(account);
+			});
 		//
 		// clear batches
 		SysProvisioningBatchDto batch = batchService.findBatch(systemEntity.getId());

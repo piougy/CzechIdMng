@@ -1,17 +1,15 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -23,32 +21,12 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 public interface AccAccountRepository extends AbstractEntityRepository<AccAccount> {
 	
 	/**
-	 * 
-	 * @param system
-	 * @deprecated use {@link #countBySystem_Id(UUID)}
-	 */
-	@Deprecated
-	Long countBySystem(SysSystem system);
-	
-	/**
 	 * Count accounts by system.
 	 * 
 	 * @param systemId
 	 * @return
 	 */
 	Long countBySystem_Id(UUID systemId);
-	
-	/**
-	 * Clears system entity
-	 * 
-	 * @param systemEntity
-	 * @return
-	 * @deprecated Will be removed - skips audit
-	 */
-	@Deprecated
-	@Modifying
-	@Query("update #{#entityName} e set e.systemEntity = null where e.systemEntity.id = :systemEntityId")
-	int clearSystemEntity(@Param("systemEntityId") UUID systemEntityId);
 	
 	/**
 	 * Find all {@link AccAccount} by identity id and system id.

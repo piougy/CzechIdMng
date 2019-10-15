@@ -8,7 +8,6 @@ import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
@@ -109,20 +108,6 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAud
 	<T> Number findLastRevisionNumber(Class<T> entityClass, UUID entityId);
 	
 	/**
-	 * Return names of changed columns with annotation @Audited. Diff is realized by previous revision and actual entity.
-	 * This method is @Deprecated, it is possible that will be removed in next version.
-	 *
-	 * @param entityClass
-	 * @param entityId
-	 * @param currentRevId
-	 * @param currentEntity
-	 * @return
-	 * @deprecated since 7.8.2 changed columns are solved directly in audit strategy {@link IdmAuditStrategy}
-	 */
-	@Deprecated
-	<T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, Long currentRevId, T currentEntity);
-	
-	/**
 	 * Method return list of class simple name for which is audited. Must at least one attribute with
 	 * annotation {@value Audited}
 	 * 
@@ -194,18 +179,6 @@ public interface IdmAuditService extends ReadWriteDtoService<IdmAuditDto, IdmAud
 	 * @return
 	 */
 	IdmAuditDto findPreviousRevision(Long revisionId);
-
-	/**
-	 * Find entity with relation. This method is deprecated, please use
-	 * {@link #findEntityWithRelation(IdmAuditFilter, Pageable)}
-	 *
-	 * @deprecated {@link #findEntityWithRelation(IdmAuditFilter, Pageable)} @since 9.4.1
-	 * @param clazz
-	 * @param parameters
-	 * @param pageable
-	 * @return
-	 */
-	Page<IdmAuditDto> findEntityWithRelation(Class<? extends AbstractEntity> clazz, MultiValueMap<String, Object> parameters, Pageable pageable);
 
 	/**
 	 * Find entities with relation. This method is used for get audit entities with some owner.

@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -38,7 +38,6 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.scheduler.task.impl.CancelProvisioningQueueTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
@@ -51,8 +50,6 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
@@ -84,9 +81,7 @@ public class SysProvisioningOperationController
 	private final SysProvisioningOperationService service;
 	//
 	@Autowired private ProvisioningExecutor provisioningExecutor;
-	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	@Autowired private BulkActionManager bulkActionManager;
-	
 
 	@Autowired
 	public SysProvisioningOperationController(SysProvisioningOperationService service) {
@@ -264,34 +259,6 @@ public class SysProvisioningOperationController
 		}
 		provisioningOperation = provisioningExecutor.cancel(provisioningOperation);
 		return new ResponseEntity<>(toResource(provisioningOperation), HttpStatus.OK);
-	}
-
-	@Deprecated // @since 9.5.2 (bulk action are used)
-	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.PROVISIONING_OPERATION_UPDATE + "')")
-	@RequestMapping(value = "/action/bulk/cancel", method = RequestMethod.PUT)
-	@ApiOperation(
-			value = "Cancel provisioning queue", 
-			nickname = "cancelAllProvisioningQueue",
-			tags = { SysProvisioningOperationController.TAG },
-			authorizations = { 
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-							@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_OPERATION_UPDATE, description = "") }),
-					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-							@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_OPERATION_UPDATE, description = "") })
-					},
-			notes = "Cancel all operations from provisioning queue by given filter")
-	public ResponseEntity<?> cancelAll(
-			@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
-		SysProvisioningOperationFilter filter = toFilter(parameters);
-		//filter.setSystemId(getParameterConverter().toEntityUuid(parameters, "systemId", SysSystem.class));
-		//
-		CancelProvisioningQueueTaskExecutor lrt = new CancelProvisioningQueueTaskExecutor();
-		lrt.setFilter(filter);
-		//
-		LongRunningFutureTask<Boolean> futureTask = longRunningTaskManager.execute(lrt);
-		//
-		return new ResponseEntity<Object>(longRunningTaskManager.getLongRunningTask(futureTask), HttpStatus.ACCEPTED);
 	}
 	
 	@ResponseBody

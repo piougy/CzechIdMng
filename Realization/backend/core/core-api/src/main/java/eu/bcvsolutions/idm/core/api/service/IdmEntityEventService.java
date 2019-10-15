@@ -38,24 +38,6 @@ public interface IdmEntityEventService extends
 	 * @param instanceId - instance id
 	 * @param executeDate - events with execute date less or equals than given
 	 * @param priority - events with priority
-	 * @param pageable
-	 * @return
-	 * @deprecated @since 9.4.0 use {@link #findToExecute(String, DateTime, PriorityType, List, Pageable)}
-	 * 
-	 */
-	@Deprecated
-	Page<IdmEntityEventDto> findToExecute(
-			String instanceId,
-			ZonedDateTime executeDate,
-			PriorityType priority,
-			Pageable pageable);
-	
-	/**
-	 * Find events, which could be executed.
-	 * 
-	 * @param instanceId - instance id
-	 * @param executeDate - events with execute date less or equals than given
-	 * @param priority - events with priority
 	 * @param exceptOwnerIds - [optional] exclude events for the given owners (e.g. events for owners, which already runs is not interesting - they cannot be processed anyway).
 	 * @param pageable
 	 * @return

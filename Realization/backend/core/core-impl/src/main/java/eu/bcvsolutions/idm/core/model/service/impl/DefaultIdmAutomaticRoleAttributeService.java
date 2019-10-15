@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,8 +26,6 @@ import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import java.time.ZonedDateTime;
-import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -49,7 +49,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
@@ -210,16 +209,6 @@ public class DefaultIdmAutomaticRoleAttributeService
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole,
-			Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
-		Assert.notNull(identityRole, "Identity role is required.");
-		//
-		this.removeAutomaticRoles(identityRole.getIdentityContract(), automaticRoles);
-		return null;
-	}
-	
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void removeAutomaticRoles(IdmIdentityRoleDto identityRole) {
 		Assert.notNull(identityRole.getAutomaticRole(), "Automatic role is required.");
 		// skip check granted authorities
@@ -266,16 +255,6 @@ public class DefaultIdmAutomaticRoleAttributeService
 		
 		// Execute concepts
 		roleRequestService.executeConceptsImmediate(identityId, concepts);
-	}
-	
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public IdmRoleRequestDto prepareAddAutomaticRoles(IdmIdentityContractDto contract,
-			Set<AbstractIdmAutomaticRoleDto> automaticRoles) {
-		Assert.notNull(contract, "Contract is required.");
-		//
-		this.addAutomaticRoles(contract, automaticRoles);
-		return null;
 	}
 	
 	@Override

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectInputStream.GetField;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -14,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -42,9 +45,6 @@ public class IdmIdentityRoleDto extends FormableDto implements ValidableEntity, 
     private UUID role;
     private LocalDate validFrom;
     private LocalDate validTill;
-	@Deprecated
-	@SuppressWarnings("unused")
-    private boolean automaticRole; // this attribute can't be removed (serializable backward compatibility)
     @Embedded(dtoClass = AbstractIdmAutomaticRoleDto.class)
     private UUID roleTreeNode; // this attribute can't be renamed (backward compatibility) - AutomaticRole reference
     @Embedded(dtoClass = IdmIdentityRoleDto.class)
@@ -140,4 +140,26 @@ public class IdmIdentityRoleDto extends FormableDto implements ValidableEntity, 
 	public void setContractPosition(UUID contractPosition) {
 		this.contractPosition = contractPosition;
 	}
+	
+	
+	/**
+	 * DTO are serialized in WF and embedded objects.
+	 * We need to solve legacy issues with joda (old) vs. java time (new) usage.
+	 * 
+	 * @param ois
+	 * @throws Exception
+	 */
+	private void readObject(ObjectInputStream ois) throws Exception {
+		GetField readFields = ois.readFields();
+		//
+		externalId = (String) readFields.get("externalId", null);
+	    identityContract = (UUID) readFields.get("identityContract", null);
+	    contractPosition = (UUID) readFields.get("contractPosition", null);
+	    role = (UUID) readFields.get("role", null);
+	    validFrom = DtoUtils.toLocalDate(readFields.get("validFrom", null));
+	    validTill = DtoUtils.toLocalDate(readFields.get("validTill", null));
+	    roleTreeNode = (UUID) readFields.get("roleTreeNode", null);
+	    directRole = (UUID) readFields.get("directRole", null);
+	    roleComposition = (UUID) readFields.get("roleComposition", null);
+    }
 }

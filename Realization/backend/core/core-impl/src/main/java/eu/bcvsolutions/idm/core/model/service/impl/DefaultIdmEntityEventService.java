@@ -72,16 +72,6 @@ public class DefaultIdmEntityEventService
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmEntityEventDto> findToExecute(
-			String instanceId,
-			ZonedDateTime executeDate,
-			PriorityType priority,
-			Pageable pageable) {
-		return findToExecute(instanceId, executeDate, priority, null, pageable);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmEntityEventDto> findToExecute(
 			String instanceId, 
 			ZonedDateTime executeDate, 
 			PriorityType priority,

@@ -16,15 +16,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  *
  */
 public interface SysProvisioningOperationRepository extends AbstractEntityRepository<SysProvisioningOperation> {
-
-	/**
-	 * Delete operations by given system id
-	 * 
-	 * @param systemId
-	 * @return
-	 * @deprecated @since 9.2.1 this method calls select + delete for each row => use {@link #deleteBySystem(UUID)} which calls delete directly.
-	 */
-	long deleteBySystem_Id(UUID systemId);
 	
 	/**
 	 * Delete operations by given system id

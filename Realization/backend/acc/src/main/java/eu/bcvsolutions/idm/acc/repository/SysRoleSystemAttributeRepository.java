@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -30,17 +29,6 @@ public interface SysRoleSystemAttributeRepository extends AbstractEntityReposito
 		    + " and"
 		    + " (?#{[0].systemAttributeMappingId} is null or e.systemAttributeMapping.id = ?#{[0].systemAttributeMappingId})")
 	Page<SysRoleSystemAttribute> find(SysRoleSystemAttributeFilter filter, Pageable pageable);
-	
-	/**
-	 * Delete attributes of given roleSystem
-	 * 
-	 * @param roleSystem
-	 * @return
-	 * @deprecated Method doesn't put merge values in historical controled values.
-	 * @since 9.5.0
-	 */
-	@Deprecated
-	int deleteByRoleSystem(@Param("roleSystem") SysRoleSystem roleSystem);
 	
 	/**
 	 * Delete attributes of given systemAttributeMapping

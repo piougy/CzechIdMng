@@ -1,10 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
-import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -127,9 +124,4 @@ public interface IdmPasswordPolicyRepository extends AbstractEntityRepository<Id
 	IdmPasswordPolicy findOneDefaultType(@Param("type") IdmPasswordPolicyType type);
 	
 	IdmPasswordPolicy findOneByName(@Param("name") String name);
-	
-	@Modifying
-	@Query("UPDATE IdmPasswordPolicy e SET e.defaultPolicy = false WHERE e.type = :type "
-			+ "AND (:updatedEntityId is null or e.id != :updatedEntityId) ")
-	void updateDefaultPolicyByType(@Param("type") IdmPasswordPolicyType type, @Param("updatedEntityId") UUID updatedEntityId);
 }

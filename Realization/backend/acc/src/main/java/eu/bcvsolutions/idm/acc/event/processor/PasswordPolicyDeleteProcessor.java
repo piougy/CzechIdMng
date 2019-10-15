@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
-import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -14,38 +15,48 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
-import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
+/**
+ * Remove password policies from system after delete.
+ * 
+ * @author Ondrej Kopr
+ */
 @Component("accPasswordPolicyDeleteProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Remove password policies from system after delete.")
 public class PasswordPolicyDeleteProcessor extends CoreEventProcessor<IdmPasswordPolicyDto> {
 	
 	public static final String PROCESSOR_NAME = "password-policy-delete-processor";
-	public final SysSystemRepository systemRepository;
-	private final IdmPasswordPolicyRepository passwordPolicyRepository;
+	//
+	@Autowired public SysSystemService systemService;
 	
-	@Autowired
-	public PasswordPolicyDeleteProcessor(SysSystemRepository systemRepository,
-			IdmPasswordPolicyRepository passwordPolicyRepository) {
+	public PasswordPolicyDeleteProcessor() {
 		super(PasswordPolicyEvenType.DELETE);
-		//
-		Assert.notNull(systemRepository, "Repository is required.");
-		Assert.notNull(passwordPolicyRepository, "Repository is required.");
-		//
-		this.systemRepository = systemRepository;
-		this.passwordPolicyRepository = passwordPolicyRepository;
 	}
 	
 	@Override
 	public EventResult<IdmPasswordPolicyDto> process(EntityEvent<IdmPasswordPolicyDto> event) {
 		// cascade set to null all references in sysSystem to remove password policy
 		IdmPasswordPolicyDto dto = event.getContent();
+		Assert.notNull(dto.getId(), "Password policy identifier is required.");
 		// remove references to password policy 
-		// this information it will not be saved in audit
-		// TODO: remove repository after refactor system to DTO
-		systemRepository.clearPasswordPolicy(passwordPolicyRepository.findById(dto.getId()).get());
+		SysSystemFilter filter = new SysSystemFilter();
+		filter.setPasswordPolicyGenerationId(dto.getId());
+		systemService
+			.find(filter, null)
+			.forEach(system -> {
+				system.setPasswordPolicyGenerate(null);
+				systemService.save(system);
+			});
+		
+		filter.setPasswordPolicyValidationId(dto.getId());
+		systemService
+			.find(filter, null)
+			.forEach(system -> {
+				system.setPasswordPolicyValidate(null);
+				systemService.save(system);
+			});
 		//
 		return new DefaultEventResult<>(event, this);
 	}

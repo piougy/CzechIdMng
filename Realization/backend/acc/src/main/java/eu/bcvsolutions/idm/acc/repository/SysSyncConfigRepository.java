@@ -37,7 +37,9 @@ public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyn
 	 * 
 	 * @param defaultLeaderId
 	 * @return
+	 * @deprecated @since 10.0.0 rewrite to fin and delete - skips audit
 	 */
+	@Deprecated
 	@Modifying
 	@Query("update SysSyncContractConfig e set e.defaultLeader = null where e.defaultLeader.id = :defaultLeader")
 	int clearDefaultLeader(@Param("defaultLeader") UUID defaultLeaderId);
@@ -47,7 +49,9 @@ public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyn
 	 * 
 	 * @param Tree type id
 	 * @return
+	 * @deprecated @since 10.0.0 rewrite to fin and delete - skips audit
 	 */
+	@Deprecated
 	@Modifying
 	@Query("update SysSyncContractConfig e set e.defaultTreeType = null where e.defaultTreeType.id = :defaultTreeType")
 	int clearDefaultTreeType(@Param("defaultTreeType") UUID defaultTreeTypeId);
@@ -57,7 +61,9 @@ public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyn
 	 * 
 	 * @param Tree node id
 	 * @return
+	 * @deprecated @since 10.0.0 rewrite to fin and delete - skips audit
 	 */
+	@Deprecated
 	@Modifying
 	@Query("update SysSyncContractConfig e set e.defaultTreeNode = null where e.defaultTreeNode.id = :defaultTreeNode")
 	int clearDefaultTreeNode(@Param("defaultTreeNode") UUID defaultTreeNodeId);
@@ -67,7 +73,9 @@ public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyn
 	 * 
 	 * @param Role id
 	 * @return
+	 * @deprecated @since 10.0.0 rewrite to fin and delete - skips audit
 	 */
+	@Deprecated
 	@Modifying
 	@Query("update SysSyncIdentityConfig e set e.defaultRole = null where e.defaultRole.id = :defaultRole")
 	int clearDefaultRole(@Param("defaultRole") UUID defaultRole);

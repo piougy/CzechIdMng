@@ -63,7 +63,6 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -111,7 +110,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			SysSystemEntityService systemEntityService,
-			NotificationManager notificationManager, // @deprecated @since 9.2.2
 			SysProvisioningOperationService provisioningOperationService,
 			SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService,
@@ -126,7 +124,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		Assert.notNull(attributeMappingService, "Service is required.");
 		Assert.notNull(connectorFacade, "Connector facade is required.");
 		Assert.notNull(systemService, "Service is required.");
-		Assert.notNull(notificationManager, "Manager is required.");
 		Assert.notNull(provisioningOperationService, "Service is required.");
 		Assert.notNull(schemaAttributeService, "Service is required.");
 		Assert.notNull(provisioningArchiveService, "Service is required.");

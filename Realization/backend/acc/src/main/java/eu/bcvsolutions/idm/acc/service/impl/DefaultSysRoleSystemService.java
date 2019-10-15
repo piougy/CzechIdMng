@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
@@ -36,9 +37,8 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
-import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
-import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -66,25 +66,16 @@ public class DefaultSysRoleSystemService
 		extends AbstractReadWriteDtoService<SysRoleSystemDto, SysRoleSystem, SysRoleSystemFilter>
 		implements SysRoleSystemService {
 
-	private final AccIdentityAccountRepository identityAccountRepository;
-	private final IdmRoleService roleService;
-	//
+	@Autowired private AccIdentityAccountService identityAccountService;
+	@Autowired private IdmRoleService roleService;
 	@Autowired private RequestManager requestManager;
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private SysRoleSystemAttributeService roleSystemAttributeService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 
 	@Autowired
-	public DefaultSysRoleSystemService(SysRoleSystemRepository repository,
-			SysRoleSystemAttributeRepository roleSystemAttributeRepository, // Since 9.5.0 isn't repository needed
-			AccIdentityAccountRepository identityAccountRepository, IdmRoleService roleService) {
+	public DefaultSysRoleSystemService(SysRoleSystemRepository repository) {
 		super(repository);
-		//
-		Assert.notNull(identityAccountRepository, "Repository is required.");
-		Assert.notNull(roleService, "Service is required.");
-		//
-		this.identityAccountRepository = identityAccountRepository;
-		this.roleService = roleService;
 	}
 
 	@Override
@@ -106,7 +97,15 @@ public class DefaultSysRoleSystemService
 		}
 		//
 		// clear identityAccounts - only link on roleSystem
-		identityAccountRepository.clearRoleSystem(roleSystemEntity);
+		AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+		identityAccountFilter.setRoleSystemId(roleSystemEntity.getId());
+		identityAccountService
+			.find(identityAccountFilter, null)
+			.getContent()
+			.forEach(identityAccount -> {
+				identityAccount.setRoleSystem(null);
+				identityAccountService.save(identityAccount);
+			});
 		//
 		// Cancel requests and request items using that deleting DTO
 		requestManager.onDeleteRequestable(roleSystem);

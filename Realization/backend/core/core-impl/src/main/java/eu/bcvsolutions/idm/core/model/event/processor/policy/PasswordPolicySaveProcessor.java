@@ -1,15 +1,17 @@
 package eu.bcvsolutions.idm.core.model.event.processor.policy;
 
+import java.util.UUID;
+
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -18,34 +20,23 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy_;
 import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
-import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 
 /**
  * Default password policy event processor for create and update password policy
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
-
 @Component
 @Description("Validation and save password policy processor.")
 public class PasswordPolicySaveProcessor extends CoreEventProcessor<IdmPasswordPolicyDto> {
 
 	public static final String PROCESSOR_NAME = "password-policy-save-processor";
-
-	private final IdmPasswordPolicyRepository passwordPolicyRepository;
-	private final IdmPasswordPolicyService passwordPolicyService;
-
-	@Autowired
-	public PasswordPolicySaveProcessor(IdmPasswordPolicyRepository passwordPolicyRepository,
-			IdmPasswordPolicyService passwordPolicyService) {
+	//
+	@Autowired private  IdmPasswordPolicyService passwordPolicyService;
+	
+	public PasswordPolicySaveProcessor() {
 		super(PasswordPolicyEvenType.UPDATE, PasswordPolicyEvenType.CREATE);
-		//
-		Assert.notNull(passwordPolicyRepository, "Repository is required.");
-		Assert.notNull(passwordPolicyService, "Service is required.");
-		//
-		this.passwordPolicyRepository = passwordPolicyRepository;
-		this.passwordPolicyService = passwordPolicyService;
 	}
 
 	@Override
@@ -54,7 +45,20 @@ public class PasswordPolicySaveProcessor extends CoreEventProcessor<IdmPasswordP
 		//
 		if (validatePasswordPolicyAttributes(dto)) {
 			if (dto.isDefaultPolicy()) {
-				this.passwordPolicyRepository.updateDefaultPolicyByType(dto.getType(), dto.getId());
+				IdmPasswordPolicyFilter filter = new IdmPasswordPolicyFilter();
+				filter.setType(dto.getType());
+				filter.setDefaultPolicy(Boolean.TRUE);
+				UUID currentPasswordPolicyId = dto.getId();
+				passwordPolicyService
+					.find(filter, null)
+					.getContent()
+					.forEach(passwordPolicy -> {
+						if (currentPasswordPolicyId == null 
+								|| !currentPasswordPolicyId.equals(passwordPolicy.getId())) {
+							passwordPolicy.setDefaultPolicy(false);
+							passwordPolicyService.save(passwordPolicy);
+						}
+					});
 			}
 		} else {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_DEFAULT_TYPE,

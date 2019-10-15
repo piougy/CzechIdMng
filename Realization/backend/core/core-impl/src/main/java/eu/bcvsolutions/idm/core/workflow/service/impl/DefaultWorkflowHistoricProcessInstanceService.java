@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,8 +38,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
-import com.google.common.collect.Maps;
 
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -250,7 +249,7 @@ public class DefaultWorkflowHistoricProcessInstanceService
 				.asc()
 				.list();
 
-		Map<String, HistoricActivityInstance> activitiCache = Maps.newHashMap();
+		Map<String, HistoricActivityInstance> activitiCache = new HashMap<>(historicActivityInstances.size());
 		for (HistoricActivityInstance hai : historicActivityInstances) {
 			historicActivityInstanceList.add(hai.getActivityId());
 			activitiCache.put(hai.getActivityId(), hai);

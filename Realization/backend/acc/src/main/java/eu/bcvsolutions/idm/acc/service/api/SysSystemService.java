@@ -23,8 +23,11 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
  * @author Radek Tomiška
  *
  */
-public interface SysSystemService extends EventableDtoService<SysSystemDto, SysSystemFilter>,
-		CodeableService<SysSystemDto>, CloneableService<SysSystemDto>, AuthorizableService<SysSystemDto> {
+public interface SysSystemService extends 
+		EventableDtoService<SysSystemDto, SysSystemFilter>,
+		CodeableService<SysSystemDto>, 
+		CloneableService<SysSystemDto>, 
+		AuthorizableService<SysSystemDto> {
 
 	String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
 	String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";

@@ -12,7 +12,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -25,26 +24,14 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 
-public interface IdmAutomaticRoleAttributeService
-		extends ReadWriteDtoService<IdmAutomaticRoleAttributeDto, IdmAutomaticRoleFilter>,
+public interface IdmAutomaticRoleAttributeService extends 
+		ReadWriteDtoService<IdmAutomaticRoleAttributeDto, IdmAutomaticRoleFilter>,
 		AuthorizableService<IdmAutomaticRoleAttributeDto> {
 	
 	/**
 	 * Property in event. If is value TRUE, then will be recalculation skipped.
 	 */
 	String SKIP_RECALCULATION = "skip_recalculation";
-	
-	/**
-	 * Prepare role request for delete automatic roles.
-	 * Beware after was method marked as deprecated, returns null instead role request
-	 * 
-	 * @param identityRole
-	 * @param automaticRoles
-	 * @return
-	 * @deprecated Role request isn't used anymore, please use {@link IdmAutomaticRoleAttributeService#removeAutomaticRoles(IdmIdentityRoleDto)}
-	 */
-	@Deprecated
-	IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<AbstractIdmAutomaticRoleDto> automaticRoles);
 	
 	/**
 	 * Remove identity role (must be automatic role). This method doesn't use standard role request 
@@ -95,19 +82,6 @@ public interface IdmAutomaticRoleAttributeService
 	 * @return
 	 */
 	Page<UUID> getContractsForAutomaticRole(UUID automaticRoleId, boolean passed, Pageable pageable);
-
-	/**
-	 * Prepare add automatic role to contract.
-	 * Beware after was method marked as deprecated, returns null instead role request
-	 * 
-	 * @param contract
-	 * @param automaticRoles
-	 * @return
-	 * @deprecated Role request isn't used anymore, please use {@link IdmAutomaticRoleAttributeService#addAutomaticRoles(IdmIdentityContractDto, Set)
-	 */
-	@Deprecated
-	IdmRoleRequestDto prepareAddAutomaticRoles(IdmIdentityContractDto contract,
-			Set<AbstractIdmAutomaticRoleDto> automaticRoles);
 	
 	/**
 	 * Add automatic role to contract. This method doesn't use standard role request 

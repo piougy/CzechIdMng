@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 import java.util.UUID;
 
-import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,7 +18,6 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
-import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
  * Operations with IdmIdentity
@@ -146,19 +144,6 @@ public interface IdmIdentityService extends
 	String convertIdentitiesToString(List<IdmIdentityDto> identities);
 
 	/**
-	 * Find all guarantees for given role ID. 
-	 * 
-	 * Lookout return all guarantees. Use {@link #findGuaranteesByRoleId(UUID, Pageable)} instead.
-	 * 
-	 * @param roleId
-	 * @return 
-	 * @deprecated @since 8.2.0 - use {@link #findGuaranteesByRoleId(UUID, Pageable)}
-	 */
-	@Beta
-	@Deprecated
-	List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId);
-
-	/**
 	 * Find guarantees for given role ID. 
 	 * 
 	 * @param roleId
@@ -166,17 +151,6 @@ public interface IdmIdentityService extends
 	 * @return
 	 */
 	Page<IdmIdentityDto> findGuaranteesByRoleId(UUID roleId, Pageable pageable);
-	
-	/**
-	 * Disable tokens for all given identities and set 
-	 * it to provided value. 
-	 * 
-	 * @param identities identities to update
-	 * @param changeTime change time to set
-	 * @deprecated @since 8.2.0 - use {@link TokenManager#disableTokens(eu.bcvsolutions.idm.core.api.domain.Identifiable, BasePermission...)} 
-	 */
-	@Deprecated
-	void updateAuthorityChange(List<UUID> identities, ZonedDateTime changeTime);
 	
 	/**
 	 * Method create new IdentityEvent for pre validate password

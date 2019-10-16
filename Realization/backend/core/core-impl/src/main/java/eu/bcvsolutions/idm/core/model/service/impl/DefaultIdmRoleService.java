@@ -37,7 +37,6 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -76,13 +75,13 @@ public class DefaultIdmRoleService
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private RoleConfiguration roleConfiguration;
 	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
-	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired @Lazy private IdmIdentityService identityService;
 	@Autowired @Lazy private FormService formService;
 	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	
 	@Autowired
-	public DefaultIdmRoleService(IdmRoleRepository repository,
+	public DefaultIdmRoleService(
+			IdmRoleRepository repository,
 			EntityEventManager entityEventManager,
 			FormService formService) {
 		super(repository, entityEventManager, formService);
@@ -300,18 +299,6 @@ public class DefaultIdmRoleService
 	@Transactional(readOnly = true)
 	public IdmRoleDto getAdminRole() {
 		return roleConfiguration.getAdminRole();
-	}
-	
-	@Override
-	@Deprecated
-	public List<IdmRoleDto> getSubroles(UUID roleId) {
-		return roleCompositionService
-				.findDirectSubRoles(roleId)
-				.stream()
-				.map(roleComposition -> {
-					return DtoUtils.getEmbedded(roleComposition, IdmRoleComposition_.sub, IdmRoleDto.class);
-				})
-				.collect(Collectors.toList());
 	}
 	
 	@Override

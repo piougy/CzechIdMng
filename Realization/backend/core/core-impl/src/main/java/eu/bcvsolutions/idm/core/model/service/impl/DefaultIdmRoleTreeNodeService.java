@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
@@ -148,25 +147,6 @@ public class DefaultIdmRoleTreeNodeService
 		IdmTreeNode treeNode = treeNodeRepository.findById(workPosition).get();
 		//
 		return new HashSet<>(toDtos(repository.findAutomaticRoles(treeNode), false));
-	}
-
-	@Override
-	public IdmRoleRequestDto prepareAssignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		this.createIdentityRole(contract, null, automaticRoles);
-		return null;
-	}
-	
-	@Override
-	public IdmRoleRequestDto assignAutomaticRoles(IdmIdentityContractDto contract, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		this.createIdentityRole(contract, null, automaticRoles);
-		return null;
-	}
-
-	@Override
-	@Transactional
-	public IdmRoleRequestDto prepareRemoveAutomaticRoles(IdmIdentityRoleDto identityRole, Set<IdmRoleTreeNodeDto> automaticRoles) {
-		this.removeAutomaticRoles(identityRole, automaticRoles);
-		return null;
 	}
 
 	@Override

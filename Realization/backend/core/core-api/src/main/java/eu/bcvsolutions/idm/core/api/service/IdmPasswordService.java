@@ -88,17 +88,6 @@ public interface IdmPasswordService extends
 	 * 
 	 * @param identity
 	 * @return
-	 * @deprecated please use {@link IdmPasswordService#getSalt()}
-	 */
-	@Deprecated
-	String getSalt(IdmIdentityDto identity);
-	
-	/**
-	 * Get salt
-	 * Identity isn't needed anymore for generate salt
-	 * 
-	 * @param identity
-	 * @return
 	 */
 	String getSalt();
 

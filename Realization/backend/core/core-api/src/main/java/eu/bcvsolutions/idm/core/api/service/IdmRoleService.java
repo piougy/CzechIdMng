@@ -78,17 +78,6 @@ public interface IdmRoleService extends
 	IdmRoleDto getAdminRole();
 	
 	/**
-	 * Return list of subroles (only one level in depth)
-	 * of role given by its role ID. 
-	 * 
-	 * @param roleId
-	 * @return
-	 * @deprecated since 9.0.0 use {@link IdmRoleCompositionService#findDirectSubRoles(UUID)}
-	 */
-	@Deprecated
-	List<IdmRoleDto> getSubroles(UUID roleId);
-	
-	/**
 	 * Get list of {@link IdmRoleDto} for role catalogue given in parameter.
 	 * 
 	 * @param roleCatalogue

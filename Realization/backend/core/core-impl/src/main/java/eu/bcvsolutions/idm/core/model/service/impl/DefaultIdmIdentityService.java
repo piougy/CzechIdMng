@@ -15,7 +15,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
-import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,7 +44,6 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
@@ -71,7 +69,6 @@ import eu.bcvsolutions.idm.core.model.event.processor.identity.IdentityPasswordP
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
-import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
  * Operations with IdmIdentity
@@ -88,37 +85,21 @@ public class DefaultIdmIdentityService
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
 
 	private final IdmIdentityRepository repository;
-	private final IdmRoleService roleService;
 	private final EntityEventManager entityEventManager;
-	private final RoleConfiguration roleConfiguration;
-	private final IdmIdentityContractService identityContractService;
-	private final TokenManager tokenManager;
+	//
+	@Autowired private IdmRoleService roleService;
+	@Autowired private RoleConfiguration roleConfiguration;
+	@Autowired private IdmIdentityContractService identityContractService;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
 			IdmIdentityRepository repository,
 			FormService formService,
-			IdmRoleService roleService,
-			EntityEventManager entityEventManager,
-			TokenManager tokenManager,
-			RoleConfiguration roleConfiguration,
-			IdmIdentityContractService identityContractService,
-			// @since 9.6.0 is IdmPasswordService in for backward compatibility
-			IdmPasswordService passwordService) {
+			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager, formService);
 		//
-		Assert.notNull(roleService, "Service is required.");
-		Assert.notNull(entityEventManager, "Manager is required.");
-		Assert.notNull(roleConfiguration, "Configuration is required.");
-		Assert.notNull(identityContractService, "Service is required.");
-		Assert.notNull(tokenManager, "Manager is required.");
-		//
 		this.repository = repository;
-		this.roleService = roleService;
 		this.entityEventManager = entityEventManager;
-		this.roleConfiguration = roleConfiguration;
-		this.identityContractService = identityContractService;
-		this.tokenManager = tokenManager;
 	}
 	
 	@Override
@@ -452,12 +433,6 @@ public class DefaultIdmIdentityService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmIdentityDto> findAllGuaranteesByRoleId(UUID roleId) {
-		return findGuaranteesByRoleId(roleId, null).getContent();
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
 	public Page<IdmIdentityDto> findGuaranteesByRoleId(UUID roleId, Pageable pageable) {
 		Assert.notNull(roleId, "Role is required.");
 		//
@@ -495,23 +470,6 @@ public class DefaultIdmIdentityService
 				.stream()
 				.map(IdmIdentityDto::getUsername)
 				.collect(Collectors.joining(","));
-	}
-
-	/**
-	 * @deprecated @since 8.2.0
-	 */
-	@Override
-	@Deprecated
-	@Transactional
-	public void updateAuthorityChange(List<UUID> identities, ZonedDateTime changeTime) {
-		Assert.notNull(identities);
-		//
-		if (identities.isEmpty()) {
-			return;
-		}
-		identities.forEach(identityId -> {
-			tokenManager.disableTokens(new IdmIdentityDto(identityId));
-		});
 	}
 	
 	@Override

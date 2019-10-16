@@ -183,11 +183,6 @@ public class DefaultIdmPasswordService
 	public String generateHash(GuardedString password, String salt) {
 		return BCrypt.hashpw(password.asString(), salt);
 	}
-
-	@Override
-	public String getSalt(IdmIdentityDto identity) {
-		return this.getSalt();
-	}
 	
 	@Override
 	public String getSalt() {

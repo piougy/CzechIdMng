@@ -546,12 +546,7 @@ public class IdmServiceConfiguration {
 		return new DefaultIdmIdentityService(
 				identityRepository, 
 				formService(),
-				roleService(), 
-				entityEventManager(),
-				tokenManager(),
-				roleConfiguration(),
-				identityContractService(),
-				passwordService());
+				entityEventManager());
 	}
 	
 	/***

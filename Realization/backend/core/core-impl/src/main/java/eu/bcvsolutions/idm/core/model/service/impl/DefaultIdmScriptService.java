@@ -160,21 +160,10 @@ public class DefaultIdmScriptService
 		}
 		return super.save(dto, permission);
 	}
-
-	@Override
-	public IdmScriptDto getScriptByName(String name) {
-		return this.toDto(repository.findOneByName(name));
-	}
-
-	@Override
-	@Deprecated
-	public IdmScriptDto getScriptByCode(String code) {
-		return this.toDto(repository.findOneByCode(code));
-	}
 	
 	@Override
 	public IdmScriptDto getByCode(String code) {
-		return getScriptByCode(code);
+		return this.toDto(repository.findOneByCode(code));
 	}
 
 	@Override

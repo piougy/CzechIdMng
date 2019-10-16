@@ -1,4 +1,4 @@
-# Migraton Guide : CzechIdM 9.7.x to CzechIdM 10.0.x
+# Migration Guide : CzechIdM 9.7.x to CzechIdM 10.0.x
 
 ## Introduction
 
@@ -44,8 +44,8 @@ In version 10 were upgraded major devstack dependencies (see list bellow). The g
 ## Before upgrade
 
 - Delete all persisted events. Can be used:
- - task ``DeleteExecutedEventTaskExecutor``
- - or button on event agenda (available for super admin users).
+  - task ``DeleteExecutedEventTaskExecutor``
+  - or button on event agenda (available for super admin users).
 - Resolve all workflow task (complete or cancel). New workflow definitions version will be deployed automatically. Old workflow tasks will be alive, but its saver to resolve them before new version is deployed. Historic tasks and processes will be preserved untouched and their detail will be available.
 
 ## Database migration
@@ -256,3 +256,22 @@ Configuration file in test package ``logback-test.xml`` has to removed. New ``lo
 - ``IdmConceptRoleRequestFilter#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.7.0 - use ``IdmConceptRoleRequestFilter#setAutomaticRole(UUID)``.
 - ``IdmEntityEventService#findToExecute(String, ZonedDateTime, PriorityType, Pageable)`` - @deprecated @since 9.4.0 - use ``IdmEntityEventService#findToExecute(String, DateTime, PriorityType, List, Pageable)``.
 - ``IdmIdentityRoleService#findValidRole(UUID, Pageable)`` - @deprecated @since 8.0.0 - use ``IdmIdentityRoleService#findValidRoles(UUID, Pageable)``.
+- ``IdmIdentityService#findAllGuaranteesByRoleId(UUID)`` - @deprecated @since 8.2.0 - use ``IdmIdentityService#findGuaranteesByRoleId(UUID, Pageable)``.
+- ``IdmPasswordService#getSalt(IdmIdentityDto)`` - @deprecated @since 8.0.1 - use ``IdmPasswordService#getSalt()``.
+- ``IdmRoleService#getSubroles(UUID)`` - @deprecated @since 8.0.1 - use ``IdmRoleCompositionService#findDirectSubRoles(UUID)``.
+- ``IdmRoleTreeNodeService#prepareAssignAutomaticRoles(IdmIdentityContractDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmRoleTreeNodeService#addAutomaticRoles(IdmIdentityContractDto, Set)``.
+- ``IdmRoleTreeNodeService#assignAutomaticRoles(IdmIdentityContractDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmRoleTreeNodeService#addAutomaticRoles(IdmIdentityContractDto, Set)``.
+- ``IdmRoleTreeNodeService#prepareRemoveAutomaticRoles(IdmIdentityRoleDto, Set)`` - @deprecated @since 9.5.0 - use ``IdmRoleTreeNodeService#removeAutomaticRoles(IdmIdentityContractDto, Set)``.
+- ``IdmScriptService#getScriptByName(String)`` - @deprecated @since 7.6.0 - use ``IdmScriptService#getByCode(String)``.
+- ``IdmScriptService#getScriptByCode(String)`` - @deprecated @since 7.6.0 - use ``IdmScriptService#getByCode(String)``.
+
+
+
+
+
+
+
+
+
+
+nn

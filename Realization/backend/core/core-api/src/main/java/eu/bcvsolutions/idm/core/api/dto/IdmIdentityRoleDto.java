@@ -45,6 +45,9 @@ public class IdmIdentityRoleDto extends FormableDto implements ValidableEntity, 
     private UUID role;
     private LocalDate validFrom;
     private LocalDate validTill;
+	@Deprecated
+	@SuppressWarnings("unused")
+    private boolean automaticRole; // this attribute can't be removed (serializable backward compatibility)
     @Embedded(dtoClass = AbstractIdmAutomaticRoleDto.class)
     private UUID roleTreeNode; // this attribute can't be renamed (backward compatibility) - AutomaticRole reference
     @Embedded(dtoClass = IdmIdentityRoleDto.class)

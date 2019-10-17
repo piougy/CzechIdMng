@@ -379,10 +379,12 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			eventFilter.setOwnerId(roleRequestOne.getId());
 			getHelper().waitForResult(res -> {
 				IdmEntityEventDto event = entityEventService.find(eventFilter, new PageRequest(0, 1)).getContent().get(0);
-				return OperationState.EXCEPTION != event.getResult().getState();
+				return OperationState.EXCEPTION != event.getResult().getState()
+						|| !roleRequestService.get(roleRequestOne.getId()).getState().isTerminatedState();
 			}, 1000, Integer.MAX_VALUE);
 			
 			IdmRoleRequestDto roleRequest = roleRequestService.get(roleRequestOne.getId());
+			
 			Assert.assertEquals(RoleRequestState.EXCEPTION, roleRequest.getState());
 			Assert.assertTrue(roleRequest.getLog().contains(exceptionMessage));
 			

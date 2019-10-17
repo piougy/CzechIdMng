@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Sets;
 
@@ -34,7 +35,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
- * Test for bulk action extends {@link IdentityRoleByIdentityDeduplicationBulkAction}
+ * Test for bulk action extends {@link IdentityRoleByIdentityDeduplicationBulkAction}.
+ * 
  * @author Ondrej Kopr
  *
  */
@@ -65,6 +67,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
+	@Transactional
 	public void testTwoManuallyOneContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -89,6 +92,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
+	@Transactional
 	public void testTwoManuallyTwoContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -123,6 +127,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
+	@Transactional
 	public void testFourManuallyTwoContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -159,6 +164,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
+	@Transactional
 	public void testSevenManuallyOneContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();

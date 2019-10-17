@@ -294,7 +294,6 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identity = idmIdentityService.save(identity);
 		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, account.getUid());
 
-		provisioningService.doProvisioning(identity);
 		TestResource changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(changedAccount);
 		Assert.assertEquals(identity.getUsername(), changedAccount.getName().substring(1));

@@ -348,10 +348,10 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
 		syncConfigCustom.setRootsFilterScript(
-				"if(account){ def parentValue = account.getAttributeByName(\"PARENT\").getValue();"
+				"if(account){ def parentValue = account.getAttributeByName(\"" + helper.getSchemaColumnName("PARENT") + "\").getValue();"
 						+ " def uidValue = account.getAttributeByName(\"__NAME__\").getValue();"
 						+ " if(parentValue != null && parentValue.equals(uidValue)){"
-						+ "	 account.getAttributeByName(\"PARENT\").setValues(null); return Boolean.TRUE;}}"
+						+ "	 account.getAttributeByName(\"" + helper.getSchemaColumnName("PARENT") + "\").setValues(null); return Boolean.TRUE;}}"
 						+ " \nreturn Boolean.FALSE;");
 		// Set sync config
 		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);

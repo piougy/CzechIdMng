@@ -135,9 +135,9 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 		// We want to sync all account under that node!
 		IdmTreeNodeDto treeNodeExistedNode = helper.createTreeNode(treeType, null);
 
-		syncConfigCustom.setRootsFilterScript("if(account){ def parentValue = account.getAttributeByName(\"PARENT\").getValue();"
+		syncConfigCustom.setRootsFilterScript("if(account){ def parentValue = account.getAttributeByName(\"" + helper.getSchemaColumnName("PARENT") + "\").getValue();"
 				+ " if(parentValue == null || parentValue.isEmpty()){"
-				+ "	 account.getAttributeByName(\"PARENT\").setValues([\""+treeNodeExistedNode.getId()+"\"]); return Boolean.TRUE;}}"
+				+ "	 account.getAttributeByName(\"" + helper.getSchemaColumnName("PARENT") + "\").setValues([\""+treeNodeExistedNode.getId()+"\"]); return Boolean.TRUE;}}"
 				+ " \nreturn Boolean.FALSE;");
 		syncConfigService.save(syncConfigCustom);
 

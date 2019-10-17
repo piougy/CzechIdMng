@@ -947,7 +947,7 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 
 		SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 		for (SysSchemaAttributeDto schemaAttr : schemaAttributes) {
-			if (schemaAttr.getName().equals(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION)) {
+			if (schemaAttr.getName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION)) {
 				attributeMapping.setEntityAttribute(true);
 				attributeMapping.setIdmPropertyName(IdmIdentity_.description.getName());
 				attributeMapping.setName(schemaAttr.getName());

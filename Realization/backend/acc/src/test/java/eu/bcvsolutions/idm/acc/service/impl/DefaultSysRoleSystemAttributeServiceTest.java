@@ -79,7 +79,7 @@ public class DefaultSysRoleSystemAttributeServiceTest extends AbstractIntegratio
 		SysSystemDto system = helper.createTestResourceSystem(true);
 
 		SysRoleSystemAttributeDto attribute = roleSystemAttributeService.addRoleMappingAttribute(system.getId(),
-				role.getId(), "FIRSTNAME", null, IcObjectClassInfo.ACCOUNT);
+				role.getId(), helper.getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME), null, IcObjectClassInfo.ACCOUNT);
 		Assert.assertNotNull(attribute);
 
 		SysRoleSystemFilter roleSystemFilter = new SysRoleSystemFilter();
@@ -103,7 +103,7 @@ public class DefaultSysRoleSystemAttributeServiceTest extends AbstractIntegratio
 		systemService.generateSchema(system);
 		//
 		// create eav attribute
-		String attributeName = "EAV_ATTRIBUTE";
+		String attributeName = helper.getSchemaColumnName("EAV_ATTRIBUTE");
 		SysSchemaAttributeFilter schemaAttFilter = new SysSchemaAttributeFilter();
 		schemaAttFilter.setSystemId(system.getId());
 		schemaAttFilter.setName(attributeName);

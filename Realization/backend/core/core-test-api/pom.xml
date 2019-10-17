@@ -79,6 +79,7 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
+		<!-- Test via Postgresql database -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -88,7 +89,7 @@
 		    <artifactId>fakesmtp</artifactId>
 		    <version>2.0</version>
 		</dependency>
-		<!-- Test via real MsSQL database -->
+		<!-- Test via MsSQL database -->
 		<dependency>
 		    <groupId>com.microsoft.sqlserver</groupId>
 		    <artifactId>sqljdbc4</artifactId>

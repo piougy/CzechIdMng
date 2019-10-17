@@ -50,6 +50,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
@@ -138,6 +139,7 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
 	@Autowired private ModuleService moduleService;
 	@Autowired private IdmPasswordService passwordService;
+	@Autowired private FilterManager filterManager;
 	
 	@Override
 	public LoginDto loginAdmin() {
@@ -785,6 +787,10 @@ public class DefaultTestHelper implements TestHelper {
 		Assert.notNull(filter);
 		String enabledPropertyName = filter.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
 		configurationService.setBooleanValue(enabledPropertyName, enabled);
+		// switch impl property
+		if (enabled) {
+			filterManager.enable(filter.getId());
+		}
 	}
 
 	@Override

@@ -236,7 +236,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       //
       bulkActionToProcess.properties = this.refs.bulkActionAttributes.getValues();
       if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
-        bulkActionToProcess.filter = _searchParameters.getFilters().toJSON();
+        bulkActionToProcess.filter = _searchParameters.toFilterJson();
         bulkActionToProcess.removeIdentifiers = removedRows.toArray();
       } else {
         bulkActionToProcess.identifiers = selectedRows;

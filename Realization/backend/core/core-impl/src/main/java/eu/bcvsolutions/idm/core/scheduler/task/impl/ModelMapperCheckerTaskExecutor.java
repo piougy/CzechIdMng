@@ -9,14 +9,15 @@ import eu.bcvsolutions.idm.core.config.ModelMapperChecker;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
- * tttt.
+ * Check model mapper is properly initialized to prevent:
+ * org.modelmapper.MappingException: ModelMapper mapping errors: Converter org.modelmapper.internal.converter.CollectionConverter@7214dbf8 failed to convert 
  * 
  * @author Radek Tomiška
- *
+ * @since 9.7.10
  */
 @Component
 @DisallowConcurrentExecution
-@Description("tttt.")
+@Description("Check model mapper is properly initialized to prevent dto mapping exceptions.")
 public class ModelMapperCheckerTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	@Autowired private ModelMapperChecker modelMapperChecker;

@@ -31,6 +31,8 @@ import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowHistoricTas
 public class ModelMapperChecker {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ModelMapperChecker.class);
+	public static final String PROPERTY_ENABLED = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.modelmapper.checker.enabled";
+	public static final boolean DEFAULT_ENABLED = true;
 	//
 	@Autowired private ApplicationContext context;
 	@Autowired private ConfigurationService configurationService;
@@ -40,13 +42,16 @@ public class ModelMapperChecker {
 	
 	/**
 	 * Check registered services and their conversions to dto provided by model mapper.
+	 * 
+	 * @return false, when checker was not executed (e.g. checker is disabled)
+	 * @throws CoreException if check not pass.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void verify() {
-		if (!configurationService.getBooleanValue("idm.sec.core.modelmapper.checker.enabled", true)) {
+	public boolean verify() {
+		if (!configurationService.getBooleanValue(PROPERTY_ENABLED, DEFAULT_ENABLED)) {
 			LOG.warn("Init: check registered IdM services is disabled.");
 			//
-			return;
+			return false;
 		}
 		long start = System.currentTimeMillis();
 		int modelMapperUsed = 0;
@@ -92,6 +97,8 @@ public class ModelMapperChecker {
 		LOG.info("Init: all registered IdM services [{}]. "
 				+ "Services usage were checked [{}] (agenda contains some records) [took: {}ms]."
 				, services.size(), modelMapperUsed, System.currentTimeMillis() - start);
+		//
+		return true;
 	}
 
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.config.ModelMapperChecker;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.exception.ConfigurationDisabledException;
 
 /**
  * Check model mapper is properly initialized to prevent:
@@ -24,7 +25,9 @@ public class ModelMapperCheckerTaskExecutor extends AbstractSchedulableTaskExecu
 	
 	@Override
 	public Boolean process() {
-		modelMapperChecker.verify();
+		if (!modelMapperChecker.verify()) {
+			throw new ConfigurationDisabledException(ModelMapperChecker.PROPERTY_ENABLED);
+		}
 		//
 		return Boolean.TRUE;
 	}

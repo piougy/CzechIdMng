@@ -100,6 +100,9 @@ public class ModelMapperChecker {
 			} catch (ResultCodeException ex) {
 				throw ex;
 			} catch (Exception ex) {
+				if (ex.getCause() instanceof EntityNotFoundException) {
+					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ex.getMessage()));
+				}
 				LOG.error("Service [{}] cannot be checked. Find method cannot be called.", service.getClass(), ex);
 			}
 			LOG.trace("Service [{}] was checked.", service.getClass());

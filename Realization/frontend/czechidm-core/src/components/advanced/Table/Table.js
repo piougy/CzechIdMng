@@ -384,7 +384,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             }
           });
         }
-        cb();
+        this.setState({
+          selectedRows: newSelectedRows
+        }, cb);
       } else {
         cb();
       }

@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.modelmapper.MappingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,12 +13,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.exception.ModelMapperServiceInitException;
+import eu.bcvsolutions.idm.core.security.api.exception.ConfigurationDisabledException;
 import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowHistoricTaskInstanceService;
 
@@ -42,16 +49,18 @@ public class ModelMapperChecker {
 	
 	/**
 	 * Check registered services and their conversions to dto provided by model mapper.
+	 * Throws Exception, if check does not pass.
 	 * 
-	 * @return false, when checker was not executed (e.g. checker is disabled)
-	 * @throws CoreException if check not pass.
+	 * @throws ConfigurationDisabledException if check is disabled by configuration.
+	 * @throws ResultCodeException if service check failed (referential integrity is broken or other IdM exception occurs).
+	 * @throws ModelMapperServiceInitException if mapper is wrongly inited.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public boolean verify() {
+	public void verify() {
 		if (!configurationService.getBooleanValue(PROPERTY_ENABLED, DEFAULT_ENABLED)) {
 			LOG.warn("Init: check registered IdM services is disabled.");
 			//
-			return false;
+			throw new ConfigurationDisabledException(ModelMapperChecker.PROPERTY_ENABLED);
 		}
 		long start = System.currentTimeMillis();
 		int modelMapperUsed = 0;
@@ -85,10 +94,11 @@ public class ModelMapperChecker {
 			} catch (UnsupportedOperationException ex) {
 				LOG.debug("Service [{}] does not support find method. Check will be skipped.", service.getClass());
 			} catch (MappingException ex) {
-				// Throw exception => prevent to IdM starts in invalid state.
-				throw new CoreException(
-						String.format("Service [%s] cannot be used, model mapper is wrongly inited, try to restart this application.", service.getClass()), 
-						ex);
+				throw new ModelMapperServiceInitException(AutowireHelper.getTargetType(service), null);
+			} catch (EntityNotFoundException ex) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ex.getMessage()));
+			} catch (ResultCodeException ex) {
+				throw ex;
 			} catch (Exception ex) {
 				LOG.error("Service [{}] cannot be checked. Find method cannot be called.", service.getClass(), ex);
 			}
@@ -97,8 +107,6 @@ public class ModelMapperChecker {
 		LOG.info("Init: all registered IdM services [{}]. "
 				+ "Services usage were checked [{}] (agenda contains some records) [took: {}ms]."
 				, services.size(), modelMapperUsed, System.currentTimeMillis() - start);
-		//
-		return true;
 	}
 
 }

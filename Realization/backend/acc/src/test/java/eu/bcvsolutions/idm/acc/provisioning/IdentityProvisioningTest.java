@@ -103,7 +103,7 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 		List<SysSchemaAttributeDto> schemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null)
 				.getContent();
 		SysSchemaAttributeDto descriptionSchemaAttribute = schemaAttributes.stream()
-				.filter(attribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equals(attribute.getName())).findFirst()
+				.filter(attribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equalsIgnoreCase(attribute.getName())).findFirst()
 				.get();
 
 		SysSystemAttributeMappingDto attributeAssignedRoles = new SysSystemAttributeMappingDto();
@@ -156,7 +156,7 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 		List<SysSchemaAttributeDto> schemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null)
 				.getContent();
 		SysSchemaAttributeDto descriptionSchemaAttribute = schemaAttributes.stream()
-				.filter(attribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equals(attribute.getName())).findFirst()
+				.filter(attribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equalsIgnoreCase(attribute.getName())).findFirst()
 				.get();
 
 		SysSystemAttributeMappingDto attributeAssignedRoles = new SysSystemAttributeMappingDto();
@@ -230,7 +230,7 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 		List<SysSchemaAttributeDto> schemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null)
 				.getContent();
 		SysSchemaAttributeDto descriptionSchemaAttribute = schemaAttributes.stream()
-				.filter(attribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equals(attribute.getName())).findFirst()
+				.filter(attribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equalsIgnoreCase(attribute.getName())).findFirst()
 				.get();
 
 		SysSystemAttributeMappingDto attributeByte = new SysSystemAttributeMappingDto();

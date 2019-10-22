@@ -171,9 +171,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(existsConnectorObject);
 		assertEquals(uid, existsConnectorObject.getUidValue());
 		assertEquals(accoutObject.get(firstNameAttribute), 
-				existsConnectorObject.getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME).getValue());
+				existsConnectorObject.getAttributeByName(getHelper().getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME)).getValue());
 		assertEquals(accoutObject.get(lastNameAttribute), 
-				existsConnectorObject.getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME).getValue());
+				existsConnectorObject.getAttributeByName(getHelper().getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME)).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
 				system.getConnectorInstance(), 
@@ -246,9 +246,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(existsConnectorObject);
 		assertEquals(uid, existsConnectorObject.getUidValue());
 		assertEquals(accoutObject.get(firstNameAttribute), 
-				existsConnectorObject.getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME).getValue());
+				existsConnectorObject.getAttributeByName(getHelper().getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME)).getValue());
 		assertEquals(accoutObject.get(lastNameAttribute), 
-				existsConnectorObject.getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME).getValue());
+				existsConnectorObject.getAttributeByName(getHelper().getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME)).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
 				system.getConnectorInstance(), 
@@ -321,9 +321,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Assert.assertNotNull(existsConnectorObject);
 		Assert.assertEquals(uid, existsConnectorObject.getUidValue());
 		Assert.assertEquals(accoutObject.get(firstNameAttribute), 
-				existsConnectorObject.getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME).getValue());
+				existsConnectorObject.getAttributeByName(getHelper().getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME)).getValue());
 		Assert.assertEquals(accoutObject.get(lastNameAttribute), 
-				existsConnectorObject.getAttributeByName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME).getValue());
+				existsConnectorObject.getAttributeByName(getHelper().getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME)).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
 				system.getConnectorInstance(), 
@@ -900,7 +900,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	 */
 	private ProvisioningAttributeDto getProvisioningAttribute(String name) {
 		// load attribute mapping is not needed now - name is the same on both (tree) sides
-		return new ProvisioningAttributeDto(name, AttributeMappingStrategyType.SET);
+		return new ProvisioningAttributeDto(getHelper().getSchemaColumnName(name), AttributeMappingStrategyType.SET);
 	}
 	
 	public eu.bcvsolutions.idm.acc.TestHelper getHelper() {

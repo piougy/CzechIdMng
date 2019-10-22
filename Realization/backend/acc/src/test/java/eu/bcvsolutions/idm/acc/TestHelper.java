@@ -180,5 +180,15 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @param syncConfigCustom
 	 */
 	void startSynchronization(AbstractSysSyncConfigDto syncConfigCustom);
+	
+	/**
+	 * Schema is generated in lower case for postgresql.
+	 * 
+	 * TODO: can be solved by hibernate naming strategy, but this is just for tests ...
+	 * 
+	 * @param columnName
+	 * @return
+	 */
+	String getSchemaColumnName(String columnName);
 
 }

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +9,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.sql.DataSource;
 
+import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
@@ -370,5 +374,31 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		.createBean(SynchronizationSchedulableTaskExecutor.class);
 		lrt.init(ImmutableMap.of(SynchronizationService.PARAMETER_SYNCHRONIZATION_ID, config.getId().toString()));
 		lrt.process();
+	}
+	
+	/**
+	 * Schema is generated in lower case for postgresql.
+	 * 
+	 * @param columnName
+	 * @return
+	 */
+	@Override
+	public String getSchemaColumnName(String columnName) {
+		if (columnName.equals(ATTRIBUTE_MAPPING_NAME)
+				|| columnName.equals(ATTRIBUTE_MAPPING_ENABLE)
+				|| columnName.equals(ATTRIBUTE_MAPPING_PASSWORD)) {
+			// reserved names
+			return columnName;
+		}
+		
+		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
+		Connection connection = JdbcUtils.openConnection(tomcatDataSource);
+		DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, false);
+		//
+		if (dbSupport.getDbName().equals("postgresql")) {
+			return columnName.toLowerCase();
+		}
+		//
+		return columnName;
 	}
 }

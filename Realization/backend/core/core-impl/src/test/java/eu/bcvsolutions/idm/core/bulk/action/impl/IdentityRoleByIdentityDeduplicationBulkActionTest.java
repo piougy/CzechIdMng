@@ -6,35 +6,45 @@ import static org.junit.Assert.assertNotEquals;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
- * Test for bulk action extends {@link IdentityRoleByIdentityDeduplicationBulkAction}
+ * Test for bulk action extends {@link IdentityRoleByIdentityDeduplicationBulkAction}.
+ * 
  * @author Ondrej Kopr
  *
  */
@@ -44,6 +54,8 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityService identityService;
+	@Autowired
+	private IdmRoleRequestService roleRequestService;
 
 	@Before
 	public void login() {
@@ -65,6 +77,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
+	@Transactional
 	public void testTwoManuallyOneContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -89,6 +102,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
+	@Transactional
 	public void testTwoManuallyTwoContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -123,6 +137,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
+	@Transactional
 	public void testFourManuallyTwoContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -159,6 +174,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
+	@Transactional
 	public void testSevenManuallyOneContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -177,8 +193,19 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 		bulkAction.setIdentifiers(Sets.newHashSet(identity.getId()));
 		
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-		checkResultLrt(processAction, 1l, null, null);
-
+		IdmLongRunningTaskDto longRunningTask = checkResultLrt(processAction, 1l, null, null);
+		Assert.assertEquals(OperationState.EXECUTED, longRunningTask.getResultState());
+		// item 
+		List<IdmProcessedTaskItemDto> processedItems = processedTaskItemService.findLogItems(longRunningTask, null).getContent();
+		Assert.assertEquals(1, processedItems.size());
+		Assert.assertEquals(OperationState.EXECUTED, processedItems.get(0).getOperationResult().getState());
+		// background request
+		IdmRoleRequestFilter requestFilter = new IdmRoleRequestFilter();
+		requestFilter.setApplicantId(identity.getId());
+		List<IdmRoleRequestDto> requests = roleRequestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		Assert.assertEquals(RoleRequestState.EXECUTED, requests.get(0).getState());
+		
 		roles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, roles.size());
 

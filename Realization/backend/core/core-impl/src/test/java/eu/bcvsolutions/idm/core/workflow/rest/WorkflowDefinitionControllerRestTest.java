@@ -48,7 +48,7 @@ public class WorkflowDefinitionControllerRestTest extends AbstractRestTest {
 		Assert.assertEquals(200, result.getResponse().getStatus());
 		Assert.assertEquals(MediaType.APPLICATION_OCTET_STREAM_VALUE, result.getResponse().getContentType());
 
-		Assert.assertEquals((Integer) 1, definitionService.getByName(WF_DEFINITION_KEY).getVersion());
+		int currentVersion = definitionService.getByName(WF_DEFINITION_KEY).getVersion();
 
 		result = getMockMvc()
 				.perform(MockMvcRequestBuilders
@@ -64,7 +64,7 @@ public class WorkflowDefinitionControllerRestTest extends AbstractRestTest {
 				.andReturn();
 		Assert.assertEquals(200, result.getResponse().getStatus());
 
-		Assert.assertEquals((Integer) 2, definitionService.getByName(WF_DEFINITION_KEY).getVersion());
+		Assert.assertEquals(Integer.valueOf(currentVersion + 1), definitionService.getByName(WF_DEFINITION_KEY).getVersion());
 
 	}
 }

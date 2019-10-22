@@ -5,7 +5,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>9.7.10</version>
+	<version>9.7.11</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -372,6 +372,11 @@
 			<groupId>net.tirasa.connid.bundles.db</groupId>
 			<artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
 			<version>2.2.4</version>
+		</dependency>
+		<dependency>
+		    <groupId>net.tirasa.connid</groupId>
+		    <artifactId>slf4j-logging</artifactId>
+		    <version>1.4.2.0</version>
 		</dependency>
 		<!-- Our CSV connector -->
 		<dependency>
@@ -773,6 +778,12 @@
 			<id>test-mssql</id>
 			<properties>
 				<spring.profiles.active>test,test-mssql</spring.profiles.active>
+			</properties>
+		</profile>
+		<profile>
+			<id>test-postgresql</id>
+			<properties>
+				<spring.profiles.active>test,test-postgresql</spring.profiles.active>
 			</properties>
 		</profile>
 

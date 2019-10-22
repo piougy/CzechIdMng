@@ -416,7 +416,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		String USER_SYSTEM_NAME = "TestName001";
 		String overridedAttributeName = "EAV_ATTRIBUTE";
 		configurationService.setValue("idm.pub.acc.syncRole.provisioningOfIdentities.system.code", USER_SYSTEM_NAME);
-		configurationService.setValue("idm.pub.acc.syncRole.system.mapping.attributeMemberOf", overridedAttributeName);
+		configurationService.setValue("idm.pub.acc.syncRole.system.mapping.attributeMemberOf", helper.getSchemaColumnName(overridedAttributeName));
 		SysSystemDto userSystem = initData(USER_SYSTEM_NAME, true);
 		
 		
@@ -470,7 +470,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		String valueOfMemberAtt = "" + System.currentTimeMillis();
 		String nameOfEav = "externalIdentifier";
 		configurationService.setValue("idm.pub.acc.syncRole.identity.eav.externalIdentifier.code", nameOfEav);
-		configurationService.setValue("idm.pub.acc.syncRole.roles.attributeNameOfMembership", ATTRIBUTE_MEMBER);
+		configurationService.setValue("idm.pub.acc.syncRole.roles.attributeNameOfMembership", helper.getSchemaColumnName(ATTRIBUTE_MEMBER));
 		
 		
 		IdmIdentityDto identity = this.getHelper().createIdentity();
@@ -533,7 +533,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		String valueOfMemberAtt = "" + System.currentTimeMillis();
 		String nameOfEav = "externalIdentifier";
 		configurationService.setValue("idm.pub.acc.syncRole.identity.eav.externalIdentifier.code", nameOfEav);
-		configurationService.setValue("idm.pub.acc.syncRole.roles.attributeNameOfMembership", ATTRIBUTE_MEMBER);
+		configurationService.setValue("idm.pub.acc.syncRole.roles.attributeNameOfMembership", helper.getSchemaColumnName(ATTRIBUTE_MEMBER));
 		configurationService.setBooleanValue("idm.pub.acc.syncRole.update.resolveMembership", true);
 		
 		IdmIdentityDto identity = this.getHelper().createIdentity();
@@ -721,7 +721,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 				attributeMappingTwo.setIdmPropertyName(ATTRIBUTE_MEMBER);
 				attributeMappingTwo.setEntityAttribute(false);
 				attributeMappingTwo.setExtendedAttribute(true);
-				attributeMappingTwo.setName("MEMBER");
+				attributeMappingTwo.setName(ATTRIBUTE_MEMBER);
 				attributeMappingTwo.setSchemaAttribute(schemaAttr.getId());
 				attributeMappingTwo.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMappingTwo);
@@ -824,7 +824,7 @@ public class RoleWorkflowAdSyncTest  extends AbstractIntegrationTest{
 		filter.setRoleSystemId(getSysRoleSystem(roleSystem, roleId));
 		List<SysRoleSystemAttributeDto> content = roleSystemAttributeService.find(filter, null).getContent();
 		for (SysRoleSystemAttributeDto attribute : content) {
-			if (attribute.getName().equals(attributeName)) {
+			if (attribute.getName().equalsIgnoreCase(attributeName)) {
 				return attribute;
 			}
 		}

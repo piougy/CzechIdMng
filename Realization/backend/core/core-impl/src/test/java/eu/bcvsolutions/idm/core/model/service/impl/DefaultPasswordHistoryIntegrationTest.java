@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -240,7 +242,7 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 
 		IdmIdentityDto identity = testHelper.createIdentity(passwordAsGuardedString); // Change 1
 		
-		ZonedDateTime tillOne = ZonedDateTime.now();
+		ZonedDateTime tillOne = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setOldPassword(passwordAsGuardedString);
@@ -248,11 +250,14 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		passwordChange.setIdm(true);
 		passwordChange.setNewPassword(new GuardedString(password));
 		identityService.passwordChange(identity, passwordChange); // Change 2
-		ZonedDateTime tillTwo = ZonedDateTime.now();
+		getHelper().waitForResult(null, 1, 1);
+		ZonedDateTime tillTwo = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		identityService.passwordChange(identity, passwordChange); // Change 3
-		ZonedDateTime tillThree = ZonedDateTime.now();
+		getHelper().waitForResult(null, 1, 1);
+		ZonedDateTime tillThree = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		identityService.passwordChange(identity, passwordChange); // Change 4
-		ZonedDateTime tillFour = ZonedDateTime.now();
+		getHelper().waitForResult(null, 1, 1);
+		ZonedDateTime tillFour = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		
 		IdmPasswordHistoryFilter filter = new IdmPasswordHistoryFilter();
 		filter.setIdentityId(identity.getId());
@@ -280,7 +285,7 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		GuardedString passwordAsGuardedString = new GuardedString(password);
 
 		IdmIdentityDto identity = testHelper.createIdentity(passwordAsGuardedString); // Change 1
-		ZonedDateTime fromOne = ZonedDateTime.now();
+		ZonedDateTime fromOne = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setOldPassword(passwordAsGuardedString);
@@ -288,11 +293,14 @@ public class DefaultPasswordHistoryIntegrationTest extends AbstractIntegrationTe
 		passwordChange.setIdm(true);
 		passwordChange.setNewPassword(new GuardedString(password));
 		identityService.passwordChange(identity, passwordChange); // Change 2
-		ZonedDateTime fromTwo = ZonedDateTime.now();
+		getHelper().waitForResult(null, 1, 1);
+		ZonedDateTime fromTwo = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		identityService.passwordChange(identity, passwordChange); // Change 3
-		ZonedDateTime fromThree = ZonedDateTime.now();
+		getHelper().waitForResult(null, 1, 1);
+		ZonedDateTime fromThree = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		identityService.passwordChange(identity, passwordChange); // Change 4
-		ZonedDateTime fromFour = ZonedDateTime.now();
+		getHelper().waitForResult(null, 1, 1);
+		ZonedDateTime fromFour = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);;
 		
 		IdmPasswordHistoryFilter filter = new IdmPasswordHistoryFilter();
 		filter.setIdentityId(identity.getId());

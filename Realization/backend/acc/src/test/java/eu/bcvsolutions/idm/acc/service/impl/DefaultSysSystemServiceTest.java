@@ -481,15 +481,15 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
 		SysSystemAttributeMappingDto nameAttribute = attributes.stream().filter(attribute -> {
-			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_NAME);
+			return attribute.getName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_NAME);
 		}).findFirst().get();
 
 		SysSystemAttributeMappingDto firstNameAttribute = attributes.stream().filter(attribute -> {
-			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
+			return attribute.getName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
 		}).findFirst().get();
 		
 		SysSystemAttributeMappingDto emailAttribute = attributes.stream().filter(attribute -> {
-			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_EMAIL);
+			return attribute.getName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_EMAIL);
 		}).findFirst().get();
 		
 		// create synchronization config
@@ -728,15 +728,15 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		List<SysSystemAttributeMappingDto> attributes = schemaAttributeMappingService.find(attributeMappingFilter, null)
 				.getContent();
 		SysSystemAttributeMappingDto nameAttribute = attributes.stream().filter(attribute -> {
-			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_NAME);
+			return attribute.getName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_NAME);
 		}).findFirst().get();
 
 		SysSystemAttributeMappingDto firstNameAttribute = attributes.stream().filter(attribute -> {
-			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
+			return attribute.getName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
 		}).findFirst().get();
 
 		SysSystemAttributeMappingDto emailAttribute = attributes.stream().filter(attribute -> {
-			return attribute.getName().equals(TestHelper.ATTRIBUTE_MAPPING_EMAIL);
+			return attribute.getName().equalsIgnoreCase(TestHelper.ATTRIBUTE_MAPPING_EMAIL);
 		}).findFirst().get();
 
 		// create synchronization config

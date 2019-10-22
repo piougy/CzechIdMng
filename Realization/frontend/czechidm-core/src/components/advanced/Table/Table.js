@@ -139,7 +139,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   reload(props = null) {
-    const _props = props || this.props;
+    let _props = this.props;
+    if (props) {
+      _props = {
+        ...this.props,
+        ...props
+      };
+    }
     const { rendered, _searchParameters } = _props;
     if (!rendered) {
       return;
@@ -236,7 +242,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       //
       bulkActionToProcess.properties = this.refs.bulkActionAttributes.getValues();
       if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
-        bulkActionToProcess.filter = _searchParameters.getFilters().toJSON();
+        bulkActionToProcess.filter = _searchParameters.toFilterJson();
         bulkActionToProcess.removeIdentifiers = removedRows.toArray();
       } else {
         bulkActionToProcess.identifiers = selectedRows;
@@ -341,13 +347,32 @@ class AdvancedTable extends Basic.AbstractContextComponent {
 
   fetchEntities(searchParameters, props = null) {
     const _props = props || this.props;
-    const { uiKey, manager } = _props;
     searchParameters = this._mergeSearchParameters(searchParameters, _props);
+    //
+    if (!_props.hideTableShowLoading) {
+      this._fetchEntities(searchParameters, _props, () => {});
+    } else {
+      this.setState({
+        hideTableShowLoading: _props.hideTableShowLoading
+      }, () => {
+        this._fetchEntities(searchParameters, _props, () => {
+          this.setState({
+            hideTableShowLoading: null
+          });
+        })
+      });
+    }
+  }
+
+  _fetchEntities(searchParameters, _props, cb) {
+    const { uiKey, manager } = _props;
+    //
     this.context.store.dispatch(manager.fetchEntities(searchParameters, uiKey, (json, error) => {
       if (error) {
         this.addErrorMessage({
           key: `error-${ manager.getEntityType() }-load`
         }, error);
+        cb();
       // remove selection for unpresent records
       } else if (json && json._embedded) {
         const { selectedRows } = this.state;
@@ -361,7 +386,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         }
         this.setState({
           selectedRows: newSelectedRows
-        });
+        }, cb);
+      } else {
+        cb();
       }
     }));
   }
@@ -770,7 +797,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       filterOpened,
       selectedRows,
       removedRows,
-      _actions
+      _actions,
+      hideTableShowLoading
     } = this.state;
     //
     if (!rendered) {
@@ -987,7 +1015,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               header={ header }
               data={ _entities }
               hover={ hover }
-              showLoading={ showLoading }
+              showLoading={ (_showLoading || showLoading) && !hideTableShowLoading }
               onRowClick={ onRowClick }
               onRowDoubleClick={ onRowDoubleClick }
               showRowSelection={ _actions.length > 0 && showRowSelection }

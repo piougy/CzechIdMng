@@ -292,7 +292,6 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identity = idmIdentityService.save(identity);
 		Assert.assertEquals("x"+IDENTITY_USERNAME_TWO, account.getUid());
 
-		provisioningService.doProvisioning(identity);
 		TestResource changedAccount = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
 		Assert.assertNotNull(changedAccount);
 		Assert.assertEquals(identity.getUsername(), changedAccount.getName().substring(1));
@@ -1029,7 +1028,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void compileAttributesOverrloadedStrategyMergeWithDuplTest() {
 		String sameValue = "sameValue-" + System.currentTimeMillis();
-		String eavAttribute = "EAV_ATTRIBUTE";
+		String eavAttribute = helper.getSchemaColumnName("EAV_ATTRIBUTE");
 
 		IdmRoleDto role1 = helper.createRole();
 		IdmRoleDto role2 = helper.createRole();
@@ -1291,7 +1290,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SysSystemDto system = helper.createTestResourceSystem(true);
 		SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
 		SysSystemAttributeMappingDto firtstNameAttribute = systemAttributeMappingService.findBySystemMappingAndName(systemMapping.getId(), 
-				TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME); 
+				helper.getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME)); 
 		firtstNameAttribute.setSendOnPasswordChange(Boolean.TRUE);
 		systemAttributeMappingService.save(firtstNameAttribute);
 		
@@ -1331,7 +1330,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 			SysSystemDto system = helper.createTestResourceSystem(true);
 			SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
 			SysSystemAttributeMappingDto firtstNameAttribute = systemAttributeMappingService.findBySystemMappingAndName(systemMapping.getId(), 
-					TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME); 
+					helper.getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME)); 
 			firtstNameAttribute.setSendOnPasswordChange(Boolean.TRUE);
 			systemAttributeMappingService.save(firtstNameAttribute);
 			

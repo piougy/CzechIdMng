@@ -233,11 +233,11 @@ class IdentityRoles extends Basic.AbstractContent {
     this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
   }
 
-  _refreshAll() {
-    this.refs.direct_roles.getWrappedInstance().reload();
-    this.refs.sub_roles.getWrappedInstance().reload();
-    this.refs.requestTable.getWrappedInstance().reload();
-    this.refs.tableProcesses.getWrappedInstance().reload();
+  _refreshAll(props = null) {
+    this.refs.direct_roles.getWrappedInstance().reload(props);
+    this.refs.sub_roles.getWrappedInstance().reload(props);
+    this.refs.requestTable.getWrappedInstance().reload(props);
+    this.refs.tableProcesses.getWrappedInstance().reload(props);
   }
 
   _toggleAutomaticRefresh() {

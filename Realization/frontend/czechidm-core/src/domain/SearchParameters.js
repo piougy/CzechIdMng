@@ -273,6 +273,38 @@ export default class SearchParameters {
   }
 
   /**
+   * Returns filled filters as json object.
+   *
+   * FIXME: DRY: reuse in toUrl in v.10.x
+   *
+   * @return json
+   */
+  toFilterJson() {
+    const filterObject = {};
+    //
+    this.filters.forEach((filter, property) => {
+      if (filter !== null && filter !== undefined) {
+        if (_.isArray(filter)) {
+          filterObject[property] = filter;
+        } else if (_.isObject(filter)) {
+          // expand nested properties
+          for (const nestedProperty in filter) {
+            if (!filter.hasOwnProperty(nestedProperty)) {
+              continue;
+            }
+            if (filter[nestedProperty] !== null && filter[nestedProperty] !== undefined) {
+              filterObject[nestedProperty] = filter[nestedProperty];
+            }
+          }
+        } else {
+          filterObject[property] = filter;
+        }
+      }
+    });
+    return filterObject;
+  }
+
+  /**
    * Returs true, if searchparameters are equals
    *
    * @param  {SearchParameters} other

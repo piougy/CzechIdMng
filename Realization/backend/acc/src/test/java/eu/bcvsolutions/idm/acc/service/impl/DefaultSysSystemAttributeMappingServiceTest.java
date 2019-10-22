@@ -345,7 +345,7 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		SysSchemaAttributeDto descriptionSchemaAttribute = attributeService.find(schemaAttributeFilter, null)
 				.getContent() //
 				.stream() //
-				.filter(schemaAttribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equals(schemaAttribute.getName())) //
+				.filter(schemaAttribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equalsIgnoreCase(schemaAttribute.getName())) //
 				.findFirst() //
 				.get(); //
 
@@ -367,7 +367,7 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 				.get(); //
 		
 		assertEquals(propertyName, formAttributeDto.getCode());
-		assertEquals(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION,  formAttributeDto.getName());
+		assertEquals(testHelper.getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION),  formAttributeDto.getName());
 		assertEquals(false, formAttributeDto.isMultiple());
 		assertEquals(false, formAttributeDto.isConfidential());
 		assertEquals(false, formAttributeDto.isRequired());

@@ -24,7 +24,8 @@ export default class LongPollingManager {
             // refresh and create new long-polling reqeust.
             this.setState({longPollingInprogress: true}, () => {
               this._sendLongPollingRequest(entityId);
-              this._refreshAll();
+              // prevent to show loaging for long pooling refreshes
+              this._refreshAll({ hideTableShowLoading: true });
             });
           } else if (result && result.state === 'NOT_EXECUTED') {
             // None change for entity was made. We will send next long-polling checking request

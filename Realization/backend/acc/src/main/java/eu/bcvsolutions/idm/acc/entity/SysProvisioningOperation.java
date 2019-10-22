@@ -3,10 +3,12 @@ package eu.bcvsolutions.idm.acc.entity;
 import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -53,7 +55,9 @@ public class SysProvisioningOperation extends AbstractEntity {
 	
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_id", referencedColumnName = "id")
+	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysSystem system;
 	
 	@NotNull
@@ -63,7 +67,9 @@ public class SysProvisioningOperation extends AbstractEntity {
 	
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_entity_id", referencedColumnName = "id")
+	@JoinColumn(name = "system_entity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysSystemEntity systemEntity;
 	
 	@Column(name = "entity_identifier")
@@ -79,7 +85,9 @@ public class SysProvisioningOperation extends AbstractEntity {
 	private OperationResult result;
 
 	@ManyToOne
-	@JoinColumn(name = "provisioning_batch_id", referencedColumnName = "id")
+	@JoinColumn(name = "provisioning_batch_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysProvisioningBatch batch;
 	
 	// ID of request, without DB relation on the request -> Request can be null or doesn't have to exist! 

@@ -96,8 +96,8 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     return _longPollingEnabled;
   }
 
-  _refreshAll() {
-    this.refs.table.getWrappedInstance().reload();
+  _refreshAll(props = null) {
+    this.refs.table.getWrappedInstance().reload(props);
   }
 
   showDetail(entity, add) {

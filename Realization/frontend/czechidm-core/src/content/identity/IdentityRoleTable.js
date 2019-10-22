@@ -159,8 +159,8 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     );
   }
 
-  reload() {
-    this.refs.table.getWrappedInstance().reload();
+  reload(props = null) {
+    this.refs.table.getWrappedInstance().reload(props);
   }
 
   render() {

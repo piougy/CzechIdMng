@@ -512,9 +512,9 @@ public class IdentityAccountManagementTest extends AbstractIntegrationTest {
 		// Create mapped attributes to schema
 		SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
 		SysSystemAttributeMappingDto attributeHandlingLastName = schemaAttributeHandlingService
-				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_LASTNAME);
+				.findBySystemMappingAndName(systemMapping.getId(), helper.getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_LASTNAME));
 		SysSystemAttributeMappingDto attributeHandlingFirstName = schemaAttributeHandlingService
-				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
+				.findBySystemMappingAndName(systemMapping.getId(), helper.getSchemaColumnName(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME));
 		SysSystemAttributeMappingDto attributeHandlingUserName = schemaAttributeHandlingService
 				.findBySystemMappingAndName(systemMapping.getId(), TestHelper.ATTRIBUTE_MAPPING_NAME);
 		// username is transformed

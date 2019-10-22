@@ -6158,6 +6158,10 @@
     "ROLE_REQUEST_SYSTEM_STATE_CANCELED": {
       "title": "Role request's system state was canceled!",
       "message": "System state was canceled from the state [{{state}}]."
+    },
+    "MODEL_MAPPER_SERVICE_INIT_FAILED": {
+      "title": "Model mapper initialization failed",
+      "message": "Model mapper is wrongly initialized for service [{{service}}]. Try to restart application."
     }
   },
   "validationError": {

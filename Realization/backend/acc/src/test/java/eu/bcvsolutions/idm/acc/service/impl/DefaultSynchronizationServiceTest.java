@@ -1502,7 +1502,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 				attributeMapping.setSystemMapping(entityHandlingResult.getId());
 				schemaAttributeMappingService.save(attributeMapping);
 
-			}  else if (schemaAttr.getName().equals(EAV_ATTRIBUTE)) {
+			}  else if (schemaAttr.getName().equalsIgnoreCase(EAV_ATTRIBUTE)) {
 				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
 				attributeMapping.setExtendedAttribute(true);
 				attributeMapping.setEntityAttribute(false);

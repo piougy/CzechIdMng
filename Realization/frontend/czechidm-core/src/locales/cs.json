@@ -6208,6 +6208,10 @@
     "ROLE_REQUEST_SYSTEM_STATE_CANCELED": {
       "title": "Stav na systémech byl pro tuto žádost zrušen!",
       "message": "Stav na systeméch byl zrušen. Předchozí stav byl: [{{state}}]."
+    },
+    "MODEL_MAPPER_SERVICE_INIT_FAILED": {
+      "title": "Inicializace model mapperu selhala",
+      "message": "Pro službu [{{service}}] se chybně inicializoval model mapper. Zkuste restartujtovat aplikaci."
     }
   },
   "validationError": {

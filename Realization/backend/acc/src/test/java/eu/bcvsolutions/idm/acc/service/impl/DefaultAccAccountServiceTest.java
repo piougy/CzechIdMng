@@ -81,7 +81,7 @@ public class DefaultAccAccountServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void getConnectorObjectTest() {
 		String userOneName = "UserOne";
-		String eavAttributeName = "EAV_ATTRIBUTE";
+		String eavAttributeName = helper.getSchemaColumnName("EAV_ATTRIBUTE");
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
 

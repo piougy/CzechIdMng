@@ -94,7 +94,7 @@ public class ModelMapperChecker {
 			} catch (UnsupportedOperationException ex) {
 				LOG.debug("Service [{}] does not support find method. Check will be skipped.", service.getClass());
 			} catch (MappingException ex) {
-				throw new ModelMapperServiceInitException(AutowireHelper.getTargetType(service), null);
+				throw new ModelMapperServiceInitException(AutowireHelper.getTargetType(service), ex);
 			} catch (EntityNotFoundException ex) {
 				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ex.getMessage()));
 			} catch (ResultCodeException ex) {

@@ -56,9 +56,9 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
     }
   }
 
-  reload() {
+  reload(props = null) {
     if (this.refs.table) {
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.getWrappedInstance().reload(props);
     }
   }
 

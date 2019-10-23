@@ -34,7 +34,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
   /**
    * Method check if props in this component is'nt different from new props.
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
     if (!nextProps.entity) {
       return;
@@ -83,7 +83,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
         if (error && error.status === 'ACCEPTED') {
           // approving
           this.addMessage({ message: this.i18n('error.ACCEPTED.message'), title: this.i18n('error.ACCEPTED.title') });
-          this.context.router.goBack();
+          this.context.history.goBack();
         } else {
           this._afterSave(createdEntity, error, afterAction);
         }
@@ -104,13 +104,13 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     if (afterAction !== 'CONTINUE') {
-      this.context.router.goBack();
+      this.context.history.goBack();
     } else {
       this.setState({
         showLoading: false
       }, this.refs.form.processEnded());
       //
-      this.context.router.replace('/automatic-role/attributes/' + entity.id);
+      this.context.history.replace('/automatic-role/attributes/' + entity.id);
     }
   }
 
@@ -176,7 +176,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
               </Basic.AbstractForm>
 
               <Basic.PanelFooter showLoading={showLoading} className="noBorder" >
-                <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+                <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
                 <Basic.Button type="button"
                   level="warning"
                   onClick={this._recalculate.bind(this)}

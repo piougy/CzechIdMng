@@ -50,7 +50,7 @@ export default class Icons extends Basic.AbstractComponent {
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end' }}>
         {
-          entityTypes.sort((one, two) => { return one > two; }).map(entityType => {
+          [...entityTypes.sort((one, two) => one > two).map(entityType => {
             return (
               <div style={{ textAlign: 'center', padding: 15 }}>
                 <Basic.Icon type="component" icon={ entityType } className="fa-2x" />
@@ -59,7 +59,7 @@ export default class Icons extends Basic.AbstractComponent {
                 </div>
               </div>
             );
-          })
+          }).values()]
         }
       </div>
     );

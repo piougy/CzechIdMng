@@ -30,7 +30,7 @@ class CodeListDetail extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { isNew } = this.props;
     //
     if (isNew) {
@@ -92,7 +92,7 @@ class CodeListDetail extends Basic.AbstractContent {
     });
     this.addMessage({ message: this.i18n('save.success', { record: manager.getNiceLabel(entity) }) });
     if (isNew) {
-      this.context.router.replace(`/code-lists`);
+      this.context.history.replace(`/code-lists`);
     }
   }
 
@@ -126,7 +126,7 @@ class CodeListDetail extends Basic.AbstractContent {
             </Basic.AbstractForm>
           </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} >
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
             <Basic.Button
               type="submit"
               level="success"
@@ -154,7 +154,7 @@ CodeListDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

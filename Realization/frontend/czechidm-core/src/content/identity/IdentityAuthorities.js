@@ -31,7 +31,7 @@ class IdentityAuthorities extends Basic.AbstractContent {
 
   componentDidMount() {
     super.componentDidMount();
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
   }
 
@@ -98,8 +98,8 @@ IdentityAuthorities.defaultProps = {
 
 function select(state, component) {
   return {
-    _showLoading: Utils.Ui.isShowLoading(state, `${uiKeyAuthorities}-${component.params.entityId}`),
-    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.entityId}`)
+    _showLoading: Utils.Ui.isShowLoading(state, `${uiKeyAuthorities}-${component.match.params.entityId}`),
+    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.match.params.entityId}`)
   };
 }
 

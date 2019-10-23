@@ -23,10 +23,6 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
  */
 class DefaultCell extends AbstractComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   /**
    * Returns value by property name from given rowData. Supports nested properties
    *

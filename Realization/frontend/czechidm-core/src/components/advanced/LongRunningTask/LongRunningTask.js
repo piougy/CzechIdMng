@@ -128,7 +128,7 @@ class LongRunningTask extends Basic.AbstractContent {
    * Shows modal detail with given entity
    */
   showDetail(entity) {
-    this.context.router.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
+    this.context.history.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
   }
 
   setRefresh(task) {

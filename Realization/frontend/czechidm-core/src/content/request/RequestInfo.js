@@ -18,13 +18,13 @@ class RequestInfo extends Basic.AbstractContent {
   }
 
   _gotToRequest() {
-    const {requestId} = this.props.params;
+    const {requestId} = this.props.match.params;
     // Redirect to request
-    this.context.router.push(`requests/${requestId}/detail`);
+    this.context.history.push(`/requests/${requestId}/detail`);
   }
 
   _showItemChanges() {
-    const params = this.props.params;
+    const params = this.props.match.params;
     const entityId = this._getEntityId(params, this.props.location.pathname);
     this.requestManager.getService().getChanges(params.requestId, entityId)
     .then(json => {
@@ -55,7 +55,7 @@ class RequestInfo extends Basic.AbstractContent {
 
   render() {
     const {_showLoading} = this.props;
-    const {requestId} = this.props.params;
+    const {requestId} = this.props.match.params;
     const itemDetail = this.state ? this.state.itemDetail : null;
 
     if (!requestId) {

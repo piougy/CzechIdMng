@@ -23,11 +23,11 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('identity', entityId);
     //
     return (
@@ -42,7 +42,7 @@ export default class IdentityContracts extends Advanced.AbstractTableContent {
 
         <ContractSlices
           rendered={SecurityManager.hasAuthority('CONTRACTSLICE_READ')}
-          params={{ entityId }}
+          match={this.props.match}
           reloadExternal={ this.reload.bind(this) }/>
       </Basic.Div>
     );

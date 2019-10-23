@@ -234,7 +234,7 @@ export default class ConfigLoader {
       [this.NAVIGATION_BY_ID]: new Immutable.Map({}),
       [this.NAVIGATION_BY_PATH]: new Immutable.Map({})
     });
-    this.getEnabledModuleIds().map(moduleId => {
+    this.getEnabledModuleIds().forEach(moduleId => {
       navigationItems = this._resolveNavigation(navigationItems, moduleId);
     });
     // order

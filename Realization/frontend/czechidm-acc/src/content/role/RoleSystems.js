@@ -27,11 +27,11 @@ export default class RoleSystems extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-systems', this.props.params);
+    return this.getRequestNavigationKey('role-systems', this.props.match.params);
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleId', entityId);
     return (
       <div className="tab-pane-table-body">
@@ -43,7 +43,7 @@ export default class RoleSystems extends Basic.AbstractContent {
             showRowSelection
             columns={ _.difference(RoleSystemTable.defaultProps.columns, ['role']) }
             forceSearchParameters={ forceSearchParameters }
-            params={ this.props.params }
+            match={ this.props.match }
             className="no-margin"/>
         </Basic.Panel>
       </div>

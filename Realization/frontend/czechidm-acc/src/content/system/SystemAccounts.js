@@ -30,7 +30,7 @@ class SystemAccountsContent extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _showLoading } = this.props;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
     const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);

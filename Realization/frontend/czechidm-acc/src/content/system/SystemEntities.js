@@ -41,7 +41,7 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
 
   showDetail(entity) {
     const entityFormData = _.merge({}, entity, {
-      system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId
+      system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.match.params.entityId
     });
     if (!Utils.Entity.isNew(entity)) {
       manager.getService().getConnectorObject(entity.id)
@@ -74,7 +74,7 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _showLoading } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
@@ -245,7 +245,7 @@ SystemEntitiesContent.defaultProps = {
 
 function select(state, component) {
   return {
-    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
+    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.match.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
     _searchParameters: Utils.Ui.getSearchParameters(state, uiKey)
   };

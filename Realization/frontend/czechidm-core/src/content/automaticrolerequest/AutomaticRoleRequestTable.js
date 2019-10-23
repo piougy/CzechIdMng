@@ -39,11 +39,11 @@ export class AutomaticRoleRequestTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   showDetail(entity, add) {
@@ -51,12 +51,12 @@ export class AutomaticRoleRequestTable extends Advanced.AbstractTableContent {
     if (add) {
       createNewRequestFunc(entity);
     } else {
-      this.context.router.push(`/automatic-role-requests/${entity.id}/detail`);
+      this.context.history.push(`/automatic-role-requests/${entity.id}/detail`);
     }
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   _getCandidatesCell({ rowIndex, data, property}) {

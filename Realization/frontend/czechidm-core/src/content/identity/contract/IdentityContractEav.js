@@ -28,7 +28,7 @@ class IdentityContractEav extends Basic.AbstractContent {
   }
 
   render() {
-    const { entityId} = this.props.params;
+    const { entityId} = this.props.match.params;
     const { _entity, _permissions } = this.props;
     //
     return (
@@ -52,8 +52,8 @@ IdentityContractEav.defaultProps = {
 
 function select(state, component) {
   return {
-    _entity: manager.getEntity(state, component.params.entityId),
-    _permissions: manager.getPermissions(state, null, component.params.entityId)
+    _entity: manager.getEntity(state, component.match.params.entityId),
+    _permissions: manager.getPermissions(state, null, component.match.params.entityId)
   };
 }
 

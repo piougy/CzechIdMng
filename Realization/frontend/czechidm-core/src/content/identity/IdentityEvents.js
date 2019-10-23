@@ -33,7 +33,7 @@ class IdentityEvents extends Basic.AbstractContent {
   render() {
     // TODO: use super owner id
     const forceSearchParameters = new SearchParameters()
-      .setFilter('ownerId', this.props.params.entityId)
+      .setFilter('ownerId', this.props.match.params.entityId)
       .setFilter('ownerType', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity');
     return (
       <div className="tab-pane-table-body">
@@ -64,7 +64,7 @@ class IdentityEvents extends Basic.AbstractContent {
 }
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     identity: identityManager.getEntity(state, entityId)
   };

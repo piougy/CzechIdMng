@@ -31,6 +31,7 @@ class Identities extends Basic.AbstractContent {
         { this.renderPageHeader() }
         <Basic.Panel>
           <IdentityTable
+            history={this.context.history}
             uiKey="identity-table"
             identityManager={ this.identityManager }
             filterOpened

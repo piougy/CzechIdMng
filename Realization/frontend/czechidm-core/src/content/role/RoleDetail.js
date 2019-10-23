@@ -43,7 +43,7 @@ class RoleDetail extends Basic.AbstractContent {
     const { entity } = this.props;
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    roleManager = this.getRequestManager(this.props.params, new RoleManager());
+    roleManager = this.getRequestManager(this.props.match.params, new RoleManager());
 
     if (Utils.Entity.isNew(entity)) {
       entity.priorityEnum = RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.NONE);
@@ -54,13 +54,13 @@ class RoleDetail extends Basic.AbstractContent {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
-    if ((nextProps.params && this.props.params && nextProps.params.requestId !== this.props.params.requestId)
+    if ((nextProps.match.params && this.props.match.params && nextProps.match.params.requestId !== this.props.match.params.requestId)
       || (nextProps.entity && nextProps.entity !== entity)) {
       // Init manager - evaluates if we want to use standard (original) manager or
       // universal request manager (depends on existing of 'requestId' param)
-      roleManager = this.getRequestManager(nextProps.params, new RoleManager());
+      roleManager = this.getRequestManager(nextProps.match.params, new RoleManager());
     }
     if (nextProps.entity && nextProps.entity !== entity && nextProps.entity) {
       this._setSelectedEntity(this._prepareEntity(nextProps.entity));
@@ -99,7 +99,7 @@ class RoleDetail extends Basic.AbstractContent {
       this.refs.form.processStarted();
       // append selected authorities
       if (this.refs.authorities) {
-        entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
+        entity.authorities = this.refs.authorities.getSelectedAuthorities();
       }
       //
       this.getLogger().debug('[RoleDetail] save entity', entity);
@@ -127,7 +127,7 @@ class RoleDetail extends Basic.AbstractContent {
       //
       this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       if (afterAction === 'CLOSE') {
-        this.context.router.replace(this.addRequestPrefix('roles', this.props.params));
+        this.context.history.replace(this.addRequestPrefix('roles', this.props.match.params));
       } else if (afterAction === 'NEW') {
         const uuidId = uuid.v1();
         const newEntity = {
@@ -136,10 +136,10 @@ class RoleDetail extends Basic.AbstractContent {
           priorityEnum: RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.NONE)
         };
         this.context.store.dispatch(roleManager.receiveEntity(uuidId, newEntity));
-        this.context.router.replace(`${this.addRequestPrefix('role', this.props.params)}/${uuidId}/new?new=1`);
+        this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params)}/${uuidId}/new?new=1`);
         this._setSelectedEntity(newEntity);
       } else {
-        this.context.router.replace(`${this.addRequestPrefix('role', this.props.params)}/${entity.id}/detail`);
+        this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params)}/${entity.id}/detail`);
       }
     });
   }
@@ -277,7 +277,7 @@ class RoleDetail extends Basic.AbstractContent {
                   <Basic.Button
                     type="button"
                     level="link"
-                    onClick={this.context.router.goBack}
+                    onClick={this.context.history.goBack}
                     showLoading={ _showLoading} >
                     { this.i18n('button.back') }
                   </Basic.Button>

@@ -48,7 +48,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
     }
     //
     const entityFormData = _.merge({}, entity, {
-      identity: entity._embedded && entity._embedded.identity ? entity._embedded.identity.id : this.props.params.entityId,
+      identity: entity._embedded && entity._embedded.identity ? entity._embedded.identity.id : this.props.match.params.entityId,
       account: entity.account ? entity.account.id : null
     });
     //
@@ -79,14 +79,14 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
 
   _onChangeSelectTabs(activeTab) {
     if (activeTab === 2) {
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.reload();
     } else if (activeTab === 1) {
-      this.refs.accountTable.getWrappedInstance().reload();
+      this.refs.accountTable.reload();
     }
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('identity', entityId);

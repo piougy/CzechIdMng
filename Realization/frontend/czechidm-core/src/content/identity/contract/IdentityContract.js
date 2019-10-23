@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import { IdentityContractManager } from '../../../redux';
 import * as Advanced from '../../../components/advanced';
 import OrganizationPosition from '../OrganizationPosition';
-import _ from 'lodash';
 
 const manager = new IdentityContractManager();
 
@@ -18,7 +18,7 @@ class IdentityContract extends Basic.AbstractContent {
 
   componentDidMount() {
     this._selectNavigationItem();
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
   }
@@ -31,7 +31,7 @@ class IdentityContract extends Basic.AbstractContent {
    * Lookot: getNavigationKey cannot be used -> profile vs users main tab
    */
   _selectNavigationItem() {
-    const { identityId } = this.props.params;
+    const { identityId } = this.props.match.params;
     const { userContext } = this.props;
     if (identityId === userContext.username) {
       this.selectNavigationItems(['identity-profile', null]);
@@ -41,8 +41,11 @@ class IdentityContract extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading, params } = this.props;
-    const paramsResult = _.merge(params, { controlledBySlices: entity && entity.controlledBySlices ? true : false});
+    const { entity, showLoading, match } = this.props;
+    const {params} = match;
+    const paramsResult = _.merge(params, { controlledBySlices: !!(entity && entity.controlledBySlices)});
+    match.params = paramsResult;
+
     return (
       <div>
         <Basic.PageHeader showLoading={!entity && showLoading}>
@@ -51,12 +54,12 @@ class IdentityContract extends Basic.AbstractContent {
 
         <OrganizationPosition identity={ params.identityId }/>
         <Basic.Alert
-          rendered={entity && entity.controlledBySlices ? true : false}
+          rendered={!!(entity && entity.controlledBySlices)}
           level="info"
           text={this.i18n('content.identity-contract.detail.alert.controlledBySlices')}/>
 
-        <Advanced.TabPanel parentId="profile-contracts" params={paramsResult}>
-          {this.props.children}
+        <Advanced.TabPanel parentId="profile-contracts" match={match}>
+          {this.getRoutes()}
         </Advanced.TabPanel>
       </div>
     );
@@ -75,7 +78,7 @@ IdentityContract.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     userContext: state.security.userContext,

@@ -15,25 +15,21 @@ let roleManager = null;
  */
 class Content extends Basic.AbstractContent {
 
-  constructor(props) {
-    super(props);
-  }
-
   getContentKey() {
     return 'content.roles';
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-detail', this.props.params);
+    return this.getRequestNavigationKey('role-detail', this.props.match.params);
   }
 
   componentDidMount() {
     super.componentDidMount();
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
 
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    roleManager = this.getRequestManager(this.props.params, new RoleManager());
+    roleManager = this.getRequestManager(this.props.match.params, new RoleManager());
     if (this._isNew()) {
       this.context.store.dispatch(roleManager.receiveEntity(entityId, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) }));
     } else {
@@ -59,7 +55,7 @@ class Content extends Basic.AbstractContent {
           {
             !role
             ||
-            <RoleDetail entity={role} showLoading={showLoading} params={this.props.params}/>
+            <RoleDetail entity={role} showLoading={showLoading} match={ this.props.match }/>
           }
         </div>
       </Basic.Row>
@@ -73,7 +69,7 @@ Content.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   if (!roleManager) {
     return null;
   }

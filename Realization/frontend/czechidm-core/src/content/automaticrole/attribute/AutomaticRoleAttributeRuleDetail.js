@@ -291,7 +291,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   /**
    * Method check if props in this component is'nt different from new props.
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // check id of old and new entity
     if (nextProps.entity.id !== this.props.entity.id || nextProps.entity.attributeName !== this.props.entity.attributeName) {
       this._initForm(nextProps.entity);

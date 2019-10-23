@@ -22,14 +22,14 @@ class AuditDetail extends Basic.AbstractContent {
     return 'content.audit';
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.setState({
       showLoading: true
     });
   }
 
   componentDidMount() {
-    const { entityId, revID } = this.props.params;
+    const { entityId, revID } = this.props.match.params;
     this.selectSidebarItem('profile-audit-profile-personal');
     this.context.store.dispatch(identityManager.fetchRevision(entityId, revID, uiKey + revID));
   }
@@ -39,7 +39,7 @@ class AuditDetail extends Basic.AbstractContent {
 
   render() {
     const { auditIdentity, showLoading } = this.props;
-    const { entityId, revID } = this.props.params;
+    const { entityId, revID } = this.props.match.params;
     return (
       <div>
         <Helmet title={this.i18n('navigation.menu.audit.profile')} />
@@ -72,7 +72,7 @@ class AuditDetail extends Basic.AbstractContent {
                 }
                 className="hidden">
               </Basic.PanelHeader>
-              <Advanced.TabPanel parentId="profile-audit" params={this.props.params}>
+              <Advanced.TabPanel parentId="profile-audit" match={ this.props.match }>
                 <IdentityDetail identity={auditIdentity} entityId={entityId} readOnly />
               </Advanced.TabPanel>
             </Basic.Panel>
@@ -92,7 +92,7 @@ AuditDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { revID } = component.params;
+  const { revID } = component.match.params;
   return {
     auditIdentity: DataManager.getData(state, uiKey + revID),
     showLoading: identityManager.isShowLoading(state, uiKey + revID)

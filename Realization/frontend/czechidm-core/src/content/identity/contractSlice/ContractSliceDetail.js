@@ -79,7 +79,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
       _showLoading: true
     }, () => {
       const entity = this.refs.form.getData();
-      const { identityId } = this.props.params;
+      const { identityId } = this.props.match.params;
       //
       const state = this.context.store.getState();
       const identity = this.identityManager.getEntity(state, identityId);
@@ -114,10 +114,10 @@ class ContractSliceDetail extends Basic.AbstractContent {
       //
       if (afterAction === 'CLOSE') {
         // go back to tree types or organizations
-        this.context.router.goBack();
+        this.context.history.goBack();
       } else {
-        const { identityId } = this.props.params;
-        this.context.router.replace(`identity/${encodeURIComponent(identityId)}/contract-slice/${entity.id}/detail`);
+        const { identityId } = this.props.match.params;
+        this.context.history.replace(`/identity/${encodeURIComponent(identityId)}/contract-slice/${entity.id}/detail`);
       }
     });
   }
@@ -127,12 +127,12 @@ class ContractSliceDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, entity, showLoading, params, _permissions } = this.props;
+    const { uiKey, entity, showLoading, _permissions } = this.props;
     const { _showLoading, entityFormData } = this.state;
-    const { identityId} = this.props.params;
+    const { identityId} = this.props.match.params;
 
     const parentForceSearchParameters = new SearchParameters()
-      .setFilter('identity', identityId ? identityId : SearchParameters.BLANK_UUID);
+    .setFilter('identity', identityId ? identityId : SearchParameters.BLANK_UUID);
     const canSave = contractSliceManager.canSave(entity, _permissions);
 
     return (
@@ -142,93 +142,91 @@ class ContractSliceDetail extends Basic.AbstractContent {
           className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}
           style={Utils.Entity.isNew(entity) ? {paddingLeft: 15, paddingRight: 15 } : {}}>
           <form onSubmit={this.save.bind(this, 'CONTINUE')}>
-              <Basic.AbstractForm
-                ref="form"
-                data={entityFormData}
-                showLoading={ _showLoading || showLoading }
-                uiKey={uiKey}
-                readOnly={!canSave}>
-                <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.Panel className="no-border last">
-                      <Basic.PanelHeader text={this.i18n('labelSlice')} style={{marginBottom: '10px'}}/>
-                      <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.ContractSlice.identity')}>
-                        <Advanced.IdentityInfo username={params.identityId}/>
-                      </Basic.LabelWrapper>
-                      <Basic.Checkbox
-                        ref="usingAsContract"
-                        label={this.i18n('entity.ContractSlice.usingAsContract.label')}
-                        readOnly
-                        helpBlock={this.i18n('entity.ContractSlice.usingAsContract.help')}/>
-                      <Basic.SelectBox
-                        ref="parentContract"
-                        manager={identityContractManager}
-                        forceSearchParameters={parentForceSearchParameters}
-                        label={this.i18n('entity.ContractSlice.parentContract')}/>
-                      <Basic.TextField
-                        ref="contractCode"
-                        label={this.i18n('entity.ContractSlice.contractCode')}/>
-                      <Basic.DateTimePicker
-                        mode="date"
-                        ref="validFrom"
-                        label={ this.i18n('entity.ContractSlice.validFrom') }/>
-                      <Basic.DateTimePicker
-                        mode="date"
-                        readOnly
-                        ref="validTill"
-                        label={ this.i18n('entity.ContractSlice.validTill') }/>
-                    </Basic.Panel>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.Panel className="no-border last">
-                      <Basic.PanelHeader text={this.i18n('labelContract')} style={{marginBottom: '10px'}}/>
-                      <Basic.TextField
-                        ref="position"
-                        label={this.i18n('entity.ContractSlice.position')}/>
-
-                      <Advanced.TreeNodeSelect
-                        ref="workPosition"
-                        header={ this.i18n('entity.ContractSlice.workPosition') }
-                        label={ this.i18n('entity.ContractSlice.workPosition') } />
-
-                      <Basic.DateTimePicker
-                        mode="date"
-                        ref="contractValidFrom"
-                        label={ this.i18n('entity.ContractSlice.contractValidFrom') }/>
-                      <Basic.DateTimePicker
-                        mode="date"
-                        ref="contractValidTill"
-                        label={ this.i18n('entity.ContractSlice.contractValidTill') }/>
-                      <Basic.EnumSelectBox
-                        ref="state"
-                        enum={ ContractStateEnum }
-                        useSymbol={ false }
-                        label={ this.i18n('entity.ContractSlice.state.label') }
-                        helpBlock={ this.i18n('entity.ContractSlice.state.help') }
-                        onChange={ this.onChangeState.bind(this) }/>
-                      <Basic.Checkbox
-                        ref="main"
-                        label={this.i18n('entity.ContractSlice.main.label')}
-                        helpBlock={this.i18n('entity.ContractSlice.main.help')}/>
-                      <Basic.Checkbox
-                        ref="externe"
-                        label={this.i18n('entity.ContractSlice.externe')}/>
-                      <Basic.Checkbox
-                        ref="disabled"
-                        label={this.i18n('entity.ContractSlice.disabled.label')}
-                        helpBlock={this.i18n('entity.ContractSlice.disabled.help')}
-                        readOnly />
-                      <Basic.TextArea
-                        ref="description"
-                        label={this.i18n('entity.ContractSlice.description')}
-                        rows={4}
-                        max={1000}/>
-                    </Basic.Panel>
-                  </Basic.Col>
-                </Basic.Row>
-              </Basic.AbstractForm>
+            <Basic.AbstractForm
+              ref="form"
+              data={entityFormData}
+              showLoading={ _showLoading || showLoading }
+              uiKey={uiKey}
+              readOnly={!canSave}>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.Panel className="no-border last">
+                    <Basic.PanelHeader text={this.i18n('labelSlice')} style={{marginBottom: '10px'}}/>
+                    <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.ContractSlice.identity')}>
+                      <Advanced.IdentityInfo username={identityId}/>
+                    </Basic.LabelWrapper>
+                    <Basic.Checkbox
+                      ref="usingAsContract"
+                      label={this.i18n('entity.ContractSlice.usingAsContract.label')}
+                      readOnly
+                      helpBlock={this.i18n('entity.ContractSlice.usingAsContract.help')}/>
+                    <Basic.SelectBox
+                      ref="parentContract"
+                      manager={identityContractManager}
+                      forceSearchParameters={parentForceSearchParameters}
+                      label={this.i18n('entity.ContractSlice.parentContract')}/>
+                    <Basic.TextField
+                      ref="contractCode"
+                      label={this.i18n('entity.ContractSlice.contractCode')}/>
+                    <Basic.DateTimePicker
+                      mode="date"
+                      ref="validFrom"
+                      label={ this.i18n('entity.ContractSlice.validFrom') }/>
+                    <Basic.DateTimePicker
+                      mode="date"
+                      readOnly
+                      ref="validTill"
+                      label={ this.i18n('entity.ContractSlice.validTill') }/>
+                  </Basic.Panel>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.Panel className="no-border last">
+                    <Basic.PanelHeader text={this.i18n('labelContract')} style={{marginBottom: '10px'}}/>
+                    <Basic.TextField
+                      ref="position"
+                      label={this.i18n('entity.ContractSlice.position')}/>
+                    <Advanced.TreeNodeSelect
+                      ref="workPosition"
+                      header={ this.i18n('entity.ContractSlice.workPosition') }
+                      label={ this.i18n('entity.ContractSlice.workPosition') } />
+                    <Basic.DateTimePicker
+                      mode="date"
+                      ref="contractValidFrom"
+                      label={ this.i18n('entity.ContractSlice.contractValidFrom') }/>
+                    <Basic.DateTimePicker
+                      mode="date"
+                      ref="contractValidTill"
+                      label={ this.i18n('entity.ContractSlice.contractValidTill') }/>
+                    <Basic.EnumSelectBox
+                      ref="state"
+                      enum={ ContractStateEnum }
+                      useSymbol={ false }
+                      label={ this.i18n('entity.ContractSlice.state.label') }
+                      helpBlock={ this.i18n('entity.ContractSlice.state.help') }
+                      onChange={ this.onChangeState.bind(this) }/>
+                    <Basic.Checkbox
+                      ref="main"
+                      label={this.i18n('entity.ContractSlice.main.label')}
+                      helpBlock={this.i18n('entity.ContractSlice.main.help')}/>
+                    <Basic.Checkbox
+                      ref="externe"
+                      label={this.i18n('entity.ContractSlice.externe')}/>
+                    <Basic.Checkbox
+                      ref="disabled"
+                      label={this.i18n('entity.ContractSlice.disabled.label')}
+                      helpBlock={this.i18n('entity.ContractSlice.disabled.help')}
+                      readOnly />
+                    <Basic.TextArea
+                      ref="description"
+                      label={this.i18n('entity.ContractSlice.description')}
+                      rows={4}
+                      max={1000}/>
+                  </Basic.Panel>
+                </Basic.Col>
+              </Basic.Row>
+            </Basic.AbstractForm>
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" showLoading={_showLoading} onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button type="button" level="link" showLoading={_showLoading} onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
               <Basic.SplitButton
                 level="success"
                 title={ this.i18n('button.saveAndContinue') }
@@ -242,9 +240,9 @@ class ContractSliceDetail extends Basic.AbstractContent {
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
               </Basic.SplitButton>
             </Basic.PanelFooter>
-          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-          <input type="submit" className="hidden"/>
-        </form>
+            {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+            <input type="submit" className="hidden"/>
+          </form>
         </Basic.Panel>
       </div>
     );
@@ -264,7 +262,7 @@ ContractSliceDetail.defaultProps = {
 function select(state, component) {
   return {
     userContext: state.security.userContext,
-    _permissions: contractSliceManager.getPermissions(state, null, component.params.entityId)
+    _permissions: contractSliceManager.getPermissions(state, null, component.match.params.entityId)
   };
 }
 export default connect(select)(ContractSliceDetail);

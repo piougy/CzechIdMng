@@ -45,22 +45,22 @@ export class SystemTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
     if (Utils.Entity.isNew(entity)) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/system/${uuidId}/new?new=1`);
+      this.context.history.push(`/system/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/system/${entity.id}/detail`);
+      this.context.history.push(`/system/${entity.id}/detail`);
     }
   }
 
@@ -83,7 +83,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
         if (entity && error) {
           this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: manager.getNiceLabel(entity) }) }, error);
         } else {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }, () => {

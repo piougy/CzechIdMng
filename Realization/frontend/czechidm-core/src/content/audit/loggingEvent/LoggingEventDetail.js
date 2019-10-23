@@ -34,7 +34,7 @@ class LoggingEventDetail extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.context.store.dispatch(manager.fetchEntity(entityId));
   }
 
@@ -152,7 +152,7 @@ class LoggingEventDetail extends Basic.AbstractContent {
           }
 
           <Basic.PanelFooter>
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
       </Basic.Row>
@@ -168,7 +168,7 @@ LoggingEventDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
 
   return {
     entity: manager.getEntity(state, entityId),

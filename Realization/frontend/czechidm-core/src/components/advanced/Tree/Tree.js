@@ -55,7 +55,7 @@ class Tree extends Basic.AbstractContextComponent {
     this._loadNodes(null);
   }
 
-  componentWillReceiveProps(newProps) {
+  UNSAFE_componentWillReceiveProps(newProps) {
     if (!Domain.SearchParameters.is(newProps.forceSearchParameters, this.props.forceSearchParameters)
         || this.props.rendered !== newProps.rendered) {
       this.reload(newProps);

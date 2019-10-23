@@ -25,7 +25,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
   }
 
   getUiKey() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     return `${uiKey}-${entityId}`;
   }
@@ -52,7 +52,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     //
-    const { entityId, identityId } = this.props.params;
+    const { entityId, identityId } = this.props.match.params;
     let identityLocalId = identityId;
     let contractLocalId = null;
     let isOnContractDetail = false;
@@ -67,17 +67,17 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
       if (isOnContractDetail) {
-        this.context.router.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1&contractId=${contractLocalId}`);
+        this.context.history.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1&contractId=${contractLocalId}`);
       } else {
-        this.context.router.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1`);
+        this.context.history.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${uuidId}/new?new=1`);
       }
     } else {
-      this.context.router.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${entity.id}/detail`);
+      this.context.history.push(`/identity/${encodeURIComponent(identityLocalId)}/contract-slice/${entity.id}/detail`);
     }
   }
 
   afterDelete() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
     const {reloadExternal} = this.props;
     if (reloadExternal) {
       reloadExternal();
@@ -85,7 +85,7 @@ export default class ContractSlices extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId, identityId} = this.props.params;
+    const { entityId, identityId} = this.props.match.params;
     const { rendered } = this.props;
 
     let identityLocalId = identityId;

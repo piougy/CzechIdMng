@@ -135,17 +135,17 @@ class Create extends Basic.AbstractContent {
             });
             switch (editContinue) {
               case 'EDIT': {
-                this.context.router.replace(`identity/${encodeURIComponent(json.username)}/profile`);
+                this.context.history.replace(`/identity/${encodeURIComponent(json.username)}/profile`);
                 break;
               }
               case 'NEW': {
                 this.initData();
-                this.context.router.replace(`identity/new`);
+                this.context.history.replace(`/identity/new`);
                 break;
               }
               default: {
-                // this.context.router.push(`identities`); // TODO: has goBack?
-                this.context.router.goBack();
+                // this.context.history.push(`identities`); // TODO: has goBack?
+                this.context.history.goBack();
               }
             }
           });
@@ -334,7 +334,7 @@ class Create extends Basic.AbstractContent {
                 <Basic.Button
                   type="button"
                   level="link"
-                  onClick={ this.context.router.goBack }
+                  onClick={ this.context.history.goBack }
                   showLoading={ showLoading }>
                   { this.i18n('button.back') }
                 </Basic.Button>

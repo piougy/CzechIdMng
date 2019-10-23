@@ -29,7 +29,7 @@ class ScriptContent extends Basic.AbstractContent {
 
   componentDidMount() {
     super.componentDidMount();
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     if (this._getIsNew()) {
       this.context.store.dispatch(scriptManager.receiveEntity(entityId, { }));
@@ -70,7 +70,7 @@ ScriptDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: scriptManager.getEntity(state, entityId),

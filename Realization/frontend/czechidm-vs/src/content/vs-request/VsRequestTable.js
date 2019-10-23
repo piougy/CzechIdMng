@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import uuid from 'uuid';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 //
 import { Basic, Advanced, Utils, Domain, Managers} from 'czechidm-core';
 import { VsRequestManager} from '../../redux';
@@ -50,7 +50,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   /**
@@ -60,7 +60,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -69,9 +69,9 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
   showDetail(entity) {
     if (Utils.Entity.isNew(entity)) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/vs/request/${uuidId}/new?new=1`);
+      this.context.history.push(`/vs/request/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/vs/request/${entity.id}/detail`);
+      this.context.history.push(`/vs/request/${entity.id}/detail`);
     }
   }
 

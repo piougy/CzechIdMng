@@ -116,6 +116,7 @@ class ScriptArea extends AbstractFormComponent {
     require('brace/mode/json');
     require('brace/mode/sqlserver');
     require('brace/theme/github');
+    require('brace/ext/language_tools');
     const AceEditorInstance = this._getAceEditor(AceEditor, mode, className, height, showModalEditor);
     return (
       <div className={ showAsterix ? 'has-feedback' : ''}>

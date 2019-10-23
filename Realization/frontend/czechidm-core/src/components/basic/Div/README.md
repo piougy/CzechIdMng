@@ -11,6 +11,6 @@ Div container (supports rendered and showLoading properties)
     uiKey="role-form-attributes-table"
     forceSearchParameters={ forceSearchParameters }
     className="no-margin"
-    params={ this.props.params }/>
+    match={ this.props.match }/>
 </Basic.Div>
 ```

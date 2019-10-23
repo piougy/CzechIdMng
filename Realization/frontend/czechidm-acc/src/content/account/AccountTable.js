@@ -91,7 +91,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   /**

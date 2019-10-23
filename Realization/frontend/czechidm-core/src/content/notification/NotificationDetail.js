@@ -89,7 +89,7 @@ class NotificationDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('sent.success', { name: entity.name }) });
-    this.context.router.replace('notification/notifications/');
+    this.context.history.replace('notification/notifications/');
   }
 
   _pickTemplate(template) {
@@ -198,11 +198,11 @@ class NotificationDetail extends Basic.AbstractContent {
               ?
               <div style={{ margin: '7px 0' }}>
                 {
-                  notification.recipients.map(recipient => {
+                  [...notification.recipients.map(recipient => {
                     return (
                       <NotificationRecipient recipient={recipient} identityOnly={identityOnly}/>
                     );
-                  })
+                  }).values]
                 }
               </div>
               :
@@ -288,7 +288,7 @@ class NotificationDetail extends Basic.AbstractContent {
               </Advanced.Table>
             }
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button type="button" level="link" onClick={this.context.history.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
               <Basic.Button
                 hidden={!isNew}
                 onClick={this.save.bind(this)}

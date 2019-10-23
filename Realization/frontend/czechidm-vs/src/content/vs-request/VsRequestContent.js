@@ -36,7 +36,7 @@ class VsRequestContent extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (this._isNew()) {
       // persist new entity to redux
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
@@ -49,14 +49,14 @@ class VsRequestContent extends Basic.AbstractContent {
    * Component will receive new props, try to compare with actual,
    * then init form
    */
-  componentWillReceiveProps(nextProps) {
-    const { entityId } = this.props.params;
-    if (entityId && nextProps.params.entityId && entityId !== nextProps.params.entityId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { entityId } = this.props.match.params;
+    if (entityId && nextProps.match.params.entityId && entityId !== nextProps.match.params.entityId) {
       if (this._isNew()) {
         // persist new entity to redux
-        this.context.store.dispatch(manager.receiveEntity(nextProps.params.entityId, { }));
+        this.context.store.dispatch(manager.receiveEntity(nextProps.match.params.entityId, { }));
       } else {
-        this.context.store.dispatch(manager.fetchEntity(nextProps.params.entityId));
+        this.context.store.dispatch(manager.fetchEntity(nextProps.match.params.entityId));
       }
     }
   }
@@ -98,7 +98,7 @@ VsRequestContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

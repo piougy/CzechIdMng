@@ -24,7 +24,7 @@ export default class AutomaticRoleAttributeIdentities extends Basic.AbstractCont
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (entityId) {
       this.selectNavigationItems(['roles-menu', 'roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-identities']);
     } else {
@@ -41,7 +41,7 @@ export default class AutomaticRoleAttributeIdentities extends Basic.AbstractCont
   }
 
   render() {
-    const { automaticRoleId } = this.props.params;
+    const { automaticRoleId } = this.props.match.params;
     const forceSearchParameters = new SearchParameters().setFilter('automaticRoleId', automaticRoleId);
     //
     return (

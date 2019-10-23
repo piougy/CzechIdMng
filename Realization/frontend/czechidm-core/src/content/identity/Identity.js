@@ -27,7 +27,7 @@ class IdentityContent extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     // FIXME: look out - entity is loaded thx to OrganizationPosition => it's commented for now. Find a way to prevent multiple loading
     // this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId));
     //
@@ -38,7 +38,7 @@ class IdentityContent extends Basic.AbstractContent {
 
   componentDidUpdate() {
     // TODO: move to componentWillReceiveNextProps
-    // const { entityId } = this.props.params;
+    // const { entityId } = this.props.match.params;
     //
     // FIXME: look out - entity is loaded thx to OrganizationPosition => it's commented for now. Find a way to prevent multiple loading
     /*
@@ -48,8 +48,8 @@ class IdentityContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { identity, _imageUrl } = this.props;
-    const { entityId } = this.props.params;
+    const { identity, _imageUrl, match } = this.props;
+    const { entityId } = match.params;
     //
     return (
       <div>
@@ -73,8 +73,8 @@ class IdentityContent extends Basic.AbstractContent {
 
         <OrganizationPosition identity={ entityId }/>
 
-        <Advanced.TabPanel position="left" parentId="identity-profile" params={ this.props.params }>
-          { this.props.children }
+        <Advanced.TabPanel position="left" parentId="identity-profile" match={match}>
+          {this.getRoutes()}
         </Advanced.TabPanel>
       </div>
     );
@@ -94,7 +94,7 @@ IdentityContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   const selectedNavigationItems = state.config.get('selectedNavigationItems');
   const selectedSidebarItem = (selectedNavigationItems.length > 0) ? selectedNavigationItems[0] : null;
   const profileUiKey = identityManager.resolveProfileUiKey(entityId);

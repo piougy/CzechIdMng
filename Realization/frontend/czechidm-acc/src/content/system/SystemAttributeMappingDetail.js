@@ -42,10 +42,10 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.attributeMappingDetail';
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const {_attribute} = nextProps;
-    const { attributeId} = nextProps.params;
-    if (attributeId && attributeId !== this.props.params.attributeId) {
+    const { attributeId} = nextProps.match.params;
+    if (attributeId && attributeId !== this.props.match.params.attributeId) {
       this._initComponent(nextProps);
     }
     if (_attribute && _attribute !== this.props._attribute) {
@@ -75,7 +75,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { attributeId} = props.params;
+    const { attributeId} = props.match.params;
     if (this._getIsNew(props)) {
       this.setState({
         attribute: {
@@ -110,7 +110,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
-      this.context.router.goBack();
+      this.context.history.goBack();
     } else {
       this.addError(error);
     }
@@ -372,7 +372,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
               <Basic.PanelFooter>
                 <Basic.Button type="button" level="link"
-                  onClick={this.context.router.goBack}
+                  onClick={this.context.history.goBack}
                   showLoading={_showLoading}>
                   {this.i18n('button.back')}
                 </Basic.Button>
@@ -440,7 +440,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
             showFilter={false}
             showRowSelection={false}
             forceSearchParameters={ overriddenForceSearchParameters }
-            params={ this.props.params }/>
+            match={ this.props.match }/>
         </Basic.Tab>
       </Basic.Tabs>
       </div>
@@ -456,7 +456,7 @@ SystemAttributeMappingDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.params.attributeId);
+  const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.match.params.attributeId);
   let systemMapping = null;
   if (component && component.location && component.location.query.new) {
     systemMapping = Utils.Entity.getEntity(state, systemMappingManager.getEntityType(), component.location.query.mappingId);

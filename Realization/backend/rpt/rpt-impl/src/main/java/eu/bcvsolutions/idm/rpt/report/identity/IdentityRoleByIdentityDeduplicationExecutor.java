@@ -63,7 +63,7 @@ public class IdentityRoleByIdentityDeduplicationExecutor extends AbstractReportE
 	public static final String REPORT_NAME = "identity-role-by-identity-deduplication-report";
 
 	public static final String PARAMETER_TREE_NODE = "treeNode";
-	
+
 	@Autowired
 	private IdentityRoleByIdentityDeduplicationBulkAction deduplicationBulkAction;
 	@Autowired
@@ -89,7 +89,7 @@ public class IdentityRoleByIdentityDeduplicationExecutor extends AbstractReportE
 			JsonGenerator jGenerator = getMapper().getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
 			try {
 				// json will be array of identities
-				jGenerator.writeStartArray();		
+				jGenerator.writeStartArray();
 
 				counter = 0L;
 				List<UUID> identities = identityService.findIds(filter, null, IdmBasePermission.READ).getContent();
@@ -171,11 +171,11 @@ public class IdentityRoleByIdentityDeduplicationExecutor extends AbstractReportE
 	private RptIdentityRoleByRoleDeduplicationDto createRecordForContracts(IdmIdentityContractDto contract) {
 		List<IdmIdentityRoleDto> duplicityIdentityRoles = deduplicationBulkAction
 				.getDuplicatesIdentityRoleForContract(contract);
-		
+
 		if (duplicityIdentityRoles.isEmpty()) {
 			return null;
 		}
-		
+
 		List<RptIdentityRoleByRoleDeduplicationDuplicityDto> duplicity = new ArrayList<>(duplicityIdentityRoles.size());
 		for (IdmIdentityRoleDto duplicityIdentityRole : duplicityIdentityRoles) {
 			RptIdentityRoleByRoleDeduplicationDuplicityDto dupl = new RptIdentityRoleByRoleDeduplicationDuplicityDto();
@@ -187,7 +187,7 @@ public class IdentityRoleByIdentityDeduplicationExecutor extends AbstractReportE
 		}
 
 		RptIdentityRoleByRoleDeduplicationDto item = new RptIdentityRoleByRoleDeduplicationDto();
-		
+
 		IdmTreeNodeDto treeNodeDto = DtoUtils.getEmbedded(contract, IdmIdentityContract_.workPosition, IdmTreeNodeDto.class, null);
 		IdmIdentityDto identityDto = DtoUtils.getEmbedded(contract, IdmIdentityContract_.identity, IdmIdentityDto.class, null);
 

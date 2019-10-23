@@ -1,7 +1,7 @@
-import { formatPattern } from 'react-router/lib/PatternUtils';
+import pathToRegexp from 'path-to-regexp';
 import Immutable from 'immutable';
 // reused actions
-import FlashMessagesManager from '../../redux/flash/FlashMessagesManager';
+import FlashMessagesManager from '../flash/FlashMessagesManager';
 // api
 import ConfigLoader from '../../utils/ConfigLoader';
 import ComponentLoader from '../../utils/ComponentLoader';
@@ -89,7 +89,8 @@ export function backendConfigurationInit(cb = () => {}) {
             const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.backendId) || false;
             //
             // FE module can be disabed sepatelly
-            if (isEnabled && (moduleDescriptor.backendId === moduleDescriptor.id || ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id))) {
+            if (isEnabled && (moduleDescriptor.backendId === moduleDescriptor.id
+              || ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id))) {
               ConfigLoader.enable(moduleDescriptor.id, true);
             } else {
               ConfigLoader.enable(moduleDescriptor.id, false);
@@ -254,7 +255,8 @@ export function getNavigationItems(navigation, parentId = null, section = null, 
     }
     // construct target to link from path and parameters
     if (item.path) {
-      item.to = formatPattern(item.path, resolveNavigationParameters(userContext, params));
+      const thingPath = pathToRegexp.compile(item.path);
+      item.to = thingPath(resolveNavigationParameters(userContext, params));
     }
 
     return true;

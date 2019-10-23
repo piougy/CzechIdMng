@@ -80,7 +80,7 @@ class TypeDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.context.router.goBack();
+    this.context.history.goBack();
   }
 
   closeDetail() {
@@ -118,7 +118,7 @@ class TypeDetail extends Basic.AbstractContent {
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
             <Basic.Button
               type="submit"
               level="success"

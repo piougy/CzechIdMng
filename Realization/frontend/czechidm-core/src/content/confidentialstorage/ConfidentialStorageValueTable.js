@@ -40,7 +40,7 @@ export class ConfidentialStorageValueTable extends Advanced.AbstractTableContent
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   _getCellOwnerId( rowIndex, data, property) {
@@ -57,11 +57,11 @@ export class ConfidentialStorageValueTable extends Advanced.AbstractTableContent
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
-    this.context.router.push('/confidential-storage/' + entity.id);
+    this.context.history.push('/confidential-storage/' + entity.id);
   }
 
   render() {

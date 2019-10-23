@@ -32,7 +32,7 @@ export default class TreeNodeRoles extends Basic.AbstractContent {
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('treeNodeId', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('treeNodeId', this.props.match.params.entityId);
     //
     return (
       <div>

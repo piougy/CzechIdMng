@@ -43,9 +43,9 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
     return 'acc:content.provisioningBreakConfig';
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { mappingId } = nextProps.params;
-    if (mappingId && mappingId !== this.props.params.mappingId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { mappingId } = nextProps.match.params;
+    if (mappingId && mappingId !== this.props.match.params.mappingId) {
       this._initComponent(nextProps);
     }
   }
@@ -62,7 +62,7 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { configId } = props.params;
+    const { configId } = props.match.params;
 
     // fetch break config
     if (!this._getIsNew(props)) {
@@ -74,7 +74,7 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
    * Save entity
    */
   save(event) {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (event) {
       event.preventDefault();
     }
@@ -103,8 +103,8 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
       } else {
         this.addMessage({ message: this.i18n('save.success', {entityType: entity.entityType, operationType: entity.operationType}) });
       }
-      const { entityId } = this.props.params;
-      this.context.router.replace(`/system/${entityId}/break-configs/${entity.id}/detail`, { configId: entity.id });
+      const { entityId } = this.props.match.params;
+      this.context.history.replace(`/system/${entityId}/break-configs/${entity.id}/detail`, { configId: entity.id });
     } else {
       this.addError(error);
     }
@@ -129,7 +129,7 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
 
   render() {
     const { _showLoading, entity } = this.props;
-    const { configId } = this.props.params;
+    const { configId } = this.props.match.params;
 
     const isNew = this._getIsNew();
     return (
@@ -213,7 +213,7 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
 
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
+                onClick={this.context.history.goBack}
                 showLoading={_showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
@@ -254,7 +254,7 @@ SystemProvisioningBreakConfigDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { configId } = component.params;
+  const { configId } = component.match.params;
 
   return {
     entity: manager.getEntity(state, configId),

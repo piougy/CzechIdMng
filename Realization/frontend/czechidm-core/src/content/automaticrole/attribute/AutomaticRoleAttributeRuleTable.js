@@ -45,14 +45,14 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -65,9 +65,9 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
     }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/automatic-role/attributes/${attributeId}/rule/${uuidId}?new=1`);
+      this.context.history.push(`/automatic-role/attributes/${attributeId}/rule/${uuidId}?new=1`);
     } else {
-      this.context.router.push(`/automatic-role/attributes/${attributeId}/rule/${entity.id}`);
+      this.context.history.push(`/automatic-role/attributes/${attributeId}/rule/${entity.id}`);
     }
   }
 

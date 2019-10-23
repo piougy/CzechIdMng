@@ -31,7 +31,7 @@ class NotificationContent extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('notification-notifications');
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const isNew = this._getIsNew();
     if (isNew) {
       this.context.store.dispatch(notificationManager.receiveEntity(entityId, { }));
@@ -87,7 +87,7 @@ NotificationContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     notification: notificationManager.getEntity(state, entityId),

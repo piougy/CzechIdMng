@@ -38,7 +38,7 @@ class Organizations extends Basic.AbstractContent {
   }
 
   showTreeTypes() {
-    this.context.router.push(`/tree/types`);
+    this.context.history.push(`/tree/types`);
   }
 
   render() {

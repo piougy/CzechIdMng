@@ -14,9 +14,9 @@ const componentService = new ComponentService();
  */
 export default class EntitySelectBox extends Basic.AbstractFormComponent {
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (this.refs.selectComponent) {
-      this.refs.selectComponent.componentWillReceiveProps(nextProps);
+      this.refs.selectComponent.UNSAFE_componentWillReceiveProps(nextProps);
     }
   }
 

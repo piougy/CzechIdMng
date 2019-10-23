@@ -46,14 +46,14 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   onRedeployOrBackup(bulkActionValue, selectedRows) {
@@ -70,7 +70,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
         }
         if (!error && successEntities) {
           // refresh data in table
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }, () => {
@@ -90,9 +90,9 @@ export class ScriptTable extends Advanced.AbstractTableContent {
     // this is necessary for ScriptDetail
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/scripts/${uuidId}/new?new=1`);
+      this.context.history.push(`/scripts/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/scripts/${entity.id}/detail`);
+      this.context.history.push(`/scripts/${entity.id}/detail`);
     }
   }
 

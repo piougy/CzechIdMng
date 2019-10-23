@@ -48,13 +48,13 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
  * Custom form value service can be registered by spring plugin
- * 
+ *
  * @author Radek Tomiška
  *
  * @param <O> values owner
  * @param <E> values entity
  */
-public abstract class AbstractFormValueService<O extends FormableEntity, E extends AbstractFormValue<O>> 
+public abstract class AbstractFormValueService<O extends FormableEntity, E extends AbstractFormValue<O>>
 		extends AbstractReadWriteDtoService<IdmFormValueDto, E, IdmFormValueFilter<O>>
 		implements FormValueService<O> {
 
@@ -63,13 +63,13 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	private final Class<E> formValueClass;
 	private final AbstractFormValueRepository<O, E> repository;
 	//
-	@Autowired 
+	@Autowired
 	private ConfidentialStorage confidentialStorage;
 	@Autowired @Lazy
 	private LookupService lookupService;
 	@Autowired @Lazy
 	private RequestManager requestManager;
-	
+
 	@SuppressWarnings("unchecked")
 	public AbstractFormValueService(AbstractFormValueRepository<O, E> repository) {
 		super(repository);
@@ -81,21 +81,21 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		this.formValueClass = (Class<E>)genericTypes[1];
 		this.repository = repository;
 	}
-	
+
 	@Override
 	public Class<O> getOwnerClass() {
 		return ownerClass;
 	}
-	
+
 	public Class<E> getFormValueClass() {
 		return formValueClass;
 	}
-	
+
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return null; // each implementation should be secured itself
 	}
-	
+
 	@Override
 	protected IdmFormValueDto toDto(E entity) {
 		IdmFormValueDto dto = super.toDto(entity);
@@ -106,7 +106,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		}
 		return dto;
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	protected E toEntity(IdmFormValueDto dto, E entity) {
@@ -124,16 +124,16 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	public boolean supports(Class<?> delimiter) {
 		return ownerClass.isAssignableFrom(delimiter);
 	}
-	
+
 	/**
 	 * Returns entity repository
-	 * 
+	 *
 	 * @return
 	 */
 	protected AbstractFormValueRepository<O, E> getRepository() {
 		return repository;
 	}
-	
+
 	/**
 	 * Returns entity by given id. Returns null, if entity is not exists. For AbstractEntity uuid or string could be given.
 	 */
@@ -147,11 +147,11 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		}
 		return toDto(formValue);
 	}
-	
+
 	/**
 	 * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the
 	 * entity instance completely.
-	 * 
+	 *
 	 * @param entity
 	 * @return the saved entity
 	 */
@@ -160,7 +160,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	public IdmFormValueDto saveInternal(IdmFormValueDto dto) {
 		Assert.notNull(dto, "DTO is required to be saved.");
 		//
-		// check, if value has to be persisted in confidential storage 
+		// check, if value has to be persisted in confidential storage
 		Serializable formValue = dto.getValue();
 		if (dto.isConfidential()) {
 			dto.clearValues();
@@ -184,7 +184,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		}
 		return toDto(entity);
 	}
-	
+
 	@Override
 	@Transactional
 	public void deleteInternal(IdmFormValueDto dto) {
@@ -200,7 +200,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		//
 		super.deleteInternal(dto);
 	}
-	
+
 	@Override
 	protected List<Predicate> toPredicates(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder,IdmFormValueFilter<O> filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
@@ -275,7 +275,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		//
 		return predicates;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefiniton, BasePermission... permission) {
@@ -289,7 +289,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		}
 		return find(filter, PageRequest.of(0, Integer.MAX_VALUE, Sort.by(AbstractFormValue_.seq.getName())), permission).getContent();
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormValueDto> getValues(O owner, IdmFormAttributeDto attribute, BasePermission... permission) {
@@ -303,20 +303,20 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		//
 		return find(filter, PageRequest.of(0, Integer.MAX_VALUE, Sort.by(AbstractFormValue_.seq.getName())), permission).getContent();
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmFormValueDto> find(IdmFormValueFilter<O> filter, Pageable pageable, BasePermission... permission) {
 		return super.find(filter, pageable, permission);
 	}
-	
+
 	@Transactional
 	public void deleteValues(O owner, IdmFormDefinitionDto formDefiniton, BasePermission... permission) {
 		getValues(owner, formDefiniton).forEach(formValue -> {
 			delete(formValue, permission);
 		});
 	}
-	
+
 	@Transactional
 	public void deleteValues(O owner, IdmFormAttributeDto attribute, BasePermission... permission) {
 		Assert.notNull(attribute, "Form attribute definition is required!");
@@ -325,7 +325,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			delete(formValue, permission);
 		});
 	}
-	
+
 	@Override
 	public String getConfidentialStorageKey(UUID formAttributeId) {
 		Assert.notNull(formAttributeId, "For attribute identifier is required to get confidential storage key.");
@@ -339,7 +339,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		//
 		return confidentialStorage.get(guardedValue.getId(), getEntityClass(), getConfidentialStorageKey(guardedValue.getFormAttribute()));
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	@SuppressWarnings("deprecation")
@@ -380,16 +380,16 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			}
 			case SHORTTEXT: {
 				return repository.findOwnersByShortTextValue(attribute.getId(), value.getShortTextValue(), pageable);
-			} 
+			}
 			// texts
 			default:
 				return repository.findOwnersByStringValue(attribute.getId(), value.getStringValue(), pageable);
 		}
 	}
-	
+
 	/**
 	 * Returns owner entity by given id and type
-	 * 
+	 *
 	 * @param ownerId
 	 * @param ownerType
 	 * @return

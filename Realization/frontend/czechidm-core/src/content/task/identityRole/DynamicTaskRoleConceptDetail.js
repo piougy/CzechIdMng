@@ -29,7 +29,7 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
     this._initComponent(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps && (
       JSON.stringify(nextProps.task) !== JSON.stringify(this.props.task)
     )) {
@@ -99,8 +99,8 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
       event.preventDefault();
     }
 
-    const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
-    const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
+    const form = this.refs.roleConceptDetail.getForm();
+    const eavForm = this.refs.roleConceptDetail.getEavForm();
     if (!form.isFormValid()) {
       return;
     }
@@ -120,10 +120,10 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
     const { task } = this.props;
     const { canGoBack } = this.state;
     if (canGoBack) {
-      this.context.router.goBack();
+      this.context.history.goBack();
     } else {
       // transmition to /task, history doesnt exist, for now transmition to identity task
-      this.context.router.push(`tasks/identity/${task.variables.implementerIdentifier}`);
+      this.context.history.push(`/tasks/identity/${task.variables.implementerIdentifier}`);
     }
   }
 

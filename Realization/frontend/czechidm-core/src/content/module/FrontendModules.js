@@ -80,7 +80,7 @@ class FrontendModules extends Basic.AbstractContent {
           ?
           <Basic.Loading isStatic showLoading/>
           :
-          ConfigLoader.getModuleDescriptors()
+          [...ConfigLoader.getModuleDescriptors()
             .sort((one, two) => one.id > two.id)
             .map(moduleDescriptor => {
               const componentDescriptor = ComponentLoader.getComponentDescriptor(moduleDescriptor.id);
@@ -198,7 +198,7 @@ class FrontendModules extends Basic.AbstractContent {
                   </Basic.Table>
                 </Basic.Panel>
               );
-            })
+            }).values()]
         }
 
       </div>

@@ -67,7 +67,7 @@ class ContractSliceGuarantees extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new SearchParameters().setFilter('contractSliceId', entityId);

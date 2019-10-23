@@ -31,9 +31,9 @@ class Login extends Basic.AbstractContent {
       // redirection to requested page before login
       const { location } = this.props;
       if (location.state && location.state.nextPathname) {
-        this.context.router.replace(location.state.nextPathname);
+        this.context.history.replace(location.state.nextPathname);
       } else {
-        this.context.router.replace('/');
+        this.context.history.replace('/');
       }
     }
   }

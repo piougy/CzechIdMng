@@ -27,7 +27,7 @@ class FormAttributeRoutes extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
 
     if (!this._getIsNew()) {
       this.getLogger().debug(`[FormContent] loading entity detail [id:${entityId}]`);
@@ -72,10 +72,10 @@ class FormAttributeRoutes extends Basic.AbstractContent {
         {
           this._getIsNew()
           ?
-          <FormAttributeDetail isNew formDefinition={ this._getFormDefinitionId() } params={ this.props.params } />
+          <FormAttributeDetail isNew formDefinition={ this._getFormDefinitionId() } match={ this.props.match } />
           :
-          <Advanced.TabPanel position="left" parentId="forms-attributes" params={this.props.params}>
-            {this.props.children}
+          <Advanced.TabPanel position="left" parentId="forms-attributes" match={ this.props.match }>
+            {this.getRoutes()}
           </Advanced.TabPanel>
         }
 
@@ -92,7 +92,7 @@ FormAttributeRoutes.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

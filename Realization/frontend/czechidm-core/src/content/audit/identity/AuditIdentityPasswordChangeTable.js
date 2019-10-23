@@ -28,7 +28,7 @@ export class AuditIdentityPasswordChangeTable extends Advanced.AbstractTableCont
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
@@ -36,7 +36,7 @@ export class AuditIdentityPasswordChangeTable extends Advanced.AbstractTableCont
       event.preventDefault();
     }
     if (this.refs.table !== undefined) {
-      this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+      this.refs.table.cancelFilter(this.refs.filterForm);
     }
   }
 

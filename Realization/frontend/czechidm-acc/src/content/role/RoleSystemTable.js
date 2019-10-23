@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import uuid from 'uuid';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 //
 import { Basic, Advanced, Utils } from 'czechidm-core';
@@ -41,8 +41,8 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
   getManager() {
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    manager = this.getRequestManager(this.props.params, originalManager);
-    roleManager = this.getRequestManager(this.props.params, new RoleManager());
+    manager = this.getRequestManager(this.props.match.params, originalManager);
+    roleManager = this.getRequestManager(this.props.match.params, new RoleManager());
     return manager;
   }
 
@@ -57,21 +57,21 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
     const { menu } = this.props;
     //
     if (menu === 'system') {
-      this.context.router.push(`/system/${entity.system}/roles/${entity.id}/detail`);
+      this.context.history.push(`/system/${entity.system}/roles/${entity.id}/detail`);
     } else {
-      this.context.router.push(`${this.addRequestPrefix('role', this.props.params)}/${entity.role}/systems/${entity.id}/detail`);
+      this.context.history.push(`${this.addRequestPrefix('role', this.props.match.params)}/${entity.role}/systems/${entity.id}/detail`);
     }
   }
 
   addRoleSystemConnection() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const uuidId = uuid.v1();
     const { menu } = this.props;
     //
     if (menu === 'system') {
-      this.context.router.push(`/system/${entityId}/roles/${uuidId}/new?new=1`);
+      this.context.history.push(`/system/${entityId}/roles/${uuidId}/new?new=1`);
     } else { // role detail as default
-      this.context.router.push(`${this.addRequestPrefix('role', this.props.params)}/${entityId}/systems/${uuidId}/new?new=1`);
+      this.context.history.push(`${this.addRequestPrefix('role', this.props.match.params)}/${entityId}/systems/${uuidId}/new?new=1`);
     }
   }
 
@@ -92,7 +92,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
@@ -103,7 +103,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
       text: null,
       treeNodeId: null
     }, () => {
-      this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+      this.refs.table.cancelFilter(this.refs.filterForm);
     });
   }
 

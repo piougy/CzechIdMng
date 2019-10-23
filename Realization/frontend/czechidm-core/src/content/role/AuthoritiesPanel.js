@@ -27,7 +27,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { authorities, availableAuthorities } = nextProps;
     // cursor is different
     if (availableAuthorities) {

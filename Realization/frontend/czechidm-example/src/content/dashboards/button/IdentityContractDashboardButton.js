@@ -31,7 +31,7 @@ class IdentityContractDashboardButton extends Advanced.AbstractIdentityDashboard
   }
 
   onClick() {
-    this.context.router.push(`/identity/${ encodeURIComponent(this.getIdentityIdentifier()) }/contracts`);
+    this.context.history.push(`/identity/${ encodeURIComponent(this.getIdentityIdentifier()) }/contracts`);
   }
 }
 

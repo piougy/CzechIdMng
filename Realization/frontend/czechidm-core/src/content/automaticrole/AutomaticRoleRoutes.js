@@ -27,8 +27,8 @@ export default class AutomaticRoleRoutes extends Basic.AbstractContent {
       <div>
         { this.renderPageHeader() }
 
-        <Advanced.TabPanel position="top" parentId="automatic-roles" params={this.props.params}>
-          {this.props.children}
+        <Advanced.TabPanel position="top" parentId="automatic-roles" match={ this.props.match }>
+          {this.getRoutes()}
         </Advanced.TabPanel>
       </div>
     );

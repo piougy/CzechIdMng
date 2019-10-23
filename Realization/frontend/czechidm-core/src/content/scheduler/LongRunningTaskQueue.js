@@ -46,7 +46,7 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.context.store.dispatch(longRunningTaskManager.fetchEntity(entityId));
   }
 
@@ -54,14 +54,14 @@ class LongRunningTaskQueue extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   render() {
@@ -240,7 +240,7 @@ LongRunningTaskQueue.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: longRunningTaskManager.getEntity(state, entityId),
     showLoading: longRunningTaskManager.isShowLoading(state, null, entityId),

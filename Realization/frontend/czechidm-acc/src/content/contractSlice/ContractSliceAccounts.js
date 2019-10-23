@@ -51,7 +51,7 @@ class ContractSliceAccountsContent extends Advanced.AbstractTableContent {
     }
     //
     const entityFormData = _.merge({}, entity, {
-      slice: entity._embedded && entity._embedded.slice ? entity._embedded.slice.id : this.props.params.entityId,
+      slice: entity._embedded && entity._embedded.slice ? entity._embedded.slice.id : this.props.match.params.entityId,
       account: entity.account ? entity.account.id : null
     });
     //
@@ -81,7 +81,7 @@ class ContractSliceAccountsContent extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('sliceId', entityId);

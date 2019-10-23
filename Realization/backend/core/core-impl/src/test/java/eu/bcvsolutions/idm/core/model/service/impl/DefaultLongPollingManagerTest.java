@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test for long polling manager
- * 
+ *
  * @author Vít Švanda
  *
  */
@@ -100,7 +100,7 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 		// Clear deferred result and subscribers
 		defaultPollingManager.getSuspendedRequests().clear();
 		defaultPollingManager.getRegistredSubscribers().clear();
-		
+
 		IdmIdentityDto identityOne = this.getHelper().createIdentity();
 
 		DeferredResult<OperationResultDto> result = new DeferredResult<OperationResultDto>(10000l,
@@ -144,7 +144,7 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 		// Clear deferred result and subscribers
 		defaultPollingManager.getSuspendedRequests().clear();
 		defaultPollingManager.getRegistredSubscribers().clear();
-		
+
 		IdmIdentityDto identityOne = this.getHelper().createIdentity();
 
 		DeferredResult<OperationResultDto> result = new DeferredResult<OperationResultDto>(10000l,
@@ -194,7 +194,7 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 		// Clear deferred result and subscribers
 		defaultPollingManager.getSuspendedRequests().clear();
 		defaultPollingManager.getRegistredSubscribers().clear();
-		
+
 		IdmIdentityDto identityOne = this.getHelper().createIdentity();
 		IdmRoleRequestDto roleRequest = this.getHelper().createRoleRequest(identityOne, this.getHelper().createRole());
 
@@ -246,7 +246,7 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 		// Clear deferred result and subscribers
 		defaultPollingManager.getSuspendedRequests().clear();
 		defaultPollingManager.getRegistredSubscribers().clear();
-		
+
 		IdmIdentityDto identityOne = this.getHelper().createIdentity();
 		IdmRoleRequestDto roleRequest = this.getHelper().createRoleRequest(identityOne, this.getHelper().createRole());
 

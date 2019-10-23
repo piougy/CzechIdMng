@@ -1,7 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
-import { routeActions } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import sha1 from 'sha1';
+// import moment from 'moment';
+// api
 import { LocalizationService, AuthenticateService } from '../../services';
 
 /*
@@ -206,11 +208,11 @@ export default class FlashMessagesManager {
         <div>
           <ol style={{ listStylePosition: 'inside' }}>
             {
-              notificationMessage.model.parameters.processors.map(processor => {
+              [...notificationMessage.model.parameters.processors.map(processor => {
                 return (
                   <li>{ LocalizationService.i18n(`${processor.module}:processor.${processor.name}.title`, { defaultValue: processor.id }) } </li>
                 );
-              })
+              }).values()]
             }
           </ol>
         </div>
@@ -264,7 +266,7 @@ export default class FlashMessagesManager {
       } else if (this._isPasswordChangeError(error)) {
         dispatch(this._logoutImmediatelly());
         const username = error.parameters.identity;
-        dispatch(routeActions.push(`/password/change?name=${username}`));
+        dispatch(push(`/password/change?name=${username}`));
       } else {
         dispatch(this.addMessage(errorMessage));
       }
@@ -396,7 +398,7 @@ export default class FlashMessagesManager {
 
   redirect() {
     return dispatch => {
-      dispatch(routeActions.push(`/error/403`));
+      dispatch(push(`/error/403`));
     };
   }
 

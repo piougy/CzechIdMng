@@ -70,7 +70,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId, identityId, controlledBySlices } = this.props.params;
+    const { entityId, identityId, controlledBySlices } = this.props.match.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new SearchParameters().setFilter('identityContractId', entityId);
@@ -208,7 +208,7 @@ IdentityContractGuarantees.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
 
   return {
     entity: manager.getEntity(state, entityId),

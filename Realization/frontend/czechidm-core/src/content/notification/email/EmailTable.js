@@ -37,21 +37,21 @@ export class EmailTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity, event) {
     if (event) {
       event.preventDefault();
     }
-    this.context.router.push('/notification/emails/' + entity.id);
+    this.context.history.push('/notification/emails/' + entity.id);
   }
 
   _getStatus(data, rowIndex) {

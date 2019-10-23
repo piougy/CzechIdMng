@@ -11,7 +11,7 @@ Renders navigation items as detail tabs. TabPanel is built from module descripto
 ## Usage
 
 ```html
-<Advanced.TabPanel parentId="user-profile" params={this.props.params}>
+<Advanced.TabPanel parentId="user-profile" match={ this.props.match }>
   {this.props.children}
 </Advanced.TabPanel>
 ```

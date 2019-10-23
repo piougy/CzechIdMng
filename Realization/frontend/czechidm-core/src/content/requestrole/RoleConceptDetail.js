@@ -46,7 +46,7 @@ export class RoleConceptDetail extends Basic.AbstractContent {
     return 'content.task.IdentityRoleConceptTable';
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps && (
       JSON.stringify(nextProps.entity) !== JSON.stringify(this.props.entity) ||
       nextProps.isEdit !== this.props.isEdit ||

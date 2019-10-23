@@ -47,7 +47,7 @@ class VsRequestDetail extends Basic.AbstractContent {
    * Component will receive new props, try to compare with actual,
    * then init form
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
     if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
       this._initConnectorObject(nextProps.entity.id);
@@ -351,7 +351,7 @@ class VsRequestDetail extends Basic.AbstractContent {
               </div>
             </Basic.PanelBody>
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={ this.context.router.goBack }>{ this.i18n('button.back') }</Basic.Button>
+              <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>{ this.i18n('button.back') }</Basic.Button>
               <Basic.SplitButton
                 level="success"
                 id="request-realize"

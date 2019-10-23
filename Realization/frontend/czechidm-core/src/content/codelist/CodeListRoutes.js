@@ -26,7 +26,7 @@ class CodeListRoutes extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
 
     if (!this._getIsNew()) {
       this.getLogger().debug(`[FormContent] loading entity detail [id:${entityId}]`);
@@ -66,10 +66,10 @@ class CodeListRoutes extends Basic.AbstractContent {
         {
           this._getIsNew()
           ?
-          <CodeListDetail isNew params={ this.props.params } />
+          <CodeListDetail isNew match={ this.props.match } />
           :
-          <Advanced.TabPanel position="left" parentId="code-lists" params={ this.props.params }>
-            { this.props.children }
+          <Advanced.TabPanel position="left" parentId="code-lists" match={ this.props.match }>
+            { this.getRoutes() }
           </Advanced.TabPanel>
         }
 
@@ -86,7 +86,7 @@ CodeListRoutes.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

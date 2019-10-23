@@ -46,7 +46,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps._permissions !== undefined && !_.isEqual(this.props._permissions, nextProps._permissions)) {
       this._initForm(nextProps._permissions);
     }

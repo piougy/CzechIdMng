@@ -66,7 +66,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                 <Basic.Col lg={ 6 }>
                   <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskProperties.label')}>
                     {
-                      _.keys(entity.taskProperties).map(propertyName => {
+                      [..._.keys(entity.taskProperties).map(propertyName => {
                         if (Utils.Ui.isEmpty(entity.taskProperties[propertyName])) {
                           return null;
                         }
@@ -77,7 +77,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                         return (
                           <div>{ propertyName }: { Utils.Ui.toStringValue(entity.taskProperties[propertyName]) }</div>
                         );
-                      })
+                      }).values()]
                     }
                   </Basic.LabelWrapper>
                 </Basic.Col>
@@ -124,7 +124,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
           </Basic.PanelBody>
 
           <Basic.PanelFooter>
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>
               {this.i18n('button.back')}
             </Basic.Button>
           </Basic.PanelFooter>

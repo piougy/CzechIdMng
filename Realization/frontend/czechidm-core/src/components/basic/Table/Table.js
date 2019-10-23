@@ -34,7 +34,7 @@ class Table extends AbstractComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({
       selectedRows: nextProps.selectedRows ? new Immutable.Set(nextProps.selectedRows) : new Immutable.Set()
     });

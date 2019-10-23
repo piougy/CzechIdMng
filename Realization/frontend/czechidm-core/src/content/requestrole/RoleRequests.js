@@ -60,7 +60,7 @@ class RoleRequests extends Advanced.AbstractTableContent {
     }
     const applicantId = this.refs.applicant.getValue();
     const uuidId = uuid.v1();
-    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${applicantId}`);
+    this.context.history.push(`/role-requests/${uuidId}/new?new=1&applicantId=${applicantId}`);
   }
 
   _startRequest(idRequest, event) {
@@ -80,7 +80,7 @@ class RoleRequests extends Advanced.AbstractTableContent {
           showLoading: false
         });
         if (this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
         if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
           this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
@@ -97,7 +97,7 @@ class RoleRequests extends Advanced.AbstractTableContent {
         });
         this.addError(ex);
         if (this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       });
     }, () => {

@@ -20,7 +20,7 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (!this._getIsNew()) {
       this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
       this.context.store.dispatch(passwordPolicyManager.fetchEntity(entityId));
@@ -62,10 +62,10 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
         {
           this._getIsNew()
           ?
-          <PasswordPolicyBasic params={this.props.params} isNew />
+          <PasswordPolicyBasic match={ this.props.match } isNew />
           :
-          <Advanced.TabPanel position="left" parentId="password-policies" params={this.props.params}>
-            {this.props.children}
+          <Advanced.TabPanel position="left" parentId="password-policies" match={ this.props.match }>
+            {this.getRoutes()}
           </Advanced.TabPanel>
         }
       </div>
@@ -79,7 +79,7 @@ PasswordPolicyRoutes.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: passwordPolicyManager.getEntity(state, entityId)

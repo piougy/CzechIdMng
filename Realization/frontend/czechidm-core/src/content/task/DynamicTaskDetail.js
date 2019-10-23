@@ -97,11 +97,11 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     }
     this.addMessage({ message: this.i18n('successComplete', { name: task.name }) });
     // TODO: fix me, both branches are called
-    if (this.context.router.goBack()) {
+    if (this.context.history.goBack()) {
       // nothig, router just can go back
     } else {
       // transmition to /task, history doesnt exist
-      this.context.router.push(`tasks/identity/${task.variables.implementerIdentifier}`);
+      this.context.history.push(`/tasks/identity/${task.variables.implementerIdentifier}`);
     }
   }
 

@@ -35,13 +35,13 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
   }
 
   showDetail(entity, add) {
-    const systemId = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
+    const systemId = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.match.params.entityId;
     if (add) {
       // When we add new provisiong break configuration use random uuid
       const uuidId = uuid.v1();
-      this.context.router.push(`system/${systemId}/break-configs/${uuidId}/new?new=1`);
+      this.context.history.push(`/system/${systemId}/break-configs/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`system/${systemId}/break-configs/${entity.id}/detail`);
+      this.context.history.push(`/system/${systemId}/break-configs/${entity.id}/detail`);
     }
   }
 
@@ -82,7 +82,7 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
               this.addError(error);
             }
           } else {
-            this.refs.table.getWrappedInstance().reload();
+            this.refs.table.reload();
           }
         }));
       }, () => {
@@ -98,7 +98,7 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setFilter('includeGlobalConfig', true);
     return (
       <div>

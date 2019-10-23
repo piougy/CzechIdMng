@@ -22,7 +22,7 @@ export default class IdentityEav extends Basic.AbstractContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     return (
       <Advanced.EavContent

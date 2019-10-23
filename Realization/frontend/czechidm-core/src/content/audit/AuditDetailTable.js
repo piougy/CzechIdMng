@@ -37,7 +37,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
    * @param entityId id of revision
    */
   showDetail(entityId) {
-    this.context.router.push(`/audit/entities/${entityId}`);
+    this.context.history.push(`/audit/entities/${entityId}`);
   }
 
   _getForceSearchParameters() {

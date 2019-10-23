@@ -29,10 +29,10 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     super(props, context);
     this.state = {
       ...this.state,
-      systemId: this._isSystemMenu() ? props.params.entityId : null, // dependant select box
+      systemId: this._isSystemMenu() ? props.match.params.entityId : null, // dependant select box
       roleSystem: {
-        role: this._isSystemMenu() ? null : props.params.entityId,
-        system: this._isSystemMenu() ? props.params.entityId : null
+        role: this._isSystemMenu() ? null : props.match.params.entityId,
+        system: this._isSystemMenu() ? props.match.params.entityId : null
       }
     };
   }
@@ -53,7 +53,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     if (this._isSystemMenu()) {
       return 'system-roles';
     }
-    return this.getRequestNavigationKey('role-systems', this.props.params);
+    return this.getRequestNavigationKey('role-systems', this.props.match.params);
   }
 
   _isMenu(menu = 'role') {
@@ -70,23 +70,23 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     if (!add) {
       entityId = this._isSystemMenu() ? entity._embedded.roleSystem.system : entity._embedded.roleSystem.role;
     } else {
-      entityId = this.props.params.entityId;
+      entityId = this.props.match.params.entityId;
     }
-    const roleSystem = this.props.params.roleSystemId;
+    const roleSystem = this.props.match.params.roleSystemId;
     const linkMenu = this._isSystemMenu() ? `system/${entityId}/roles/${roleSystem}/attributes` : `role/${entityId}/systems/${roleSystem}/attributes`;
     //
     if (add) {
       // When we add new object class, then we need id of role as parametr and use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`${this.addRequestPrefix(linkMenu, this.props.params)}/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
+      this.context.history.push(`${this.addRequestPrefix(linkMenu, this.props.match.params)}/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
     } else {
-      this.context.router.push(`${this.addRequestPrefix(linkMenu, this.props.params)}/${entity.id}/detail`);
+      this.context.history.push(`${this.addRequestPrefix(linkMenu, this.props.match.params)}/${entity.id}/detail`);
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { roleSystemId } = nextProps.params;
-    if (roleSystemId && roleSystemId !== this.props.params.roleSystemId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { roleSystemId } = nextProps.match.params;
+    if (roleSystemId && roleSystemId !== this.props.match.params.roleSystemId) {
       this._initComponent(nextProps);
     }
   }
@@ -105,12 +105,12 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
   _initComponent(props) {
     // Init managers - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    roleSystemManager = this.getRequestManager(props.params, new RoleSystemManager());
-    roleSystemAttributeManager = this.getRequestManager(props.params, new RoleSystemAttributeManager());
-    roleManager = this.getRequestManager(props.params, new Managers.RoleManager());
+    roleSystemManager = this.getRequestManager(props.match.params, new RoleSystemManager());
+    roleSystemAttributeManager = this.getRequestManager(props.match.params, new RoleSystemAttributeManager());
+    roleManager = this.getRequestManager(props.match.params, new Managers.RoleManager());
 
     if (!this._getIsNew(props)) {
-      const { roleSystemId } = props.params;
+      const { roleSystemId } = props.match.params;
       this.context.store.dispatch(roleSystemManager.fetchEntity(roleSystemId));
     } else {
       if (this._isSystemMenu()) {
@@ -141,7 +141,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
       this.context.store.dispatch(roleSystemManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
         if (!error && this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     } else {
@@ -154,9 +154,9 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
       if (this._getIsNew()) {
         this.addMessage({ message: this.i18n('create.success', { system: entity._embedded.system.name, role: entity._embedded.role.name }) });
         if (this._isSystemMenu()) {
-          this.context.router.replace(`/system/${entity.system}/roles/${entity.id}/detail`, { entityId: entity.id });
+          this.context.history.replace(`/system/${entity.system}/roles/${entity.id}/detail`, { entityId: entity.id });
         } else {
-          this.context.router.replace(`${this.addRequestPrefix('role', this.props.params)}/${entity.role}/systems/${entity.id}/detail`, { entityId: entity.id });
+          this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params)}/${entity.role}/systems/${entity.id}/detail`, { entityId: entity.id });
         }
       } else {
         this.addMessage({ message: this.i18n('save.success', { system: entity._embedded.system.name, role: entity._embedded.role.name }) });
@@ -193,7 +193,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, _roleSystem } = this.props;
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { systemId } = this.state;
     //
     if (!roleSystemManager || !roleManager) {
@@ -206,7 +206,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
       .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
       .setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
     let linkMenu = this._isSystemMenu() ? `/system/${roleSystem.system}/roles/${roleSystem ? roleSystem.id : ''}/attributes` : `/role/${roleSystem.role}/systems/${roleSystem ? roleSystem.id : ''}/attributes`;
-    linkMenu = this.addRequestPrefix(linkMenu, this.props.params);
+    linkMenu = this.addRequestPrefix(linkMenu, this.props.match.params);
     //
     return (
       <div>
@@ -251,7 +251,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
+                onClick={this.context.history.goBack}
                 showLoading={_showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
@@ -283,7 +283,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
               showRowSelection={false}
               uiKey={ `${uiKeyAttributes}-${entityId}` }
               forceSearchParameters={ forceSearchParameters }
-              params={ this.props.params }/>
+              match={ this.props.match }/>
           </Basic.Panel>
         </div>
     );
@@ -301,7 +301,7 @@ function select(state, component) {
   if (!roleSystemManager) {
     return {};
   }
-  const entity = Utils.Entity.getEntity(state, roleSystemManager.getEntityType(), component.params.roleSystemId);
+  const entity = Utils.Entity.getEntity(state, roleSystemManager.getEntityType(), component.match.params.roleSystemId);
   return {
     _roleSystem: entity || {},
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),

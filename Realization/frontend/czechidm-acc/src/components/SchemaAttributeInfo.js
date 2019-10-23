@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 //
 import { Basic, Utils } from 'czechidm-core';
 import { SchemaAttributeManager } from '../redux';

@@ -450,21 +450,6 @@ export default class SecurityManager {
   }
 
   /**
-   * Checks access from routes
-   */
-  static checkAccess(nextState, replace) {
-    const userContext = AuthenticateService.getUserContext();
-    const lastRoute = nextState.routes.slice(-1)[0];
-    // warn: SecurityManager can not be defined as this - is caled from router
-    if (!SecurityManager.hasAccess(lastRoute.access, userContext)) {
-      replace({
-        pathname: (SecurityManager.isAuthenticated(userContext)) ? '/error/403' : '/login',
-        state: { nextPathname: nextState.location.pathname }
-      });
-    }
-  }
-
-  /**
    * Connect websocket client to receiving flashmessages from BE
    *
    * @param  {UserContext} userContext

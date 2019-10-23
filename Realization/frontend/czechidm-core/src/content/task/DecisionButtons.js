@@ -23,7 +23,7 @@ class DecisionButtons extends Basic.AbstractContent {
   }
 
   // TODO: workaroud - update component from email is not called
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps) {
       this.setState({
         canGoBack: true
@@ -65,10 +65,10 @@ class DecisionButtons extends Basic.AbstractContent {
     const { task } = this.props;
     const { canGoBack } = this.state;
     if (canGoBack) {
-      this.context.router.goBack();
+      this.context.history.goBack();
     } else {
       // transmition to /task, history doesnt exist, for now transmition to identity task
-      this.context.router.push(`tasks/identity/${task.variables.implementerIdentifier}`);
+      this.context.history.push(`/tasks/identity/${task.variables.implementerIdentifier}`);
     }
   }
 

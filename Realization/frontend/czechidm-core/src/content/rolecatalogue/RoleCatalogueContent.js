@@ -27,7 +27,7 @@ class RoleCatalogueContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.selectNavigationItems(['role-catalogues', 'role-catalogue-detail']);
     //
     if (this._isNew()) {
@@ -71,7 +71,7 @@ RoleCatalogueContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: roleCatalogueManager.getEntity(state, entityId),

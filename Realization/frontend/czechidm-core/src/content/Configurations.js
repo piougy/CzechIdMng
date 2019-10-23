@@ -63,14 +63,14 @@ class Configurations extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
@@ -91,8 +91,10 @@ class Configurations extends Advanced.AbstractTableContent {
       isSecured
     }, () => {
       if (Utils.Entity.isNew(entity)) {
-        this.refs.name.focus();
-      } else {
+        if (this.refs.name) {
+          this.refs.name.focus();
+        }
+      } else if (this.refs.value) {
         this.refs.value.focus();
       }
     });
@@ -171,7 +173,7 @@ class Configurations extends Advanced.AbstractTableContent {
     }
     this.addMessage({ message: this.i18n('save.sucessBulk') });
     this.closeAddMore();
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
     // reload public configurations
     this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
   }
@@ -201,7 +203,7 @@ class Configurations extends Advanced.AbstractTableContent {
     } else {
       this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       this.closeDetail();
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.reload();
       // reload public configurations
       this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
     }
@@ -290,7 +292,7 @@ class Configurations extends Advanced.AbstractTableContent {
       isSecured,
       showPrefixWarning
     } = this.state;
-    const render = !!(detail.show || detail.addMore);
+    const showTables = !(detail.show || detail.addMore);
     //
     return (
       <Basic.Div>
@@ -299,7 +301,7 @@ class Configurations extends Advanced.AbstractTableContent {
 
         { this.renderPageHeader() }
 
-        <Basic.ContentHeader rendered={ !render }>
+        <Basic.ContentHeader rendered={ showTables }>
           { this.i18n('configurable', { escape: false }) }
         </Basic.ContentHeader>
 
@@ -498,11 +500,11 @@ class Configurations extends Advanced.AbstractTableContent {
           </form>
         </Basic.Modal>
 
-        <Basic.ContentHeader rendered={ !render }>
+        <Basic.ContentHeader rendered={ showTables }>
           { this.i18n('environment', { escape: false }) }
         </Basic.ContentHeader>
 
-        <Basic.Panel rendered={ !render }>
+        <Basic.Panel rendered={ showTables }>
           <Basic.Table
             header={ this.i18n('fromFile', { escape: false }) }
             data={fileConfigurations}
@@ -540,7 +542,7 @@ class Configurations extends Advanced.AbstractTableContent {
         {
           !SecurityManager.hasAuthority('CONFIGURATION_ADMIN')
           ||
-          <Basic.Panel rendered={ !render }>
+          <Basic.Panel rendered={ showTables }>
             <Basic.Table
               data={ environmentConfigurations }
               header={ this.i18n('fromEnvironment', { escape: false }) }

@@ -89,7 +89,7 @@ class NotificationConfigurations extends Advanced.AbstractTableContent {
 
   afterSave(entity, error) {
     if (!error) {
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.reload();
       this.addMessage({ message: this.i18n('save.success', { name: this.getManager().getNiceLabel(entity) }) });
     }
     //

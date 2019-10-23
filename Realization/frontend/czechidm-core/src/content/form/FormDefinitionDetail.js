@@ -32,7 +32,7 @@ class FormDefinitionDetail extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { isNew } = this.props;
     this.context.store.dispatch(manager.fetchTypes(TYPES_UIKEY));
     if (isNew) {
@@ -93,7 +93,7 @@ class FormDefinitionDetail extends Basic.AbstractContent {
     });
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     if (isNew) {
-      this.context.router.replace(`/forms`);
+      this.context.history.replace(`/forms`);
     }
   }
 
@@ -162,7 +162,7 @@ class FormDefinitionDetail extends Basic.AbstractContent {
             </Basic.AbstractForm>
           </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} >
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
             <Basic.Button
               type="submit"
               level="success"
@@ -190,7 +190,7 @@ FormDefinitionDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

@@ -226,7 +226,7 @@ public class SysProvisioningOperationFilterIntegrationTest extends AbstractInteg
 		createProvisioningOperation(entityType, system);
 
 		getHelper().waitForResult(null, 30, 1);
-		
+
 		ZonedDateTime dateTime = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
 		SysProvisioningOperationDto provisioningOperation2 = createProvisioningOperation(entityType, system);

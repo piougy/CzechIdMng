@@ -27,7 +27,7 @@ class PasswordField extends Basic.AbstractFormComponent {
     return 'component.advanced.PasswordField';
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (this.props.newPassword !== nextProps.newPassword) {
       this.refs.newPassword.setValue(nextProps.newPassword);
       this._updatePasswordForValidation(nextProps.newPassword);

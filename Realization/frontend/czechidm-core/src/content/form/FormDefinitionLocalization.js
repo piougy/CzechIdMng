@@ -112,7 +112,7 @@ class FormDefinitionLocalization extends Basic.AbstractContent {
             {'        '}"help": "{ entity.description }",<br/>
             {'        '}"attributes": {'\u007b'}<br/>
             {
-              entity.formAttributes.map((attribute, index) => {
+              [...entity.formAttributes.map((attribute, index) => {
                 return (
                   <div>
                     {'          '}"{ Utils.Ui.spinalCase(attribute.code) }": {'\u007b'}<br/>
@@ -122,7 +122,7 @@ class FormDefinitionLocalization extends Basic.AbstractContent {
                     {'          '}{'\u007d'}{ index + 1 === entity.formAttributes.length ? '' : ','}<br/>
                   </div>
                 );
-              })
+              }).values()]
             }
             {'        '}{'\u007d'}<br/>
             {'      '}{'\u007d'}<br/>
@@ -142,7 +142,7 @@ FormDefinitionLocalization.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

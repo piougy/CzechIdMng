@@ -40,14 +40,14 @@ export class TypeTable extends Basic.AbstractContent {
     const data = {
       ... this.refs.filterForm.getData(),
     };
-    this.refs.table.getWrappedInstance().useFilterData(data);
+    this.refs.table.useFilterData(data);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   onDelete(bulkActionValue, selectedRows) {
@@ -63,7 +63,7 @@ export class TypeTable extends Basic.AbstractContent {
           this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: treeTypeManager.getNiceLabel(entity) }) }, error);
         }
         if (!error && successEntities) {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }, () => {
@@ -80,9 +80,9 @@ export class TypeTable extends Basic.AbstractContent {
     }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/tree/types/${uuidId}?new=1`);
+      this.context.history.push(`/tree/types/${uuidId}?new=1`);
     } else {
-      this.context.router.push('/tree/types/' + entity.id);
+      this.context.history.push('/tree/types/' + entity.id);
     }
   }
 

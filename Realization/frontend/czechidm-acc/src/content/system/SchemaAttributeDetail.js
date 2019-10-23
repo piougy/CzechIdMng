@@ -28,9 +28,9 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.attributeDetail';
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { attributeId} = nextProps.params;
-    if (attributeId && attributeId !== this.props.params.attributeId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { attributeId} = nextProps.match.params;
+    if (attributeId && attributeId !== this.props.match.params.attributeId) {
       this._initComponent(nextProps);
     }
   }
@@ -45,7 +45,7 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { attributeId} = props.params;
+    const { attributeId} = props.match.params;
     if (this._getIsNew(props)) {
       this.setState({attribute: {objectClass: props.location.query.objectClassId}});
     } else {
@@ -72,8 +72,8 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
-      const systemId = this.props.params.entityId;
-      this.context.router.replace(`system/${systemId}/object-classes/${entity._embedded.objectClass.id}/detail`, {attributeId: entity.id});
+      const systemId = this.props.match.params.entityId;
+      this.context.history.replace(`/system/${systemId}/object-classes/${entity._embedded.objectClass.id}/detail`, {attributeId: entity.id});
     } else {
       this.addError(error);
     }
@@ -139,7 +139,7 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
+                onClick={this.context.history.goBack}
                 showLoading={_showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
@@ -169,7 +169,7 @@ SchemaAttributeDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.params.attributeId);
+  const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.match.params.attributeId);
   if (entity) {
     const objectClass = entity._embedded && entity._embedded.objectClass ? entity._embedded.objectClass.id : null;
     entity.objectClass = objectClass;

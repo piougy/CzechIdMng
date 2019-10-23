@@ -28,7 +28,7 @@ class AbstractForm extends AbstractContextComponent {
     this.state = { mode, showLoading: (showLoading != null ? showLoading : true), componentsKeys: keys};
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.children !== this.props.children) {
       const {componentsKeys} = this.state;
       const newComponentKeys = [];
@@ -86,8 +86,83 @@ class AbstractForm extends AbstractContextComponent {
     return null;
   }
 
+  /**
+   * Find child by key
+   *
+   */
+  findFormComponentsByKey(children, key) {
+    const map = React.Children.map(children, (child) => {
+      if (!child) {
+        return null;
+      }
+      // We will add only AbstractFormComponent
+      if (child.type && child.type.prototype instanceof AbstractFormComponent) {
+        if (child.ref && (!child.props || !child.props.notControlled)) {
+          if (key === child.ref) {
+            return child;
+          }
+        }
+        return null;
+      }
+      if (child.props && child.props.children && !(child.type && child.type === AbstractForm)) {
+        return this.findFormComponentsByKey(child.props.children, key);
+      }
+      return null;
+    });
+    if (map && map.length === 1) {
+      return map[0];
+    }
+    return null;
+  }
+
   getFooter() {
     // some footer elements. Is override in childe (etc. BasicForm)
+  }
+
+  /**
+   * Set data to all component
+   * @param data
+   * @param boolean setComponentStateOnly - if true, then are values sets only to state, without rendering
+   */
+  _setDataToComponents(data, setComponentStateOnly) {
+    if (data) {
+      for (const componentRef in this.state.componentsKeys) {
+        if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
+          continue;
+        }
+        const key = this.state.componentsKeys[componentRef];
+        const component = this.getComponent(key);
+        if (!component) {
+          // component could not be rendered
+          continue;
+        }
+        if (data.hasOwnProperty(key)) {
+          const value = data[key];
+          // Set new value to component
+          // If component using complex value and value in given data is primitive,
+          // then we try to use value from _embedded object (optimalization for prevent
+          // to many request and solving problem with rights (in WF tasks ...)).
+          const isPrimitive = Object(value) !== value;
+          if (component.isValueComplex() === true && isPrimitive === true && data._embedded && data._embedded[key]) {
+            // @todo-upgrade-10 - I need to set state directly first, because
+            // AbstractForm doesn't wait on subcomponents = had old data!
+            if (setComponentStateOnly) {
+              component.state.value = data._embedded[key];
+            } else {
+              component.setValue(data._embedded[key]);
+            }
+          } else if (setComponentStateOnly) {
+            component.state.value = value;
+          } else {
+            component.setValue(value);
+          }
+        } else if (setComponentStateOnly) {
+          component.state.value = null;
+        } else {
+          component.setValue(null);
+        }
+      }
+    }
   }
 
   // method for handle json to state
@@ -99,39 +174,16 @@ class AbstractForm extends AbstractContextComponent {
     if (!this.props.rendered) {
       return;
     }
+
     this.setState({
       allData: merge({}, json)
     }, () => {
-      if (json) {
-        for (const componentRef in this.state.componentsKeys) {
-          if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
-            continue;
-          }
-          const key = this.state.componentsKeys[componentRef];
-          const component = this.getComponent(key);
-          if (!component) {
-            // component could not be rendered
-            continue;
-          }
-          if (json.hasOwnProperty(key)) {
-            const value = json[key];
-            // Set new value to component
-            // If component using complex value and value in given json is primitive,
-            // then we try to use value from _embedded object (optimalization for prevent
-            // to many request and solving problem with rights (in WF tasks ...)).
-            const isPrimitive = Object(value) !== value;
-            if (component.isValueComplex() === true && isPrimitive === true && json._embedded && json._embedded[key]) {
-              component.setValue(json._embedded[key]);
-            } else {
-              component.setValue(value);
-            }
-          } else {
-            component.setValue(null);
-          }
-        }
-      }
+      this._setDataToComponents(json, false);
       this.processEnded(null, operationType);
     });
+    // @todo-upgrade-10 - I had to set component's state directly and now.
+    // I need to make setting of components data synchronous!
+    this._setDataToComponents(json, true);
   }
 
   isFormValid() {
@@ -220,9 +272,15 @@ class AbstractForm extends AbstractContextComponent {
       if (!hasKey) {
         return null;
       }
-      // work around ... I need get instance of react component
-      const ownerRefs = this._reactInternalInstance._currentElement._owner._instance.refs;
-      return ownerRefs[key];
+      // Work around !! ... I need get instance of react component
+      // First find child for the key and then find parent componnet from
+      // child and finally we can find react component for key.
+      const child = this.findFormComponentsByKey(this.props.children, key);
+      let component = null;
+      if (child && child._owner && child._owner.stateNode && child._owner.stateNode.refs[key]) {
+        component = child._owner.stateNode.refs[key];
+      }
+      return component;
     }
     return null;
   }
@@ -245,7 +303,7 @@ class AbstractForm extends AbstractContextComponent {
     }
     this.setState({showLoading: false});
     // Form can be enabled only if props.disabled is false
-    this.setDisabled(false || this.props.disabled);
+    this.setDisabled(!!this.props.disabled);
   }
 
   processStarted() {
@@ -311,12 +369,6 @@ class AbstractForm extends AbstractContextComponent {
     );
   }
 }
-
-AbstractForm.contextTypes = {
-  ...AbstractContextComponent.contextTypes,
-  // TODO: router is not used?
-  router: PropTypes.object
-};
 
 AbstractForm.propTypes = {
   showLoading: PropTypes.bool,

@@ -57,7 +57,7 @@ class Definitions extends Basic.AbstractContent {
         this.addMessage({
           message: this.i18n('fileUploaded', {name: file.name})
         });
-        this.refs.table.getWrappedInstance().reload();
+        this.refs.table.reload();
       });
     })
     .catch(error => {

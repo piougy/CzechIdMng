@@ -19,9 +19,9 @@ import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 /**
  * Registrable filter - filters will be applied, when property with defined name will be found in filtering parameters.
  * Filter construct partial criteria where clause => {@link Predicate}, which will be appended to query for defined domain type.
- * 
+ *
  * Adds default find feature with given repository.
- *  
+ *
  * @author Radek Tomiška
  * @see DataFilter
  *
@@ -31,17 +31,17 @@ import eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository;
 public abstract class AbstractFilterBuilder<E extends BaseEntity, F extends DataFilter> extends BaseFilterBuilder<E, F> {
 
 	private final BaseEntityRepository<E, ?> repository;
-	
+
 	public AbstractFilterBuilder(BaseEntityRepository<E, ?> repository) {
 		Assert.notNull(repository, "Repository is required for filter builder construction.");
 		//
 		this.repository = repository;
 	}
-	
+
 	protected BaseEntityRepository<E, ?> getRepository() {
 		return repository;
 	}
-	
+
 	/**
 	 * Finds entities by this filter builder predicate only.
 	 */

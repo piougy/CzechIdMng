@@ -25,7 +25,7 @@ class AutomaticRoleAttributeRules extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { automaticRoleId, entityId } = this.props.params;
+    const { automaticRoleId, entityId } = this.props.match.params;
     if (entityId) {
       this.selectNavigationItems(['roles-menu', 'roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-rules']);
     } else {
@@ -62,7 +62,7 @@ AutomaticRoleAttributeRules.defaultProps = {
 };
 
 function select(state, component) {
-  const { automaticRoleId } = component.params;
+  const { automaticRoleId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, automaticRoleId),

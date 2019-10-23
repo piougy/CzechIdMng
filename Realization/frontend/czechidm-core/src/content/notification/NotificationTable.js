@@ -40,14 +40,14 @@ export class NotificationTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity, event) {
@@ -57,9 +57,9 @@ export class NotificationTable extends Advanced.AbstractTableContent {
 
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/notification/notification/${uuidId}?new=1`);
+      this.context.history.push(`/notification/notification/${uuidId}?new=1`);
     } else {
-      this.context.router.push('/notification/notification/' + entity.id);// notification/configurations
+      this.context.history.push('/notification/notification/' + entity.id);// notification/configurations
     }
   }
 

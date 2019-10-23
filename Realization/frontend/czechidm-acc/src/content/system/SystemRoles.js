@@ -31,7 +31,7 @@ export default class SystemRoles extends Basic.AbstractContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
     //
     return (
@@ -44,7 +44,7 @@ export default class SystemRoles extends Basic.AbstractContent {
             uiKey={ `${this.getUiKey()}-${entityId}` }
             forceSearchParameters={ forceSearchParameters }
             menu="system"
-            params={ this.props.params }
+            match={ this.props.match }
             className="no-margin"/>
         </Basic.Panel>
       </div>

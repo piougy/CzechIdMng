@@ -30,9 +30,9 @@ class SystemSyncItemLogDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.SystemSyncItemLogDetail';
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { logItemId} = nextProps.params;
-    if (logItemId && logItemId !== this.props.params.logItemId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { logItemId} = nextProps.match.params;
+    if (logItemId && logItemId !== this.props.match.params.logItemId) {
       this._initComponent(nextProps);
     }
   }
@@ -47,7 +47,7 @@ class SystemSyncItemLogDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const {logItemId} = props.params;
+    const {logItemId} = props.match.params;
     this.context.store.dispatch(syncItemLogManager.fetchEntity(logItemId));
     this.selectNavigationItems(['sys-systems', 'system-synchronization-configs']);
   }
@@ -85,7 +85,7 @@ class SystemSyncItemLogDetail extends Advanced.AbstractTableContent {
             <Basic.Button
               type="button"
               level="link"
-              onClick={this.context.router.goBack}
+              onClick={this.context.history.goBack}
               showLoading={_showLoading}>
               {this.i18n('button.back')}
             </Basic.Button>
@@ -105,7 +105,7 @@ SystemSyncItemLogDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, syncItemLogManager.getEntityType(), component.params.logItemId);
+  const entity = Utils.Entity.getEntity(state, syncItemLogManager.getEntityType(), component.match.params.logItemId);
   return {
     _syncItemLog: entity,
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),

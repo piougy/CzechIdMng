@@ -38,14 +38,14 @@ export class TemplateTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
 
-    this.refs.table.getWrappedInstance().useFilterData(this.refs.filterForm.getData());
+    this.refs.table.useFilterData(this.refs.filterForm.getData());
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   onRedeployOrBackup(bulkActionValue, selectedRows) {
@@ -62,7 +62,7 @@ export class TemplateTable extends Advanced.AbstractTableContent {
         }
         if (!error && successEntities) {
           // refresh data in table
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }, () => {
@@ -86,7 +86,7 @@ export class TemplateTable extends Advanced.AbstractTableContent {
         }
         if (!error && successEntities) {
           // refresh data in table
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }, () => {
@@ -103,9 +103,9 @@ export class TemplateTable extends Advanced.AbstractTableContent {
     }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/notification/templates/${uuidId}?new=1`);
+      this.context.history.push(`/notification/templates/${uuidId}?new=1`);
     } else {
-      this.context.router.push('/notification/templates/' + entity.id);
+      this.context.history.push('/notification/templates/' + entity.id);
     }
   }
 

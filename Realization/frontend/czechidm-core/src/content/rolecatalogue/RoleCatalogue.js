@@ -15,7 +15,7 @@ const manager = new RoleCatalogueManager();
 class RoleCatalogue extends Basic.AbstractContent {
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
       this.handleError(error);
@@ -31,8 +31,8 @@ class RoleCatalogue extends Basic.AbstractContent {
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roleCatalogues.edit.header') }</small>
         </Basic.PageHeader>
 
-        <Advanced.TabPanel parentId="role-catalogues" params={this.props.params}>
-          { this.props.children }
+        <Advanced.TabPanel parentId="role-catalogues" match={ this.props.match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
       </div>
     );
@@ -49,7 +49,7 @@ RoleCatalogue.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId)

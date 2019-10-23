@@ -39,7 +39,7 @@ export default class BasicModal extends AbstractComponent {
   }
 
   render() {
-    const { rendered, bsSize, showLoading, onEnter, ...others } = this.props;
+    const { rendered, bsSize, showLoading, ...others } = this.props;
     if (!rendered) {
       return null;
     }

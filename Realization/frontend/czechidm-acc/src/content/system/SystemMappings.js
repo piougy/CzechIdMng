@@ -36,18 +36,18 @@ class SystemMappings extends Advanced.AbstractTableContent {
   }
 
   showDetail(entity, add) {
-    const systemId = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
+    const systemId = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.match.params.entityId;
     if (add) {
       // When we add new object class, then we need use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`system/${systemId}/mappings/${uuidId}/new?new=1`);
+      this.context.history.push(`/system/${systemId}/mappings/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`system/${systemId}/mappings/${entity.id}/detail`);
+      this.context.history.push(`/system/${systemId}/mappings/${entity.id}/detail`);
     }
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
     //
     return (
@@ -138,7 +138,7 @@ SystemMappings.defaultProps = {
 
 function select(state, component) {
   return {
-    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
+    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.match.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
   };
 }

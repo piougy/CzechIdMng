@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import _ from 'lodash';
+import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
 import * as Domain from '../../../domain';
@@ -17,7 +18,7 @@ const treeNodeManager = new TreeNodeManager(); // default manager in manager in 
 *
 * @author Radek Tomiška
 */
-export default class TreeNodeSelect extends Basic.AbstractFormComponent {
+class TreeNodeSelect extends Basic.AbstractFormComponent {
 
   constructor(props, context) {
     super(props, context);
@@ -576,3 +577,5 @@ TreeNodeSelect.defaultProps = {
   showTreeType: false,
   multiSelect: false
 };
+
+export default connect()(TreeNodeSelect);

@@ -58,7 +58,7 @@ class ContractProvisioningOperations extends Advanced.AbstractTableContent {
 
 function select(state, component) {
   return {
-    entity: contractManager.getEntity(state, component.params.entityId)
+    entity: contractManager.getEntity(state, component.match.params.entityId)
   };
 }
 

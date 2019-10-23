@@ -76,7 +76,7 @@ class IdentityContractPositions extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new SearchParameters().setFilter('identityContractId', entityId);
@@ -210,7 +210,7 @@ IdentityContractPositions.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
 
   return {
     entity: manager.getEntity(state, entityId),

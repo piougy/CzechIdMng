@@ -42,7 +42,7 @@ class IdentityDetail extends Basic.AbstractContent {
     this.context.store.dispatch(identityManager.fetchProfilePermissions(entityId));
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.identity) {
       if (nextProps.identity._trimmed) {
         this.setState({showLoadingIdentityTrimmed: true});
@@ -99,7 +99,7 @@ class IdentityDetail extends Basic.AbstractContent {
       // when username was changed, then new url is replaced
       const { identity } = this.props;
       if (identity.username !== entity.username) {
-        this.context.router.replace(`/identity/${encodeURIComponent(entity.username)}/profile`);
+        this.context.history.replace(`/identity/${encodeURIComponent(entity.username)}/profile`);
       }
     });
   }
@@ -289,7 +289,7 @@ class IdentityDetail extends Basic.AbstractContent {
               <Basic.Button
                 type="button"
                 level="link"
-                onClick={ this.context.router.goBack }
+                onClick={ this.context.history.goBack }
                 showLoading={ showLoading }>
                 { this.i18n('button.back') }
               </Basic.Button>

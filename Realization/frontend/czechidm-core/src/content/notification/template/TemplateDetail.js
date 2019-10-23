@@ -41,7 +41,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
   /**
   * Method check if props in this component is'nt different from new props.
   */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id) {
       // this._initForm(nextProps.entity);
     }
@@ -114,7 +114,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
     this.setState({
       showLoading: false
     });
-    this.context.router.replace('notification/templates/');
+    this.context.history.replace('notification/templates/');
   }
 
   onRedeployOrBackup(actionValue, event) {
@@ -215,7 +215,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
 
             <Basic.SplitButton
               level="success"

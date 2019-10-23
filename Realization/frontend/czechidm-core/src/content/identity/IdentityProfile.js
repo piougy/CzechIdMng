@@ -31,7 +31,7 @@ class Profile extends Basic.AbstractContent {
     return 'profile-personal';
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.setState({
       showLoading: true
     });
@@ -40,7 +40,7 @@ class Profile extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.context.store.dispatch(identityManager.fetchEntity(entityId, null, (entity, error) => {
       this.handleError(error);
     }));
@@ -48,7 +48,7 @@ class Profile extends Basic.AbstractContent {
 
   render() {
     const { identity } = this.props;
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     return (
       <div className="tab-pane-text-body">
         <IdentityDetail identity={identity} entityId={entityId} />
@@ -64,7 +64,7 @@ Profile.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     identity: identityManager.getEntity(state, entityId)
   };

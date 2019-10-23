@@ -75,7 +75,7 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
     }
     this.context.store.dispatch(manager.clearEntities());
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.context.router.replace(`role-catalogues`);
+    this.context.history.replace(`/role-catalogues`);
   }
 
   render() {
@@ -140,7 +140,7 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
             </Basic.PanelBody>
 
             <Basic.PanelFooter showLoading={showLoading}>
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"

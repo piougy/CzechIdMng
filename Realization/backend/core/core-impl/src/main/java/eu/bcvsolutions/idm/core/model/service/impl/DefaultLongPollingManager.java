@@ -34,15 +34,15 @@ import eu.bcvsolutions.idm.core.rest.DeferredResultWrapper;
 import eu.bcvsolutions.idm.core.rest.LongPollingSubscriber;
 
 /**
- * 
+ *
  * Default implementation of long polling manager
- * 
+ *
  * @author Vít Švanda
  *
  */
 @Service("longPollingManager")
 public class DefaultLongPollingManager implements LongPollingManager{
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultLongPollingManager.class);
 
 	/**
@@ -50,26 +50,26 @@ public class DefaultLongPollingManager implements LongPollingManager{
 	 */
 	private final Queue<DeferredResultWrapper> suspendedRequests = new ConcurrentLinkedQueue<DeferredResultWrapper>();
 	/**
-	 * Map of subscribers - subscriber contains metadata as last time stamp after deferred result is ended. 
+	 * Map of subscribers - subscriber contains metadata as last time stamp after deferred result is ended.
 	 */
 	private final Map<UUID, LongPollingSubscriber> registredSubscribers = new ConcurrentHashMap<UUID, LongPollingSubscriber>();
-	
+
 	@Autowired
 	@Lazy
 	private ConfigurationService configurationService;
-	
-	
+
+
 	@Override
 	public void checkDeferredRequests(Class<? extends AbstractDto> type) {
 		Assert.notNull(type, "Class type cannot be null!");
-		
+
 		this.suspendedRequests.stream()
 			.filter(request -> request.getResult().isSetOrExpired())
 			.forEach(request -> {
 				this.suspendedRequests.remove(request);
 			 }
 		);
-		
+
 		this.suspendedRequests.stream() //
 				.filter(request -> type.equals(request.getType())) //
 				.forEach(request -> { //
@@ -95,9 +95,9 @@ public class DefaultLongPollingManager implements LongPollingManager{
 		Assert.notNull(result.getResult(), "Deffered result must be defined!");
 		UUID entityId = result.getEntityId();
 		Assert.notNull(entityId, "Entity ID cannot be null!");
-		
+
 		LOG.debug("Add deferred-result [{}]", result);
-		
+
 		this.suspendedRequests.add(result);
 		if (!this.registredSubscribers.containsKey(entityId)) {
 			this.registredSubscribers.put(entityId, new LongPollingSubscriber(result.getEntityId(), result.getType()));
@@ -109,8 +109,8 @@ public class DefaultLongPollingManager implements LongPollingManager{
 			}
 		});
 	}
-	
-	
+
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void baseCheckDeferredResult(DeferredResult<OperationResultDto> deferredResult,
@@ -118,9 +118,9 @@ public class DefaultLongPollingManager implements LongPollingManager{
 			ReadDtoService service, boolean checkCount) {
 		Assert.notNull(deferredResult, "Deferred result is required to check.");
 		Assert.notNull(subscriber.getEntityId(), "Subscriber is required to check deferred result.");
-		
+
 		LOG.debug("Start baseCheckDeferredResult for deferred-result [{}] and subscriber [{}]", deferredResult, subscriber);
-		
+
 		if (checkCount) {
 			long countOfentities = service.count(filter);
 			Long lastNumberOfEntities = subscriber.getLastNumberOfEntities();
@@ -143,7 +143,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 				subscriber.setLastTimeStamp(ZonedDateTime.now());
 				return;
 			}
-			
+
 			ZonedDateTime lastModified = this.getLastTimeStamp(entities.get(0));
 			subscriber.setLastTimeStamp(lastModified);
 			return;
@@ -154,7 +154,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 		List<AbstractDto> changedRequestsFromLastChecks = service.find(filter, PageRequest.of(0, 1,
 				Sort.by(Direction.DESC, AbstractEntity_.created.getName(), AbstractEntity_.modified.getName())))
 				.getContent();
-		
+
 		if (!changedRequestsFromLastChecks.isEmpty()) {
 			AbstractDto changedRequestsFromLastCheck = changedRequestsFromLastChecks.get(0);
 			ZonedDateTime lastModified = this.getLastTimeStamp(changedRequestsFromLastCheck);
@@ -165,13 +165,13 @@ public class DefaultLongPollingManager implements LongPollingManager{
 		}
 		// Nothing was changed
 	}
-	
+
 	@Scheduled(fixedDelay = 7200000) // Every two hours
 	public void clearUnUseSubscribers() {
 		LOG.info("Start scheduled clearUnUseSubscribers ...");
 		this.clearUnUseSubscribers(null);
 	}
-	
+
 	@Override
 	public void clearUnUseSubscribers(ZonedDateTime clearBeforIt) {
 		if (clearBeforIt == null) {
@@ -179,7 +179,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 		}
 		ZonedDateTime timeStamp = clearBeforIt;
 		LOG.debug("Start clearUnUseSubscribers [{}] ...", timeStamp);
-		
+
 		this.registredSubscribers.values().stream() //
 				.filter(subscriber -> subscriber.getLastUsingSubscriber() != null
 						&& subscriber.getLastUsingSubscriber().isBefore(timeStamp))
@@ -190,12 +190,12 @@ public class DefaultLongPollingManager implements LongPollingManager{
 					}
 				});
 	}
-	
+
 	@Override
 	public boolean isLongPollingEnabled() {
 		return configurationService.getBooleanValue(LONG_POLLING_ENABLED_KEY, true);
 	}
-	
+
 	@Override
 	public ZonedDateTime getLastTimeStamp(AbstractDto dto) {
 		ZonedDateTime lastModified = dto.getModified();
@@ -206,17 +206,17 @@ public class DefaultLongPollingManager implements LongPollingManager{
 		if (lastModified == null) {
 			return null;
 		}
-		
+
 		if (dto.getCreated() != null && lastModified.isBefore(dto.getCreated())) {
 			lastModified = dto.getCreated();
 		}
-		
+
 		return lastModified.plus(1, ChronoUnit.MILLIS);
 	}
 
 	/**
 	 * Get deferred results. For testing purpose.
-	 * 
+	 *
 	 */
 	public Queue<DeferredResultWrapper> getSuspendedRequests() {
 		return suspendedRequests;
@@ -225,11 +225,11 @@ public class DefaultLongPollingManager implements LongPollingManager{
 
 	/**
 	 * Get registered subscribers. For testing purpose.
-	 * 
+	 *
 	 * @return
 	 */
 	public Map<UUID, LongPollingSubscriber> getRegistredSubscribers() {
 		return registredSubscribers;
 	}
-	
+
 }

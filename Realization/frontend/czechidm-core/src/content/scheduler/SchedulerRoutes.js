@@ -19,8 +19,8 @@ export default class SchedulerRoutes extends Basic.AbstractContent {
       <div>
         { this.renderPageHeader({ icon: 'component:scheduled-tasks'}) }
 
-        <Advanced.TabPanel position="top" parentId="scheduler" params={ this.props.params }>
-          { this.props.children }
+        <Advanced.TabPanel position="top" parentId="scheduler" match={ this.props.match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
       </div>
     );

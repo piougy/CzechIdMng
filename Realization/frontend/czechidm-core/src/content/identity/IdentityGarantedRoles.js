@@ -30,7 +30,7 @@ export default class IdentityGarantedRoles extends Basic.AbstractContent {
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('guarantee', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('guarantee', this.props.match.params.entityId);
     return (
       <Basic.Div className="tab-pane-table-body">
         { this.renderContentHeader({ style: { marginBottom: 0 }}) }

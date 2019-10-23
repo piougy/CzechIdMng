@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 //
 import { Basic, Advanced, Enums, Utils, Managers } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
@@ -34,25 +34,25 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
   }
 
   clearSelectedRows() {
-    this.refs.table.getWrappedInstance().clearSelectedRows();
+    this.refs.table.clearSelectedRows();
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   useFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   getDefaultSearchParameters() {

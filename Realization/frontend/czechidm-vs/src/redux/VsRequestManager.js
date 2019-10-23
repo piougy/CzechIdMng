@@ -72,7 +72,7 @@ export default class VsRequestManager extends Managers.EntityManager {
           });
           
           if (detail.refs.table) {
-            detail.refs.table.getWrappedInstance().reload();
+            detail.refs.table.reload();
           }
           if (callback) {
             callback();
@@ -84,7 +84,7 @@ export default class VsRequestManager extends Managers.EntityManager {
           });
           detail.addError(newError);
           if (detail.refs.table) {
-            detail.refs.table.getWrappedInstance().reload();
+            detail.refs.table.reload();
           }
         }
       };
@@ -123,7 +123,7 @@ export default class VsRequestManager extends Managers.EntityManager {
             showLoading: false
           });
           if (detail.refs.table) {
-            detail.refs.table.getWrappedInstance().reload();
+            detail.refs.table.reload();
           }
           if (callback) {
             callback();
@@ -135,7 +135,7 @@ export default class VsRequestManager extends Managers.EntityManager {
           });
           detail.addError(newError);
           if (detail.refs.table) {
-            detail.refs.table.getWrappedInstance().reload();
+            detail.refs.table.reload();
           }
         }
       };

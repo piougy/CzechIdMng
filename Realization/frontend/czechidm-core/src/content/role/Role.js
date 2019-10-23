@@ -19,11 +19,11 @@ class Role extends Basic.AbstractContent {
 
   componentDidMount() {
     super.componentDidMount();
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
 
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    manager = this.getRequestManager(this.props.params, new RoleManager());
+    manager = this.getRequestManager(this.props.match.params, new RoleManager());
 
     this.context.store.dispatch(manager.fetchEntity(entityId, null, (entity, error) => {
       this.handleError(error);
@@ -41,7 +41,7 @@ class Role extends Basic.AbstractContent {
         this.handleError(error);
       }));
       // Redirect to new request
-      this.context.router.push(`${this.addRequestPrefix('role', {requestId: json.id})}/${entity.id}/detail`);
+      this.context.history.push(`${this.addRequestPrefix('role', {requestId: json.id})}/${entity.id}/detail`);
     }).catch(ex => {
       this.setState({
         showLoading: false
@@ -55,7 +55,7 @@ class Role extends Basic.AbstractContent {
     if (!manager) {
       return null;
     }
-    const isRequest = this.isRequest(this.props.params);
+    const isRequest = this.isRequest(this.props.match.params);
     return (
       <div>
         <Basic.PageHeader showLoading={!entity && showLoading}>
@@ -86,8 +86,8 @@ class Role extends Basic.AbstractContent {
               ]}/>
           </Basic.Col>
         </Basic.Row>
-        <Advanced.TabPanel parentId={this.isRequest(this.props.params) ? 'request-roles' : 'roles'} params={this.props.params}>
-          { this.props.children }
+        <Advanced.TabPanel parentId={this.isRequest(this.props.match.params) ? 'request-roles' : 'roles'} match={ this.props.match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
       </div>
     );
@@ -107,7 +107,7 @@ function select(state, component) {
   if (!manager) {
     return {};
   }
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId),

@@ -44,7 +44,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { fetchIncompatibleRoles, fetchCodeLists, showEnvironment } = this.props;
     //
     if (fetchCodeLists && showEnvironment) {
@@ -77,14 +77,14 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -99,11 +99,11 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   _changePermissions() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const identity = identityManager.getEntity(this.context.store.getState(), entityId);
     //
     const uuidId = uuid.v1();
-    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
+    this.context.history.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
   }
 
   save(entity, event) {
@@ -117,7 +117,6 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
       this.refs.role.focus();
     });
   }
-
   _onChangeSelectTabs(activeKey) {
     this.setState({
       activeKey
@@ -160,7 +159,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   reload(props = null) {
-    this.refs.table.getWrappedInstance().reload(props);
+    this.refs.table.reload(props);
   }
 
   render() {
@@ -539,7 +538,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
                         showAddButton={ false }
                         forceSearchParameters={ new SearchParameters().setFilter('directRoleId', detail.entity.id) }
                         showDetailButton={ false }
-                        params={ this.props.params }
+                        match={ this.props.match }
                         columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['identityContract', 'directRole', 'automaticRole']) }
                         className="marginable"/>
                     </div>
@@ -652,7 +651,7 @@ function select(state, component) {
     showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true),
     _showLoading: Utils.Ui.isShowLoading(state, component.uiKey),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    _incompatibleRoles: DataManager.getData(state, `${ uiKeyIncompatibleRoles }${ component.params.entityId }`),
+    _incompatibleRoles: DataManager.getData(state, `${ uiKeyIncompatibleRoles }${ component.match.params.entityId }`),
     environmentItems: codeListManager.getCodeList(state, 'environment'),
   };
 }

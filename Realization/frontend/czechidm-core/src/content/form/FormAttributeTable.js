@@ -43,23 +43,23 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
     const { definitionId } = this.props;
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/forms/attribute/${uuidId}/detail?new=1&formDefinition=${definitionId}`);
+      this.context.history.push(`/forms/attribute/${uuidId}/detail?new=1&formDefinition=${definitionId}`);
     } else {
-      this.context.router.push('/forms/attribute/' + entity.id + '/detail');
+      this.context.history.push('/forms/attribute/' + entity.id + '/detail');
     }
   }
 

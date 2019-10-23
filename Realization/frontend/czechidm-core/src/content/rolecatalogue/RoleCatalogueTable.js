@@ -36,22 +36,22 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/role-catalogue/${uuidId}/new?new=1`);
+      this.context.history.push(`/role-catalogue/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/role-catalogue/${entity.id}/detail`);
+      this.context.history.push(`/role-catalogue/${entity.id}/detail`);
     }
   }
 
@@ -70,7 +70,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
       selectedNodeId: nodeId
     }, () => {
       this.refs.parent.setValue(nodeId);
-      this.refs.table.getWrappedInstance().useFilterData(data);
+      this.refs.table.useFilterData(data);
     });
   }
 

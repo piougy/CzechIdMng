@@ -45,7 +45,7 @@ export class ExampleProductTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   /**
@@ -55,7 +55,7 @@ export class ExampleProductTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -64,9 +64,9 @@ export class ExampleProductTable extends Advanced.AbstractTableContent {
   showDetail(entity) {
     if (Utils.Entity.isNew(entity)) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/example/product/${ uuidId }/new?new=1`);
+      this.context.history.push(`/example/product/${ uuidId }/new?new=1`);
     } else {
-      this.context.router.push(`/example/product/${ entity.id }/detail`);
+      this.context.history.push(`/example/product/${ entity.id }/detail`);
     }
   }
 

@@ -21,7 +21,7 @@ class LongRunningTaskContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.selectNavigationItem('long-running-task-detail');
     this.context.store.dispatch(manager.fetchEntity(entityId));
   }
@@ -56,7 +56,7 @@ LongRunningTaskContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId)

@@ -25,7 +25,7 @@ class ContractSliceContent extends Basic.AbstractContent {
   componentDidMount() {
     this.selectSidebarItem('contract-slice-detail');
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { query } = this.props.location;
     const contractId = (query) ? query.contractId : null;
 
@@ -45,14 +45,14 @@ class ContractSliceContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading, params } = this.props;
+    const { entity, showLoading, match } = this.props;
     return (
       <Basic.Row>
         <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
           {
             !entity
             ||
-            <ContractSliceDetail entity={entity} showLoading={showLoading} params={params} />
+            <ContractSliceDetail entity={entity} showLoading={showLoading} match={match} />
           }
         </div>
       </Basic.Row>
@@ -70,7 +70,7 @@ ContractSliceContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId)

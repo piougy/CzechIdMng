@@ -20,8 +20,8 @@ class Definition extends Basic.AbstractContent {
     return 'content.workflow.definition';
   }
 
-  componentWillMount() {
-    const { definitionId } = this.props.params;
+  UNSAFE_componentWillMount() {
+    const { definitionId } = this.props.match.params;
     this.setState({
       showLoading: true
     });
@@ -77,7 +77,7 @@ class Definition extends Basic.AbstractContent {
             <Basic.TextArea ref="description" rows={6} label={this.i18n('description')}/>
           </Basic.AbstractForm>
           <Basic.PanelFooter>
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>
               {this.i18n('button.back')}
             </Basic.Button>
           </Basic.PanelFooter>

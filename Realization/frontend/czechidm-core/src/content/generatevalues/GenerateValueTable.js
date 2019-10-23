@@ -53,14 +53,14 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   onChangeDtoType(dtoType) {
@@ -135,12 +135,8 @@ export class GenerateValueTable extends Advanced.AbstractTableContent {
     //
     this._setGeneratorPropertiesByGeneratorType(entity.generatorType);
     this._setGeneratorTypeByDtoType(entity.dtoType);
-    this.setState({
-      detail: {
-        show: true,
-        entity
-      }
-    }, () => {
+
+    super.showDetail(entity, () => {
       this.refs.form.setData(entity);
       this.refs.generatorType.focus();
     });

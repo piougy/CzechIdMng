@@ -23,7 +23,7 @@ class EmailContent extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('notification-emails');
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.getLogger().debug(`[EmailContent] loading entity detail [id:${entityId}]`);
     this.context.store.dispatch(emailManager.fetchEntity(entityId));
@@ -63,7 +63,7 @@ EmailContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     email: emailManager.getEntity(state, entityId),

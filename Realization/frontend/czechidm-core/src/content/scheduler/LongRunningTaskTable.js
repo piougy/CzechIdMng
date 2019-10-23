@@ -42,21 +42,21 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
    * Shows LRT detail with given entity
    */
    showDetail(entity) {
-     this.context.router.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
+     this.context.history.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
    }
 
   /**
@@ -117,7 +117,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
             this.addError(error);
           }
         } else {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }, () => {
@@ -251,7 +251,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data, property }) => {
                 const entity = data[rowIndex];
                 const propertyValue = entity[property];
-                return _.keys(propertyValue).map(propertyName => {
+                return [..._.keys(propertyValue).map(propertyName => {
                   if (Utils.Ui.isEmpty(propertyValue[propertyName])) {
                     return null;
                   }
@@ -262,7 +262,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                   return (
                     <div>{ propertyName }: { Utils.Ui.toStringValue(propertyValue[propertyName]) }</div>
                   );
-                });
+                }).values()];
               }
             }/>
           <Advanced.Column property="taskDescription" sort />

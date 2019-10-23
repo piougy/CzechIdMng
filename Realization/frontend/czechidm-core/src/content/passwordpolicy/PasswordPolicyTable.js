@@ -33,14 +33,14 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   onDelete(bulkActionValue, selectedRows) {
@@ -59,7 +59,7 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
         }
         if (!error && successEntities) {
           // refresh data in table
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }, () => {
@@ -76,9 +76,9 @@ export class PasswordPolicyTable extends Advanced.AbstractTableContent {
     }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/password-policies/${uuidId}?new=1`);
+      this.context.history.push(`/password-policies/${uuidId}?new=1`);
     } else {
-      this.context.router.push('/password-policies/' + entity.id);
+      this.context.history.push('/password-policies/' + entity.id);
     }
   }
 

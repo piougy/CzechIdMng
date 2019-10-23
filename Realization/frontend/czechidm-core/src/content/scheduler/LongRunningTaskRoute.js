@@ -18,7 +18,7 @@ const manager = new LongRunningTaskManager();
 class LongRunningTaskRoute extends Basic.AbstractContent {
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
       this.handleError(error);
@@ -40,8 +40,8 @@ class LongRunningTaskRoute extends Basic.AbstractContent {
           { entity ? Utils.Ui.getSimpleJavaType(entity.taskType) : null }<small> { this.i18n('detail.header') }</small>
         </Basic.PageHeader>
 
-        <Advanced.TabPanel parentId="scheduler-all-tasks" params={ this.props.params }>
-          { this.props.children }
+        <Advanced.TabPanel parentId="scheduler-all-tasks" match={ this.props.match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
       </div>
     );
@@ -58,7 +58,7 @@ LongRunningTaskRoute.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId)

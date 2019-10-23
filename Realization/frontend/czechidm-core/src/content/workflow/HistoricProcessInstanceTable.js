@@ -41,7 +41,7 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
    * In component will recive props compare forceSearchParameters. If are different
    * call again _initComponent with nextProps.
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { forceSearchParameters } = nextProps;
     if (forceSearchParameters && forceSearchParameters !== this.props.forceSearchParameters) {
       this._initComponent(nextProps);
@@ -49,25 +49,25 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
   }
 
   _initComponent() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   useFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
-    this.context.router.push('workflow/history/processes/' + entity.id);
+    this.context.history.push('/workflow/history/processes/' + entity.id);
   }
 
   _filter() {
@@ -98,14 +98,14 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   _cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   _getWfProcessCell({ rowIndex, data}) {

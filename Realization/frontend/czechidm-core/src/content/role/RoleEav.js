@@ -19,7 +19,7 @@ class RoleEav extends Basic.AbstractContent {
     super(props, context);
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    manager = this.getRequestManager(this.props.params, new RoleManager());
+    manager = this.getRequestManager(this.props.match.params, new RoleManager());
   }
 
   getContentKey() {
@@ -27,11 +27,11 @@ class RoleEav extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-eav', this.props.params);
+    return this.getRequestNavigationKey('role-eav', this.props.match.params);
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _entity, _permissions } = this.props;
     //
     return (
@@ -58,8 +58,8 @@ function select(state, component) {
     return {};
   }
   return {
-    _entity: manager.getEntity(state, component.params.entityId),
-    _permissions: manager.getPermissions(state, null, component.params.entityId)
+    _entity: manager.getEntity(state, component.match.params.entityId),
+    _permissions: manager.getPermissions(state, null, component.match.params.entityId)
   };
 }
 

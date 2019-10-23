@@ -75,7 +75,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
       _showLoading: true
     }, () => {
       const entity = this.refs.form.getData();
-      const { identityId } = this.props.params;
+      const { identityId } = this.props.match.params;
       //
       const state = this.context.store.getState();
       const identity = this.identityManager.getEntity(state, identityId);
@@ -110,10 +110,10 @@ class IdentityContractDetail extends Basic.AbstractContent {
       //
       if (afterAction === 'CLOSE') {
         // go back to tree types or organizations
-        this.context.router.goBack();
+        this.context.history.goBack();
       } else {
-        const { identityId } = this.props.params;
-        this.context.router.replace(`identity/${encodeURIComponent(identityId)}/identity-contract/${entity.id}/detail`);
+        const { identityId } = this.props.match.params;
+        this.context.history.replace(`/identity/${encodeURIComponent(identityId)}/identity-contract/${entity.id}/detail`);
       }
     });
   }
@@ -123,7 +123,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, entity, showLoading, params, _permissions } = this.props;
+    const { uiKey, entity, showLoading, match, _permissions } = this.props;
     const { _showLoading, entityFormData } = this.state;
 
     return (
@@ -142,7 +142,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
                 uiKey={uiKey}
                 readOnly={ !identityContractManager.canSave(entity, _permissions) }>
                 <Basic.LabelWrapper readOnly ref="identity" label={this.i18n('entity.IdentityContract.identity')}>
-                  <Advanced.IdentityInfo username={params.identityId}/>
+                  <Advanced.IdentityInfo username={match.params.identityId}/>
                 </Basic.LabelWrapper>
 
                 <Basic.TextField
@@ -198,7 +198,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
             </Basic.PanelBody>
 
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" showLoading={_showLoading} onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button type="button" level="link" showLoading={_showLoading} onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
 
               <Basic.SplitButton
                 level="success"
@@ -235,7 +235,7 @@ IdentityContractDetail.defaultProps = {
 function select(state, component) {
   return {
     userContext: state.security.userContext,
-    _permissions: identityContractManager.getPermissions(state, null, component.params.entityId)
+    _permissions: identityContractManager.getPermissions(state, null, component.match.params.entityId)
   };
 }
 export default connect(select)(IdentityContractDetail);

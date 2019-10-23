@@ -22,11 +22,11 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-automatic-role-tree', this.props.params);
+    return this.getRequestNavigationKey('role-automatic-role-tree', this.props.match.params);
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('roleId', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('roleId', this.props.match.params.entityId);
     //
     return (
       <div>

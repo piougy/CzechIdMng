@@ -14,20 +14,16 @@ import { SecurityManager } from '../../redux';
  */
 export default class RoleGuarantees extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.role.guarantees';
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-guarantees', this.props.params);
+    return this.getRequestNavigationKey('role-guarantees', this.props.match.params);
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('role', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('role', this.props.match.params.entityId);
     //
     return (
       <div>
@@ -41,7 +37,7 @@ export default class RoleGuarantees extends Basic.AbstractContent {
               uiKey="role-guarantee-role-table"
               forceSearchParameters={ forceSearchParameters }
               className="no-margin"
-              params={ this.props.params }/>
+              match={ this.props.match }/>
           </div>
         }
         {
@@ -53,7 +49,7 @@ export default class RoleGuarantees extends Basic.AbstractContent {
               uiKey="role-guarantee-table"
               forceSearchParameters={ forceSearchParameters }
               className="no-margin"
-              params={ this.props.params }/>
+              match={ this.props.match }/>
           </div>
         }
       </div>

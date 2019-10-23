@@ -50,23 +50,24 @@ class Dashboard extends Basic.AbstractContent {
   render() {
     const { userContext, authorities, identity } = this.props;
     const _authorities = authorities ? authorities.map(authority => authority.authority) : null;
+
+    this.props.match.params = { ...this.props.match.params, entityId: userContext.username };
     //
     return (
       <div>
-        <IdentityDashboard dashboard params={{ ...this.props.params, entityId: userContext.username }}/>
-
-        {
-          !identity
-          ||
-          componentService.getComponentDefinitions(ComponentService.DASHBOARD_COMPONENT_TYPE).map(component => {
-            const DashboardComponent = component.component;
-            return (
-              <DashboardComponent
-                key={`${ComponentService.DASHBOARD_COMPONENT_TYPE}-${component.id}`}
-                entityId={ userContext.username}/>
-            );
-          })
-        }
+        <IdentityDashboard dashboard match={this.props.match}/>
+        <Basic.Div rendered={!!identity}>
+          {
+            [...componentService.getComponentDefinitions(ComponentService.DASHBOARD_COMPONENT_TYPE).map(component => {
+              const DashboardComponent = component.component;
+              return (
+                <DashboardComponent
+                  key={`${ComponentService.DASHBOARD_COMPONENT_TYPE}-${component.id}`}
+                  entityId={ userContext.username}/>
+              );
+            }).values()]
+          }
+        </Basic.Div>
 
         <div className="hidden">
           <Basic.Alert level="info">

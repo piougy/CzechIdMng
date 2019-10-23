@@ -26,7 +26,7 @@ class FormDefinitionRoutes extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
 
     if (!this._getIsNew()) {
       this.getLogger().debug(`[FormContent] loading entity detail [id:${entityId}]`);
@@ -66,10 +66,10 @@ class FormDefinitionRoutes extends Basic.AbstractContent {
         {
           this._getIsNew()
           ?
-          <FormDefinitionDetail isNew params={this.props.params} />
+          <FormDefinitionDetail isNew match={ this.props.match } />
           :
-          <Advanced.TabPanel position="left" parentId="forms" params={this.props.params}>
-            {this.props.children}
+          <Advanced.TabPanel position="left" parentId="forms" match={ this.props.match }>
+            {this.getRoutes()}
           </Advanced.TabPanel>
         }
 
@@ -86,7 +86,7 @@ FormDefinitionRoutes.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

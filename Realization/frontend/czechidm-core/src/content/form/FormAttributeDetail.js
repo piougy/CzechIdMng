@@ -38,7 +38,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { isNew, formDefinitionId } = this.props;
     if (isNew) {
       this.context.store.dispatch(manager.receiveEntity(entityId,
@@ -126,7 +126,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
     });
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     // FIXME: go back can be undefined
-    this.context.router.goBack();
+    this.context.history.goBack();
   }
 
   /**
@@ -351,7 +351,7 @@ class FormAttributeDetail extends Basic.AbstractContent {
               </Basic.AbstractForm>
             </Basic.PanelBody>
             <Basic.PanelFooter showLoading={ showLoading || _showLoading } >
-              <Basic.Button type="button" level="link" onClick={ this.context.router.goBack }>
+              <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
                 { this.i18n('button.back') }
               </Basic.Button>
               <Basic.Button
@@ -382,7 +382,7 @@ FormAttributeDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   const entity = manager.getEntity(state, entityId);
   if (entity && entity.persistentType === PersistentTypeEnum.findKeyBySymbol(PersistentTypeEnum.CODELIST)) {
     entity.codeList = entity.faceType;

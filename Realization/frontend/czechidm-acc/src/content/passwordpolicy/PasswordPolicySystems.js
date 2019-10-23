@@ -20,13 +20,13 @@ class PasswordPolicySystems extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.selectNavigationItems(['system', 'password-policies', 'password-policies-systems']);
     this.context.store.dispatch(passwordPolicyManager.fetchEntity(entityId));
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { entity, showLoading } = this.props;
 
     let forceSearchParameters = null;
@@ -67,7 +67,7 @@ PasswordPolicySystems.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: passwordPolicyManager.getEntity(state, entityId),

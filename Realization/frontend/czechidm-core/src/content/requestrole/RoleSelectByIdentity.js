@@ -163,7 +163,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     }
 
     const { selectedIdentityRoles } = this.state;
-    const newIdentityRoles = this.refs.identityRoleSelect.getWrappedInstance().getValue();
+    const newIdentityRoles = this.refs.identityRoleSelect.getValue();
     newIdentityRoles.forEach(newIdentityRole => {
       if (_.findIndex(selectedIdentityRoles, (selectIdentityRole) => {
         return selectIdentityRole === newIdentityRole;
@@ -186,7 +186,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     }
     const { selectedIdentityRoles } = this.state;
     this.setState({
-      selectedIdentityRoles: _.pullAll(selectedIdentityRoles, this.refs.selectedIdentityRoles.getWrappedInstance().getValue())
+      selectedIdentityRoles: _.pullAll(selectedIdentityRoles, this.refs.selectedIdentityRoles.getValue())
     });
     this._reloadTrees();
   }
@@ -262,8 +262,8 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
    * Reload both trees. Tree are not reloaded itselft after change props
    */
   _reloadTrees() {
-    this.refs.identityRoleSelect.getWrappedInstance().reload();
-    this.refs.selectedIdentityRoles.getWrappedInstance().reload();
+    this.refs.identityRoleSelect.reload();
+    this.refs.selectedIdentityRoles.reload();
   }
 
   _onEnvironmentChange(value) {

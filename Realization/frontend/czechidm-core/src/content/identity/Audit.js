@@ -19,14 +19,14 @@ class Audit extends Basic.AbstractContent {
 
   showDetail(revId, entityIde) {
     // FIXME: where is this method used?
-    // TODO: this.context.router.push set only rev id, fetchEntity isn't necessary. this.props.params not working.
+    // TODO: this.context.history.push set only rev id, fetchEntity isn't necessary. this.props.match.params not working.
     this.context.store.dispatch(identityManager.fetchEntity(entityIde, null, (identity) => {
-      this.context.router.push(`/identity/${ encodeURIComponent(identity.username) }/revision/${ revId }`);
+      this.context.history.push(`/identity/${ encodeURIComponent(identity.username) }/revision/${ revId }`);
     }));
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.selectNavigationItems(['identities', 'profile-audit', 'profile-audit-profile']);
     this.context.store.dispatch(identityManager.fetchEntity(entityId));
   }
@@ -57,7 +57,7 @@ Audit.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     identity: identityManager.getEntity(state, entityId)
   };

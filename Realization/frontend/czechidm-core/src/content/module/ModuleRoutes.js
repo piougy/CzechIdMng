@@ -19,8 +19,8 @@ export default class ModuleRoutes extends Basic.AbstractContent {
       <Basic.Div>
         { this.renderPageHeader({ icon: 'fa:puzzle-piece' }) }
 
-        <Advanced.TabPanel position="top" parentId="modules" params={ this.props.params }>
-          { this.props.children }
+        <Advanced.TabPanel position="top" parentId="modules" match={ this.props.match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
       </Basic.Div>
     );

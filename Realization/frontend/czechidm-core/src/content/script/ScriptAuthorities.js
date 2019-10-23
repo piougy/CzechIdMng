@@ -65,7 +65,7 @@ class ScriptAuthorities extends Basic.AbstractContent {
         }
         if (!error && successEntities) {
           // refresh data in table
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }, () => {
@@ -122,7 +122,7 @@ class ScriptAuthorities extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
     this.refs.form.processEnded();
     //
     detail = {
@@ -370,8 +370,8 @@ ScriptAuthorities.defaultProps = {
 
 function select(state, component) {
   return {
-    _entity: scriptManager.getEntity(state, component.params.entityId),
-    _permissions: scriptManager.getPermissions(state, null, component.params.entityId),
+    _entity: scriptManager.getEntity(state, component.match.params.entityId),
+    _permissions: scriptManager.getPermissions(state, null, component.match.params.entityId),
     availableServices: DataManager.getData(state, AVAILABLE_SERVICES_UIKEY)
   };
 }

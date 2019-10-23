@@ -38,19 +38,19 @@ export class RequestTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   showDetail(entity) {
-    this.context.router.push(`/requests/${entity.id}/detail`);
+    this.context.history.push(`/requests/${entity.id}/detail`);
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   _getCandidatesCell({ rowIndex, data, property}) {

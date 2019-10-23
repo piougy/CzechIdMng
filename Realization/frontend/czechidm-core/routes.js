@@ -649,7 +649,6 @@ module.exports = {
     },
     {
       path: 'workflow',
-      component: 'div',
       childRoutes: [
         {
           path: 'definitions',
@@ -721,22 +720,22 @@ module.exports = {
       ]
     },
     {
-      path: 'automatic-role/attributes/',
+      path: 'automatic-role/attributes/:automaticRoleId',
       component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRoutes'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTOMATICROLEATTRIBUTE_READ'] } ],
       childRoutes: [
         {
-          path: ':automaticRoleId',
+          path: '/',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTOMATICROLEATTRIBUTE_READ'] } ]
         },
         {
-          path: ':automaticRoleId/rules',
+          path: '/rules',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRules'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
         },
         {
-          path: ':automaticRoleId/identities',
+          path: '/identities',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeIdentities'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
         }
@@ -933,7 +932,6 @@ module.exports = {
     },
     {
       path: 'notification/',
-      component: 'div',
       childRoutes: [
         {
           path: 'notifications',

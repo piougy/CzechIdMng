@@ -51,7 +51,7 @@ class LongRunningTaskAudit extends Basic.AbstractContent {
 }
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: longRunningTaskManager.getEntity(state, entityId)
   };

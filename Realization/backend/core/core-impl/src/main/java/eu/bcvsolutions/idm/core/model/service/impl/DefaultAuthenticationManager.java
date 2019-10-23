@@ -258,7 +258,9 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		loginDto.setPassword(password);
 		try {
 			this.authenticate(loginDto);
-		} catch (RuntimeException e) {
+		} catch (RuntimeException ex) {
+			LOG.warn("Authentication validation failed", ex);
+			//
 			return false;
 		}
 		return true;

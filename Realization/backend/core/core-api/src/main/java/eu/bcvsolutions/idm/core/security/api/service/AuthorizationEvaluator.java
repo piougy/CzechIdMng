@@ -54,22 +54,11 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered,
 	boolean supports(Class<?> authorizableType);
 	
 	/**
-	 * Returns form parameter names for this task
-	 * 
-	 * @return
-	 * @deprecated @since 8.2.0 use {@link #getFormDefinition()}
-	 */
-	@Deprecated 
-	default List<String> getParameterNames() {
-		return new ArrayList<>();
-	}
-	
-	/**
 	 * Returns configuration property names for this configurable object
 	 */
 	@Override
 	default List<String> getPropertyNames() {
-		return this.getParameterNames();
+		return new ArrayList<>();
 	}
 	
 	/**

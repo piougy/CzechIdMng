@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,16 +31,16 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration_;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
-import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -58,7 +59,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultConfigurationService 
-		extends AbstractReadWriteDtoService<IdmConfigurationDto, IdmConfiguration, DataFilter> 
+		extends AbstractEventableDtoService<IdmConfigurationDto, IdmConfiguration, DataFilter> 
 		implements IdmConfigurationService, ConfigurationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
@@ -74,8 +75,9 @@ public class DefaultConfigurationService
 	public DefaultConfigurationService(
 			IdmConfigurationRepository repository,
 			ConfidentialStorage confidentialStorage,
-			ConfigurableEnvironment env) {
-		super(repository);
+			ConfigurableEnvironment env,
+			EntityEventManager entityEventManager) {
+		super(repository, entityEventManager);
 		//
 		this.repository = repository;
 		this.confidentialStorage = confidentialStorage;
@@ -106,7 +108,6 @@ public class DefaultConfigurationService
 		return predicates;
 	}
 	
-	
 	@Override
 	@Transactional(readOnly = true)
 	public String getValue(String key) {
@@ -126,7 +127,6 @@ public class DefaultConfigurationService
 				.map(String::trim)
 				.collect(Collectors.toList());
 	}
-	
 	
 	@Override
 	@Transactional
@@ -161,6 +161,7 @@ public class DefaultConfigurationService
 			return null;
 		}
 		delete(dto);
+		//
 		return dto.getValue();
 	}
 	
@@ -183,49 +184,49 @@ public class DefaultConfigurationService
 	
 	@Override
 	@Transactional
-	public IdmConfigurationDto save(IdmConfigurationDto entity, BasePermission... permission) {
-		Assert.notNull(entity, "Entity is required.");
+	public IdmConfigurationDto saveInternal(IdmConfigurationDto dto) {
+		Assert.notNull(dto, "Entity is required.");
 		// check confidential option
-		if (shouldBeConfidential(entity.getName())) {
-			entity.setConfidential(true);
+		if (shouldBeConfidential(dto.getName())) {
+			dto.setConfidential(true);
 		}
 		// check secured option
-		if (shouldBeSecured(entity.getName())) {
-			entity.setSecured(true);
+		if (shouldBeSecured(dto.getName())) {
+			dto.setSecured(true);
 		}
 		// save confidential properties to confidential storage
-		String value = entity.getValue();
-		if (entity.isConfidential()) {
-			String previousValue = entity.getId() == null ? null : confidentialStorage.get(entity.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE, String.class);
+		String value = dto.getValue();
+		if (dto.isConfidential()) {
+			String previousValue = dto.getId() == null ? null : confidentialStorage.get(dto.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE, String.class);
 			if (StringUtils.isNotEmpty(value) || (value == null && previousValue != null)) {
 				// we need only to know, if value was filled
-				entity.setValue(GuardedString.SECRED_PROXY_STRING);
+				dto.setValue(GuardedString.SECRED_PROXY_STRING);
 			} else {
-				entity.setValue(null);
+				dto.setValue(null);
 			}
 		}
-		entity = super.save(entity, permission);
+		dto = super.saveInternal(dto);
 		//
 		// save new value to confidential storage - empty string should be given for saving empty value. We are leaving previous value otherwise
-		if (entity.isConfidential() && value != null) {
-			confidentialStorage.save(entity.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE, value);
-			LOG.debug("Configuration value [{}] is persisted in confidential storage", entity.getName());
+		if (dto.isConfidential() && value != null) {
+			confidentialStorage.save(dto.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE, value);
+			LOG.debug("Configuration value [{}] is persisted in confidential storage", dto.getName());
 		}
-		evictCache(entity.getCode());
-		return entity;
+		evictCache(dto.getCode());
+		//
+		return dto;
 	}
 	
 	@Override
 	@Transactional
-	public void delete(IdmConfigurationDto dto, BasePermission... permission) {
+	public void deleteInternal(IdmConfigurationDto dto) {
 		Assert.notNull(dto, "DTO is required.");
-		checkAccess(this.getEntity(dto.getId()), permission);
 		//
 		if (dto.isConfidential()) {
 			confidentialStorage.delete(dto.getId(), getEntityClass(), CONFIDENTIAL_PROPERTY_VALUE);
 			LOG.debug("Configuration value [{}] was removed from confidential storage", dto.getName());
 		}
-		super.delete(dto, permission);
+		super.deleteInternal(dto);
 		evictCache(dto.getCode());
 	}
 	
@@ -384,6 +385,14 @@ public class DefaultConfigurationService
 					// apply security
 					return getAuthorizationManager().evaluate(toEntity(dto), IdmBasePermission.READ);
 				})
+				.sorted(new Comparator<IdmConfigurationDto>() {
+
+					@Override
+					public int compare(IdmConfigurationDto one, IdmConfigurationDto two) {
+						return one.getName().compareToIgnoreCase(two.getName());
+					}
+					
+				})
 				.collect(Collectors.toList());
 	}
 	
@@ -401,6 +410,14 @@ public class DefaultConfigurationService
 				})
 				.map(entry -> {
 					return toConfigurationDto(entry.getKey(), entry.getValue());
+				})
+				.sorted(new Comparator<IdmConfigurationDto>() {
+
+					@Override
+					public int compare(IdmConfigurationDto one, IdmConfigurationDto two) {
+						return one.getName().compareToIgnoreCase(two.getName());
+					}
+					
 				})
 				.collect(Collectors.toList());
 	}

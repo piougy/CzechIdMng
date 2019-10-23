@@ -264,6 +264,8 @@ Configuration file in test package ``logback-test.xml`` has to removed. New ``lo
 - ``IdmRoleTreeNodeService#prepareRemoveAutomaticRoles(IdmIdentityRoleDto, Set)`` - @deprecated @since 9.5.0 - use ``IdmRoleTreeNodeService#removeAutomaticRoles(IdmIdentityContractDto, Set)``.
 - ``IdmScriptService#getScriptByName(String)`` - @deprecated @since 7.6.0 - use ``IdmScriptService#getByCode(String)``.
 - ``IdmScriptService#getScriptByCode(String)`` - @deprecated @since 7.6.0 - use ``IdmScriptService#getByCode(String)``.
+- ``AuthorizationEvaluator#getParameterNames()`` - @deprecated @since 8.2.0 - use ``AuthorizationEvaluator#getFormDefinition()``.
+
 
 
 

@@ -21,7 +21,7 @@
 		<appender-ref ref="CONSOLE" />
 	</root>
 	
-	<logger name="eu.bcvsolutions" level="WARN" />
+	<logger name="eu.bcvsolutions" level="ERROR" />
 	<logger name="org.springframework" level="WARN"/>
 	<logger name="org.springframework.web" level="WARN"/>
 	<logger name="org.hibernate.SQL" level="WARN"/>

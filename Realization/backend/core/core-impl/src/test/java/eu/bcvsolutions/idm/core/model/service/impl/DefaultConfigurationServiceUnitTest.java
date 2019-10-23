@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -17,6 +17,7 @@ import org.modelmapper.ModelMapper;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
@@ -37,6 +38,7 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	@Spy private ModelMapper modelMapper = new ModelMapper();
 	@Mock private IdmConfigurationRepository repository;
 	@Mock private ConfidentialStorage confidentialStorage;
+	@Mock private EntityEventManager entityEventManager;
 	//
 	@InjectMocks private DefaultConfigurationService service;
 	

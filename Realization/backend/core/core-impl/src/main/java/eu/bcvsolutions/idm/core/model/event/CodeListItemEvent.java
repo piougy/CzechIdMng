@@ -18,7 +18,7 @@ public class CodeListItemEvent extends CoreEvent<IdmCodeListItemDto> {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Supported core identity events
+	 * Supported events
 	 *
 	 */
 	public enum CodeListItemEventType implements EventType {

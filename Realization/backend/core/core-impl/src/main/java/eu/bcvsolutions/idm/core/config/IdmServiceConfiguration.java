@@ -53,6 +53,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.service.LoggerManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.service.thin.IdmIdentityRoleThinService;
@@ -142,6 +143,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTokenService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmTreeTypeService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultLookupService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
+import eu.bcvsolutions.idm.core.model.service.impl.LogbackLoggerManager;
 import eu.bcvsolutions.idm.core.model.service.thin.DefaultIdmIdentityRoleThinService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
@@ -258,7 +260,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmConfigurationService.class)
 	public IdmConfigurationService configurationService() {
-		return new DefaultConfigurationService(configurationRepository, confidentialStorage(), environment);
+		return new DefaultConfigurationService(configurationRepository, confidentialStorage(), environment, entityEventManager());
 	}
 	
 	/**
@@ -853,5 +855,16 @@ public class IdmServiceConfiguration {
 	@ConditionalOnMissingBean(IdmGenerateValueService.class)
 	public IdmGenerateValueService generatedValueService() {
 		return new DefaultIdmGenerateValueService(generatedValueRepository);
+	}
+	
+	/**
+	 * Configure logger programatically.
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean(LoggerManager.class)
+	public LoggerManager loggerManager() {
+		return new LogbackLoggerManager();
 	}
 }

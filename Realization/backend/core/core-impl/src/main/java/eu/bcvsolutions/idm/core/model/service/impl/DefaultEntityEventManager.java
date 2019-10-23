@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -101,15 +102,16 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	//
 	@Autowired private ApplicationContext context;
 	@Autowired private ApplicationEventPublisher publisher;
-	@Autowired private EnabledEvaluator enabledEvaluator;
-	@Autowired private LookupService lookupService;
-	@Autowired private IdmEntityEventService entityEventService;
-	@Autowired private EntityStateManager entityStateManager;
-	@Autowired private ConfigurationService configurationService;
-	@Autowired private SecurityService securityService;
-	@Autowired private EventConfiguration eventConfiguration;
 	@Autowired private ModelMapper modelMapper;
 	@Autowired private ObjectMapper mapper;
+	//
+	@Autowired @Lazy private EnabledEvaluator enabledEvaluator;
+	@Autowired @Lazy private IdmEntityEventService entityEventService;
+	@Autowired @Lazy private EntityStateManager entityStateManager;
+	@Autowired @Lazy private SecurityService securityService;
+	@Autowired @Lazy private EventConfiguration eventConfiguration;
+	@Autowired @Lazy private LookupService lookupService;
+	@Autowired @Lazy private ConfigurationService configurationService;
 	
 	/**
 	 * Cancel all previously ran events

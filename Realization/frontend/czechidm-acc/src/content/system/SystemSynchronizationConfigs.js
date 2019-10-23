@@ -43,7 +43,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     return 'system-synchronization-configs';
   }
 
-  componentWillReceiveProps(props) {
+  UNSAFE_componentWillReceiveProps(props) {
     this._initComponent(props);
   }
 

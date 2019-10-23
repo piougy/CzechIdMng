@@ -84,7 +84,7 @@ class IdentityRoles extends Basic.AbstractContent {
     );
   }
 
-  componentWillReceiveProps(props) {
+  UNSAFE_componentWillReceiveProps(props) {
     this._initComponent(props);
   }
 

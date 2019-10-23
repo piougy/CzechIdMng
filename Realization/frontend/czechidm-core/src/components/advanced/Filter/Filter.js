@@ -54,7 +54,7 @@ export default class Filter extends Basic.AbstractContextComponent {
   render() {
     const { rendered, showloading } = this.props;
     if (!rendered || showloading) {
-      return false;
+      return null;
     }
     return (
       <form onSubmit={ this.useFilter.bind(this) } className="advanced-filter">

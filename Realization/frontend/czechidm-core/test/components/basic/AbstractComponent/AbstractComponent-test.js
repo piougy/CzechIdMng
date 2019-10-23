@@ -1,16 +1,16 @@
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
 import chai, { expect } from 'chai';
 import ReactDOM from 'react-dom';
 import dirtyChai from 'dirty-chai';
 import _ from 'lodash';
-import ReactPropTypesSecret from 'react/lib/ReactPropTypesSecret';
-chai.use(dirtyChai);
-//
+import ShallowRenderer from 'react-test-renderer/shallow';
 import * as Basic from '../../../../src/components/basic';
 import * as Advanced from '../../../../src/components/advanced';
 import RoleTypeEnum from '../../../../src/enums/RoleTypeEnum';
 import { RoleManager } from '../../../../src/redux';
+
+chai.use(dirtyChai);
+//
 
 /**
  * Component common properties test
@@ -55,18 +55,6 @@ function getCommonProps(ComponentType) {
       continue;
     }
     //
-    if (ComponentType.propTypes.hasOwnProperty(typeSpecName)) {
-      if (ComponentType.propTypes[typeSpecName]({ [typeSpecName]: 'text' }, typeSpecName, ComponentType.name, '', null, ReactPropTypesSecret) === null) {
-        // string
-        commonProps[typeSpecName] = 'text';
-      } else if (ComponentType.propTypes[typeSpecName]({ [typeSpecName]: {} }, typeSpecName, ComponentType.name, '', null, ReactPropTypesSecret) === null) {
-        // object
-        commonProps[typeSpecName] = {};
-      } else if (ComponentType.propTypes[typeSpecName]({ [typeSpecName]: () => {} }, typeSpecName, ComponentType.name, '', null, ReactPropTypesSecret) === null) {
-        // fuunction
-        commonProps[typeSpecName] = () => {};
-      }
-    }
   }
   return commonProps;
 }
@@ -95,7 +83,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
           /* eslint  no-loop-func: 0 */
           it('- ' + component, function testComponent() {
             const ComponentType = componentLibrary[component];
-            const shallowRenderer = TestUtils.createRenderer();
+            const shallowRenderer = new ShallowRenderer();
             const componentProps = getCommonProps(ComponentType);
             counter++;
             shallowRenderer.render(<ComponentType key={ `cmp-${counter}` } rendered={false} {...componentProps}/>);
@@ -118,7 +106,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
           /* eslint  no-loop-func: 0 */
           it('- ' + component, function testComponent() {
             const ComponentType = componentLibrary[component];
-            const shallowRenderer = TestUtils.createRenderer();
+            const shallowRenderer = new ShallowRenderer();
             const componentProps = getCommonProps(ComponentType);
             shallowRenderer.render(<ComponentType showLoading={false} {...componentProps}/>);
             const renderedComponent = shallowRenderer.getRenderOutput();
@@ -126,8 +114,6 @@ describe('Basic AbstractComponent', function abstractComponent() {
             const renderedComponentWithShowLoading = shallowRenderer.getRenderOutput();
             /*
             if(component === 'Label') {
-              console.log('Comp1', renderedComponent);
-              console.log('Comp2', renderedComponentWithShowLoading);
             }*/
             if (renderedComponent && renderedComponentWithShowLoading) { // some components need more props to render itself
               expect(renderedComponent).to.not.eql(renderedComponentWithShowLoading);

@@ -20,7 +20,7 @@ export default class FormValues extends Basic.AbstractContent {
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('definitionId', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('definitionId', this.props.match.params.entityId);
     //
     return (
       <div className="tab-pane-table-body">

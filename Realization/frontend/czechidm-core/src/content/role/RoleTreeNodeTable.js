@@ -42,14 +42,14 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
@@ -96,12 +96,12 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     }
     //
     super.afterSave(entity, error);
-    this.refs['automatic-role-requests-table'].getWrappedInstance().reload();
+    this.refs['automatic-role-requests-table'].reload();
   }
 
   afterDelete() {
     super.afterDelete();
-    this.refs['automatic-role-requests-table'].getWrappedInstance().reload();
+    this.refs['automatic-role-requests-table'].reload();
   }
 
   render() {

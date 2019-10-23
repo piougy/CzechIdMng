@@ -39,7 +39,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItems(['system', 'password-policies', 'password-policies-basic']);
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (this._getIsNew()) {
       // if entity is new, set default required rules
       this.context.store.dispatch(passwordPolicyManager.receiveEntity(entityId, {
@@ -59,7 +59,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
   /**
   * Method check if props in this component is'nt different from new props.
   */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // also is necessary to test defautl type, because it may be changed dynamical from others password policy
     if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id ||
             this.props.entity.defaultPolicy !== nextProps.entity.defaultPolicy) {
@@ -163,9 +163,9 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     if (editContinue === 'SAVE' || editContinue === 'CREATE') {
-      this.context.router.goBack();
+      this.context.history.goBack();
     } else if (editContinue === 'CREATE_CONTINUE') {
-      this.context.router.replace('/password-policies/' + entity.id);
+      this.context.history.replace('/password-policies/' + entity.id);
     } else {
       this.refs.form.processEnded();
       this.setState({
@@ -362,7 +362,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
             </Basic.AbstractForm>
           </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} className="noBorder">
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
             {
               isNew
               ?
@@ -398,7 +398,7 @@ PasswordPolicyBasic.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: passwordPolicyManager.getEntity(state, entityId),

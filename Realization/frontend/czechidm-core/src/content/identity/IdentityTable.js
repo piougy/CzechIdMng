@@ -70,11 +70,11 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     //
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/identity/new?id=${uuidId}`);
+      this.context.history.push(`/identity/new?id=${uuidId}`);
     } else if (!skipDashboard && !shiftKey) {
-      this.context.router.push(`/identity/${encodeURIComponent(entity.username)}/dashboard`);
+      this.context.history.push(`/identity/${encodeURIComponent(entity.username)}/dashboard`);
     } else {
-      this.context.router.push(`/identity/${encodeURIComponent(entity.username)}/profile`);
+      this.context.history.push(`/identity/${encodeURIComponent(entity.username)}/profile`);
     }
   }
 
@@ -91,7 +91,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
@@ -102,7 +102,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       text: null,
       treeNodeId: null
     }, () => {
-      this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+      this.refs.table.cancelFilter(this.refs.filterForm);
     });
   }
 

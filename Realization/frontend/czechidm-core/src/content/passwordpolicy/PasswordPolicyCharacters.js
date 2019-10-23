@@ -32,7 +32,7 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItems(['system', 'password-policies', 'password-policies-characters']);
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
     this.context.store.dispatch(passwordPolicyManager.fetchEntity(entityId));
   }
@@ -40,7 +40,7 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
   /**
   * Method check if props in this component is'nt different from new props.
   */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // check id of old and new entity
     if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id) {
       this._initForm(nextProps.entity);
@@ -123,7 +123,7 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     if (editContinue === 'SAVE') {
-      this.context.router.goBack();
+      this.context.history.goBack();
     } else {
       this.refs.form.processEnded();
       this.setState({
@@ -194,7 +194,7 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
               </Basic.AbstractForm>
             </Basic.PanelBody>
             <Basic.PanelFooter showLoading={showLoading} >
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
               <Basic.SplitButton level="success" title={this.i18n('button.saveAndContinue')}
                 onClick={this.save.bind(this, 'CONTINUE')}
                 rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'PASSWORDPOLICY_CREATE' : 'PASSWORDPOLICY_UPDATE')}
@@ -219,7 +219,7 @@ PasswordPolicyCharacters.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: passwordPolicyManager.getEntity(state, entityId),

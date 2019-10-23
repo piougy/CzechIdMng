@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import * as Basic from '../components/basic';
 import { SecurityManager } from '../redux';
 
@@ -9,16 +10,19 @@ const securityManager = new SecurityManager();
  *
  * @author Radek Tomiška
  */
-export default class Logout extends Basic.AbstractContent {
+class Logout extends Basic.AbstractContent {
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     // logout immediately, when component will mount
     this.context.store.dispatch(securityManager.logout(() => {
-      this.context.router.replace('/login');
+      this.context.history.replace('/login');
     }));
   }
 
   render() {
     return <Basic.Loading isStatic showLoading />;
   }
+
 }
+
+export default connect()(Logout);

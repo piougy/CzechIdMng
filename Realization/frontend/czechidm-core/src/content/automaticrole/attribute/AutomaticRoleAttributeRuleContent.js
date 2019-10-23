@@ -25,7 +25,7 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { ruleId, entityId } = this.props.params;
+    const { ruleId, entityId } = this.props.match.params;
     this.selectNavigationItems(['roles-menu', 'automatic-roles']);
 
     if (this._getIsNew()) {
@@ -47,7 +47,7 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
 
   render() {
     const { entity, showLoading, attribute } = this.props;
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     return (
       <div>
         {
@@ -86,7 +86,7 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
                 readOnly
                 attributeId={entityId} />
               <Basic.PanelFooter showLoading={showLoading} >
-                <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+                <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
               </Basic.PanelFooter>
             </div>
           }
@@ -103,7 +103,7 @@ AutomaticRoleAttributeRuleContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { ruleId, entityId } = component.params;
+  const { ruleId, entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, ruleId),

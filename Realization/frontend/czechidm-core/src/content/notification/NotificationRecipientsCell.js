@@ -26,11 +26,11 @@ export default class NotificationRecipientsCell extends Basic.AbstractContent {
     return (
       <span>
         {
-          notification.recipients.map(recipient => {
+          [...notification.recipients.map(recipient => {
             return (
               <NotificationRecipient recipient={recipient} identityOnly={identityOnly} />
             );
-          })
+          }).values()]
         }
       </span>
   );

@@ -51,16 +51,16 @@ class AuditDetail extends Basic.AbstractContent {
   /**
    * After change props is necessary to reload tables with data
    */
-  componentWillReceiveProps(nextProps) {
-    const { entityId, revID } = this.props.params;
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { entityId, revID } = this.props.match.params;
 
-    if (entityId !== nextProps.params.entityId || revID !== nextProps.params.revID) {
+    if (entityId !== nextProps.match.params.entityId || revID !== nextProps.match.params.revID) {
       this._reloadComponent(nextProps);
     }
   }
 
   _reloadComponent(props) {
-    const { entityId, revID } = props.params;
+    const { entityId, revID } = props.match.params;
     // fetch first audit detail
     this.context.store.dispatch(auditManager.fetchEntity(entityId, FIRST_ENTITY_UIKEY));
     if (revID) {
@@ -84,7 +84,7 @@ class AuditDetail extends Basic.AbstractContent {
           });
         }
         if (previousVersion) {
-          this.context.router.replace(`/audit/entities/${entityId}/diff/${previousVersion.id}`);
+          this.context.history.replace(`/audit/entities/${entityId}/diff/${previousVersion.id}`);
           this.setState({
             noVersion: false
           });
@@ -94,7 +94,7 @@ class AuditDetail extends Basic.AbstractContent {
   }
 
   changeSecondRevision(rev) {
-    const { entityId, revID } = this.props.params;
+    const { entityId, revID } = this.props.match.params;
     // if bouth ids are same do nothing
     if (parseInt(revID, 10) !== rev.id) {
       this.setState({
@@ -102,9 +102,9 @@ class AuditDetail extends Basic.AbstractContent {
         showLoadingSelect: true
       });
       if (rev) {
-        this.context.router.replace(`/audit/entities/${entityId}/diff/${rev.id}`);
+        this.context.history.replace(`/audit/entities/${entityId}/diff/${rev.id}`);
       } else {
-        this.context.router.replace(`/audit/entities/${entityId}/diff`);
+        this.context.history.replace(`/audit/entities/${entityId}/diff`);
       }
     }
   }
@@ -177,7 +177,7 @@ class AuditDetail extends Basic.AbstractContent {
             </Basic.Row>
           </Basic.PanelBody>
           <Basic.PanelFooter>
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
       </Basic.Row>
@@ -193,7 +193,7 @@ AuditDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId, revID } = component.params;
+  const { entityId, revID } = component.match.params;
 
   return {
     userContext: state.security.userContext,

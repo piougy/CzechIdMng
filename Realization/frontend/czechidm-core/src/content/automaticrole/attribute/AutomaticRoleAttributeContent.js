@@ -25,7 +25,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
 
   componentDidMount() {
     super.componentDidMount();
-    const { automaticRoleId, entityId } = this.props.params;
+    const { automaticRoleId, entityId } = this.props.match.params;
     if (entityId) { // We are on the role
       this.selectNavigationItems(['roles-menu', 'roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-detail']);
     } else {
@@ -50,7 +50,7 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
 
   render() {
     const { entity} = this.props;
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     return (
       <div className={entityId ? 'panel-body' : ''}>
         {
@@ -74,7 +74,7 @@ AutomaticRoleAttributeContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { automaticRoleId } = component.params;
+  const { automaticRoleId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, automaticRoleId)

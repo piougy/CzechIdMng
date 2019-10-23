@@ -34,7 +34,7 @@ export default class ConfidentialStorageValueDetail extends Basic.AbstractConten
   /**
    * Method check if props in this component isn't different from new props.
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // check id of old and new entity
     if (nextProps.entity.id !== this.props.entity.id) {
       this._initForm(nextProps.entity);
@@ -97,7 +97,7 @@ export default class ConfidentialStorageValueDetail extends Basic.AbstractConten
         </Basic.AbstractForm>
 
         <Basic.PanelFooter>
-          <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+          <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
         </Basic.PanelFooter>
       </Basic.Panel>
     );

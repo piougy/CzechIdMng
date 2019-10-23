@@ -27,7 +27,7 @@ class Task extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('tasks');
-    const { taskID } = this.props.params;
+    const { taskID } = this.props.match.params;
     this.context.store.dispatch(workflowTaskInstanceManager.fetchPermissions(taskID, null));
     this.context.store.dispatch(workflowTaskInstanceManager.fetchEntityIfNeeded(taskID, null, (json, error) => {
       if (error) {
@@ -52,12 +52,12 @@ class Task extends Basic.AbstractContent {
   }
 
   _goBack() {
-    if (this.context.router.goBack()) {
+    if (this.context.history.goBack()) {
       // nothig, router just can go back
     } else {
       // transmition to /task, history doesnt exist
       // we havn't task or another information we must go to dashboard
-      this.context.router.push('/');
+      this.context.history.push('/');
     }
   }
 
@@ -79,7 +79,7 @@ class Task extends Basic.AbstractContent {
       DetailComponent = componentService.getComponent(task.formKey);
       if (!DetailComponent) {
         this.addMessage({title: this.i18n('message.task.detailNotFound'), level: 'warning'});
-        this.context.router.goBack();
+        this.context.history.goBack();
         return null;
       }
     }
@@ -131,7 +131,7 @@ Task.defaultProps = {
 };
 
 function select(state, component) {
-  const { taskID } = component.params;
+  const { taskID } = component.match.params;
   const task = workflowTaskInstanceManager.getEntity(state, taskID);
   return {
     task

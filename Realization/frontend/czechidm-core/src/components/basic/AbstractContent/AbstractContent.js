@@ -98,7 +98,9 @@ export default class AbstractContent extends AbstractContextComponent {
     if (!navigationId) {
       return null;
     }
-    return this.context.store.dispatch(getNavigationItem(this.context.store.getState().config, navigationId));
+    // @todo-upgrade-10 original ... return this.context.store.dispatch(getNavigationItem(this.context.store.getState().config, navigationId));
+    // Why use dispatch? Not working with this!!!
+    return getNavigationItem(this.context.store.getState().config, navigationId);
   }
 
   /**
@@ -142,7 +144,7 @@ export default class AbstractContent extends AbstractContextComponent {
    * Reloads current route
    */
   reloadRoute() {
-    this.context.router.replace(this.context.store.getState().routing.location.pathname);
+    this.context.history.replace(this.context.store.getState().routing.location.pathname);
   }
 
   /**
@@ -157,14 +159,14 @@ export default class AbstractContent extends AbstractContextComponent {
     //
     const message = {};
     if (error.statusCode === 403) {
-      this.context.router.push('/error/403');
+      this.context.history.push('/error/403');
       message.hidden = true;
     } else if (error.statusCode === 404) {
       if (error.parameters && error.parameters.entity) {
-        this.context.router.push(`/error/404?id=${error.parameters.entity}`);
+        this.context.history.push(`/error/404?id=${error.parameters.entity}`);
         message.hidden = true;
       } else {
-        this.context.router.push(`/error/404`);
+        this.context.history.push(`/error/404`);
         message.hidden = true;
       }
     }
@@ -216,9 +218,9 @@ export default class AbstractContent extends AbstractContextComponent {
 
   addRequestPrefix(path, params) {
     if (this.isRequest(params)) {
-      return `requests/${params.requestId}/${path}`;
+      return `/requests/${params.requestId}/${path}`;
     }
-    return path;
+    return `/${path}`;
   }
 
   /**
@@ -254,8 +256,8 @@ export default class AbstractContent extends AbstractContextComponent {
         {' '}
         {
           !props.showTitle
-          ||
-          <small>{ this.i18n('title', { escape: false }) }</small>
+        ||
+        <small>{ this.i18n('title', { escape: false }) }</small>
         }
       </PageHeader>
     );
@@ -287,9 +289,4 @@ AbstractContent.propTypes = {
 
 AbstractContent.defaultProps = {
   ...AbstractContextComponent.defaultProps
-};
-
-AbstractContent.contextTypes = {
-  ...AbstractContextComponent.contextTypes,
-  router: PropTypes.object // .isRequired
 };

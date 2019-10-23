@@ -16,10 +16,6 @@ const treeTypeManager = new TreeTypeManager();
  */
 class TypeContent extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.tree.types';
   }
@@ -29,7 +25,7 @@ class TypeContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (this._getIsNew()) {
       this.context.store.dispatch(treeTypeManager.receiveEntity(entityId, { }));
     } else {
@@ -93,7 +89,7 @@ TypeContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: treeTypeManager.getEntity(state, entityId),

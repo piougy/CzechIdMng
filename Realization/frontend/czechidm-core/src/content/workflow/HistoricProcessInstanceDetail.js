@@ -44,9 +44,9 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
    * componentWillReceiveProps call _initComponent only if is
    * historicProcessInstanceId is different from next props historicProcessInstanceId.
    */
-  componentWillReceiveProps(nextProps) {
-    const { historicProcessInstanceId } = nextProps.params;
-    if (historicProcessInstanceId && historicProcessInstanceId !== this.props.params.historicProcessInstanceId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { historicProcessInstanceId } = nextProps.match.params;
+    if (historicProcessInstanceId && historicProcessInstanceId !== this.props.match.params.historicProcessInstanceId) {
       this._initComponent(nextProps);
     }
   }
@@ -56,7 +56,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { historicProcessInstanceId } = props.params;
+    const { historicProcessInstanceId } = props.match.params;
     this.context.store.dispatch(workflowHistoricProcessInstanceManager.fetchEntity(historicProcessInstanceId));
     this.selectNavigationItem('workflow-historic-processes');
     workflowHistoricProcessInstanceManager.getService().downloadDiagram(historicProcessInstanceId, this.reciveDiagram.bind(this));
@@ -122,7 +122,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
   render() {
     const {showLoading, diagramUrl, showModalDiagram} = this.state;
     const {_historicProcess} = this.props;
-    const { historicProcessInstanceId } = this.props.params;
+    const { historicProcessInstanceId } = this.props.match.params;
 
 
     const showLoadingInternal = showLoading || !_historicProcess;
@@ -150,7 +150,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             <Basic.ScriptArea ref="_processVariablesJson" mode="json" readOnly rows={6} label={this.i18n('processVariables')} rendered={ SecurityManager.isAdmin() }/>
           </Basic.AbstractForm>
           <Basic.PanelFooter>
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>
               {this.i18n('button.back')}
             </Basic.Button>
           </Basic.PanelFooter>
@@ -231,7 +231,7 @@ HistoricProcessInstanceDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { historicProcessInstanceId } = component.params;
+  const { historicProcessInstanceId } = component.match.params;
   const historicProcess = workflowHistoricProcessInstanceManager.getEntity(state, historicProcessInstanceId, false);
   if (historicProcess && !historicProcess.trimmed) {
     historicProcess._processVariablesJson = JSON.stringify(historicProcess.processVariables, null, 4);

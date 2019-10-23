@@ -20,7 +20,7 @@ export default class FormAttributes extends Basic.AbstractContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     return (
       <div className="tab-pane-table-body">
         { this.renderContentHeader({ style: { marginBottom: 0 }}) }

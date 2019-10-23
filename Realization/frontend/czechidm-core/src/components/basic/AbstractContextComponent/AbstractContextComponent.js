@@ -1,9 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import {parse} from 'qs';
+import {Route, Switch} from 'react-router-dom';
 //
+import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
-import { FlashMessagesManager, ConfigurationManager } from '../../../redux';
+import { FlashMessagesManager, ConfigurationManager, SecurityManager} from '../../../redux';
 import { i18n } from '../../../services/LocalizationService';
+import {AuthenticateService} from '../../../services';
+import IdmContext from '../../../context/idm-context';
 
 /**
  * Automatically injects redux context (store) to component context,
@@ -16,7 +20,28 @@ class AbstractContextComponent extends AbstractComponent {
 
   constructor(props, context) {
     super(props, context);
+    this._parseUrlQuery(this.props.location);
     this.flashMessagesManager = new FlashMessagesManager();
+  }
+
+  /**
+   * React router since V4 doesn't parse query (thanks).
+   * So I have to make this here. Result is set to the
+   * this.props.location (for back compatibility).
+   */
+  _parseUrlQuery(location) {
+    if (location) {
+      const { search } = location;
+      if (search) {
+        const trimedSearch = search.replace('?', '');
+        const query = parse(trimedSearch);
+        location.query = query;
+      }
+      // Query has default value
+      if (!location.query) {
+        location.query = {};
+      }
+    }
   }
 
   /**
@@ -146,6 +171,230 @@ class AbstractContextComponent extends AbstractComponent {
     return this.flashMessagesManager;
   }
 
+  _getConcatPath(parentId, path) {
+    if (!parentId) {
+      return path;
+    }
+
+    // Unbend a path. Some routes are wrong defined in routes.js (missing or excess slash).
+    if (parentId.endsWith('/') && path && path.startsWith('/')) {
+      parentId = parentId.substring(0, parentId.length - 1);
+    }
+
+    if (path && !path.startsWith('/') && !parentId.endsWith('/')) {
+      return `${parentId}/${path}`;
+    }
+    return `${parentId}${path}`;
+  }
+
+  /**
+   * Finds route definitions for given path.
+   */
+  _getRouteComponents(path, routes) {
+    let components = routes.filter(route => {
+      const concatedPath = this._getConcatPath(route.parentId, route.path);
+
+      if (concatedPath === path) {
+        return true;
+      }
+      if (`${path}/` === concatedPath) {
+        return true;
+      }
+      return false;
+    });
+
+    if (components && components.length > 0) {
+      return components;
+    }
+    components = [];
+
+    routes.forEach(route => {
+      if (route.childRoutes && route.childRoutes.length > 0) {
+        const subComponents = this._getRouteComponents(path, route.childRoutes);
+        if (subComponents && subComponents.length > 0) {
+          components.push(...subComponents);
+        }
+      }
+      return null;
+    });
+
+    if (components && components.length > 0) {
+      return components;
+    }
+    return null;
+  }
+
+  /**
+   * If direct route doesn't have a component, then
+   * we try to find component in childRoutes.
+   */
+  _getChildrenRoutesWithComponent(route, parentPath) {
+    const childRoutesResult = [];
+    if (route.component) {
+      route.concatedPath = parentPath;
+      return [route];
+    } if (route.childRoutes) {
+      route.childRoutes.forEach(childRoute => {
+        childRoutesResult.push(...this._getChildrenRoutesWithComponent(childRoute, this._getConcatPath(parentPath, childRoute.path)));
+      });
+    }
+    return childRoutesResult;
+  }
+
+  /**
+   * Found route definitions for children (items from routes.js for this component).
+   */
+  _getRouteDefinitions() {
+    const {match} = this.props;
+    const routes = this.context.routes;
+
+    const topLevelPath = routes.childRoutes[0].path;
+    let currentPath = match.path;
+    if (currentPath.startsWith(topLevelPath)) {
+      currentPath = currentPath.substring(topLevelPath.length, currentPath.length);
+    }
+    let currentRoutes = [];
+
+    // If currentPath is empty, then we are on top-level, so we can add all direct children.
+    if (currentPath === '') {
+      routes.childRoutes[0].component = {};
+      currentRoutes = [routes.childRoutes[0]];
+    } else {
+      currentRoutes = this._getRouteComponents(currentPath, routes.childRoutes);
+    }
+    const childRoutesResult = [];
+    if (currentRoutes) {
+      currentRoutes.forEach(route => {
+        const childRoutes = route.childRoutes;
+        if (childRoutes) {
+          childRoutes.forEach(routeWithComponent => {
+            childRoutesResult.push(routeWithComponent);
+          });
+        }
+      });
+    }
+    return childRoutesResult;
+  }
+
+  _trimSlash(routePath) {
+    // Trim start of path from slash
+    if (routePath.startsWith('/')) {
+      routePath = routePath.substring(1, routePath.length);
+    }
+    // Trim end of path from slash
+    if (routePath.endsWith('/')) {
+      routePath = routePath.substring(0, routePath.length - 1);
+    }
+    return routePath;
+  }
+
+  /**
+   * Get priority of path from given route.
+   *
+   */
+  _getPriorityOfPath(route) {
+    if (!route || !route.path) {
+      return 0;
+    }
+    let routePath = route.path;
+    routePath = this._trimSlash(routePath);
+    const elements = routePath.split('/');
+    let priority = elements.length * 2;
+
+    // If is last item ends on dynamic parameter, the we decrease the priority.
+    const lastElement = elements[elements.length - 1];
+    if (lastElement.startsWith(':')) {
+      priority -= 1;
+    }
+
+    // If route has a order, then we have to use it.
+    if (route.order) {
+      priority -= route.order;
+    }
+    route.pathPriority = priority;
+    return priority;
+  }
+
+  /**
+   * Return component. Check acccess to the route component.
+   *
+   * Module must be enabled too. If user doesn't have a rights or module for this
+   * route is disabled, then is not return component form the route, but Error
+   * component (403/503) or Login.
+   */
+  _getComponent(route) {
+    if (route.module && !ConfigLoader.isEnabledModule(route.module)) {
+      // Maybe useless, because routes are filtered in Index.js!
+      return require('../../../content/error/503');
+    }
+    // Check access to the component
+    const userContext = AuthenticateService.getUserContext();
+    if (!SecurityManager.hasAccess(route.access, userContext)) {
+      if (SecurityManager.isAuthenticated(userContext)) {
+        return require('../../../content/error/403');
+      }
+      return require('../../../content/Login');
+    }
+    return route.component;
+  }
+
+  /**
+   * Creates react-router Routes components for this component (url).
+   */
+  generateRouteComponents() {
+    const {match} = this.props;
+
+    // Found children routes definitions (items from routes.js for this component).
+    const childRoutes = this._getRouteDefinitions();
+    if (!childRoutes) {
+      return null;
+    }
+
+    const childRoutesWithComponent = [];
+    childRoutes.forEach(route => {
+      if (!route.component) {
+        const routesWithComponent = this._getChildrenRoutesWithComponent(route, route.path);
+        routesWithComponent.forEach(routeWithComponent => {
+          childRoutesWithComponent.push(routeWithComponent);
+        });
+      } else {
+        childRoutesWithComponent.push(route);
+      }
+    });
+
+    // Sorting of a routes ... we need to have more specific routes first.
+    childRoutesWithComponent.sort((routeA, routeB) => {
+      const lengthOfPathA = this._getPriorityOfPath(routeA);
+      const lengthOfPathB = this._getPriorityOfPath(routeB);
+
+      return lengthOfPathB - lengthOfPathA;
+    });
+    console.log('%cCHILDROUTESWITHCOMPONENT', 'background:black;color:white;', childRoutesWithComponent)
+
+    const routes = [];
+    // Generate react-redux Router components.
+    childRoutesWithComponent.forEach(route => {
+      routes.push(<Route
+        key={`${route.id}`}
+        path={this._getConcatPath(match.path, route.concatedPath ? route.concatedPath : route.path)}
+        component={this._getComponent(route)}/>);
+    });
+    return routes;
+  }
+
+  /**
+   * Creates react-router Routes components for this component (url) and wrap them to the Switch component.
+   */
+  getRoutes() {
+    const routes = this.generateRouteComponents();
+
+    return (
+      <Switch>
+        {routes}
+      </Switch>
+    );
+  }
+
   /**
    * Returns true, when application (BE) is in development stage
    *
@@ -164,9 +413,7 @@ AbstractContextComponent.defaultProps = {
   ...AbstractComponent.defaultProps
 };
 
-AbstractContextComponent.contextTypes = {
-  store: PropTypes.object
-};
+AbstractContextComponent.contextType = IdmContext;
 
 // Wrap the component to inject dispatch and state into it
 export default AbstractContextComponent;

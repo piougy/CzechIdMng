@@ -43,7 +43,7 @@ class SystemDetail extends Basic.AbstractContent {
    * Component will receive new props, try to compare with actual,
    * then init form
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
     if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
       this._initForm(nextProps.entity);
@@ -175,12 +175,13 @@ class SystemDetail extends Basic.AbstractContent {
       //
       if (afterAction === 'CLOSE') {
         // reload options with remote connectors
-        this.context.router.replace(`systems`);
+
+        this.context.history.replace(`/systems`);
       } else {
         this._initForm(entity);
         // set again confidential to password
         this.refs.form.getComponent('password').openConfidential(false);
-        this.context.router.replace(`system/${entity.id}/detail`);
+        this.context.history.replace(`/system/${entity.id}/detail`);
       }
     });
   }
@@ -333,7 +334,7 @@ class SystemDetail extends Basic.AbstractContent {
             </Basic.PanelBody>
 
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
 
               <Basic.SplitButton
                 level="success"

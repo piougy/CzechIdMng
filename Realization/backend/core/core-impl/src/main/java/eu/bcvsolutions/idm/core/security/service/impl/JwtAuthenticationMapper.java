@@ -44,9 +44,9 @@ import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
- * Reads authentication from token and provides conversions from / to dto and to token. 
+ * Reads authentication from token and provides conversions from / to dto and to token.
  * Persist / loads created tokens.
- * 
+ *
  * @author Radek Tomiška
  *
  */
@@ -69,10 +69,10 @@ public class JwtAuthenticationMapper {
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private TokenManager tokenManager;
 	@Autowired private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-	
+
 	/**
 	 * Reads {@link IdmJwtAuthentication} from given token
-	 * 
+	 *
 	 * @param token
 	 * @return
 	 * @throws IOException
@@ -86,7 +86,7 @@ public class JwtAuthenticationMapper {
 		String decoded = JwtHelper.decodeAndVerify(token, verifier).getClaims();
 		return fromDto(mapper.readValue(decoded, IdmJwtAuthenticationDto.class));
 	}
-	
+
 	/**
 	 * Return IdM OAuth token verifier.
 	 * @return
@@ -94,10 +94,10 @@ public class JwtAuthenticationMapper {
 	public SignerVerifier getVerifier() {
 		return new MacSigner(getSecret().asString());
 	}
-	
+
 	/**
 	 * Writes authentication to token
-	 * 
+	 *
 	 * @param authentication
 	 * @return
 	 * @throws IOException
@@ -107,10 +107,10 @@ public class JwtAuthenticationMapper {
 		//
 		return writeToken(toDto(authentication));
 	}
-	
+
 	/**
 	 * Writes authentication dto to token
-	 * 
+	 *
 	 * @param dto
 	 * @return
 	 * @throws IOException
@@ -125,19 +125,19 @@ public class JwtAuthenticationMapper {
 			throw new CoreException(String.format("Creating JWT token [%s] failed.", dto.getId()), ex);
 		}
 	}
-	
+
 	/**
 	 * Reads secret from configuration
-	 * 
+	 *
 	 * @return
 	 */
 	private GuardedString getSecret() {
 		return configurationService.getGuardedValue(PROPERTY_SECRET_TOKEN, DEFAULT_SECRET_TOKEN);
 	}
-	
+
 	/**
 	 * Constructs new actual expiration by the configuration
-	 * 
+	 *
 	 * @return
 	 */
 	public ZonedDateTime getNewExpiration() {
@@ -147,13 +147,13 @@ public class JwtAuthenticationMapper {
 		//
 		return ZonedDateTime.now().plus(timeoutMillis, ChronoField.MILLI_OF_DAY.getBaseUnit());
 	}
-	
+
 	/**
 	 * Converts dto to authentication.
 	 * Authentication authorities are loaded or filled from persisted token.
 	 * If token not exists, then is created.
 	 * Actual authentication informations are returned
-	 * 
+	 *
 	 * @param dto
 	 * @return
 	 */
@@ -189,7 +189,7 @@ public class JwtAuthenticationMapper {
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				token.getId(),
 				identity,
-				new IdmIdentityDto(dto.getOriginalIdentityId(), dto.getOriginalUsername()), 
+				new IdmIdentityDto(dto.getOriginalIdentityId(), dto.getOriginalUsername()),
 				token.getExpiration(),
 				token.getIssuedAt(),
 				null,
@@ -203,15 +203,15 @@ public class JwtAuthenticationMapper {
 			}
 		} else {
 			grantedAuthorities.addAll(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(token.getOwnerId()));
-		}		
+		}
 		authentication.setAuthorities(grantedAuthorities);
 		//
 		return authentication;
 	}
-	
+
 	/**
 	 * Converts dto to authentication.
-	 * 
+	 *
 	 * @param token
 	 * @return
 	 */
@@ -225,10 +225,10 @@ public class JwtAuthenticationMapper {
 		//
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				new IdmIdentityDto(
-						token.getOwnerId(), 
+						token.getOwnerId(),
 						token.getProperties().getString(PROPERTY_CURRENT_USERNAME)),
 				new IdmIdentityDto(
-						token.getProperties().getUuid(PROPERTY_ORIGINAL_IDENTITY_ID), 
+						token.getProperties().getUuid(PROPERTY_ORIGINAL_IDENTITY_ID),
 						token.getProperties().getString(PROPERTY_ORIGINAL_USERNAME)),
 				token.getExpiration(),
 				token.getIssuedAt(),
@@ -238,13 +238,13 @@ public class JwtAuthenticationMapper {
 		//
 		return authentication;
 	}
-	
+
 	/**
 	 * Create token with assigned identity authorities
-	 * 
+	 *
 	 * @param identity
-	 * @param preparedToken 
-	 * @return preparedToken with filled required 
+	 * @param preparedToken
+	 * @return preparedToken with filled required
 	 */
 	public IdmTokenDto createToken(IdmIdentityDto identity, IdmTokenDto preparedToken) {
 		Assert.notNull(identity, "Identity is required.");
@@ -282,11 +282,11 @@ public class JwtAuthenticationMapper {
 		//
 		return token;
 	}
-	
+
 	/**
-	 * Prolong authentication expiration - but only if difference from old expiration is greater than one minute. 
-	 * If persistent token for given authentication is found, then persisted token is updated 
-	 * 
+	 * Prolong authentication expiration - but only if difference from old expiration is greater than one minute.
+	 * If persistent token for given authentication is found, then persisted token is updated
+	 *
 	 * @param tokenId
 	 * @return returns actual token
 	 */
@@ -325,14 +325,14 @@ public class JwtAuthenticationMapper {
 		//
 		return toDto(token);
 	}
-	
+
 	public void disableToken(UUID tokenId) {
 		tokenManager.disableToken(tokenId);
 	}
-	
+
 	/**
 	 * Converts authentication.
-	 * 
+	 *
 	 * @param authentication to dto
 	 * @see #saveToken(IdmJwtAuthentication)
 	 * @return
@@ -352,10 +352,10 @@ public class JwtAuthenticationMapper {
 		//
 		return authenticationDto;
 	}
-	
+
 	/**
 	 * Convert token to authentication dto
-	 * 
+	 *
 	 * @param token
 	 * @return
 	 */
@@ -377,14 +377,14 @@ public class JwtAuthenticationMapper {
 
 	/**
 	 * Transforms authentication authorities to list of dtos
-	 * 
+	 *
 	 * @param authentication
 	 * @return
 	 */
 	public List<DefaultGrantedAuthorityDto> getDtoAuthorities(Authentication authentication) {
 		return getDtoAuthorities(authentication.getAuthorities());
 	}
-	
+
 	public List<DefaultGrantedAuthorityDto> getDtoAuthorities(Collection<? extends GrantedAuthority> authorities) {
 		List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();
 		if (authorities != null) {
@@ -394,7 +394,7 @@ public class JwtAuthenticationMapper {
 		}
 		return grantedAuthorities;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<DefaultGrantedAuthorityDto> getDtoAuthorities(IdmTokenDto token) {
 		List<DefaultGrantedAuthorityDto> authorities = (List<DefaultGrantedAuthorityDto>) token.getProperties().get(PROPERTY_AUTHORITIES);
@@ -403,18 +403,18 @@ public class JwtAuthenticationMapper {
 		}
 		return authorities;
 	}
-	
+
 	public IdmJwtAuthenticationDto getClaims(Jwt jwt) throws IOException {
 		return mapper.readValue(jwt.getClaims(), IdmJwtAuthenticationDto.class);
 	}
-	
+
 	private UUID getIdentityId(IdmIdentityDto dto) {
 		return dto == null ? null : dto.getId();
 	}
-	
+
 	/**
 	 * Storing raw token is dangerous (could be used for identity login) - hash is stored instead
-	 * 
+	 *
 	 * @param token
 	 * @return
 	 * @throws IOException
@@ -422,5 +422,5 @@ public class JwtAuthenticationMapper {
 	private String getTokenHash(IdmTokenDto token) {
 		return Hashing.sha256().hashString(writeToken(toDto(token)), StandardCharsets.UTF_8).toString();
 	}
-	
+
 }

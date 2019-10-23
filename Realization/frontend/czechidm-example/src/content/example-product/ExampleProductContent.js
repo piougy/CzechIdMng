@@ -32,7 +32,7 @@ class ExampleProductContent extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (this._isNew()) {
       // persist new entity to redux
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
@@ -83,7 +83,7 @@ ExampleProductContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

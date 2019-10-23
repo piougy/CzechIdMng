@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router';
-import { formatPattern, getParamNames } from 'react-router/lib/PatternUtils';
+import { Link } from 'react-router-dom';
+import pathToRegexp from 'path-to-regexp';
 import _ from 'lodash';
 import Immutable from 'immutable';
 //
@@ -23,16 +23,17 @@ const TARGET_PARAMETER = '_target';
  * @author Radek Tomiška
  */
 function _resolveToWithParameters(to, rowData, target) {
-  const parameterNames = getParamNames(to);
-  let parameterValues = new Immutable.Map({});
-  parameterNames.map(parameter => {
-    if (parameter === TARGET_PARAMETER && target) {
-      parameterValues = parameterValues.set(parameter, DefaultCell.getPropertyValue(rowData, target));
-    } else {
-      parameterValues = parameterValues.set(parameter, DefaultCell.getPropertyValue(rowData, parameter));
+  const parameterNames = pathToRegexp.parse(to);
+  parameterNames.forEach(parameter => {
+    if (parameter && parameter.name === TARGET_PARAMETER && target) {
+      const targetValue = DefaultCell.getPropertyValue(rowData, target);
+      if (targetValue) {
+        to = to.replace(`:${TARGET_PARAMETER}`, targetValue);
+      }
     }
   });
-  return formatPattern(to, parameterValues.toJS());
+  const thingPath = pathToRegexp.compile(to);
+  return thingPath(rowData);
 }
 
 function _linkFunction(to, rowIndex, data, event) {
@@ -84,7 +85,7 @@ const LinkCell = ({rowIndex, data, property, to, className, title, target, acces
               value={
                 <span>
                   {
-                    accessItems.map((accessItem) => {
+                    [...accessItems.map((accessItem) => {
                       if (SecurityManager.hasAccess(accessItem)) {
                         return null;
                       }
@@ -101,7 +102,7 @@ const LinkCell = ({rowIndex, data, property, to, className, title, target, acces
                           }
                         </div>
                       );
-                    })
+                    }).values()]
                   }
                 </span>
               }>

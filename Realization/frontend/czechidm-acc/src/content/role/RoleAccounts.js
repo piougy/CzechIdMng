@@ -38,7 +38,7 @@ class RoleAccounts extends Advanced.AbstractTableContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-accounts', this.props.params);
+    return this.getRequestNavigationKey('role-accounts', this.props.match.params);
   }
 
   showDetail(entity) {
@@ -47,7 +47,7 @@ class RoleAccounts extends Advanced.AbstractTableContent {
     }
     //
     const entityFormData = _.merge({}, entity, {
-      identity: entity._embedded && entity._embedded.identity ? entity._embedded.identity.id : this.props.params.entityId,
+      identity: entity._embedded && entity._embedded.identity ? entity._embedded.identity.id : this.props.match.params.entityId,
       account: entity.account ? entity.account.id : null
     });
     //
@@ -77,7 +77,7 @@ class RoleAccounts extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('role', entityId);

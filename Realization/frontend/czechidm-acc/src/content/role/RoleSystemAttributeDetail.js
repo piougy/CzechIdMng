@@ -46,7 +46,7 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     if (this._isSystemMenu()) {
       return 'system-roles';
     }
-    return this.getRequestNavigationKey('role-systems', this.props.params);
+    return this.getRequestNavigationKey('role-systems', this.props.match.params);
   }
 
   _isMenu(menu = 'role') {
@@ -58,9 +58,9 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     return this._isMenu('system');
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { attributeId} = nextProps.params;
-    if (attributeId && attributeId !== this.props.params.attributeId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { attributeId} = nextProps.match.params;
+    if (attributeId && attributeId !== this.props.match.params.attributeId) {
       this._initComponent(nextProps);
     }
   }
@@ -79,11 +79,11 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
   _initComponent(props) {
     // Init managers - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    roleSystemAttributeManager = this.getRequestManager(props.params, new RoleSystemAttributeManager());
-    roleSystemManager = this.getRequestManager(props.params, new RoleSystemManager());
-    roleManager = this.getRequestManager(props.params, new Managers.RoleManager());
+    roleSystemAttributeManager = this.getRequestManager(props.match.params, new RoleSystemAttributeManager());
+    roleSystemManager = this.getRequestManager(props.match.params, new RoleSystemManager());
+    roleManager = this.getRequestManager(props.match.params, new Managers.RoleManager());
 
-    const {roleSystemId, attributeId} = props.params;
+    const {roleSystemId, attributeId} = props.match.params;
     if (this._getIsNew(props)) {
       this.setState({attribute: {
         roleSystem: roleSystemId,
@@ -126,7 +126,7 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
 
   closeDetail() {
     this.refs.form.processEnded();
-    this.context.router.goBack();
+    this.context.history.goBack();
   }
 
   _uidChanged(event) {
@@ -359,7 +359,7 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
+                onClick={this.context.history.goBack}
                 showLoading={_showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
@@ -390,7 +390,7 @@ function select(state, component) {
   if (!roleSystemAttributeManager) {
     return {};
   }
-  const entity = Utils.Entity.getEntity(state, roleSystemAttributeManager.getEntityType(), component.params.attributeId);
+  const entity = Utils.Entity.getEntity(state, roleSystemAttributeManager.getEntityType(), component.match.params.attributeId);
   let systemMappingId = null;
   if (entity) {
     entity.roleSystem = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem : null;

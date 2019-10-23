@@ -280,21 +280,21 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     };
     // FIXME: use role table component instead with redux state access
     this.refs.filterForm.setData(filterData);
-    this.refs.table.getWrappedInstance().useFilterData(filterData);
+    this.refs.table.useFilterData(filterData);
   }
 
   useFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   _addRole(index, value, event) {

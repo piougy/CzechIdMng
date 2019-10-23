@@ -76,7 +76,7 @@ export default class ExampleComponents extends Basic.AbstractContent {
     this.setState({
       setting: this.refs.form.getData()
     }, () => {
-      this.refs['example-tree'].getWrappedInstance().reload();
+      this.refs['example-tree'].reload();
     });
   }
 

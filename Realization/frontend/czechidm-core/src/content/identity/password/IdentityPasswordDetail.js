@@ -32,7 +32,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(identityManager.fetchPassword(entityId, `identity-${entityId}-password`));
     this.selectNavigationItems(['identities', 'identity-profile', 'profile-password', 'profile-password-metadata']);
@@ -47,7 +47,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
   }
 
   onSave(event) {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
 
     if (event) {
       event.preventDefault();
@@ -66,7 +66,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
   }
 
   _afterSave(entity, error) {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (error) {
       this.setState({
         _showLoading: false
@@ -211,7 +211,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
 
             </Basic.AbstractForm>
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoadingFinal}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button type="button" level="link" onClick={this.context.history.goBack} showLoading={showLoadingFinal}>{this.i18n('button.back')}</Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"
@@ -241,7 +241,7 @@ IdentityPasswordDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   const uiKey = `identity-${entityId}-password`;
   const uiKeyPermission = `${entityId}-password-permission`;
   return {

@@ -77,12 +77,12 @@ export class SchedulerTaskInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.SchedulerTask.parameters.label'),
-        value: _.keys(entity.parameters).map(parameterName => {
+        value: [..._.keys(entity.parameters).map(parameterName => {
           if (parameterName.lastIndexOf('core:', 0) === 0) {
             return null;
           }
           return (<div>{parameterName}: { entity.parameters[parameterName] }</div>);
-        })
+        }).values()]
       }
     ];
   }

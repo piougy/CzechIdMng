@@ -22,7 +22,7 @@ class Pagination extends AbstractContextComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({
       currentPage: nextProps.page,
       changePage: nextProps.page + 1,
@@ -253,9 +253,9 @@ class Pagination extends AbstractContextComponent {
         maxRecord = total;
       }
     }
-    const sizes = sizeOptions.map(availableSize => (
+    const sizes = [...sizeOptions.map(availableSize => (
       <option key={`size-${availableSize}`} value={availableSize}>{availableSize}</option>
-    ));
+    )).values()];
     //
     return (
       <div>

@@ -15,20 +15,20 @@ export default class RoleAutomaticRoleRoutes extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    const isRequest = this.isRequest(this.props.params);
+    const isRequest = this.isRequest(this.props.match.params);
     if (isRequest) {
-      return this.getRequestNavigationKey('role-automatic-roles', this.props.params);
+      return this.getRequestNavigationKey('role-automatic-roles', this.props.match.params);
     }
     return super.getNavigationKey();
   }
 
   _gotToRequests() {
     // Redirect to requests
-    this.context.router.push(`/automatic-role/trees`);
+    this.context.history.push(`/automatic-role/trees`);
   }
 
   render() {
-    const isRequest = this.isRequest(this.props.params);
+    const isRequest = this.isRequest(this.props.match.params);
 
     if (isRequest) {
       return (
@@ -65,8 +65,8 @@ export default class RoleAutomaticRoleRoutes extends Basic.AbstractContent {
         <Advanced.TabPanel
           position="top"
           parentId={'role-automatic-roles'}
-          params={this.props.params}>
-          {this.props.children}
+          match={ this.props.match }>
+          {this.getRoutes()}
         </Advanced.TabPanel>
       </div>
     );

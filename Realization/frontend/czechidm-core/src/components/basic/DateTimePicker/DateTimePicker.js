@@ -34,8 +34,8 @@ class DateTimePicker extends AbstractFormComponent {
     this.setValue(this.props.value);
   }
 
-  componentWillReceiveProps(nextProps) {
-    super.componentWillReceiveProps(nextProps);
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    super.UNSAFE_componentWillReceiveProps(nextProps);
     if (nextProps.value && this.props.value && nextProps.value !== this.props.value) {
       this.setValue(nextProps.value);
     }

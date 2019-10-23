@@ -33,10 +33,10 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 
 /**
  * Test rest services will be based on spring integration tests with MockMvc / hamcrest and junit test framework
- * 
+ *
  * http://docs.spring.io/spring-framework/docs/current/spring-framework-reference/html/integration-testing.html
- * 
- * @author Radek Tomiška 
+ *
+ * @author Radek Tomiška
  *
  */
 @Ignore
@@ -44,39 +44,39 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 @SpringBootTest(classes = IdmApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @Rollback(true)
 public abstract class AbstractIntegrationTest {
-	
+
 	@Autowired private TestHelper helper;
 	@Autowired private PlatformTransactionManager platformTransactionManager;
 	@Autowired private LookupService lookupService;
 	@Autowired private ModuleService moduleService;
 	//
 	private TransactionTemplate template;
-	
+
 	@BeforeClass
 	public static void disableTestsOnDocumentation() {
-		// when property '-DdocumentationOnly' is given in maven build, then all integration tests 
-		// are skipped. Override this method, when concrete tests have to be executed - e.g. AbstractSwaggerTest 
+		// when property '-DdocumentationOnly' is given in maven build, then all integration tests
+		// are skipped. Override this method, when concrete tests have to be executed - e.g. AbstractSwaggerTest
 		// is executed, because generate artifacts (swagger.json) for documentation itself.
-		// Unit test are executed every time, they are quickly executed, but integration tests can take some time 
+		// Unit test are executed every time, they are quickly executed, but integration tests can take some time
 		// and we want build artifact without waiting (e.q. when hotfix needs to be released).
 	    Boolean documentationOnly = Boolean.valueOf(System.getProperty("documentationOnly", "false"));
 	    Assume.assumeFalse(documentationOnly);
 	}
-	
+
 	/**
-	 * Log in as "boss" 
-	 * 
+	 * Log in as "boss"
+	 *
 	 * @param username
 	 */
 	public void loginAsAdmin() {
 		getHelper().loginAdmin();
 	}
-	
+
 	/**
 	 *  User will be logged as APP_ADMIN
-	 *  
+	 *
 	 *  Lookout: security context is mocked
-	 * 
+	 *
 	 * @param username
 	 */
 	public void loginAsAdmin(String username) {
@@ -84,12 +84,12 @@ public abstract class AbstractIntegrationTest {
 		IdmIdentityDto identity = (IdmIdentityDto) lookupService.getDtoLookup(IdmIdentityDto.class).lookup(username);
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(identity, null, authorities, "test"));
 	}
-	
+
 	/**
 	 * User will be logged as user with all authorities without APP_ADMIN
-	 * 
+	 *
 	 * Lookout: security context is mocked
-	 * 
+	 *
 	 * @param user
 	 */
 	public void loginAsNoAdmin(String user) {
@@ -127,28 +127,28 @@ public abstract class AbstractIntegrationTest {
 	public void logout(){
 		getHelper().logout();
 	}
-	
+
 	/**
 	 * Creates new template by platformTransactionManager
 	 */
 	protected void prepareTransactionTemplate() {
 		template = new TransactionTemplate(platformTransactionManager);
 	}
-	
+
 	protected TransactionTemplate getTransactionTemplate() {
 		if (template == null) {
 			prepareTransactionTemplate();
 		}
 		return template;
 	}
-	
+
 	/**
 	 * Save entity in new transaction by given service
-	 * 
+	 *
 	 * @param object
 	 * @param service
 	 * @return
-	 */	
+	 */
 	protected <T extends BaseDto> T saveInTransaction(final T object, final ReadWriteDtoService<T, ?> service) {
 		return getTransactionTemplate().execute(new TransactionCallback<T>() {
 			public T doInTransaction(TransactionStatus transactionStatus) {
@@ -156,10 +156,10 @@ public abstract class AbstractIntegrationTest {
 			}
 		});
 	}
-	
+
 	/**
 	 * Save entity in new transaction by given repository
-	 * 
+	 *
 	 * @param object
 	 * @param repository
 	 * @return
@@ -171,10 +171,10 @@ public abstract class AbstractIntegrationTest {
 			}
 		});
 	}
-	
+
 	/**
 	 * Test helper with useful test utilities
-	 * 
+	 *
 	 * @return
 	 */
 	protected TestHelper getHelper() {

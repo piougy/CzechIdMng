@@ -20,8 +20,8 @@ export default class AuditRoutes extends Basic.AbstractContent {
       <Basic.Div>
         { this.renderPageHeader() }
 
-        <Advanced.TabPanel position="top" parentId="audits" params={ this.props.params }>
-          { this.props.children }
+        <Advanced.TabPanel position="top" parentId="audits" match={ this.props.match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
       </Basic.Div>
     );

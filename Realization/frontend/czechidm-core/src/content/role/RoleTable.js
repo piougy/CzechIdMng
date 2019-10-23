@@ -71,14 +71,14 @@ class RoleTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   _validateCreateRequestDialog(result) {
@@ -116,7 +116,7 @@ class RoleTable extends Advanced.AbstractTableContent {
           this.handleError(error);
         }));
         // Redirect to new request
-        this.context.router.push(`${this.addRequestPrefix('role', {requestId: json.id})}/${json.ownerId}/detail`);
+        this.context.history.push(`${this.addRequestPrefix('role', {requestId: json.id})}/${json.ownerId}/detail`);
       }).catch(ex => {
         this.setState({
           showLoading: false
@@ -129,9 +129,9 @@ class RoleTable extends Advanced.AbstractTableContent {
   showDetail(entity) {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/role/${uuidId}/new?new=1`);
+      this.context.history.push(`/role/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/role/${entity.id}/detail`);
+      this.context.history.push(`/role/${entity.id}/detail`);
     }
   }
 
@@ -147,7 +147,7 @@ class RoleTable extends Advanced.AbstractTableContent {
         if (entity && error) {
           // redirect to role detail with identities table
           if (error.statusEnum === 'ROLE_DELETE_FAILED_IDENTITY_ASSIGNED') {
-            this.context.router.push(`/role/${entity.id}/identities`);
+            this.context.history.push(`/role/${entity.id}/identities`);
             this.addMessage({
               position: 'tc',
               level: 'info',
@@ -159,7 +159,7 @@ class RoleTable extends Advanced.AbstractTableContent {
           }
         }
         if (!error && successEntities) {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }, () => {
@@ -179,7 +179,7 @@ class RoleTable extends Advanced.AbstractTableContent {
       roleCatalogue: nodeId
     };
     this.refs.roleCatalogue.setValue(nodeId);
-    this.refs.table.getWrappedInstance().useFilterData(data);
+    this.refs.table.useFilterData(data);
   }
 
   render() {

@@ -59,7 +59,7 @@ class NodeTable extends Advanced.AbstractTableContent {
       treeNodeId: this.refs.filterForm.getData().treeNodeId,
       treeTypeId: type.id
     };
-    this.refs.table.getWrappedInstance().useFilterData(data);
+    this.refs.table.useFilterData(data);
   }
 
   _useFilterByTree(nodeId, event) {
@@ -77,8 +77,8 @@ class NodeTable extends Advanced.AbstractTableContent {
       selectedNodeId: nodeId
     }, () => {
       this.refs.treeNodeId.setValue(nodeId);
-      this.refs.table.getWrappedInstance().useFilterData(data);
-      this.refs.identityTable.getWrappedInstance().filterByTreeNodeId(nodeId);
+      this.refs.table.useFilterData(data);
+      this.refs.identityTable.filterByTreeNodeId(nodeId);
     });
   }
 
@@ -86,7 +86,7 @@ class NodeTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   onDelete(bulkActionValue, selectedRows) {
@@ -103,8 +103,8 @@ class NodeTable extends Advanced.AbstractTableContent {
         }
         if (!error && successEntities) {
           this.context.store.dispatch(treeNodeManager.clearEntities());
-          this.refs.table.getWrappedInstance().reload();
-          this.refs.organizationTree.getWrappedInstance().reload();
+          this.refs.table.reload();
+          this.refs.organizationTree.reload();
         }
       }));
     }, () => {
@@ -122,9 +122,9 @@ class NodeTable extends Advanced.AbstractTableContent {
     if (entity.id === undefined) {
       const { type } = this.state;
       const uuidId = uuid.v1();
-      this.context.router.push(`/tree/nodes/${uuidId}/new?new=1&type=${type.id}`);
+      this.context.history.push(`/tree/nodes/${uuidId}/new?new=1&type=${type.id}`);
     } else {
-      this.context.router.push(`/tree/nodes/${entity.id}/detail`);
+      this.context.history.push(`/tree/nodes/${entity.id}/detail`);
     }
   }
 
@@ -141,11 +141,11 @@ class NodeTable extends Advanced.AbstractTableContent {
       type: entity
     }, () => {
       this.cancelFilter();
-      this.refs.identityTable.getWrappedInstance().filterByTreeNodeId(null);
+      this.refs.identityTable.filterByTreeNodeId(null);
       //
       const { showTreeTypeSelect } = this.props;
       if (showTreeTypeSelect) {
-        this.context.router.push('/tree/nodes/?type=' + entity.id);
+        this.context.history.push('/tree/nodes/?type=' + entity.id);
       }
     });
   }
@@ -156,9 +156,9 @@ class NodeTable extends Advanced.AbstractTableContent {
     }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/tree/types/${uuidId}?new=1&b=nodes`);
+      this.context.history.push(`/tree/types/${uuidId}?new=1&b=nodes`);
     } else {
-      this.context.router.push('/tree/types/' + entity.id);
+      this.context.history.push('/tree/types/' + entity.id);
     }
   }
 

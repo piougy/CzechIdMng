@@ -12,7 +12,7 @@ const manager = new TreeNodeManager();
 class Node extends Basic.AbstractContent {
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
   }
@@ -31,8 +31,8 @@ class Node extends Basic.AbstractContent {
           {manager.getNiceLabel(entity)} <small> {this.i18n('content.tree.node.detail.header')}</small>
         </Basic.PageHeader>
 
-        <Advanced.TabPanel parentId="tree-nodes" params={this.props.params}>
-          {this.props.children}
+        <Advanced.TabPanel parentId="tree-nodes" match={ this.props.match }>
+          {this.getRoutes()}
         </Advanced.TabPanel>
       </div>
     );
@@ -49,7 +49,7 @@ Node.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId)

@@ -28,8 +28,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     super(props, context);
     // Init managers - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    manager = this.getRequestManager(props.params, new AuthorizationPolicyManager());
-    roleManager = this.getRequestManager(props.params, new RoleManager());
+    manager = this.getRequestManager(props.match.params, new AuthorizationPolicyManager());
+    roleManager = this.getRequestManager(props.match.params, new RoleManager());
 
     this.state = {
       ...this.state,
@@ -61,12 +61,12 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     this.refs.filterForm.focus();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.params) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (nextProps.match.params) {
       // Init managers - evaluates if we want to use standard (original) manager or
       // universal request manager (depends on existing of 'requestId' param)
-      manager = this.getRequestManager(nextProps.params, manager ? manager : new AuthorizationPolicyManager());
-      roleManager = this.getRequestManager(nextProps.params, roleManager ? roleManager : new RoleManager());
+      manager = this.getRequestManager(nextProps.match.params, manager ? manager : new AuthorizationPolicyManager());
+      roleManager = this.getRequestManager(nextProps.match.params, roleManager ? roleManager : new RoleManager());
     }
   }
 
@@ -74,14 +74,14 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
@@ -170,7 +170,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     if (!error) {
       this.addMessage({ message: this.i18n('save.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
       // TODO: trimmed vs. not trimmed view ...
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.reload();
     }
     //
     super.afterSave(entity, error);
@@ -476,7 +476,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 if (supportedEvaluators && supportedEvaluators.has(entity.evaluatorType)) {
                   _evaluatorType = this._toEvaluatorOption(supportedEvaluators.get(entity.evaluatorType));
                 }
-                return _.keys(entity.evaluatorProperties).map(parameterName => {
+                return [..._.keys(entity.evaluatorProperties).map(parameterName => {
                   if (parameterName.lastIndexOf('core:', 0) === 0) {
                     return null;
                   }
@@ -491,7 +491,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       { Utils.Ui.toStringValue(entity.evaluatorProperties[parameterName]) }
                     </div>
                   );
-                });
+                }).values()];
               }
             }/>
           <Advanced.Column

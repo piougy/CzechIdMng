@@ -17,7 +17,7 @@ class ContractSlice extends Basic.AbstractContent {
 
   componentDidMount() {
     this._selectNavigationItem();
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
   }
@@ -27,7 +27,7 @@ class ContractSlice extends Basic.AbstractContent {
   }
 
   _selectNavigationItem() {
-    const { identityId } = this.props.params;
+    const { identityId } = this.props.match.params;
     const { userContext } = this.props;
     if (identityId === userContext.username) {
       this.selectNavigationItems(['identity-profile', null]);
@@ -47,8 +47,8 @@ class ContractSlice extends Basic.AbstractContent {
 
         <OrganizationPosition identity={ params.identityId }/>
 
-        <Advanced.TabPanel parentId="identity-contract-slices" params={this.props.params}>
-          {this.props.children}
+        <Advanced.TabPanel parentId="identity-contract-slices" match={ this.props.match }>
+          {this.getRoutes()}
         </Advanced.TabPanel>
       </div>
     );
@@ -67,7 +67,7 @@ ContractSlice.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     userContext: state.security.userContext,

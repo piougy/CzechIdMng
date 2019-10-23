@@ -50,7 +50,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     super.componentDidMount();
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const {request} = nextProps;
     if (request
       && request.state === 'EXECUTED'
@@ -82,14 +82,14 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -149,7 +149,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     this.setState({
       showRoleByIdentitySelect: true
     }, () => {
-      this.refs.roleSelectByIdentity.getWrappedInstance().focus();
+      this.refs.roleSelectByIdentity.focus();
     });
   }
 
@@ -170,7 +170,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   _filterOpen(open) {
-    this.refs.table.getWrappedInstance()._filterOpen(open);
+    this.refs.table._filterOpen(open);
   }
 
   _toggleShowChangesOnly() {
@@ -184,7 +184,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     this.setState({
       showLoading: true
     }, () => {
-      const roleRequestByIdentity = this.refs.roleSelectByIdentity.getWrappedInstance().createRoleRequestByIdentity();
+      const roleRequestByIdentity = this.refs.roleSelectByIdentity.createRoleRequestByIdentity();
       roleRequestByIdentity.roleRequest = request.id;
       this.context.store.dispatch(roleRequestManager.copyRolesByIdentity(roleRequestByIdentity, null, (requestReturned, error) => {
         if (error) {
@@ -210,8 +210,8 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
 
-    const form = this.refs.roleConceptDetail.getWrappedInstance().getForm();
-    const eavForm = this.refs.roleConceptDetail.getWrappedInstance().getEavForm();
+    const form = this.refs.roleConceptDetail.getForm();
+    const eavForm = this.refs.roleConceptDetail.getEavForm();
     if (!form.isFormValid()) {
       return;
     }
@@ -331,7 +331,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   /**
@@ -766,44 +766,43 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           onHide={ this._closeDetail.bind(this) }
           backdrop="static"
           keyboard={!showLoading}>
-          <form onSubmit={ this._internalSave.bind(this) }>
-            <Basic.Modal.Header
-              closeButton={ !showLoading }
-              text={ this.i18n('create.header') }
-              rendered={ Utils.Entity.isNew(detail.entity) }/>
-            <Basic.Modal.Header
-              closeButton={ !showLoading }
-              text={ this.i18n('edit.header', { role: detail.entity.role }) }
-              rendered={ !Utils.Entity.isNew(detail.entity) }/>
-            <Basic.Modal.Body>
-              <RoleConceptDetail
-                ref="roleConceptDetail"
-                showEnvironment={showEnvironment}
-                identityUsername={identityUsername}
-                showLoading={showLoading}
-                readOnly={readOnly}
-                entity={detail.entity}
-                isEdit={detail.edit}
-                multiAdd={detail.add}
-                validationErrors={ validationErrors }/>
-            </Basic.Modal.Body>
-            <Basic.Modal.Footer>
-              <Basic.Button
-                level="link"
-                onClick={ this._closeDetail.bind(this) }
-                showLoading={ showLoading }>
-                { this.i18n('button.close') }
-              </Basic.Button>
-              <Basic.Button
-                type="submit"
-                level="success"
-                showLoading={ showLoading }
-                showLoadingIcon
-                rendered={ detail.edit && !readOnly }>
-                { this.i18n('button.set') }
-              </Basic.Button>
-            </Basic.Modal.Footer>
-          </form>
+          <Basic.Modal.Header
+            closeButton={ !showLoading }
+            text={ this.i18n('create.header') }
+            rendered={ Utils.Entity.isNew(detail.entity) }/>
+          <Basic.Modal.Header
+            closeButton={ !showLoading }
+            text={ this.i18n('edit.header', { role: detail.entity.role }) }
+            rendered={ !Utils.Entity.isNew(detail.entity) }/>
+          <Basic.Modal.Body>
+            <RoleConceptDetail
+              ref="roleConceptDetail"
+              showEnvironment={showEnvironment}
+              identityUsername={identityUsername}
+              showLoading={showLoading}
+              readOnly={readOnly}
+              entity={detail.entity}
+              isEdit={detail.edit}
+              multiAdd={detail.add}
+              validationErrors={ validationErrors }/>
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={ this._closeDetail.bind(this) }
+              showLoading={ showLoading }>
+              { this.i18n('button.close') }
+            </Basic.Button>
+            <Basic.Button
+              type="submit"
+              onClick={ this._internalSave.bind(this) }
+              level="success"
+              showLoading={ showLoading }
+              showLoadingIcon
+              rendered={ detail.edit && !readOnly }>
+              { this.i18n('button.set') }
+            </Basic.Button>
+          </Basic.Modal.Footer>
         </Basic.Modal>
       </div>
     );

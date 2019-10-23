@@ -63,12 +63,19 @@ export default class AbstractTableContent extends Basic.AbstractContent {
         entity
       }
     }, () => {
-      if (this.getFormComponent()) {
-        this.getFormComponent().setData(entity);
-      }
-      if (cb) {
-        cb();
-      }
+      // @todo-upgrade-10 This is brutal hack!
+      // I had to use the timeout, because Modal doesn't have rendered refs in this phase.
+      // This problem occured after update on React 16, but primary bug is in react-bootstap.
+      // Problem should be fixed, but still doesn't works (in 0.32.4).
+      // https://github.com/react-bootstrap/react-bootstrap/issues/2841#issuecomment-378017284.
+      setTimeout(() => {
+        if (this.getFormComponent()) {
+          this.getFormComponent().setData(entity);
+        }
+        if (cb) {
+          cb();
+        }
+      }, 10);
     });
   }
 
@@ -103,7 +110,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
       this.context.store.dispatch(this.getManager().createEntity(entity, `${ this.getUiKey() }-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
         if (!error && this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     } else if (this.getManager().supportsPatch()) {
@@ -162,7 +169,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
   }
 
   afterDelete() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   /**
@@ -219,7 +226,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
 
   afterAction(action, successEntities) {
     if (successEntities) {
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.reload();
     }
   }
 
@@ -246,7 +253,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   /**
@@ -256,7 +263,7 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -284,8 +291,4 @@ AbstractTableContent.propTypes = {
 
 AbstractTableContent.defaultProps = {
   ...Basic.AbstractContent.defaultProps
-};
-
-AbstractTableContent.contextTypes = {
-  ...Basic.AbstractContent.contextTypes
 };

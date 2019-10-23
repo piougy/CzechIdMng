@@ -31,7 +31,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   componentDidMount() {
@@ -45,7 +45,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     if (this.refs.table !== undefined) {
-      this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+      this.refs.table.cancelFilter(this.refs.filterForm);
     }
   }
 
@@ -121,7 +121,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
   * @param entityId id of revision
   */
   showDetail(entityId) {
-    this.context.router.push(`/audit/entities/${entityId}/diff/`);
+    this.context.history.push(`/audit/entities/${entityId}/diff/`);
   }
 
   _getForceSearchParameters() {

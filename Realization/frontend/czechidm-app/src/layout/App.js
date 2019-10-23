@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import classNames from 'classnames';
+import {Route } from 'react-router-dom';
 
 //
 import { Basic, Advanced, Managers } from 'czechidm-core';
-import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
+import Dashboard from 'czechidm-core/src/content/Dashboard';
 import Footer from './Footer';
 //
 const securityManager = new Managers.SecurityManager();
@@ -23,18 +24,14 @@ export class App extends Basic.AbstractContent {
     this.state = {
       isLogout: false
     };
-  }
-
-  getChildContext() {
-    return {
-    };
+    context.history = props.history;
   }
 
   /**
   * Look out: This method is aplication entry point
   */
   componentDidUpdate() {
-    const { location, routes, userContext, appReady } = this.props;
+    const { location, userContext, appReady } = this.props;
     // select navigation
     if (location.pathname === '/') {
       this.selectNavigationItem('home');
@@ -47,20 +44,7 @@ export class App extends Basic.AbstractContent {
       this.refs.password.focus();
     }
 
-    // onEnter makes this redirection now
-    // console.log('router', this.context.router);
-    // console.log('location', this.props.location);
-    // check if is user logged, if not will do redirect to login page
-    /* if (!this.props.userContext.isAuthenticated && this.props.location.pathname !== '/login') {
-      this.context.router.replace('/login');
-    }*/
-
-    // check access to disable module route - has to be here, because SecurityManager.checkaccess is called to early (configuration is loaded asynchronouslly).
     if (appReady) {
-      const currentRoute = routes[routes.length - 1];
-      if (currentRoute.module && !ConfigLoader.isEnabledModule(currentRoute.module)) {
-        this.context.router.replace('/unavailable');
-      }
       this._handleRemoteAuth();
       this._handleTokenRefresh();
     }
@@ -86,12 +70,22 @@ export class App extends Basic.AbstractContent {
       isLogout: true
     }, () => {
       this.context.store.dispatch(securityManager.logout(() => {
-        this.context.router.push('/login');
+        this.context.history.push('/login');
         this.setState({
           isLogout: false
         });
       }));
     });
+  }
+
+  /**
+   * Creates react-router Routes components for this component (url).
+   * And add Dashboard route.
+   */
+  generateRouteComponents() {
+    const basicRoutes = super.generateRouteComponents();
+
+    return [<Route key="dashboard" exact path="/" component={Dashboard}/>, ...basicRoutes];
   }
 
   _handleRemoteAuth() {
@@ -118,7 +112,7 @@ export class App extends Basic.AbstractContent {
       { 'with-sidebar': !userContext.isExpired && Managers.SecurityManager.isAuthenticated(userContext) },
       { collapsed: navigationCollapsed }
     );
-    //
+    // @todo-upgrade-10 - FlashMessages throw warning "Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?"
     return (
       <div id="content-wrapper">
         <Basic.FlashMessages ref="messages" />
@@ -140,7 +134,7 @@ export class App extends Basic.AbstractContent {
                   (
                     <Basic.Div>
                       {/* Childrens are hiden, when token expires => all components are loaded (componentDidMount) after identity is logged again */}
-                      { this.props.children }
+                      {this.getRoutes()}
                       <Footer rendered={ !hideFooter } />
                     </Basic.Div>
                   )
@@ -228,9 +222,6 @@ App.defaultProps = {
   i18nReady: null,
   navigationCollapsed: false,
   hideFooter: false
-};
-
-App.childContextTypes = {
 };
 
 // Which props do we want to inject, given the global state?

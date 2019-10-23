@@ -81,21 +81,21 @@ class Team extends Basic.AbstractContent {
     console.log('onRowDoubleClick', rowIndex, data, event);
     // redirect to profile
     const username = data[rowIndex]['username'];
-    this.context.router.push('/identity/' + username + '/profile');
+    this.context.history.push('/identity/' + username + '/profile');
   }
 
   useFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   render() {

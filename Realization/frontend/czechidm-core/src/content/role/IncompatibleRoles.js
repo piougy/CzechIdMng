@@ -22,12 +22,12 @@ export default class IncompatibleRoles extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('incompatible-roles', this.props.params);
+    return this.getRequestNavigationKey('incompatible-roles', this.props.match.params);
   }
 
   render() {
-    const forceSuperiorSearchParameters = new SearchParameters().setFilter('subId', this.props.params.entityId);
-    const forceSubSearchParameters = new SearchParameters().setFilter('superiorId', this.props.params.entityId);
+    const forceSuperiorSearchParameters = new SearchParameters().setFilter('subId', this.props.match.params.entityId);
+    const forceSubSearchParameters = new SearchParameters().setFilter('superiorId', this.props.match.params.entityId);
     //
     return (
       <div>
@@ -38,14 +38,14 @@ export default class IncompatibleRoles extends Basic.AbstractContent {
           uiKey="incompatible-role-sub-table"
           forceSearchParameters={ forceSubSearchParameters }
           className="no-margin"
-          params={ this.props.params }/>
+          match={ this.props.match }/>
 
         <Basic.ContentHeader icon="arrow-up" text={ this.i18n('superior.header') } style={{ marginBottom: 0 }}/>
         <IncompatibleRoleTable
           uiKey="incompatible-role-superior-table"
           forceSearchParameters={ forceSuperiorSearchParameters }
           className="no-margin"
-          params={ this.props.params }
+          match={ this.props.match }
           readOnly/>
       </div>
     );

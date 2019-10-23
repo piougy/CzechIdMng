@@ -15,7 +15,7 @@ const manager = new VsRequestManager();
 class VsRequestRoute extends Basic.AbstractContent {
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     // load entity from BE - for nice labels etc.
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
   }
@@ -31,8 +31,8 @@ class VsRequestRoute extends Basic.AbstractContent {
           { this.i18n('vs:content.vs-request.detail.edit.header', { name: manager.getNiceLabel(entity), escape: false }) }
         </Basic.PageHeader>
 
-        <Advanced.TabPanel parentId="vs-requests" params={ this.props.params }>
-          {this.props.children}
+        <Advanced.TabPanel parentId="vs-requests" match={ this.props.match }>
+          {this.getRoutes()}
         </Advanced.TabPanel>
       </div>
     );
@@ -49,7 +49,7 @@ VsRequestRoute.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId)

@@ -45,14 +45,14 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
@@ -111,7 +111,7 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
   afterSave(entity, error) {
     if (!error) {
       this.addMessage({ message: this.i18n('save.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.reload();
     }
     //
     super.afterSave(entity, error);

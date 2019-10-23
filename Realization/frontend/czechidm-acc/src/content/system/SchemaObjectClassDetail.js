@@ -32,19 +32,19 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
   }
 
   showDetail(entity, add) {
-    const systemId = this.props.params.entityId;
+    const systemId = this.props.match.params.entityId;
     if (add) {
       const uuidId = uuid.v1();
       const objectClassId = this.props._schemaObjectClass.id;
-      this.context.router.push(`system/${systemId}/schema-attributes/${uuidId}/new?new=1&objectClassId=${objectClassId}`);
+      this.context.history.push(`/system/${systemId}/schema-attributes/${uuidId}/new?new=1&objectClassId=${objectClassId}`);
     } else {
-      this.context.router.push(`/system/${systemId}/schema-attributes/${entity.id}/detail`);
+      this.context.history.push(`/system/${systemId}/schema-attributes/${entity.id}/detail`);
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const {objectClassId} = nextProps.params;
-    if (objectClassId && objectClassId !== this.props.params.objectClassId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const {objectClassId} = nextProps.match.params;
+    if (objectClassId && objectClassId !== this.props.match.params.objectClassId) {
       this._initComponent(nextProps);
     }
   }
@@ -59,7 +59,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { objectClassId} = props.params;
+    const { objectClassId} = props.match.params;
     if (this._getIsNew(props)) {
       this.setState({schemaObjectClass: {system: props.location.query.systemId}});
     } else {
@@ -92,10 +92,10 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
 
   afterSave(entity, error) {
     if (!error) {
-      const systemId = this.props.params.entityId;
+      const systemId = this.props.match.params.entityId;
       this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
       if (this._getIsNew()) {
-        this.context.router.replace(`/system/${systemId}/object-classes/${entity.id}/detail`, {objectClassId: entity.id});
+        this.context.history.replace(`/system/${systemId}/object-classes/${entity.id}/detail`, {objectClassId: entity.id});
       }
     } else {
       this.addError(error);
@@ -116,7 +116,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
     const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const schemaObjectClass = isNew ? this.state.schemaObjectClass : _schemaObjectClass;
-    const systemId = this.props.params.entityId;
+    const systemId = this.props.match.params.entityId;
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
@@ -149,7 +149,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
+                onClick={this.context.history.goBack}
                 showLoading={_showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
@@ -252,7 +252,7 @@ SchemaObjectClassDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, schemaObjectClassManager.getEntityType(), component.params.objectClassId);
+  const entity = Utils.Entity.getEntity(state, schemaObjectClassManager.getEntityType(), component.match.params.objectClassId);
   if (entity) {
     const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
     entity.system = system;

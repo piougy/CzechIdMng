@@ -66,7 +66,7 @@ class IdentityRoles extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.context.store.dispatch(
       identityContractManager.fetchEntities(
         new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE)
@@ -84,7 +84,7 @@ class IdentityRoles extends Basic.AbstractContent {
     );
   }
 
-  componentWillReceiveProps(props) {
+  UNSAFE_componentWillReceiveProps(props) {
     this._initComponent(props);
   }
 
@@ -95,7 +95,7 @@ class IdentityRoles extends Basic.AbstractContent {
   }
 
   _initComponent(props) {
-    const { entityId } = props.params;
+    const { entityId } = props.match.params;
     if (!this.state.longPollingInprogress && this._isLongPollingEnabled()) {
       // Long-polling request can be send.
       this.setState({longPollingInprogress: true}, () => {
@@ -109,7 +109,7 @@ class IdentityRoles extends Basic.AbstractContent {
   }
 
   showProcessDetail(entity) {
-    this.context.router.push(`workflow/history/processes/${ entity.id }`);
+    this.context.history.push(`/workflow/history/processes/${ entity.id }`);
   }
 
   /**
@@ -142,7 +142,7 @@ class IdentityRoles extends Basic.AbstractContent {
         } else {
           this.addError(error);
         }
-        this.refs.tableProcesses.getWrappedInstance().reload();
+        this.refs.tableProcesses.reload();
       }));
     }, () => {
       // Rejected
@@ -196,7 +196,7 @@ class IdentityRoles extends Basic.AbstractContent {
    * @param  {string} identityId
    */
   showContracts(identityId) {
-    this.context.router.push(`/identity/${identityId}/contracts`);
+    this.context.history.push(`/identity/${identityId}/contracts`);
   }
 
   _getWfProcessCell({ rowIndex, data}) {
@@ -226,18 +226,18 @@ class IdentityRoles extends Basic.AbstractContent {
   }
 
   _changePermissions() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const identity = identityManager.getEntity(this.context.store.getState(), entityId);
     //
     const uuidId = uuid.v1();
-    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
+    this.context.history.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
   }
 
   _refreshAll(props = null) {
-    this.refs.direct_roles.getWrappedInstance().reload(props);
-    this.refs.sub_roles.getWrappedInstance().reload(props);
-    this.refs.requestTable.getWrappedInstance().reload(props);
-    this.refs.tableProcesses.getWrappedInstance().reload(props);
+    this.refs.direct_roles.reload(props);
+    this.refs.sub_roles.reload(props);
+    this.refs.requestTable.reload(props);
+    this.refs.tableProcesses.reload(props);
   }
 
   _toggleAutomaticRefresh() {
@@ -277,7 +277,7 @@ class IdentityRoles extends Basic.AbstractContent {
             { this.i18n('changePermissions') }
           </Basic.Button>
           <Advanced.RefreshButton
-            rendered={!automaticRefreshOn || !longPollingEnabled}
+            readOnly={automaticRefreshOn && longPollingEnabled}
             onClick={ this._refreshAll.bind(this) }/>
         </div>
       </Basic.Toolbar>
@@ -285,7 +285,7 @@ class IdentityRoles extends Basic.AbstractContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _showLoadingContracts, _contracts, _permissions, _requestUi } = this.props;
     const { activeKey } = this.state;
     //
@@ -327,6 +327,7 @@ class IdentityRoles extends Basic.AbstractContent {
               style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}/>
             <IdentityRoleTableComponent
               ref="direct_roles"
+              key="direct_roles"
               uiKey={ `${uiKey}-${entityId}` }
               forceSearchParameters={ new SearchParameters()
                 .setFilter('identityId', entityId)
@@ -334,7 +335,7 @@ class IdentityRoles extends Basic.AbstractContent {
                 .setFilter('addEavMetadata', true) }
               showAddButton={ false }
               showRefreshButton={ false }
-              params={ this.props.params }
+              match={ this.props.match }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
               _permissions={ _permissions }
               fetchIncompatibleRoles={ false }
@@ -347,6 +348,7 @@ class IdentityRoles extends Basic.AbstractContent {
 
             <IdentityRoleTableComponent
               ref="sub_roles"
+              key="sub_roles"
               uiKey={ `${uiKey}-sub-${entityId}` }
               forceSearchParameters={ new SearchParameters()
                 .setFilter('identityId', entityId)
@@ -354,7 +356,7 @@ class IdentityRoles extends Basic.AbstractContent {
                 .setFilter('addEavMetadata', true) }
               showAddButton={ false }
               showRefreshButton={ false }
-              params={ this.props.params }
+              match={ this.props.match }
               columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['automaticRole']) }
               fetchIncompatibleRoles={ false }
               fetchCodeLists={ false }/>
@@ -484,7 +486,7 @@ function select(state, component) {
   if (state.data.ui['table-processes'] && state.data.ui['table-processes'].items) {
     addRoleProcessIds = state.data.ui['table-processes'].items;
   }
-  const entityId = component.params.entityId;
+  const entityId = component.match.params.entityId;
   const requestUi = Utils.Ui.getUiState(state, 'table-applicant-requests');
   const longPollingEnabled = ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.long-polling.enabled', true);
 

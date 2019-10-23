@@ -209,7 +209,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       return;
     }
     this.addMessage({ message: this.i18n('action.save.success', { record: this.getManager().getNiceLabel(entity) }) });
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
     this.closeDetail();
   }
 
@@ -254,7 +254,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     ).then(() => {
       this.context.store.dispatch(manager.deleteTrigger(trigger, () => {
         this.addMessage({ message: this.i18n(`action.trigger-delete.success`) });
-        this.refs.table.getWrappedInstance().reload();
+        this.refs.table.reload();
       }));
     }, () => {
       //
@@ -273,7 +273,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     this.context.store.dispatch(this.getManager().createTrigger(formEntity, () => {
       this.addMessage({ message: this.i18n('action.trigger-create.success') });
       this.closeTriggerDetail();
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.reload();
     }));
   }
 
@@ -452,7 +452,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 if (supportedTasks && supportedTasks.has(entity.taskType)) {
                   _taskType = this._toOption(supportedTasks.get(entity.taskType));
                 }
-                return _.keys(entity.parameters).map(parameterName => {
+                return [..._.keys(entity.parameters).map(parameterName => {
                   if (parameterName.lastIndexOf('core:', 0) === 0) {
                     return null;
                   }
@@ -473,7 +473,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                       { Utils.Ui.toStringValue(entity.parameters[parameterName]) }
                     </div>
                   );
-                });
+                }).values()];
               }
             }/>
           <Basic.Column

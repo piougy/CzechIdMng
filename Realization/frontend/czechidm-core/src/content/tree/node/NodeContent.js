@@ -28,7 +28,7 @@ class NodeContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const isNew = this._isNew();
 
     if (isNew) {

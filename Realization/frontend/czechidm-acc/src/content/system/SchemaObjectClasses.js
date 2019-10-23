@@ -34,12 +34,12 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
   }
 
   showDetail(entity, add) {
-    const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
+    const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.match.params.entityId;
     if (add) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/system/${system}/object-classes/${uuidId}/new?new=1&systemId=${system}`);
+      this.context.history.push(`/system/${system}/object-classes/${uuidId}/new?new=1&systemId=${system}`);
     } else {
-      this.context.router.push(`/system/${system}/object-classes/${entity.id}/detail`);
+      this.context.history.push(`/system/${system}/object-classes/${entity.id}/detail`);
     }
   }
 
@@ -66,7 +66,7 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
       this.i18n(`action.generateSchema.message`),
       this.i18n(`action.generateSchema.header`)
     ).then(() => {
-      const {entityId} = this.props.params;
+      const {entityId} = this.props.match.params;
       this.setState({
         showLoading: true
       });
@@ -75,14 +75,14 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
         this.setState({
           showLoading: false
         });
-        this.refs.table.getWrappedInstance().reload();
+        this.refs.table.reload();
         this.addMessage({ message: this.i18n('action.generateSchema.success', { name: json.name }) });
       }).catch(ex => {
         this.setState({
           showLoading: false
         });
         this.addError(ex);
-        this.refs.table.getWrappedInstance().reload();
+        this.refs.table.reload();
       });
     }, () => {
       // Rejected
@@ -90,7 +90,7 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { _showLoading } = this.props;
     const { showLoading } = this.state;
     const innerShowLoading = _showLoading || showLoading;
@@ -214,7 +214,7 @@ SchemaObjectClasses.defaultProps = {
 
 function select(state, component) {
   return {
-    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
+    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.match.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
   };
 }

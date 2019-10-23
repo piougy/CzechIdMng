@@ -25,7 +25,7 @@ export default class SystemProvisioningOparationContent extends Basic.AbstractCo
   }
 
   render() {
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', this.props.params.entityId);
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', this.props.match.params.entityId);
     let columns = ProvisioningOperationTable.defaultProps.columns;
     columns = _.difference(columns, ['system']);
     //

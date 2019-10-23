@@ -29,8 +29,8 @@ class TextField extends AbstractFormComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    super.componentWillReceiveProps(nextProps);
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    super.UNSAFE_componentWillReceiveProps(nextProps);
     //
     if (nextProps.type !== this.props.type) {
       this.setState({

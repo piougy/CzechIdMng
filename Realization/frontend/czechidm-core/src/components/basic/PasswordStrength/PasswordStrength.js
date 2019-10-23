@@ -26,7 +26,7 @@ class PasswordStrength extends AbstractFormComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { value } = nextProps;
     this._getStrength(value);
   }

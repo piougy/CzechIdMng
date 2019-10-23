@@ -126,7 +126,7 @@ class EavContent extends Basic.AbstractContent {
     } else {
       // form instances are ready
       let index = 0;
-      content = _formInstances.map(_formInstance => {
+      content = [..._formInstances.map(_formInstance => {
         let _showSaveButton = false; // some attribute is editable
         _formInstance.getAttributes().forEach(attribute => {
           if (!attribute.readonly) { // TODO: hidden
@@ -178,7 +178,7 @@ class EavContent extends Basic.AbstractContent {
             </Basic.Panel>
           </form>
         );
-      });
+      }).values()];
     }
 
     return (

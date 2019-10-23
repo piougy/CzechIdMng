@@ -32,7 +32,7 @@ export default class IdentitySubordinates extends Basic.AbstractContent {
 
   render() {
     const forceSearchParameters = new SearchParameters()
-      .setFilter('subordinatesFor', this.props.params.entityId)
+      .setFilter('subordinatesFor', this.props.match.params.entityId)
       .setFilter('includeGuarantees', true);
     const columns = _.difference(IdentityTable.defaultProps.columns, ['username']);
     columns.push('entityInfo');

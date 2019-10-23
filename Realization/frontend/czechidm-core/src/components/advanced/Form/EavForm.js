@@ -141,7 +141,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
     return (
       <span>
         {
-          formInstance.getAttributes().map(attribute => {
+          [...formInstance.getAttributes().map(attribute => {
             const component = attributeManager.getFormComponent(attribute);
             if (!component) {
               return (
@@ -172,7 +172,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 formableManager={ formableManager }
                 component={ component }/>
             );
-          })
+          }).values()]
         }
       </span>
     );

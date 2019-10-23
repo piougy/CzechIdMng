@@ -111,7 +111,7 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
     return (
       <span>
         {
-          formAttributes.map(attribute => {
+          [...formAttributes.map(attribute => {
             const component = attributeManager.getFormComponent(attribute);
             if (localizationKey) {
               // if localizationKey is defined we must fake formDefinition.code
@@ -156,7 +156,7 @@ export default class EavAttributeForm extends Basic.AbstractContextComponent {
                 manager={ ManagerType ? new ManagerType() : null }
                 component={ component }/>
             );
-          })
+          }).values()]
         }
       </span>
     );

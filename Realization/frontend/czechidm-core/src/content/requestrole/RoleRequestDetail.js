@@ -37,9 +37,9 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     return 'role-requests';
   }
 
-  componentWillReceiveProps(nextProps) {
-    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.params.entityId;
-    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.params.entityId;
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.match.params.entityId;
+    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.match.params.entityId;
     if (entityId && entityId !== entityIdCurrent) {
       this._initComponent(nextProps);
     }
@@ -61,7 +61,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
    */
   _initComponent(props) {
     const { entityId } = props;
-    const _entityId = entityId || props.params.entityId;
+    const _entityId = entityId || props.match.params.entityId;
     if (this._getIsNew(props)) {
       this.setState({
         showLoading: false,
@@ -131,7 +131,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   replaceUrl(requestId) {
-    this.context.router.replace(`/role-requests/${requestId}/detail`);
+    this.context.history.replace(`/role-requests/${requestId}/detail`);
   }
 
   afterSaveAndStartRequest(entity, error) {
@@ -182,11 +182,11 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
           }
           if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
             this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.executed')});
-            this.context.router.goBack();
+            this.context.history.goBack();
             return;
           }
           this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.started'), level: 'info' });
-          this.context.router.goBack();
+          this.context.history.goBack();
         });
       }).catch(ex => {
         this.addError(ex);
@@ -430,7 +430,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <Basic.Button
                 type="button"
                 level="link"
-                onClick={this.context.router.goBack}
+                onClick={this.context.history.goBack}
                 showLoading={showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
@@ -480,9 +480,9 @@ function select(state, component) {
   const result = {
     showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true)
   };
-  const entityId = component.entityId ? component.entityId : component.params.entityId;
+  const entityId = component.entityId ? component.entityId : component.match.params.entityId;
   const entity = roleRequestManager.getEntity(state, entityId);
-  const applicantFromUrl = component.location ? component.location.query.applicantId : null;
+  const applicantFromUrl = component.location && component.location.query ? component.location.query.applicantId : null;
   const identityId = entity ? entity.applicant : applicantFromUrl;
   if (entity && entity._embedded && entity._embedded.wfProcessId) {
     entity.currentActivity = entity._embedded.wfProcessId.name;

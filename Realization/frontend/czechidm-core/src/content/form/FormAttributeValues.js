@@ -22,7 +22,7 @@ export default class FormAttributeValues extends Basic.AbstractContent {
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('attributeId', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('attributeId', this.props.match.params.entityId);
     //
     return (
       <div className="tab-pane-table-body">

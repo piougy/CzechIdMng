@@ -26,8 +26,8 @@ export default class TaskRoutes extends Basic.AbstractContent {
           {this.i18n('navigation.menu.tasks.label')}
         </Basic.PageHeader>
 
-        <Advanced.TabPanel position="top" parentId="tasks" params={this.props.params}>
-          {this.props.children}
+        <Advanced.TabPanel position="top" parentId="tasks" match={ this.props.match }>
+          {this.getRoutes()}
         </Advanced.TabPanel>
       </div>
     );

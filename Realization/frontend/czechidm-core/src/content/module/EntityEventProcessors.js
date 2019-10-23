@@ -7,7 +7,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { EntityEventProcessorManager, DataManager } from '../../redux';
+import { EntityEventProcessorManager, DataManager, ConfigurationManager} from '../../redux';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 
@@ -203,7 +203,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
           ||
           <div>
             {
-              _entityTypes.map((entityType) => (
+              [..._entityTypes.map((entityType) => (
                 <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
                   <Basic.ContentHeader text={entityType}/>
 
@@ -266,7 +266,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                     <Basic.Column
                       header={ this.i18n('entity.id.label') }
                       property="id"
-                      rendered={ this.isDevelopment() }
+                      rendered={ this.props._isDevelopment }
                       className="text-center"
                       width={ 100 }
                       cell={
@@ -306,7 +306,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                       }/>
                   </Basic.Table>
                 </div>
-              ))
+              )).values()]
             }
             <Basic.Pagination total={ processors.length } />
           </div>
@@ -335,7 +335,8 @@ function select(state) {
     processors: manager.getEntities(state, UIKEY),
     showLoading: Utils.Ui.isShowLoading(state, UIKEY)
       || Utils.Ui.isShowLoading(state, EntityEventProcessorManager.UI_KEY_PROCESSORS),
-    _searchParameters: Utils.Ui.getSearchParameters(state, UIKEY)
+    _searchParameters: Utils.Ui.getSearchParameters(state, UIKEY),
+    _isDevelopment: ConfigurationManager.getEnvironmentStage(state) === 'development'
   };
 }
 

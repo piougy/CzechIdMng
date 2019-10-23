@@ -46,7 +46,7 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
     return 'content.automaticRoleRequestDetail';
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps && (
       JSON.stringify(nextProps.currentData) !== JSON.stringify(this.props.currentData) ||
       JSON.stringify(nextProps.addedConcepts) !== JSON.stringify(this.props.addedConcepts) ||

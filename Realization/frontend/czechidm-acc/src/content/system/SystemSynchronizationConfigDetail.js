@@ -58,13 +58,13 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   }
 
   showDetail(entity) {
-    const {entityId} = this.props.params;
-    this.context.router.push(`/system/${entityId}/synchronization-logs/${entity.id}/detail`);
+    const {entityId} = this.props.match.params;
+    this.context.history.push(`/system/${entityId}/synchronization-logs/${entity.id}/detail`);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { synchronizationConfigId} = nextProps.params;
-    if (synchronizationConfigId && synchronizationConfigId !== this.props.params.synchronizationConfigId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { synchronizationConfigId} = nextProps.match.params;
+    if (synchronizationConfigId && synchronizationConfigId !== this.props.match.params.synchronizationConfigId) {
       this._initComponent(nextProps);
     }
   }
@@ -84,7 +84,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const {configId} = props.params;
+    const {configId} = props.match.params;
     if (this._getIsNew(props)) {
       this.setState({
         synchronizationConfig: {
@@ -156,7 +156,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
           this.afterSave(createdEntity, error, close);
         }
         if (!error && this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     } else {
@@ -167,23 +167,23 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
           this.afterSave(updatedEntity, error, close);
         }
         if (!error && this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     }
   }
 
   afterSave(entity, error, close) {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (!error) {
       if (this._getIsNew()) {
         this.addMessage({ message: this.i18n('create.success', { name: entity.name}) });
       } else {
         this.addMessage({ message: this.i18n('save.success', {name: entity.name}) });
       }
-      this.context.router.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, { configId: entity.id });
+      this.context.history.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, { configId: entity.id });
       if (close) {
-        this.context.router.replace(`/system/${entityId}/synchronization-configs/`);
+        this.context.history.replace(`/system/${entityId}/synchronization-configs/`);
       }
     } else {
       this.addError(error);
@@ -193,9 +193,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
   }
 
   afterSaveAndStartSynchronization(entity, error) {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     if (!error) {
-      this.context.router.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, { configId: entity.id });
+      this.context.history.replace(`/system/${entityId}/synchronization-configs/${entity.id}/detail`, { configId: entity.id });
       this._startSynchronization(entity);
     } else {
       this.addError(error);
@@ -333,7 +333,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const { systemMappingId, showLoading, activeKey, entityType, enabled } = this.state;
     const isNew = this._getIsNew();
     const innerShowLoading = isNew ? showLoading : (_showLoading || showLoading);
-    const systemId = this.props.params.entityId;
+    const systemId = this.props.match.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters()
       .setFilter('synchronizationConfigId', _synchronizationConfig ? _synchronizationConfig.id : Domain.SearchParameters.BLANK_UUID);
     const forceSearchMappingAttributes = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
@@ -511,7 +511,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                   <Basic.Button
                     type="button"
                     level="link"
-                    onClick={this.context.router.goBack}
+                    onClick={this.context.history.goBack}
                     showLoading={innerShowLoading}>
                     {this.i18n('button.back')}
                   </Basic.Button>
@@ -555,7 +555,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                   <Basic.Button
                     type="button"
                     level="link"
-                    onClick={this.context.router.goBack}
+                    onClick={this.context.history.goBack}
                     showLoading={innerShowLoading}>
                     {this.i18n('button.back')}
                   </Basic.Button>
@@ -632,7 +632,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                   <Basic.Button
                     type="button"
                     level="link"
-                    onClick={this.context.router.goBack}
+                    onClick={this.context.history.goBack}
                     showLoading={innerShowLoading}>
                     {this.i18n('button.back')}
                   </Basic.Button>
@@ -731,7 +731,7 @@ SystemSynchronizationConfigDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, synchronizationConfigManager.getEntityType(), component.params.configId);
+  const entity = Utils.Entity.getEntity(state, synchronizationConfigManager.getEntityType(), component.match.params.configId);
   return {
     _synchronizationConfig: entity,
     _showLoading: entity ? false : true,

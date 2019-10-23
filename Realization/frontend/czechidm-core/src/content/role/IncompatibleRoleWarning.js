@@ -12,10 +12,6 @@ import * as Advanced from '../../components/advanced';
  */
 export default class IncompatibleRoleWarning extends Basic.AbstractContextComponent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   render() {
     const { rendered, showLoading, incompatibleRoles, face } = this.props;
     //

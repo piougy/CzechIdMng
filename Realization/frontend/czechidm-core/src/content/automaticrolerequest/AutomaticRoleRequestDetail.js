@@ -36,10 +36,6 @@ const roleTreeNodeManager = new RoleTreeNodeManager();
  */
 class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return automaticRoleAttributeRuleRequestManager;
   }
@@ -52,10 +48,10 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     return 'content.automaticRoleRequestDetail';
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { _request } = nextProps;
-    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.params.entityId;
-    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.params.entityId;
+    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.match.params.entityId;
+    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.match.params.entityId;
     if (entityId && entityId !== entityIdCurrent) {
       this._initComponent(nextProps);
     }
@@ -82,7 +78,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
    */
   _initComponent(props) {
     const { entityId} = props;
-    const _entityId = entityId ? entityId : props.params.entityId;
+    const _entityId = entityId ? entityId : props.match.params.entityId;
     if (this._getIsNew(props)) {
       const _automaticRoleId = props.location.query.automaticRoleId;
       this.setState({
@@ -161,7 +157,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     if (!error) {
       // this.addMessage({ message: this.i18n('save.success') });
       if (this._getIsNew()) {
-        this.context.router.replace(`/automatic-role-requests/${entity.id}/detail`);
+        this.context.history.replace(`/automatic-role-requests/${entity.id}/detail`);
       }
     } else {
       this.addError(error);
@@ -216,7 +212,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     automaticRoleAttributeRuleRequestManager.getService().deleteById(concept.id)
     .then(() => {
       this._reloadRuleRequests(_request);
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.reload();
       this.setState({showLoadingButtonRemove: false});
     })
     .catch(error => {
@@ -257,7 +253,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     this.context.store.dispatch(automaticRoleAttributeRuleRequestManager.updateEntity(concept, `${uiKeyAttributes}-detail`, (updatedEntity, error) => {
       if (!error) {
         this._reloadRuleRequests(_request);
-        this.refs.table.getWrappedInstance().reload();
+        this.refs.table.reload();
       } else {
         this.addError(error);
       }
@@ -284,7 +280,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     automaticRoleAttributeRuleRequestManager.getService().create(concept)
     .then(() => {
       this._reloadRuleRequests(_request);
-      this.refs.table.getWrappedInstance().reload();
+      this.refs.table.reload();
     })
     .catch(error => {
       this.addError(error);
@@ -303,7 +299,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
       this.setState({
         showLoading: false
       });
-      this.context.router.goBack();
+      this.context.history.goBack();
       if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
         this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
         return;
@@ -319,7 +315,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
       });
       this.addError(ex);
       if (this.refs.table) {
-        this.refs.table.getWrappedInstance().reload();
+        this.refs.table.reload();
       }
     });
     return;
@@ -658,7 +654,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
             </div>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
+                onClick={this.context.history.goBack}
                 showLoading={showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
@@ -707,19 +703,19 @@ AutomaticRoleRequestDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entityId = component.entityId ? component.entityId : component.params.entityId;
+  const entityId = component.entityId ? component.entityId : component.match.params.entityId;
   const entity = automaticRoleRequestManager.getEntity(state, entityId);
   let _currentRoleRules = null;
   let _roleRuleRequests = null;
   if (entityId) {
     _roleRuleRequests = automaticRoleAttributeRuleRequestManager.getEntities(state, `${uiKeyRuleRequests}-${entityId}`);
   }
-  const roleAutoFromUrl = component.location ? component.location.query.automaticRoleId : null;
+  const roleAutoFromUrl = component.location && component.location.query ? component.location.query.automaticRoleId : null;
   const automaticRoleId = entity ? entity.automaticRole : roleAutoFromUrl;
   if (automaticRoleId) {
     _currentRoleRules = automaticRoleAttributeRuleManager.getEntities(state, `${uiKeyRules}-${automaticRoleId}`);
   }
-  const roleFromUrl = component.location ? component.location.query.roleId : null;
+  const roleFromUrl = component.location && component.location.query ? component.location.query.roleId : null;
   const roleId = entity ? entity.role : roleFromUrl;
 
   if (entity && entity._embedded && entity._embedded.wfProcessId) {

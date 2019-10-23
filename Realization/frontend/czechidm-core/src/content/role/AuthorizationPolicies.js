@@ -21,11 +21,11 @@ export default class AuthorizationPolicies extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-authorization-policies', this.props.params);
+    return this.getRequestNavigationKey('role-authorization-policies', this.props.match.params);
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('roleId', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('roleId', this.props.match.params.entityId);
     //
     return (
       <div>
@@ -39,7 +39,7 @@ export default class AuthorizationPolicies extends Basic.AbstractContent {
           <AuthorizationPolicyTable
             uiKey="role-authorization-policies-table"
             forceSearchParameters={ forceSearchParameters }
-            params={ this.props.params }
+            match={ this.props.match }
             className="no-margin"/>
         </Basic.Panel>
 

@@ -58,7 +58,9 @@ export default class LongPollingManager {
       automaticRefreshOn: !canSendLongPollingRequest
     }, () => {
       if (this.canSendLongPollingRequest) {
-        this._refreshAll();
+        setTimeout(() => { // Why, timeout? Because I need to wait on the end of Switch animation.
+          this._refreshAll();
+        }, 200);
       }
     });
   }

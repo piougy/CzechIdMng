@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 //
@@ -307,7 +307,7 @@ export class Navigation extends Basic.AbstractContent {
           <div className="flags-container">
             <div className="flags">
               {
-                supportedLanguages.map((lng, i) => {
+                [...supportedLanguages.map((lng, i) => {
                   const lgnClassName = classnames(
                     'flag',
                     lng,
@@ -321,7 +321,7 @@ export class Navigation extends Basic.AbstractContent {
                       onClick={ this._i18nChange.bind(this, lng) }>
                     </span>
                   );
-                })
+                }).values()]
               }
             </div>
           </div>
@@ -412,11 +412,6 @@ Navigation.defaultProps = {
   environment: null,
   userContext: null,
   i18nReady: null
-};
-
-Navigation.contextTypes = {
-  ...Basic.AbstractContextComponent.contextTypes,
-  router: PropTypes.object.isRequired
 };
 
 function select(state) {

@@ -21,7 +21,7 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { automaticRoleId } = this.props.params;
+    const { automaticRoleId } = this.props.match.params;
     //
     if (!this._getIsNew()) {
       this.context.store.dispatch(manager.fetchEntityIfNeeded(automaticRoleId));
@@ -42,7 +42,7 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
   _changeAutomaticRole() {
     const { entity} = this.props;
     const uuidId = uuid.v1();
-    this.context.router.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${entity.role}&automaticRoleId=${entity.id}`);
+    this.context.history.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${entity.role}&automaticRoleId=${entity.id}`);
   }
 
   render() {
@@ -73,8 +73,8 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
           </Basic.Col>
         </Basic.Row>
 
-        <Advanced.TabPanel position="left" parentId="automatic-role-attribute" params={this.props.params}>
-          {this.props.children}
+        <Advanced.TabPanel position="left" parentId="automatic-role-attribute" match={ this.props.match }>
+          {this.getRoutes()}
         </Advanced.TabPanel>
       </div>
     );
@@ -87,7 +87,7 @@ AutomaticRoleAttributeRoutes.defaultProps = {
 };
 
 function select(state, component) {
-  const { automaticRoleId } = component.params;
+  const { automaticRoleId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, automaticRoleId)

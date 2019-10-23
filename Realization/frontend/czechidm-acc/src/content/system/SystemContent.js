@@ -21,7 +21,7 @@ class SystemContent extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItems(['sys-systems', 'system-detail']);
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
 
     this.context.store.dispatch(manager.fetchAvailableFrameworks());
     this.context.store.dispatch(manager.fetchAvailableRemoteConnector(entityId));
@@ -64,7 +64,7 @@ SystemContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

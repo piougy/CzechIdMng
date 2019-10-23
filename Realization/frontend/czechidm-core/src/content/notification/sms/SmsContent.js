@@ -25,7 +25,7 @@ class SmsContent extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('notification-sms');
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.getLogger().debug(`[SmsContent] loading entity detail [id:${entityId}]`);
     this.context.store.dispatch(manager.fetchEntity(entityId));
@@ -65,7 +65,7 @@ SmsContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: manager.getEntity(state, entityId),

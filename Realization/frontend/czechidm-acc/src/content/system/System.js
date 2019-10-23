@@ -14,7 +14,7 @@ const manager = new SystemManager();
 class System extends Basic.AbstractContent {
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
   }
@@ -30,8 +30,8 @@ class System extends Basic.AbstractContent {
           { this.i18n('acc:content.system.detail.edit.header', { name: manager.getNiceLabel(entity), escape: false }) }
         </Basic.PageHeader>
 
-        <Advanced.TabPanel parentId="sys-systems" params={ this.props.params }>
-          { this.props.children }
+        <Advanced.TabPanel parentId="sys-systems" match={ this.props.match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
       </Basic.Div>
     );
@@ -48,7 +48,7 @@ System.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId)

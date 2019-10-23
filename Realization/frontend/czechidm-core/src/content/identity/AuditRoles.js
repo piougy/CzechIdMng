@@ -20,7 +20,7 @@ class AuditRoles extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.selectNavigationItems(['identities', 'profile-audit', 'profile-audit-roles']);
     this.context.store.dispatch(identityManager.fetchEntity(entityId));
   }
@@ -48,7 +48,7 @@ class AuditRoles extends Basic.AbstractContent {
 }
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     identity: identityManager.getEntity(state, entityId)
   };

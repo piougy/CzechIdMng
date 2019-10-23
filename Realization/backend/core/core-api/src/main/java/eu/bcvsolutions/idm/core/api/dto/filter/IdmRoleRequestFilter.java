@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 
 /**
  * Filter for role request
- * 
+ *
  * TODO: remove state field - use states
  *
  * @author svandav
@@ -28,16 +28,17 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private List<RoleRequestState> states;
 	private ZonedDateTime createdFrom;
 	private ZonedDateTime createdTill;
+	private ZonedDateTime modifiedFrom;
 	private List<UUID> applicants;
 	private UUID creatorId;
 	private boolean includeConcepts = false;
 	/**
-	 * Include approvers for current tasks. Approvers will be receive from original process or from all subprocesses. 
+	 * Include approvers for current tasks. Approvers will be receive from original process or from all subprocesses.
 	 */
 	private boolean includeApprovers = false;
 	/**
 	 * If true, then returns requests where state in IdM and state on a systems is
-	 * EXECUTED. 
+	 * EXECUTED.
 	 * If Boolean.FALSE, then return all requests where IdM state is not
 	 * DUPLICATED, CANCELED, DISAPPROVED and IdM state is not EXECUTED or system
 	 * state is not EXECUTED and not null.
@@ -47,7 +48,7 @@ public class IdmRoleRequestFilter extends DataFilter {
 	public IdmRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
-	
+
 	public IdmRoleRequestFilter(boolean includeConcepts) {
 		this(new LinkedMultiValueMap<>());
 		this.includeConcepts = includeConcepts;
@@ -56,7 +57,7 @@ public class IdmRoleRequestFilter extends DataFilter {
 	public IdmRoleRequestFilter(MultiValueMap<String, Object> data) {
 		super(IdmRoleRequestDto.class, data);
 	}
-	
+
 	public List<UUID> getApplicants() {
 		if (applicants == null) {
 			applicants = new ArrayList<>();
@@ -82,6 +83,14 @@ public class IdmRoleRequestFilter extends DataFilter {
 
 	public void setCreatedTill(ZonedDateTime createdTill) {
 		this.createdTill = createdTill;
+	}
+
+	public ZonedDateTime getModifiedFrom() {
+		return modifiedFrom;
+	}
+
+	public void setModifiedFrom(ZonedDateTime modifiedFrom) {
+		this.modifiedFrom = modifiedFrom;
 	}
 
 	public UUID getApplicantId() {
@@ -126,11 +135,11 @@ public class IdmRoleRequestFilter extends DataFilter {
 	public void setStates(List<RoleRequestState> states) {
 		this.states = states;
 	}
-	
+
 	public void setCreatorId(UUID creatorId) {
 		this.creatorId = creatorId;
 	}
-	
+
 	public UUID getCreatorId() {
 		return creatorId;
 	}

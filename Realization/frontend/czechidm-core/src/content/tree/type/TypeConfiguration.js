@@ -32,7 +32,7 @@ class TreeTypeConfiguration extends Basic.AbstractContent {
     this._load();
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.treeTypeId !== this.state.treeTypeId) {
       this.setState({
         treeTypeId: nextProps.treeTypeId

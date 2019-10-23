@@ -21,7 +21,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const defaultSearchParameters = accountManager
       .getDefaultSearchParameters()
       .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
@@ -32,7 +32,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
   }
 
   _getOptions() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { accounts, showLoading } = this.props;
 
     if (showLoading) {
@@ -60,7 +60,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
 
   render() {
     const { passwordChangeType, userContext, requireOldPassword, showLoading } = this.props;
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const options = this._getOptions();
     //
     return (
@@ -95,7 +95,7 @@ PasswordChangeAccounts.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     userContext: state.security.userContext,
     accounts: accountManager.getEntities(state, `${entityId}-accounts`),

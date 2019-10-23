@@ -35,7 +35,7 @@ class AuditDetailInfo extends Basic.AbstractContent {
     // prevent to show loading, when transaction id is the same
     this.context.store.dispatch(dataManager.stopRequest('audit-table'));
     // redirect to audit of entities with prefiled search parameters
-    this.context.router.push(`/audit/entities?transactionId=${ entity.transactionId }`);
+    this.context.history.push(`/audit/entities?transactionId=${ entity.transactionId }`);
   }
 
   render() {

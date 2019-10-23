@@ -57,7 +57,7 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 /**
  * Provide additional methods to retrieve DTOs and entities using the pagination
  * and sorting abstraction.
- * 
+ *
  * @author Svanda
  * @author Radek Tomiška
  * @see Sort
@@ -87,7 +87,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	private final AbstractEntityRepository<E> repository;
 	private AuthorizationManager authorizationManager;
 	private FilterManager filterManager;
-	
+
 	@SuppressWarnings("unchecked")
 	public AbstractReadDtoService(AbstractEntityRepository<E> repository) {
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractReadDtoService.class);
@@ -99,7 +99,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		//
 		this.repository = repository;
 	}
-	
+
 	@Override
 	public boolean supports(Class<?> delimiter) {
 		return dtoClass.isAssignableFrom(delimiter);
@@ -112,7 +112,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	/**
 	 * Returns underlying repository
-	 * 
+	 *
 	 * @return
 	 */
 	protected AbstractEntityRepository<E> getRepository() {
@@ -121,7 +121,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	/**
 	 * Returns {@link BaseDto} type class, which is controlled by this service
-	 * 
+	 *
 	 * @return
 	 */
 	@Override
@@ -129,11 +129,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	public Class<DTO> getDtoClass() {
 		return ((Class<DTO>)this.getDtoClass(null));
 	}
-	
+
 	/**
 	 * Returns {@link BaseDto} type class, which is controlled by this service
-	 * @param entity 
-	 * 
+	 * @param entity
+	 *
 	 * @return
 	 */
 	protected Class<? extends DTO> getDtoClass(E entity) {
@@ -142,18 +142,18 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	/**
 	 * Returns {@link BaseEntity} type class, which is controlled by this service.
-	 * 
+	 *
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public Class<E> getEntityClass() {
 		return (Class<E>) this.getEntityClass(null);
 	}
-	
+
 	/**
 	 * Returns {@link BaseEntity} type class, which is controlled by this service.
-	 * @param dto 
-	 * 
+	 * @param dto
+	 *
 	 * @return
 	 */
 	protected Class<? extends E> getEntityClass(DTO dto) {
@@ -163,7 +163,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	/**
 	 * Returns {@link BaseFilter} type class, which is controlled by this service.
 	 * {@link DataFilter} generalization is preferred.
-	 * 
+	 *
 	 * @return
 	 */
 	@Override
@@ -174,13 +174,13 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	/**
 	 * Returns DTO by given id. Returns null, if DTO is not exists. For
 	 * AbstractDto uuid or string could be given.
-	 */	
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public DTO get(Serializable id, BasePermission... permission) {
 		return get(id, (F) null, permission);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public DTO get(Serializable id, F context, BasePermission... permission) {
@@ -196,22 +196,22 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	public Page<DTO> find(Pageable pageable, BasePermission... permission) {
 		return find(null, pageable, permission);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public Page<DTO> find(final F filter, Pageable pageable, BasePermission... permission) {
 		return toDtoPage(findEntities(filter, pageable, permission), filter);
 	}
-	
+
 	@Override
 	public Page<UUID> findIds(Pageable pageable, BasePermission... permission) {
 		return this.findIds(null, pageable, permission);
 	}
-	
+
 	@Override
 	public Page<UUID> findIds(F filter, Pageable pageable, BasePermission... permission) {
 		Specification<E> criteria = toCriteria(filter, false, permission);
-		
+
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<UUID> cq = criteriaBuilder.createQuery(UUID.class);
 		Root<E> root = cq.from(getEntityClass());
@@ -236,18 +236,18 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		if (pageable == null) {
 			return new PageImpl<UUID>(query.getResultList());
 		}
-		
+
 		// count query
 		CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
 		countQuery.select(criteriaBuilder.count(countQuery.from(getEntityClass())));
 		countQuery.where(predicate);
 		Long total = entityManager.createQuery(countQuery).getSingleResult();
-		
+
 		query.setFirstResult((int) pageable.getOffset());
 		query.setMaxResults(pageable.getPageSize());
-		
+
 		List<UUID> content = total > pageable.getOffset() ? query.getResultList() : Collections.<UUID> emptyList();
-		
+
 		return new PageImpl<UUID>(content, pageable, total);
 	}
 
@@ -255,11 +255,11 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	public long count(final F filter, BasePermission... permission) {
 		return getRepository().count(toCriteria(filter, false, permission));
 	}
-	
+
 	/**
-	 * Supposed to be overriden - use super.toPredicates to transform default DataFilter props. 
+	 * Supposed to be overriden - use super.toPredicates to transform default DataFilter props.
 	 * Transforms given filter to jpa predicate, never returns null.
-	 * 
+	 *
 	 * @param root
 	 * @param query
 	 * @param builder
@@ -308,7 +308,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		LOG.trace("Entity [{}] passed permission check [{}]", entity, permission);
 		return entity;
 	}
-	
+
 	protected Page<E> findEntities(Pageable pageable, BasePermission... permission) {
 		return findEntities(null, pageable, permission);
 	}
@@ -337,23 +337,23 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		LOG.trace("Found entities [{}].", entities.getTotalElements());
 		return entities;
 	}
-	
+
 	/**
 	 * Constructs find / count jpa criteria from given filter and permissions
-	 * 
+	 *
 	 * @param filter
 	 * @param permission
 	 * @return
 	 * @deprecated @since 9.6.0 use {@link #toCriteria(BaseFilter, boolean, BasePermission...)}
 	 */
-	@Deprecated 
+	@Deprecated
 	protected Specification<E> toCriteria(F filter, BasePermission... permission) {
 		return toCriteria(filter, true, permission);
 	}
-	
+
 	/**
 	 * Constructs find / count jpa criteria from given filter and permissions
-	 * 
+	 *
 	 * @param filter
 	 * @param applyFetchMode fetch related entities in the master select
 	 * @param permission
@@ -373,9 +373,9 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 				//
 				// permisions are not evaluated, if no permission was given or authorizable type is null (=> authorization policies are not supported)
 				BasePermission[] permissions = PermissionUtils.trimNull(permission);
-				if (!ObjectUtils.isEmpty(permissions) && (AbstractReadDtoService.this instanceof AuthorizableService)) {					
+				if (!ObjectUtils.isEmpty(permissions) && (AbstractReadDtoService.this instanceof AuthorizableService)) {
 					AuthorizableType authorizableType = ((AuthorizableService<?>) AbstractReadDtoService.this).getAuthorizableType();
-					if (authorizableType != null && authorizableType.getType() != null) {					
+					if (authorizableType != null && authorizableType.getType() != null) {
 						predicates.add(getAuthorizationManager().getPredicate(root, query, builder, permissions));
 					}
 				}
@@ -389,18 +389,18 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			}
 		};
 	}
-	
+
 	@Override
 	public boolean isNew(DTO dto) {
 		Assert.notNull(dto, "DTO is required for check, if is new.");
 		//
 		return dto.getId() == null || !getRepository().existsById((UUID) dto.getId());
 	}
-	
-	
+
+
 	/**
 	 * Returns, what currently logged identity can do with given dto
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
@@ -412,14 +412,14 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		//
 		return getPermissions(entity);
 	}
-	
+
 	@Override
 	public Set<String> getPermissions(DTO dto) {
 		E entity = toEntity(dto); // TODO: read entity?
 		//
 		return getPermissions(entity);
 	}
-	
+
 	protected Set<String> getPermissions(E entity) {
 		Assert.notNull(entity, "Entity is required get permissions.");
 		//
@@ -427,9 +427,9 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	}
 
 	/**
-	 * 
+	 *
 	 * Converts entity to DTO
-	 * 
+	 *
 	 * @param entity
 	 * @return
 	 */
@@ -440,7 +440,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	/**
 	 * Converts entity to DTO. When service support transform DTO with filter
 	 * this method will not be called.
-	 * 
+	 *
 	 * @see Embedded
 	 * @param entity
 	 * @param dto
@@ -477,7 +477,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	/**
 	 * Converts list of entities wrapped to Page object to list of DTOs wrapped
 	 * to Page object.
-	 * 
+	 *
 	 * @param entityPage
 	 * @return
 	 */
@@ -491,7 +491,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	 * If the method {@link AbstractReadDtoService#supportsToDtoWithFilter()} return true
 	 * the method {@link AbstractReadDtoService#toDto(BaseEntity, BaseDto, BaseFilter)} will be called.
 	 * Otherwise will be called method {@link AbstractReadDtoService#toDto(BaseEntity, BaseDto)}.
-	 * 
+	 *
 	 * @param entityPage
 	 * @param filter
 	 * @return
@@ -505,8 +505,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			dtos = this.toDtos(entityPage.getContent(), true);
 		}
 		PageRequest pageRequest = PageRequest.of(
-				entityPage.getNumber(), 
-				entityPage.getSize() > 0 ? entityPage.getSize() : 10, 
+				entityPage.getNumber(),
+				entityPage.getSize() > 0 ? entityPage.getSize() : 10,
 				entityPage.getSort());
 		Page<DTO> dtoPage = new PageImpl<>(dtos, pageRequest, entityPage.getTotalElements());
 		return dtoPage;
@@ -514,7 +514,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	/**
 	 * Converts list of entities to list of DTOs
-	 * 
+	 *
 	 * @param entities
 	 * @param trimmed
 	 * @return
@@ -575,7 +575,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	/**
 	 * Converts DTO to entity
-	 * 
+	 *
 	 * @see Embedded
 	 * @param entity
 	 *            if is not null, then will be use as input to convert
@@ -592,17 +592,17 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		}
 		return modelMapper.map(dto, getEntityClass(dto));
 	}
-	
+
 	@Override
 	public DTO checkAccess(DTO dto, BasePermission... permission) {
 		checkAccess(toEntity(dto, null), permission);
 		//
 		return dto;
 	}
-	
+
 	/**
 	 * Evaluates authorization permission on given entity.
-	 *  
+	 *
 	 * @param dto
 	 * @param permission base permissions to evaluate (all permission needed)
 	 * @return
@@ -625,10 +625,10 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		}
 		return entity;
 	}
-	
+
 	/**
 	 * Returns authorization manager
-	 * 
+	 *
 	 * @return
 	 */
 	protected AuthorizationManager getAuthorizationManager() {
@@ -637,21 +637,21 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		}
 		return authorizationManager;
 	}
-	
+
 	protected FilterManager getFilterManager() {
 		if (filterManager == null) {
 			filterManager = context.getBean(FilterManager.class);
 		}
 		return filterManager;
 	}
-	
+
 	protected void setModelMapper(ModelMapper modelMapper) {
 		this.modelMapper = modelMapper;
 	}
-	
+
 	/**
 	 * Return {@link Pageable} to find all sorted records.
-	 * 
+	 *
 	 * @param sort
 	 * @return
 	 */
@@ -661,16 +661,16 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 
 	/**
 	 * Returns entity manager
-	 * 
+	 *
 	 * @return
 	 */
 	protected EntityManager getEntityManager() {
 		return entityManager;
 	}
-	
+
 	/**
 	 * Sets FETCH JOIN policy to selecting referenced entities.
-	 * 
+	 *
 	 * @param root
 	 * @since 9.6.0
 	 */
@@ -688,8 +688,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	        }
 	    }
 	}
-	
-	
 
-	
+
+
+
 }

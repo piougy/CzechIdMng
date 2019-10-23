@@ -32,7 +32,7 @@ class AbstractFormComponent extends AbstractContextComponent {
     this._resolveValidation(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // Read only
     if (nextProps.readOnly !== this.props.readOnly) {
       this._resolveReadOnly(nextProps);

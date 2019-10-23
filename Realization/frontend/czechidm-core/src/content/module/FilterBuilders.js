@@ -195,7 +195,7 @@ class FilterBuilders extends Advanced.AbstractTableContent {
           ||
           <div>
             {
-              _entityClasses.map((entityClass) => (
+              [..._entityClasses.map((entityClass) => (
                 <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
                   <Basic.ContentHeader>
                     { Utils.Ui.getSimpleJavaType(entityClass) }
@@ -272,7 +272,7 @@ class FilterBuilders extends Advanced.AbstractTableContent {
                       }/>
                   </Basic.Table>
                 </div>
-              ))
+              )).values()]
             }
             <Basic.Pagination total={ filterBuilders.length } />
           </div>

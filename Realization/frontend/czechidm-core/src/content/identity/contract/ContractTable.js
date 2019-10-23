@@ -47,9 +47,9 @@ export class ContractTable extends Advanced.AbstractTableContent {
     const identityIdentifier = this._getIdentityIdentifier();
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/identity/${encodeURIComponent(identityIdentifier)}/identity-contract/${uuidId}/new?new=1`);
+      this.context.history.push(`/identity/${encodeURIComponent(identityIdentifier)}/identity-contract/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/identity/${encodeURIComponent(identityIdentifier)}/identity-contract/${entity.id}/detail`);
+      this.context.history.push(`/identity/${encodeURIComponent(identityIdentifier)}/identity-contract/${entity.id}/detail`);
     }
   }
 
@@ -57,11 +57,11 @@ export class ContractTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.router.push(`/identity/${encodeURIComponent(entity.identity)}/identity-contract/${entity.id}/guarantees`);
+    this.context.history.push(`/identity/${encodeURIComponent(entity.identity)}/identity-contract/${entity.id}/guarantees`);
   }
 
   reload() {
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
   }
 
   _getIdentityIdentifier() {

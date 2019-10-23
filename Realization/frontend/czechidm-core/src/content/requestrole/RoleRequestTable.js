@@ -44,7 +44,7 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
 
@@ -53,13 +53,13 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
     if (add) {
       createNewRequestFunc(entity);
     } else {
-      this.context.router.push(`/role-requests/${entity.id}/detail`);
+      this.context.history.push(`/role-requests/${entity.id}/detail`);
     }
   }
 
   reload(props = null) {
     if (this.refs.table) {
-      this.refs.table.getWrappedInstance().reload(props);
+      this.refs.table.reload(props);
     }
   }
 

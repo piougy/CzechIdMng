@@ -10,7 +10,7 @@ import * as Basic from '../../basic';
 export default class RefreshButton extends Basic.AbstractContextComponent {
 
   render() {
-    const { rendered, showLoading, waiting, title, onClick } = this.props;
+    const { rendered, showLoading, waiting, title, onClick, readOnly } = this.props;
     if (!rendered) {
       return null;
     }
@@ -22,6 +22,7 @@ export default class RefreshButton extends Basic.AbstractContextComponent {
         className="btn-xs"
         title={ _title }
         onClick={ onClick }
+        disabled={readOnly}
         titlePlacement="bottom"
         showLoading={ showLoading }
         style={{ marginLeft: 3}}>

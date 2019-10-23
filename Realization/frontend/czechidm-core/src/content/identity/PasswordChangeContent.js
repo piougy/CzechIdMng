@@ -24,7 +24,7 @@ class PasswordChangeContent extends Basic.AbstractContent {
 
   render() {
     const { userContext, requireOldPassword } = this.props;
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     const options = [
       { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}

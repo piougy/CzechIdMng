@@ -56,14 +56,14 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   _refreshDetail() {
@@ -96,12 +96,12 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
         }, () => {
           this.addErrorMessage({ hidden: true }, error);
           if (error.statusCode === 404) {
-            this.refs.table.getWrappedInstance().reload();
+            this.refs.table.reload();
           }
         });
       }
     }));
-    this.refs.stateTable.getWrappedInstance().reload();
+    this.refs.stateTable.reload();
   }
 
   _deleteAll() {
@@ -114,7 +114,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
       this.context.store.dispatch(manager.deleteAll(uiKey, (entity, error) => {
         if (!error) {
           this.addMessage({ level: 'success', message: this.i18n('action.deleteAll.success')});
-          this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+          this.refs.table.useFilterForm(this.refs.filterForm);
         } else {
           this.addError(error);
         }

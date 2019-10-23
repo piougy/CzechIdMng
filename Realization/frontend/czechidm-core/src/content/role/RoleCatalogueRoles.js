@@ -21,11 +21,11 @@ export default class RoleCatalogueRoles extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-catalogue-roles', this.props.params);
+    return this.getRequestNavigationKey('role-catalogue-roles', this.props.match.params);
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('roleId', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('roleId', this.props.match.params.entityId);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -35,7 +35,7 @@ export default class RoleCatalogueRoles extends Basic.AbstractContent {
           uiKey="role-catalogue-role-table"
           forceSearchParameters={ forceSearchParameters }
           className="no-margin"
-          params={ this.props.params }/>
+          match={ this.props.match }/>
       </div>
     );
   }

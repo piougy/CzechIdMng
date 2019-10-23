@@ -37,9 +37,9 @@ class RequestDetail extends Advanced.AbstractTableContent {
     return 'content.requestDetail';
   }
 
-  componentWillReceiveProps(nextProps) {
-    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.params.entityId;
-    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.params.entityId;
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.match.params.entityId;
+    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.match.params.entityId;
     if (entityId && entityId !== entityIdCurrent) {
       this._initComponent(nextProps);
     }
@@ -62,7 +62,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
    */
   _initComponent(props) {
     const { entityId} = props;
-    const _entityId = entityId || props.params.entityId;
+    const _entityId = entityId || props.match.params.entityId;
     if (!this._getIsNew(props)) {
       this.context.store.dispatch(requestManager.fetchEntity(_entityId));
     }
@@ -97,7 +97,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
     this.setState({showLoading: false});
     if (!error) {
       if (this._getIsNew()) {
-        this.context.router.replace(`/requests/${entity.id}/detail`);
+        this.context.history.replace(`/requests/${entity.id}/detail`);
       }
     } else {
       this.addError(error);
@@ -115,7 +115,7 @@ class RequestDetail extends Advanced.AbstractTableContent {
 
   previewDetailByRequest(entity) {
     const urlType = this._getUrlType(entity.ownerType);
-    this.context.router.push(`/requests/${entity.id}/${urlType}/${entity.ownerId}/detail`);
+    this.context.history.push(`/requests/${entity.id}/${urlType}/${entity.ownerId}/detail`);
   }
 
   _getNameOfDTO(ownerType) {
@@ -283,10 +283,10 @@ class RequestDetail extends Advanced.AbstractTableContent {
     const {_request} = this.props;
     if (_request && _request.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXECUTED)) {
       // Redirect to requests - we want to prevent redirect back to executed request preview
-      this.context.router.push(`/requests/`);
+      this.context.history.push(`/requests/`);
       return;
     }
-    this.context.router.goBack();
+    this.context.history.goBack();
   }
 
   _onChangeRequestType(requestType) {
@@ -527,7 +527,7 @@ RequestDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entityId = component.entityId ? component.entityId : component.params.entityId;
+  const entityId = component.entityId ? component.entityId : component.match.params.entityId;
   const entity = requestManager.getEntity(state, entityId);
   if (entity && entity._embedded && entity._embedded.wfProcessId) {
     entity.currentActivity = entity._embedded.wfProcessId.name;

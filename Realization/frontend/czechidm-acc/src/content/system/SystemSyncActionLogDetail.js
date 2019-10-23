@@ -35,13 +35,13 @@ class SystemSyncActionLogDetail extends Advanced.AbstractTableContent {
   }
 
   showDetail(entity) {
-    const {entityId} = this.props.params;
-    this.context.router.push(`/system/${entityId}/synchronization-item-logs/${entity.id}/detail`);
+    const {entityId} = this.props.match.params;
+    this.context.history.push(`/system/${entityId}/synchronization-item-logs/${entity.id}/detail`);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { logActionId} = nextProps.params;
-    if (logActionId && logActionId !== this.props.params.logActionId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { logActionId} = nextProps.match.params;
+    if (logActionId && logActionId !== this.props.match.params.logActionId) {
       this._initComponent(nextProps);
     }
   }
@@ -56,7 +56,7 @@ class SystemSyncActionLogDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const {logActionId} = props.params;
+    const {logActionId} = props.match.params;
     this.context.store.dispatch(syncActionLogManager.fetchEntity(logActionId));
     this.selectNavigationItems(['sys-systems', 'system-synchronization-configs']);
   }
@@ -90,7 +90,7 @@ class SystemSyncActionLogDetail extends Advanced.AbstractTableContent {
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
-                onClick={this.context.router.goBack}
+                onClick={this.context.history.goBack}
                 showLoading={_showLoading}>
                 {this.i18n('button.back')}
               </Basic.Button>
@@ -170,7 +170,7 @@ SystemSyncActionLogDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, syncActionLogManager.getEntityType(), component.params.logActionId);
+  const entity = Utils.Entity.getEntity(state, syncActionLogManager.getEntityType(), component.match.params.logActionId);
   return {
     _syncActionLog: entity,
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),

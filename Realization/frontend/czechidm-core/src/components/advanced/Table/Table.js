@@ -10,9 +10,9 @@ import classnames from 'classnames';
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import * as Domain from '../../../domain';
-import Filter from '../Filter/Filter';
 import UuidInfo from '../UuidInfo/UuidInfo';
 import RefreshButton from './RefreshButton';
+import Filter from '../Filter/Filter';
 import {
   DataManager,
   FormAttributeManager,
@@ -23,6 +23,7 @@ import {
 } from '../../../redux';
 import EavAttributeForm from '../Form/EavAttributeForm';
 import LongRunningTask from '../LongRunningTask/LongRunningTask';
+import { selectEntities } from '../../../redux/selectors';
 
 const auditManager = new AuditManager();
 const dataManager = new DataManager();
@@ -128,7 +129,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
   }
 
-  componentWillReceiveProps(newProps) {
+  UNSAFE_componentWillReceiveProps(newProps) {
     if (!Domain.SearchParameters.is(newProps.forceSearchParameters, this.props.forceSearchParameters)) {
       this.reload(newProps);
     } else if (!Domain.SearchParameters.is(newProps.defaultSearchParameters, this.props.defaultSearchParameters)) {
@@ -517,7 +518,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       return appShowId;
     }
     // app prop by stage as default
-    return this.isDevelopment();
+    return this.props._isDevelopment;
   }
 
   _filterOpen(open) {
@@ -579,7 +580,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         now: moment(new Date()).format(this.i18n('format.datetime')),
         formInstance: new Domain.FormInstance({}, values)
       }, () => {
-        this.prevalidateBulkAction(backendBulkAction);
+        // @todo-upgrade-10 This is brutal hack!
+        // I had to use the timeout, because Modal doesn't have rendered refs in this phase.
+        // This problem occured after update on React 16, but primary bug is in react-bootstap.
+        // Problem should be fixed, but still doesn't works (in 0.32.4).
+        // https://github.com/react-bootstrap/react-bootstrap/issues/2841#issuecomment-378017284.
+        setTimeout(() => {
+          this.prevalidateBulkAction(backendBulkAction);
+        }, 10);
       });
     }
   }
@@ -598,7 +606,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (this.props.uiKey === 'audit-table') {
       // audit table reloads externally ()
     } else {
-      this.context.router.push(`/audit/entities?transactionId=${ entity.transactionId }`);
+      this.context.history.push(`/audit/entities?transactionId=${ entity.transactionId }`);
     }
   }
 
@@ -636,13 +644,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     // get entities for currently selected
     let selectedEntities = [];
     if (!isSelectedAll) {
-      selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
+      selectedEntities = manager.getEntitiesByIds(this.props._state, selectedRows);
     }
     //
     // get entitties for currently deselected
     let removedEnties = [];
     if (removedRows.size > 0) {
-      removedEnties = manager.getEntitiesByIds(this.context.store.getState(), removedRows.toArray());
+      removedEnties = manager.getEntitiesByIds(this.props._state, removedRows.toArray());
     }
     let modalContent = null;
     if (backendBulkAction && backendBulkAction.longRunningTaskId) {
@@ -1277,32 +1285,33 @@ AdvancedTable.defaultProps = {
   initialReload: true,
   hover: true
 };
-AdvancedTable.contextTypes = {
-  ...Basic.AbstractContextComponent.contextTypes,
-  router: PropTypes.object // .isRequired
-};
 
-function select(state, component) {
-  const uiKey = component.manager.resolveUiKey(component.uiKey);
-  const ui = state.data.ui[uiKey];
-  const result = {
-    i18nReady: state.config.get('i18nReady'),
-    appShowId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.id', null),
-    showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false)
-  };
-  //
-  if (!ui) {
-    return result;
+const makeMapStateToProps = () => {
+  const selectEntitiesSelector = selectEntities();
+  const mapStateToProps = function select(state, component) {
+    const uiKey = component.manager.resolveUiKey(component.uiKey);
+    const ui = state.data.ui[uiKey];
+    const result = {
+      i18nReady: state.config.get('i18nReady'),
+      appShowId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.id', null),
+      showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false)
+    };
+    //
+    if (!ui) {
+      return result;
+    }
+    return {
+      ...result,
+      _showLoading: ui.showLoading,
+      _entities: selectEntitiesSelector(state, component),
+      _total: ui.total,
+      _searchParameters: ui.searchParameters,
+      _error: ui.error,
+      _backendBulkActions: component.manager.supportsBulkAction() ? DataManager.getData(state, component.manager.getUiKeyForBulkActions()) : null,
+      _isDevelopment: ConfigurationManager.getEnvironmentStage(state) === 'development'
+    };
   }
-  return {
-    ...result,
-    _showLoading: ui.showLoading,
-    _entities: component.manager.getEntities(state, uiKey),
-    _total: ui.total,
-    _searchParameters: ui.searchParameters,
-    _error: ui.error,
-    _backendBulkActions: component.manager.supportsBulkAction() ? DataManager.getData(state, component.manager.getUiKeyForBulkActions()) : null
-  };
+return mapStateToProps;
 }
 
-export default connect(select, null, null, { forwardRef: true})(AdvancedTable);
+export default connect(makeMapStateToProps, null, null, { forwardRef: true})(AdvancedTable);

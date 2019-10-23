@@ -21,12 +21,12 @@ export default class RoleCompositions extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-compositions', this.props.params);
+    return this.getRequestNavigationKey('role-compositions', this.props.match.params);
   }
 
   render() {
-    const forceSuperiorSearchParameters = new SearchParameters().setFilter('subId', this.props.params.entityId);
-    const forceSubSearchParameters = new SearchParameters().setFilter('superiorId', this.props.params.entityId);
+    const forceSuperiorSearchParameters = new SearchParameters().setFilter('subId', this.props.match.params.entityId);
+    const forceSubSearchParameters = new SearchParameters().setFilter('superiorId', this.props.match.params.entityId);
     //
     return (
       <div>
@@ -37,14 +37,14 @@ export default class RoleCompositions extends Basic.AbstractContent {
           uiKey="role-composition-superior-table"
           forceSearchParameters={ forceSuperiorSearchParameters }
           className="no-margin"
-          params={ this.props.params }/>
+          match={ this.props.match }/>
 
         <Basic.ContentHeader icon="component:sub-roles" text={ this.i18n('sub.header') } style={{ marginBottom: 0 }}/>
         <RoleCompositionTable
           uiKey="role-composition-sub-table"
           forceSearchParameters={ forceSubSearchParameters }
           className="no-margin"
-          params={ this.props.params }/>
+          match={ this.props.match }/>
       </div>
     );
   }

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import TreeNodeSelect from '../TreeNodeSelect/TreeNodeSelect';
 
 /**
+ * @todo-upgrade-10 - Remove this class - use TreeNodeSelect instead
  * Tree node select used in filters
  *
  * @author Radek Tomiška

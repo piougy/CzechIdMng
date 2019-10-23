@@ -25,29 +25,29 @@ class RoleFormAttributes extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-form-attributes', this.props.params);
+    return this.getRequestNavigationKey('role-form-attributes', this.props.match.params);
   }
 
   componentDidMount() {
     super.componentDidMount();
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
 
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    roleManager = this.getRequestManager(this.props.params, new RoleManager());
+    roleManager = this.getRequestManager(this.props.match.params, new RoleManager());
 
     this.context.store.dispatch(roleManager.fetchEntity(entityId, null, (entity, error) => {
       this.handleError(error);
     }));
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
-    if ((nextProps.params && this.props.params && nextProps.params.requestId !== this.props.params.requestId)
+    if ((nextProps.match.params && this.props.match.params && nextProps.match.params.requestId !== this.props.match.params.requestId)
       || (nextProps.entity && nextProps.entity !== entity)) {
       // Init manager - evaluates if we want to use standard (original) manager or
       // universal request manager (depends on existing of 'requestId' param)
-      roleManager = this.getRequestManager(nextProps.params, new RoleManager());
+      roleManager = this.getRequestManager(nextProps.match.params, new RoleManager());
     }
   }
 
@@ -83,13 +83,13 @@ class RoleFormAttributes extends Basic.AbstractContent {
       //
       this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       if (afterAction === 'CLOSE') {
-        this.context.router.replace(this.addRequestPrefix('roles', this.props.params));
+        this.context.history.replace(this.addRequestPrefix('roles', this.props.match.params));
       }
     });
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('role', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('role', this.props.match.params.entityId);
     const { entity, showLoading, _permissions} = this.props;
     const _showLoading = showLoading;
     if (!roleManager || !entity) {
@@ -137,7 +137,7 @@ class RoleFormAttributes extends Basic.AbstractContent {
             forceSearchParameters={ forceSearchParameters }
             className="no-margin"
             formDefinition={entity.identityRoleAttributeDefinition}
-            params={ this.props.params }/>
+            match={ this.props.match }/>
         </Basic.Div>
       </div>
     );
@@ -148,7 +148,7 @@ function select(state, component) {
   if (!roleManager) {
     return {};
   }
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: roleManager.getEntity(state, entityId),
     showLoading: roleManager.isShowLoading(state, null, entityId),

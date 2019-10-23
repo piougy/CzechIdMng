@@ -75,7 +75,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 
 /**
  * Accounts on target system
- * 
+ *
  * @author Radek Tomiška
  * @author svandav
  *
@@ -227,7 +227,7 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 
 	/**
 	 * Return only attributes for witch we have schema attribute definitions.
-	 * 
+	 *
 	 * @param fullObject
 	 * @param schemaAttributes
 	 * @return
@@ -249,7 +249,7 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 
 	/**
 	 * Find schema's attributes for the system id and schema name.
-	 * 
+	 *
 	 * @param systemId
 	 * @param schema
 	 *            - If is schema name null, then will used default '__ACCOUNT__'.
@@ -357,7 +357,7 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 
 	/**
 	 * Find executor for synchronization given entity type
-	 * 
+	 *
 	 * @param entityType
 	 * @return
 	 */

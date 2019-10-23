@@ -15,7 +15,7 @@ const manager = new ScriptManager();
 class Script extends Basic.AbstractContent {
 
   componentDidMount() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
       this.handleError(error);
@@ -33,8 +33,8 @@ class Script extends Basic.AbstractContent {
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.scripts.edit.header') }</small>
         </Basic.PageHeader>
 
-        <Advanced.TabPanel parentId="scripts" params={this.props.params}>
-          { this.props.children }
+        <Advanced.TabPanel parentId="scripts" match={ this.props.match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
       </div>
     );
@@ -51,7 +51,7 @@ Script.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId)

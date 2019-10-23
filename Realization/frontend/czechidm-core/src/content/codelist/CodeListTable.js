@@ -42,22 +42,22 @@ export class CodeListTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity) {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/code-lists/${uuidId}/detail?new=1`);
+      this.context.history.push(`/code-lists/${uuidId}/detail?new=1`);
     } else {
-      this.context.router.push('/code-lists/' + entity.id + '/detail');
+      this.context.history.push('/code-lists/' + entity.id + '/detail');
     }
   }
 

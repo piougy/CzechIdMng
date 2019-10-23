@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
@@ -53,7 +53,7 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
                 .setFilter('addEavMetadata', true)
             }
             showAddButton={ false }
-            params={{ ...this.props.params, entityId }}
+            match={{params: { ...this.props.match.params, entityId }}}
             columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole', 'contractPosition']) }
             _permissions={ permissions }/>
         </Basic.Panel>

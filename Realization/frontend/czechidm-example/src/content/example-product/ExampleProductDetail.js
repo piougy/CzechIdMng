@@ -42,7 +42,7 @@ class ExampleProductDetail extends Basic.AbstractContent {
    * Component will receive new props, try to compare with actual,
    * then init form
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
     if (entity && entity.id !== nextProps.entity.id) {
       this.refs.form.setData(nextProps.entity);
@@ -100,9 +100,9 @@ class ExampleProductDetail extends Basic.AbstractContent {
       //
       if (afterAction === 'CLOSE') {
         // reload options with remote connectors
-        this.context.router.replace(`example/products`);
+        this.context.history.replace(`/example/products`);
       } else {
-        this.context.router.replace(`example/product/${ entity.id }/detail`);
+        this.context.history.replace(`/example/product/${ entity.id }/detail`);
       }
     });
   }
@@ -164,7 +164,7 @@ class ExampleProductDetail extends Basic.AbstractContent {
             </Basic.PanelBody>
 
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={ this.context.router.goBack }>{ this.i18n('button.back') }</Basic.Button>
+              <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>{ this.i18n('button.back') }</Basic.Button>
 
               <Basic.SplitButton
                 level="success"

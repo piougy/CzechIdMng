@@ -12,7 +12,7 @@ import AbstractContextComponent from '../AbstractContextComponent/AbstractContex
  */
 export class FlashMessages extends AbstractContextComponent {
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const unprocessedMessages = this._getUnproccessedMessages(nextProps.messages, this.props.messages);
     unprocessedMessages.added.map(message => {
       this._showMessage(message);
@@ -157,9 +157,6 @@ FlashMessages.propTypes = {
 FlashMessages.defaultProps = {
   maxShown: 4
 };
-FlashMessages.contextTypes = {
-  store: PropTypes.object.isRequired
-};
 
 // Which props do we want to inject, given the global state?
 // Note: use https://github.com/faassen/reselect for better performance.
@@ -170,5 +167,5 @@ function select(state) {
 }
 
 // Wrap the component to inject dispatch and state into it
-// this.refs.form.getWrappedInstance().submit() - could call connected instance
+// this.refs.form.submit() - could call connected instance
 export default connect(select)(FlashMessages);

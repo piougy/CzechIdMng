@@ -59,8 +59,8 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
             this.addError(error);
           }
         } else {
-          this.refs.table.getWrappedInstance().reload();
-          this._showValidateSystemMessage(this.props.params.mappingId);
+          this.refs.table.reload();
+          this._showValidateSystemMessage(this.props.match.params.mappingId);
         }
       }));
     }, () => {
@@ -74,15 +74,15 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     const objectClassId = this.props._mapping.objectClass.id;
     if (add) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/system/${systemId}/attribute-mappings/${uuidId}/new?new=1&mappingId=${mappingId}&objectClassId=${objectClassId}`);
+      this.context.history.push(`/system/${systemId}/attribute-mappings/${uuidId}/new?new=1&mappingId=${mappingId}&objectClassId=${objectClassId}`);
     } else {
-      this.context.router.push(`/system/${systemId}/attribute-mappings/${entity.id}/detail`);
+      this.context.history.push(`/system/${systemId}/attribute-mappings/${entity.id}/detail`);
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { mappingId } = nextProps.params;
-    if (mappingId && mappingId !== this.props.params.mappingId) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { mappingId } = nextProps.match.params;
+    if (mappingId && mappingId !== this.props.match.params.mappingId) {
       this._initComponent(nextProps);
     }
   }
@@ -97,7 +97,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityId, mappingId } = props.params;
+    const { entityId, mappingId } = props.match.params;
 
     // fetch system
     this.context.store.dispatch(systemManager.fetchEntity(entityId));
@@ -147,14 +147,14 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
       this.context.store.dispatch(systemMappingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
         if (!error && this.refs.table) {
-          this.refs.table.getWrappedInstance().reload();
+          this.refs.table.reload();
         }
       }));
     } else {
       this.context.store.dispatch(systemMappingManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
     }
     if (!this._getIsNew()) {
-      this._showValidateSystemMessage(this.props.params.mappingId);
+      this._showValidateSystemMessage(this.props.match.params.mappingId);
     }
   }
 
@@ -165,8 +165,8 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', {entityType: entity.entityType, operationType: entity.operationType}) });
       }
-      const { entityId } = this.props.params;
-      this.context.router.replace(`/system/${entityId}/mappings/${entity.id}/detail`, { mappingId: entity.id });
+      const { entityId } = this.props.match.params;
+      this.context.history.replace(`/system/${entityId}/mappings/${entity.id}/detail`, { mappingId: entity.id });
     } else {
       this.addError(error);
     }
@@ -245,7 +245,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
       isSelectedProvisioning = true;
     }
 
-    const systemId = this.props.params.entityId;
+    const systemId = this.props.match.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemMappingId', _mapping ? _mapping.id : Domain.SearchParameters.BLANK_UUID);
     const objectClassSearchParameters = new Domain.SearchParameters().setFilter('systemId', systemId ? systemId : Domain.SearchParameters.BLANK_UUID);
 
@@ -320,7 +320,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
                   <Basic.Button type="button" level="link"
-                    onClick={this.context.router.goBack}
+                    onClick={this.context.history.goBack}
                     showLoading={_showLoading}>
                     {this.i18n('button.back')}
                   </Basic.Button>
@@ -441,7 +441,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                   </Basic.AbstractForm>
                   <Basic.PanelFooter>
                     <Basic.Button type="button" level="link"
-                      onClick={this.context.router.goBack}
+                      onClick={this.context.history.goBack}
                       showLoading={_showLoading}>
                       {this.i18n('button.back')}
                     </Basic.Button>
@@ -470,7 +470,7 @@ SystemMappingDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { mappingId, entityId } = component.params;
+  const { mappingId, entityId } = component.match.params;
   const entity = Utils.Entity.getEntity(state, systemMappingManager.getEntityType(), mappingId);
   const system = systemManager.getEntity(state, entityId);
 

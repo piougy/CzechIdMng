@@ -25,7 +25,7 @@ class ConfidentialStorageValueContent extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('confidential-storage');
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
 
     this.getLogger().debug(`[ConfidentialStorageValueContent] loading entity detail [id:${entityId}]`);
     this.context.store.dispatch(confidentialStorageValueManager.fetchEntity(entityId));
@@ -67,7 +67,7 @@ ConfidentialStorageValueDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     entity: confidentialStorageValueManager.getEntity(state, entityId),

@@ -68,7 +68,7 @@ class Confirm extends AbstractContextComponent {
     }, () => {
       if (focus) {
         focus();
-      } else {
+      } else if (this.refs.yesButton) {
         this.refs.yesButton.focus();
       }
     });

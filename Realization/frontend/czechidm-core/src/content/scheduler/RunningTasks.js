@@ -86,11 +86,11 @@ class RunningTasks extends Basic.AbstractContent {
               :
               <div>
                 {
-                  _entities.map(entity => {
+                  [..._entities.map(entity => {
                     return (
                       <Advanced.LongRunningTask entity={ entity } />
                     );
-                  })
+                  }).values()]
                 }
               </div>
             }

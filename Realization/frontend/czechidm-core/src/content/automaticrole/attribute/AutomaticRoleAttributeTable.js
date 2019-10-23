@@ -37,14 +37,14 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -66,15 +66,15 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
       if (roleId) {
-        this.context.router.push(`/role/${roleId}/automatic-roles/attributes/${entityId}/new?new=1`);
+        this.context.history.push(`/role/${roleId}/automatic-roles/attributes/${entityId}/new?new=1`);
       } else {
-        this.context.router.push(`/automatic-role/attributes/${uuidId}/new?new=1`);
+        this.context.history.push(`/automatic-role/attributes/${uuidId}/new?new=1`);
       }
     } else {
       if (roleId) {
-        this.context.router.push(`/role/${roleId}/automatic-roles/attributes/${entityId}/detail`);
+        this.context.history.push(`/role/${roleId}/automatic-roles/attributes/${entityId}/detail`);
       } else {
-        this.context.router.push('/automatic-role/attributes/' + entity.id);
+        this.context.history.push('/automatic-role/attributes/' + entity.id);
       }
     }
   }
@@ -107,7 +107,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
 
   afterDelete() {
     super.afterDelete();
-    this.refs['automatic-role-requests-table'].getWrappedInstance().reload();
+    this.refs['automatic-role-requests-table'].reload();
   }
 
   _createNewRequest(event, roleId) {
@@ -115,7 +115,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     const uuidId = uuid.v1();
-    this.context.router.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${roleId}`);
+    this.context.history.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${roleId}`);
   }
 
   _showCreateDetail(event) {
@@ -148,7 +148,7 @@ export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
     }
     const roleId = this.refs.role.getValue();
     const uuidId = uuid.v1();
-    this.context.router.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${roleId}`);
+    this.context.history.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${roleId}`);
   }
 
   /**

@@ -59,7 +59,7 @@ class IdentityProvisioningOperations extends Advanced.AbstractTableContent {
 
 function select(state, component) {
   return {
-    entity: identityManager.getEntity(state, component.params.entityId)
+    entity: identityManager.getEntity(state, component.match.params.entityId)
   };
 }
 

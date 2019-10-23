@@ -30,7 +30,7 @@ class ChangePermissionDashboardButton extends Advanced.AbstractIdentityDashboard
     const { identity } = this.props;
     //
     const uuidId = uuid.v1();
-    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
+    this.context.history.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
   }
 }
 

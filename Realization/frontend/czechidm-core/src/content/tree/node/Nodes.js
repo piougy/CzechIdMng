@@ -42,7 +42,7 @@ class Nodes extends Basic.AbstractContent {
         const isNoType = !types || types._embedded.treeTypes.length === 0 ? true : false;
 
         if (types && !isNoType) {
-          this.props.history.push('/tree/nodes/', { type: types._embedded.treeTypes[0].id });
+          this.context.history.push('/tree/nodes/', { type: types._embedded.treeTypes[0].id });
         }
 
         this.setState({
@@ -81,7 +81,7 @@ class Nodes extends Basic.AbstractContent {
     }
     //
     const uuidId = uuid.v1();
-    this.context.router.push(`/tree/types/${uuidId}?new=1`);
+    this.context.history.push(`/tree/types/${uuidId}?new=1`);
   }
 
   render() {

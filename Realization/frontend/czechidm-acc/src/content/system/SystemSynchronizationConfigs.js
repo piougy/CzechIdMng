@@ -43,7 +43,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     return 'system-synchronization-configs';
   }
 
-  componentWillReceiveProps(props) {
+  UNSAFE_componentWillReceiveProps(props) {
     this._initComponent(props);
   }
 
@@ -61,7 +61,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
   }
 
   _initComponent(props) {
-    const { entityId } = props.params;
+    const { entityId } = props.match.params;
     if (!this.state.longPollingInprogress && this._isLongPollingEnabled()) {
       // Long-polling request can be send.
       this.setState({longPollingInprogress: true}, () => {
@@ -75,7 +75,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
   }
 
   _toggleAutomaticRefresh() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const canSendLongPollingRequest = this.canSendLongPollingRequest;
 
     this.canSendLongPollingRequest = !canSendLongPollingRequest;
@@ -97,23 +97,23 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
   }
 
   _refreshAll(props = null) {
-    this.refs.table.getWrappedInstance().reload(props);
+    this.refs.table.reload(props);
   }
 
   showDetail(entity, add) {
-    const systemId = this.props.params.entityId;
+    const systemId = this.props.match.params.entityId;
     if (add) {
       // When we add new object class, then we need use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`system/${systemId}/synchronization-configs/${uuidId}/new?new=1&systemId=${systemId}`);
+      this.context.history.push(`/system/${systemId}/synchronization-configs/${uuidId}/new?new=1&systemId=${systemId}`);
     } else {
-      this.context.router.push(`system/${systemId}/synchronization-configs/${entity.id}/detail`);
+      this.context.history.push(`/system/${systemId}/synchronization-configs/${entity.id}/detail`);
     }
   }
 
   _redirectToLastLog(entity) {
-    const systemId = this.props.params.entityId;
-    this.context.router.push(`system/${systemId}/synchronization-logs/${entity.lastSyncLog.id}/detail`);
+    const systemId = this.props.match.params.entityId;
+    this.context.history.push(`/system/${systemId}/synchronization-logs/${entity.lastSyncLog.id}/detail`);
   }
 
   _startSynchronization(bulkActionValue, sync, event) {
@@ -144,7 +144,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
           }, () => {
             this.addError(ex);
             if (this.refs.table) {
-              this.refs.table.getWrappedInstance().reload();
+              this.refs.table.reload();
             }
           });
         });
@@ -171,7 +171,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
             showLoading: false
           }, () => {
             if (this.refs.table) {
-              this.refs.table.getWrappedInstance().reload();
+              this.refs.table.reload();
             }
             this.addMessage({ message: this.i18n('action.cancelSynchronization.canceled', { name: json.name }) });
           });
@@ -181,7 +181,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
           }, () => {
             this.addError(ex);
             if (this.refs.table) {
-              this.refs.table.getWrappedInstance().reload();
+              this.refs.table.reload();
             }
           });
         });
@@ -311,7 +311,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const forceSearchParameters = new Domain.SearchParameters()
       .setFilter('systemId', entityId)
       .setFilter('includeLastLog', true);
@@ -421,7 +421,7 @@ SystemSynchronizationConfigs.defaultProps = {
 function select(state, component) {
   return {
     i18nReady: state.config.get('i18nReady'),
-    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
+    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.match.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
     _longPollingEnabled: Managers.ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.long-polling.enabled', true)
   };

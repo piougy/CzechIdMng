@@ -34,14 +34,14 @@ class ScriptReferences extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   showDetail(entity, event) {
@@ -53,9 +53,9 @@ class ScriptReferences extends Basic.AbstractContent {
     // this is necessary for ScriptDetail
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/scripts/${uuidId}?new=1`);
+      this.context.history.push(`/scripts/${uuidId}?new=1`);
     } else {
-      this.context.router.push(`/scripts/${entity.id}/detail`);
+      this.context.history.push(`/scripts/${entity.id}/detail`);
     }
   }
 
@@ -97,8 +97,8 @@ ScriptReferences.defaultProps = {
 
 function select(state, component) {
   return {
-    _entity: scriptManager.getEntity(state, component.params.entityId),
-    _permissions: scriptManager.getPermissions(state, null, component.params.entityId),
+    _entity: scriptManager.getEntity(state, component.match.params.entityId),
+    _permissions: scriptManager.getPermissions(state, null, component.match.params.entityId),
   };
 }
 

@@ -32,8 +32,8 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
   getManager() {
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    manager = this.getRequestManager(this.props.params, manager);
-    roleManager = this.getRequestManager(this.props.params, roleManager);
+    manager = this.getRequestManager(this.props.match.params, manager);
+    roleManager = this.getRequestManager(this.props.match.params, roleManager);
     return manager;
   }
 

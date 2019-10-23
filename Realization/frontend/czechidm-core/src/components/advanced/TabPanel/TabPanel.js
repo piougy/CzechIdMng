@@ -18,11 +18,11 @@ class TabPanel extends Basic.AbstractContextComponent {
 
   getNavigationItems() {
     const { navigation, userContext, parentId, selectedNavigationItems } = this.props;
-    const { params } = this.props;
+    const { match } = this.props;
     //
-    return getNavigationItems(navigation, parentId, null, userContext, params).map(item => {
+    return [...getNavigationItems(navigation, parentId, null, userContext, match.params).map(item => {
       // resolve label
-      const labelParams = resolveNavigationParameters(userContext, params);
+      const labelParams = resolveNavigationParameters(userContext, match.params);
       labelParams.defaultValue = item.label;
       let label = item.label;
       if (item.labelKey) {
@@ -54,7 +54,7 @@ class TabPanel extends Basic.AbstractContextComponent {
           return null;
         }
       }
-    });
+    }).values()];
   }
 
   render() {

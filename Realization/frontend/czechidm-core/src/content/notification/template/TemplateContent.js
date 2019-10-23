@@ -29,7 +29,7 @@ class TemplateContent extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('notification-templates');
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const isNew = this._getIsNew();
     if (isNew) {
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
@@ -85,7 +85,7 @@ TemplateContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   //
   return {
     template: manager.getEntity(state, entityId),

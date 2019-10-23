@@ -35,7 +35,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
   componentDidMount() {
     this.selectNavigationItems(['sys-systems', 'system-connector']);
     // load definition and values
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     this.context.store.dispatch(manager.fetchAvailableFrameworks());
     this.context.store.dispatch(manager.fetchAvailableRemoteConnector(entityId, (remoteConnectors, error) => {
       if (error) {
@@ -95,8 +95,8 @@ class SystemConnectorContent extends Basic.AbstractContent {
   }
 
   showDetail() {
-    const { entityId } = this.props.params;
-    this.context.router.push(`/system/${entityId}/detail`);
+    const { entityId } = this.props.match.params;
+    this.context.history.push(`/system/${entityId}/detail`);
   }
 
   saveConnector(value, event) {
@@ -192,7 +192,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
       return;
     }
     //
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const filledFormValues = this.refs.eav.getValues();
     this.getLogger().debug(`[EavForm]: Saving form [${this.refs.eav.getFormDefinition().type}|${this.refs.eav.getFormDefinition().name}]`);
     // save values
@@ -233,7 +233,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
         return;
       }
       //
-      const { entityId } = this.props.params;
+      const { entityId } = this.props.match.params;
       const filledFormValues = this.refs.poolingEav.getValues();
       this.getLogger().debug(`[EavForm]: Saving form [${this.refs.poolingEav.getFormDefinition().type}|${this.refs.poolingEav.getFormDefinition().name}]`);
       // save values
@@ -413,7 +413,7 @@ SystemConnectorContent.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),

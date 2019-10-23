@@ -47,7 +47,7 @@ class BasicForm extends AbstractForm {
     <Button type="button" level="success" disabled = {this.state.disableBtns} onClick={this.save}>{this.i18n('button.save')}</Button> :
     <Button type="button" level="success" disabled = {this.state.disableBtns} onClick={this.create}>{this.i18n('button.create')}</Button>;
     return (<div className="panel-footer">
-      <Button type="button" level="link" onClick={this.context.router.goBack}>
+      <Button type="button" level="link" onClick={this.context.history.goBack}>
         {this.i18n('button.back')}
       </Button>
       {modifyBtn}

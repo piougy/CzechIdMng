@@ -57,7 +57,7 @@ class IdentityDashboard extends Basic.AbstractContent {
   }
 
   getIdentityIdentifier() {
-    const { entityId } = this.props.params;
+    const { entityId } = this.props.match.params;
     const { userContext } = this.props;
     //
     if (entityId) {
@@ -71,7 +71,7 @@ class IdentityDashboard extends Basic.AbstractContent {
   }
 
   onIdentityDetail() {
-    this.context.router.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/profile`);
+    this.context.history.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/profile`);
   }
 
   /**
@@ -85,7 +85,7 @@ class IdentityDashboard extends Basic.AbstractContent {
   }
 
   onPasswordChange() {
-    this.context.router.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/password/change`);
+    this.context.history.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/password/change`);
   }
 
   /**
@@ -103,7 +103,7 @@ class IdentityDashboard extends Basic.AbstractContent {
     const identity = identityManager.getEntity(this.context.store.getState(), this.getIdentityIdentifier());
     //
     const uuidId = uuid.v1();
-    this.context.router.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
+    this.context.history.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
   }
 
   render() {
@@ -120,6 +120,32 @@ class IdentityDashboard extends Basic.AbstractContent {
         <Basic.Loading isStatic show/>
       );
     }
+    const buttonsMap = componentService
+      .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE)
+      .map(component => {
+        const DashboardButtonComponent = component.component;
+        return (
+          <DashboardButtonComponent
+            key={`${ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE}-${component.id}`}
+            entityId={ identity.username }
+            identity={ identity }
+            permissions={ _permissions }/>
+        );
+      });
+
+    const dashboardsMap = componentService
+      .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE)
+      .filter(component => !this.isDashboard() || component.dashboard !== false)
+      .map(component => {
+        const DashboardComponent = component.component;
+        return (
+          <DashboardComponent
+            key={`${ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE}-${component.id}`}
+            entityId={ identity.username }
+            identity={ identity }
+            permissions={ _permissions }/>
+        );
+      });
     //
     return (
       <Basic.Div>
@@ -149,34 +175,11 @@ class IdentityDashboard extends Basic.AbstractContent {
 
         <Basic.Div style={{ paddingBottom: 15 }}>
           {
-            componentService
-              .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE)
-              .map(component => {
-                const DashboardButtonComponent = component.component;
-                return (
-                  <DashboardButtonComponent
-                    key={`${ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE}-${component.id}`}
-                    entityId={ identity.username }
-                    identity={ identity }
-                    permissions={ _permissions }/>
-                );
-              })
+            [...buttonsMap.values()]
           }
         </Basic.Div>
         {
-          componentService
-            .getComponentDefinitions(ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE)
-            .filter(component => !this.isDashboard() || component.dashboard !== false)
-            .map(component => {
-              const DashboardComponent = component.component;
-              return (
-                <DashboardComponent
-                  key={`${ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE}-${component.id}`}
-                  entityId={ identity.username }
-                  identity={ identity }
-                  permissions={ _permissions }/>
-              );
-            })
+          [...dashboardsMap.values()]
         }
       </Basic.Div>
     );
@@ -192,7 +195,7 @@ IdentityDashboard.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityId } = component.params;
+  const { entityId } = component.match.params;
   const profileUiKey = identityManager.resolveProfileUiKey(entityId);
   const profile = DataManager.getData(state, profileUiKey);
   //

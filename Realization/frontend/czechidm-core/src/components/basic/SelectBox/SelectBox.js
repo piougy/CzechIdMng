@@ -44,8 +44,8 @@ class SelectBox extends AbstractFormComponent {
     return 'component.basic.SelectBox';
   }
 
-  componentWillReceiveProps(nextProps) {
-    super.componentWillReceiveProps(nextProps);
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    super.UNSAFE_componentWillReceiveProps(nextProps);
     const { forceSearchParameters} = nextProps;
     if (!SearchParameters.is(forceSearchParameters, this.props.forceSearchParameters)) {
       this._initComponent(nextProps);

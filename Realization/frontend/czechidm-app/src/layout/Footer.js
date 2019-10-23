@@ -16,7 +16,7 @@ class Footer extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.router.replace('/about');
+    this.context.history.replace('/about');
   }
 
   /**

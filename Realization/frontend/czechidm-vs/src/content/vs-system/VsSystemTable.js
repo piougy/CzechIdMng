@@ -41,7 +41,7 @@ export default class VsSystemTable extends SystemTable {
       this.addMessage({ message: this.i18n('vs:content.vs-system.action.create.success', { system: json.name }) });
       this.setState({showLoading: false, show: false});
       this.context.store.dispatch(systemManager.receiveEntity(json.id, json, null, ()=> {
-        this.context.router.push(`/system/${json.id}/detail`);
+        this.context.history.push(`/system/${json.id}/detail`);
       }));
     })
     .catch(error => {

@@ -36,7 +36,7 @@ export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
   getManager() {
     // Init manager - evaluates if we want to use standard (original) manager or
     // universal request manager (depends on existing of 'requestId' param)
-    manager = this.getRequestManager(this.props.params, new RoleSystemAttributeManager());
+    manager = this.getRequestManager(this.props.match.params, new RoleSystemAttributeManager());
     return manager;
   }
 
@@ -52,9 +52,9 @@ export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
     if (!add) {
       entityId = this.props.isSystemMenu ? entity._embedded.roleSystem.system : entity._embedded.roleSystem.role;
     } else {
-      entityId = this.props.params.entityId;
+      entityId = this.props.match.params.entityId;
     }
-    let roleSystem = this.props.params.roleSystemId;
+    let roleSystem = this.props.match.params.roleSystemId;
     if (!roleSystem && entity._embedded && entity._embedded.roleSystem) {
       roleSystem = entity._embedded.roleSystem.id;
     }
@@ -64,9 +64,9 @@ export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
     if (add) {
       // When we add new object class, then we need id of role as parametr and use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`${this.addRequestPrefix(linkMenu, this.props.params)}/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
+      this.context.history.push(`${this.addRequestPrefix(linkMenu, this.props.match.params)}/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
     } else {
-      this.context.router.push(`${this.addRequestPrefix(linkMenu, this.props.params)}/${entity.id}/detail`);
+      this.context.history.push(`${this.addRequestPrefix(linkMenu, this.props.match.params)}/${entity.id}/detail`);
     }
   }
 

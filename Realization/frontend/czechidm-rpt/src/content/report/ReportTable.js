@@ -69,7 +69,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+    this.refs.table.useFilterForm(this.refs.filterForm);
   }
 
   /**
@@ -79,7 +79,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -180,7 +180,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
       return;
     }
     this.addMessage({ level: 'info', message: this.i18n('action.report-create.success', { record: this.getManager().getNiceLabel(entity) }) });
-    this.refs.table.getWrappedInstance().reload();
+    this.refs.table.reload();
     this.closeDetail();
   }
 
@@ -217,7 +217,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
     return (
       <span>
         {
-          enabledRenderers.map(renderer => {
+          [...enabledRenderers.map(renderer => {
             return (
               <a
                 key={ `rep-${renderer.id}-${entity.id}` }
@@ -230,7 +230,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
                 { renderer.description }
               </a>
             );
-          })
+          }).values()]
         }
       </span>
     );

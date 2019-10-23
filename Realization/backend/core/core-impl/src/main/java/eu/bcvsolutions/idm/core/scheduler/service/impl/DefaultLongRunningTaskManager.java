@@ -46,7 +46,7 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
- * 
+ *
  * @author Radek Tomiška
  *
  */
@@ -60,7 +60,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	private final EntityEventManager entityEventManager;
 	//
 	@Autowired private AttachmentManager attachmentManager;
-	
+
 	@Autowired
 	public DefaultLongRunningTaskManager(
 			IdmLongRunningTaskService service,
@@ -80,7 +80,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		this.configurationService = configurationService;
 		this.securityService = securityService;
 	}
-	
+
 	/**
 	 * Cancel all previously ran tasks
 	 */
@@ -103,7 +103,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			.find(filter, null)
 			.forEach(this::cancelTaskByRestart);
 	}
-	
+
 	/**
 	 * Schedule {@link #processCreated()} only
 	 */
@@ -144,7 +144,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public LongRunningFutureTask<?> processCreated(UUID longRunningTaskId) {
 		LOG.debug("Processing created task [{}] from long running task queue", longRunningTaskId);
 		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
-		// task cannot be started twice  
+		// task cannot be started twice
 		if (task.isRunning() || OperationState.RUNNING == task.getResultState()) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", task.getId()));
 		}
@@ -158,7 +158,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		}
 		return execute(taskExecutor);
 	}
-	
+
 	@Override
 	@Transactional
 	public synchronized <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
@@ -175,7 +175,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
-		// persist LRT as running => prevent to scheduler process the created tasks 
+		// persist LRT as running => prevent to scheduler process the created tasks
 		taskExecutor.validate(persistTask(taskExecutor, OperationState.RUNNING));
 		//
 		LongRunningFutureTask<V> longRunnigFutureTask = new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(taskExecutor));
@@ -184,11 +184,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		return longRunnigFutureTask;
 	}
-	
+
 	/**
-	 * Executes given initialized task asynchronously. 
+	 * Executes given initialized task asynchronously.
 	 * We need to wait to transaction commit, when asynchronous task is executed - data is prepared in previous transaction mainly
-	 * 
+	 *
 	 * @param futureTask
 	 */
 	@Transactional
@@ -219,7 +219,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			markTaskAsCreated(task);
 		}
 	}
-	
+
 	@Override
 	@Transactional
 	public <V> V executeSync(LongRunningTaskExecutor<V> taskExecutor) {
@@ -242,9 +242,9 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		try {
 			return taskExecutor.call();
 		} catch (Exception ex) {
-			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_FAILED,
 					ImmutableMap.of(
-							"taskId", task.getId(), 
+							"taskId", task.getId(),
 							"taskType", task.getTaskType(),
 							"instanceId", task.getInstanceId()), ex);
 		} finally {
@@ -260,10 +260,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		Assert.notNull(task, "Task is required.");
 		//
 		if (!OperationState.isRunnable(task.getResult().getState())) {
-			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING, 
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING,
 					ImmutableMap.of(
-							"taskId", longRunningTaskId, 
-							"taskType", task.getTaskType(), 
+							"taskId", longRunningTaskId,
+							"taskType", task.getTaskType(),
 							"instanceId", task.getInstanceId())
 					);
 		}
@@ -274,7 +274,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// running to false will be set by task himself
 		service.save(task);
 	}
-	
+
 	@Override
 	@Transactional
 	public boolean interrupt(UUID longRunningTaskId) {
@@ -282,18 +282,18 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
 		Assert.notNull(longRunningTaskId, "Task identifier is required.");
 		String instanceId = configurationService.getInstanceId();
-		if (!task.getInstanceId().equals(instanceId)) {			
-			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 
+		if (!task.getInstanceId().equals(instanceId)) {
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE,
 					ImmutableMap.of(
-							"taskId", longRunningTaskId, 
-							"taskInstanceId", task.getInstanceId(), 
+							"taskId", longRunningTaskId,
+							"taskInstanceId", task.getInstanceId(),
 							"currentInstanceId", instanceId));
 		}
 		if (OperationState.RUNNING != task.getResult().getState()) {
-			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING, 
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING,
 					ImmutableMap.of(
 							"taskId", longRunningTaskId,
-							"taskType", task.getTaskType(), 
+							"taskType", task.getTaskType(),
 							"instanceId", task.getInstanceId()));
 		}
 		//
@@ -301,9 +301,9 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
 		for (Thread thread : threadSet) {
 			if (thread.getId() == task.getThreadId()) {
-				ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INTERRUPT, 
+				ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INTERRUPT,
 						ImmutableMap.of(
-								"taskId", task.getId(), 
+								"taskId", task.getId(),
 								"taskType", task.getTaskType(),
 								"instanceId", task.getInstanceId()));
 				Exception ex = null;
@@ -321,7 +321,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				} else {
 					LOG.info("Long running task with id: [{}], has some exception during interrupt.", task.getId());
 					task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
-				}				
+				}
 				service.save(task);
 				return true;
 			}
@@ -329,7 +329,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		LOG.warn("For long running task with id: [{}], has not found running thread.", task.getId());
 		return false;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public IdmLongRunningTaskDto getLongRunningTask(UUID longRunningTaskId, BasePermission... permission) {
@@ -337,7 +337,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		return service.get(longRunningTaskId, permission);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public IdmLongRunningTaskDto getLongRunningTask(LongRunningTaskExecutor<?> taskExecutor, BasePermission... permission) {
@@ -346,7 +346,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		return getLongRunningTask(taskExecutor.getLongRunningTaskId());
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public IdmLongRunningTaskDto getLongRunningTask(LongRunningFutureTask<?> futureTask, BasePermission... permission) {
@@ -354,11 +354,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		return getLongRunningTask(futureTask.getExecutor(), permission);
 	}
-	
+
 	@Override
 	public boolean isAsynchronous() {
 		return configurationService.getBooleanValue(
-				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, 
+				SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED,
 				SchedulerConfiguration.DEFAULT_TASK_ASYNCHRONOUS_ENABLED);
 	}
 
@@ -388,7 +388,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 
 	/**
 	 * Prepares executor's LRT
-	 * 
+	 *
 	 * @param taskExecutor
 	 * @parem state - sync - RUNNING, async - CREATED => prevent to execute synchronous task twice by asynchronous processing
 	 * @return
@@ -400,13 +400,13 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task = new IdmLongRunningTaskDto();
 			task.setTaskType(AutowireHelper.getTargetType(taskExecutor));
 			task.setTaskProperties(taskExecutor.getProperties());
-			task.setTaskDescription(taskExecutor.getDescription());	
+			task.setTaskDescription(taskExecutor.getDescription());
 			task.setInstanceId(configurationService.getInstanceId());
 			task.setResult(new OperationResult.Builder(state).build());
 			// each LRT executed from the queue will have new transaction context
 			if (state == OperationState.CREATED) {
 				task.getTaskProperties().put(
-						LongRunningTaskExecutor.PARAMETER_TRANSACTION_CONTEXT, 
+						LongRunningTaskExecutor.PARAMETER_TRANSACTION_CONTEXT,
 						TransactionContextHolder.createEmptyContext()
 						);
 			}
@@ -418,13 +418,13 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		}
 		return task;
 	}
-	
+
 	/**
-	 * TODO: RUNNING state and running flag can look as redundant, but is not now - we need to flag them 
+	 * TODO: RUNNING state and running flag can look as redundant, but is not now - we need to flag them
 	 * from scheduler side (prevent to try execute prepared LRT twice) and thread side (physical run).
 	 * COS: more LRT than physical running are shown in agenda (depends on thread count configuration).
-	 * Rewrite LRT engine - use some library for batch processing (e.g. Spring batch).  
-	 * 
+	 * Rewrite LRT engine - use some library for batch processing (e.g. Spring batch).
+	 *
 	 * @param task
 	 * @return
 	 */
@@ -433,10 +433,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// LRT is saved in new transaction implicitly.
 		return service.save(task);
 	}
-	
+
 	/**
 	 * Task was rejected from thread poll (exhausted) - return task to prepared state.
-	 * 
+	 *
 	 * @param task
 	 * @return
 	 */
@@ -445,10 +445,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// LRT is saved in new transaction implicitly.
 		return service.save(task);
 	}
-	
+
 	/**
-	 * Returns executor's LRT task, when task is valid. Throws exception otherwise. 
-	 * 
+	 * Returns executor's LRT task, when task is valid. Throws exception otherwise.
+	 *
 	 * @param taskExecutor
 	 * @return
 	 */
@@ -457,17 +457,17 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		Assert.notNull(task, "Task is required.");
 		//
 		if (!task.getInstanceId().equals(configurationService.getInstanceId())) {
-			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE,
 					ImmutableMap.of("taskId", task.getId(), "taskInstanceId", task.getInstanceId(), "currentInstanceId", configurationService.getInstanceId()));
 		}
 		taskExecutor.validate(task);
 		return task;
 	}
-	
+
 	/**
 	 * Create new LongRunningTaskExecutor from given LRT.
 	 * Handles exceptions, when task already processed, task type is removed or task initialization failed
-	 * 
+	 *
 	 * @param task
 	 * @return
 	 */
@@ -514,15 +514,15 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			return taskExecutor;
 		}
 	}
-	
+
 	private void cancelTaskByRestart(IdmLongRunningTaskDto task) {
 		LOG.info("Cancel unprocessed long running task [{}] - tasks was interrupt during instance [{}] restart", task, task.getInstanceId());
 		task.setRunning(false);
-		ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_CANCELED_BY_RESTART, 
+		ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_CANCELED_BY_RESTART,
 				ImmutableMap.of(
-						"taskId", task.getId(), 
+						"taskId", task.getId(),
 						"taskType", task.getTaskType(),
-						"instanceId", task.getInstanceId()));			
+						"instanceId", task.getInstanceId()));
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
 		service.saveInternal(task);
 	}

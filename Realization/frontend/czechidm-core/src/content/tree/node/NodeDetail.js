@@ -97,9 +97,9 @@ class NodeDetail extends Basic.AbstractContent {
       //
       if (afterAction === 'CLOSE') {
         // go back to tree types or organizations
-        this.context.router.goBack();
+        this.context.history.goBack();
       } else {
-        this.context.router.replace(`/tree/nodes/${entity.id}/detail`);
+        this.context.history.replace(`/tree/nodes/${entity.id}/detail`);
       }
     });
   }
@@ -160,7 +160,7 @@ class NodeDetail extends Basic.AbstractContent {
             </Basic.PanelBody>
 
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" showLoading={_showLoading} onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button type="button" level="link" showLoading={_showLoading} onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
 
               <Basic.SplitButton
                 level="success"

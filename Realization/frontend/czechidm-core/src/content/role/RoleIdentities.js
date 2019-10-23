@@ -28,11 +28,11 @@ export default class RoleIdentities extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return this.getRequestNavigationKey('role-identities', this.props.params);
+    return this.getRequestNavigationKey('role-identities', this.props.match.params);
   }
 
   render() {
-    const forceSearchParameters = new SearchParameters().setFilter('role', this.props.params.entityId);
+    const forceSearchParameters = new SearchParameters().setFilter('role', this.props.match.params.entityId);
     const columns = _.difference(IdentityTable.defaultProps.columns, ['username']);
     columns.push('entityInfo');
     //

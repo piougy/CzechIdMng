@@ -59,7 +59,7 @@ function fillRouteMap(routesMap, moduleId, parentRouteId, route) {
   const clonedRoute = {
     id: routeId,
     parentId: parentRouteId,
-    module: route.module,
+    module: route.module || moduleId,
     access: route.access || [{ type: 'IS_AUTHENTICATED' }],
     component: route.component,
     path: route.path,
@@ -110,7 +110,10 @@ function routeFixer(route) {
       if (childRoute.path) {
         const path = trimSlash(childRoute.path);
         const pathElements = path.split('/');
-        if (pathElements.length > 1 && (!firstElement || firstElement === pathElements[0])) {
+        if (!firstElement) {
+          firstElement = pathElements[0];
+        }
+        if (pathElements.length > 1 && firstElement === pathElements[0]) {
           firstElement = pathElements[0];
           isSame = true;
         } else {

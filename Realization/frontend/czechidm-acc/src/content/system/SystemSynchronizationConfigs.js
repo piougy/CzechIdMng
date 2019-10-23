@@ -97,7 +97,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
   }
 
   _refreshAll(props = null) {
-    this.refs.table.getWrappedInstance().reload(props);
+    this.refs.table.reload(props);
   }
 
   showDetail(entity, add) {

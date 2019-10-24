@@ -213,7 +213,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 			lastModified = dto.getCreated();
 		}
 
-		return lastModified.plus(2, ChronoUnit.MILLIS);
+		return lastModified.plus(1, ChronoUnit.MILLIS);
 	}
 
 	/**

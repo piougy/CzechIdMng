@@ -16,9 +16,15 @@ import org.modelmapper.ModelMapper;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventContext;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.event.processor.NeverEndingProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
@@ -93,8 +99,8 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testSaveValues() {
-		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
+		EventAnswer answer = new EventAnswer();
+		when(entityEventManager.process(any(), any())).thenAnswer(answer);
 		//
 		service.setValues("key", Lists.newArrayList(VALUE_ONE, VALUE_TWO, VALUE_THREE));
 		//
@@ -103,8 +109,8 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testSaveValuesWithNull() {
-		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
+		EventAnswer answer = new EventAnswer();
+		when(entityEventManager.process(any(), any())).thenAnswer(answer);
 		//
 		service.setValues("key", null);
 		//
@@ -113,8 +119,8 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testSaveValuesWithEmptyList() {
-		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
+		EventAnswer answer = new EventAnswer();
+		when(entityEventManager.process(any(), any())).thenAnswer(answer);
 		//
 		service.setValues("key", Lists.newArrayList());
 		//
@@ -123,8 +129,8 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testSaveValuesWithNullValue() {
-		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
+		EventAnswer answer = new EventAnswer();
+		when(entityEventManager.process(any(), any())).thenAnswer(answer);
 		//
 		String nullValue = null;
 		service.setValues("key", Lists.newArrayList(nullValue));
@@ -134,28 +140,26 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testSaveValuesWithNullValues() {
-		ConfigurationAnswer answer = new ConfigurationAnswer();
-		when(repository.saveAndFlush(any(IdmConfiguration.class))).thenAnswer(answer);
+		EventAnswer answer = new EventAnswer();
+		when(entityEventManager.process(any(), any())).thenAnswer(answer);
 		//
 		service.setValues("key", Lists.newArrayList(null, VALUE_ONE, null, null, VALUE_TWO, VALUE_THREE));
 		//
 		Assert.assertEquals(String.format("%s,%s,%s", VALUE_ONE, VALUE_TWO, VALUE_THREE), answer.getValue());
 	}
 	
-	/**
-	 * Simple repository save method listener
-	 * 
-	 * @author Radek Tomiška
-	 *
-	 */
-	private class ConfigurationAnswer implements Answer<IdmConfiguration> {
-
-		private IdmConfiguration configurationItem;
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private class EventAnswer implements Answer<EventContext> {
+		
+		private IdmConfigurationDto configurationItem;
 		
 		@Override
-		public IdmConfiguration answer(InvocationOnMock invocation) throws Throwable {
-			configurationItem = (IdmConfiguration) invocation.getArguments()[0];
-			return configurationItem;
+		public EventContext answer(InvocationOnMock invocation) throws Throwable {
+			EntityEvent event = (EntityEvent) invocation.getArguments()[0];
+			configurationItem = (IdmConfigurationDto) event.getContent();
+			DefaultEventContext eventContext = new DefaultEventContext();
+			eventContext.addResult(new DefaultEventResult(event, new NeverEndingProcessor()));
+			return eventContext;
 		}
 		
 		public String getValue() {

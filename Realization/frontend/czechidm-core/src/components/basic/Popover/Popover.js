@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import _ from 'lodash';
 import classnames from 'classnames';
+import { HashRouter as Router } from 'react-router-dom';
+import { Provider } from 'react-redux';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent';
+import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Icon from '../Icon/Icon';
 import Tooltip from '../Tooltip/Tooltip';
 
@@ -13,7 +15,7 @@ import Tooltip from '../Tooltip/Tooltip';
  *
  * @author Radek Tomiška
  */
-export default class BasicPopover extends AbstractComponent {
+export default class BasicPopover extends AbstractContextComponent {
 
   /**
    * Close popover
@@ -68,7 +70,6 @@ export default class BasicPopover extends AbstractComponent {
           <Popover
             id={_id}
             className={classNames}
-
             title={
               !title
               ?
@@ -90,7 +91,15 @@ export default class BasicPopover extends AbstractComponent {
               ?
               <Icon value="Refresh" showLoading/>
               :
-              _value
+              ( // @todo-upgrade-10 - I had to wrapp the value to the Redux provider and Router,
+                // because React-bootstrap Popover uses for generating value new instance of React.
+                // So Redux and Router wrapping doesn't work!
+              <Provider store={this.context.store}>
+                <Router>
+                  {_value}
+                </Router>
+              </Provider>
+              )
 
             }
           </Popover>
@@ -104,7 +113,7 @@ export default class BasicPopover extends AbstractComponent {
 }
 
 BasicPopover.propTypes = {
-  ...AbstractComponent.propTypes,
+  ...AbstractContextComponent.propTypes,
   /**
    * Popover identifier
    */
@@ -144,7 +153,7 @@ BasicPopover.propTypes = {
 };
 
 BasicPopover.defaultProps = {
-  ...AbstractComponent.defaultProps,
+  ...AbstractContextComponent.defaultProps,
   level: 'default',
   placement: 'bottom',
   trigger: ['hover', 'focus', 'click'],

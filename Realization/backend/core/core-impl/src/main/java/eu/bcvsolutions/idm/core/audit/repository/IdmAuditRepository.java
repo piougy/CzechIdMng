@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.core.audit.repository;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,36 +11,11 @@ import eu.bcvsolutions.idm.core.audit.entity.IdmAudit;
 
 /**
  * Audit - the center of the wheel.
- * 
- * @author Ond5ej Kopr
+ *
+ * @author Ondrej Kopr
  *
  */
 public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
-	
-	
-	/**
-	 * Query get previous version, from entity id and id current revision.
-	 * This method is @Deprecated please use {@link #getPreviousVersion(UUID, Long)}.
-	 *
-	 * @param entityId
-	 * @param revId
-	 * @param pageable
-	 * @return
-	 */
-	@Deprecated
-	@Query(value = "SELECT e "
-			+ "FROM "
-				+ "#{#entityName} e "
-			+ "WHERE "
-				+ "("
-					+ "e.entityId = :entityId "
-				+ ")"
-				+ " AND "
-				+ "("
-					+ " e.id < :revId "
-				+ ") "
-				+ " ORDER BY e.id DESC " )
-	Page<IdmAudit> getPreviousVersion(@Param(value = "entityId") UUID entityId, @Param(value = "revId") Long revId, Pageable pageable);
 
 	/**
 	 * Query get previous version, from entity id and id current revision.
@@ -59,7 +32,7 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
 					+ "e.id = (SELECT max(z.id) FROM #{#entityName} z where z.entityId = :entityId AND z.id < :revId)"
 				+ ") ")
 	IdmAudit getPreviousVersion(@Param(value = "entityId") UUID entityId, @Param(value = "revId") Long revId);
-	
+
 	@Query(value = "SELECT DISTINCT(e.ownerId) "
 			+ "FROM "
 				+ "#{#entityName} e "
@@ -67,12 +40,14 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit> {
 				+ ":ownerType = e.ownerType "
 			+ "AND "
 				+ ":ownerCode IS null or lower(e.ownerCode) like CONCAT('%', lower(:ownerCode), '%') " )
-	List<String> findDistinctOwnerIdByOwnerTypeAndOwnerCode(@Param(value = "ownerType") String ownerType, @Param(value = "ownerCode") String ownerCode);
-	
+	List<String> findDistinctOwnerIdByOwnerTypeAndOwnerCode(
+			@Param(value = "ownerType") String ownerType,
+			@Param(value = "ownerCode") String ownerCode);
+
 	/**
 	 * Find one {@link IdmAudit} by ID. There can't be used normal method findOne.
 	 * {@link IdmAudit} has long identifier not UUID.
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */

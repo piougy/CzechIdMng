@@ -7,11 +7,11 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
 /**
  * Wrapper for deferred request and additional information
- * 
+ *
  * @author Vít Švanda
  *
  */
-public class LongPollingSubscriber{
+public class LongPollingSubscriber {
 
 	private UUID entityId;
 	private ZonedDateTime lastTimeStamp;
@@ -26,7 +26,6 @@ public class LongPollingSubscriber{
 		this.entityId = entityId;
 		this.type = type;
 	}
-	
 
 	public ZonedDateTime getLastTimeStamp() {
 		return lastTimeStamp;
@@ -51,7 +50,7 @@ public class LongPollingSubscriber{
 	public Class<? extends AbstractDto> getType() {
 		return type;
 	}
-	
+
 	public ZonedDateTime getLastUsingSubscriber() {
 		return lastUsingSubscriber;
 	}

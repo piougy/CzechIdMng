@@ -26,18 +26,6 @@ public interface IdmNotificationConfigurationRepository extends AbstractEntityRe
 	List<IdmNotificationConfiguration> findAllByNotificationType(@Param("notificationType") String notificationType);
 	
 	/**
-	 * Finds all channels by topic and level. Returns even configuration with no level specified (wildcard configuration).
-	 * 
-	 * @param topic
-	 * @param level
-	 * @return
-	 * @deprecated @since 9.2.0 use {@link #findAllByTopicAndWildcardLevel(String, NotificationLevel)} - disabled configurations can be returned.
-	 */
-	@Deprecated
-	@Query(value = "select distinct(e.notificationType) from #{#entityName} e where e.topic = :topic and (e.level is null or e.level = :level)")
-	List<String> findTypes(@Param("topic") String topic, @Param("level") NotificationLevel level);
-	
-	/**
 	 * Finds all channels by topic and level (supports wildcard). 
 	 * Returns even configuration with no level specified (wildcard configuration).
 	 * Configuration can be disabled. Check it before usage.
@@ -50,13 +38,47 @@ public interface IdmNotificationConfigurationRepository extends AbstractEntityRe
 	@Query(value = "select e from #{#entityName} e where e.topic = :topic and (e.level is null or e.level = :level)")
 	List<IdmNotificationConfiguration> findAllByTopicAndWildcardLevel(String topic, NotificationLevel level);
 	
+	/**
+	 * Find notification configuration.
+	 * 
+	 * @param topic
+	 * @param level
+	 * @param notificationType
+	 * @return
+	 */
 	IdmNotificationConfiguration findByTopicAndLevelAndNotificationType(String topic, NotificationLevel level, String notificationType);
 	
+	/**
+	 * Find notification configurations.
+	 * 
+	 * @param topic
+	 * @param level
+	 * @return
+	 */
 	List<IdmNotificationConfiguration> findByTopicAndLevel(String topic, NotificationLevel level);
 	
+	/**
+	 * Find notification configurations.
+	 * 
+	 * @param topic
+	 * @return
+	 */
 	List<IdmNotificationConfiguration> findByTopicAndLevelIsNull(String topic);
 	
+	/**
+	 * Find notification configuration.
+	 * 
+	 * @param topic
+	 * @param notificationType
+	 * @return
+	 */
 	IdmNotificationConfiguration findByTopicAndNotificationTypeAndLevelIsNull(String topic, String notificationType);
 	
+	/**
+	 * Count notification configurations by its topic.
+	 * 
+	 * @param topic
+	 * @return
+	 */
 	Long countByTopic(@Param("topic") String topic);
 }

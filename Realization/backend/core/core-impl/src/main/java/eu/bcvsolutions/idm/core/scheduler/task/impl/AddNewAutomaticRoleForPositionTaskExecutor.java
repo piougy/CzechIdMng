@@ -175,16 +175,6 @@ public class AddNewAutomaticRoleForPositionTaskExecutor extends AbstractSchedula
 		return this.roleTreeNodeId;
 	}
 	
-	@Deprecated
-	public void setRoleTreeNodeId(UUID roleTreeNodeId) {
-		this.setAutomaticRoleId(roleTreeNodeId);
-	}
-	
-	@Deprecated
-	protected UUID getRoleTreeNodeId() {
-		return this.getAutomaticRoleId();
-	}
-	
 	private IdmRoleTreeNodeDto getRoleTreeNode() {
 		if (roleTreeNode == null) {
 			roleTreeNode = roleTreeNodeService.get(getAutomaticRoleId());

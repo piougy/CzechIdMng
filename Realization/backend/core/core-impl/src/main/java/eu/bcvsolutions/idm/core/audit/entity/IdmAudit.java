@@ -60,10 +60,6 @@ import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
 public class IdmAudit implements BaseEntity {
 
 	private static final long serialVersionUID = -2762812245969363775L;
-
-	// use CHANGED_COLUMNS_DELIMITER from IdmAuditDto
-	@Deprecated
-	public static final String DELIMITER = ",";
 	
 	@Id
 	@GeneratedValue

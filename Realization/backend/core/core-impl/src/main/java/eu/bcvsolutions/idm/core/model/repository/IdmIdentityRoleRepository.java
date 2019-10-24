@@ -22,22 +22,45 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  */
 public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmIdentityRole> {
 	
+	/**
+	 * @param identity
+	 * @param pageable
+	 * @return
+	 * @deprecated @since 10.0.0 use find method in service.
+	 */
+	@Deprecated
 	Page<IdmIdentityRole> findByIdentityContract_Identity(@Param("identity") IdmIdentity identity, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityContract_Id(@Param("identityContractId") UUID identityContractId, Sort sort);
 	
 	List<IdmIdentityRole> findAllByIdentityContract_Identity_Id(@Param("identityId") UUID identityId, Sort sort);
 
+	/**
+	 * @param username
+	 * @param pageable
+	 * @return
+	 * @deprecated @since 10.0.0 use find method in service.
+	 */
+	@Deprecated
 	Page<IdmIdentityRole> findByIdentityContract_Identity_Username(@Param("username") String username, Pageable pageable);
 	
 	/**
-	 * @deprecated use {@link #countByRole_Id(UUID)}
+	 * Count assigned roles by role identifier.
+	 * 
+	 * @param roleId
+	 * @return
 	 */
-	@Deprecated
-	Long countByRole(@Param("role") IdmRole role);
-	
 	Long countByRole_Id(UUID roleId);
 	
+	/**
+	 * Assigned roles by role identifier.
+	 * 
+	 * @param role
+	 * @param pageable
+	 * @return
+	 * @deprecated @since 10.0.0 use find method in service.
+	 */
+	@Deprecated
 	Page<IdmIdentityRole> findByRole(@Param("role") IdmRole role, Pageable pageable);
 	
 	/**
@@ -49,6 +72,13 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	 */
 	Page<IdmIdentityRole> findByAutomaticRole_Id(@Param("automaticRoleId") UUID automaticRoleId, Pageable pageable);
 	
+	/**
+	 * @param identity
+	 * @param role
+	 * @return
+	 * @deprecated @since 10.0.0 use find method in service.
+	 */
+	@Deprecated
 	List<IdmIdentityRole> findAllByIdentityContract_IdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
 
 	@Query(value = "select e from #{#entityName} e"

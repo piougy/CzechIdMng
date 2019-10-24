@@ -319,7 +319,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        { this.renderContentHeader() }
+        { this.renderContentHeader({ style: { marginBottom: 0 } }) }
 
         <Basic.Panel className="no-border last">
           {this._getToolbar('system-sync')}

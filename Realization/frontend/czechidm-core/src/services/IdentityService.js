@@ -111,27 +111,6 @@ class IdentityService extends FormableEntityService {
   }
 
   /**
-   * Get given user's roles
-   *
-   * @param username {string}
-   * @param token {string}
-   * @return {Promise}
-   */
-  getRoles(username, token = null) {
-    return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(username)}/roles`, token)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
-  }
-
-  /**
    * Incompatible roles are resolved from currently assigned identity roles
    *
    * @param username {string}

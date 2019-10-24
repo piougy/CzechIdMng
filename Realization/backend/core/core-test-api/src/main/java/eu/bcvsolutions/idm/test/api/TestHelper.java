@@ -367,19 +367,6 @@ public interface TestHelper {
 	IdmAuthorizationPolicyDto createBasePolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, BasePermission... permission);
 
 	/**
-	 * Creates specific permission evaluator authorization policy
-	 * @param role
-	 * @param groupPermission
-	 * @param authorizableType
-	 * @param evaluatorType
-	 * @param permission
-	 * @return
-	 * @deprecated use {@link #createAuthorizationPolicy(UUID, GroupPermission, Class, Class, BasePermission...)}
-	 */
-	@Deprecated
-	IdmAuthorizationPolicyDto createSpecificPolicy(UUID role, GroupPermission groupPermission, Class<?> authorizableType, String evaluatorType, BasePermission... permission);
-	
-	/**
 	 * Creates authorization policy
 	 * 
 	 * @param role

@@ -104,6 +104,7 @@ public class DefaultLongPollingManager implements LongPollingManager{
 		}
 
 		result.getResult().onCompletion(new Runnable() {
+			@Override
 			public void run() {
 				suspendedRequests.remove(result);
 			}
@@ -151,7 +152,8 @@ public class DefaultLongPollingManager implements LongPollingManager{
 		}
 		// Try to find, if some from not finished entities were changed
 		filter.setModifiedFrom(timeStamp);
-		List<AbstractDto> changedRequestsFromLastChecks = service.find(filter, PageRequest.of(0, 1,
+		List<AbstractDto> changedRequestsFromLastChecks = service
+				.find(filter, PageRequest.of(0, 1000,
 				Sort.by(Direction.DESC, AbstractEntity_.created.getName(), AbstractEntity_.modified.getName())))
 				.getContent();
 

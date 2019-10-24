@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.rest.LongPollingSubscriber;
  */
 public interface LongPollingManager {
 	
-	public final String LONG_POLLING_ENABLED_KEY = "idm.pub.app.long-polling.enabled";
+	String LONG_POLLING_ENABLED_KEY = "idm.pub.app.long-polling.enabled";
 
 	/**
 	 * Add new deferred result for type and ID defined inner result.

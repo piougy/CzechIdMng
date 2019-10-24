@@ -124,12 +124,8 @@ public class WebConfig extends HateoasAwareSpringDataWebConfiguration {
 	 * "/users.*".
 	 * <p>
 	 * By default this is set to {@code true}.
-	 * 
-	 * @see #registeredSuffixPatternMatch
-	 * @deprecated Look out: works for @RepositoryRestControllers only 
 	 */
 	@Override
-	@Deprecated
 	public void configurePathMatch(PathMatchConfigurer configurer) {
 		// enable encoded slash in path parameters
 		UrlPathHelper urlPathHelper = new UrlPathHelper();

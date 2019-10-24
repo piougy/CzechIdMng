@@ -258,13 +258,11 @@ public class DefaultIdmRequestIdentityRoleService extends
 		return null;
 	}
 	
-	
-	
-	@Deprecated
-	@Override
 	/**
 	 * Not supported, use deleteRequestIdentityRole!
 	 */
+	@Override
+	@Deprecated
 	public void delete(IdmRequestIdentityRoleDto dto, BasePermission... permission) {
 		throw new UnsupportedOperationException();
 	}

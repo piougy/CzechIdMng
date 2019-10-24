@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -44,15 +43,6 @@ public class GuaranteeSubordinatesFilter
 	@Autowired
 	public GuaranteeSubordinatesFilter(IdmIdentityRepository repository) {
 		super(repository);
-	}
-	
-	/**
-	 * @since 9.7.0 use {@link #getGuaranteesPredicate(Root, AbstractQuery, CriteriaBuilder, IdmIdentityFilter)}
-	 */
-	@Deprecated
-	public Predicate getGuaranteesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, 
-			CriteriaBuilder builder, IdmIdentityFilter filter) {
-		return getGuaranteesPredicate(root, (AbstractQuery<?>) query, builder, filter);
 	}
 	
 	/**

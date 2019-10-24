@@ -34,9 +34,6 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
  */
 @Embeddable
 public class IdmMessage {
-	
-	@Deprecated
-	public static final NotificationLevel DEFAULT_LEVEL = IdmMessageDto.DEFAULT_LEVEL;
 
 	@NotNull
 	@Enumerated(EnumType.STRING)

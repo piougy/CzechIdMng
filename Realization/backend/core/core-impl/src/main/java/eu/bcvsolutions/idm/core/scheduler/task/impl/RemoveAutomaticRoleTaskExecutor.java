@@ -313,16 +313,6 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		return this.automaticRoleId;
 	}
 	
-	@Deprecated
-	public void setRoleTreeNodeId(UUID roleTreeNodeId) {
-		this.setAutomaticRoleId(roleTreeNodeId);
-	}
-	
-	@Deprecated
-	protected UUID getRoleTreeNodeId() {
-		return this.getAutomaticRoleId();
-	}
-	
 	private AbstractIdmAutomaticRoleDto getAutomaticRole() {
 		if (automaticRole == null) {
 			automaticRole = roleTreeNodeService.get(getAutomaticRoleId());

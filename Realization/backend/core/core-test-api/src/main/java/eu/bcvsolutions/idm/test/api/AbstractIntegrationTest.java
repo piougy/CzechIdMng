@@ -101,13 +101,11 @@ public abstract class AbstractIntegrationTest {
 	}
 
 	/**
-	 * Login as user without authorities given in parameter authorities
+	 * Login as user without authorities given in parameter authorities.
 	 *
 	 * @param user
 	 * @param authorities
-	 * @deprecated use {@link TestHelper#login(String, String)}
 	 */
-	@Deprecated
 	public void loginWithout(String user, String ...authorities) {
 		Collection<GrantedAuthority> authoritiesWithout = IdmAuthorityUtils.toAuthorities(moduleService.getAvailablePermissions()).stream().filter(authority -> {
 			for (String auth: authorities) {

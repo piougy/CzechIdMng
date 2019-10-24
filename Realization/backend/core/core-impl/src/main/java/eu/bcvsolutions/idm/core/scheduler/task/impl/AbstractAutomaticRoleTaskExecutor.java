@@ -18,16 +18,6 @@ public abstract class AbstractAutomaticRoleTaskExecutor extends AbstractSchedula
 	//
 	private UUID roleTreeNodeId = null;
 	
-	@Deprecated
-	public void setRoleTreeNodeId(UUID roleTreeNodeId) {
-		this.setAutomaticRoleId(roleTreeNodeId);
-	}
-	
-	@Deprecated
-	protected UUID getRoleTreeNodeId() {
-		return this.getAutomaticRoleId();
-	}
-	
 	public void setAutomaticRoleId(UUID automaticRoleId) {
 		this.roleTreeNodeId = automaticRoleId;
 	}

@@ -784,7 +784,6 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void testGetTaskByAnotherUser() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		

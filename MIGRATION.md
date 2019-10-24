@@ -275,6 +275,34 @@ Configuration file in test package ``logback-test.xml`` has to removed. New ``lo
 - ``IdmProcessedTaskItemService#createQueueItem(DTO, OperationResult, IdmScheduledTaskDto)`` - @deprecated @since 9.3.0 - use ``IdmProcessedTaskItemService#createQueueItem(AbstractDto, OperationResult, UUID)``.
 - ``IdmAudit#DELIMITER`` - @deprecated @since 7.8.2 - use ``IdmAuditDto.CHANGED_COLUMNS_DELIMITER``.
 - ``IdmAuditRepository#getPreviousVersion(UUID, Long, Pageable)`` - @deprecated @since 8.0.0 - use ``IdmAuditRepository#getPreviousVersion(UUID, Long)``.
+- ``IdentitySaveBulkAction`` - @deprecated @since 9.4.0 - use concrete bulk actions for execute ACM or provisioning only in acc module.
+- ``AbstractFormValueRepository#findByOwner(O)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwner_Id(Serializable)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwnerAndFormAttribute_FormDefinitionOrderBySeqAsc(O, IdmFormDefinition)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwnerAndFormAttribute_FormDefinition_IdOrderBySeqAsc(O, UUID)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwner_IdAndFormAttribute_FormDefinition_IdOrderBySeqAsc(Serializable, UUID)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwner_IdAndFormAttributeOrderBySeqAsc(Serializable, IdmFormAttribute)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwner_IdAndFormAttribute_IdOrderBySeqAsc(Serializable, UUID)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``IdmIdentityRoleRepository#countByRole(IdmRole)`` - @deprecated @since 7.4.0 - use ``IdmIdentityRoleRepository#countByRole_Id(UUID)``.
+- ``IdmRoleCatalogueRoleRepository#find(IdmRoleCatalogueRoleFilter, Pageable)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)``.
+- ``IdmRoleCatalogueRoleRepository#findAllByRole_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)``.
+- ``IdmRoleCatalogueRoleRepository#findAllByRoleCatalogue_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)``.
+- ``IdmRoleCatalogueRoleRepository#deleteAllByRole_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)`` and then delete.
+- ``IdmRoleCatalogueRoleRepository#deleteAllByRoleCatalogue_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)`` and then delete.
+- ``IdmMessage#DEFAULT_LEVEL`` - @deprecated @since 7.6.0 - use ``IdmMessageDto.DEFAULT_LEVEL``.
+- ``IdmNotificationConfigurationRepository#findTypes(String, NotificationLevel)`` - @deprecated @since 9.2.0 - use ``IdmNotificationConfigurationRepository#findAllByTopicAndWildcardLevel(String, NotificationLevel)``.
+- ``IdmIdentityController#roles(String)`` - @deprecated @since 9.4.0 - use ``IdmIdentityRoleController#find(MultiValueMap, Pageable)`` with filter by identity.
+- ``AbstractAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
+- ``AbstractAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
+- ``AddNewAutomaticRoleForPositionTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
+- ``AddNewAutomaticRoleForPositionTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
+- ``AddNewAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
+- ``AddNewAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
+- ``RemoveAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
+- ``RemoveAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
+
+
+
 
 
 

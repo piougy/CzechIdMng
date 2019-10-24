@@ -18,7 +18,6 @@ import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -85,13 +84,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
@@ -100,7 +97,6 @@ import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.CheckLongPollingResult;
 import eu.bcvsolutions.idm.core.model.service.api.LongPollingManager;
@@ -549,66 +545,6 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		checkAccess(identity, IdmBasePermission.READ);
 		//
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
-	}
-	
-	/**
-	 * Returns identity roles
-	 * 
-	 * @param backendId
-	 * @return
-	 * @deprecated @since 9.4.0 use identity role endpoint => pagination is used.
-	 */
-	@Deprecated
-	@ResponseBody
-	@RequestMapping(value = "/{backendId}/roles", method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
-	@ApiOperation(
-			value = "Assigned roles to identity", 
-			nickname = "getIdentityRoles", 
-			tags = { IdmIdentityController.TAG }, 
-			authorizations = { 
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "") })
-				})
-	public Resources<?> roles(
-			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
-			@PathVariable String backendId) {	
-		IdmIdentityDto identity = getDto(backendId);
-		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		//
-		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-		filter.setIdentityId(identity.getId());	
-		// Add eav attributes
-		filter.setAddEavMetadata(Boolean.TRUE);
-		// FIXME: as url parameter - null as backward compatible
-		// filter.setDirectRole(Boolean.TRUE);
-		List<IdmIdentityRoleDto> identityRoles = identityRoleService
-				.find(
-					filter, 
-					PageRequest.of(0, Integer.MAX_VALUE, new Sort(IdmIdentityRole_.role.getName() + "." + IdmRole_.name.getName())), 
-					IdmBasePermission.READ)
-				.getContent();
-		// clear embedded, with is not needed for FE (cannot be disabled globally) 
-		identityRoles.forEach(ir -> {
-			ir.getEavs().forEach(formInstance -> {
-				formInstance.getFormDefinition().getFormAttributes().forEach(fa-> {
-					// clear form definition in form attribute
-					fa.getEmbedded().clear();
-				});
-				formInstance.getValues().forEach(fv -> {
-					// clear form definition in form attribute
-					IdmFormAttributeDto formAttribute = DtoUtils.getEmbedded(fv, AbstractFormValue_.formAttribute, null);
-					if (formAttribute != null) {
-						formAttribute.getEmbedded().clear();
-					}
-				});
-			});
-		});
-		return toResources(identityRoles, IdmIdentityRoleDto.class);
 	}
 	
 	@ResponseBody

@@ -20,6 +20,7 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
 
   render() {
     const { identity, entityId, permissions } = this.props;
+    console.log('%cIdentityRoleDashboard THIS', 'background:black;color:white;', this)
     //
     if (!entityId || !SecurityManager.hasAuthority('IDENTITYROLE_READ')) {
       return null;
@@ -53,7 +54,7 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
                 .setFilter('addEavMetadata', true)
             }
             showAddButton={ false }
-            match={{params: { ...this.props.match.params, entityId }}}
+            match={{params: {...(this.props.match ? this.props.match.params : []), entityId }}}
             columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole', 'contractPosition']) }
             _permissions={ permissions }/>
         </Basic.Panel>

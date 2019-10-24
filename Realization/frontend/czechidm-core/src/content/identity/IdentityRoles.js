@@ -277,7 +277,7 @@ class IdentityRoles extends Basic.AbstractContent {
             { this.i18n('changePermissions') }
           </Basic.Button>
           <Advanced.RefreshButton
-            readOnly={automaticRefreshOn && longPollingEnabled}
+            rendered={ !automaticRefreshOn || !longPollingEnabled }
             onClick={ this._refreshAll.bind(this) }/>
         </div>
       </Basic.Toolbar>

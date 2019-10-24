@@ -129,7 +129,7 @@ public class LogbackLoggerManager implements LoggerManager {
 	 * @param level
 	 * @return previous level configuration
 	 */
-	private Level setLoggerLevel(String packageName, Level level) {
+	protected Level setLoggerLevel(String packageName, Level level) {
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger logger = loggerContext.getLogger(packageName);
         Level previousLevel = logger.getLevel();

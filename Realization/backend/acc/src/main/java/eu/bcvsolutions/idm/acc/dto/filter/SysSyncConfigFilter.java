@@ -20,7 +20,6 @@ public class SysSyncConfigFilter extends DataFilter {
 	public static final String PARAMETER_NAME = "name";
 	public static final String PARAMETER_INCLUDE_LAST_LOG = "includeLastLog";
 	
-	
 	public SysSyncConfigFilter() {
 		this(new LinkedMultiValueMap<>());
 	}

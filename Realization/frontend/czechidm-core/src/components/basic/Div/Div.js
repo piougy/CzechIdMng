@@ -16,6 +16,7 @@ export default class Div extends AbstractComponent {
       className,
       rendered,
       showLoading,
+      showAnimation,
       style,
       title
     } = this.props;
@@ -29,7 +30,7 @@ export default class Div extends AbstractComponent {
         {
           showLoading
           ?
-          <Loading showLoading={ showLoading }>
+          <Loading showLoading={ showLoading } showAnimation={ showAnimation }>
             { this.props.children }
           </Loading>
           :

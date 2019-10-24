@@ -28,7 +28,6 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private List<RoleRequestState> states;
 	private ZonedDateTime createdFrom;
 	private ZonedDateTime createdTill;
-	private ZonedDateTime modifiedFrom;
 	private List<UUID> applicants;
 	private UUID creatorId;
 	private boolean includeConcepts = false;
@@ -83,14 +82,6 @@ public class IdmRoleRequestFilter extends DataFilter {
 
 	public void setCreatedTill(ZonedDateTime createdTill) {
 		this.createdTill = createdTill;
-	}
-
-	public ZonedDateTime getModifiedFrom() {
-		return modifiedFrom;
-	}
-
-	public void setModifiedFrom(ZonedDateTime modifiedFrom) {
-		this.modifiedFrom = modifiedFrom;
 	}
 
 	public UUID getApplicantId() {

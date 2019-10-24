@@ -954,6 +954,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       _actionClassName = _actionsWithSelection.length === 0 ? 'hidden' : 'bulk-action';
     }
     //
+    const _isLoading = (_showLoading || showLoading) && !hideTableShowLoading;
+    //
     return (
       <Basic.Div className={ classnames('advanced-table', className) } style={ style }>
         {
@@ -993,7 +995,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               <Basic.Div className="clearfix"></Basic.Div>
             </Basic.Div>
             <Basic.Collapse in={ filterOpened } rendered={ showFilter }>
-              <Basic.Div>
+              <Basic.Div showLoading={ _isLoading } showAnimation={ false }>
                 { filter }
               </Basic.Div>
             </Basic.Collapse>
@@ -1023,7 +1025,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               header={ header }
               data={ _entities }
               hover={ hover }
-              showLoading={ (_showLoading || showLoading) && !hideTableShowLoading }
+              showLoading={ _isLoading }
               onRowClick={ onRowClick }
               onRowDoubleClick={ onRowDoubleClick }
               showRowSelection={ _actions.length > 0 && showRowSelection }

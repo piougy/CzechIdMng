@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.workflow.history;
+package eu.bcvsolutions.idm.core.workflow.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -92,6 +92,9 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		// null, but as ADMIN can see all historic processes
 		historicProcessDto = historicProcessService.get(instance.getId());
 		assertNotNull(historicProcessDto);
+		
+		// get diagram
+		assertNotNull(historicProcessService.getDiagram(instance.getId()));
 
 		this.logout();
 		this.loginAsAdmin(InitTestData.TEST_USER_1);

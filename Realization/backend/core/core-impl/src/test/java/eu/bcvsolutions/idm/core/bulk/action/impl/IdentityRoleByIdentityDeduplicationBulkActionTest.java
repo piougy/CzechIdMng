@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -59,6 +60,8 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 
 	@Before
 	public void login() {
+		getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		
 		IdmIdentityDto identity = getHelper().createIdentity();
 		
 		IdmRoleDto createRole = getHelper().createRole();
@@ -198,13 +201,13 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 		// item 
 		List<IdmProcessedTaskItemDto> processedItems = processedTaskItemService.findLogItems(longRunningTask, null).getContent();
 		Assert.assertEquals(1, processedItems.size());
-		Assert.assertEquals(OperationState.EXECUTED, processedItems.get(0).getOperationResult().getState());
 		// background request
 		IdmRoleRequestFilter requestFilter = new IdmRoleRequestFilter();
 		requestFilter.setApplicantId(identity.getId());
 		List<IdmRoleRequestDto> requests = roleRequestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(1, requests.size());
 		Assert.assertEquals(RoleRequestState.EXECUTED, requests.get(0).getState());
+		Assert.assertEquals(OperationState.EXECUTED, processedItems.get(0).getOperationResult().getState());
 		
 		roles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(1, roles.size());

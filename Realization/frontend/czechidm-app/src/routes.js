@@ -2,8 +2,6 @@
 import _ from 'lodash';
 import Immutable from 'immutable';
 //
-import { Managers} from 'czechidm-core';
-import Dashboard from 'czechidm-core/src/content/Dashboard';
 import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 import App from './layout/App';
 
@@ -202,11 +200,6 @@ const routes = {
       path: '/',
       getComponent: (location, cb) => {
         cb(null, App);
-      },
-      indexRoute: {
-        component: Dashboard,
-        onEnter: Managers.SecurityManager.checkAccess,
-        access: [{ type: 'IS_AUTHENTICATED' }]
       },
       childRoutes: resultRoutes
     }

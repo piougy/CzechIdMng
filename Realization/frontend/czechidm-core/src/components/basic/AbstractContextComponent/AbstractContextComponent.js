@@ -190,14 +190,11 @@ class AbstractContextComponent extends AbstractComponent {
   /**
    * Finds route definitions for given path.
    */
-  _getRouteComponents(path, routes) {
+  _getRouteComponents(path, routes, parentRoute) {
     let components = routes.filter(route => {
-      const concatedPath = this._getConcatPath(route.parentId, route.path);
+      const concatedPath = this._getConcatPath(parentRoute.path, route.path);
 
-      if (concatedPath === path) {
-        return true;
-      }
-      if (`${path}/` === concatedPath) {
+      if (this._trimSlash(concatedPath) === this._trimSlash(path)) {
         return true;
       }
       return false;
@@ -210,7 +207,7 @@ class AbstractContextComponent extends AbstractComponent {
 
     routes.forEach(route => {
       if (route.childRoutes && route.childRoutes.length > 0) {
-        const subComponents = this._getRouteComponents(path, route.childRoutes);
+        const subComponents = this._getRouteComponents(path, route.childRoutes, route);
         if (subComponents && subComponents.length > 0) {
           components.push(...subComponents);
         }
@@ -235,7 +232,8 @@ class AbstractContextComponent extends AbstractComponent {
       return [route];
     } if (route.childRoutes) {
       route.childRoutes.forEach(childRoute => {
-        childRoutesResult.push(...this._getChildrenRoutesWithComponent(childRoute, this._getConcatPath(parentPath, childRoute.path)));
+        childRoutesResult.push(...this._getChildrenRoutesWithComponent(childRoute,
+          this._getConcatPath(parentPath, childRoute.path)));
       });
     }
     return childRoutesResult;
@@ -260,7 +258,7 @@ class AbstractContextComponent extends AbstractComponent {
       routes.childRoutes[0].component = {};
       currentRoutes = [routes.childRoutes[0]];
     } else {
-      currentRoutes = this._getRouteComponents(currentPath, routes.childRoutes);
+      currentRoutes = this._getRouteComponents(currentPath, routes.childRoutes, routes);
     }
     const childRoutesResult = [];
     if (currentRoutes) {

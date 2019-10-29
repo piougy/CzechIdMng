@@ -117,7 +117,9 @@ class Configurations extends Advanced.AbstractTableContent {
         entity
       },
     }, () => {
-      this.refs.area.focus();
+      setTimeout(() => {
+        this.refs.area.focus();
+      }, 10);
     });
   }
 

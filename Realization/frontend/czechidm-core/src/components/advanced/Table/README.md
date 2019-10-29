@@ -152,7 +152,7 @@ class Team extends Basic.AbstractContent {
                 </Basic.Button>
               ]
             }>
-            <Advanced.ColumnLink to="identity/:username/profile" property="name" width="20%" sort={true} face="text"/>
+            <Advanced.ColumnLink to="/identity/:username/profile" property="name" width="20%" sort={true} face="text"/>
             <Advanced.Column property="lastName" width="15%" sort={true} face="text" />
             <Advanced.Column property="firstName" width="15%" face="text" />
             <Advanced.Column property="email" width="15%" face="text" />

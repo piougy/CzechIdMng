@@ -203,7 +203,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink to="system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
+          <Advanced.ColumnLink to="/system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column property="queue" sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
           <Advanced.Column

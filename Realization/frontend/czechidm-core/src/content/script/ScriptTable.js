@@ -181,7 +181,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink to="scripts/:id/detail" property="code" sort />
+          <Advanced.ColumnLink to="/scripts/:id/detail" property="code" sort />
           <Advanced.Column property="name" sort />
           <Advanced.Column property="category" sort face="enum" enumClass={ScriptCategoryEnum}/>
           <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {

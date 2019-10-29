@@ -138,7 +138,7 @@ export class ExampleProductTable extends Advanced.AbstractTableContent {
             }
             sort={ false }/>
           <Advanced.ColumnLink
-            to="example/product/:id/detail"
+            to="/example/product/:id/detail"
             property="code"
             width={ 100 }
             sort

@@ -308,7 +308,7 @@ class RoleTable extends Advanced.AbstractTableContent {
                 }
               }
               sort={false}/>
-            <Advanced.ColumnLink to="role/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
+            <Advanced.ColumnLink to="/role/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
             <Advanced.Column property="baseCode" width={ 125 } face="text" sort rendered={_.includes(columns, 'baseCode')}/>
             <Advanced.Column
               property="environment"

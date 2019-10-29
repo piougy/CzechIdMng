@@ -105,7 +105,7 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
           property="key"
           header={this.i18n('key')}
           width="25%"
-          cell={ <Basic.LinkCell property="key" to="workflow/definitions/:key"/> }
+          cell={ <Basic.LinkCell property="key" to="/workflow/definitions/:key"/> }
           sort />
         <Advanced.Column property="name" header={this.i18n('name')} width="20%" sort />
         <Advanced.Column property="resourceName" header={this.i18n('resourceName')} width="15%" />

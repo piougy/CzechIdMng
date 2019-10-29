@@ -578,4 +578,4 @@ TreeNodeSelect.defaultProps = {
   multiSelect: false
 };
 
-export default connect()(TreeNodeSelect);
+export default connect(null, null, null, { forwardRef: true})(TreeNodeSelect);

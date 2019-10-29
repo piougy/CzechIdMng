@@ -67,11 +67,11 @@ class AbstractForm extends AbstractContextComponent {
   * Find all form-components keys and add them to componentsKey array;
   */
   findFormComponentsKeys(children, keys, basicForm) {
-    React.Children.map(children, function findChildKey(child) {
+    React.Children.map(children, (child) => {
       if (!child) {
         return null;
       }
-     // We will add only AbstractFormComponent
+      // We will add only AbstractFormComponent
       if (child.type && ((child.type.prototype instanceof AbstractFormComponent) || child.type.__FormableComponent__)) {
         if (child.ref && (!child.props || !child.props.notControlled)) {
           keys.push(child.ref);
@@ -82,6 +82,7 @@ class AbstractForm extends AbstractContextComponent {
         basicForm.findFormComponentsKeys(child.props.children, keys, basicForm);
         return null;
       }
+      return null;
     });
     return null;
   }
@@ -95,8 +96,13 @@ class AbstractForm extends AbstractContextComponent {
       if (!child) {
         return null;
       }
+      let type = child.type;
+      // If component is connected to the Redux, then we need to extract our component.
+      if (type && type.WrappedComponent) {
+        type = type.WrappedComponent;
+      }
       // We will add only AbstractFormComponent
-      if (child.type && child.type.prototype instanceof AbstractFormComponent) {
+      if (type && type.prototype instanceof AbstractFormComponent) {
         if (child.ref && (!child.props || !child.props.notControlled)) {
           if (key === child.ref) {
             return child;
@@ -359,8 +365,7 @@ class AbstractForm extends AbstractContextComponent {
       return null;
     }
     return (
-      <Loading showLoading={showLoading || this.state.showLoading}>{/* props.showLoading has higher priority */}
-        {/* TODO: remove className defs? Somethimes different className e.g. form-inline is needed */}
+      <Loading showLoading={showLoading || this.state.showLoading}>
         <div className={ classnames('abstract-form', 'clearfix', className) } style={ style }>
           {children}
         </div>

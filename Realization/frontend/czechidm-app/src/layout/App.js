@@ -84,8 +84,8 @@ export class App extends Basic.AbstractContent {
    */
   generateRouteComponents() {
     const basicRoutes = super.generateRouteComponents();
-
-    return [<Route key="dashboard" exact path="/" component={Dashboard}/>, ...basicRoutes];
+    const mockRoute = {component: Dashboard, access: [{ type: 'PERMIT_ALL' }]};
+    return [<Route key="dashboard" exact path="/" component={this._getComponent(mockRoute)}/>, ...basicRoutes];
   }
 
   _handleRemoteAuth() {
@@ -112,7 +112,8 @@ export class App extends Basic.AbstractContent {
       { 'with-sidebar': !userContext.isExpired && Managers.SecurityManager.isAuthenticated(userContext) },
       { collapsed: navigationCollapsed }
     );
-    // @todo-upgrade-10 - FlashMessages throw warning "Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?"
+    // @todo-upgrade-10 - FlashMessages throw warning "Function components cannot be given refs.
+    // Attempts to access this ref will fail. Did you mean to use React.forwardRef()?"
     return (
       <div id="content-wrapper">
         <Basic.FlashMessages ref="messages" />
@@ -133,7 +134,8 @@ export class App extends Basic.AbstractContent {
                   ||
                   (
                     <Basic.Div>
-                      {/* Childrens are hiden, when token expires => all components are loaded (componentDidMount) after identity is logged again */}
+                      {/* Childrens are hiden, when token expires =>
+                        all components are loaded (componentDidMount) after identity is logged again */}
                       {this.getRoutes()}
                       <Footer rendered={ !hideFooter } />
                     </Basic.Div>

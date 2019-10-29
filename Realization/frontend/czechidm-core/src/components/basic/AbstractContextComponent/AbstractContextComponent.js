@@ -327,8 +327,13 @@ class AbstractContextComponent extends AbstractComponent {
       // Maybe useless, because routes are filtered in Index.js!
       return require('../../../content/error/503');
     }
-    // Check access to the component
     const userContext = AuthenticateService.getUserContext();
+    // Check if is user authenticated, if not, then redirect to the login page.
+    if (!userContext.isAuthenticated) {
+      return require('../../../content/Login');
+    }
+
+    // Check access to the component
     if (!SecurityManager.hasAccess(route.access, userContext)) {
       if (SecurityManager.isAuthenticated(userContext)) {
         return require('../../../content/error/403');

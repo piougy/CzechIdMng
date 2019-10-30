@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
@@ -14,6 +15,7 @@ import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -40,6 +42,7 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRoleDto> implemen
 	@Autowired private AccRoleAccountService roleAccountService;
 	@Autowired private SysProvisioningBreakRecipientService provisioningBreakRecipientService;
 	@Autowired private SysSyncConfigRepository syncConfigRepository;
+	@Autowired private SysSyncConfigService syncConfigService;
 
 	public RoleDeleteProcessor() {
 		super(RoleEventType.DELETE);
@@ -72,7 +75,13 @@ public class RoleDeleteProcessor extends CoreEventProcessor<IdmRoleDto> implemen
 			deleteProvisioningRecipient(event.getContent().getId());
 			//
 			// Delete link to sync identity configuration
-			syncConfigRepository.clearDefaultRole(role.getId());
+			syncConfigRepository
+				.findByDefaultRole(role.getId())
+				.forEach(config -> {
+					SysSyncIdentityConfigDto configDto = (SysSyncIdentityConfigDto) syncConfigService.get(config.getId());
+					configDto.setDefaultRole(null);
+					syncConfigService.save(configDto);
+				});
 		}
 
 		return new DefaultEventResult<>(event, this);

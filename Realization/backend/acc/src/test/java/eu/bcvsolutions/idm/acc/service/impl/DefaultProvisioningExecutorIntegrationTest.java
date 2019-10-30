@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -95,6 +96,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
+@Ignore
 public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private TestHelper helper;

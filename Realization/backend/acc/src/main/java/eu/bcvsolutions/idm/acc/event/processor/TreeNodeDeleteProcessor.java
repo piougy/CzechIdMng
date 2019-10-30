@@ -5,9 +5,11 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -22,24 +24,21 @@ import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
  * @author Svanda
  *
  */
-@Component("accTreeNodeDeleteProcessor")
+@Component(TreeNodeDeleteProcessor.PROCESSOR_NAME)
 @Description("Ensures referential integrity. Cannot be disabled.")
 public class TreeNodeDeleteProcessor extends AbstractEntityEventProcessor<IdmTreeNodeDto> {
 	
-	public static final String PROCESSOR_NAME = "tree-node-delete-processor";
-	private final AccTreeAccountService treeAccountService;
-	private final SysSyncConfigRepository syncConfigRepository;
+	public static final String PROCESSOR_NAME = "acc-tree-node-delete-processor";
+	//
+	@Autowired 
+	private AccTreeAccountService treeAccountService;
+	@Autowired 
+	private SysSyncConfigRepository syncConfigRepository;
+	@Autowired 
+	private SysSyncConfigService syncConfigService;
 	
-	@Autowired
-	public TreeNodeDeleteProcessor(AccTreeAccountService treeAccountService,
-			SysSyncConfigRepository syncConfigRepository) {
+	public TreeNodeDeleteProcessor() {
 		super(TreeNodeEventType.DELETE);
-		//
-		Assert.notNull(treeAccountService, "Service is required.");
-		Assert.notNull(syncConfigRepository, "Repository is required.");
-		//
-		this.treeAccountService = treeAccountService;
-		this.syncConfigRepository = syncConfigRepository;
 	}
 	
 	@Override
@@ -59,7 +58,13 @@ public class TreeNodeDeleteProcessor extends AbstractEntityEventProcessor<IdmTre
 		
 		// Delete link to sync contract configuration
 		if(node != null && node.getId() != null) {
-			syncConfigRepository.clearDefaultTreeNode(node.getId());
+			syncConfigRepository
+				.findByDefaultTreeNode(node.getId())
+				.forEach(config -> {
+					SysSyncContractConfigDto configDto = (SysSyncContractConfigDto) syncConfigService.get(config.getId());
+					configDto.setDefaultTreeNode(null);
+					syncConfigService.save(configDto);
+				});
 		}
 		return new DefaultEventResult<>(event, this);
 	}

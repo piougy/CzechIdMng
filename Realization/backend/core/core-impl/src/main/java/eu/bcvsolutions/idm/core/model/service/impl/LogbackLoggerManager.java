@@ -132,9 +132,8 @@ public class LogbackLoggerManager implements LoggerManager {
 	
 	@Override
 	public org.slf4j.event.Level getLevel(String packageName) {
-		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		Level actualLevel = getLogger(packageName).getLevel();
 		//
-		Level actualLevel = loggerContext.getLogger(packageName).getLevel();
 		return actualLevel == null ? null : org.slf4j.event.Level.valueOf(actualLevel.levelStr);
 	}
 	
@@ -193,8 +192,7 @@ public class LogbackLoggerManager implements LoggerManager {
 	 * @return previous level configuration
 	 */
 	protected Level setLoggerLevel(String packageName, Level level) {
-		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = loggerContext.getLogger(packageName);
+        Logger logger = getLogger(packageName);
         Level previousLevel = logger.getLevel();
         LOG.info("Setting logger level for package [{}] to [{}] (previous level [{}])", packageName, level, previousLevel);
         //
@@ -203,5 +201,17 @@ public class LogbackLoggerManager implements LoggerManager {
         LOG.info("Logger level for package [{}] is set to [{}] (previous level [{}])", packageName, level, previousLevel);
         //
         return previousLevel;
+	}
+	
+	/**
+	 * Returns logger (cannot be null).
+	 * 
+	 * @param packageName
+	 * @return
+	 */
+	private Logger getLogger(String packageName) {
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		//
+		return loggerContext.getLogger(packageName);
 	}
 }

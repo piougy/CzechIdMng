@@ -23,12 +23,12 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  * @author Svanda
  * @author Radek Tomiška
  */
-@Component("accTreeNodeSaveProcessor")
+@Component(TreeNodeSaveProcessor.PROCESSOR_NAME)
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Executes provisioning after tree node is saved.")
 public class TreeNodeSaveProcessor extends AbstractEntityEventProcessor<IdmTreeNodeDto> {
 
-	public static final String PROCESSOR_NAME = "tree-node-save-processor";
+	public static final String PROCESSOR_NAME = "acc-tree-node-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeNodeSaveProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;

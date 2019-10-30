@@ -1,8 +1,11 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.util.List;
+
 import org.slf4j.event.Level;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 
 /**
  * Configure logger programmatically.
@@ -48,6 +51,14 @@ public interface LoggerManager {
 	Level setLevel(String packageName, Level level);
 	
 	/**
+	 * Returns current logger level for given packagen name.
+	 * 
+	 * @param packageName
+	 * @return
+	 */
+	Level getLevel(String packageName);
+	
+	/**
 	 * Returns package name from configuration property name with logger prefix ({@link #PROPERTY_PREFIX}).
 	 * If given configuration property name doesn't start with logger prefix ({@link #PROPERTY_PREFIX}), then {@code null} is returned.
 	 * 
@@ -55,4 +66,12 @@ public interface LoggerManager {
 	 * @return
 	 */
 	String getPackageName(String configurationPropertyName);
+	
+	/**
+	 * Configured levels in logger configuration on file system.
+	 * 
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met.
+	 */
+	List<IdmConfigurationDto> getAllConfigurationsFromFiles();
 }

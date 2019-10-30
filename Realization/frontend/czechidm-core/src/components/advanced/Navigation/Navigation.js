@@ -350,7 +350,7 @@ export class Navigation extends Basic.AbstractContent {
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
               </button>
-              <Link to="/" title="Úvodní stránka" className="home">
+              <Link to="/" title={ this.i18n('navigation.menu.home') } className="home">
                 {' '}
               </Link>
             </div>

@@ -3,8 +3,10 @@ package eu.bcvsolutions.idm.core.rest.impl;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.comparator.CodeableComparator;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -37,7 +40,9 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.LoggerManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -63,6 +68,8 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	
 	protected static final String TAG = "Configuration";
 	private final IdmConfigurationService configurationService;
+	//
+	@Autowired private LoggerManager loggerManager;
 	
 	@Autowired
 	public IdmConfigurationController(IdmConfigurationService configurationService) {
@@ -253,8 +260,26 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				},
 			notes = "E.g. from application.properties, module-*.properties etc.")
 	public List<IdmConfigurationDto> getAllConfigurationsFromFiles() {
-		// TODO: resource wrapper + assembler
-		return configurationService.getAllConfigurationsFromFiles();
+		// from property files
+		Map<String, IdmConfigurationDto> configurations = configurationService
+				.getAllConfigurationsFromFiles(IdmBasePermission.READ)
+				.stream()
+				.collect(Collectors.toMap(IdmConfigurationDto::getName, (value) -> value));
+		// from logger files (append default, if is not overriden)
+		loggerManager
+				.getAllConfigurationsFromFiles()
+				.stream()
+				.forEach(configuration -> {
+					if (!configurations.containsKey(configuration.getName())) {
+						configurations.put(configuration.getName(), configuration);
+					}
+				});
+		//
+		return configurations
+				.values()
+				.stream()
+				.sorted(new CodeableComparator())
+				.collect(Collectors.toList());
 	}
 	
 	/**

@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -10,9 +12,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Maps;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import eu.bcvsolutions.idm.core.api.domain.comparator.CodeableComparator;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.LoggerManager;
@@ -35,7 +40,10 @@ import eu.bcvsolutions.idm.core.model.event.processor.configuration.Configuratio
 public class LogbackLoggerManager implements LoggerManager {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(LogbackLoggerManager.class);
-	private Map<String, Level> originalLevelCache = new HashMap<>(); // needed when configured level is deleted
+	// from logback.xml
+	private Map<String, Level> fileLevels = new HashMap<>();
+	// needed when configured level is deleted (mixed application.properties and logback.xml)
+	private Map<String, Level> originalLevelCache = new HashMap<>();
 	//
 	@Autowired private ConfigurationService configurationService;
 	
@@ -43,14 +51,47 @@ public class LogbackLoggerManager implements LoggerManager {
 	public void init() {
 		LOG.info("Initialize logger levels from configuration");
 		//
+		loadFileLevels();
+		//
+		// init from database
+		Map<String, String> initPackageLevels = Maps.newHashMap();
 		configurationService
 			.getConfigurations(PROPERTY_PREFIX)
 			.values()
 			.stream()
 			.filter(configuration -> {
+				return getPackageName(configuration.getName()) != null;
+			})
+			.filter(configuration -> {
 				return StringUtils.isNotEmpty(configuration.getValue());
 			})
-			.forEach(this::setLevel);
+			.forEach(configuration -> {
+				initPackageLevels.put(getPackageName(configuration.getName()), configuration.getValue());
+			});
+		//
+		// init from application files
+		configurationService
+			.getAllConfigurationsFromFiles()
+			.stream()
+			.filter(configuration -> {
+				return getPackageName(configuration.getName()) != null;
+			})
+			.filter(configuration -> {
+				return StringUtils.isNotEmpty(configuration.getValue());
+			})
+			.filter(configuration -> {
+				return !initPackageLevels.containsKey(getPackageName(configuration.getName()));
+			})
+			.forEach(configuration -> {
+				initPackageLevels.put(getPackageName(configuration.getName()), configuration.getValue());
+			});
+		//
+		initPackageLevels.forEach((packageName, level) -> {
+	        Level originalLevel = setLoggerLevel(packageName, Level.toLevel(level));
+	        if (!originalLevelCache.containsKey(packageName)) {
+	        	originalLevelCache.put(packageName, originalLevel);
+	        }
+		});
 	}
 	
 	@Override
@@ -83,12 +124,17 @@ public class LogbackLoggerManager implements LoggerManager {
 		} else {
 	        //
 			actualLevel = Level.toLevel(level.name());
-	        Level originalLevel = setLoggerLevel(packageName, actualLevel);
-	        if (!originalLevelCache.containsKey(packageName)) {
-	        	originalLevelCache.put(packageName, originalLevel);
-	        }
+	        setLoggerLevel(packageName, actualLevel);
 		}
 		//
+		return actualLevel == null ? null : org.slf4j.event.Level.valueOf(actualLevel.levelStr);
+	}
+	
+	@Override
+	public org.slf4j.event.Level getLevel(String packageName) {
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		//
+		Level actualLevel = loggerContext.getLogger(packageName).getLevel();
 		return actualLevel == null ? null : org.slf4j.event.Level.valueOf(actualLevel.levelStr);
 	}
 	
@@ -102,21 +148,38 @@ public class LogbackLoggerManager implements LoggerManager {
 		return configurationProperty.replaceFirst(PROPERTY_PREFIX, "");
 	}
 	
+	@Override
+	public List<IdmConfigurationDto> getAllConfigurationsFromFiles() {
+		return fileLevels
+			.entrySet()
+			.stream()
+			.filter(entry -> {
+				return entry.getValue() != null;
+			})
+			.map(entry -> {
+				return new IdmConfigurationDto(String.format("%s%s", PROPERTY_PREFIX, entry.getKey()), entry.getValue().levelStr);
+			})
+			.sorted(new CodeableComparator())
+			.collect(Collectors.toList());
+	}
+	
+	protected void loadFileLevels() {
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		loggerContext.getLoggerList().forEach(logger -> {
+			fileLevels.put(logger.getName(), logger.getLevel());
+		});
+	}
+	
 	/**
 	 * Restore logger level from application configuration.
 	 * 
 	 * @param packageName required
-	 * @return original level, which is restored. {@code null} is returned, when nothing is changed (no persisted configuration exists).
+	 * @return original level, which is restored. {@code null} is returned, when logger is not configured by file (property or logback.xml).
 	 */
 	protected Level restoreLevel(String packageName) {
 		Assert.hasLength(packageName, "Package name is required.");
 		//
-		if (!originalLevelCache.containsKey(packageName)) {
-			LOG.warn("Logger level for package [{}] was not configured, nothing to restore.", packageName);
-			//
-        	return null;
-        }
-		Level orignalLevel = originalLevelCache.remove(packageName);
+		Level orignalLevel = originalLevelCache.get(packageName);
 		setLoggerLevel(packageName, orignalLevel);
 		//
 		return orignalLevel;

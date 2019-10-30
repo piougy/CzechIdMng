@@ -117,7 +117,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	@Test
     public void testUsernameWithDotCharacter() throws Exception {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("admin.com");
+		identity.setUsername(getHelper().createName() + ".com");
 		identity.setFirstName("test");
 		identity.setLastName("test");
 		identity = getHelper().getService(IdmIdentityService.class).save(identity);
@@ -134,7 +134,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	@Ignore // TODO: surefire parameters are ignored ... why?
     public void testUsernameWithSlashCharacter() throws Exception {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("admin/com");
+		identity.setUsername(getHelper().createName() + "/com");
 		identity.setFirstName("test");
 		identity.setLastName("test");
 		identity = getHelper().getService(IdmIdentityService.class).save(identity);

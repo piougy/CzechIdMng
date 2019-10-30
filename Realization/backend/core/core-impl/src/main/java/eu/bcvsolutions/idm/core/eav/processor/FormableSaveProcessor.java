@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -33,6 +34,7 @@ public class FormableSaveProcessor extends CoreEventProcessor<FormableDto> {
 	//
 	@Autowired private FormService formService;
 	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private LookupService lookupService;
 	
 	public FormableSaveProcessor() {
 		super(CoreEventType.CREATE, CoreEventType.UPDATE); // ~ save dto
@@ -59,7 +61,7 @@ public class FormableSaveProcessor extends CoreEventProcessor<FormableDto> {
 				formDefinition = formInstance.getFormDefinition();
 			}
 			formInstance.setOwnerId(savedDto.getId());
-			formInstance.setOwnerType(savedDto.getClass());
+			formInstance.setOwnerType(lookupService.getEntityClass(savedDto.getClass())); // entity owner type is used
 			formInstance.setFormDefinition(formDefinition);
 			//
 			CoreEvent<IdmFormInstanceDto> formInstanceEvent = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);

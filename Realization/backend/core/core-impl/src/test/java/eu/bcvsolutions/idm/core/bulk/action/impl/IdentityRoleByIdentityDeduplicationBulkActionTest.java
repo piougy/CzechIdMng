@@ -10,7 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Sets;
 
@@ -80,7 +79,6 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
-	@Transactional
 	public void testTwoManuallyOneContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -105,7 +103,6 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
-	@Transactional
 	public void testTwoManuallyTwoContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -140,7 +137,6 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
-	@Transactional
 	public void testFourManuallyTwoContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
@@ -177,7 +173,6 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	}
 
 	@Test
-	@Transactional
 	public void testSevenManuallyOneContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();

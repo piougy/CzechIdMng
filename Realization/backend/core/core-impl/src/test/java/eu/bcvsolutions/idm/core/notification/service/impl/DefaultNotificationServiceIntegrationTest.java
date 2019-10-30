@@ -2,13 +2,12 @@ package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,11 +45,13 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Notification service tests
  * 
  * TODO: move filters to rest layer
+ * FIXME: counts are checked only ...
  * 
  * @author Radek Tomiška
  * @author Marek Klement
  *
  */
+@Transactional
 public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private NotificationManager notificationManager;
@@ -72,12 +73,11 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	@Transactional
 	public void testSendSimple() {
 		assertEquals(0, notificationRepository.count());
 		NotificationConfigurationDto config = createConfig();
 		
-		IdmNotificationTemplateDto template = createTestTemplate("Idm notification", "subject");
+		IdmNotificationTemplateDto template = createTestTemplate();
 
 		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
 
@@ -88,10 +88,9 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	@Transactional
 	public void testFilterByDate() {
 		assertEquals(0, notificationRepository.count());
-		IdmNotificationTemplateDto template = createTestTemplate("Idm notification", "subject");
+		IdmNotificationTemplateDto template = createTestTemplate();
 		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
 		NotificationConfigurationDto config = createConfig();
 		//
@@ -113,11 +112,10 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	@Transactional
 	public void testEmailFilterBySender() {
 		NotificationConfigurationDto config = createConfig();
 		// create templates
-		IdmNotificationTemplateDto template = createTestTemplate("Idm notification", "subject");
+		IdmNotificationTemplateDto template = createTestTemplate();
 
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 
@@ -142,14 +140,13 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	@Transactional
 	public void testEmailFilterBySent() {
 		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
 
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 		//
 		// create templates
-		IdmNotificationTemplateDto template = createTestTemplate("Idm notification", "subject");
+		IdmNotificationTemplateDto template = createTestTemplate();
 		//
 		emailService.send(new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 		filter.setSent(true);
@@ -161,13 +158,13 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	public void textFilterTest(){
-		IdmIdentityDto identity = getHelper().createIdentity();
+	public void testTextFilterTest(){
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 		//
 		// create templates
-		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate1", "testSubject");
-		IdmNotificationTemplateDto template2 = createTestTemplate("TestTemplate2","testSubject2");
+		IdmNotificationTemplateDto template = createTestTemplate();
+		IdmNotificationTemplateDto template2 = createTestTemplate();
 		//
 		emailService.send(new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 		emailService.send(new IdmMessageDto.Builder().setTemplate(template2).build(), identity);
@@ -180,20 +177,20 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		result = notificationLogService.find(filter, null);
 		assertEquals("Wrong text message html",1, result.getTotalElements());
 		// filter text subject
-		filter.setText(template.getSubject());
+		filter.setText(template2.getSubject());
 		result = notificationLogService.find(filter, null);
-		assertEquals("Wrong text message html",2, result.getTotalElements());
+		assertEquals("Wrong text message html",1, result.getTotalElements());
 	}
 
 	@Test
-	public void senderFilterTest(){
+	public void testSenderFilterTest(){
 		IdmIdentityDto sender = getHelper().createIdentity();
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 		IdmNotificationDto notification = new IdmNotificationDto();
 		notification.setIdentitySender(sender.getId());
 		//
 		// create templates
-		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate3", "testSubject3");
+		IdmNotificationTemplateDto template = createTestTemplate();
 		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
 		notification.setMessage(message);
 		notificationManager.send(notification);
@@ -205,12 +202,12 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	public void parentFilterText(){
+	public void testParentFilterText(){
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 		IdmNotificationDto notification = new IdmNotificationDto();
 		IdmNotificationDto parentNotification = new IdmNotificationDto();
 		// prepare template and message
-		IdmNotificationTemplateDto template2 = createTestTemplate("TestTemplate5", "testSubject5");
+		IdmNotificationTemplateDto template2 = createTestTemplate();
 		IdmMessageDto message2 = new IdmMessageDto.Builder().setTemplate(template2).build();
 		// set parent
 		parentNotification.setMessage(message2);
@@ -218,7 +215,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		notification.setParent(logDto.getMessage().getId());
 		//
 		// send message
-		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate4", "testSubject4");
+		IdmNotificationTemplateDto template = createTestTemplate();
 		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
 		notification.setMessage(message);
 		notificationManager.send(notification);
@@ -229,31 +226,25 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	@Ignore
-	public void stateFilterTest(){
-		IdmIdentityDto identity1 = getHelper().createIdentity();
-		IdmIdentityDto identity2 = getHelper().createIdentity();
-		IdmIdentityDto identity3 = getHelper().createIdentity();
-		IdmIdentityDto identity4 = getHelper().createIdentity();
+	public void testStateFilterTest(){
+		IdmIdentityDto identity1 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity2 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity3 = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identity4 = getHelper().createIdentity((GuardedString) null);
 		List<IdmIdentityDto> identities = Arrays.asList(identity1, identity2, identity3, identity4);
-		IdmNotificationTemplateDto template = createTestTemplate("TestTemplate6", "testSubject6");
+		IdmNotificationTemplateDto template = createTestTemplate();
 		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
 		notificationManager.send(message, identities);
-
+		//
 		IdmNotificationFilter filter = new IdmNotificationFilter();
+		filter.setText(template.getSubject());
 		filter.setState(NotificationState.ALL);
 		Page<IdmNotificationLogDto> result = notificationLogService.find(filter, null);
-		assertEquals("Wrong state ALL", 1, result.getTotalElements());
-		filter.setState(NotificationState.NOT);
-		Page<IdmNotificationLogDto> result2 = notificationLogService.find(filter, null);
-		assertEquals("Wrong state NOT", 1, result2.getTotalElements());
-		filter.setState(NotificationState.PARTLY);
-		result = notificationLogService.find(filter, null);
-		assertEquals("Wrong state PARTLY", 0, result.getTotalElements());
+		assertEquals(1, result.getTotalElements());
 	}
 	
 	@Test
-	public void sendWildCardsWithoutTemplate() {
+	public void testSendWildCardsWithoutTemplate() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String text = "testMessageText-" + System.currentTimeMillis();
 		//
@@ -283,7 +274,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	public void sendWildCardsWithTemplateAndOwnText() {
+	public void testSendWildCardsWithTemplateAndOwnText() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textMessage = "testMessageText-" + System.currentTimeMillis();
 		String textTemplate = "testMessageTemplate-" + System.currentTimeMillis();
@@ -324,7 +315,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	public void sendWildCardsWithTemplateWithoutText() {
+	public void testSendWildCardsWithTemplateWithoutText() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textTemplate = "testMessageTemplate-" + System.currentTimeMillis();
 		//
@@ -360,7 +351,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	public void sendTwoWildCardsWithDifferentTemplate() {
+	public void testSendTwoWildCardsWithDifferentTemplate() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textTemplate1 = "testMessageTemplate1-" + System.currentTimeMillis();
 		String textTemplate2 = "testMessageTemplate2-" + System.currentTimeMillis();
@@ -427,7 +418,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 
 	@Test
-	public void sendTwoWildCardsWithOwnMessage() {
+	public void testSendTwoWildCardsWithOwnMessage() {
 		String topic = "testTopic-" + System.currentTimeMillis();
 		String textTemplate1 = "testMessageTemplate1-" + System.currentTimeMillis();
 		String textTemplate2 = "testMessageTemplate2-" + System.currentTimeMillis();
@@ -489,7 +480,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 	
 	@Test
-	public void sendNofificationToConsoleIfTopicNotFound() {
+	public void testSendNofificationToConsoleIfTopicNotFound() {
 		String topic = getHelper().createName();
 		// create config, for email, topic, template and without level = wildcard
 		NotificationConfigurationDto config = new NotificationConfigurationDto();
@@ -517,7 +508,6 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		Assert.assertEquals(IdmConsoleLog.NOTIFICATION_TYPE, notification.getType());
 	}
 	
-	@Transactional
 	@Test(expected = ResultCodeException.class)
 	public void testSendRedirectNotificationWithEmptyRecipients() {
 		IdmNotificationConfiguration config = new IdmNotificationConfiguration();
@@ -538,7 +528,6 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 	
 	@Test
-	@Transactional
 	public void testSendNotificationToAlias() {
 		final IdmIdentityDto originalRecipient = getHelper().createIdentity((GuardedString) null);
 		NotificationConfigurationDto config = new NotificationConfigurationDto();
@@ -601,7 +590,6 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	}
 	
 	@Test
-	@Transactional
 	public void testSendNotificationToAliasWithRedirect() {
 		final IdmIdentityDto originalRecipient = getHelper().createIdentity((GuardedString) null);
 		NotificationConfigurationDto config = new NotificationConfigurationDto();
@@ -654,14 +642,14 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		}));
 	}
 
-	private IdmNotificationTemplateDto createTestTemplate(String body, String subject) {
+	private IdmNotificationTemplateDto createTestTemplate() {
 		// create templates
 		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
-		template.setName("test_" + System.currentTimeMillis());
-		template.setBodyHtml(body);
-		template.setBodyText(body);
-		template.setCode(subject);
-		template.setSubject(subject);
+		template.setName(getHelper().createName());
+		template.setBodyHtml(getHelper().createName());
+		template.setBodyText(template.getBodyHtml());
+		template.setCode(template.getName());
+		template.setSubject(getHelper().createName());
 		return notificationTemplateService.save(template);
 	}
 	

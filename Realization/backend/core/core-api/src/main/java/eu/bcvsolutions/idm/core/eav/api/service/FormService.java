@@ -771,7 +771,6 @@ public interface FormService extends ScriptEnabled {
 	@SuppressWarnings("rawtypes")
 	Page<IdmFormValueDto> findValues(IdmFormValueFilter filter, Pageable pageable, BasePermission... permission);
 	
-	
 	/**
 	 * Method returns full class names of all entities implementing {@link FormableEntity}
 	 * 

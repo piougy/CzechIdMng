@@ -248,6 +248,10 @@ Configuration file in test package ``logback-test.xml`` has to removed. New ``lo
 - ``SysSystemRepository#clearPasswordPolicy(IdmPasswordPolicy)`` - use find - update in service instead (audit will not be skipped).
 - ``IdmFormDefinitionRepository#clearMain(String, UUID, ZonedDateTime)`` - @deprecated @since 7.4.0 - use find - update in service instead (audit will not be skipped).
 - ``IdmPasswordPolicyRepository#updateDefaultPolicyByType(IdmPasswordPolicyType, UUID)`` - use find - update in service instead (audit will not be skipped).
+- ``SysSyncConfigRepository#clearDefaultLeader(UUID)`` - use find - update instead (audit will not be skipped).
+- ``SysSyncConfigRepository#clearDefaultRole(UUID)`` - use find - update instead (audit will not be skipped).
+- ``SysSyncConfigRepository#clearDefaultTreeNode(UUID)`` - use find - update instead (audit will not be skipped).
+- ``SysSyncConfigRepository#clearDefaultTreeType(UUID)`` - use find - update instead (audit will not be skipped).
 - ``IdmLongRunningTaskRepository#findAllByInstanceIdAndResult_State(String, OperationState)`` - @deprecated @since 7.5.0 - use ``IdmLongRunningTaskRepository#findAllByInstanceIdAndResult_StateOrderByCreatedAsc(String, OperationState)``.
 - ``AccModuleDescriptor#TOPIC_NEW_PASSWORD_ALL_SYSTEMS`` - @deprecated @since 8.0.0 - use ``CoreModuleDescriptor.TOPIC_PASSWORD_CHANGED``.
 - ``SysProvisioningArchiveRepository#deleteBySystem(SysSystem)`` - @deprecated @since 7.4.0 - use ``SysProvisioningArchiveRepository#deleteBySystem_Id(UUID)``.

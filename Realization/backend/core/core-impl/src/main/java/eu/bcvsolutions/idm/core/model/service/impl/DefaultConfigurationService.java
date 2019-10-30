@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,9 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
+import eu.bcvsolutions.idm.core.api.domain.comparator.CodeableComparator;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
@@ -41,9 +42,10 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration_;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
  * Default implementation finds configuration in database, if configuration for
@@ -366,13 +368,8 @@ public class DefaultConfigurationService
 		return results;
 	}
 	
-	/**
-	 * Returns all public configuration properties
-	 * 
-	 * @return
-	 */
 	@Override
-	public List<IdmConfigurationDto> getAllConfigurationsFromFiles() {
+	public List<IdmConfigurationDto> getAllConfigurationsFromFiles(BasePermission... permission) {
 		Map<String, Object> map = getAllProperties(env);
 		return map.entrySet().stream()
 				.filter(entry -> {
@@ -383,16 +380,11 @@ public class DefaultConfigurationService
 				})
 				.filter(dto -> {
 					// apply security
-					return getAuthorizationManager().evaluate(toEntity(dto), IdmBasePermission.READ);
+					BasePermission[] permissions = PermissionUtils.trimNull(permission);
+					return ObjectUtils.isEmpty(permissions)
+							|| getAuthorizationManager().evaluate(toEntity(dto), permissions);
 				})
-				.sorted(new Comparator<IdmConfigurationDto>() {
-
-					@Override
-					public int compare(IdmConfigurationDto one, IdmConfigurationDto two) {
-						return one.getName().compareToIgnoreCase(two.getName());
-					}
-					
-				})
+				.sorted(new CodeableComparator())
 				.collect(Collectors.toList());
 	}
 	
@@ -411,14 +403,7 @@ public class DefaultConfigurationService
 				.map(entry -> {
 					return toConfigurationDto(entry.getKey(), entry.getValue());
 				})
-				.sorted(new Comparator<IdmConfigurationDto>() {
-
-					@Override
-					public int compare(IdmConfigurationDto one, IdmConfigurationDto two) {
-						return one.getName().compareToIgnoreCase(two.getName());
-					}
-					
-				})
+				.sorted(new CodeableComparator())
 				.collect(Collectors.toList());
 	}
 	

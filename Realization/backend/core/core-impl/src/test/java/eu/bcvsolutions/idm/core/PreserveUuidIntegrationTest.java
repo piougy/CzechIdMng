@@ -27,7 +27,7 @@ public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 	public void testCreateConfigurationWithUuid() {
 		UUID id = UUID.randomUUID();
 		IdmConfigurationDto configuration = new IdmConfigurationDto(id);
-		configuration.setName("test-property-one");
+		configuration.setName(getHelper().createName());
 		configuration.setValue("one");
 		//
 		configuration = configurationService.save(configuration);
@@ -39,7 +39,7 @@ public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 	public void testIsNewWithId() {
 		UUID id = UUID.randomUUID();
 		IdmConfigurationDto configuration = new IdmConfigurationDto(id);
-		configuration.setName("test-property-one");
+		configuration.setName(getHelper().createName());
 		configuration.setValue("one");
 		//
 		assertTrue(configurationService.isNew(configuration));
@@ -48,7 +48,7 @@ public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testIsNewWithoutId() {
 		IdmConfigurationDto configuration = new IdmConfigurationDto();
-		configuration.setName("test-property-one");
+		configuration.setName(getHelper().createName());
 		configuration.setValue("one");
 		//
 		assertTrue(configurationService.isNew(configuration));
@@ -57,7 +57,7 @@ public class PreserveUuidIntegrationTest extends AbstractIntegrationTest {
 	@Test
 	public void testIsNotNew() {
 		IdmConfigurationDto configuration = new IdmConfigurationDto();
-		configuration.setName("test-property-two");
+		configuration.setName(getHelper().createName());
 		configuration.setValue("one");
 		//
 		assertTrue(configurationService.isNew(configuration));

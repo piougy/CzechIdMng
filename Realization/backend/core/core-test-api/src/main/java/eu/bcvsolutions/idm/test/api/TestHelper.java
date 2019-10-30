@@ -239,19 +239,26 @@ public interface TestHelper {
 	void deleteTreeNode(UUID id);
 
 	/**
-	 * Creates role with random name
+	 * Creates role with random code.
 	 *
 	 * @return
 	 */
 	IdmRoleDto createRole();
 
 	/**
-	 * Creates role with given code (name will be the same as code)
+	 * Creates role with given code (name will be the same as code).
 	 *
 	 * @param code [optional] will be generated, if not given
 	 * @return
 	 */
 	IdmRoleDto createRole(String code);
+	
+	/**
+	 * Creates role with random code and given priority.
+	 *
+	 * @return
+	 */
+	IdmRoleDto createRole(int priority);
 
 	/**
 	 * Creates role with given id and code (name will be the same as code)
@@ -271,6 +278,17 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleDto createRole(UUID id, String baseCode, String environment);
+	
+	/**
+	 * Creates role with given id, base code and environment (name will be the same as code)
+	 *
+	 * @param id [optional] if no id is given, then new id is generated
+	 * @param baseCode [optional] will be generated, if not given
+	 * @param environment [optional]
+	 * @param priority (default 0)
+	 * @return
+	 */
+	IdmRoleDto createRole(UUID id, String baseCode, String environment, Integer priority);
 	
 	/**
 	 * Creates role composition

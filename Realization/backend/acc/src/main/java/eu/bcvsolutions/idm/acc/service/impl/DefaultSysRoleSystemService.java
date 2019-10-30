@@ -138,7 +138,7 @@ public class DefaultSysRoleSystemService
 
 		if (isDuplicated) {
 			IdmRoleDto roleDto = roleService.get(dto.getRole());
-			SysSystemDto systemDto = DtoUtils.getEmbedded(dto, SysRoleSystem_.system);
+			SysSystemDto systemDto = DtoUtils.getEmbedded(roleSystems.get(0), SysRoleSystem_.system);
 			throw new ResultCodeException(AccResultCode.ROLE_SYSTEM_ALREADY_EXISTS,
 					ImmutableMap.of("role", roleDto.getCode(), "system", systemDto.getName()));
 		}

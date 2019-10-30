@@ -145,13 +145,14 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	@Test
 	public void testCancelRunningTask() throws InterruptedException, ExecutionException {
 		String result = "TEST_SUCCESS_04";
-		Long count = 100L;
+		Long count = 30L;
 		LongRunningTaskExecutor<String> taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
 		//
 		LongRunningFutureTask<String> futureTask = manager.execute(taskExecutor);
 		//
 		Function<String, Boolean> continueFunction = res -> {
-			return !manager.getLongRunningTask(futureTask).isRunning();
+			IdmLongRunningTaskDto longRunningTask = manager.getLongRunningTask(futureTask);
+			return !longRunningTask.isRunning() || !longRunningTask.getResultState().isRunnable();
 		};
 		getHelper().waitForResult(continueFunction);
 		//

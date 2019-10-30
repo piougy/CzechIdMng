@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
@@ -177,11 +179,13 @@ public interface ConfigurationService {
 	List<IdmConfigurationDto> getAllPublicConfigurations();
 	
 	/**
-	 * Returns all configuration properties from property files
+	 * Returns all configuration properties from property files.
 	 * 
+	 * @param permission
 	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met.
 	 */
-	List<IdmConfigurationDto> getAllConfigurationsFromFiles();
+	List<IdmConfigurationDto> getAllConfigurationsFromFiles(BasePermission... permission);
 	
 	/**
 	 * Returns server environment properties

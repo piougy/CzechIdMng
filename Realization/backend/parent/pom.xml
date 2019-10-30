@@ -746,7 +746,12 @@
 				<spring.profiles.active>test,test-mssql</spring.profiles.active>
 			</properties>
 		</profile>
-
+		<profile>
+			<id>test-postgresql</id>
+			<properties>
+				<spring.profiles.active>test,test-postgresql</spring.profiles.active>
+			</properties>
+		</profile>
 		<profile>
 			<id>separatedApp</id>
 			<properties>

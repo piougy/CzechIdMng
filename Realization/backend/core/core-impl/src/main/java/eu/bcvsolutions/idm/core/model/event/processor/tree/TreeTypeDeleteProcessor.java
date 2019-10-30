@@ -28,11 +28,11 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
  * @author Svanda
  *
  */
-@Component
+@Component(TreeTypeDeleteProcessor.PROCESSOR_NAME)
 @Description("Deletes tree type")
 public class TreeTypeDeleteProcessor extends CoreEventProcessor<IdmTreeTypeDto> {
 
-	public static final String PROCESSOR_NAME = "tree-node-delete-processor";
+	public static final String PROCESSOR_NAME = "core-tree-type-delete-processor";
 	private final IdmTreeTypeService service;
 	private final IdmTreeNodeRepository nodeRepository;
 	private final IdmIdentityContractRepository identityContractRepository;

@@ -286,6 +286,11 @@ public class DefaultTestHelper implements TestHelper {
 	public IdmRoleDto createRole() {
 		return createRole(null);
 	}
+	
+	@Override
+	public IdmRoleDto createRole(int priority) {
+		return createRole(null, null, null, priority);
+	}
 
 	@Override
 	public IdmRoleDto createRole(String code) {
@@ -299,12 +304,20 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmRoleDto createRole(UUID id, String baseCode, String environment) {
+		return createRole(id, baseCode, environment, null);
+	}
+	
+	@Override
+	public IdmRoleDto createRole(UUID id, String baseCode, String environment, Integer priority) {
 		IdmRoleDto role = new IdmRoleDto();
 		if (id != null) {
 			role.setId(id);
 		}
 		role.setBaseCode(baseCode == null ? createName() : baseCode);
 		role.setEnvironment(environment);
+		if (priority != null) {
+			role.setPriority(priority);
+		}
 		//
 		return roleService.save(role);
 	}

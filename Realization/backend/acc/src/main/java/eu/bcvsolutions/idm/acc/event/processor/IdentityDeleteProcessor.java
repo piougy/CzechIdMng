@@ -8,11 +8,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -28,7 +30,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  * @author Radek Tomiška
  *
  */
-@Component("accIdentityDeleteProcessor")
+@Component(IdentityDeleteProcessor.PROCESSOR_NAME)
 @Description("Ensures referential integrity. Cannot be disabled. Removes identity accounts.")
 public class IdentityDeleteProcessor
 		extends CoreEventProcessor<IdmIdentityDto> 
@@ -36,25 +38,15 @@ public class IdentityDeleteProcessor
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityDeleteProcessor.class);
 	
-	public static final String PROCESSOR_NAME = "identity-delete-processor";
-	private final AccIdentityAccountService identityAccountService;
-	private final SysProvisioningBreakRecipientService provisioningBreakRecipientService;
-	private final SysSyncConfigRepository syncConfigRepository;
+	public static final String PROCESSOR_NAME = "acc-identity-delete-processor";
+	//
+	@Autowired private AccIdentityAccountService identityAccountService;
+	@Autowired private SysProvisioningBreakRecipientService provisioningBreakRecipientService;
+	@Autowired private SysSyncConfigRepository syncConfigRepository;
+	@Autowired private SysSyncConfigService syncConfigService;
 	
-	@Autowired
-	public IdentityDeleteProcessor(
-			AccIdentityAccountService identityAccountService,
-			SysProvisioningBreakRecipientService provisioningBreakRecipientService,
-			SysSyncConfigRepository syncConfigRepository) {
+	public IdentityDeleteProcessor() {
 		super(IdentityEventType.DELETE);
-		//
-		Assert.notNull(identityAccountService, "Service is required.");
-		Assert.notNull(provisioningBreakRecipientService, "Service is required.");
-		Assert.notNull(syncConfigRepository, "Repository is required.");
-		//
-		this.identityAccountService = identityAccountService;
-		this.provisioningBreakRecipientService = provisioningBreakRecipientService;
-		this.syncConfigRepository = syncConfigRepository;
 	}
 	
 	@Override
@@ -67,9 +59,16 @@ public class IdentityDeleteProcessor
 		IdmIdentityDto identity = event.getContent();
 		Assert.notNull(identity, "Identity is required.");
 		Assert.notNull(identity.getId(), "Identity identifier is required.");
-		
-		syncConfigRepository.clearDefaultLeader(identity.getId());
-		
+		//
+		// Clears default leader.
+		syncConfigRepository
+			.findByDefaultLeader(identity.getId())
+			.forEach(config -> {
+				SysSyncContractConfigDto configDto = (SysSyncContractConfigDto) syncConfigService.get(config.getId());
+				configDto.setDefaultLeader(null);
+				syncConfigService.save(configDto);
+			});
+		//
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		identityAccountService.find(filter, null).forEach(identityAccount -> {

@@ -1,12 +1,14 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -33,50 +35,42 @@ public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyn
 	Long countBySystemMapping(@Param("systemMapping") SysSystemMapping entity);	
 	
 	/**
-	 * Clears default leader
+	 * Select sync configs by default leader.
 	 * 
 	 * @param defaultLeaderId
 	 * @return
-	 * @deprecated @since 10.0.0 rewrite to fin and delete - skips audit
+	 * @since 10.0.0
 	 */
-	@Deprecated
-	@Modifying
-	@Query("update SysSyncContractConfig e set e.defaultLeader = null where e.defaultLeader.id = :defaultLeader")
-	int clearDefaultLeader(@Param("defaultLeader") UUID defaultLeaderId);
+	@Query("select e from SysSyncContractConfig e where e.defaultLeader.id = :defaultLeader")
+	List<SysSyncContractConfig> findByDefaultLeader(@Param("defaultLeader") UUID defaultLeaderId);
 	
 	/**
-	 * Clears default tree type
+	 * Find configs by default tree type.
 	 * 
-	 * @param Tree type id
+	 * @param defaultTreeTypeId
 	 * @return
-	 * @deprecated @since 10.0.0 rewrite to fin and delete - skips audit
+	 * @since 10.0.0
 	 */
-	@Deprecated
-	@Modifying
-	@Query("update SysSyncContractConfig e set e.defaultTreeType = null where e.defaultTreeType.id = :defaultTreeType")
-	int clearDefaultTreeType(@Param("defaultTreeType") UUID defaultTreeTypeId);
+	@Query("select e from SysSyncContractConfig e where e.defaultTreeType.id = :defaultTreeType")
+	List<SysSyncContractConfig> findByDefaultTreeType(@Param("defaultTreeType") UUID defaultTreeTypeId);
 	
 	/**
-	 * Clears default tree node
+	 * Find configs by default tree node.
 	 * 
-	 * @param Tree node id
+	 * @param defaultTreeNodeId
 	 * @return
-	 * @deprecated @since 10.0.0 rewrite to fin and delete - skips audit
+	 * @since 10.0.0
 	 */
-	@Deprecated
-	@Modifying
-	@Query("update SysSyncContractConfig e set e.defaultTreeNode = null where e.defaultTreeNode.id = :defaultTreeNode")
-	int clearDefaultTreeNode(@Param("defaultTreeNode") UUID defaultTreeNodeId);
+	@Query("select e from SysSyncContractConfig e where e.defaultTreeNode.id = :defaultTreeNode")
+	List<SysSyncContractConfig> findByDefaultTreeNode(@Param("defaultTreeNode") UUID defaultTreeNodeId);
 	
 	/**
-	 * Clears default role
+	 * Find configs by default role.
 	 * 
-	 * @param Role id
+	 * @param defaultRole
 	 * @return
-	 * @deprecated @since 10.0.0 rewrite to fin and delete - skips audit
+	 * @since 10.0.0
 	 */
-	@Deprecated
-	@Modifying
-	@Query("update SysSyncIdentityConfig e set e.defaultRole = null where e.defaultRole.id = :defaultRole")
-	int clearDefaultRole(@Param("defaultRole") UUID defaultRole);
+	@Query("select e from SysSyncIdentityConfig e where e.defaultRole.id = :defaultRole")
+	List<SysSyncIdentityConfig> findByDefaultRole(@Param("defaultRole") UUID defaultRole);
 }

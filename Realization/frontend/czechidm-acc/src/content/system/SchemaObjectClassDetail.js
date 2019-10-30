@@ -42,12 +42,13 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
     }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const {objectClassId} = nextProps.match.params;
-    if (objectClassId && objectClassId !== this.props.match.params.objectClassId) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const {objectClassId} = nextProps.match.params;
+  //   if (objectClassId && objectClassId !== this.props.match.params.objectClassId) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   // Did mount only call initComponent method
   componentDidMount() {

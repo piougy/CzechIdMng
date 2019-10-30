@@ -43,19 +43,16 @@ class VsRequestDetail extends Basic.AbstractContent {
     }
   }
 
-  /**
-   * Component will receive new props, try to compare with actual,
-   * then init form
-   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { entity } = this.props;
-    if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
-      this._initConnectorObject(nextProps.entity.id);
-    }
-    if (!entity && nextProps.entity && nextProps.entity.id) {
-      this._initConnectorObject(nextProps.entity.id);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { entity } = this.props;
+  //   if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
+  //     this._initConnectorObject(nextProps.entity.id);
+  //   }
+  //   if (!entity && nextProps.entity && nextProps.entity.id) {
+  //     this._initConnectorObject(nextProps.entity.id);
+  //   }
+  // }
 
   realize(entity) {
     if (!entity) {

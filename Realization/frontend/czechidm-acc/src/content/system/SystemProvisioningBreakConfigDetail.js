@@ -43,12 +43,13 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
     return 'acc:content.provisioningBreakConfig';
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { mappingId } = nextProps.match.params;
-    if (mappingId && mappingId !== this.props.match.params.mappingId) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { mappingId } = nextProps.match.params;
+  //   if (mappingId && mappingId !== this.props.match.params.mappingId) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   // Did mount only call initComponent method
   componentDidMount() {

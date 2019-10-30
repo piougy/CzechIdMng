@@ -31,15 +31,13 @@ export default class ConfidentialStorageValueDetail extends Basic.AbstractConten
     this._initForm(entity);
   }
 
-  /**
-   * Method check if props in this component isn't different from new props.
-   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    // check id of old and new entity
-    if (nextProps.entity.id !== this.props.entity.id) {
-      this._initForm(nextProps.entity);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   // check id of old and new entity
+  //   if (nextProps.entity.id !== this.props.entity.id) {
+  //     this._initForm(nextProps.entity);
+  //   }
+  // }
 
   /**
    * Method for basic initial form

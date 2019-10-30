@@ -12,10 +12,6 @@ const schemaObjectClassManager = new SchemaObjectClassManager();
 
 class SchemaAttributeDetail extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return manager;
   }
@@ -28,12 +24,13 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.attributeDetail';
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { attributeId} = nextProps.match.params;
-    if (attributeId && attributeId !== this.props.match.params.attributeId) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { attributeId} = nextProps.match.params;
+  //   if (attributeId && attributeId !== this.props.match.params.attributeId) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   // Did mount only call initComponent method
   componentDidMount() {
@@ -114,7 +111,8 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
                 required
                 max={255}/>
               <Basic.TextField
-                ref="nativeName" hidden
+                ref="nativeName"
+                hidden
                 label={this.i18n('acc:entity.SchemaAttribute.nativeName')}
                 max={255}/>
               <Basic.Checkbox
@@ -138,7 +136,9 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('acc:entity.SchemaAttribute.returned_by_default')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link"
+              <Basic.Button
+                type="button"
+                level="link"
                 onClick={this.context.history.goBack}
                 showLoading={_showLoading}>
                 {this.i18n('button.back')}

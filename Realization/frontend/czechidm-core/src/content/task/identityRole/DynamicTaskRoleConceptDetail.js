@@ -29,13 +29,14 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
     this._initComponent(this.props);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps && (
-      JSON.stringify(nextProps.task) !== JSON.stringify(this.props.task)
-    )) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   if (nextProps && (
+  //     JSON.stringify(nextProps.task) !== JSON.stringify(this.props.task)
+  //   )) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   /**
    * Method for init component from didMount method and from willReceiveProps method

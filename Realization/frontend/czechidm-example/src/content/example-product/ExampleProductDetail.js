@@ -38,16 +38,13 @@ class ExampleProductDetail extends Basic.AbstractContent {
     this.refs.code.focus();
   }
 
-  /**
-   * Component will receive new props, try to compare with actual,
-   * then init form
-   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { entity } = this.props;
-    if (entity && entity.id !== nextProps.entity.id) {
-      this.refs.form.setData(nextProps.entity);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { entity } = this.props;
+  //   if (entity && entity.id !== nextProps.entity.id) {
+  //     this.refs.form.setData(nextProps.entity);
+  //   }
+  // }
 
   /**
    * Save entity to BE

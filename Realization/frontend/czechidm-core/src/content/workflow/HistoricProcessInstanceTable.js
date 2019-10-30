@@ -37,16 +37,13 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
     this._initComponent(this.props);
   }
 
-  /**
-   * In component will recive props compare forceSearchParameters. If are different
-   * call again _initComponent with nextProps.
-   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { forceSearchParameters } = nextProps;
-    if (forceSearchParameters && forceSearchParameters !== this.props.forceSearchParameters) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { forceSearchParameters } = nextProps;
+  //   if (forceSearchParameters && forceSearchParameters !== this.props.forceSearchParameters) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   _initComponent() {
     this.refs.table.reload();

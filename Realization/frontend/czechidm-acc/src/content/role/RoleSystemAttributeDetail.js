@@ -58,12 +58,13 @@ class RoleSystemAttributeDetail extends Advanced.AbstractTableContent {
     return this._isMenu('system');
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { attributeId} = nextProps.match.params;
-    if (attributeId && attributeId !== this.props.match.params.attributeId) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { attributeId} = nextProps.match.params;
+  //   if (attributeId && attributeId !== this.props.match.params.attributeId) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   // Did mount only call initComponent method
   componentDidMount() {

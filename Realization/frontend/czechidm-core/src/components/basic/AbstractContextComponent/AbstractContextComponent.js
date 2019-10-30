@@ -345,7 +345,7 @@ class AbstractContextComponent extends AbstractComponent {
    * Creates react-router Routes components for this component (url).
    */
   generateRouteComponents() {
-    const {match} = this.props;
+    const {match, location} = this.props;
 
     // Found children routes definitions (items from routes.js for this component).
     const childRoutes = this._getRouteDefinitions();
@@ -372,15 +372,18 @@ class AbstractContextComponent extends AbstractComponent {
 
       return lengthOfPathB - lengthOfPathA;
     });
+
     console.log('%cCHILDROUTESWITHCOMPONENT', 'background:black;color:white;', childRoutesWithComponent)
 
     const routes = [];
     // Generate react-redux Router components.
     childRoutesWithComponent.forEach(route => {
+      const Component = this._getComponent(route);
       routes.push(<Route
-        key={`${route.id}`}
+        key={`${route.id}${location.pathname}`}
         path={this._getConcatPath(match.path, route.concatedPath ? route.concatedPath : route.path)}
-        component={this._getComponent(route)}/>);
+        render={(props) => <Component {...props}/>
+        }/>);
     });
     return routes;
   }

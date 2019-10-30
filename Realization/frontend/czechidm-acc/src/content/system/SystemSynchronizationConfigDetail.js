@@ -62,12 +62,13 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     this.context.history.push(`/system/${entityId}/synchronization-logs/${entity.id}/detail`);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { synchronizationConfigId} = nextProps.match.params;
-    if (synchronizationConfigId && synchronizationConfigId !== this.props.match.params.synchronizationConfigId) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { synchronizationConfigId} = nextProps.match.params;
+  //   if (synchronizationConfigId && synchronizationConfigId !== this.props.match.params.synchronizationConfigId) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   // Did mount only call initComponent method
   componentDidMount() {

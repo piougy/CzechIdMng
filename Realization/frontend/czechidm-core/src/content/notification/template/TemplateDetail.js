@@ -38,14 +38,12 @@ export default class TemplateDetail extends Basic.AbstractContent {
     }
   }
 
-  /**
-  * Method check if props in this component is'nt different from new props.
-  */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id) {
-      // this._initForm(nextProps.entity);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id) {
+  //     // this._initForm(nextProps.entity);
+  //   }
+  // }
 
   _getIsNew() {
     return this.props.isNew;

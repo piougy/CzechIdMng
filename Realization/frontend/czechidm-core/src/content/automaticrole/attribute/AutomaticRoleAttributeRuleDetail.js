@@ -288,15 +288,13 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     this._initForm(entity);
   }
 
-  /**
-   * Method check if props in this component is'nt different from new props.
-   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    // check id of old and new entity
-    if (nextProps.entity.id !== this.props.entity.id || nextProps.entity.attributeName !== this.props.entity.attributeName) {
-      this._initForm(nextProps.entity);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   // check id of old and new entity
+  //   if (nextProps.entity.id !== this.props.entity.id || nextProps.entity.attributeName !== this.props.entity.attributeName) {
+  //     this._initForm(nextProps.entity);
+  //   }
+  // }
 
   getForm() {
     return this.refs.form;

@@ -7,6 +7,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,9 +40,11 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 	@Autowired private LongRunningTaskManager manager;
 
 	@Test
-	public void statefulFilterTest(){
+	public void statefulFilterTest() {
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		String expectedResult = "TEST_SUCCESS_01_M";
+		filter.setFrom(now);
+		String expectedResult = getHelper().createName();
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
@@ -68,9 +73,9 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 	}
 
 	@Test
-	public void runningFilterTest(){
+	public void runningFilterTest() {
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		String expectedResult = "TEST_SUCCESS_02_M";
+		String expectedResult = getHelper().createName();
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
@@ -86,15 +91,15 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 	}
 
 	@Test
-	public void typeFilterTest(){
+	public void typeFilterTest() {
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		String expectedResult = "TEST_SUCCESS_03_M";
+		String expectedResult = getHelper().createName();
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
 		manager.executeSync(taskExecutor);
 		IdmLongRunningTaskDto task1 = service.get(taskExecutor.getLongRunningTaskId());
-		task1.setTaskType("Type0001");
+		task1.setTaskType(getHelper().createName());
 		service.save(task1);
 		filter.setTaskType(task1.getTaskType());
 		Page<IdmLongRunningTaskDto> result = service.find(filter, null);
@@ -104,9 +109,9 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 	@Test
 	public void textFilterTest(){
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		String expectedResult = "TEST_SUCCESS_04_M";
-		String type1 = "Type00001";
-		String type2 = "Type00002";
+		String expectedResult = getHelper().createName();
+		String type1 = getHelper().createName();
+		String type2 = getHelper().createName();
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
@@ -174,7 +179,7 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 	@Test
 	public void operationStateFilterTest(){
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		String expectedResult = "TEST_SUCCESS_06_M";
+		String expectedResult = getHelper().createName();
 		// set tasks
 		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(expectedResult);
 		assertNull(taskExecutor.getLongRunningTaskId());
@@ -189,8 +194,8 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 	@Test
 	public void descriptionLengthTest2000() {
 		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
-		task.setTaskType("testType-" + System.currentTimeMillis());
-		task.setInstanceId("testInstance-" + System.currentTimeMillis());
+		task.setTaskType(getHelper().createName());
+		task.setInstanceId(getHelper().createName());
 		task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
 		
 		// this must past
@@ -208,8 +213,8 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 	@Test
 	public void descriptionLengthTest2050() {
 		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
-		task.setTaskType("testType-" + System.currentTimeMillis());
-		task.setInstanceId("testInstance-" + System.currentTimeMillis());
+		task.setTaskType(getHelper().createName());
+		task.setInstanceId(getHelper().createName());
 		task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
 		
 		// this must also past, but description will be cutoff

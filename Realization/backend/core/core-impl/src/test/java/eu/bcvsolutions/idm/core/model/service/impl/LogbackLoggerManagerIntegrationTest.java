@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 @Transactional
 public class LogbackLoggerManagerIntegrationTest extends AbstractIntegrationTest {
 	
-	private final static String TEST_PACKAGE_FROM_PROPERTIES = "eu.bcvsolutions.test.mock.package";
+	public final static String TEST_PACKAGE_FROM_PROPERTIES = "eu.bcvsolutions.test.mock.package";
 	//
 	@Autowired private ApplicationContext context;
 	@Autowired private ConfigurationService configurationService;

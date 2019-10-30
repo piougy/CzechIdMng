@@ -111,6 +111,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	@Autowired private LookupService lookupService;
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private IdmEntityEventService entityEventService;
+	@Autowired private EventConfiguration eventConfiguration;
 	//
 	private DefaultFormService formService;
 	
@@ -1726,6 +1727,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	public void testPropagateHighEventPriority() {
 		try {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			Assert.assertTrue(eventConfiguration.isAsynchronous());
 			FormableDto owner = getHelper().createIdentity((GuardedString) null);
 			getHelper().waitForResult(null, 1, 1);
 			//
@@ -1762,6 +1764,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 			Assert.assertEquals(PriorityType.HIGH, events.get(0).getPriority());
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			Assert.assertFalse(eventConfiguration.isAsynchronous());
 		}
 	}
 	

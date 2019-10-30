@@ -62,7 +62,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Ondrej Kopr
  * @author Radek Tomiška
  */
-public class DefaultAuditServiceIntegrationTest extends AbstractIntegrationTest {
+public class DefaultIdmAuditServiceIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmAuditService auditService;

@@ -18,9 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,10 +41,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -72,13 +68,10 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
  * @author svandav
  *
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWorkflowIntegrationTest {
 
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
-	@Autowired
-	private IdmIdentityService identityService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
 	@Autowired
@@ -90,8 +83,6 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	@Autowired
 	private IdmRoleService roleService;
 	@Autowired
-	private IdmConfigurationService configurationService;
-	@Autowired
 	private FormService formService;
 	@Autowired
 	private IdmRoleFormAttributeService roleFormAttributeService;
@@ -99,61 +90,59 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	private AttachmentManager attachmentManager;
 	@Autowired
 	private Executor executor;
-	//
-	private IdmRoleDto roleA;
-
-	private static final String USER_TEST_A = "testA";
-	private static final String USER_TEST_B = "testB";
+	// FIXME: move to wf configuration / constants somewhere
 	private static final String APPROVE_BY_MANAGER_ENABLE = "idm.sec.core.wf.approval.manager.enabled";
 
 	@Before
 	public void init() {
 		loginAsAdmin();
-		prepareIdentityAndRoles();
+		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, true);
 	}
 
 	@After
 	public void logout() {
+		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
 		super.logout();
 	}
 
-	private void prepareIdentityAndRoles() {
-		// create roles
-		roleA = getHelper().createRole();
-		roleA.setPriority(100);
-		roleService.save(roleA);
+//	private void prepareIdentityAndRoles() {
+//		// create roles
+//		roleA = getHelper().createRole();
+//		roleA.setPriority(100);
+//		roleService.save(roleA);
+//
+//		
+//
+//		// prepare identity and contract
+//		preapareContractAndIdentity(USER_TEST_A);
+//		preapareContractAndIdentity(USER_TEST_B);
+//	}
+//
+//	private void preapareContractAndIdentity(String username) {
+//		IdmIdentityDto identity = createIdentity(username);
+//		IdmIdentityContractDto contract = new IdmIdentityContractDto();
+//		contract.setIdentity(identity.getId());
+//		contract.setValidFrom(LocalDate.now().minusDays(1));
+//		contract.setValidTill(LocalDate.now().plusMonths(1));
+//		contract.setMain(true);
+//		contract.setDescription(username);
+//		identityContractService.save(contract);
+//	}
 
-		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "true");
-
-		// prepare identity and contract
-		preapareContractAndIdentity(USER_TEST_A);
-		preapareContractAndIdentity(USER_TEST_B);
-	}
-
-	private void preapareContractAndIdentity(String username) {
-		IdmIdentityDto identity = createIdentity(username);
-		IdmIdentityContractDto contract = new IdmIdentityContractDto();
-		contract.setIdentity(identity.getId());
-		contract.setValidFrom(LocalDate.now().minusDays(1));
-		contract.setValidTill(LocalDate.now().plusMonths(1));
-		contract.setMain(true);
-		contract.setDescription(username);
-		identityContractService.save(contract);
-	}
-
-	private IdmIdentityDto createIdentity(String name) {
-		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername(name);
-		identity.setFirstName("Test");
-		identity.setLastName("Identity");
-		identity = identityService.save(identity);
-		return identity;
-	}
+//	private IdmIdentityDto createIdentity() {
+//		IdmIdentityDto identity = new IdmIdentityDto();
+//		identity.setUsername(getHelper().createName());
+//		identity.setFirstName("Test");
+//		identity.setLastName("Identity");
+//		identity = identityService.save(identity);
+//		return identity;
+//	}
 
 	@Test
 	@Transactional
 	public void addPermissionViaRoleRequestTest() {
-		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
+		IdmIdentityDto testA = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleA = getHelper().createRole(100);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
@@ -200,8 +189,10 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	@Transactional
 	public void changePermissionViaRoleRequestTest() {
 		this.addPermissionViaRoleRequestTest();
-		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
+		IdmIdentityDto testA = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleA = getHelper().createRole(100);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
+		getHelper().createIdentityRole(testA, roleA);
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
 		request.setApplicant(testA.getId());
@@ -240,8 +231,10 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	@Transactional
 	public void removePermissionViaRoleRequestTest() {
 		this.addPermissionViaRoleRequestTest();
-		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
+		IdmIdentityDto testA = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleA = getHelper().createRole(100);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
+		getHelper().createIdentityRole(testA, roleA);
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
 		request.setApplicant(testA.getId());
@@ -272,8 +265,9 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	@Test(expected = RoleRequestException.class)
 	@Transactional
 	public void noSameApplicantExceptionTest() {
-		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
-		IdmIdentityDto testB = identityService.getByUsername(USER_TEST_B);
+		IdmIdentityDto testA = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleA = getHelper().createRole(100);
+		IdmIdentityDto testB = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contractB = identityContractService.getPrimeContract(testB.getId());
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();
@@ -298,6 +292,9 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 	@Test(expected = RoleRequestException.class)
 	@Transactional
 	public void notRightForExecuteImmediatelyExceptionTest() {
+		IdmIdentityDto testA = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto roleA = getHelper().createRole(100);
+		
 		this.logout();
 		// Log as user without right for immediately execute role request (without
 		// approval)
@@ -308,9 +305,8 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 							&& !IdmGroupPermission.APP_ADMIN.equals(authority.getAuthority());
 				}).collect(Collectors.toList());
 		SecurityContextHolder.getContext().setAuthentication(
-				new IdmJwtAuthentication(new IdmIdentityDto(USER_TEST_A), null, authorities, "test"));
+				new IdmJwtAuthentication(testA, null, authorities, "test"));
 
-		IdmIdentityDto testA = identityService.getByUsername(USER_TEST_A);
 		IdmIdentityContractDto contractA = identityContractService.getPrimeContract(testA.getId());
 
 		IdmRoleRequestDto request = new IdmRoleRequestDto();

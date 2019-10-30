@@ -35,22 +35,20 @@ import eu.bcvsolutions.idm.test.api.AbstractRestTest;
  * Test for sending notifications via rest
  *
  * @author Peter Sourek
+ * @author Radek Tomiška
  */
 public class NotificationRestTest extends AbstractRestTest {
 
-	private static final String TEST_SENDER_1 = "testSender1";
-	private static final String TEST_RECIPIENT_1 = "testRecipient1";
 	private static final String TEST_SUBJECT = "Test subject";
 	private static final String TEST_MESSAGE = "Test message";
 	private static final String TEST_TOPIC = "testTopic";
 
-	@Autowired
-	IdmIdentityService identityService;
+	@Autowired private IdmIdentityService identityService;
 
 	@Test
 	public void testSendNotification() throws Exception {
-		final IdmIdentityDto sender = createTestIdentity(TEST_SENDER_1);
-		final IdmIdentityDto recipient = createTestIdentity(TEST_RECIPIENT_1);
+		final IdmIdentityDto sender = createTestIdentity();
+		final IdmIdentityDto recipient = createTestIdentity();
 		//
 		final IdmNotificationDto notif = createTestNotification(NotificationLevel.INFO, TEST_SUBJECT, TEST_MESSAGE, TEST_TOPIC, sender, recipient);
 		final String jsonContent = jsonify(notif);
@@ -65,15 +63,15 @@ public class NotificationRestTest extends AbstractRestTest {
 		assertEquals(201, response.getStatus());
 	}
 
-	IdmIdentityDto createTestIdentity(String name) {
+	IdmIdentityDto createTestIdentity() {
 		final IdmIdentityDto dto = new IdmIdentityDto();
+		String name = getHelper().createName();
 		dto.setUsername(name);
 		dto.setFirstName(name);
 		dto.setLastName(name);
 		dto.setEmail(name + "@email.com");
 		//
-		final IdmIdentityDto result = identityService.saveInternal(dto);
-		return result;
+		return identityService.save(dto);
 	}
 
 	IdmNotificationDto createTestNotification(NotificationLevel level, String subject, String message, String topic, IdmIdentityDto sender, IdmIdentityDto... recipients) {

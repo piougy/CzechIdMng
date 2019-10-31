@@ -31,6 +31,12 @@ class TabPanel extends Basic.AbstractContextComponent {
         // label from title
         label = (<span>{this.i18n(item.titleKey, { defaultValue: item.title })}</span>);
       }
+
+      // Some path doesn't starts with slash ... we need to
+      // ensure absolute path, so we need to add slash to the start.
+      if (item.to) {
+        item.to = `/${this.trimSlash(item.to)}`;
+      }
       //
       switch (item.type) {
         case 'TAB':

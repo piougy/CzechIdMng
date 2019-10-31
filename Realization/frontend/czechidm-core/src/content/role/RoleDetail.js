@@ -47,7 +47,7 @@ class RoleDetail extends Basic.AbstractContent {
 
     if (Utils.Entity.isNew(entity)) {
       entity.priorityEnum = RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.NONE);
-      entity.priority = RolePriorityEnum.getPriority(RolePriorityEnum.NONE) + '';
+      entity.priority = `${RolePriorityEnum.getPriority(RolePriorityEnum.NONE)}`;
       this._setSelectedEntity(entity);
     } else {
       this._setSelectedEntity(this._prepareEntity(entity));
@@ -72,7 +72,7 @@ class RoleDetail extends Basic.AbstractContent {
     const copyOfEntity = _.merge({}, entity); // we can not modify given entity
     // we dont need to load entities again - we have them in embedded objects
     copyOfEntity.priorityEnum = RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.getKeyByPriority(copyOfEntity.priority));
-    copyOfEntity.priority = copyOfEntity.priority + ''; // We have to do convert form int to string (cause TextField and validator)
+    copyOfEntity.priority += ''; // We have to do convert form int to string (cause TextField and validator)
     return copyOfEntity;
   }
 
@@ -133,7 +133,7 @@ class RoleDetail extends Basic.AbstractContent {
         const uuidId = uuid.v1();
         const newEntity = {
           roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL),
-          priority: RolePriorityEnum.getPriority(RolePriorityEnum.NONE) + '',
+          priority: `${RolePriorityEnum.getPriority(RolePriorityEnum.NONE)}`,
           priorityEnum: RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.NONE)
         };
         this.context.store.dispatch(roleManager.receiveEntity(uuidId, newEntity));
@@ -148,7 +148,7 @@ class RoleDetail extends Basic.AbstractContent {
   _onChangePriorityEnum(item) {
     if (item) {
       const priority = RolePriorityEnum.getPriority(item.value);
-      this.refs.priority.setValue(priority + '');
+      this.refs.priority.setValue(`${priority}`);
     } else {
       this.refs.priority.setValue(null);
     }
@@ -234,7 +234,8 @@ class RoleDetail extends Basic.AbstractContent {
                           hidden={!showEnvironment}
                           code="environment"
                           label={ this.i18n('entity.Role.environment.label') }
-                          helpBlock={ this.i18n(`entity.Role.environment.${ entity.environment ? 'helpCode' : 'help' }`, { escape: false, code: entity.code }) }
+                          helpBlock={ this.i18n(`entity.Role.environment.${ entity.environment ? 'helpCode' : 'help' }`,
+                            { escape: false, code: entity.code }) }
                           max={ 255 }/>
                       </Basic.Col>
                       <Basic.Col lg={ 8 }>
@@ -251,7 +252,7 @@ class RoleDetail extends Basic.AbstractContent {
                     <Basic.EnumSelectBox
                       ref="priorityEnum"
                       label={ this.i18n('entity.Role.priorityEnum') }
-                      enum= {RolePriorityEnum }
+                      enum={RolePriorityEnum}
                       onChange={ this._onChangePriorityEnum.bind(this) }/>
                     <Basic.TextField
                       ref="priority"
@@ -312,7 +313,7 @@ class RoleDetail extends Basic.AbstractContent {
           </Basic.Tab>
           <Basic.Tab
             eventKey={ 2 }
-            rendered={ entity.id && SecurityManager.hasAuthority('REQUEST_READ') ? true : false }
+            rendered={ !!(entity.id && SecurityManager.hasAuthority('REQUEST_READ')) }
             disabled={ roleManager.isRequestModeEnabled() || !entity.id }
             title={
               <span>
@@ -326,17 +327,17 @@ class RoleDetail extends Basic.AbstractContent {
               </span>
             }
             className="bordered">
-              <Basic.ContentHeader
-                text={ this.i18n('content.requests.header', { escape: false }) }
-                style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
-              <RequestTable
-                ref="table"
-                uiKey={uiKeyRoleRequest}
-                forceSearchParameters={ requestsForceSearch }
-                showFilter={false}
-                showLoading={_showLoading}
-                manager={requestManager}
-                columns= {['state', 'created', 'modified', 'wf', 'detail']}/>
+            <Basic.ContentHeader
+              text={ this.i18n('content.requests.header', { escape: false }) }
+              style={{ marginBottom: 0, paddingTop: 15, paddingRight: 15, paddingLeft: 15 }}/>
+            <RequestTable
+              ref="table"
+              uiKey={uiKeyRoleRequest}
+              forceSearchParameters={ requestsForceSearch }
+              showFilter={false}
+              showLoading={_showLoading}
+              manager={requestManager}
+              columns={['state', 'created', 'modified', 'wf', 'detail']}/>
           </Basic.Tab>
         </Basic.Tabs>
       </Basic.Div>

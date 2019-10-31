@@ -2,6 +2,7 @@ import React from 'react';
 import * as Basic from '../../components/basic';
 import {RequestManager, RequestItemManager } from '../../redux';
 import RequestItemTable from './RequestItemTable';
+
 const requestItemManager = new RequestItemManager();
 
 /**
@@ -27,12 +28,12 @@ class RequestInfo extends Basic.AbstractContent {
     const params = this.props.match.params;
     const entityId = this._getEntityId(params, this.props.location.pathname);
     this.requestManager.getService().getChanges(params.requestId, entityId)
-    .then(json => {
-      this.setState({itemDetail: {changes: json, show: true}});
-    })
-    .catch(error => {
-      this.addError(error);
-    });
+      .then(json => {
+        this.setState({itemDetail: {changes: json, show: true}});
+      })
+      .catch(error => {
+        this.addError(error);
+      });
   }
 
   _getEntityId(params, path) {
@@ -74,13 +75,13 @@ class RequestInfo extends Basic.AbstractContent {
           className="no-margin"
           buttons={[
             <Basic.Button
-            level="warning"
-            key="showChanges"
-            onClick={ this._showItemChanges.bind(this) }
-            title={this.i18n('content.requestInfo.button.showChanges.tooltip')}
-            titlePlacement="bottom">
-            {' '}
-            { this.i18n('content.requestInfo.button.showChanges.label') }
+              level="warning"
+              key="showChanges"
+              onClick={ this._showItemChanges.bind(this) }
+              title={this.i18n('content.requestInfo.button.showChanges.tooltip')}
+              titlePlacement="bottom">
+              {' '}
+              { this.i18n('content.requestInfo.button.showChanges.label') }
             </Basic.Button>,
             <Basic.Button
               level="primary"
@@ -93,30 +94,30 @@ class RequestInfo extends Basic.AbstractContent {
               { this.i18n('content.requestInfo.button.goToRequest.label') }
             </Basic.Button>
           ]}/>
-          { this.props.children }
-          <Basic.Modal
-            show={itemDetail && itemDetail.show}
-            onHide={this.closeDetail.bind(this)}
-            backdrop="static"
-            keyboard={!_showLoading}>
-              <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n('content.requestDetail.itemDetail.header')}/>
-              <Basic.Modal.Body>
-                <RequestItemTable
-                  forceSearchParameters={forceSearchParameters}
-                  isEditable={false}
-                  columns={['operation', 'owner']}
-                  showLoading={_showLoading}
-                />
-              </Basic.Modal.Body>
-              <Basic.Modal.Footer>
-                <Basic.Button
-                  level="link"
-                  onClick={ this.closeDetail.bind(this) }
-                  showLoading={ _showLoading }>
-                  { this.i18n('button.close') }
-                </Basic.Button>
-              </Basic.Modal.Footer>
-          </Basic.Modal>
+        { this.getRoutes() }
+        <Basic.Modal
+          show={itemDetail && itemDetail.show}
+          onHide={this.closeDetail.bind(this)}
+          backdrop="static"
+          keyboard={!_showLoading}>
+          <Basic.Modal.Header closeButton={ !_showLoading } text={this.i18n('content.requestDetail.itemDetail.header')}/>
+          <Basic.Modal.Body>
+            <RequestItemTable
+              forceSearchParameters={forceSearchParameters}
+              isEditable={false}
+              columns={['operation', 'owner']}
+              showLoading={_showLoading}
+            />
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={ this.closeDetail.bind(this) }
+              showLoading={ _showLoading }>
+              { this.i18n('button.close') }
+            </Basic.Button>
+          </Basic.Modal.Footer>
+        </Basic.Modal>
       </div>
     );
   }

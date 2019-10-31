@@ -745,6 +745,13 @@
 			<properties>
 				<spring.profiles.active>test,test-mssql</spring.profiles.active>
 			</properties>
+			<dependencies>
+				<dependency>
+				    <groupId>com.microsoft.sqlserver</groupId>
+				    <artifactId>sqljdbc4</artifactId>
+				    <version>4.0</version>
+				</dependency>
+			</dependencies>
 		</profile>
 		<profile>
 			<id>test-postgresql</id>

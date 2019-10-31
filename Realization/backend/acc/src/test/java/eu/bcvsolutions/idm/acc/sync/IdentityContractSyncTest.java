@@ -815,14 +815,6 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 		Assert.assertEquals(treeType.getId(), configContract.getDefaultTreeType());
 		Assert.assertNull(configContract.getDefaultTreeNode());
 		
-		treeNode = getHelper().createTreeNode(treeType, null);
-		configContract.setDefaultTreeNode(treeNode.getId());
-		config = syncConfigService.save(configContract);
-		configContract = (SysSyncContractConfigDto) syncConfigService.get(config);
-		
-		Assert.assertEquals(treeType.getId(), configContract.getDefaultTreeType());
-		Assert.assertEquals(treeNode.getId(), configContract.getDefaultTreeNode());
-		
 		treeTypeService.delete(treeType);
 		configContract = (SysSyncContractConfigDto) syncConfigService.get(config);
 		

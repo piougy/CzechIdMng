@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
 @PropertySource("classpath:/flyway-rpt.properties")
 public class RptFlywayConfig extends AbstractFlywayConfiguration {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RptFlywayConfig.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RptFlywayConfig.class);
 
 	@Bean
 	@DependsOn("flywayCore")
@@ -40,7 +40,7 @@ public class RptFlywayConfig extends AbstractFlywayConfiguration {
 	@ConfigurationProperties(prefix = "flyway.rpt")
 	public Flyway flywayRpt() {
 		Flyway flyway = super.createFlyway();		
-		log.info("Starting flyway migration for module rpt [{}]: ", flyway.getConfiguration().getTable());
+		LOG.info("Starting flyway migration for module rpt [{}]: ", flyway.getConfiguration().getTable());
 		return flyway;
 	}
 }

@@ -56,6 +56,31 @@
 
 	<profiles>
 		<profile>
+			<id>test-postgresql</id>
+			<build>
+				<plugins>
+					<plugin>
+					    <groupId>org.flywaydb</groupId>
+					    <artifactId>flyway-maven-plugin</artifactId>
+					    <version>6.0.8</version>
+					    <configuration>
+						    <driver>org.postgresql.Driver</driver>
+								<url>jdbc:postgresql://localhost:15432/czechidm_1</url>
+						    <user>czechidm_1</user>
+						    <password>IeWu1hedua_1</password>
+						    <connectRetries>10</connectRetries>
+						    <schemas>
+						        <schema>public</schema>
+						    </schemas>
+						    <skipDefaultCallbacks>false</skipDefaultCallbacks>
+						    <cleanDisabled>false</cleanDisabled>
+						    <skip>false</skip>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>release</id>
 			<build>
 				<plugins>

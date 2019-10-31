@@ -180,6 +180,9 @@ class AbstractForm extends AbstractContextComponent {
     if (!this.props.rendered) {
       return;
     }
+    // @todo-upgrade-10 - I had to set component's state directly and now.
+    // I need to make setting of components data synchronous!
+    this._setDataToComponents(json, true);
 
     this.setState({
       allData: merge({}, json)
@@ -187,9 +190,6 @@ class AbstractForm extends AbstractContextComponent {
       this._setDataToComponents(json, false);
       this.processEnded(null, operationType);
     });
-    // @todo-upgrade-10 - I had to set component's state directly and now.
-    // I need to make setting of components data synchronous!
-    this._setDataToComponents(json, true);
   }
 
   isFormValid() {

@@ -300,7 +300,7 @@ class SelectBox extends AbstractFormComponent {
                     this.itemRenderer(json, '');
                     // add item to array
                     renderedValues.push(json);
-                    if (renderedValues.length === value.length) { // posledni callback
+                    if (renderedValues.length === value.length) { // last callback
                       if (!isError) {
                         this.setState({
                           value: renderedValues,

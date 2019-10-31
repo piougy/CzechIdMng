@@ -644,7 +644,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     // get entities for currently selected
     let selectedEntities = [];
     if (!isSelectedAll) {
-      selectedEntities = manager.getEntitiesByIds(this.props._state, selectedRows);
+      selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     }
     //
     // get entitties for currently deselected

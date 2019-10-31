@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
 @PropertySource("classpath:/flyway-vs.properties")
 public class VirtualSystemFlywayConfig extends AbstractFlywayConfiguration {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(VirtualSystemFlywayConfig.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(VirtualSystemFlywayConfig.class);
 
 	@Bean
 	@DependsOn("flywayCore")
@@ -40,7 +40,7 @@ public class VirtualSystemFlywayConfig extends AbstractFlywayConfiguration {
 	@ConfigurationProperties(prefix = "flyway.vs")
 	public Flyway flywayModuleVirtualSystem() {
 		Flyway flyway = super.createFlyway();		
-		log.info("Starting flyway migration for vs module [{}]: ", flyway.getConfiguration().getTable());
+		LOG.info("Starting flyway migration for vs module [{}]: ", flyway.getConfiguration().getTable());
 		return flyway;
 	}
 }

@@ -40,16 +40,13 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     this._initComponent(this.props);
   }
 
-  /**
-   * componentWillReceiveProps call _initComponent only if is
-   * historicProcessInstanceId is different from next props historicProcessInstanceId.
-   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { historicProcessInstanceId } = nextProps.match.params;
-    if (historicProcessInstanceId && historicProcessInstanceId !== this.props.match.params.historicProcessInstanceId) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { historicProcessInstanceId } = nextProps.match.params;
+  //   if (historicProcessInstanceId && historicProcessInstanceId !== this.props.match.params.historicProcessInstanceId) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   /**
    * Method for init component from didMount method and from willReceiveProps method

@@ -8,7 +8,6 @@ import moment from 'moment';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { IdentityManager, DataManager, ProfileManager } from '../../redux';
-import ApiOperationTypeEnum from '../../enums/ApiOperationTypeEnum';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
 
 const identityManager = new IdentityManager();
@@ -26,7 +25,6 @@ class IdentityDetail extends Basic.AbstractContent {
     this.state = {
       showLoading: false,
       showLoadingIdentityTrimmed: false,
-      setDataToForm: false,
       deleteButton: false,
       showCropper: false
     };
@@ -37,32 +35,32 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { identity, entityId } = this.props;
-    this.refs.form.setData(identity);
+    const {entityId } = this.props;
     this.context.store.dispatch(identityManager.fetchProfilePermissions(entityId));
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.identity) {
-      if (nextProps.identity._trimmed) {
-        this.setState({showLoadingIdentityTrimmed: true});
-      } else {
-        this.setState({showLoadingIdentityTrimmed: false});
-      }
-      if (nextProps.identity !== this.props.identity) {
-        // after receive new Identity we will hide showLoading on form
-        this.setState({showLoading: false, setDataToForm: true});
-        this.context.store.dispatch(identityManager.fetchProfilePermissions(nextProps.entityId));
-      }
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   if (nextProps.identity) {
+  //     if (nextProps.identity._trimmed) {
+  //       this.setState({showLoadingIdentityTrimmed: true});
+  //     } else {
+  //       this.setState({showLoadingIdentityTrimmed: false});
+  //     }
+  //     if (nextProps.identity !== this.props.identity) {
+  //       // after receive new Identity we will hide showLoading on form
+  //       this.setState({showLoading: false, setDataToForm: true});
+  //       this.context.store.dispatch(identityManager.fetchProfilePermissions(nextProps.entityId));
+  //     }
+  //   }
+  // }
 
-  componentDidUpdate() {
-    if (this.props.identity && !this.props.identity._trimmed && this.state.setDataToForm) {
-      // We have to set data to form after is rendered
-      this.transformData(this.props.identity, null, ApiOperationTypeEnum.GET);
-    }
-  }
+  // componentDidUpdate() {
+  //   if (this.props.identity && !this.props.identity._trimmed && this.state.setDataToForm) {
+  //     // We have to set data to form after is rendered
+  //     this.transformData(this.props.identity, null, ApiOperationTypeEnum.GET);
+  //   }
+  // }
 
   onSave(event) {
     if (event) {
@@ -77,8 +75,7 @@ class IdentityDetail extends Basic.AbstractContent {
 
   saveIdentity(json) {
     this.setState({
-      showLoading: true,
-      setDataToForm: false // Form will not be set new data (we are waiting to saved data)
+      showLoading: true
     }, () => {
       this.context.store.dispatch(identityManager.updateEntity(json, null, (updatedEntity, error) => {
         this._afterSave(updatedEntity, error);
@@ -102,10 +99,6 @@ class IdentityDetail extends Basic.AbstractContent {
         this.context.history.replace(`/identity/${encodeURIComponent(entity.username)}/profile`);
       }
     });
-  }
-
-  transformData(json, error, operationType) {
-    this.refs.form.setData(json, error, operationType);
   }
 
   /**
@@ -194,6 +187,7 @@ class IdentityDetail extends Basic.AbstractContent {
 
             <Basic.AbstractForm
               ref="form"
+              data={identity}
               readOnly={ !identityManager.canSave(identity, _permissions) || readOnly }
               showLoading={ showLoadingIdentityTrimmed || showLoading }>
               <div className="image-field-container">
@@ -233,9 +227,7 @@ class IdentityDetail extends Basic.AbstractContent {
                   <Basic.TextField ref="lastName" label={this.i18n('lastName')} max={255} />
                 </div>
               </div>
-
               <Basic.TextField ref="externalCode" label={this.i18n('content.identity.profile.externalCode')} max={255}/>
-
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100} />
@@ -244,7 +236,6 @@ class IdentityDetail extends Basic.AbstractContent {
                   <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100} />
                 </Basic.Col>
               </Basic.Row>
-
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
@@ -261,14 +252,12 @@ class IdentityDetail extends Basic.AbstractContent {
                     max={30} />
                 </Basic.Col>
               </Basic.Row>
-
               <Basic.TextArea
                 ref="description"
                 label={this.i18n('description.label')}
                 placeholder={this.i18n('description.placeholder')}
                 rows={4}
                 max={1000}/>
-
               <Basic.EnumSelectBox
                 ref="state"
                 enum={ IdentityStateEnum }
@@ -276,15 +265,12 @@ class IdentityDetail extends Basic.AbstractContent {
                 label={ this.i18n('entity.Identity.state.label') }
                 helpBlock={ <span>{ this.i18n('entity.Identity.state.help') }</span> }
                 readOnly/>
-
               <Basic.Checkbox
                 ref="disabled"
                 label={this.i18n('entity.Identity.disabledReadonly.label')}
                 helpBlock={this.i18n('entity.Identity.disabledReadonly.help')}
                 readOnly />
-
             </Basic.AbstractForm>
-
             <Basic.PanelFooter>
               <Basic.Button
                 type="button"
@@ -312,13 +298,11 @@ class IdentityDetail extends Basic.AbstractContent {
           show={ showCropper }
           onHide={ this._closeCropper.bind(this) }
           backdrop="static" >
-
           <Basic.Modal.Body>
             <Advanced.ImageCropper
               ref="cropper"
               src={ cropperSrc }/>
           </Basic.Modal.Body>
-
           <Basic.Modal.Footer>
             <Basic.Button
               level="link"

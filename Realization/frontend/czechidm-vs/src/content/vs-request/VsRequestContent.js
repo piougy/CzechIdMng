@@ -45,21 +45,18 @@ class VsRequestContent extends Basic.AbstractContent {
     }
   }
 
-  /**
-   * Component will receive new props, try to compare with actual,
-   * then init form
-   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { entityId } = this.props.match.params;
-    if (entityId && nextProps.match.params.entityId && entityId !== nextProps.match.params.entityId) {
-      if (this._isNew()) {
-        // persist new entity to redux
-        this.context.store.dispatch(manager.receiveEntity(nextProps.match.params.entityId, { }));
-      } else {
-        this.context.store.dispatch(manager.fetchEntity(nextProps.match.params.entityId));
-      }
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { entityId } = this.props.match.params;
+  //   if (entityId && nextProps.match.params.entityId && entityId !== nextProps.match.params.entityId) {
+  //     if (this._isNew()) {
+  //       // persist new entity to redux
+  //       this.context.store.dispatch(manager.receiveEntity(nextProps.match.params.entityId, { }));
+  //     } else {
+  //       this.context.store.dispatch(manager.fetchEntity(nextProps.match.params.entityId));
+  //     }
+  //   }
+  // }
 
   /**
    * Helper - returns `true`, when new entity is created

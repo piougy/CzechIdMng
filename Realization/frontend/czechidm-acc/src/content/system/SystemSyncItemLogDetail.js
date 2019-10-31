@@ -30,12 +30,13 @@ class SystemSyncItemLogDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.SystemSyncItemLogDetail';
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { logItemId} = nextProps.match.params;
-    if (logItemId && logItemId !== this.props.match.params.logItemId) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { logItemId} = nextProps.match.params;
+  //   if (logItemId && logItemId !== this.props.match.params.logItemId) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   // Did mount only call initComponent method
   componentDidMount() {

@@ -39,16 +39,13 @@ class SystemDetail extends Basic.AbstractContent {
     this._initForm(entity);
   }
 
-  /**
-   * Component will receive new props, try to compare with actual,
-   * then init form
-   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { entity } = this.props;
-    if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
-      this._initForm(nextProps.entity);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { entity } = this.props;
+  //   if (entity && nextProps.entity && entity.id !== nextProps.entity.id) {
+  //     this._initForm(nextProps.entity);
+  //   }
+  // }
 
   _initForm(entity) {
     let data = {

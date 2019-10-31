@@ -54,18 +54,19 @@ class RoleDetail extends Basic.AbstractContent {
     }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { entity } = this.props;
-    if ((nextProps.match.params && this.props.match.params && nextProps.match.params.requestId !== this.props.match.params.requestId)
-      || (nextProps.entity && nextProps.entity !== entity)) {
-      // Init manager - evaluates if we want to use standard (original) manager or
-      // universal request manager (depends on existing of 'requestId' param)
-      roleManager = this.getRequestManager(nextProps.match.params, new RoleManager());
-    }
-    if (nextProps.entity && nextProps.entity !== entity && nextProps.entity) {
-      this._setSelectedEntity(this._prepareEntity(nextProps.entity));
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { entity } = this.props;
+  //   if ((nextProps.match.params && this.props.match.params && nextProps.match.params.requestId !== this.props.match.params.requestId)
+  //     || (nextProps.entity && nextProps.entity !== entity)) {
+  //     // Init manager - evaluates if we want to use standard (original) manager or
+  //     // universal request manager (depends on existing of 'requestId' param)
+  //     roleManager = this.getRequestManager(nextProps.match.params, new RoleManager());
+  //   }
+  //   if (nextProps.entity && nextProps.entity !== entity && nextProps.entity) {
+  //     this._setSelectedEntity(this._prepareEntity(nextProps.entity));
+  //   }
+  // }
 
   _prepareEntity(entity) {
     const copyOfEntity = _.merge({}, entity); // we can not modify given entity

@@ -43,9 +43,10 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
     return 'system-synchronization-configs';
   }
 
-  UNSAFE_componentWillReceiveProps(props) {
-    this._initComponent(props);
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(props) {
+  //   this._initComponent(props);
+  // }
 
   componentWillUnmount() {
     super.componentWillUnmount();

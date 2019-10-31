@@ -48,17 +48,18 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     return 'content.automaticRoleRequestDetail';
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { _request } = nextProps;
-    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.match.params.entityId;
-    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.match.params.entityId;
-    if (entityId && entityId !== entityIdCurrent) {
-      this._initComponent(nextProps);
-    }
-    if (_request && _request !== this.props._request) {
-      this._initComponentCurrentRoles(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { _request } = nextProps;
+  //   const entityId = nextProps.entityId ? nextProps.entityId : nextProps.match.params.entityId;
+  //   const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.match.params.entityId;
+  //   if (entityId && entityId !== entityIdCurrent) {
+  //     this._initComponent(nextProps);
+  //   }
+  //   if (_request && _request !== this.props._request) {
+  //     this._initComponentCurrentRoles(nextProps);
+  //   }
+  // }
 
   // Did mount only call initComponent method
   componentDidMount() {

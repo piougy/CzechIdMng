@@ -39,12 +39,13 @@ class SystemSynchronizationLogDetail extends Advanced.AbstractTableContent {
     this.context.history.push(`/system/${entityId}/synchronization-action-logs/${entity.id}/detail`);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { logId} = nextProps.match.params;
-    if (logId && logId !== this.props.match.params.logId) {
-      this._initComponent(nextProps);
-    }
-  }
+  // @Deprecated - since V10 ... replaced by dynamic key in Route
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { logId} = nextProps.match.params;
+  //   if (logId && logId !== this.props.match.params.logId) {
+  //     this._initComponent(nextProps);
+  //   }
+  // }
 
   // Did mount only call initComponent method
   componentDidMount() {

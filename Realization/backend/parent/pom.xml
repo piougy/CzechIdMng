@@ -757,6 +757,15 @@
 					<artifactId>postgresql</artifactId>
 				</dependency>
 			</dependencies>
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories
+				- used by goal 'deploy' -->
+			<distributionManagement>
+				<snapshotRepository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
 		</profile>
 		<profile>
 			<id>separatedApp</id>

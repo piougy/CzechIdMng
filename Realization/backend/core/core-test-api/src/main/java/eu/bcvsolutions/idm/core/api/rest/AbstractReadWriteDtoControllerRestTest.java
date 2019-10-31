@@ -217,7 +217,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	@Test
-    public void notFound() throws Exception {
+    public void testNotFound() throws Exception {
 		getMockMvc().perform(get(getDetailUrl(UUID.randomUUID()))
         		.with(authentication(getAdminAuthentication()))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))

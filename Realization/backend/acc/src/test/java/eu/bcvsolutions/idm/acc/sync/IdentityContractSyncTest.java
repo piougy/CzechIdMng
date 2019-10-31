@@ -790,6 +790,47 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void testDeleteDefaultTreeTypeAndNode() {
+		SysSystemDto system = initData();
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+		SysSyncContractConfigDto configContract = (SysSyncContractConfigDto) config;
+
+		// Set default tree type to sync configuration
+		IdmTreeTypeDto treeType = getHelper().createTreeType();
+		configContract.setDefaultTreeType(treeType.getId());
+		
+		// Set default tree node to sync configuration
+		IdmTreeNodeDto treeNode = getHelper().createTreeNode(treeType, null);
+		configContract.setDefaultTreeNode(treeNode.getId());
+		config = syncConfigService.save(configContract);
+		configContract = (SysSyncContractConfigDto) syncConfigService.get(config);
+		
+		Assert.assertEquals(treeType.getId(), configContract.getDefaultTreeType());
+		Assert.assertEquals(treeNode.getId(), configContract.getDefaultTreeNode());
+		
+		treeNodeService.delete(treeNode);
+		configContract = (SysSyncContractConfigDto) syncConfigService.get(config);
+		
+		Assert.assertEquals(treeType.getId(), configContract.getDefaultTreeType());
+		Assert.assertNull(configContract.getDefaultTreeNode());
+		
+		treeNode = getHelper().createTreeNode(treeType, null);
+		configContract.setDefaultTreeNode(treeNode.getId());
+		config = syncConfigService.save(configContract);
+		configContract = (SysSyncContractConfigDto) syncConfigService.get(config);
+		
+		Assert.assertEquals(treeType.getId(), configContract.getDefaultTreeType());
+		Assert.assertEquals(treeNode.getId(), configContract.getDefaultTreeNode());
+		
+		treeTypeService.delete(treeType);
+		configContract = (SysSyncContractConfigDto) syncConfigService.get(config);
+		
+		Assert.assertNull(configContract.getDefaultTreeType());
+		Assert.assertNull(configContract.getDefaultTreeNode());
+	}
+	
+	@Test
 	public void testLinkAndUpdateContract() {
 		String position1 = "test-link-update-1-" + System.currentTimeMillis();
 		String position2 = "test-link-update-2-" + System.currentTimeMillis();

@@ -13,13 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.hibernate.envers.RevisionType;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -72,30 +67,18 @@ public class DefaultIdmAuditServiceIntegrationTest extends AbstractIntegrationTe
 	private IdmIdentityService identityService;
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	@PersistenceContext
-	private EntityManager entityManager;
-
-	@Before
-	public void before() {
-		this.loginAsAdmin();
-	}
-
-	@After
-	public void after() {
-		this.logout();
-	}
 
 	@Test
 	public void roleAuditTestCreateModify() {
-		IdmRoleDto role = saveInTransaction(constructRole("audit_test_role"), roleService);
+		IdmRoleDto role = saveInTransaction(constructRole(), roleService);
 
 		List<IdmAuditDto> result = auditService.findRevisions(IdmRole.class, role.getId());
 
 		assertEquals(1, result.size());
 
 		role = roleService.get(role.getId());
-		role.setCode("audit_test_role_2");
-		role.setDescription("desc");
+		role.setCode(getHelper().createName());
+		role.setDescription(getHelper().createName());
 		role = saveInTransaction(role, roleService);
 		result = auditService.findRevisions(IdmRole.class, role.getId());
 
@@ -155,9 +138,8 @@ public class DefaultIdmAuditServiceIntegrationTest extends AbstractIntegrationTe
 
 	@Test
 	public void diffAuditTest() {
-		IdmIdentityDto identity = this.constructIdentity("test_diff", "John", "Doe");
+		IdmIdentityDto identity = this.constructIdentity("John", "Doe");
 		identity = saveInTransaction(identity, identityService);
-		// identityRepository.save(identity);
 
 		identity = identityService.get(identity.getId());
 
@@ -165,7 +147,6 @@ public class DefaultIdmAuditServiceIntegrationTest extends AbstractIntegrationTe
 		identity.setFirstName("Leonard");
 		identity.setLastName("Nimoy");
 		identity = saveInTransaction(identity, identityService);
-		// identityRepository.save(identity);
 
 		identity = identityService.get(identity.getId());
 		identity.setEmail(null);
@@ -246,10 +227,10 @@ public class DefaultIdmAuditServiceIntegrationTest extends AbstractIntegrationTe
 
 	@Test
 	public void identityAuditCreateModify() {
-		IdmIdentityDto identity = this.constructIdentity("aud_test", "test", "test");
+		IdmIdentityDto identity = this.constructIdentity("test", "test");
 		identity = identityService.save(identity);
 		identity = identityService.get(identity.getId());
-		IdmRoleDto role = roleService.save(constructRole("aud_test_role"));		
+		IdmRoleDto role = getHelper().createRole();		
 		getHelper().createIdentityRole(identity, role);
 		//
 		List<IdmAuditDto> result = auditService.findRevisions(IdmIdentity.class, identity.getId());
@@ -257,12 +238,6 @@ public class DefaultIdmAuditServiceIntegrationTest extends AbstractIntegrationTe
 
 		IdmAuditDto audit = result.get(result.size() - 1);
 		assertEquals(RevisionType.ADD.toString(), audit.getModification());
-		// TODO: list aren't audited
-		// assertEquals(true, audit.getChangedAttributes().contains("roles"));
-		// assertEquals(2, audit.getModifiedEntityNames().size());
-		//
-		// assertEquals(true,
-		// audit.getModifiedEntityNames().toString().contains("IdmIdentityRole"));
 	}
 
 	@Test
@@ -878,15 +853,15 @@ public class DefaultIdmAuditServiceIntegrationTest extends AbstractIntegrationTe
 		Assert.assertTrue(audits.stream().anyMatch(a -> a.getEntityId().equals(password.getId())));
 	}
 
-	private IdmRoleDto constructRole(String name) {
+	private IdmRoleDto constructRole() {
 		IdmRoleDto role = new IdmRoleDto();
-		role.setCode(name);
+		role.setCode(getHelper().createName());
 		return role;
 	}
 
-	private IdmIdentityDto constructIdentity(String username, String firstName, String secondName) {
+	private IdmIdentityDto constructIdentity(String firstName, String secondName) {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername(username);
+		identity.setUsername(getHelper().createName());
 		identity.setFirstName(firstName);
 		identity.setLastName(secondName);
 		return identity;

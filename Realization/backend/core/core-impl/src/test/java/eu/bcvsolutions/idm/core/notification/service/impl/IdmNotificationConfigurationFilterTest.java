@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,16 +27,6 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 	
 	@Autowired private IdmNotificationConfigurationService idmNotificationConfService;
 	@Autowired private IdmNotificationTemplateService idmNotificationTemplateService;
-
-	@Before
-	public void login() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		super.logout();
-	}
 
 	@Test
 	public void testTopicFilter() {
@@ -69,8 +57,7 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 	@Test
 	public void testTemplateIdFilter() {
 		String text = "someText" + System.currentTimeMillis();
-		IdmNotificationTemplateDto templ = createTemplate("template " + System.currentTimeMillis(), "code",
-				"testFilter");
+		IdmNotificationTemplateDto templ = createTemplate("testFilter");
 		NotificationConfigurationDto notification = createNotification(NotificationLevel.SUCCESS, CoreModuleDescriptor.MODULE_ID + ":test003", text,
 				templ.getId());
 		IdmNotificationConfigurationFilter filter = new IdmNotificationConfigurationFilter();
@@ -116,10 +103,10 @@ public class IdmNotificationConfigurationFilterTest extends AbstractIntegrationT
 	 * 
 	 * @return
 	 */
-	private IdmNotificationTemplateDto createTemplate(String name, String code, String subject) {
+	private IdmNotificationTemplateDto createTemplate(String subject) {
 		IdmNotificationTemplateDto templ = new IdmNotificationTemplateDto();
-		templ.setName(name);
-		templ.setCode(code);
+		templ.setName(getHelper().createName());
+		templ.setCode(templ.getName());
 		templ.setSubject(subject);
 		return idmNotificationTemplateService.save(templ);
 	}

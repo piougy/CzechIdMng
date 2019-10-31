@@ -1,12 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -91,7 +84,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		
 		Serializable storageValue = confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyOne);	
 		
-		assertNull(storageValue);
+		Assert.assertNull(storageValue);
 	}
 	
 	@Transactional
@@ -110,7 +103,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		confidentalStorage.save(identity.getId(), identity.getClass(), storageKeyOne, value);
 		Serializable storageValue = confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyOne);
 		
-		assertEquals(value, storageValue);
+		Assert.assertEquals(value, storageValue);
 	}
 	
 	@Test
@@ -124,8 +117,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		confidentalStorage.save(identity.getId(), identity.getClass(), storageKeyOne, values);		
 		Serializable storageValue = confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyOne);	
 		
-		assertEquals(values.getClass(), storageValue.getClass());
-		assertArrayEquals(values.toArray(new String[]{}), ((List<String>) storageValue).toArray(new String[]{}));
+		Assert.assertEquals(values.getClass(), storageValue.getClass());
+		Assert.assertArrayEquals(values.toArray(new String[]{}), ((List<String>) storageValue).toArray(new String[]{}));
 	}
 	
 	@Test
@@ -144,10 +137,10 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		Serializable storageValueOne = confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyOne);
 		Serializable storageValueTwo = confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyTwo);
 		
-		assertEquals(value, storageValueOne);
+		Assert.assertEquals(value, storageValueOne);
 			
-		assertEquals(values.getClass(), storageValueTwo.getClass());
-		assertArrayEquals(values.toArray(new String[]{}), ((List<String>) storageValueTwo).toArray(new String[]{}));
+		Assert.assertEquals(values.getClass(), storageValueTwo.getClass());
+		Assert.assertArrayEquals(values.toArray(new String[]{}), ((List<String>) storageValueTwo).toArray(new String[]{}));
 	}
 	
 	@Test
@@ -159,12 +152,12 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		String value = "one";
 		confidentalStorage.save(identity.getId(), identity.getClass(), storageKeyOne, value);
 		
-		assertEquals(value, confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyOne));
+		Assert.assertEquals(value, confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyOne));
 		
 		value = "one_update";
 		confidentalStorage.save(identity, storageKeyOne, value);
 		
-		assertEquals(value, confidentalStorage.get(identity, storageKeyOne));
+		Assert.assertEquals(value, confidentalStorage.get(identity, storageKeyOne));
 	}
 	
 	@Test
@@ -179,8 +172,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		String valueTwo = "two";
 		confidentalStorage.save(identityTwo.getId(), identityOne.getClass(), storageKeyOne, valueTwo);
 		
-		assertEquals(valueOne, confidentalStorage.get(identityOne.getId(), identityOne.getClass(), storageKeyOne));
-		assertEquals(valueTwo, confidentalStorage.get(identityTwo.getId(), identityTwo.getClass(), storageKeyOne));
+		Assert.assertEquals(valueOne, confidentalStorage.get(identityOne.getId(), identityOne.getClass(), storageKeyOne));
+		Assert.assertEquals(valueTwo, confidentalStorage.get(identityTwo.getId(), identityTwo.getClass(), storageKeyOne));
 	}
 	
 	@Test
@@ -193,14 +186,14 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		String value = "one";
 		confidentalStorage.save(identity.getId(), identity.getClass(), storageKeyOne, value);
 
-		assertEquals(value, confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyOne));
+		Assert.assertEquals(value, confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyOne));
 		
 		ArrayList<String> values = Lists.newArrayList("one", "two", "three");
 		confidentalStorage.save(identity.getId(), identity.getClass(), storageKeyOne, values);	
 		
 		Serializable storageValue = confidentalStorage.get(identity.getId(), identity.getClass(), storageKeyOne);
-		assertEquals(values.getClass(), storageValue.getClass());
-		assertArrayEquals(values.toArray(new String[]{}), ((List<String>) storageValue).toArray(new String[]{}));
+		Assert.assertEquals(values.getClass(), storageValue.getClass());
+		Assert.assertArrayEquals(values.toArray(new String[]{}), ((List<String>) storageValue).toArray(new String[]{}));
 	}
 	
 	@Test
@@ -215,17 +208,17 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		String valueTwo = "two";
 		confidentalStorage.save(identityTwo.getId(), IdmIdentity.class, storageKeyOne, valueTwo);
 		
-		assertEquals(valueOne, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
-		assertEquals(valueTwo, confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertEquals(valueOne, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertEquals(valueTwo, confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, storageKeyOne));
 		
 		confidentalStorage.delete(identityOne.getId(), IdmIdentity.class, storageKeyOne);
 		
-		assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
-		assertEquals(valueTwo, confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertEquals(valueTwo, confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, storageKeyOne));
 		
 		confidentalStorage.delete(identityTwo, storageKeyOne);
 		
-		assertNull(confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertNull(confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, storageKeyOne));
 	}
 	
 	@Test
@@ -239,13 +232,13 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		String valueTwo = "two";
 		confidentalStorage.save(identityOne.getId(), IdmIdentity.class, storageKeyTwo, valueTwo);
 		
-		assertEquals(valueOne, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
-		assertEquals(valueTwo, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyTwo));
+		Assert.assertEquals(valueOne, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertEquals(valueTwo, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyTwo));
 		
 		confidentalStorage.deleteAll(identityOne.getId(), IdmIdentity.class);
 		
-		assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
-		assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyTwo));
+		Assert.assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyTwo));
 	}
 	
 	@Test
@@ -259,13 +252,13 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		String valueTwo = "two";
 		confidentalStorage.save(identityOne.getId(), IdmIdentity.class, storageKeyTwo, valueTwo);
 		
-		assertEquals(valueOne, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
-		assertEquals(valueTwo, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyTwo));
+		Assert.assertEquals(valueOne, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertEquals(valueTwo, confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyTwo));
 		
 		confidentalStorage.deleteAll(identityOne);
 		
-		assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
-		assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyTwo));
+		Assert.assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertNull(confidentalStorage.get(identityOne.getId(), IdmIdentity.class, storageKeyTwo));
 	}
 	
 	@Test
@@ -278,10 +271,10 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		confidentalStorage.save(identity.getId(), IdmIdentity.class, storageKeyOne, value);
 		//
 		String readValue = confidentalStorage.get(identity.getId(), IdmIdentity.class, storageKeyOne, String.class);
-		assertEquals(value, readValue);
+		Assert.assertEquals(value, readValue);
 		//
 		readValue = confidentalStorage.get(identity, storageKeyOne, String.class);
-		assertEquals(value, readValue);
+		Assert.assertEquals(value, readValue);
 	}
 	
 	@Transactional
@@ -308,11 +301,11 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		Integer defaultValue = 10;
 		Integer readValue = confidentalStorage.get(identity.getId(), IdmIdentity.class, storageKeyOne, Integer.class, defaultValue);
 		
-		assertEquals(defaultValue, readValue);
+		Assert.assertEquals(defaultValue, readValue);
 		
 		readValue = confidentalStorage.get(identity, storageKeyOne, Integer.class, defaultValue);
 		
-		assertEquals(defaultValue, readValue);
+		Assert.assertEquals(defaultValue, readValue);
 	}
 	
 	@Test
@@ -321,12 +314,12 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		String storageKeyOne = getHelper().createName();
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);	
 
-		assertNull(confidentalStorage.get(identity.getId(), IdmIdentity.class, storageKeyOne, Integer.class));
+		Assert.assertNull(confidentalStorage.get(identity.getId(), IdmIdentity.class, storageKeyOne, Integer.class));
 		
 		Integer defaultValue = 10;
 		Integer readValue = confidentalStorage.get(identity.getId(), IdmIdentity.class, storageKeyOne, Integer.class, defaultValue);
 		
-		assertEquals(defaultValue, readValue);
+		Assert.assertEquals(defaultValue, readValue);
 	}
 	
 	@Test
@@ -340,7 +333,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		
 		GuardedString savedPassword = confidentalStorage.getGuardedString(identity, storageKeyOne);
 		
-		assertEquals(password, savedPassword.asString());
+		Assert.assertEquals(password, savedPassword.asString());
 	}
 	
 	@Test
@@ -354,7 +347,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		
 		GuardedString savedPassword = confidentalStorage.getGuardedString(identity.getId(), IdmIdentity.class, storageKeyOne);
 		
-		assertEquals(password, savedPassword.asString());
+		Assert.assertEquals(password, savedPassword.asString());
 	}
 	
 	@Transactional
@@ -372,10 +365,11 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		String storageKeyOne = getHelper().createName();
 		// unpersisted identity
 		IdmIdentity owner = new IdmIdentity(UUID.randomUUID());
-		assertNull(confidentalStorage.get(owner.getId(), IdmIdentity.class, storageKeyOne));
+		Assert.assertNull(confidentalStorage.get(owner.getId(), IdmIdentity.class, storageKeyOne));
 	}
 
 	@Test
+	@Transactional
 	public void testChangeConfidentialStorageKey() {
 		IdmIdentityDto identityOne = getHelper().createIdentity(getHelper().createName(), null);
 		IdmIdentityDto identityTwo = getHelper().createIdentity(getHelper().createName(), null);
@@ -390,11 +384,11 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		confidentalStorage.saveGuardedString(identityThree, identityThree.getUsername(), new GuardedString(passwordThree));
 
 		Serializable serializable = confidentalStorage.get(identityOne.getId(), IdmIdentity.class, identityOne.getUsername());
-		assertEquals(passwordOne, serializable);
+		Assert.assertEquals(passwordOne, serializable);
 		serializable = confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, identityTwo.getUsername());
-		assertEquals(passwordTwo, serializable);
+		Assert.assertEquals(passwordTwo, serializable);
 		serializable = confidentalStorage.get(identityThree.getId(), IdmIdentity.class, identityThree.getUsername());
-		assertEquals(passwordThree, serializable);
+		Assert.assertEquals(passwordThree, serializable);
 
 		String newKey = getHelper().createName();
 		newKey = newKey.substring(newKey.length() - 16);
@@ -404,34 +398,34 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		// try with old key
 		try {
 			confidentalStorage.get(identityOne.getId(), IdmIdentity.class, identityOne.getUsername());
-			fail();
+			Assert.fail();
 		} catch (Exception e) {
-			assertTrue(e.getCause() instanceof BadPaddingException);
+			Assert.assertTrue(e.getCause() instanceof BadPaddingException);
 		}
 		
 		try {
 			confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, identityTwo.getUsername());
-			fail();
+			Assert.fail();
 		} catch (Exception e) {
-			assertTrue(e.getCause() instanceof BadPaddingException);
+			Assert.assertTrue(e.getCause() instanceof BadPaddingException);
 		}
 
 		try {
 			confidentalStorage.get(identityThree.getId(), IdmIdentity.class, identityThree.getUsername());
-			fail();
+			Assert.fail();
 		} catch (Exception e) {
-			assertTrue(e.getCause() instanceof BadPaddingException);
+			Assert.assertTrue(e.getCause() instanceof BadPaddingException);
 		}
 
 		// change key in LRT
 		runChangeConfidentialStorageKeyTask(configurableEnviroment.getProperty(CryptService.APPLICATION_PROPERTIES_KEY));
 		
 		serializable = confidentalStorage.get(identityOne.getId(), IdmIdentity.class, identityOne.getUsername());
-		assertEquals(passwordOne, serializable);
+		Assert.assertEquals(passwordOne, serializable);
 		serializable = confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, identityTwo.getUsername());
-		assertEquals(passwordTwo, serializable);
+		Assert.assertEquals(passwordTwo, serializable);
 		serializable = confidentalStorage.get(identityThree.getId(), IdmIdentity.class, identityThree.getUsername());
-		assertEquals(passwordThree, serializable);
+		Assert.assertEquals(passwordThree, serializable);
 
 		reinitializingKey();
 	}
@@ -465,31 +459,31 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		filter.setOwnerId(identity.getId());
 		List<IdmConfidentialStorageValueDto> values = conidentialStorageValueService.find(filter, null).getContent();
 		IdmConfidentialStorageValueDto storageValueDto = values.get(0);
-		assertEquals(1, values.size());
+		Assert.assertEquals(1, values.size());
 		storageValueDto = conidentialStorageValueService.get(storageValueDto.getId());
-		assertNotNull(storageValueDto);
+		Assert.assertNotNull(storageValueDto);
 
 		IdmAuditFilter auditFilter = new IdmAuditFilter();
 		auditFilter.setEntityId(storageValueDto.getId());
 		List<IdmAuditDto> audits = auditService.find(auditFilter, null).getContent();
-		assertEquals(1, audits.size());
+		Assert.assertEquals(1, audits.size());
 
 		confidentalStorage.delete(identity, identity.getUsername());
 		identityService.delete(identity);
 
 		values = conidentialStorageValueService.find(filter, null).getContent();
-		assertEquals(0, values.size());
+		Assert.assertEquals(0, values.size());
 		audits = auditService.find(auditFilter, null).getContent();
-		assertEquals(2, audits.size());
+		Assert.assertEquals(2, audits.size());
 
 		for (IdmAuditDto audit : audits) {
-			assertEquals(storageValueDto.getId(), audit.getEntityId());
+			Assert.assertEquals(storageValueDto.getId(), audit.getEntityId());
 		}
 
 		audits = auditController.find(auditFilter, null, null).getContent();
-		assertEquals(2, audits.size());
+		Assert.assertEquals(2, audits.size());
 		for (IdmAuditDto audit : audits) {
-			assertEquals(storageValueDto.getId(), audit.getEntityId());
+			Assert.assertEquals(storageValueDto.getId(), audit.getEntityId());
 		}
 
 	}
@@ -497,7 +491,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Test
 	public void testNonExistingId() {
 		IdmConfidentialStorageValueDto storageValueDto = conidentialStorageValueService.get(UUID.randomUUID());
-		assertNull(storageValueDto);
+		Assert.assertNull(storageValueDto);
 	}
 
 	/**
@@ -514,7 +508,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		task.init(properties);
 		//
 		Boolean executed = longRunningTaskManager.executeSync(task);
-		assertTrue(executed);
+		Assert.assertTrue(executed);
 	}
 
 	/**
@@ -527,7 +521,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 			initMethod.setAccessible(true);
 			initMethod.invoke(defaultCryptService);
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			fail("Problem with call method 'init', Exception: " + e.getLocalizedMessage());
+			Assert.fail("Problem with call method 'init', Exception: " + e.getLocalizedMessage());
 		}
 	}
 
@@ -541,7 +535,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		try {
 			FieldUtils.writeField(defaultCryptService, "key", new SecretKeySpec(newKey.getBytes(), "AES"), true);
 		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			fail("Problem with set field 'key', Exception: " + e.getLocalizedMessage());
+			Assert.fail("Problem with set field 'key', Exception: " + e.getLocalizedMessage());
 		}
 	}
 }

@@ -54,7 +54,7 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 	}
 	
 	@Test
-	public void findByText() {
+	public void testFindByText() {
 		// username
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityRoleDto createIdentityRole = getHelper().createIdentityRole(identity, getHelper().createRole());
@@ -70,7 +70,7 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 	}
 	
 	@Test
-	public void findInvalidRoles() {
+	public void testFindInvalidRoles() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		getHelper().createIdentityRole(identity, getHelper().createRole()); // valid
 		IdmIdentityRoleDto inValidByDate = getHelper().createIdentityRole(identity, getHelper().createRole(), null, LocalDate.now().minusDays(2));
@@ -88,7 +88,7 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 	}
 	
 	@Test
-	public void findAutomaticRoles() {
+	public void testFindAutomaticRoles() {
 		IdmIdentityContractDto contract = getHelper().getPrimeContract(getHelper().createIdentity().getId());
 		IdmIdentityRoleDto normal = getHelper().createIdentityRole(contract, getHelper().createRole()); // normal
 		// automatic

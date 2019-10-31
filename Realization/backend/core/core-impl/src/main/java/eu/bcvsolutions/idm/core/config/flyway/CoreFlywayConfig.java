@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayPostProcessor;
 @PropertySource("classpath:/flyway-core.properties")
 public class CoreFlywayConfig extends AbstractFlywayConfiguration {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CoreFlywayConfig.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(CoreFlywayConfig.class);
 	public static final String NAME = "flywayCore";
 	
 	@Bean
@@ -40,7 +40,7 @@ public class CoreFlywayConfig extends AbstractFlywayConfiguration {
 	@ConfigurationProperties(prefix = "flyway.core")
 	public Flyway flywayCore() {
 		Flyway flyway = super.createFlyway();		
-		log.info("Starting flyway migration for module core [{}]: ", flyway.getConfiguration().getTable());
+		LOG.info("Starting flyway migration for module core [{}]: ", flyway.getConfiguration().getTable());
 		return flyway;
 	}
 	

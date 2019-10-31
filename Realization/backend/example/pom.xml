@@ -72,7 +72,7 @@
 					    <configuration>
 						    <driver>org.postgresql.Driver</driver>
 						    <url>jdbc:postgresql://localhost:15432/czechidm_1</url>
-						    <user>czechidm</user>
+						    <user>czechidm_1</user>
 						    <password>IeWu1hedua_1</password>
 						    <connectRetries>10</connectRetries>
 						    <schemas>

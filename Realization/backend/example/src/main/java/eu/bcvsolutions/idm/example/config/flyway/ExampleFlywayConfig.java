@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
 
 /**
  * DB migration for example module
- * 
+ *
  * @author Radek Tomiška
  *
  */
@@ -30,8 +30,8 @@ import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
 @EnableConfigurationProperties(FlywayProperties.class)
 @PropertySource("classpath:/flyway-example.properties")
 public class ExampleFlywayConfig extends AbstractFlywayConfiguration {
-	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ExampleFlywayConfig.class);
+
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ExampleFlywayConfig.class);
 
 	@Bean
 	@DependsOn("flywayCore")
@@ -39,8 +39,8 @@ public class ExampleFlywayConfig extends AbstractFlywayConfiguration {
 	@ConditionalOnExpression("${flyway.enabled:true} && '${flyway.example.locations}'!=''")
 	@ConfigurationProperties(prefix = "flyway.example")
 	public Flyway flywayModuleExample() {
-		Flyway flyway = super.createFlyway();		
-		log.info("Starting flyway migration for example module [{}]: ", flyway.getConfiguration().getTable());
+		Flyway flyway = super.createFlyway();
+		LOG.info("Starting flyway migration for example module [{}]: ", flyway.getConfiguration().getTable());
 		return flyway;
 	}
 }

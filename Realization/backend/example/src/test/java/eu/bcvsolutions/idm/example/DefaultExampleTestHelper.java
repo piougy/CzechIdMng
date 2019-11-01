@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.example;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +43,7 @@ public class DefaultExampleTestHelper extends eu.bcvsolutions.idm.test.api.Defau
 		ExampleProductDto product = new ExampleProductDto();
 		product.setCode(code == null ? createName() : code);
 		product.setName(name == null ? createName() : name);
-		product.setPrice(price);
+		product.setPrice(price == null ? null : price.round(new MathContext(4, RoundingMode.HALF_UP)));
 		//
 		return productService.save(product);
 	}

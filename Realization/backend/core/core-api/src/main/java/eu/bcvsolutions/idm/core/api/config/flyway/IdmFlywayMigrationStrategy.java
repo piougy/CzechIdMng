@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.config.flyway;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Arrays;
 
@@ -21,8 +22,10 @@ import org.springframework.util.Assert;
 @Component
 public class IdmFlywayMigrationStrategy implements FlywayMigrationStrategy {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmFlywayMigrationStrategy.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmFlywayMigrationStrategy.class);
 	public static final String WILDCARD_DBNAME = "${dbName}";
+	public static final String POSTGRESQL_DBNAME = "postgresql";
+	public static final String MSSQL_DBNAME = "sqlserver";
 	
 	/**
 	 * {@inheritDoc}
@@ -30,7 +33,7 @@ public class IdmFlywayMigrationStrategy implements FlywayMigrationStrategy {
 	@Override
 	public void migrate(Flyway flyway) {
 		String dbName = resolveDbName(flyway);
-		log.info("Flyway resolved [{}] jdbc database", dbName);
+		LOG.info("Flyway resolved [{}] jdbc database", dbName);
 		Flyway
 			.configure()
 			.configuration(flyway.getConfiguration())
@@ -53,7 +56,14 @@ public class IdmFlywayMigrationStrategy implements FlywayMigrationStrategy {
 		Connection connection = JdbcUtils.openConnection(flyway.getDataSource(), 1);
 		//
 		try {
-            return JdbcUtils.getDatabaseMetaData(connection).getDatabaseProductName().toLowerCase();
+			DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
+			//
+			String databaseProductName = databaseMetaData.getDatabaseProductName().toLowerCase().replace(" ", "");
+			if (databaseProductName.contains(MSSQL_DBNAME)) {
+				// product name for mssql was changed since flyway 6 => map product name to our folder name
+				databaseProductName = MSSQL_DBNAME;
+			}
+            return databaseProductName;
         } catch (SQLException ex) {
             throw new FlywaySqlException("Error while determining database product name", ex);
         }

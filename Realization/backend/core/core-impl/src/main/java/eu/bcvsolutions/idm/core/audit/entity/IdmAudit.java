@@ -12,6 +12,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -23,6 +24,7 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.ModifiedEntityNames;
 import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
@@ -62,7 +64,8 @@ public class IdmAudit implements BaseEntity {
 	private static final long serialVersionUID = -2762812245969363775L;
 	
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy= GenerationType.AUTO, generator="native")
+	@GenericGenerator(name = "native", strategy = "native")
     @Column(name = "id")
 	@RevisionNumber
 	private Long id;

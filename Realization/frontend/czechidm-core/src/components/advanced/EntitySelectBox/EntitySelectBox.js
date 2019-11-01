@@ -124,7 +124,7 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { rendered, entityType, pageSize, ...others } = this.props;
+    const { rendered, entityType, pageSize, manager, ...others } = this.props;
     // standard rendered - we dont propagate rendered to underliyng component
     if (!rendered) {
       return null;
@@ -163,7 +163,8 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     }
     //
     const ManagerType = component.manager;
-    const manager = new ManagerType();
+    // Manager from in props has bigger priority, then create new instance.
+    const _manager = manager || new ManagerType();
     //
     // remove all overload attributes
     delete others.ref;
@@ -175,7 +176,7 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     return (
       <Basic.SelectBox
         ref="selectComponent"
-        manager={ manager }
+        manager={ _manager }
         pageSize={ pageSizeFinal }
         searchInFields={ component.searchInFields }
         helpBlock={ this._getHelpBlock(component) }

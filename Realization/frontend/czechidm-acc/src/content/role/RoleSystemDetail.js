@@ -165,10 +165,6 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     super.afterSave();
   }
 
-  closeDetail() {
-    this.refs.form.processEnded();
-  }
-
   _getIsNew(nextProps) {
     const { query } = nextProps ? nextProps.location : this.props.location;
     return (query) ? query.new : null;
@@ -228,7 +224,7 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
               readOnly={!roleManager.canSave()}
               showLoading={ _showLoading }
               style={{ padding: 0 }}>
-              <Basic.SelectBox
+              <Advanced.RoleSelect
                 ref="role"
                 manager={ roleManager }
                 label={this.i18n('acc:entity.RoleSystem.role')}

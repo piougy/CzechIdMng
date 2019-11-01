@@ -2,10 +2,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import uuid from 'uuid';
 //
 import { Managers, Basic, Domain, Utils, Advanced } from 'czechidm-core';
 import { RoleSystemManager, SystemManager, RoleSystemAttributeManager, SystemMappingManager } from '../../redux';
-import uuid from 'uuid';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 import RoleSystemAttributeTable from './RoleSystemAttributeTable';
 
@@ -113,16 +113,12 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     if (!this._getIsNew(props)) {
       const { roleSystemId } = props.match.params;
       this.context.store.dispatch(roleSystemManager.fetchEntity(roleSystemId));
-    } else {
-      if (this._isSystemMenu()) {
-        if (this.refs.role) {
-          this.refs.role.focus();
-        }
-      } else {
-        if (this.refs.system) {
-          this.refs.system.focus();
-        }
+    } else if (this._isSystemMenu()) {
+      if (this.refs.role) {
+        this.refs.role.focus();
       }
+    } else if (this.refs.system) {
+      this.refs.system.focus();
     }
   }
 
@@ -157,7 +153,8 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
         if (this._isSystemMenu()) {
           this.context.history.replace(`/system/${entity.system}/roles/${entity.id}/detail`, { entityId: entity.id });
         } else {
-          this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params)}/${entity.role}/systems/${entity.id}/detail`, { entityId: entity.id });
+          this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params)}/${entity.role}/systems/${entity.id}/detail`,
+            { entityId: entity.id });
         }
       } else {
         this.addMessage({ message: this.i18n('save.success', { system: entity._embedded.system.name, role: entity._embedded.role.name }) });
@@ -166,10 +163,6 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
       this.addError(error);
     }
     super.afterSave();
-  }
-
-  closeDetail() {
-    this.refs.form.processEnded();
   }
 
   _getIsNew(nextProps) {
@@ -200,13 +193,16 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
     if (!roleSystemManager || !roleManager) {
       return null;
     }
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem && _roleSystem.id ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
+    const forceSearchParameters = new Domain.SearchParameters()
+      .setFilter('roleSystemId', _roleSystem && _roleSystem.id ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const roleSystem = isNew ? this.state.roleSystem : _roleSystem;
     const forceSearchMappings = new Domain.SearchParameters()
       .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
       .setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
-    let linkMenu = this._isSystemMenu() ? `/system/${roleSystem.system}/roles/${roleSystem ? roleSystem.id : ''}/attributes` : `/role/${roleSystem.role}/systems/${roleSystem ? roleSystem.id : ''}/attributes`;
+    let linkMenu = this._isSystemMenu()
+      ? `/system/${roleSystem.system}/roles/${roleSystem ? roleSystem.id : ''}/attributes`
+      : `/role/${roleSystem.role}/systems/${roleSystem ? roleSystem.id : ''}/attributes`;
     linkMenu = this.addRequestPrefix(linkMenu, this.props.match.params);
     //
     return (
@@ -222,7 +218,12 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
 
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm ref="form" data={ roleSystem } readOnly={!roleManager.canSave()} showLoading={ _showLoading } style={{ padding: 0 }}>
+            <Basic.AbstractForm
+              ref="form"
+              data={ roleSystem }
+              readOnly={!roleManager.canSave()}
+              showLoading={ _showLoading }
+              style={{ padding: 0 }}>
               <Advanced.RoleSelect
                 ref="role"
                 manager={ roleManager }
@@ -251,7 +252,9 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
                 helpBlock={this.i18n('acc:entity.RoleSystem.forwardAccountManagemen.help')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link"
+              <Basic.Button
+                type="button"
+                level="link"
                 onClick={this.context.history.goBack}
                 showLoading={_showLoading}>
                 {this.i18n('button.back')}
@@ -273,20 +276,20 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('roleSystemAttributesHeader') }}/>
         </Basic.ContentHeader>
         <Basic.Panel rendered={ roleSystem && !isNew } className="no-border last">
-            <RoleSystemAttributeTable
-              linkMenu={linkMenu}
-              className="no-margin"
-              roleSystem={roleSystem}
-              readOnly={!roleManager.canSave()}
-              isSystemMenu={this._isSystemMenu()}
-              showAddButton
-              showFilter={false}
-              showRowSelection={false}
-              uiKey={ `${uiKeyAttributes}-${entityId}` }
-              forceSearchParameters={ forceSearchParameters }
-              match={ this.props.match }/>
-          </Basic.Panel>
-        </div>
+          <RoleSystemAttributeTable
+            linkMenu={linkMenu}
+            className="no-margin"
+            roleSystem={roleSystem}
+            readOnly={!roleManager.canSave()}
+            isSystemMenu={this._isSystemMenu()}
+            showAddButton
+            showFilter={false}
+            showRowSelection={false}
+            uiKey={ `${uiKeyAttributes}-${entityId}` }
+            forceSearchParameters={ forceSearchParameters }
+            match={ this.props.match }/>
+        </Basic.Panel>
+      </div>
     );
   }
 }

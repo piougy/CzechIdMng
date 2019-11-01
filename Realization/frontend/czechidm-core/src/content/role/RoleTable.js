@@ -107,7 +107,7 @@ class RoleTable extends Advanced.AbstractTableContent {
       this._focusOnRequestDialog.bind(this)
     ).then(() => {
       const roleName = this.refs[`role-name`].getValue();
-      const promise = requestManager.getService().createRequest('roles', {name: roleName, code: roleName});
+      const promise = requestManager.getService().createRequest('roles', {name: roleName, baseCode: roleName});
       promise.then((json) => {
         // Init universal request manager (manually)
         const manager = this.getRequestManager({requestId: json.id}, new RoleManager());

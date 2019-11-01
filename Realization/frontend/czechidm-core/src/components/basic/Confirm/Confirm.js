@@ -66,11 +66,14 @@ class Confirm extends AbstractContextComponent {
       title,
       onSubmit
     }, () => {
-      if (focus) {
-        focus();
-      } else if (this.refs.yesButton) {
-        this.refs.yesButton.focus();
-      }
+      // @todo-upgrade-10 - Remove set timeout after update react-bootstap!
+      setTimeout(() => {
+        if (focus) {
+          focus();
+        } else if (this.refs.yesButton) {
+          this.refs.yesButton.focus();
+        }
+      }, 10);
     });
     return promise;
   }

@@ -12,6 +12,18 @@ import App from './layout/App';
 * @author Radek Tomiška
 */
 
+function trimSlash(routePath) {
+  // Trim start of path from slash
+  if (routePath.startsWith('/')) {
+    routePath = routePath.substring(1, routePath.length);
+  }
+  // Trim end of path from slash
+  if (routePath.endsWith('/')) {
+    routePath = routePath.substring(0, routePath.length - 1);
+  }
+  return routePath;
+}
+
 /**
 * Returns unique route id by path (or component if path is not defined)
 *
@@ -22,12 +34,10 @@ import App from './layout/App';
 function getRouteId(parentRouteId, route) {
   let id = '';
   if (parentRouteId) {
-    id += parentRouteId;
+    id += trimSlash(parentRouteId);
   }
   if (route.path) {
-    id += route.path;
-  } else {
-    id += route.component;
+    id += `/${trimSlash(route.path)}`;
   }
   return id;
 }
@@ -79,18 +89,6 @@ function fillRouteMap(routesMap, moduleId, parentRouteId, route) {
   return routesMap;
 }
 
-function trimSlash(routePath) {
-  // Trim start of path from slash
-  if (routePath.startsWith('/')) {
-    routePath = routePath.substring(1, routePath.length);
-  }
-  // Trim end of path from slash
-  if (routePath.endsWith('/')) {
-    routePath = routePath.substring(0, routePath.length - 1);
-  }
-  return routePath;
-}
-
 /**
  * Fix given route. Solve problem, when route could have more specific path, but
  * this path is defined in every children. Then is problem with correct ordering
@@ -125,9 +123,11 @@ function routeFixer(route) {
         if (childRoute.path) {
           const path = trimSlash(childRoute.path);
           childRoute.path = path.substring(firstElement.length, path.length);
+          childRoute.id = childRoute.id;
         }
       });
       route.path = `${trimSlash(route.path)}/${firstElement}`;
+      route.id = route.path;
     }
   }
 }

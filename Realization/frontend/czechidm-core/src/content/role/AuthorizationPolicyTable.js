@@ -119,8 +119,10 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       evaluatorType: supportedEvaluators.has(entity.evaluatorType) ? this._toEvaluatorOption(supportedEvaluators.get(entity.evaluatorType)) : null,
       authorizableType
     }, () => {
-      this.refs.form.setData(entityFormData);
-      this.refs.groupPermission.focus();
+      // @todo-upgrade-10 - Remove set timeout after update react-bootstap!
+      setTimeout(() => {
+        this.refs.groupPermission.focus();
+      }, 10);
     });
   }
 
@@ -527,6 +529,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
+                data={detail.entity}
                 showLoading={_showLoading}
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.Row>

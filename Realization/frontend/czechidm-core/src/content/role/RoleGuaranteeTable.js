@@ -18,10 +18,6 @@ const identityManager = new IdentityManager();
 */
 export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.role.guarantees';
   }
@@ -143,13 +139,16 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
 
           <form onSubmit={this.save.bind(this, {})}>
             <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
-            <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('edit.header', { name: manager.getNiceLabel(detail.entity) }) } rendered={ !Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('edit.header', { name: manager.getNiceLabel(detail.entity) }) }
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
+                data={detail.entity}
                 showLoading={ _showLoading }
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
-
                 <Basic.SelectBox
                   ref="role"
                   manager={ roleManager }

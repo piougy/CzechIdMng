@@ -28,7 +28,7 @@
   },
   "rules": {
     "arrow-parens": ["off", "as-needed"],
-    "arrow-body-style": ["warn", "as-needed"],
+    "arrow-body-style": ["off", "as-needed"],
     "array-callback-return": "warn",
     "array-bracket-spacing": "off",
     "arrow-spacing": "warn",
@@ -129,6 +129,7 @@
       "objectLiterals": "never"
     }}],
     "react/jsx-closing-bracket-location": "off",
+    "react/no-danger": "off",
     "react/jsx-no-bind": "off",
     "react/no-multi-comp": "warn",
     "react/no-string-refs": "off",

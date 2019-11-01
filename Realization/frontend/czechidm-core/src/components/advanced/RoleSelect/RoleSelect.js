@@ -639,12 +639,12 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                         );
                       }
                     }/>
-                    <Column
-                      property="baseCode"
-                      header={ this.i18n('entity.Role.baseCode.label') }
-                      width={ 100 }
-                      sort
-                      face="text"/>
+                  <Column
+                    property="baseCode"
+                    header={ this.i18n('entity.Role.baseCode.label') }
+                    width={ 100 }
+                    sort
+                    face="text"/>
                   <Column
                     property="environment"
                     width={ 125 }

@@ -194,7 +194,7 @@ class AbstractContextComponent extends AbstractComponent {
     let components = routes.filter(route => {
       const concatedPath = this._getConcatPath(parentRoute.path, route.path);
 
-      if (this._trimSlash(concatedPath) === this._trimSlash(path)) {
+      if (this.trimSlash(concatedPath) === this.trimSlash(path)) {
         return true;
       }
       return false;
@@ -274,7 +274,7 @@ class AbstractContextComponent extends AbstractComponent {
     return childRoutesResult;
   }
 
-  _trimSlash(routePath) {
+  trimSlash(routePath) {
     // Trim start of path from slash
     if (routePath.startsWith('/')) {
       routePath = routePath.substring(1, routePath.length);
@@ -295,7 +295,7 @@ class AbstractContextComponent extends AbstractComponent {
       return 0;
     }
     let routePath = route.path;
-    routePath = this._trimSlash(routePath);
+    routePath = this.trimSlash(routePath);
     const elements = routePath.split('/');
     let priority = elements.length * 2;
 

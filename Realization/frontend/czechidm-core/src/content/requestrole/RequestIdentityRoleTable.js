@@ -331,7 +331,9 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
   }
 
   reload() {
-    this.refs.table.reload();
+    if (this.refs.table) {
+      this.refs.table.reload();
+    }
   }
 
   /**

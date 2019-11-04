@@ -9,7 +9,7 @@ const PROPERTY_SHOW_LOADING = 'showLoading';
  *
  * @author Radek Tomiška
  */
-export default class AbstractComponent extends React.Component {
+export default class AbstractComponent extends React.PureComponent {
 
   /**
    * Returs true, if given component supports given property (by propTypes)

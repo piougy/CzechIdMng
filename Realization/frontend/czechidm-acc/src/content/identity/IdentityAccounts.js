@@ -22,10 +22,6 @@ const identityManager = new Managers.IdentityManager();
  */
 class IdentityAccountsContent extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return manager;
   }
@@ -77,29 +73,26 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
     super.afterSave(entity, error);
   }
 
-  _onChangeSelectTabs(activeTab) {
-    if (activeTab === 2) {
-      this.refs.table.reload();
-    } else if (activeTab === 1) {
-      this.refs.accountTable.reload();
-    }
-  }
-
   render() {
     const { entityId } = this.props.match.params;
     const { _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('identity', entityId);
-    const accountSearchParameters = new Domain.SearchParameters().setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
-    const forceAccountSearchParameters = new Domain.SearchParameters().setFilter('identity', entityId).setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
-    const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
+    const accountSearchParameters = new Domain.SearchParameters().setFilter('entityType',
+      SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
+    const forceAccountSearchParameters = new Domain.SearchParameters().setFilter('identity', entityId).setFilter('entityType',
+      SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
+    const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('entityType',
+      SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
     //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.Tabs style={{ paddingTop: 15 }} onSelect={this._onChangeSelectTabs.bind(this)}>
+        <Basic.Tabs
+          style={{ paddingTop: 15 }}
+        >
           <Basic.Tab eventKey={1} title={this.i18n('header')}>
             <AccountTableComponent
               ref="accountTable"
@@ -113,7 +106,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
           <Basic.Tab eventKey={2} title={this.i18n('identity-accounts')}>
             <Advanced.Table
               ref="table"
-              uiKey= {uiKey }
+              uiKey={uiKey }
               manager={ this.getManager() }
               forceSearchParameters={ forceSearchParameters }
               showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['IDENTITYACCOUNT_DELETE']) }

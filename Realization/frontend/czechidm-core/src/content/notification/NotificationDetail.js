@@ -26,6 +26,7 @@ class NotificationDetail extends Basic.AbstractContent {
     this.identityManager = new IdentityManager();
     this.notificationManager = new NotificationManager();
     this.notificationTemplateManager = new NotificationTemplateManager();
+    this._onChangeSelectTabs = this._onChangeSelectTabs.bind(this);
   }
 
   getContentKey() {
@@ -139,7 +140,8 @@ class NotificationDetail extends Basic.AbstractContent {
         <Basic.AbstractForm ref="form" data={formData} style={{ padding: 15 }}>
           <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly hidden={isNew}/>
 
-          <Basic.LabelWrapper hidden={isNew}
+          <Basic.LabelWrapper
+            hidden={isNew}
             label={this.i18n('entity.Notification.sent')}>
             <NotificationSentState notification={notification} style={{ margin: '7px 0' }}/>
           </Basic.LabelWrapper>
@@ -163,7 +165,8 @@ class NotificationDetail extends Basic.AbstractContent {
             label={this.i18n('entity.Notification.message.level')}
             required/>
 
-          <Basic.LabelWrapper hidden={isNew || !notification.message.level}
+          <Basic.LabelWrapper
+            hidden={isNew || !notification.message.level}
             label={this.i18n('entity.Notification.message.level')}>
             <div style={{ margin: '7px 0' }}>
               {
@@ -180,7 +183,8 @@ class NotificationDetail extends Basic.AbstractContent {
             label={ this.i18n('entity.Notification.sender') }
             manager={ this.identityManager }/>
 
-          <Basic.LabelWrapper hidden={isNew || !notification._embedded || !notification._embedded.identitySender}
+          <Basic.LabelWrapper
+            hidden={isNew || !notification._embedded || !notification._embedded.identitySender}
             label={this.i18n('entity.Notification.sender')}>
             <div style={{ margin: '7px 0' }}>
               {
@@ -191,7 +195,8 @@ class NotificationDetail extends Basic.AbstractContent {
             </div>
           </Basic.LabelWrapper>
 
-          <Basic.LabelWrapper hidden={isNew}
+          <Basic.LabelWrapper
+            hidden={isNew}
             label={this.i18n('entity.Notification.recipients')}>
             {
               notification.recipients
@@ -210,17 +215,32 @@ class NotificationDetail extends Basic.AbstractContent {
             }
           </Basic.LabelWrapper>
 
-          <Basic.SelectBox hidden={!isNew}
-            ref="recipients" required
+          <Basic.SelectBox
+            hidden={!isNew}
+            ref="recipients"
+            required
             label={this.i18n('entity.Notification.recipients')}
             manager={this.identityManager}
             multiSelect />
 
-          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} hidden={!isNew && !notification.message.textMessage} />
+          <Basic.TextArea
+            ref="textMessage"
+            label={this.i18n('entity.Notification.message.textMessage')}
+            readOnly={!isNew}
+            hidden={!isNew && !notification.message.textMessage} />
           <Basic.Tabs>
-            <Basic.Tab eventKey={1} title={this.i18n('entity.Notification.message.htmlMessage')} className="bordered">
+            <Basic.Tab
+              eventKey={1}
+              title={this.i18n('entity.Notification.message.htmlMessage')}
+              className="bordered">
               <div style={{padding: '10px'}}>
-                <Basic.TextArea ref="htmlMessage" rows="10" readOnly={!isNew} hidden={!isNew && !notification.message.htmlMessage} />
+                <Basic.TextArea
+                  ref="htmlMessage"
+                  value={formData.htmlMessage}
+                  rows="10"
+                  readOnly={!isNew}
+                  hidden={!isNew && !notification.message.htmlMessage}
+                />
               </div>
             </Basic.Tab>
             <Basic.Tab
@@ -233,16 +253,25 @@ class NotificationDetail extends Basic.AbstractContent {
               </div>
             </Basic.Tab>
           </Basic.Tabs>
-          <Basic.LabelWrapper hidden={isNew || !notification.message.model}
+          <Basic.LabelWrapper
+            hidden={isNew || !notification.message.model}
             label={this.i18n('entity.Notification.message.model')}>
             {
               !notification.message
               ||
-              <Basic.FlashMessage level={notification.message.level} message={this.getFlashManager().convertFromResultModel(notification.message.model)} style={{ margin: '7px 0' }}/>
+              <Basic.FlashMessage
+                level={notification.message.level}
+                message={this.getFlashManager().convertFromResultModel(notification.message.model)}
+                style={{ margin: '7px 0' }}/>
             }
           </Basic.LabelWrapper>
 
-          <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew || !notification.sentLog} max={2000} />
+          <Basic.TextArea
+            ref="sentLog"
+            label={this.i18n('entity.Notification.sentLog')}
+            readOnly
+            hidden={isNew || !notification.sentLog}
+            max={2000} />
         </Basic.AbstractForm>
         {
           notification.type !== 'notification'
@@ -270,34 +299,41 @@ class NotificationDetail extends Basic.AbstractContent {
                   );
                 }
               }/>
-              <Basic.Column
-                property="sent"
-                header={ this.i18n('entity.Notification.sent') }
-                cell={
-                  /* eslint-disable react/no-multi-comp */
-                  ({ rowIndex, data}) => {
-                    return (
-                      <NotificationSentState notification={ data[rowIndex] }/>
-                    );
-                  }
-                }/>
-                <Basic.Column
-                  property="sentLog"
-                  header={this.i18n('entity.Notification.sentLog')}
-                  width="20%"/>
-              </Advanced.Table>
-            }
-            <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={this.context.history.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
-              <Basic.Button
-                hidden={!isNew}
-                onClick={this.save.bind(this)}
-                level="success"
-                showLoadingIcon
-                showLoadingText={this.i18n('button.sending')}>
-                { this.i18n('button.send') }
-              </Basic.Button>
-            </Basic.PanelFooter>
+            <Basic.Column
+              property="sent"
+              header={ this.i18n('entity.Notification.sent') }
+              cell={
+                /* eslint-disable react/no-multi-comp */
+                ({ rowIndex, data}) => {
+                  return (
+                    <NotificationSentState notification={ data[rowIndex] }/>
+                  );
+                }
+              }/>
+            <Basic.Column
+              property="sentLog"
+              header={this.i18n('entity.Notification.sentLog')}
+              width="20%"/>
+          </Advanced.Table>
+        }
+        <Basic.PanelFooter>
+          <Basic.Button
+            type="button"
+            level="link"
+            onClick={this.context.history.goBack}
+            showLoading={showLoading}
+          >
+            {this.i18n('button.back')}
+          </Basic.Button>
+          <Basic.Button
+            hidden={!isNew}
+            onClick={this.save.bind(this)}
+            level="success"
+            showLoadingIcon
+            showLoadingText={this.i18n('button.sending')}>
+            { this.i18n('button.send') }
+          </Basic.Button>
+        </Basic.PanelFooter>
       </div>
     );
   }

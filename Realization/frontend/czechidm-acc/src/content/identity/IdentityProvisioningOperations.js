@@ -16,10 +16,6 @@ const identityManager = new Managers.IdentityManager();
  */
 class IdentityProvisioningOperations extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'acc:content.provisioningOperations';
   }

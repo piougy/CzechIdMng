@@ -405,8 +405,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 				System.out.println("RoleSystem: " + identityAccountDtoOne.getRoleSystem());
 				System.out.println("Identity: " + identityAccountDtoOne.getIdentity());
 				System.out.println("IdentityRole: " + identityAccountDtoOne.getIdentityRole());
-				System.out.println("System: "
-						+ ((SysRoleSystemDto) identityAccountDtoOne.getEmbedded().get("roleSystem")).getSystem());
 			});
 		}
 		// !!!

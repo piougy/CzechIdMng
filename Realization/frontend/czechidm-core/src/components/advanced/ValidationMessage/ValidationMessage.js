@@ -72,14 +72,6 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     this._prepareValidationMessage(error, validationDefinition);
   }
 
-  componentWillReciveNewProps(nextProps) {
-    const { error, validationDefinition } = this.props;
-
-    if (error !== nextProps.error || validationDefinition !== nextProps.validationDefinition) {
-      this._prepareValidationMessage(nextProps.error, nextProps.validationDefinition);
-    }
-  }
-
   _showCharacterBase(parameter, type) {
     const rules = [];
     const all = [];

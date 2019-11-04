@@ -12,23 +12,10 @@ const SYSTEM_MAPPING_VALIDATION = 'SYSTEM_MAPPING_VALIDATION';
 
 export default class ValidationMessageSystemMapping extends Basic.AbstractFormComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     const { error } = this.props;
     this._prepareValidationMessage(error);
   }
-
-  componentWillReciveNewProps(nextProps) {
-    const { error } = this.props;
-
-    if (error !== nextProps.error) {
-      this._prepareValidationMessage(nextProps.error);
-    }
-  }
-
 
   _prepareValidationMessage(error) {
     if (!error || !error.parameters) {

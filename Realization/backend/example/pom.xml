@@ -71,9 +71,9 @@
 					    <version>6.0.8</version>
 					    <configuration>
 						    <driver>org.postgresql.Driver</driver>
-						    <url>jdbc:postgresql://localhost:5432/bcvt</url>
-						    <user>idmadmin</user>
-						    <password>idmadmin</password>
+								<url>jdbc:postgresql://localhost:15432/czechidm_1</url>
+						    <user>czechidm_1</user>
+						    <password>IeWu1hedua_1</password>
 						    <connectRetries>10</connectRetries>
 						    <schemas>
 						        <schema>public</schema>
@@ -96,9 +96,9 @@
 					    <version>6.0.8</version>
 					    <configuration>
 						    <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-							<url>jdbc:sqlserver://localhost:1433;databaseName=bcv_idm_storage</url>
-						    <user>idmadmin</user>
-						    <password>idmadmin</password>
+								<url>jdbc:sqlserver://localhost:11433;databaseName=czechidm_db</url>
+						    <user>czechidm</user>
+						    <password>zu6ahK3a</password>
 						    <connectRetries>10</connectRetries>
 						    <skipDefaultCallbacks>false</skipDefaultCallbacks>
 						    <cleanDisabled>false</cleanDisabled>

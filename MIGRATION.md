@@ -64,6 +64,7 @@ Based on upgraded libraries we have to add and remove configuration properties (
 - ``spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true`` - disable warning during the boot, when Hibernate tries to retrieve some meta information from the database.
 - ``spring.datasource.hikari.maximumPoolSize=25`` - enlarge pool size by default. This property should be revised for each project.
 - ``spring.jpa.properties.hibernate.session_factory.interceptor=eu.bcvsolutions.idm.core.model.repository.listener.AuditableInterceptor`` - replaced deprecated Hiberante property.
+- ``spring.jpa.hibernate.use-new-id-generator-mappings=false`` - Spring boot 2 changed default to ``true``, but we are using ``IDENTITY`` identifier generators for mssql database.
 
 
 ### Removed properties

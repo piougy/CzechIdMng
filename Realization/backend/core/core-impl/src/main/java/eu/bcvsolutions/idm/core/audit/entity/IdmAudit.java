@@ -64,8 +64,8 @@ public class IdmAudit implements BaseEntity {
 	private static final long serialVersionUID = -2762812245969363775L;
 	
 	@Id
-	@GeneratedValue(strategy= GenerationType.AUTO, generator="native")
-	@GenericGenerator(name = "native", strategy = "native")
+	@GeneratedValue(strategy= GenerationType.AUTO /*, generator="native"*/)
+	// @GenericGenerator(name = "native", strategy = "native")
     @Column(name = "id")
 	@RevisionNumber
 	private Long id;

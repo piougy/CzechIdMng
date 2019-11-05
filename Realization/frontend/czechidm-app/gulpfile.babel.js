@@ -186,12 +186,12 @@ gulp.task('makeProductModules', () => {
  */
 gulp.task('removeSymlinks', () => {
   return vfs.src(['../czechidm-*'])
-   .pipe(flatmap(function iterateModules(stream, file) {
-     const pathToSymlink = `./node_modules/${file.basename}`;
-     util.log('Symlink to delete:', pathToSymlink);
-     rimraf.sync(pathToSymlink);
-     return stream;
-   }));
+    .pipe(flatmap(function iterateModules(stream, file) {
+      const pathToSymlink = `./node_modules/${file.basename}`;
+      util.log('Symlink to delete:', pathToSymlink);
+      rimraf.sync(pathToSymlink);
+      return stream;
+    }));
 });
 
 

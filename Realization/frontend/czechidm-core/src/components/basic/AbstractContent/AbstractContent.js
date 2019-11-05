@@ -35,27 +35,6 @@ export default class AbstractContent extends AbstractContextComponent {
   }
 
   /**
-  * Method for stop redundant component rendering. This is very naive implementation, where are checked changes on props and state.
-  * This check should not have any inpact on count of rendering, but has big.
-  * Check with deep transform objects to string is not recommendit for bad performence, but for us is that very usefull.
-  */
-  shouldComponentUpdate(nextProps, nextState) {
-    // return true;
-    if (nextProps && (
-      !equal(nextProps, this.props)
-    )) {
-      return true;
-    }
-
-    if (nextState && (
-      !equal(nextState, this.state)
-    )) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
    * Don't forget to call super.componentWillUnmount() in subclass
    * - solves hide footer
    *

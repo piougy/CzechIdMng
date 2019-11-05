@@ -4,7 +4,7 @@
 --
 -- Test resources for tests with flyway enabled
 
-CREATE TABLE bcv_idm_storage.test_contract_resource (
+CREATE TABLE test_contract_resource (
 	ID nvarchar(255) NOT NULL,
 	NAME nvarchar(255),
 	STATE nvarchar(255),
@@ -21,7 +21,7 @@ CREATE TABLE bcv_idm_storage.test_contract_resource (
 	CONSTRAINT test_contract_resource_pkey PRIMARY KEY (ID)
 );
 
-CREATE TABLE bcv_idm_storage.test_contract_slice_resource (
+CREATE TABLE test_contract_slice_resource (
 	ID nvarchar(255) NOT NULL,
 	NAME nvarchar(255),
 	STATE nvarchar(255),
@@ -39,7 +39,7 @@ CREATE TABLE bcv_idm_storage.test_contract_slice_resource (
 	CONSTRAINT test_contract_slice_resource_pkey PRIMARY KEY (ID)
 );
 
-CREATE TABLE bcv_idm_storage.test_resource (
+CREATE TABLE test_resource (
 	NAME nvarchar(255) NOT NULL,
 	LASTNAME nvarchar(255),
 	FIRSTNAME nvarchar(255),
@@ -52,7 +52,7 @@ CREATE TABLE bcv_idm_storage.test_resource (
 	CONSTRAINT test_resource_pkey PRIMARY KEY (NAME)
 );
 
-CREATE TABLE bcv_idm_storage.test_role_resource (
+CREATE TABLE test_role_resource (
 	NAME nvarchar(255) NOT NULL,
 	TYPE nvarchar(255),
 	PRIORITY int,
@@ -65,7 +65,7 @@ CREATE TABLE bcv_idm_storage.test_role_resource (
 	CONSTRAINT test_role_resource_pkey PRIMARY KEY (NAME)
 );
 
-CREATE TABLE bcv_idm_storage.test_schema_resource (
+CREATE TABLE test_schema_resource (
 	NAME nvarchar(255) NOT NULL,
 	STRING_VALUE nvarchar(MAX),
 	SHORT_TEXT_VALUE nvarchar(2000),
@@ -79,7 +79,7 @@ CREATE TABLE bcv_idm_storage.test_schema_resource (
 	CONSTRAINT test_schema_resource_pkey PRIMARY KEY (NAME)
 );
 
-CREATE TABLE bcv_idm_storage.test_tree_resource (
+CREATE TABLE test_tree_resource (
 	ID nvarchar(255) NOT NULL,
 	CODE nvarchar(255),
 	PARENT nvarchar(255),

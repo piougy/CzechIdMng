@@ -25,7 +25,8 @@ class ProvisioningOperations extends Basic.AbstractContent {
     this.state = {
       detail: {
         show: false,
-        entity: null
+        entity: null,
+        activeKey: 1
       }
     };
   }
@@ -63,6 +64,12 @@ class ProvisioningOperations extends Basic.AbstractContent {
     });
   }
 
+  _onChangeSelectTabs(activeKey) {
+    this.setState({
+      activeKey
+    });
+  }
+
   /**
    * Transforma account or connector object value into FE property values
    *
@@ -75,7 +82,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
   render() {
     const { forceSearchParameters, columns, uiKey, showDeleteAllButton } = this.props;
-    const { detail } = this.state;
+    const { detail, activeKey} = this.state;
     // accountObject to table
     const accountData = [];
     if (detail.entity && detail.entity.provisioningContext.accountObject) {
@@ -106,13 +113,15 @@ class ProvisioningOperations extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('title')} />
 
-        <Basic.Tabs>
+        <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
           <Basic.Tab
             eventKey={ 1 }
             title={ this.i18n('tabs.active.label') }
-            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGOPERATION_READ']) }>
+            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGOPERATION_READ']) }
+          >
             <ProvisioningOperationTableComponent
               ref="table"
+              key="table"
               uiKey={ uiKey }
               manager={ manager }
               isArchive={ false }
@@ -126,9 +135,11 @@ class ProvisioningOperations extends Basic.AbstractContent {
           <Basic.Tab
             eventKey={ 2 }
             title={ this.i18n('tabs.archive.label') }
-            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGARCHIVE_READ']) }>
+            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGARCHIVE_READ']) }
+          >
             <ProvisioningOperationTableComponent
               ref="archiveTable"
+              key="archiveTable"
               uiKey={ `archive-${uiKey}` }
               manager={ archiveManager }
               isArchive

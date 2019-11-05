@@ -15,17 +15,37 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
  */
 export default class BasicTabs extends AbstractComponent {
 
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      activeKey: 1
+    };
+  }
+
   _getRenderedChildren(children) {
     return children.filter(child => {
       return child.props.rendered;
     });
   }
 
+  /**
+   * Default method handle a activeKey.
+   */
+  _onChangeSelectTabs(activeKey) {
+    this.setState({
+      activeKey
+    });
+  }
+
   render() {
-    const { id, rendered, position, activeKey, onSelect, className, style } = this.props;
+    const { id, rendered, position, activeKey, onSelect, className, style, unmountOnExit } = this.props;
     if (!rendered) {
       return null;
     }
+
+    // Since our all componnets are React.PureComponent
+    // must be activeKey handle in all causes (if onSelect component is not used).
+    const _activeKey = !onSelect ? (activeKey || this.state.activeKey) : undefined;
 
     const classNames = classnames(
       {'tab-horizontal': !position || position === 'top'},
@@ -41,8 +61,11 @@ export default class BasicTabs extends AbstractComponent {
     return (
       <Tabs
         id={ _id }
-        onSelect={ onSelect }
-        activeKey={ activeKey }
+        key={ _activeKey }
+        animation={false}
+        unmountOnExit={unmountOnExit}
+        onSelect={ onSelect || this._onChangeSelectTabs.bind(this)}
+        activeKey={ _activeKey }
         className={ classNames }
         style={ style }>
         { this._getRenderedChildren(this.props.children) }
@@ -63,10 +86,6 @@ BasicTabs.defaultProps = {
  * Adds rendered to react bootstrap Tab.
  */
 export class BasicTab extends AbstractComponent {
-
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const { rendered, ...others } = this.props;

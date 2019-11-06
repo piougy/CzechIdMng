@@ -8,12 +8,15 @@ In version 10 were upgraded major devstack dependencies (see list bellow). The g
 - To be up to date. Some third party libraries cannot be used with our old devstack.
 - Remove obsolete deprecated classes and methods.
 
+
+## Backend
+In this chapter will be describe migration for the backend part of IdM.
+
 > Note for **administator**:  is needed to read [Before ugrade](#before-upgrade) and [Configuration section](#configuration-properties).
 
 > Note for **module developer**: is needed to read [Update custom module guide](#update-custom-module) and related conceptual and breaking changes.
 
 > Note for **product developer:** is needed to read it all :).
-
 
 ### Upgraded libraries
 
@@ -305,3 +308,53 @@ Configuration file in test package ``logback-test.xml`` has to removed. New ``lo
 - ``AddNewAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
 - ``RemoveAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
 - ``RemoveAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
+
+## Frontend
+In this chapter will be describe migration for the frontend part of IdM.
+
+The main goal of upgrading the frontend in **version 10** was to upgrade **React** to version **16**. Previous version **15** has already limited us in selecting new and upgrading existing components.
+
+Main dependencies upgraded during migration:
+
+* **React** from **15.6** to **16.9**.
+* **React-router** from **2.3** to **5.1**.
+* **React-redux** from **4.4** to **7.1**.
+* **Redux** from **3.5** to **4.0**.
+* **Redux-immutable** from **1.3** to **4.0**.
+* **React-ace** from **3.7** to **7.0**.
+* **Browserify** from **13.0** to **16.5**.
+* And next more then 20 minor updates to dependent components.
+
+> All updated dependencies are in the product package.json. It means, If you will used the CzechIdM 10.x.x, then you already have dependency on the **React 16** and others.
+
+### React migration tutorial for custom module
+
+#### React sice version 16 has PropTypes in separate module.
+
+Use official conversion utility for move PropTypes in you module.
+
+<code>npx react-codemod React-PropTypes-to-prop-types --force</code>
+
+#### Method componentWillReceiveProps and componentWillMount
+Method **componentWillReceiveProps** and **componentWillMount** were renamed to **UNSAFE_componentWillReceiveProps** and **UNSAFE_componentWillMount**. Since **React 17** only UNSAFE variant will be called!
+
+This **methods are deprecated** and should be not used. In the product was this method componentWillReceiveProps used in 60 files. In version 10 was this method removed from 30 files (typically from component shows a detail).
+
+Removal of this method was possible thanks to a new approach to rendering individual routed components.
+In other words, the **componentWillReceiveProps** method was used in these places to detect changes in properies. For example, if the user name identity has changed in the url. If this change was detected, the identity was read again and the detail was initialized (sets to the state).
+
+However, since **version 10**, if the url is changed, the routed component is destroyed and recreated. Therefore, the **componentWillReceiveProps** method is no longer needed.
+
+> If you don't want remove UNSAFE_componentWillReceiveProps or UNSAFE_componentWillMount you don't need to. Only what you have to need is rename this methods (add UNSAFE_).
+
+Use official conversion utility for rename deprecated methods.
+
+<code>npx react-codemod rename-unsafe-lifecycles --force</code>
+
+#### React TestUtils was moved to react-dom
+
+Replace all occurrences:
+
+<code>import TestUtils from 'react-addons-test-utils';</code>
+->
+ <code>import TestUtils from 'react-dom/test-utils';</code>

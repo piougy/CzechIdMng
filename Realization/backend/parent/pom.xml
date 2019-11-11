@@ -828,6 +828,11 @@
 					<name>Nexus Staging repo</name>
 					<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
 				</repository>
+				<snapshotRepository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
+				</snapshotRepository>
 			</distributionManagement>
 
 			<build>

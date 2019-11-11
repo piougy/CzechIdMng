@@ -72,13 +72,15 @@ class NodeTable extends Advanced.AbstractTableContent {
       ... this.refs.filterForm.getData(),
       treeNodeId: nodeId
     };
-    this.setState({
-      selectedNodeId: nodeId
-    }, () => {
-      this.refs.treeNodeId.setValue(nodeId);
-      this.refs.table.getWrappedInstance().useFilterData(data);
-      this.refs.identityTable.getWrappedInstance().filterByTreeNodeId(nodeId);
-    });
+    this.context.store.dispatch(this.getManager().queueFetchPermissions(nodeId, null, () => {
+      this.setState({
+        selectedNodeId: nodeId
+      }, () => {
+        this.refs.treeNodeId.setValue(nodeId);
+        this.refs.table.getWrappedInstance().useFilterData(data);
+        this.refs.identityTable.getWrappedInstance().filterByTreeNodeId(nodeId);
+      });
+    }));
   }
 
   cancelFilter(event) {
@@ -174,6 +176,7 @@ class NodeTable extends Advanced.AbstractTableContent {
     if (!selectedNode) {
       return null;
     }
+    const _permissions = this.getManager().getPermissions(this.context.store.getState(), null, selectedNodeId);
     return (
       <div className="basic-toolbar">
         <Basic.Alert
@@ -189,7 +192,8 @@ class NodeTable extends Advanced.AbstractTableContent {
               level="primary"
               className="btn-xs"
               icon="fa:search"
-              onClick={ this.showDetail.bind(this, selectedNode) }>
+              onClick={ this.showDetail.bind(this, selectedNode) }
+              rendered={ this.getManager().canRead({ id: selectedNodeId}, _permissions) }>
               { this.i18n('component.advanced.EntityInfo.link.detail.label') }
             </Basic.Button>
           </div>

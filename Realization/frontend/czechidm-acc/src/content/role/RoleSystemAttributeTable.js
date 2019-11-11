@@ -59,7 +59,9 @@ export class RoleSystemAttributeTable extends Advanced.AbstractTableContent {
       roleSystem = entity._embedded.roleSystem.id;
     }
 
-    const linkMenu = this.props.isSystemMenu ? `system/${entityId}/roles/${roleSystem}/attributes` : `role/${entityId}/systems/${roleSystem}/attributes`;
+    const linkMenu = this.props.isSystemMenu
+      ? `/system/${entityId}/roles/${roleSystem}/attributes`
+      : `/role/${entityId}/systems/${roleSystem}/attributes`;
     //
     if (add) {
       // When we add new object class, then we need id of role as parametr and use "new" url

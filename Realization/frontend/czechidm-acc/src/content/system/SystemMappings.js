@@ -3,9 +3,9 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
+import uuid from 'uuid';
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { SystemMappingManager, SystemManager } from '../../redux';
-import uuid from 'uuid';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 
@@ -14,10 +14,6 @@ const manager = new SystemMappingManager();
 const systemManager = new SystemManager();
 
 class SystemMappings extends Advanced.AbstractTableContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -105,7 +101,7 @@ class SystemMappings extends Advanced.AbstractTableContent {
             header={ this.i18n('acc:entity.SystemMapping.operationType') }
             sort/>
           <Advanced.ColumnLink
-            to={ `system/${entityId}/mappings/:id/detail` }
+            to={ `/system/${entityId}/mappings/:id/detail` }
             property="name"
             face="text"
             header={ this.i18n('acc:entity.SystemMapping.name') }

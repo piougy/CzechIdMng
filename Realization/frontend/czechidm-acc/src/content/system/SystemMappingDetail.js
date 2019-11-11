@@ -5,11 +5,11 @@ import { connect } from 'react-redux';
 import Joi from 'joi';
 import _ from 'lodash';
 //
+import uuid from 'uuid';
 import { Basic, Domain, Managers, Utils, Advanced, Enums } from 'czechidm-core';
 import { SystemMappingManager, SystemManager, SystemAttributeMappingManager, SchemaObjectClassManager } from '../../redux';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
-import uuid from 'uuid';
 import ValidationMessageSystemMapping from './ValidationMessageSystemMapping';
 
 const uiKey = 'system-mappings';
@@ -23,10 +23,6 @@ const SYSTEM_MAPPING_VALIDATION = 'SYSTEM_MAPPING_VALIDATION';
 const scriptManager = new Managers.ScriptManager();
 
 class SystemMappingDetail extends Advanced.AbstractTableContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getUiKey() {
     return uiKey;
@@ -47,9 +43,14 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
   _onDelete(bulkActionValue, selectedRows) {
     const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
+    this.refs[`confirm-${bulkActionValue}`].show(
+      this.i18n(`action.${bulkActionValue}.message`,
+        { count: selectedEntities.length,
+          record: this.getManager().getNiceLabel(selectedEntities[0]),
+          records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`,
+        { count: selectedEntities.length,
+          records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
       this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, this.getUiKey(), (entity, error) => {
         if (entity && error) {
@@ -141,7 +142,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     const formEntity = this.refs.form.getData();
     if (this.refs.formAcm) {
       const acmData = this.refs.formAcm.getData(false);
-        // Merge specific data to form.
+      // Merge specific data to form.
       _.merge(formEntity, acmData);
     }
     if (formEntity.id === undefined) {
@@ -189,28 +190,28 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
 
   _showValidateSystemMessage(mappingId) {
     systemMappingManager.validate(mappingId)
-    .then(response => {
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then( json =>{
-      if (Utils.Response.hasError(json)) {
-        const error = Utils.Response.getFirstError(json);
-        this.setState({
-          validationError: error
-        });
-        throw error;
-      }
-    })
-    .catch(error => {
-      if (error.statusEnum === SYSTEM_MAPPING_VALIDATION) {
-        this.addErrorMessage({hidden: true}, error);
-      } else {
-        this.addError(error);
-      }
-    });
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          const error = Utils.Response.getFirstError(json);
+          this.setState({
+            validationError: error
+          });
+          throw error;
+        }
+      })
+      .catch(error => {
+        if (error.statusEnum === SYSTEM_MAPPING_VALIDATION) {
+          this.addErrorMessage({hidden: true}, error);
+        } else {
+          this.addError(error);
+        }
+      });
   }
 
   render() {
@@ -224,10 +225,8 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
       if (_entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
         isSelectedTree = true;
       }
-    } else {
-      if (mapping && mapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
-        isSelectedTree = true;
-      }
+    } else if (mapping && mapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+      isSelectedTree = true;
     }
 
     let isSelectedIdentity = false;
@@ -235,10 +234,8 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
       if (_entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
         isSelectedIdentity = true;
       }
-    } else {
-      if (mapping && mapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
-        isSelectedIdentity = true;
-      }
+    } else if (mapping && mapping.entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
+      isSelectedIdentity = true;
     }
 
     let isSelectedProvisioning = false;
@@ -247,8 +244,9 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     }
 
     const systemId = this.props.match.params.entityId;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemMappingId', _mapping ? _mapping.id : Domain.SearchParameters.BLANK_UUID);
-    const objectClassSearchParameters = new Domain.SearchParameters().setFilter('systemId', systemId ? systemId : Domain.SearchParameters.BLANK_UUID);
+    const forceSearchParameters = new Domain.SearchParameters()
+      .setFilter('systemMappingId', _mapping ? _mapping.id : Domain.SearchParameters.BLANK_UUID);
+    const objectClassSearchParameters = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
 
     return (
       <div>
@@ -314,13 +312,19 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                   <Basic.TextField
                     style={{maxWidth: '300px'}}
                     ref="protectionInterval"
-                    validation={Joi.number().allow(null).integer().min(1).max(2147483647)}
+                    validation={Joi.number()
+                      .allow(null)
+                      .integer()
+                      .min(1)
+                      .max(2147483647)}
                     label={this.i18n('acc:entity.SystemMapping.protectionInterval')}
                     hidden={!isSelectedIdentity || !isSelectedProvisioning || isNew}
                   />
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
-                  <Basic.Button type="button" level="link"
+                  <Basic.Button
+                    type="button"
+                    level="link"
                     onClick={this.context.history.goBack}
                     showLoading={_showLoading}>
                     {this.i18n('button.back')}
@@ -399,66 +403,86 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                       );
                     }
                   }/>
-                  <Advanced.ColumnLink
-                    to={`system/${systemId}/attribute-mappings/:id/detail`}
-                    property="name"
-                    header={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
-                    sort />
-                  <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
-                  <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
-                  <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')} sort/>
-                  <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')} sort/>
-                  <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationFromResource')}
-                    cell={
-                      ({ rowIndex, data }) => {
-                        return this._getBoolColumn(data[rowIndex].transformFromResourceScript);
-                      }
-                    }/>
-                  <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationToResource')}
-                    cell={
-                      ({ rowIndex, data }) => {
-                        return this._getBoolColumn(data[rowIndex].transformToResourceScript);
-                      }
-                    }/>
-                </Advanced.Table>
-              </Basic.Panel>
-            </Basic.Tab>
-            <Basic.Tab eventKey={2} title={this.i18n('acc:entity.SystemMapping.account-management')} rendered={isSelectedProvisioning} className="bordered">
-              <form onSubmit={this.save.bind(this)}>
-                <Basic.Panel className="no-border">
-                  <Basic.AbstractForm
-                    ref="formAcm"
-                    className="panel-body"
-                    data={ mapping }
+                <Advanced.ColumnLink
+                  to={`/system/${systemId}/attribute-mappings/:id/detail`}
+                  property="name"
+                  header={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
+                  sort />
+                <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
+                <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
+                <Advanced.Column
+                  property="entityAttribute"
+                  face="boolean"
+                  header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}
+                  sort/>
+                <Advanced.Column
+                  property="extendedAttribute"
+                  face="boolean"
+                  header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute.label')}
+                  sort/>
+                <Advanced.Column
+                  property="transformationFromResource"
+                  face="boolean"
+                  header={this.i18n('acc:entity.SystemAttributeMapping.transformationFromResource')}
+                  cell={
+                    ({ rowIndex, data }) => {
+                      return this._getBoolColumn(data[rowIndex].transformFromResourceScript);
+                    }
+                  }/>
+                <Advanced.Column
+                  property="transformationToResource"
+                  face="boolean"
+                  header={this.i18n('acc:entity.SystemAttributeMapping.transformationToResource')}
+                  cell={
+                    ({ rowIndex, data }) => {
+                      return this._getBoolColumn(data[rowIndex].transformToResourceScript);
+                    }
+                  }/>
+              </Advanced.Table>
+            </Basic.Panel>
+          </Basic.Tab>
+          <Basic.Tab
+            eventKey={2}
+            title={this.i18n('acc:entity.SystemMapping.account-management')}
+            rendered={isSelectedProvisioning}
+            className="bordered">
+            <form onSubmit={this.save.bind(this)}>
+              <Basic.Panel className="no-border">
+                <Basic.AbstractForm
+                  ref="formAcm"
+                  className="panel-body"
+                  data={ mapping }
+                  showLoading={ _showLoading }
+                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                  <Advanced.ScriptArea
+                    ref="canBeAccountCreatedScript"
+                    scriptCategory={Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO)}
+                    headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.canBeAccountCreatedScript.help')}
+                    label={this.i18n('acc:entity.SystemMapping.canBeAccountCreatedScript.label')}
+                    scriptManager={scriptManager} />
+                </Basic.AbstractForm>
+                <Basic.PanelFooter>
+                  <Basic.Button
+                    type="button"
+                    level="link"
+                    onClick={this.context.history.goBack}
+                    showLoading={_showLoading}>
+                    {this.i18n('button.back')}
+                  </Basic.Button>
+                  <Basic.Button
+                    level="success"
+                    type="submit"
                     showLoading={ _showLoading }
-                    readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
-                      <Advanced.ScriptArea
-                        ref="canBeAccountCreatedScript"
-                        scriptCategory={Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO)}
-                        headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
-                        helpBlock={this.i18n('acc:entity.SystemMapping.canBeAccountCreatedScript.help')}
-                        label={this.i18n('acc:entity.SystemMapping.canBeAccountCreatedScript.label')}
-                        scriptManager={scriptManager} />
-                  </Basic.AbstractForm>
-                  <Basic.PanelFooter>
-                    <Basic.Button type="button" level="link"
-                      onClick={this.context.history.goBack}
-                      showLoading={_showLoading}>
-                      {this.i18n('button.back')}
-                    </Basic.Button>
-                    <Basic.Button
-                      level="success"
-                      type="submit"
-                      showLoading={ _showLoading }
-                      rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
-                      {this.i18n('button.saveAndContinue')}
-                    </Basic.Button>
-                  </Basic.PanelFooter>
-                </Basic.Panel>
-              </form>
-            </Basic.Tab>
-          </Basic.Tabs>
-        </div>
+                    rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                    {this.i18n('button.saveAndContinue')}
+                  </Basic.Button>
+                </Basic.PanelFooter>
+              </Basic.Panel>
+            </form>
+          </Basic.Tab>
+        </Basic.Tabs>
+      </div>
     );
   }
 }

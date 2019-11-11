@@ -228,17 +228,17 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
                   );
                 }
               }/>
-              <Advanced.ColumnLink
-                to={`system/${systemId}/schema-attributes/:id/detail`}
-                property="name"
-                header={this.i18n('acc:entity.SchemaAttribute.name')}
-                sort />
-              <Advanced.Column property="classType" header={this.i18n('acc:entity.SchemaAttribute.classType')} sort/>
-              <Advanced.Column property="required" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.required')} sort/>
-              <Advanced.Column property="multivalued" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.multivalued')} sort/>
-            </Advanced.Table>
-          </Basic.Panel>
-        </div>
+            <Advanced.ColumnLink
+              to={`/system/${systemId}/schema-attributes/:id/detail`}
+              property="name"
+              header={this.i18n('acc:entity.SchemaAttribute.name')}
+              sort />
+            <Advanced.Column property="classType" header={this.i18n('acc:entity.SchemaAttribute.classType')} sort/>
+            <Advanced.Column property="required" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.required')} sort/>
+            <Advanced.Column property="multivalued" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.multivalued')} sort/>
+          </Advanced.Table>
+        </Basic.Panel>
+      </div>
     );
   }
 }

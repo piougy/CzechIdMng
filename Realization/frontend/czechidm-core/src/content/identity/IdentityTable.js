@@ -263,7 +263,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             rendered={ _.includes(columns, 'entityInfo') }/>
           <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
           <Advanced.ColumnLink
-            to={ `identity/:username/${ !skipDashboard ? 'dashboard' : 'profile' }` }
+            to={ `/identity/:username/${ !skipDashboard ? 'dashboard' : 'profile' }` }
             property="username"
             width="20%"
             sort

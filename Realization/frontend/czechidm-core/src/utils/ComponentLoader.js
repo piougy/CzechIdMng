@@ -49,7 +49,6 @@ export default class ComponentLoader {
   }
 
   static _fillComponents(componentDescriptor) {
-    console.log("componentDescriptor", componentDescriptor);
     for (const component of componentDescriptor.components) {
       if (!_components.has(component.id) || (_components.get(component.id).priority || 0) < (component.priority || 0)) {
         component.module = componentDescriptor.id;

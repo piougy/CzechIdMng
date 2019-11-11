@@ -38,6 +38,11 @@ function getRouteId(parentRouteId, route) {
   }
   if (route.path) {
     id += `/${trimSlash(route.path)}`;
+    // We trimmed slashes, but we need to ensure a unique Route ID,
+    // so if path ended with slash, we have to add it to the result ID.
+    if (route.path.endsWith('/')) {
+      id += '/';
+    }
   }
   return id;
 }

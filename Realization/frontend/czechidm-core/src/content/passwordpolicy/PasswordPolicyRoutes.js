@@ -33,7 +33,7 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
   _getIsNew() {
     const { query } = this.props.location;
     if (query) {
-      return query.new ? true : false;
+      return !!query.new;
     }
     return false;
   }
@@ -53,7 +53,9 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
         {
           this._getIsNew()
           ||
-          <Basic.ContentHeader showLoading={!entity} text={
+          <Basic.ContentHeader
+            showLoading={!entity}
+            text={
               <div>
                 {passwordPolicyManager.getNiceLabel(entity)} <small> {this.i18n('edit.header')}</small>
               </div>

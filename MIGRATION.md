@@ -77,7 +77,7 @@ Based on upgraded libraries we have to add and remove configuration properties (
 
 ## Conceptual changes
 
-- Spring repository queries, which updates audited entity (``@Modifying`` annotation) is prohibited, because audit is skipped this way. Use entity service (find, then update). All product provided repository methods are removed in version 10 (see [removed methods](#removed-classes-methods-and-fields)).
+- Spring repository queries, which updates audited entity (``@Modifying`` annotation) is prohibited, because audit is skipped this way. Use entity service (find, then update). All product provided repository methods are removed in version 10 (see changelog).
 
 ## Breaking changes
 

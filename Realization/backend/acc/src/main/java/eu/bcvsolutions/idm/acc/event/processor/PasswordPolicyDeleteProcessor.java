@@ -49,7 +49,7 @@ public class PasswordPolicyDeleteProcessor extends CoreEventProcessor<IdmPasswor
 				system.setPasswordPolicyGenerate(null);
 				systemService.save(system);
 			});
-		
+		filter.setPasswordPolicyGenerationId(null);
 		filter.setPasswordPolicyValidationId(dto.getId());
 		systemService
 			.find(filter, null)

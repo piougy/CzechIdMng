@@ -3,7 +3,98 @@ All notable changes to this project will be documented in this file.
 
 ## [10.0.0]
 
-- All changes related to upgrade devstack dependencies can be found in [migration guide](./MIGRATION.md).
+- **All changes related to upgrade devstack dependencies can be found in [migration guide](./MIGRATION.md).**
+- **Websocket** support removed - Removed all classed for websocket notifications
+- ``IdmTreeNodeFilter#setTreeNode(UUID)`` - @deprecated @since 9.4.0 - use ``IdmTreeNodeFilter#setParent(UUID)``.
+- ``IdmTreeNodeFilter#getTreeNode()`` - @deprecated @since 9.4.0 - use ``IdmTreeNodeFilter#getParent()``.
+- ``IdmTreeNodeFilter#PARAMETER_PARENT_TREE_NODE_ID`` - @deprecated @since 9.4.0 - use ``IdmTreeNodeFilter#PARAMETER_PARENT``.
+- ``IdmIdentityContractService#prepareDefaultContract(UUID)`` - @deprecated @since 7.4.0 - use ``IdmIdentityContractService#prepareMainContract(UUID)``.
+- ``IdmIdentityContractRepository#findAllByWorkPosition(IdmTreeNode, RecursionType)`` => parameter changed to ``IdmIdentityContractRepository#findAllByWorkPosition(UUID, RecursionType)`` - previous SpEl expression doesn't work => ``UUID`` is used now as parameter.
+- ``IdmContractPositionRepository#findAllByWorkPosition(IdmTreeNode, RecursionType)`` => parameter changed to ``IdmContractPositionRepository#findAllByWorkPosition(UUID, RecursionType)``
+- ``IdmIdentityContractRepository#countByWorkPosition(IdmTreeNode)`` - @deprecated @since 7.4.0 - use ``IdmIdentityContractRepository#countByWorkPosition_Id(UUID)``.
+- ``IdmIdentityContractRepository#countByWorkPosition_TreeType(IdmTreeType)`` - @deprecated @since 7.4.0 - use ``IdmIdentityContractRepository#countByWorkPosition_TreeType_Id(UUID)``.
+- Unused Hibernate convertors ``LocalDateJpaConverter``, ``LocalDateTimeJpaConverter`` removed.
+- ``WorkflowDefinitionAssembler`` - unused and @deprecated @since 7.8.0.
+- ``CustomParseListener`` - unused and @deprecated @since 7.8.0.
+- ``FilterBuilder#getPredicate(Root, CriteriaQuery, CriteriaBuilder, DataFilter)`` - @deprecated @since 9.7.0 - use ``FilterBuilder#getPredicate(Root, AbstractQuery, CriteriaBuilder, DataFilter)`` - method was deprecated recently, but we want to prevent its usage (related to issue [#1779](https://redmine.czechidm.com/issues/1779)).
+- ``WorkflowFilterDto`` - redundant pageable properties (``pageNumber``, ``pageSize``, ``sortAsc``, ``sortDesc``, ``sortByFields``) removed. @deprecated @since 7.7.0. Use standard ``Pageable`` api instead.
+- ``WorkflowTaskInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowTaskInstanceService#find(WorkflowFilterDto, Pageable)``.
+- ``WorkflowHistoricProcessInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowHistoricProcessInstanceService#find(WorkflowFilterDto, Pageable)``.
+- ``WorkflowHistoricTaskInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowHistoricTaskInstanceService#find(WorkflowFilterDto, Pageable)``.
+- ``WorkflowProcessInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowProcessInstanceService#find(WorkflowFilterDto, Pageable)``.
+- ``WorkflowProcessInstanceService#searchInternal(WorkflowFilterDto, boolean)`` - @deprecated @since 7.7.0 - use ``WorkflowProcessInstanceService#find(WorkflowFilterDto, Pageable, BasePermission)`` - parameter ``checkRigts`` is synonymum to ``IdmBasePermission.READ`` permission in standard find method.
+- Classes ``ResourceWrapper``, ``ResourcesWrapper``, ``EmbeddedsWrapper``, ``ResourcePage'`` (all in package ``eu.bcvsolutions.idm.core.api.rest.domain``) - @deprecated @since 7.7.0 - use standard ``find`` methods on workflow services instead.
+- ``IdmAuditFilter#getChangedAttributes()`` - @deprecated @since 9.5.0 - use ``IdmAuditFilter#getChangedAttributesList()``.
+- ``IdmAuditFilter#setChangedAttributes(List)`` - @deprecated @since 9.5.0 - use ``IdmAuditFilter#setChangedAttributesList(List<String>)``.
+- ``IdmAuditService#findEntityWithRelation(Class, MultiValueMap, Pageable)``- @deprecated @since 9.4.1 use ``IdmAuditService#findEntityWithRelation(IdmAuditFilter, Pageable)`` - ``ownerType`` filter can be used. If ``username`` parameter was specified, then use ``ownerCode`` filter).
+- ``ProvisioningService#createAccountsForAllSystems(AbstractDto)`` - @deprecated @since 7.6.0 - use ``ProvisioningService#accountManagement(AbstractDto)``.
+- ``ProvisioningEntityExecutor#createAccountsForAllSystems(DTO)`` - @deprecated @since 7.6.0 - use ``ProvisioningEntityExecutor#accountManagement(DTO)``.
+- ``IdmAuditService#getNameChangedColumns(Class<T>, UUID, Long, T)`` - @deprecated @since 7.8.2 - changed columns are solved directly in audit strategy (``IdmAuditStrategy``).
+- ``AccAccountRepository#countBySystem(SysSystem)`` - @deprecated @since 7.4.0 - use ``AccAccountRepository#countBySystem_Id(UUID)``.
+- ``AccAccountRepository#clearSystemEntity(UUID)`` - @deprecated @since 7.5.1 - use find - update in service instead (audit will not be skipped).
+- ``SysSystemAttributeMappingRepository#clearIsUidAttribute(UUID)`` - @deprecated @since 7.5.0 - use find - delete in service instead (audit will not be skipped).
+- ``AccIdentityAccountRepository#clearRoleSystem(SysRoleSystem)`` - use find - update in service instead (audit will not be skipped).
+- ``AccTreeAccountRepository#clearRoleSystem(SysRoleSystem)`` - use find - update in service instead (audit will not be skipped).
+- ``SysSystemRepository#find(SysSystemFilter, Pageable)`` - @deprecated @since 7.5.2 - use ``SysSystemService#find(SysSystemFilter, Pageable, BasePermission...)``
+- ``SysSystemRepository#clearPasswordPolicy(IdmPasswordPolicy)`` - use find - update in service instead (audit will not be skipped).
+- ``IdmFormDefinitionRepository#clearMain(String, UUID, ZonedDateTime)`` - @deprecated @since 7.4.0 - use find - update in service instead (audit will not be skipped).
+- ``IdmPasswordPolicyRepository#updateDefaultPolicyByType(IdmPasswordPolicyType, UUID)`` - use find - update in service instead (audit will not be skipped).
+- ``SysSyncConfigRepository#clearDefaultLeader(UUID)`` - use find - update instead (audit will not be skipped).
+- ``SysSyncConfigRepository#clearDefaultRole(UUID)`` - use find - update instead (audit will not be skipped).
+- ``SysSyncConfigRepository#clearDefaultTreeNode(UUID)`` - use find - update instead (audit will not be skipped).
+- ``SysSyncConfigRepository#clearDefaultTreeType(UUID)`` - use find - update instead (audit will not be skipped).
+- ``IdmLongRunningTaskRepository#findAllByInstanceIdAndResult_State(String, OperationState)`` - @deprecated @since 7.5.0 - use ``IdmLongRunningTaskRepository#findAllByInstanceIdAndResult_StateOrderByCreatedAsc(String, OperationState)``.
+- ``AccModuleDescriptor#TOPIC_NEW_PASSWORD_ALL_SYSTEMS`` - @deprecated @since 8.0.0 - use ``CoreModuleDescriptor.TOPIC_PASSWORD_CHANGED``.
+- ``SysProvisioningArchiveRepository#deleteBySystem(SysSystem)`` - @deprecated @since 7.4.0 - use ``SysProvisioningArchiveRepository#deleteBySystem_Id(UUID)``.
+- ``SysProvisioningOperationRepository#deleteBySystem_Id(UUID)`` - @deprecated @since 9.2.1 - use ``SysProvisioningOperationRepository#deleteBySystem(UUID)``.
+- ``SysRoleSystemAttributeRepository#deleteByRoleSystem(SysRoleSystem)`` - @deprecated @since 9.5.0 - use find - delete in service instead (method doesn't put merge values in historical controled values.).
+- ``SysProvisioningOperationController#cancelAll(MultiValueMap<String, Object>, )`` - @deprecated @since 9.5.2 - use provided ``ProvisioningOperationCancelBulkAction`` bulk action instead.
+- ``BaseEntityController`` - @deprecated @since 7.1.0 - use ``BaseDtoController``.
+- ``IdmAutomaticRoleAttributeService#prepareAddAutomaticRoles(IdmIdentityContractDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmAutomaticRoleAttributeService#addAutomaticRoles(IdmIdentityContractDto, Set)``.
+- ``IdmAutomaticRoleAttributeService#prepareRemoveAutomaticRoles(IdmIdentityRoleDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmAutomaticRoleAttributeService#removeAutomaticRoles(IdmIdentityRoleDto, Set)``.
+- ``IdmConceptRoleRequestFilter#getRoleTreeNodeId()`` - @deprecated @since 7.7.0 - use ``IdmConceptRoleRequestFilter#getAutomaticRole()``.
+- ``IdmConceptRoleRequestFilter#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.7.0 - use ``IdmConceptRoleRequestFilter#setAutomaticRole(UUID)``.
+- ``IdmEntityEventService#findToExecute(String, ZonedDateTime, PriorityType, Pageable)`` - @deprecated @since 9.4.0 - use ``IdmEntityEventService#findToExecute(String, DateTime, PriorityType, List, Pageable)``.
+- ``IdmIdentityRoleService#findValidRole(UUID, Pageable)`` - @deprecated @since 8.0.0 - use ``IdmIdentityRoleService#findValidRoles(UUID, Pageable)``.
+- ``IdmIdentityService#findAllGuaranteesByRoleId(UUID)`` - @deprecated @since 8.2.0 - use ``IdmIdentityService#findGuaranteesByRoleId(UUID, Pageable)``.
+- ``IdmPasswordService#getSalt(IdmIdentityDto)`` - @deprecated @since 8.0.1 - use ``IdmPasswordService#getSalt()``.
+- ``IdmRoleService#getSubroles(UUID)`` - @deprecated @since 8.0.1 - use ``IdmRoleCompositionService#findDirectSubRoles(UUID)``.
+- ``IdmRoleTreeNodeService#prepareAssignAutomaticRoles(IdmIdentityContractDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmRoleTreeNodeService#addAutomaticRoles(IdmIdentityContractDto, Set)``.
+- ``IdmRoleTreeNodeService#assignAutomaticRoles(IdmIdentityContractDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmRoleTreeNodeService#addAutomaticRoles(IdmIdentityContractDto, Set)``.
+- ``IdmRoleTreeNodeService#prepareRemoveAutomaticRoles(IdmIdentityRoleDto, Set)`` - @deprecated @since 9.5.0 - use ``IdmRoleTreeNodeService#removeAutomaticRoles(IdmIdentityContractDto, Set)``.
+- ``IdmScriptService#getScriptByName(String)`` - @deprecated @since 7.6.0 - use ``IdmScriptService#getByCode(String)``.
+- ``IdmScriptService#getScriptByCode(String)`` - @deprecated @since 7.6.0 - use ``IdmScriptService#getByCode(String)``.
+- ``AuthorizationEvaluator#getParameterNames()`` - @deprecated @since 8.2.0 - use ``AuthorizationEvaluator#getFormDefinition()``.
+- ``IdmProcessedTaskItemService#findAllRefEntityIdsInQueueByScheduledTask(IdmScheduledTaskDto)`` - @deprecated @since 9.3.0 - use ``IdmProcessedTaskItemService#findAllRefEntityIdsInQueueByScheduledTaskId(UUID)``.
+- ``IdmProcessedTaskItemService#createLogItem(DTO, OperationResult, IdmLongRunningTaskDto)`` - @deprecated @since 9.3.0 - use ``IdmProcessedTaskItemService#createLogItem(AbstractDto, OperationResult, UUID)``.
+- ``IdmProcessedTaskItemService#createQueueItem(DTO, OperationResult, IdmScheduledTaskDto)`` - @deprecated @since 9.3.0 - use ``IdmProcessedTaskItemService#createQueueItem(AbstractDto, OperationResult, UUID)``.
+- ``IdmAudit#DELIMITER`` - @deprecated @since 7.8.2 - use ``IdmAuditDto.CHANGED_COLUMNS_DELIMITER``.
+- ``IdmAuditRepository#getPreviousVersion(UUID, Long, Pageable)`` - @deprecated @since 8.0.0 - use ``IdmAuditRepository#getPreviousVersion(UUID, Long)``.
+- ``IdentitySaveBulkAction`` - @deprecated @since 9.4.0 - use concrete bulk actions for execute ACM or provisioning only in acc module.
+- ``AbstractFormValueRepository#findByOwner(O)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwner_Id(Serializable)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwnerAndFormAttribute_FormDefinitionOrderBySeqAsc(O, IdmFormDefinition)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwnerAndFormAttribute_FormDefinition_IdOrderBySeqAsc(O, UUID)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwner_IdAndFormAttribute_FormDefinition_IdOrderBySeqAsc(Serializable, UUID)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwner_IdAndFormAttributeOrderBySeqAsc(Serializable, IdmFormAttribute)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``AbstractFormValueRepository#findByOwner_IdAndFormAttribute_IdOrderBySeqAsc(Serializable, UUID)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
+- ``IdmIdentityRoleRepository#countByRole(IdmRole)`` - @deprecated @since 7.4.0 - use ``IdmIdentityRoleRepository#countByRole_Id(UUID)``.
+- ``IdmRoleCatalogueRoleRepository#find(IdmRoleCatalogueRoleFilter, Pageable)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)``.
+- ``IdmRoleCatalogueRoleRepository#findAllByRole_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)``.
+- ``IdmRoleCatalogueRoleRepository#findAllByRoleCatalogue_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)``.
+- ``IdmRoleCatalogueRoleRepository#deleteAllByRole_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)`` and then delete.
+- ``IdmRoleCatalogueRoleRepository#deleteAllByRoleCatalogue_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)`` and then delete.
+- ``IdmMessage#DEFAULT_LEVEL`` - @deprecated @since 7.6.0 - use ``IdmMessageDto.DEFAULT_LEVEL``.
+- ``IdmNotificationConfigurationRepository#findTypes(String, NotificationLevel)`` - @deprecated @since 9.2.0 - use ``IdmNotificationConfigurationRepository#findAllByTopicAndWildcardLevel(String, NotificationLevel)``.
+- ``IdmIdentityController#roles(String)`` - @deprecated @since 9.4.0 - use ``IdmIdentityRoleController#find(MultiValueMap, Pageable)`` with filter by identity.
+- ``AbstractAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
+- ``AbstractAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
+- ``AddNewAutomaticRoleForPositionTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
+- ``AddNewAutomaticRoleForPositionTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
+- ``AddNewAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
+- ``AddNewAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
+- ``RemoveAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
+- ``RemoveAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
 - Default database name configured for the all ``dev`` profiles was renamed to ``bcv_idm_10`` to prevent update (by flyway) old database on the background - **old database can be used for LTS version 9.7.x development**, so clone database is needed.
 
 ## [9.7.9]

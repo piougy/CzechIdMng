@@ -9,7 +9,7 @@ In version 10 were upgraded major devstack dependencies (see list bellow). The g
 - Remove obsolete deprecated classes and methods.
 
 
-## Backend
+# Backend
 In this chapter will be describe migration for the backend part of IdM.
 
 > Note for **administator**:  is needed to read [Before ugrade](#before-upgrade) and [Configuration section](#configuration-properties).
@@ -215,101 +215,7 @@ Configuration file in test package ``logback-test.xml`` has to removed. New ``lo
 
 > Note for developer: every custom module has ``logback-test.xml``. Test cannot run without this change.
 
-## Removed classes, methods and fields
-
-- **Websocket** support removed - Removed all classed for websocket notifications
-- ``IdmTreeNodeFilter#setTreeNode(UUID)`` - @deprecated @since 9.4.0 - use ``IdmTreeNodeFilter#setParent(UUID)``.
-- ``IdmTreeNodeFilter#getTreeNode()`` - @deprecated @since 9.4.0 - use ``IdmTreeNodeFilter#getParent()``.
-- ``IdmTreeNodeFilter#PARAMETER_PARENT_TREE_NODE_ID`` - @deprecated @since 9.4.0 - use ``IdmTreeNodeFilter#PARAMETER_PARENT``.
-- ``IdmIdentityContractService#prepareDefaultContract(UUID)`` - @deprecated @since 7.4.0 - use ``IdmIdentityContractService#prepareMainContract(UUID)``.
-- ``IdmIdentityContractRepository#findAllByWorkPosition(IdmTreeNode, RecursionType)`` => parameter changed to ``IdmIdentityContractRepository#findAllByWorkPosition(UUID, RecursionType)`` - previous SpEl expression doesn't work => ``UUID`` is used now as parameter.
-- ``IdmContractPositionRepository#findAllByWorkPosition(IdmTreeNode, RecursionType)`` => parameter changed to ``IdmContractPositionRepository#findAllByWorkPosition(UUID, RecursionType)``
-- ``IdmIdentityContractRepository#countByWorkPosition(IdmTreeNode)`` - @deprecated @since 7.4.0 - use ``IdmIdentityContractRepository#countByWorkPosition_Id(UUID)``.
-- ``IdmIdentityContractRepository#countByWorkPosition_TreeType(IdmTreeType)`` - @deprecated @since 7.4.0 - use ``IdmIdentityContractRepository#countByWorkPosition_TreeType_Id(UUID)``.
-- Unused Hibernate convertors ``LocalDateJpaConverter``, ``LocalDateTimeJpaConverter`` removed.
-- ``WorkflowDefinitionAssembler`` - unused and @deprecated @since 7.8.0.
-- ``CustomParseListener`` - unused and @deprecated @since 7.8.0.
-- ``FilterBuilder#getPredicate(Root, CriteriaQuery, CriteriaBuilder, DataFilter)`` - @deprecated @since 9.7.0 - use ``FilterBuilder#getPredicate(Root, AbstractQuery, CriteriaBuilder, DataFilter)`` - method was deprecated recently, but we want to prevent its usage (related to issue [#1779](https://redmine.czechidm.com/issues/1779)).
-- ``WorkflowFilterDto`` - redundant pageable properties (``pageNumber``, ``pageSize``, ``sortAsc``, ``sortDesc``, ``sortByFields``) removed. @deprecated @since 7.7.0. Use standard ``Pageable`` api instead.
-- ``WorkflowTaskInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowTaskInstanceService#find(WorkflowFilterDto, Pageable)``.
-- ``WorkflowHistoricProcessInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowHistoricProcessInstanceService#find(WorkflowFilterDto, Pageable)``.
-- ``WorkflowHistoricTaskInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowHistoricTaskInstanceService#find(WorkflowFilterDto, Pageable)``.
-- ``WorkflowProcessInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowProcessInstanceService#find(WorkflowFilterDto, Pageable)``.
-- ``WorkflowProcessInstanceService#searchInternal(WorkflowFilterDto, boolean)`` - @deprecated @since 7.7.0 - use ``WorkflowProcessInstanceService#find(WorkflowFilterDto, Pageable, BasePermission)`` - parameter ``checkRigts`` is synonymum to ``IdmBasePermission.READ`` permission in standard find method.
-- Classes ``ResourceWrapper``, ``ResourcesWrapper``, ``EmbeddedsWrapper``, ``ResourcePage'`` (all in package ``eu.bcvsolutions.idm.core.api.rest.domain``) - @deprecated @since 7.7.0 - use standard ``find`` methods on workflow services instead.
-- ``IdmAuditFilter#getChangedAttributes()`` - @deprecated @since 9.5.0 - use ``IdmAuditFilter#getChangedAttributesList()``.
-- ``IdmAuditFilter#setChangedAttributes(List)`` - @deprecated @since 9.5.0 - use ``IdmAuditFilter#setChangedAttributesList(List<String>)``.
-- ``IdmAuditService#findEntityWithRelation(Class, MultiValueMap, Pageable)``- @deprecated @since 9.4.1 use ``IdmAuditService#findEntityWithRelation(IdmAuditFilter, Pageable)`` - ``ownerType`` filter can be used. If ``username`` parameter was specified, then use ``ownerCode`` filter).
-- ``ProvisioningService#createAccountsForAllSystems(AbstractDto)`` - @deprecated @since 7.6.0 - use ``ProvisioningService#accountManagement(AbstractDto)``.
-- ``ProvisioningEntityExecutor#createAccountsForAllSystems(DTO)`` - @deprecated @since 7.6.0 - use ``ProvisioningEntityExecutor#accountManagement(DTO)``.
-- ``IdmAuditService#getNameChangedColumns(Class<T>, UUID, Long, T)`` - @deprecated @since 7.8.2 - changed columns are solved directly in audit strategy (``IdmAuditStrategy``).
-- ``AccAccountRepository#countBySystem(SysSystem)`` - @deprecated @since 7.4.0 - use ``AccAccountRepository#countBySystem_Id(UUID)``.
-- ``AccAccountRepository#clearSystemEntity(UUID)`` - @deprecated @since 7.5.1 - use find - update in service instead (audit will not be skipped).
-- ``SysSystemAttributeMappingRepository#clearIsUidAttribute(UUID)`` - @deprecated @since 7.5.0 - use find - delete in service instead (audit will not be skipped).
-- ``AccIdentityAccountRepository#clearRoleSystem(SysRoleSystem)`` - use find - update in service instead (audit will not be skipped).
-- ``AccTreeAccountRepository#clearRoleSystem(SysRoleSystem)`` - use find - update in service instead (audit will not be skipped).
-- ``SysSystemRepository#find(SysSystemFilter, Pageable)`` - @deprecated @since 7.5.2 - use ``SysSystemService#find(SysSystemFilter, Pageable, BasePermission...)``
-- ``SysSystemRepository#clearPasswordPolicy(IdmPasswordPolicy)`` - use find - update in service instead (audit will not be skipped).
-- ``IdmFormDefinitionRepository#clearMain(String, UUID, ZonedDateTime)`` - @deprecated @since 7.4.0 - use find - update in service instead (audit will not be skipped).
-- ``IdmPasswordPolicyRepository#updateDefaultPolicyByType(IdmPasswordPolicyType, UUID)`` - use find - update in service instead (audit will not be skipped).
-- ``SysSyncConfigRepository#clearDefaultLeader(UUID)`` - use find - update instead (audit will not be skipped).
-- ``SysSyncConfigRepository#clearDefaultRole(UUID)`` - use find - update instead (audit will not be skipped).
-- ``SysSyncConfigRepository#clearDefaultTreeNode(UUID)`` - use find - update instead (audit will not be skipped).
-- ``SysSyncConfigRepository#clearDefaultTreeType(UUID)`` - use find - update instead (audit will not be skipped).
-- ``IdmLongRunningTaskRepository#findAllByInstanceIdAndResult_State(String, OperationState)`` - @deprecated @since 7.5.0 - use ``IdmLongRunningTaskRepository#findAllByInstanceIdAndResult_StateOrderByCreatedAsc(String, OperationState)``.
-- ``AccModuleDescriptor#TOPIC_NEW_PASSWORD_ALL_SYSTEMS`` - @deprecated @since 8.0.0 - use ``CoreModuleDescriptor.TOPIC_PASSWORD_CHANGED``.
-- ``SysProvisioningArchiveRepository#deleteBySystem(SysSystem)`` - @deprecated @since 7.4.0 - use ``SysProvisioningArchiveRepository#deleteBySystem_Id(UUID)``.
-- ``SysProvisioningOperationRepository#deleteBySystem_Id(UUID)`` - @deprecated @since 9.2.1 - use ``SysProvisioningOperationRepository#deleteBySystem(UUID)``.
-- ``SysRoleSystemAttributeRepository#deleteByRoleSystem(SysRoleSystem)`` - @deprecated @since 9.5.0 - use find - delete in service instead (method doesn't put merge values in historical controled values.).
-- ``SysProvisioningOperationController#cancelAll(MultiValueMap<String, Object>, )`` - @deprecated @since 9.5.2 - use provided ``ProvisioningOperationCancelBulkAction`` bulk action instead.
-- ``BaseEntityController`` - @deprecated @since 7.1.0 - use ``BaseDtoController``.
-- ``IdmAutomaticRoleAttributeService#prepareAddAutomaticRoles(IdmIdentityContractDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmAutomaticRoleAttributeService#addAutomaticRoles(IdmIdentityContractDto, Set)``.
-- ``IdmAutomaticRoleAttributeService#prepareRemoveAutomaticRoles(IdmIdentityRoleDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmAutomaticRoleAttributeService#removeAutomaticRoles(IdmIdentityRoleDto, Set)``.
-- ``IdmConceptRoleRequestFilter#getRoleTreeNodeId()`` - @deprecated @since 7.7.0 - use ``IdmConceptRoleRequestFilter#getAutomaticRole()``.
-- ``IdmConceptRoleRequestFilter#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.7.0 - use ``IdmConceptRoleRequestFilter#setAutomaticRole(UUID)``.
-- ``IdmEntityEventService#findToExecute(String, ZonedDateTime, PriorityType, Pageable)`` - @deprecated @since 9.4.0 - use ``IdmEntityEventService#findToExecute(String, DateTime, PriorityType, List, Pageable)``.
-- ``IdmIdentityRoleService#findValidRole(UUID, Pageable)`` - @deprecated @since 8.0.0 - use ``IdmIdentityRoleService#findValidRoles(UUID, Pageable)``.
-- ``IdmIdentityService#findAllGuaranteesByRoleId(UUID)`` - @deprecated @since 8.2.0 - use ``IdmIdentityService#findGuaranteesByRoleId(UUID, Pageable)``.
-- ``IdmPasswordService#getSalt(IdmIdentityDto)`` - @deprecated @since 8.0.1 - use ``IdmPasswordService#getSalt()``.
-- ``IdmRoleService#getSubroles(UUID)`` - @deprecated @since 8.0.1 - use ``IdmRoleCompositionService#findDirectSubRoles(UUID)``.
-- ``IdmRoleTreeNodeService#prepareAssignAutomaticRoles(IdmIdentityContractDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmRoleTreeNodeService#addAutomaticRoles(IdmIdentityContractDto, Set)``.
-- ``IdmRoleTreeNodeService#assignAutomaticRoles(IdmIdentityContractDto, Set)`` - @deprecated @since 7.8.4 - use ``IdmRoleTreeNodeService#addAutomaticRoles(IdmIdentityContractDto, Set)``.
-- ``IdmRoleTreeNodeService#prepareRemoveAutomaticRoles(IdmIdentityRoleDto, Set)`` - @deprecated @since 9.5.0 - use ``IdmRoleTreeNodeService#removeAutomaticRoles(IdmIdentityContractDto, Set)``.
-- ``IdmScriptService#getScriptByName(String)`` - @deprecated @since 7.6.0 - use ``IdmScriptService#getByCode(String)``.
-- ``IdmScriptService#getScriptByCode(String)`` - @deprecated @since 7.6.0 - use ``IdmScriptService#getByCode(String)``.
-- ``AuthorizationEvaluator#getParameterNames()`` - @deprecated @since 8.2.0 - use ``AuthorizationEvaluator#getFormDefinition()``.
-- ``IdmProcessedTaskItemService#findAllRefEntityIdsInQueueByScheduledTask(IdmScheduledTaskDto)`` - @deprecated @since 9.3.0 - use ``IdmProcessedTaskItemService#findAllRefEntityIdsInQueueByScheduledTaskId(UUID)``.
-- ``IdmProcessedTaskItemService#createLogItem(DTO, OperationResult, IdmLongRunningTaskDto)`` - @deprecated @since 9.3.0 - use ``IdmProcessedTaskItemService#createLogItem(AbstractDto, OperationResult, UUID)``.
-- ``IdmProcessedTaskItemService#createQueueItem(DTO, OperationResult, IdmScheduledTaskDto)`` - @deprecated @since 9.3.0 - use ``IdmProcessedTaskItemService#createQueueItem(AbstractDto, OperationResult, UUID)``.
-- ``IdmAudit#DELIMITER`` - @deprecated @since 7.8.2 - use ``IdmAuditDto.CHANGED_COLUMNS_DELIMITER``.
-- ``IdmAuditRepository#getPreviousVersion(UUID, Long, Pageable)`` - @deprecated @since 8.0.0 - use ``IdmAuditRepository#getPreviousVersion(UUID, Long)``.
-- ``IdentitySaveBulkAction`` - @deprecated @since 9.4.0 - use concrete bulk actions for execute ACM or provisioning only in acc module.
-- ``AbstractFormValueRepository#findByOwner(O)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
-- ``AbstractFormValueRepository#findByOwner_Id(Serializable)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
-- ``AbstractFormValueRepository#findByOwnerAndFormAttribute_FormDefinitionOrderBySeqAsc(O, IdmFormDefinition)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
-- ``AbstractFormValueRepository#findByOwnerAndFormAttribute_FormDefinition_IdOrderBySeqAsc(O, UUID)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
-- ``AbstractFormValueRepository#findByOwner_IdAndFormAttribute_FormDefinition_IdOrderBySeqAsc(Serializable, UUID)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
-- ``AbstractFormValueRepository#findByOwner_IdAndFormAttributeOrderBySeqAsc(Serializable, IdmFormAttribute)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
-- ``AbstractFormValueRepository#findByOwner_IdAndFormAttribute_IdOrderBySeqAsc(Serializable, UUID)`` - @deprecated @since 8.2.0 - use ``FormValueService#find(IdmFormValueFilter, Pageable)``.
-- ``IdmIdentityRoleRepository#countByRole(IdmRole)`` - @deprecated @since 7.4.0 - use ``IdmIdentityRoleRepository#countByRole_Id(UUID)``.
-- ``IdmRoleCatalogueRoleRepository#find(IdmRoleCatalogueRoleFilter, Pageable)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)``.
-- ``IdmRoleCatalogueRoleRepository#findAllByRole_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)``.
-- ``IdmRoleCatalogueRoleRepository#findAllByRoleCatalogue_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)``.
-- ``IdmRoleCatalogueRoleRepository#deleteAllByRole_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)`` and then delete.
-- ``IdmRoleCatalogueRoleRepository#deleteAllByRoleCatalogue_Id(UUID)`` - @deprecated @since 8.1.4 - use ``IdmRoleCatalogueRoleService#find(IdmRoleCatalogueRoleFilter, Pageable)`` and then delete.
-- ``IdmMessage#DEFAULT_LEVEL`` - @deprecated @since 7.6.0 - use ``IdmMessageDto.DEFAULT_LEVEL``.
-- ``IdmNotificationConfigurationRepository#findTypes(String, NotificationLevel)`` - @deprecated @since 9.2.0 - use ``IdmNotificationConfigurationRepository#findAllByTopicAndWildcardLevel(String, NotificationLevel)``.
-- ``IdmIdentityController#roles(String)`` - @deprecated @since 9.4.0 - use ``IdmIdentityRoleController#find(MultiValueMap, Pageable)`` with filter by identity.
-- ``AbstractAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
-- ``AbstractAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
-- ``AddNewAutomaticRoleForPositionTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
-- ``AddNewAutomaticRoleForPositionTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
-- ``AddNewAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
-- ``AddNewAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
-- ``RemoveAutomaticRoleTaskExecutor#setRoleTreeNodeId(UUID)`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#setAutomaticRoleId(UUID)``.
-- ``RemoveAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
-
-## Frontend
+# Frontend
 In this chapter will be describe migration for the frontend part of IdM.
 
 The main goal of upgrading the frontend in **version 10** was to upgrade **React** to version **16**. Previous version **15** has already limited us in selecting new and upgrading existing components.
@@ -327,15 +233,13 @@ Main dependencies upgraded during migration:
 
 > All updated dependencies are in the product package.json. It means, If you will used the CzechIdM 10.x.x, then you already have dependency on the **React 16** and others.
 
-### React migration tutorial for custom module
-
-#### React sice version 16 has PropTypes in separate module.
+## React sice version 16 has PropTypes in separate module
 
 Use official conversion utility for move PropTypes in you module.
 
 <code>npx react-codemod React-PropTypes-to-prop-types --force</code>
 
-#### Method componentWillReceiveProps and componentWillMount
+## Method componentWillReceiveProps and componentWillMount
 Method **componentWillReceiveProps** and **componentWillMount** were renamed to **UNSAFE_componentWillReceiveProps** and **UNSAFE_componentWillMount**. Since **React 17** only UNSAFE variant will be called!
 
 This **methods are deprecated** and should be not used. In the product was this method componentWillReceiveProps used in 60 files. In version 10 was this method removed from 30 files (typically from component shows a detail).
@@ -351,10 +255,202 @@ Use official conversion utility for rename deprecated methods.
 
 <code>npx react-codemod rename-unsafe-lifecycles --force</code>
 
-#### React TestUtils was moved to react-dom
+## React TestUtils was moved to react-dom
 
-Replace all occurrences:
+**Replace all occurrences**:
 
 <code>import TestUtils from 'react-addons-test-utils';</code>
 ->
  <code>import TestUtils from 'react-dom/test-utils';</code>
+
+## React Shallow renderer
+
+Tests using Shallow renderer from the **react-test-renderer** now.
+
+**Replace all occurrences**:
+
+<code>TestUtils.createRenderer();</code>
+->
+ <code>new ShallowRenderer();</code>
+
+ You have to add import to a modified files:
+
+ <code>import ShallowRenderer from 'react-test-renderer/shallow';</code>.
+
+## React-redux - forwardRef
+
+In new version of Redux, is returned wrapped component directly (component.getWrappedInstance() is not necessary). For this feature you have to define  **forwardRef: true** in redux connect function.
+
+**Replace all occurrences**:
+
+<code>withRef: true</code>
+->
+ <code>forwardRef: true</code>
+
+## React-redux - remove getWrappedInstance
+
+Method **getWrappedInstance()** on a redux components no longer exists, because is no necessary (if **forwardRef** is used).
+
+**Replace all occurrences**:
+
+<code>.getWrappedInstance().</code>
+->
+ <code>.</code>
+
+## React router - Link
+React router components were moved to the module **react-router-dom**.
+
+**Replace all occurrences**:
+
+<code>import { Link } from 'react-router';</code>
+->
+ <code>import { Link } from 'react-router-dom';</code>
+
+## React router - Context
+In new version of the React Router is router context no longer propagate.
+
+>We used router context for redirection (methods **replace**/**push**/**goBack**) in previous verson of CzechIdM.
+For replace it was in CzechIdM 10 created **IdmContext**. This context contains all **routes**, redux **store** and router **history**.
+
+You have to use **this.context.history** for redirection (replace/push/goBack).
+
+**Replace all occurrences**:
+
+<code>this.context.router</code>
+->
+ <code>this.context.history</code>
+
+## React router - URL params
+Url parameters are no longer in **props.params**, but in match object. Use **props.match.params** instead.
+
+**Replace all occurrences (in the same order)**:
+
+<code>component.params</code>
+->
+ <code>component.match.params</code>
+
+<code>this.props.params</code>
+ ->
+  <code>this.props.match.params</code>
+
+<code>params={ this.props.match.params }</code>
+ ->
+  <code>match={ this.props.match }</code>
+
+<code>params={this.props.match.params}</code>
+ ->
+  <code>match={ this.props.match }</code>
+
+<code>props.params</code>
+ ->
+  <code>props.match.params</code>
+
+<code>nextProps.params</code>
+ ->
+  <code>nextProps.match.params</code>
+
+## React router - Dynamic routes
+In **React Router v4** are **routes.js** no longer use. Every parent component must know all his children now.
+
+**This broked our modularity**, because we compose routes from every modules dynamically. It means parent component doesn't know about his children routes in CzechIdM.  
+
+In **CzechIdM 10** was developed mechanism for generating **<Route>** elements by configuration from a **routes.js**.
+
+**This was the biggest task in upgrade the frontend.**
+
+>All components in CzechIdM extends **AbstractContextComponent**. In this class was implemented dynamic routing. It means here are used old routes (composed from all routes.js) and generated new `<Route>` for React Router V4. All what you need is call **this.getRoutes()** in every places where routes children (**this.props.children**) were rendered (in Routes V4 will be **this.props.children** empty).
+
+Definition of routes in all modules shouldn't need any update. But definition of a routes can be written in many ways and it means some of these cases have to be not covered by dynamic routing in CzechIdM 10.
+
+**So beware and test  all routing/redirections in your module after upgrade on CzechIdM 10!**
+
+**!!ONLY!!** for components using **Advanced.TabPanel** make replace:
+
+<code>this.props.children</code>
+->
+ <code>this.getRoutes()</code>
+
+## React router - redirections
+
+If you using redirect via **replace** or **push** method, then you have to ensure correct format of the path. Previouse version of react-router used absolute path only. **This is not true now**!
+
+So, if you have this redirection:
+
+`this.context.history.replace('systems');`
+
+, then final url will be `http://localhost:3000/#/currentUrl/systems`!
+
+If you want to use **absolute path** `http://localhost:3000/#/systems`, you have to add the slash:
+
+ `this.context.history.replace('/systems');`!
+
+**Suggestion is try to search** (`this.context.history.push(`, `this.context.history.replace(`) and check if all useing of **replace**/**push** starts with **slash**.
+>Replace all is not good idea, because in some cases can starts expression with call a method.
+
+## React router - redirections with `to`
+Same situation as previous occurs for `<Basic.LinkCell>` and `<Advanced.ColumnLink>` components, where attribute **to** is no longer absolute. So you need to add slash (if missing on the start of path).
+
+**Suggestion is try to search** (`to="`) and check if all useing starts with slash.
+> Replace all is not good idea, because in some cases can starts expression with call a method.
+
+**Example:**
+
+ `<Basic.LinkCell property="key" to="workflow/definitions/:key"/>`
+
+ ->
+
+ `<Basic.LinkCell property="key" to="/workflow/definitions/:key"/>`
+
+## React router - query parameters
+ **React router since V4 doesn't parse the query parameters** (`.../?new=1`).
+
+In CzechIdM 10 was implemented parsing in **AbstractContextComponent._parseUrlQuery**.
+Parsing is executed in constructor and result query object is sets to the `this.props.location.query` (for ensure back compatibility).
+
+**Beware** `this.props.location.query` could be **null**!
+
+Because Redux calling **Select** method before constructor of **AbstractContextComponent**. You have to prevent of throwing of the **null pointer**, typicaly in select method.
+
+**For example**:
+
+ `component.location ? component.location.query.automaticRoleId` should be modified on `component.location && component.location.query ? component.location.query.automaticRoleId : null;`
+
+## Method checkAccess removed
+Method **checkAccess** in the SecurityManager was removed. This logic was moved to the `AbstractContextComponent._getComponent(route)`.
+
+
+## React bootstrap - Modal component bug
+
+**Modal** component from react-bootstrap contains bug! Modal dialog is show before subcomponents are rendered. So if you call **setState** for show a modal dialog and in callback you want to set focus on some component (`this.refs.firstName.focus()`), then you will obtain **exception**, because the ref for that component will be null.
+
+I found ugly but working solution, it is the timeout (10ms). This timeout is implemented in **AbstractTableContent.showDetail**. It means, if you use this method, your modal dialog should be correctly rendered. If you showing modal dialog **manually**, then **you have to add timeout or use method showDialog**.
+
+**Here is example:**
+
+_Not working:_
+<pre><code class="text">
+  this.setState({
+      detail: {
+        show: true,
+        entity
+      }
+    }, () => {
+      this.refs.generatorType.focus();
+    });
+</code></pre>
+
+_Working (using showDetail from AbstractTableContent):_
+<pre><code class="text">
+  super.showDetail(entity, () => {
+      this.refs.generatorType.focus();
+    });
+</code></pre>
+
+_Working (manually added timeout):_
+<pre><code class="text">
+  super.showDetail(entity, () => {
+      setTimeout(() => {
+        this.refs.generatorType.focus();
+      }, 10);
+    });
+</code></pre>

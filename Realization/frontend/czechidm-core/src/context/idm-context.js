@@ -6,7 +6,8 @@ import React from 'react';
  */
 const IdmContext = React.createContext({
   routes: {},
-  store: {}
+  store: {},
+  history: {}
 });
 
 export default IdmContext;

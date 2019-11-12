@@ -448,7 +448,12 @@ _Working (using showDetail from AbstractTableContent):_
 
 _Working (manually added timeout):_
 <pre><code class="text">
-  super.showDetail(entity, () => {
+this.setState({
+      detail: {
+        show: true,
+        entity
+      }
+    }, () => {
       setTimeout(() => {
         this.refs.generatorType.focus();
       }, 10);

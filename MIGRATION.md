@@ -93,7 +93,7 @@ Based on upgraded libraries we have to add and remove configuration properties (
 
 Due to breaking changes above, custom module requires some refactoring, before it's compatible with CzechIdM version 10. Some refactoring can be done with replaces, but some places has to be changed manually.
 
-### Automatic replaces
+### Replaces
 
 > Case sensitive find is expected.
 

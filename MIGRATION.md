@@ -448,7 +448,7 @@ _Working (using showDetail from AbstractTableContent):_
 
 _Working (manually added timeout):_
 <pre><code class="text">
-this.setState({
+  this.setState({
       detail: {
         show: true,
         entity

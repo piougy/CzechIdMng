@@ -1,6 +1,6 @@
 # Migration Guide : CzechIdM 9.7.x to CzechIdM 10.0.x
 
-## Introduction
+## 💡 Introduction
 
 This guide describes the various things that are needed when migrating from CzechIdM version 9.7.x to version 10.
 In version 10 were upgraded major devstack dependencies (see list bellow). The goals:
@@ -9,7 +9,7 @@ In version 10 were upgraded major devstack dependencies (see list bellow). The g
 - Remove obsolete deprecated classes and methods.
 
 
-# Backend
+# 🌗 Backend
 In this chapter will be describe migration for the backend part of IdM.
 
 > Note for **administator**:  is needed to read [Before ugrade](#before-upgrade) and [Configuration section](#configuration-properties).
@@ -18,7 +18,7 @@ In this chapter will be describe migration for the backend part of IdM.
 
 > Note for **product developer:** is needed to read it all :).
 
-### Upgraded libraries
+### 🚀 Upgraded libraries
 
 - Spring Boot ``1.3.8.RELEASE`` => ``2.1.7.RELEASE``
   - Spring ``4.2.8.RELEASE`` => ``5.1.9.RELEASE``
@@ -215,12 +215,12 @@ Configuration file in test package ``logback-test.xml`` has to removed. New ``lo
 
 > Note for developer: every custom module has ``logback-test.xml``. Test cannot run without this change.
 
-# Frontend
+# 🌓 Frontend
 In this chapter will be describe migration for the frontend part of IdM.
 
 The main goal of upgrading the frontend in **version 10** was to upgrade **React** to version **16**. Previous version **15** has already limited us in selecting new and upgrading existing components.
 
-Main dependencies upgraded during migration:
+### 🚀 Main upgraded libraries:
 
 * **React** from **15.6** to **16.9**.
 * **React-router** from **2.3** to **5.1**.
@@ -233,7 +233,7 @@ Main dependencies upgraded during migration:
 
 > All updated dependencies are in the product package.json. It means, If you will used the CzechIdM 10.x.x, then you already have dependency on the **React 16** and others.
 
-## React sice version 16 has PropTypes in separate module
+## React since version 16 has PropTypes in separate module
 
 Use official conversion utility for move PropTypes in you module.
 
@@ -419,7 +419,7 @@ Because Redux calling **Select** method before constructor of **AbstractContextC
 Method **checkAccess** in the SecurityManager was removed. This logic was moved to the `AbstractContextComponent._getComponent(route)`.
 
 
-## React bootstrap - Modal component bug
+## 🐞 React bootstrap - Modal component bug
 
 **Modal** component from react-bootstrap contains bug! Modal dialog is show before subcomponents are rendered. So if you call **setState** for show a modal dialog and in callback you want to set focus on some component (`this.refs.firstName.focus()`), then you will obtain **exception**, because the ref for that component will be null.
 

@@ -68,11 +68,15 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -127,6 +131,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired private SysSyncItemLogService syncItemLogService;
 	@Autowired private SysSyncActionLogService syncActionLogService;
 	@Autowired private SysSystemController systemController;
+	@Autowired private IdmPasswordPolicyService passwordPolicyService;
 	
 	@Before
 	public void login() {
@@ -211,6 +216,97 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		assertEquals(0, systemAttributeMappingService.find(schemaAttributeHandlingFilter, null).getTotalElements());
 		assertEquals(0, roleSystemService.find(roleSystemFilter, null).getTotalElements());
 		assertNull(roleSystemAttributeService.get(roleSystemAttribute.getId()));
+	}
+	
+	
+	@Test
+	public void testReferentialIntegrityPasswordGenerationPolicy() {
+		SysSystemDto system = helper.createSystem(helper.createName());
+		IdmPasswordPolicyDto passPolicy = new IdmPasswordPolicyDto();
+		passPolicy.setName("testPolicyName");
+		passPolicy.setType(IdmPasswordPolicyType.GENERATE);
+		passPolicy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		passPolicy.setMinPasswordLength(5);
+		passPolicy.setMaxPasswordLength(12);
+		passPolicy = passwordPolicyService.save(passPolicy);
+		  
+		system.setPasswordPolicyGenerate(passPolicy.getId());
+		system = systemService.save(system);
+		
+		// test that password policy exists in the system it was set to
+		assertNotNull(system.getPasswordPolicyGenerate());
+		assertNull(system.getPasswordPolicyValidate());
+		
+		// removing password policy from IdM
+		passwordPolicyService.delete(passPolicy);
+		// reloading 'system DTO' setting from IdM
+		system = systemService.get(system.getId());
+		
+		// test that reloaded 'system DTO' doesn't have set password policy after its deletion
+		assertNull(system.getPasswordPolicyGenerate());
+		assertNull(system.getPasswordPolicyValidate());
+		
+		systemService.delete(system);
+	}
+	
+	@Test
+	public void testReferentialIntegrityPasswordValidationPolicy() {
+		SysSystemDto system = helper.createSystem(helper.createName());
+		IdmPasswordPolicyDto passPolicy = new IdmPasswordPolicyDto();
+		passPolicy.setName("testPolicyName");
+		passPolicy.setType(IdmPasswordPolicyType.VALIDATE);
+		passPolicy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		passPolicy.setMinPasswordLength(5);
+		passPolicy.setMaxPasswordLength(12);
+		passPolicy = passwordPolicyService.save(passPolicy);
+		
+		system.setPasswordPolicyValidate(passPolicy.getId());
+		system = systemService.save(system);
+		
+		// test that password policy exists in the system it was set to
+		assertNotNull(system.getPasswordPolicyValidate());
+		assertNull(system.getPasswordPolicyGenerate());
+		
+		// removing password policy from IdM
+		passwordPolicyService.delete(passPolicy);
+		// reloading 'system DTO' setting from IdM
+		system = systemService.get(system.getId());
+		
+		// test that reloaded 'system DTO' doesn't have set password policy after its deletion
+		assertNull(system.getPasswordPolicyValidate());
+		assertNull(system.getPasswordPolicyGenerate());
+		
+		systemService.delete(system);		
+	} 
+	
+	@Test
+	public void testReferentialIntegritySystemIsPreservedAfterDeletingPasswordPolicy() {
+		SysSystemDto system = helper.createSystem(helper.createName());
+		IdmPasswordPolicyDto passPolicy = new IdmPasswordPolicyDto();
+		passPolicy.setName("testPolicyName");
+		passPolicy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		passPolicy.setMinPasswordLength(5);
+		passPolicy.setMaxPasswordLength(12);
+		passPolicy = passwordPolicyService.save(passPolicy);
+		
+		system.setPasswordPolicyValidate(passPolicy.getId());
+		system.setPasswordPolicyGenerate(passPolicy.getId());
+		system = systemService.save(system);
+		
+		// test that password policy exists in the system it was set to
+		assertNotNull(system.getPasswordPolicyValidate());
+		assertNotNull(system.getPasswordPolicyGenerate());
+		
+		// removing system from IdM
+		systemService.delete(system);
+		
+		// reloading 'password policy DTO' setting from IdM
+		passPolicy = passwordPolicyService.get(passPolicy.getId());
+		
+		// test that policy still exists after system deletion
+		assertNotNull(passPolicy);
+		
+		passwordPolicyService.delete(passPolicy);
 	}
 	
 	@Test(expected = ResultCodeException.class)

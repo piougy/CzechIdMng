@@ -1,6 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
+import Immutable from 'immutable';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -93,8 +94,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
    */
   _changeIdentityOrContract(identity, identityContract, showOnlyDirectRoles, environment) {
     if (identity && identity.id) {
-      const identityRoleRoots = [];
-      const searchParameters = identityRoleManager.getSearchParameters()
+      let searchParameters = identityRoleManager.getSearchParameters()
         .setFilter('identityId', identity.id)
         .setFilter('identityContractId', identityContract ? identityContract.id : null)
         .setFilter('directRole', showOnlyDirectRoles === true ? true : null) // When is filter false we want all roles
@@ -103,23 +103,50 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
       this.context.store.dispatch(identityRoleManager.fetchEntities(searchParameters, IDENTITY_ROLE_BY_IDENTITY_UIKEY, json => {
         // Returned json and inner embbeded with identity roles must exists
         if (json && json._embedded && json._embedded.identityRoles) {
-          const identityRoles = json._embedded.identityRoles;
+          let identityRoleRoots = new Immutable.OrderedMap();
+          const identityRoles = json._embedded[identityRoleManager.getCollectionType()];
           // Iterate over all identity roles
           for (const index in identityRoles) {
             if (identityRoles.hasOwnProperty(index)) {
               const identityRole = identityRoles[index];
               if (identityRole) {
-                identityRoleRoots.push(identityRole);
+                identityRole.disabled = true; // disabled by default - only can be requested can be assign, see bellow
+                identityRoleRoots = identityRoleRoots.set(identityRole.id, identityRole);
               }
             }
           }
+          // evaluate roles, which can be requested will be enabled
+          searchParameters = searchParameters.setName('can-be-requested');
+          this.context.store.dispatch(identityRoleManager.fetchEntities(searchParameters, IDENTITY_ROLE_BY_IDENTITY_UIKEY, json => {
+            if (json && json._embedded && json._embedded.identityRoles) {
+              const identityRoles = json._embedded[identityRoleManager.getCollectionType()];
+              // Iterate over all identity roles
+              for (const index in identityRoles) {
+                if (identityRoles.hasOwnProperty(index)) {
+                  const identityRole = identityRoles[index];
+                  if (identityRole) {
+                    // disabled is not set now ...
+                    identityRoleRoots = identityRoleRoots.set(identityRole.id, identityRole);
+                  }
+                }
+              }
+            }
+            //
+            this.setState({
+              selectedIdentity: identity,
+              identityRoleRoots: identityRoleRoots.toArray(),
+              selectedIdentityContract: identityContract,
+              showOnlyDirectRoles
+            });
+          }));
+        } else {
+          this.setState({
+            selectedIdentity: identity,
+            identityRoleRoots: [],
+            selectedIdentityContract: identityContract,
+            showOnlyDirectRoles
+          });
         }
-        this.setState({
-          selectedIdentity: identity,
-          identityRoleRoots,
-          selectedIdentityContract: identityContract,
-          showOnlyDirectRoles
-        });
       }));
     } else {
       this.setState({
@@ -144,7 +171,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     identityRoleRoots.forEach(newIdentityRole => {
       if (_.findIndex(selectedIdentityRoles, (selectIdentityRole) => {
         return selectIdentityRole === newIdentityRole.id;
-      }) === -1) {
+      }) === -1 && !newIdentityRole.disabled) {
         selectedIdentityRoles.push(newIdentityRole.id);
       }
     });
@@ -498,6 +525,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
             <div><Basic.Icon value="component:business-role"/> { this.i18n('legend.role-types.business-role') }</div>
             <div><Basic.Icon value="component:automatic-role"/> { this.i18n('legend.role-types.automatic-role') }</div>
             <div><Basic.Icon value="component:sub-role"/> { this.i18n('legend.role-types.sub-role') }</div>
+            <h4 className="disabled">{ this.i18n('legend.role-types.disabled') }</h4>
           </Basic.Alert>
         </Basic.Div>
       </div>

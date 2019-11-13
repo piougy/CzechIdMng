@@ -1486,7 +1486,8 @@
                 "role": "Napřímo přidělená aplikační role.",
                 "business-role": "Napřímo přidělená business role. Přidělením této role budou přiděleny i role definované touto business rolí (sub role).",
                 "automatic-role": "Role přidělená systémem dle nastavení automatických rolí (podle struktury či atributu).",
-                "sub-role": "Role přidělená na základě přidělení business role, která tuto roli obsahuje (sub role)."
+                "sub-role": "Role přidělená na základě přidělení business role, která tuto roli obsahuje (sub role).",
+                "disabled": "Roli lze vybrat pouze pokud o ni lze žádat."
               }
             }
           },
@@ -5099,6 +5100,15 @@
           "identity-read": {
             "label": "Dle oprávnění číst uživatele",
             "help": "Nastaví oprávnění pro profily uživatelů, které aktuálně přihlášený uživatel může číst (například pokud může číst uživatele, může editovat jeho profil)."
+          }
+        }
+      },
+      "core-identity-role-by-role-evaluator": {
+        "help": "Oprávnění pro přiřazené role dle definice role.",
+        "attributes": {
+          "can-be-requested-only": {
+            "label": "Pouze pro žádosti o role",
+            "help": "Přiřadí pouze oprávnění pro možnost žádat o přiřazenou stejnou roli. Použitelné například při kopírování rolí od jiného uživatele."
           }
         }
       }

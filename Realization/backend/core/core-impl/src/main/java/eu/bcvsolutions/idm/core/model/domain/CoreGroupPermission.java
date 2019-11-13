@@ -69,7 +69,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE),
+			IdmBasePermission.DELETE,
+			RoleBasePermission.CANBEREQUESTED),
 	ROLE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -377,6 +378,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITYROLE_CREATE = "IDENTITYROLE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String IDENTITYROLE_UPDATE = "IDENTITYROLE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITYROLE_DELETE = "IDENTITYROLE" + BasePermission.SEPARATOR + "DELETE";
+	public static final String IDENTITYROLE_CANBEREQUESTED = "IDENTITYROLE" + BasePermission.SEPARATOR + "CANBEREQUESTED";
 	//
 	public static final String IDENTITYCONTRACT_COUNT = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "COUNT";
 	public static final String IDENTITYCONTRACT_AUTOCOMPLETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";

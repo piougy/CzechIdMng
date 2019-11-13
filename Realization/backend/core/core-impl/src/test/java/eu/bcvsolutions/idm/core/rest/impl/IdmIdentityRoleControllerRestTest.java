@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
+import java.util.Set;
 
 import org.joda.time.LocalDate;
 import org.junit.Assert;
@@ -8,6 +9,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
+import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -19,7 +22,17 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
+import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.RoleBasePermission;
+import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityRoleByRoleEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.role.RoleCanBeRequestedEvaluator;
 
 /**
  * Controller tests
@@ -32,6 +45,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmIdentityRoleDto> {
 
 	@Autowired private IdmIdentityRoleController controller;
+	@Autowired private IdmRoleService roleService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	
 	@Override
 	protected AbstractReadWriteDtoController<IdmIdentityRoleDto, ?> getController() {
@@ -260,6 +276,87 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().anyMatch(ir -> ir.getDirectRole().equals(directRole.getId())
 				&& ir.getRole().equals(roleTwo.getId())));
+	}
+	
+	@Test
+	public void testFindCanBeRequestedRoles() throws Exception {
+		IdmRoleDto roleOne = createRole(true);
+		IdmRoleDto roleTwo = createRole(false); // other
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto assignedRole = getHelper().createRole();
+		//
+		getHelper().createIdentityRole(identity, assignedRole);
+		// 
+		// other identity - their identity roles we will read
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentityRole(identityTwo, roleOne);
+		getHelper().createIdentityRole(identityTwo, roleTwo);
+		//
+		// create authorization policy - assign to role
+		getHelper().createAuthorizationPolicy(
+				assignedRole.getId(),
+				CoreGroupPermission.ROLE,
+				IdmRole.class,
+				RoleCanBeRequestedEvaluator.class,
+				RoleBasePermission.CANBEREQUESTED, IdmBasePermission.UPDATE, IdmBasePermission.READ);
+		// with update transitively
+		ConfigurationMap evaluatorProperties = new ConfigurationMap();
+		evaluatorProperties.put(IdentityRoleByRoleEvaluator.PARAMETER_CAN_BE_REQUESTED_ONLY, false);
+		IdmAuthorizationPolicyDto transientIdentityRolePolicy = getHelper().createAuthorizationPolicy(
+				assignedRole.getId(),
+				CoreGroupPermission.IDENTITYROLE,
+				IdmIdentityRole.class,
+				IdentityRoleByRoleEvaluator.class,
+				evaluatorProperties);
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identityTwo.getId());
+		List<IdmIdentityRoleDto> identityRoles = find("can-be-requested", filter, getAuthentication(identity.getUsername()));
+		//
+		Assert.assertFalse(identityRoles.isEmpty());
+		Assert.assertEquals(1, identityRoles.size());
+		Assert.assertTrue(identityRoles.stream().anyMatch(r -> r.getRole().equals(roleOne.getId())));
+		//
+		List<String> permissions = getPermissions(identityRoles.get(0), getAuthentication(identity.getUsername()));
+		//
+		Assert.assertEquals(3, permissions.size());
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(RoleBasePermission.CANBEREQUESTED.name())));
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.UPDATE.name())));
+		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.name())));
+		//
+		// can be requested only
+		evaluatorProperties = new ConfigurationMap();
+		evaluatorProperties.put(IdentityRoleByRoleEvaluator.PARAMETER_CAN_BE_REQUESTED_ONLY, true);
+		transientIdentityRolePolicy.setEvaluatorProperties(evaluatorProperties);
+		authorizationPolicyService.save(transientIdentityRolePolicy);
+		//
+		identityRoles = find("can-be-requested", filter, getAuthentication(identity.getUsername()));
+		//
+		Assert.assertFalse(identityRoles.isEmpty());
+		Assert.assertEquals(1, identityRoles.size());
+		Assert.assertTrue(identityRoles.stream().anyMatch(r -> r.getRole().equals(roleOne.getId())));
+		//
+		// read authority is not available now
+		try {
+			getHelper().login(identity);
+			//
+			Set<String> canBeRequestedPermissions = identityRoleService.getPermissions(identityRoles.get(0).getId());
+			//		
+			Assert.assertEquals(1, canBeRequestedPermissions.size());
+			Assert.assertTrue(canBeRequestedPermissions.stream().anyMatch(p -> p.equals(RoleBasePermission.CANBEREQUESTED.name())));
+		} finally {
+			logout();
+		}
+	}
+	
+	private IdmRoleDto createRole( boolean canBeRequested) {
+		IdmRoleDto role = new IdmRoleDto();
+		role.setCode(getHelper().createName());
+		role.setName(role.getCode());
+		role.setCanBeRequested(canBeRequested);
+		//
+		return roleService.save(role);
 	}
 	
 	@Test

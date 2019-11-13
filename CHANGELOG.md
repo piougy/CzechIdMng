@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [9.7.12]
+
+- [#1917](https://redmine.czechidm.com/issues/1917) - **Base permissions for roles, which can be requested, is used in copy assigned roles feature**. Configure this permissions (``CANBEREQUESTED``) to identity roles, which can be copied. Previously configured permissions ``READ`` on identity role will be not sufficient to copy roles in role request detail. **New authorization policy evaluator ``IdentityRoleByRoleEvaluator`` can be configured to add this permission to identity roles by role definition.**
+
 ## [9.7.9]
 
 - [#1894](https://redmine.czechidm.com/issues/1894) - Virtual system request - Note for implementer was added. New method in service VsRequestService was added `realize(request, reason)`. From the FE is call only new method `realize(request, reason)` now! If some project overridden old method `realize(request)`, then you may be need to change it to the new one.
@@ -16,21 +20,21 @@ All notable changes to this project will be documented in this file.
 
 ## [9.7.5]
 
-- [#1798](https://redmine.czechidm.com/issues/1798) - **New base permissions for roles, which can be requested, was added**. Configure this new permissions (``CANBEREQUESTED``) to role, which enables role requests for users. Previously configured permissions ``AUTOCOMPLETE`` on role will be not suffiscient to see roles in role request detail (and in bulk actions for assign / remove assigned roles). ``AUTOCOMPLETE`` permission can be used  widely for select boxes. **If you have ``RoleCanBeRequestedEvaluator`` configured in you project already, just switch permission from ``AUTOCOMPLETE`` to ``CANBEREQUESTED``**.
+- [#1798](https://redmine.czechidm.com/issues/1798) - **New base permissions for roles, which can be requested, was added**. Configure this new permissions (``CANBEREQUESTED``) to role, which enables role requests for users. Previously configured permissions ``AUTOCOMPLETE`` on role will be not sufficient to see roles in role request detail (and in bulk actions for assign / remove assigned roles). ``AUTOCOMPLETE`` permission can be used  widely for select boxes. **If you have ``RoleCanBeRequestedEvaluator`` configured in you project already, just switch permission from ``AUTOCOMPLETE`` to ``CANBEREQUESTED``**.
 
 ## [9.7.3]
 
 - [#1794](https://redmine.czechidm.com/issues/1794) Notification template with code ``vs:vsRequestCreated`` was changed. Please redeploy manually this notification template.
-- [#1798](https://redmine.czechidm.com/issues/1798) - **New base permissions for disable / enable identity manually was added**. Configure this new permissions (``MANUALLYDISABLE``, ``MANUALLYENABLE``) to role, which enables bulk action and dashboard button for activate / deactivate user manually. Previously configured permissions ``UPDATE`` on identity will be not suffiscient to execute this function.
+- [#1798](https://redmine.czechidm.com/issues/1798) - **New base permissions for disable / enable identity manually was added**. Configure this new permissions (``MANUALLYDISABLE``, ``MANUALLYENABLE``) to role, which enables bulk action and dashboard button for activate / deactivate user manually. Previously configured permissions ``UPDATE`` on identity will be not sufficient to execute this function.
 
 ## [9.7.0]
 - Deprecated class (since 7.3.0) ``AuditableListener`` was removed. Use class ``AuditableEntityListener`` instead.
 - Deprecated classes (since 7.7.0) for long running tasks placed in core ``impl`` package was removed. Used the same classes from core ``api``.
 - [#1692](https://redmine.czechidm.com/issues/1692) - **The table of user roles changes has been redesigned**. All logic was move from frontend to backend. This new table (RequestIdentityRoleTable) is pageable, sorting, filtering on backend now.
    - For this table was created new DTO ``IdmRequestIdentityRoleDto``, representing change for specific identity-role entity.
-   - For this table was created new REST endpoint too ``/request-identity-roles``. This endpoint can be calling with starndard CRUD operations. Logic in this REST (service ``IdmRequestIdentityRoleService``) will be automatically creates role-concepts.
+   - For this table was created new REST endpoint too ``/request-identity-roles``. This endpoint can be calling with standard CRUD operations. Logic in this REST (service ``IdmRequestIdentityRoleService``) will be automatically creates role-concepts.
    - The finding method in this serivce compiles assigned identity-roles and role-concepts together and returns list of ``IdmRequestIdentityRoleDto``.
-   - Sorting works separatly for identity-roles and concepts. For this reason are first returns concepts adding new assign roles. Then are returns currentlly assigned identity-roles. If for returns identity-role exists remove or update concept, then is identity-role marked as changed. Role-concepts and identity-roles are always returns as ``IdmRequestIdentityRoleDto``.
+   - Sorting works separatly for identity-roles and concepts. For this reason are first returns concepts adding new assign roles. Then are returns currently assigned identity-roles. If for returns identity-role exists remove or update concept, then is identity-role marked as changed. Role-concepts and identity-roles are always returns as ``IdmRequestIdentityRoleDto``.
    - **For performance reasons, the REST endpoint for role-request, returns request without concepts** (from this version)! For same reason **``IdmRoleRequestService`` doesn't returns concepts in the request from now**. If you need to get request with a concepts, you can use this:  
     ```javascript
     roleRequestService.get(requestId, new IdmRoleRequestFilter(true));

@@ -104,22 +104,26 @@ Due to breaking changes above, custom module requires some refactoring, before i
 - ``import org.joda.time.LocalDate;`` ⇒ ``import java.time.LocalDate;``
 - ``import org.joda.time.DateTime;`` ⇒ ``import java.time.ZonedDateTime;``
 - ``new DateTime()`` ⇒ ``ZonedDateTime.now()``
-- (whole word, case sensitive): ``DateTime ⇒ ZonedDateTime;``
+- (whole word, case sensitive): ``DateTime ⇒ ZonedDateTime``
 - ``new LocalDate() ⇒ LocalDate.now()``
 - ``import org.joda.time.format.DateTimeFormatter;`` ⇒ ``import java.time.format.DateTimeFormatter;``
-- `` DateTimeFormatter dateFormat = DateTimeFormat.forPattern(configurationService.getDateFormat());`` ⇒ ``DateTimeFormatter formatter = DateTimeFormatter.ofPattern(getConfigurationService().getDateFormat());``
+- ``DateTimeFormat.forPattern(`` ⇒ ``DateTimeFormatter.ofPattern(``
 
 
 ### Manual changes / cookbook
 
 - *Replaces above are expected*
 - **Java time** usage:
-  - ``date.getMilis()`` ⇒ ``ZonedDateTime.now().toInstant().toEpochMilli()``
-  - ``date.toString(pattern)`` ⇒ ``date.format(formatter)`` or ``dateFormat.print(date)`` ⇒ ``formatter.format(date)``
-  - ``date.plusMilis(1)`` ⇒ ``date.plus(1, ChronoUnit.MILLIS)``
-  - ``Date date = Date.from(ZonedDateTime.now().toInstant());``
-  - ``ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(longValue), ZoneId.systemDefault());``
-  - ``ChronoUnit.SECONDS.between(authenticationDto.getExpiration(), newExpiration);``
+  - **date.getMilis()** ⇒ **ZonedDateTime.now().toInstant().toEpochMilli()**
+  - ``.print(`` ⇒ ``.format(``
+  - **date.toString(pattern)** ⇒ **date.format(formatter)**
+    - Try to search `.toString(` and replace (**ONLY** there is parameter **DateTimeFormatter**) with `.format(`.
+    - If value contains pattern in the String (for example "yyyyMMddHHmmss"). You need to change `toString("yyyyMMddHHmmss")` ⇒ `.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))`.
+  - **date.plusMilis(1)** ⇒ **date.plus(1, ChronoUnit.MILLIS)**
+    - Try to search `.plusMilis(1)` and replace with `.plus(1, ChronoUnit.MILLIS)`.
+  - **Date date = Date.from(ZonedDateTime.now().toInstant());**
+  - **ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(longValue), ZoneId.systemDefault());**
+  - **ChronoUnit.SECONDS.between(authenticationDto.getExpiration(), newExpiration);**
 - **Mockito**:
   - ``any(String.class)`` checker doesn't support ``null`` parameter value now ⇒ ``(String) any()`` can be used.
 - **Spring**:

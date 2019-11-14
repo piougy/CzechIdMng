@@ -64,7 +64,8 @@ class SystemSynchronizationLogDetail extends Advanced.AbstractTableContent {
 
   render() {
     const { _showLoading, _synchronizationLog} = this.props;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('synchronizationLogId', _synchronizationLog ? _synchronizationLog.id : Domain.SearchParameters.BLANK_UUID);
+    const forceSearchParameters = new Domain.SearchParameters()
+      .setFilter('synchronizationLogId', _synchronizationLog ? _synchronizationLog.id : Domain.SearchParameters.BLANK_UUID);
     const synchronizationLog = _synchronizationLog;
 
     return (
@@ -75,37 +76,39 @@ class SystemSynchronizationLogDetail extends Advanced.AbstractTableContent {
         <Basic.ContentHeader>
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
-          <Basic.Panel className="no-border">
-            <Basic.AbstractForm readOnly ref="form" data={synchronizationLog} showLoading={_showLoading}>
-              <Basic.Checkbox
-                ref="running"
-                label={this.i18n('acc:entity.SynchronizationLog.running')}/>
-              <Basic.Checkbox
-                ref="containsError"
-                label={this.i18n('acc:entity.SynchronizationLog.containsError')}/>
-              <Basic.DateTimePicker
-                ref="started"
-                label={this.i18n('acc:entity.SynchronizationLog.started')}/>
-              <Basic.DateTimePicker
-                ref="ended"
-                label={this.i18n('acc:entity.SynchronizationLog.ended')}/>
-              <Basic.TextField
-                ref="token"
-                label={this.i18n('acc:entity.SynchronizationLog.token')}/>
-              <Basic.ScriptArea
-                ref="log"
-                mode="sqlserver"
-                height="30em"
-                label={this.i18n('acc:entity.SyncItemLog.log')}/>
-            </Basic.AbstractForm>
-            <Basic.PanelFooter>
-              <Basic.Button type="button" level="link"
-                onClick={this.context.history.goBack}
-                showLoading={_showLoading}>
-                {this.i18n('button.back')}
-              </Basic.Button>
-            </Basic.PanelFooter>
-          </Basic.Panel>
+        <Basic.Panel className="no-border">
+          <Basic.AbstractForm readOnly ref="form" data={synchronizationLog} showLoading={_showLoading}>
+            <Basic.Checkbox
+              ref="running"
+              label={this.i18n('acc:entity.SynchronizationLog.running')}/>
+            <Basic.Checkbox
+              ref="containsError"
+              label={this.i18n('acc:entity.SynchronizationLog.containsError')}/>
+            <Basic.DateTimePicker
+              ref="started"
+              label={this.i18n('acc:entity.SynchronizationLog.started')}/>
+            <Basic.DateTimePicker
+              ref="ended"
+              label={this.i18n('acc:entity.SynchronizationLog.ended')}/>
+            <Basic.TextField
+              ref="token"
+              label={this.i18n('acc:entity.SynchronizationLog.token')}/>
+            <Basic.ScriptArea
+              ref="log"
+              mode="sqlserver"
+              height="30em"
+              label={this.i18n('acc:entity.SyncItemLog.log')}/>
+          </Basic.AbstractForm>
+          <Basic.PanelFooter>
+            <Basic.Button
+              type="button"
+              level="link"
+              onClick={this.context.history.goBack}
+              showLoading={_showLoading}>
+              {this.i18n('button.back')}
+            </Basic.Button>
+          </Basic.PanelFooter>
+        </Basic.Panel>
         <Basic.ContentHeader rendered={synchronizationLog} style={{ marginBottom: 0 }}>
           <Basic.Icon value="transfer"/>
           {' '}
@@ -133,25 +136,25 @@ class SystemSynchronizationLogDetail extends Advanced.AbstractTableContent {
                 }
               }/>
             <Advanced.Column
-               property="syncAction"
-               face="enum"
-               enumClass={SynchronizationActionTypeEnum}
-               header={this.i18n('acc:entity.SyncActionLog.syncAction')}
-               sort/>
+              property="syncAction"
+              face="enum"
+              enumClass={SynchronizationActionTypeEnum}
+              header={this.i18n('acc:entity.SyncActionLog.syncAction')}
+              sort/>
             <Advanced.Column
-               property="operationResult"
-               face="enum"
-               enumClass={OperationResultTypeEnum}
-               header={this.i18n('acc:entity.SyncActionLog.operationResult')}
-               sort/>
-             <Advanced.Column
-               property="operationCount"
-               face="text"
-               header={this.i18n('acc:entity.SyncActionLog.operationCount')}
-               sort/>
-            </Advanced.Table>
-          </Basic.Panel>
-        </div>
+              property="operationResult"
+              face="enum"
+              enumClass={OperationResultTypeEnum}
+              header={this.i18n('acc:entity.SyncActionLog.operationResult')}
+              sort/>
+            <Advanced.Column
+              property="operationCount"
+              face="text"
+              header={this.i18n('acc:entity.SyncActionLog.operationCount')}
+              sort/>
+          </Advanced.Table>
+        </Basic.Panel>
+      </div>
     );
   }
 }

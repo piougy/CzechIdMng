@@ -118,13 +118,7 @@ class SystemSynchronizationLogDetail extends Advanced.AbstractTableContent {
             manager={syncActionLogManager}
             forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
-            actions={
-              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
-              ?
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-              :
-              null
-            }>
+          >
             <Advanced.Column
               property=""
               header=""

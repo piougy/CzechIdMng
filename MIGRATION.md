@@ -112,7 +112,7 @@ Due to breaking changes above, custom module requires some refactoring, before i
 
 ### Manual changes / cookbook
 
-- *automatic replaces above are expected*
+- *Replaces above are expected*
 - **Java time** usage:
   - ``date.getMilis()`` ⇒ ``ZonedDateTime.now().toInstant().toEpochMilli()``
   - ``date.toString(pattern)`` ⇒ ``date.format(formatter)`` or ``dateFormat.print(date)`` ⇒ ``formatter.format(date)``
@@ -220,6 +220,10 @@ In this chapter will be describe migration for the frontend part of IdM.
 
 The main goal of upgrading the frontend in **version 10** was to upgrade **React** to version **16**. Previous version **15** has already limited us in selecting new and upgrading existing components.
 
+>Some refactoring can be done with replaces (marks as **Replace all occurrences**), but some places has to be changed manually.
+
+>Case sensitive find is expected.
+
 ### 🚀 Main upgraded libraries:
 
 * **React** from **15.6** to **16.9**.
@@ -260,7 +264,7 @@ Use official conversion utility for rename deprecated methods.
 **Replace all occurrences**:
 
 <code>import TestUtils from 'react-addons-test-utils';</code>
-->
+⇒
  <code>import TestUtils from 'react-dom/test-utils';</code>
 
 ## React Shallow renderer
@@ -270,7 +274,7 @@ Tests using Shallow renderer from the **react-test-renderer** now.
 **Replace all occurrences**:
 
 <code>TestUtils.createRenderer();</code>
-->
+⇒
  <code>new ShallowRenderer();</code>
 
  You have to add import to a modified files:
@@ -284,7 +288,7 @@ In new version of Redux, is returned wrapped component directly (component.getWr
 **Replace all occurrences**:
 
 <code>withRef: true</code>
-->
+⇒
  <code>forwardRef: true</code>
 
 ## React-redux - remove getWrappedInstance
@@ -294,7 +298,7 @@ Method **getWrappedInstance()** on a redux components no longer exists, because 
 **Replace all occurrences**:
 
 <code>.getWrappedInstance().</code>
-->
+⇒
  <code>.</code>
 
 ## React router - Link
@@ -303,7 +307,7 @@ React router components were moved to the module **react-router-dom**.
 **Replace all occurrences**:
 
 <code>import { Link } from 'react-router';</code>
-->
+⇒
  <code>import { Link } from 'react-router-dom';</code>
 
 ## React router - Context
@@ -317,7 +321,7 @@ You have to use **this.context.history** for redirection (replace/push/goBack).
 **Replace all occurrences**:
 
 <code>this.context.router</code>
-->
+⇒
  <code>this.context.history</code>
 
 ## React router - URL params
@@ -326,27 +330,27 @@ Url parameters are no longer in **props.params**, but in match object. Use **pro
 **Replace all occurrences (in the same order)**:
 
 <code>component.params</code>
-->
+⇒
  <code>component.match.params</code>
 
 <code>this.props.params</code>
- ->
+ ⇒
   <code>this.props.match.params</code>
 
 <code>params={ this.props.match.params }</code>
- ->
+ ⇒
   <code>match={ this.props.match }</code>
 
 <code>params={this.props.match.params}</code>
- ->
+ ⇒
   <code>match={ this.props.match }</code>
 
 <code>props.params</code>
- ->
+ ⇒
   <code>props.match.params</code>
 
 <code>nextProps.params</code>
- ->
+ ⇒
   <code>nextProps.match.params</code>
 
 ## React router - Dynamic routes
@@ -367,7 +371,7 @@ Definition of routes in all modules shouldn't need any update. But definition of
 **!!ONLY!!** for components using **Advanced.TabPanel** make replace:
 
 <code>this.props.children</code>
-->
+⇒
  <code>this.getRoutes()</code>
 
 ## React router - redirections
@@ -397,7 +401,7 @@ Same situation as previous occurs for `<Basic.LinkCell>` and `<Advanced.ColumnLi
 
  `<Basic.LinkCell property="key" to="workflow/definitions/:key"/>`
 
- ->
+ ⇒
 
  `<Basic.LinkCell property="key" to="/workflow/definitions/:key"/>`
 
@@ -414,6 +418,8 @@ Because Redux calling **Select** method before constructor of **AbstractContextC
 **For example**:
 
  `component.location ? component.location.query.automaticRoleId` should be modified on `component.location && component.location.query ? component.location.query.automaticRoleId : null;`
+
+**Suggestion is try to search** (`location.query`) and check using (ensure prevent of null pointer ) in redux select methods.
 
 ## Method checkAccess removed
 Method **checkAccess** in the SecurityManager was removed. This logic was moved to the `AbstractContextComponent._getComponent(route)`.

@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
   - ``CustomParseListener`` - unused and @deprecated @since 7.8.0.
   - ``FilterBuilder#getPredicate(Root, CriteriaQuery, CriteriaBuilder, DataFilter)`` - @deprecated @since 9.7.0 - use ``FilterBuilder#getPredicate(Root, AbstractQuery, CriteriaBuilder, DataFilter)`` - method was deprecated recently, but we want to prevent its usage (related to issue [#1779](https://redmine.czechidm.com/issues/1779)).
   - ``WorkflowFilterDto`` - redundant pageable properties (``pageNumber``, ``pageSize``, ``sortAsc``, ``sortDesc``, ``sortByFields``) removed. @deprecated @since 7.7.0. Use standard ``Pageable`` api instead.
-  - ``WorkflowTaskInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowTaskInstanceService#find(WorkflowFilterDto, Pageable)`` - use ``IdmBasePermission.READ`` permission if security has to be evaluated.
+  - ``WorkflowTaskInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowTaskInstanceService#find(WorkflowFilterDto, Pageable)`` - use ``IdmBasePermission.READ`` permission and set currently logged identity into filter, if security has to be evaluated.
   - ``WorkflowHistoricProcessInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowHistoricProcessInstanceService#find(WorkflowFilterDto, Pageable)``.
   - ``WorkflowHistoricTaskInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowHistoricTaskInstanceService#find(WorkflowFilterDto, Pageable)``.
   - ``WorkflowProcessInstanceService#search(WorkflowFilterDto)`` - @deprecated @since 7.7.0 - use ``WorkflowProcessInstanceService#find(WorkflowFilterDto, Pageable)``.

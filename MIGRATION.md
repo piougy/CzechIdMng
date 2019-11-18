@@ -84,6 +84,7 @@ Based on upgraded libraries we have to add and remove configuration properties (
 - **Joda time library was removed** - all entities, dtos and services use java time now ⇒ api was changed, all places which used joda time have to be refactored (included workflow and groovy scripts). The related issue is with [serialized dtos](#serialized-dtos) in workflow properties and operation result.
 - **Activiti** 6 registered new ``formService`` bean usable in workflow definition ⇒ IdM eav service is not available under ``formService`` name any more. New bean alias ``idmFormService`` was created and has to be used in workflows.
 - **Hibernate** removed data type ``org.hibernate.type.StringClobType`` - all entities has to be refactored, type ``org.hibernate.type.TextType`` has to be used.
+- **Envers** changed api for extending criteria (check ``AuditCriterion`` usage).
 - **Mockito** changes behavior for ``any(Class)`` checker - doesn't support ``null`` parameter value now. This is used just in unit tests. Test can be compiled but doesn't work.
 - **Spring** data repository api changes:
   - e.g. ``findOne`` renamed to ``findOneById`` and returns ``Optional<E>``,
@@ -104,7 +105,6 @@ Due to breaking changes above, custom module requires some refactoring, before i
 - ``import org.joda.time.LocalDate;`` ⇒ ``import java.time.LocalDate;``
 - ``import org.joda.time.DateTime;`` ⇒ ``import java.time.ZonedDateTime;``
 - ``new DateTime()`` ⇒ ``ZonedDateTime.now()``
-- (whole word, case sensitive): ``DateTime ⇒ ZonedDateTime``
 - ``new LocalDate() ⇒ LocalDate.now()``
 - ``import org.joda.time.format.DateTimeFormatter;`` ⇒ ``import java.time.format.DateTimeFormatter;``
 - ``DateTimeFormat.forPattern(`` ⇒ ``DateTimeFormatter.ofPattern(``
@@ -114,6 +114,7 @@ Due to breaking changes above, custom module requires some refactoring, before i
 
 - *Replaces above are expected*
 - **Java time** usage:
+  - Try to find (whole word, case sensitive): ``DateTime`` and replace to ``ZonedDateTime`` - some constructorsusage has to be refactor manually, see bellow.
   - **date.getMilis()** ⇒ **ZonedDateTime.now().toInstant().toEpochMilli()**
   - ``.print(`` ⇒ ``.format(``
   - **date.toString(pattern)** ⇒ **date.format(formatter)**
@@ -216,6 +217,159 @@ Configuration file in test package ``logback-test.xml`` has to removed. New ``lo
 
 </configuration>
 ```
+
+#### Test profile properties
+
+Configuration file in test package ``application.properties`` has to be updated (mainly jpa properties changed), use content (copy / paste):
+
+```
+######
+## Test properties only - its needed here for tests in other modules...
+######
+#
+#
+#
+# https://docs.spring.io/spring-boot/docs/1.3.8.RELEASE/reference/html/common-application-properties.html
+#
+# active spring profile
+spring.profiles.active=${spring.profiles.active}
+spring.resources.add-mappings=false
+#
+# jpa
+spring.jpa.properties.org.hibernate.envers.audit_table_suffix=_a
+# ZonedDateTime is stored in UTC
+spring.jpa.properties.hibernate.jdbc.time_zone=UTC
+# Driver (e.g. postgres) does not support contextual LOB creation
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+# connection pool setting
+# https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
+spring.datasource.hikari.maximumPoolSize=25
+# flag with added mod columns to all attributes
+# spring.jpa.properties.org.hibernate.envers.global_with_modified_flag=true
+spring.jpa.properties.hibernate.session_factory.interceptor=eu.bcvsolutions.idm.core.model.repository.listener.AuditableInterceptor
+spring.jpa.properties.hibernate.listeners.envers.autoRegister=true
+spring.jpa.hibernate.use-new-id-generator-mappings=false
+#
+# Spring Data Rest basic configuration
+# http://docs.spring.io/spring-data/rest/docs/current/reference/html/#_changing_other_spring_data_rest_properties
+spring.data.rest.basePath=/api
+spring.data.rest.returnBodyOnCreate=true
+spring.data.rest.returnBodyOnupdate=true
+spring.data.rest.defaultPageSize=10
+#
+# String boot properties for Activiti workflow engine
+# https://github.com/Activiti/Activiti/blob/master/modules/activiti-spring-boot/spring-boot-starters/activiti-spring-boot-starter-basic/src/main/java/org/activiti/spring/boot/ActivitiProperties.java
+spring.activiti.databaseSchemaUpdate=true
+# disable automatic jpa entities persisting
+spring.activiti.jpaEnabled=false
+# Automatic process deployment
+spring.activiti.checkProcessDefinitions=true
+spring.activiti.processDefinitionLocationPrefix=classpath*:eu/bcvsolutions/idm/workflow/
+spring.activiti.processDefinitionLocationSuffixes=**/**.bpmn20.xml
+#
+# Check that the templates location exists is disabled not
+spring.velocity.checkTemplateLocation=false
+spring.velocity.resourceLoaderPath=classpath*:eu/bcvsolutions/idm/templates/
+#
+# Swagger config
+# doc endpoint
+springfox.documentation.swagger.enabled=true
+springfox.documentation.swagger.v2.path=/api/doc
+#
+# Cipher secret key for crypt values in confidential storage
+# for crypt values is used secretKey or secretKey defined by file - secretKeyPath
+# Can be empty => confidential storage will not be crypted, application cannot be used in production (dev, test only).
+cipher.crypt.secret.key=
+# cipher.crypt.secret.keyPath=/path/to/key
+#
+# use cglib for proxies by default
+spring.aop.proxy-target-class=true
+#
+# Application instance / server id
+idm.pub.app.instanceId=idm-primary
+#
+# Enable flyway migrations.
+# @see https://proj.bcvsolutions.eu/ngidm/doku.php?id=navrh:databazove_scripty
+flyway.enabled=false
+#
+# Scheduler
+scheduler.enabled=true
+scheduler.task.queue.process=1000
+scheduler.event.queue.process=500
+scheduler.event.executor.queueCapacity=50
+#
+# Asynchronous event processing
+# disable / enable asynchronous event processing. Events will be executed synchronously, if it's disabled. Enabled by default.
+idm.sec.core.event.asynchronous.enabled=true
+# Asynchronous events will be executed on server instance with id. Default is the same as {@link ConfigurationService#getInstanceId()} (current server instance).
+idm.sec.core.event.asynchronous.instanceId=
+# Asynchronous events will be executed in batch - batch will be split for event with HIGH / NORMAL priority in 70% HIGH / 30% NORMAL.
+# If you events are processed quickly (~provisioning on your environment is quick), then batch size can be higher (in combination with higher 'scheduler.event.queue.process' property).
+idm.sec.core.event.asynchronous.batchSize=15
+#
+idm.pub.core.version=${project.version}
+# supports delete identity
+idm.pub.core.identity.delete=true
+#
+# default password change type for custom users, one of values (get from this enum: PasswordChangeType):
+# DISABLED - password change is disable
+# ALL_ONLY - users can change passwords only for all accounts
+# CUSTOM - users can choose for which accounts change password
+idm.pub.core.identity.passwordChange=ALL_ONLY
+#
+# supports authorization policies for extended form definitions and their values
+idm.sec.core.identity.formAttributes.secured=false
+#
+# Properties for load template from templates folders by modules
+idm.sec.core.notification.template.folder=classpath*:/eu/bcvsolutions/idm/templates/
+idm.sec.core.notification.template.fileSuffix=**/**.xml
+#
+# Properties for load script from folders by module
+idm.sec.core.script.folder=classpath*:/eu/bcvsolutions/idm/scripts/
+idm.sec.core.script.fileSuffix=**/**.xml
+#
+# Approve by manager
+idm.sec.core.wf.approval.manager.enabled=false
+# Approve by security department
+idm.sec.core.wf.approval.security.enabled=false
+idm.sec.core.wf.approval.security.role=Security
+# Approve by helpdesk department
+idm.sec.core.wf.approval.helpdesk.enabled=false
+idm.sec.core.wf.approval.helpdesk.role=Helpdesk
+# Approve by usermanager department
+idm.sec.core.wf.approval.usermanager.enabled=false
+idm.sec.core.wf.approval.usermanager.role=Usermanager
+# Approval wf by role priority
+idm.sec.core.wf.role.approval.1=approve-role-by-manager
+idm.sec.core.wf.role.approval.2=approve-role-by-guarantee
+idm.sec.core.wf.role.approval.3=approve-role-by-guarantee-security
+# Approval wf for unassign role (one remove WF for whole application)
+idm.sec.core.wf.role.approval.remove=approve-remove-role-by-manager
+# Enable sending notification of changing roles to user, whose account will be modified
+# idm.sec.core.wf.notification.applicant.enabled=false
+# Enable sending notification of changing roles to user, who made request
+idm.sec.core.wf.notification.implementer.enabled=true
+#
+# configuration property for default backup
+# idm.sec.core.backups.default.folder.path=/tmp/backup
+#
+## Attachment manager
+# attachments will be stored under this path.
+# new directories for attachment will be created in this folder (permissions has to be added)
+# System.getProperty("user.home")/idm_data will be used if no path is given
+# idm.sec.core.attachment.storagePath=/opt/data
+# temporary files for attachment processing (e.g. temp files for download / upload)
+# getStoragePath()/temp will be used if no path is given
+# idm.sec.core.attachment.tempPath=/opt/data/temp
+# temporary file time to live in milliseconds
+# older temporary files will be purged, default 14 days
+idm.sec.core.attachment.tempTtl=1209600000
+#
+# Max file size of uploaded file. Values can use the suffixed "MB" or "KB" to indicate a Megabyte or Kilobyte size.
+multipart.max-file-size=1Mb
+```
+
+
 
 > Note for developer: every custom module has ``logback-test.xml``. Test cannot run without this change.
 

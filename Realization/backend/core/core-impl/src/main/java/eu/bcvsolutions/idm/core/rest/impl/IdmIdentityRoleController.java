@@ -42,6 +42,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.security.api.domain.RoleBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -132,6 +133,25 @@ public class IdmIdentityRoleController extends AbstractReadWriteDtoController<Id
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value= "/search/can-be-requested", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYROLE_CANBEREQUESTED + "')")
+	@ApiOperation(
+			value = "Find assigned roles, which can be requested", 
+			nickname = "findCanBeRequestedIdentityRoles", 
+			tags = { IdmIdentityRoleController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYROLE_CANBEREQUESTED, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYROLE_CANBEREQUESTED, description = "") })
+				})
+	public Resources<?> findCanBeRequested(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return toResources(find(toFilter(parameters), pageable, RoleBasePermission.CANBEREQUESTED), getDtoClass());
 	}
 	
 	@Override

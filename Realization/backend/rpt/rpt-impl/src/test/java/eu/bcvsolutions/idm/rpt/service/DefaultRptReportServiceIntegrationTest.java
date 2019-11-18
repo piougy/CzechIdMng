@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.service.ReportManager;
 import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
@@ -23,7 +24,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 /**
  * Reports crud tests
  * - delete form
- * - delete attachmant
+ * - delete attachment
+ * - delete lrt
  * 
  * @author Radek Tomiška
  *
@@ -34,6 +36,7 @@ public class DefaultRptReportServiceIntegrationTest extends AbstractIntegrationT
 	@Autowired private CommonFormService commonFormService;
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private ReportManager reportManager;
+	@Autowired private IdmLongRunningTaskService longRunningTaskService;
 	//
 	private RptReportService reportService;
 	
@@ -72,5 +75,33 @@ public class DefaultRptReportServiceIntegrationTest extends AbstractIntegrationT
 		Assert.assertTrue(attachmentManager.getAttachments(report, null).getTotalElements() == 0);
 		// check filter is deleted
 		Assert.assertTrue(commonFormService.getForms(report).isEmpty());
-	}	
+	}
+	
+	@Test
+	public void testReferentialIntegrityLrtIsDeleted() throws IOException {
+		RptReportDto report = new RptReportDto();
+		report.setExecutorName(TestFilterReportExecutor.REPORT_NAME);
+		IdmFormDto filter = new IdmFormDto();
+		TestFilterReportExecutor testReportExecutor = context.getAutowireCapableBeanFactory().createBean(TestFilterReportExecutor.class);
+		IdmFormDefinitionDto definition = testReportExecutor.getFormDefinition();
+		IdmFormValueDto username = new IdmFormValueDto(definition.getMappedAttributeByCode(IdmIdentity_.username.getName()));
+		username.setValue(TestReportExecutor.identities.get(0).getUsername());
+		filter.getValues().add(username);
+		filter.setFormDefinition(definition.getId());
+		report.setFilter(filter);
+		//
+		report = reportManager.generate(report);
+		report = reportService.get(report);
+		UUID reportId = report.getId();
+		UUID longRunningTaskId = report.getLongRunningTask();
+		Assert.assertNotNull(reportId);
+		Assert.assertNotNull(longRunningTaskId);
+		//
+		longRunningTaskService.deleteById(longRunningTaskId);
+		report = reportService.get(report);
+		//
+		Assert.assertNull(longRunningTaskService.get(longRunningTaskId));
+		Assert.assertNull(report.getLongRunningTask());
+	}
+	
 }

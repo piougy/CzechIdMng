@@ -7,6 +7,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 import * as Domain from '../../../domain';
+import * as Utils from '../../../utils';
 import DetailButton from '../Table/DetailButton';
 
 const BASE_ICON_WIDTH = 15; // TODO: how to get dynamic padding from css?
@@ -630,6 +631,30 @@ class Tree extends Basic.AbstractContextComponent {
   }
 
   /**
+   * Returns true, when node is disabled.
+   *
+   * @param  {IdmTreeNodeDto}  node
+   * @return {Boolean}
+   */
+  _isDisabled(node) {
+    if (Utils.Entity.isDisabled(node)){
+      return true;
+    }
+    // try to find in roots
+    const { roots } = this.props;
+    let result = false;
+    if (roots) {
+      roots.forEach(rootNode => {
+        if (_.isObject(rootNode) && rootNode.id === node.id) {
+          // given root is disabled
+          result = Utils.Entity.isDisabled(rootNode);
+        }
+      });
+    }
+    return result;
+  }
+
+  /**
    * Render parent's child nodes
    *
    * @param  {[type]} parentId node id (null is root)
@@ -675,10 +700,13 @@ class Tree extends Basic.AbstractContextComponent {
             );
             // resolve node icon
             const icon = this._getNodeIcon(node);
+            // node has disabled flag
+            const isDisabled = this._isDisabled(node);
             // selected item decorator
             const nodeClassNames = classNames(
               'tree-node-row',
-              { selected: selected.has(node.id) }
+              { selected: selected.has(node.id) },
+              { disabled: isDisabled }
             );
             //
             // Node icon + label
@@ -693,6 +721,16 @@ class Tree extends Basic.AbstractContextComponent {
                   style={{ width: 14 }}/>
               );
               _nodeContent.push(nodeContent({ node }));
+            } else if (isDisabled) {
+              _nodeContent.push(
+                <span>
+                  <Basic.Icon
+                    value={ icon }
+                    className={ iconClassNames }
+                    showLoading={ uiState && uiState.showLoading }/>
+                  { this._getNodeNiceLabel(node) }
+                </span>
+              );
             } else {
               // default content
               _nodeContent.push(

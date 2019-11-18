@@ -638,22 +638,8 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		DTO dto = prepareDto();
 		//
 		DTO createdDto = createDto(dto);
-		List<String> permissions = null;
 		//
-		try {
-			String response = getMockMvc().perform(get(getPermissionsUrl(createdDto.getId()))
-	        		.with(authentication(getAdminAuthentication()))
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-					.andExpect(status().isOk())
-	                .andReturn()
-	                .getResponse()
-	                .getContentAsString();
-			//
-			// convert embedded object to list of strings
-			permissions = getMapper().readValue(response, new TypeReference<List<String>>(){});
-		} catch (Exception ex) {
-			throw new RuntimeException("Failed to find entities", ex);
-		}
+		List<String> permissions = getPermissions(createdDto, getAdminAuthentication());
 		//
 		Assert.assertNotNull(permissions);
 		Assert.assertFalse(permissions.isEmpty());
@@ -1245,6 +1231,24 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 			return mapper.convertValue(json, getController().getDtoClass());
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed parse entity from response", ex);
+		}
+	}
+	
+	protected List<String> getPermissions(DTO dto, Authentication authentication) {
+		//
+		try {
+			String response = getMockMvc().perform(get(getPermissionsUrl(dto.getId()))
+	        		.with(authentication(authentication))
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andExpect(status().isOk())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			//
+			// convert embedded object to list of strings
+			return getMapper().readValue(response, new TypeReference<List<String>>(){});
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to find entities", ex);
 		}
 	}
 	

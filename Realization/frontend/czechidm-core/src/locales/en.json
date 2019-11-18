@@ -971,6 +971,7 @@
       "REQUEST": "Requests (universal)",
       "REQUESTITEM": "Requests - items (universal)",
       "SCHEDULER": "Scheduler",
+      "LONGRUNNINGTASK": "Long running tasks",
       "WORKFLOWDEFINITION": "Workflow - definitions",
       "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
       "WORKFLOWTASK": "Workflow - tasks",
@@ -1442,7 +1443,8 @@
               "role": "Directly assigned application role.",
               "business-role": "Directly assigned business role. Defined sub roles will be assigned together with this role.",
               "automatic-role": "Role assigned by automatic role configuration (by tree structure or attribute).",
-              "sub-role": "Role assigned by business role (sub role)."
+              "sub-role": "Role assigned by business role (sub role).",
+              "disabled": "Role can be selected, when role can be requested."
             }
           }
         },
@@ -5051,6 +5053,15 @@
             "help": "Add permission to profile of users, which can be read by the logged user (for example, when logged user can read identity, then he can update her profile)."
           }
         }
+      },
+      "core-identity-role-by-role-evaluator": {
+        "help": "Permissions to assigned roles by role definition. If i can read role definition, then i can read all assigned roles.",
+        "attributes": {
+          "can-be-requested-only": {
+            "label": "Can be requested only",
+            "help": "Add permission for role requests only (can be requested). Usable, when assigned roles need to be copied from another user."
+          }
+        }
       }
     },
     "value-generator": {
@@ -5178,6 +5189,17 @@
           }
         }
       },
+      "core-remove-old-logs-long-running-task": {
+        "label": "Delete logging events",
+        "help": "Delete logging events (persisted in database by logger configuration) older than given number of days.",
+        "icon": "fa:trash",
+        "attributes": {
+          "removerecordolderthan": {
+            "label": "Number of days",
+            "help": "Delete logging events older than given number of days."
+          }
+        }
+      },
       "core-delete-executed-event-long-running-task": {
         "label": "Delete executed entity events",
         "help": "Delete sucessfully executed entity events (in the state 'EXECUTED') older than given number of days.",
@@ -5186,6 +5208,22 @@
           "numberofdays": {
             "label": "Number of days",
             "help": "Delete events older than given number of days."
+          }
+        }
+      },
+      "core-delete-long-running-task": {
+        "label": "Delete long running tasks",
+        "help": "Delete long running tasks older than given number of days.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Number of days",
+            "help": "Delete long running tasks older than given number of days."
+          },
+          "operationstate": {
+            "label": "Operation state",
+            "placeholder": "All states or ...",
+            "help": "Delete long running tasks in given state only."
           }
         }
       },

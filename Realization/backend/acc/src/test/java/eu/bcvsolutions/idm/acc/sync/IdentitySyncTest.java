@@ -406,7 +406,6 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 			});
 		}
 		// !!!
-		
 		Assert.assertEquals(1, identityAccounts.size());
 		
 		// Delete log

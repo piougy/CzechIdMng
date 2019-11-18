@@ -1002,6 +1002,7 @@
       "REQUEST": "Agenda žádostí (univerzální)",
       "REQUESTITEM": "Agenda žádostí - položky žádosti (univerzální)",
       "SCHEDULER": "Nastavení plánovače",
+      "LONGRUNNINGTASK": "Proběhlé dlouhotrvající úlohy",
       "WORKFLOWDEFINITION": "Workflow - definice",
       "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah",
       "WORKFLOWTASK": "Workflow - úkoly",
@@ -1486,7 +1487,8 @@
                 "role": "Napřímo přidělená aplikační role.",
                 "business-role": "Napřímo přidělená business role. Přidělením této role budou přiděleny i role definované touto business rolí (sub role).",
                 "automatic-role": "Role přidělená systémem dle nastavení automatických rolí (podle struktury či atributu).",
-                "sub-role": "Role přidělená na základě přidělení business role, která tuto roli obsahuje (sub role)."
+                "sub-role": "Role přidělená na základě přidělení business role, která tuto roli obsahuje (sub role).",
+                "disabled": "Roli lze vybrat pouze pokud o ni lze žádat."
               }
             }
           },
@@ -5101,6 +5103,15 @@
             "help": "Nastaví oprávnění pro profily uživatelů, které aktuálně přihlášený uživatel může číst (například pokud může číst uživatele, může editovat jeho profil)."
           }
         }
+      },
+      "core-identity-role-by-role-evaluator": {
+        "help": "Oprávnění pro přiřazené role dle definice role.",
+        "attributes": {
+          "can-be-requested-only": {
+            "label": "Pouze pro žádosti o role",
+            "help": "Přiřadí pouze oprávnění pro možnost žádat o přiřazenou stejnou roli. Použitelné například při kopírování rolí od jiného uživatele."
+          }
+        }
       }
     },
     "value-generator": {
@@ -5228,6 +5239,17 @@
           }
         }
       },
+      "core-remove-old-logs-long-running-task": {
+        "label": "Smazat logované události",
+        "help": "Vymaže logované události (uložené v databázi dle konfigurace logování) starší, nežli zadaný počet dní.",
+        "icon": "fa:trash",
+        "attributes": {
+          "removerecordolderthan": {
+            "label": "Počet dní",
+            "help": "Smazat události starší, než-li zadaný počet dní."
+          }
+        }
+      },
       "core-delete-executed-event-long-running-task": {
         "label": "Smazat zpracované události",
         "help": "Vymaže úspěšně zpracované události (ve stavu 'EXECUTED') starší, nežli zadaný počet dní.",
@@ -5236,6 +5258,22 @@
           "numberofdays": {
             "label": "Počet dní",
             "help": "Smazat události starší, než-li zadaný počet dní."
+          }
+        }
+      },
+      "core-delete-long-running-task": {
+        "label": "Smazat dlouhotrvající úlohy",
+        "help": "Vymaže dlouhotrvající úlohy starší, nežli zadaný počet dní.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Počet dní",
+            "help": "Smazat dlouhotrvající úlohy starší, než-li zadaný počet dní."
+          },
+          "operationstate": {
+            "label": "Stav operace",
+            "placeholder": "Všechny stavy či zadejte ...",
+            "help": "Smazat pouze dlouhotrvající úlohy se zadaným stavem."
           }
         }
       },

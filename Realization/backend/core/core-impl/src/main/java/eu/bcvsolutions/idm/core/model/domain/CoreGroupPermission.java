@@ -69,7 +69,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE),
+			IdmBasePermission.DELETE,
+			RoleBasePermission.CANBEREQUESTED),
 	ROLE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -192,6 +193,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE),
+	LONGRUNNINGTASK(
 			IdmBasePermission.DELETE),
 	ROLEREQUEST(
 			IdmBasePermission.ADMIN,
@@ -377,6 +380,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITYROLE_CREATE = "IDENTITYROLE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String IDENTITYROLE_UPDATE = "IDENTITYROLE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String IDENTITYROLE_DELETE = "IDENTITYROLE" + BasePermission.SEPARATOR + "DELETE";
+	public static final String IDENTITYROLE_CANBEREQUESTED = "IDENTITYROLE" + BasePermission.SEPARATOR + "CANBEREQUESTED";
 	//
 	public static final String IDENTITYCONTRACT_COUNT = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "COUNT";
 	public static final String IDENTITYCONTRACT_AUTOCOMPLETE = "IDENTITYCONTRACT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
@@ -517,6 +521,8 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String SCHEDULER_UPDATE = "SCHEDULER" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SCHEDULER_DELETE = "SCHEDULER" + BasePermission.SEPARATOR + "DELETE";
 	public static final String SCHEDULER_EXECUTE = "SCHEDULER" + BasePermission.SEPARATOR + "EXECUTE";
+	//
+	public static final String LONGRUNNINGTASK_DELETE = "LONGRUNNINGTASK" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ROLE_REQUEST_ADMIN = "ROLEREQUEST" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String ROLE_REQUEST_COUNT = "ROLEREQUEST" + BasePermission.SEPARATOR + "COUNT";

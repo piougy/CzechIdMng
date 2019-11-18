@@ -131,6 +131,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     return (
       <div>
         <Basic.Confirm ref="confirm-cancel" level="danger"/>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Advanced.Table
           ref="table"
@@ -168,7 +169,8 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
           actions={
             [
               { value: 'processCreated', niceLabel: this.i18n('action.processCreated.selectedButton'), action: this.onProcessCreated.bind(this), rendered: SecurityManager.hasAuthority('SCHEDULER_EXECUTE') },
-              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.onCancel.bind(this), rendered: SecurityManager.hasAuthority('SCHEDULER_UPDATE') }
+              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.onCancel.bind(this), rendered: SecurityManager.hasAuthority('SCHEDULER_UPDATE') },
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), rendered: SecurityManager.hasAuthority('LONGRUNNINGTASK_DELETE'), disabled: false }
             ]
           }
           buttons={

@@ -20,7 +20,8 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
@@ -46,7 +47,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  *
  */
 public class DefaultIdmLongRunningTaskService
-	extends AbstractReadWriteDtoService<IdmLongRunningTaskDto, IdmLongRunningTask, IdmLongRunningTaskFilter>
+	extends AbstractEventableDtoService<IdmLongRunningTaskDto, IdmLongRunningTask, IdmLongRunningTaskFilter>
 	implements IdmLongRunningTaskService {
 	
 	private final IdmLongRunningTaskRepository repository;
@@ -54,8 +55,8 @@ public class DefaultIdmLongRunningTaskService
 	@Autowired private IdmProcessedTaskItemService itemService;
 	
 	@Autowired
-	public DefaultIdmLongRunningTaskService(IdmLongRunningTaskRepository repository) {
-		super(repository);
+	public DefaultIdmLongRunningTaskService(IdmLongRunningTaskRepository repository, EntityEventManager entityEventManager) {
+		super(repository, entityEventManager);
 		//
 		this.repository = repository;
 	}
@@ -165,7 +166,7 @@ public class DefaultIdmLongRunningTaskService
 	}
 	
 	@Override
-	@Transactional()
+	@Transactional
 	public IdmLongRunningTaskDto create(IdmScheduledTaskDto scheduledTask, SchedulableTaskExecutor<?> taskExecutor, String instanceId) {
 		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
 		task.setTaskType(taskExecutor.getName());
@@ -181,8 +182,10 @@ public class DefaultIdmLongRunningTaskService
 	@Transactional
 	public void deleteInternal(IdmLongRunningTaskDto dto) {
 		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(dto.getId(), "DTO identifier is required.");
 		//
 		itemService.deleteAllByLongRunningTask(get(dto.getId()));
+		//
 		super.deleteInternal(dto);
 	}
 	

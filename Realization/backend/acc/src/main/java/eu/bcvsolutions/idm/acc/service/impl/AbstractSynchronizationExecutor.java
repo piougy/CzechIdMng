@@ -32,6 +32,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -217,8 +218,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		SysSchemaObjectClassDto schemaObjectClassDto = schemaObjectClassService.get(systemMapping.getObjectClass());
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
 		// Load last token
-		Object lastToken = config.isReconciliation() ? null : config.getToken();
-		IcSyncToken lastIcToken = lastToken != null ? new IcSyncTokenImpl(lastToken) : null;
+		String lastToken = config.isReconciliation() ? null : config.getToken();
+		IcSyncToken lastIcToken = Strings.isNullOrEmpty(lastToken) ? null :  new IcSyncTokenImpl(lastToken);
 
 		// Create basic synchronization log
 		SysSyncLogDto log = new SysSyncLogDto();

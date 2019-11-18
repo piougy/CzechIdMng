@@ -44,7 +44,11 @@
         },
         "link": {
           "longRunningTask": {
-            "title": "Show long running task"
+            "title": "Show long running task",
+            "deleted": {
+              "label": "Task deleted",
+              "title": "Task was deleted, report download could not be available."
+            }
           }
         },
         "add": "New report"

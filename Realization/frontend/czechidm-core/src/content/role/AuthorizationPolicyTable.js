@@ -591,7 +591,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       <Advanced.EavForm
                         ref="formInstance"
                         formInstance={ formInstance }
-                        useDefaultValue/>
+                        useDefaultValue={ Utils.Entity.isNew(detail.entity) }/>
                     </div>
 
                   </Basic.Col>

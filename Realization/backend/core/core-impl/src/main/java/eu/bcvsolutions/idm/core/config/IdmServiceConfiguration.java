@@ -518,7 +518,7 @@ public class IdmServiceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(IdmLongRunningTaskService.class)
 	public IdmLongRunningTaskService longRunningTaskService() {
-		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository);
+		return new DefaultIdmLongRunningTaskService(longRunningTaskRepository, entityEventManager());
 	}
 	
 	/**

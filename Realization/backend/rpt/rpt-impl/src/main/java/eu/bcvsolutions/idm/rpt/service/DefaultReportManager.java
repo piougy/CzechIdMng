@@ -118,7 +118,7 @@ public class DefaultReportManager implements ReportManager {
 		// set lrt into report for getting state
 		LongRunningFutureTask<RptReportDto> lrt = taskManager.execute(executor);
 		// set new lrt for report 
-		if(newTask) {
+		if (newTask) {
 			report.setLongRunningTask(lrt.getExecutor().getLongRunningTaskId());
 			fillReportName(report, executor);
 			reportService.save(report);

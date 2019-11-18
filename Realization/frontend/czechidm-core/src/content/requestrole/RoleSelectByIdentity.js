@@ -104,7 +104,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
         // Returned json and inner embbeded with identity roles must exists
         if (json && json._embedded && json._embedded.identityRoles) {
           let identityRoleRoots = new Immutable.OrderedMap();
-          const identityRoles = json._embedded[identityRoleManager.getCollectionType()];
+          let identityRoles = json._embedded[identityRoleManager.getCollectionType()];
           // Iterate over all identity roles
           for (const index in identityRoles) {
             if (identityRoles.hasOwnProperty(index)) {
@@ -117,9 +117,9 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
           }
           // evaluate roles, which can be requested will be enabled
           searchParameters = searchParameters.setName('can-be-requested');
-          this.context.store.dispatch(identityRoleManager.fetchEntities(searchParameters, IDENTITY_ROLE_BY_IDENTITY_UIKEY, json => {
-            if (json && json._embedded && json._embedded.identityRoles) {
-              const identityRoles = json._embedded[identityRoleManager.getCollectionType()];
+          this.context.store.dispatch(identityRoleManager.fetchEntities(searchParameters, IDENTITY_ROLE_BY_IDENTITY_UIKEY, canBeRequestdRoles => {
+            if (canBeRequestdRoles && canBeRequestdRoles._embedded && canBeRequestdRoles._embedded.identityRoles) {
+              identityRoles = canBeRequestdRoles._embedded[identityRoleManager.getCollectionType()];
               // Iterate over all identity roles
               for (const index in identityRoles) {
                 if (identityRoles.hasOwnProperty(index)) {
@@ -134,7 +134,13 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
             //
             this.setState({
               selectedIdentity: identity,
-              identityRoleRoots: identityRoleRoots.toArray(),
+              identityRoleRoots: identityRoleRoots.toArray().sort((one, two) => {
+                // not disabled roles will be the first
+                if ((two.disabled && one.disabled) || (!two.disabled && !one.disabled)) {
+                  return 0;
+                }
+                return two.disabled ? -1 : 1;
+              }),
               selectedIdentityContract: identityContract,
               showOnlyDirectRoles
             });

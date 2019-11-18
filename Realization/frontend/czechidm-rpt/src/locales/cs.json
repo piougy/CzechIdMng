@@ -44,7 +44,11 @@
         },
         "link": {
           "longRunningTask": {
-            "title": "Zobrazit dlouho trvající úlohy"
+            "title": "Zobrazit dlouho trvající úlohy",
+            "deleted": {
+              "label": "Úloha smazána",
+              "title": "Úloha byla smazána, repot již nemusí být dostupný pro stažení."
+            }
           }
         },
         "add": "Vytvořit report"

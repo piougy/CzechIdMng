@@ -18,11 +18,11 @@ public class LongRunningTaskEvent extends CoreEvent<IdmLongRunningTaskDto> {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Supported core identity events
+	 * Supported core events
 	 *
 	 */
 	public enum LongRunningTaskEventType implements EventType {
-		END
+		CREATE, UPDATE, DELETE, END
 	}
 	
 	public LongRunningTaskEvent(LongRunningTaskEventType operation, IdmLongRunningTaskDto content) {

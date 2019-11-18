@@ -7,37 +7,84 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.UUID;
+
+import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Long running tasks filter test.
  * 
- * TODO: move to rest test
+ * TODO: move filter tests to rest test
  *
  * @author Marek Klement
- *
+ * @author Radek Tomiška
  */
 public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private IdmLongRunningTaskService service;
+	@Autowired private IdmProcessedTaskItemService itemService;
 	@Autowired private LongRunningTaskManager manager;
+	@Autowired private AttachmentManager attachmentManager;
+	
+	@Test
+	public void testReferentialIntegrity() {
+		TestTaskExecutor taskExecutor = new TestTaskExecutor(); 
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
+		task.setTaskType(taskExecutor.getClass().getCanonicalName());
+		task.setTaskProperties(taskExecutor.getProperties());
+		task.setTaskDescription(taskExecutor.getDescription());	
+		task.setInstanceId("mock");
+		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
+		task = service.save(task);
+		//
+		IdmProcessedTaskItemDto processedItem = new IdmProcessedTaskItemDto();
+		processedItem.setLongRunningTask(task.getId());
+		processedItem.setReferencedDtoType(IdmIdentityDto.class.getCanonicalName());
+		processedItem.setReferencedEntityId(UUID.randomUUID());
+		processedItem.setOperationResult(new OperationResult.Builder(OperationState.CREATED).build());
+		processedItem = itemService.save(processedItem);
+		//
+		IdmAttachmentDto attachment = new IdmAttachmentDto();
+		attachment.setName("mock");
+		attachment.setMimetype("text/plain");
+		attachment.setInputData(IOUtils.toInputStream("mock content"));
+		attachment = attachmentManager.saveAttachment(task, attachment);
+		//
+		Assert.assertNotNull(service.get(task));
+		Assert.assertNotNull(itemService.get(processedItem));
+		Assert.assertNotNull(attachmentManager.get(attachment));
+		//
+		service.delete(task);
+		//
+		Assert.assertNull(service.get(task));
+		Assert.assertNull(itemService.get(processedItem));
+		Assert.assertNull(attachmentManager.get(attachment));
+	}
 
 	@Test
-	public void statefulFilterTest(){
+	public void statefulFilterTest() {
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		String expectedResult = "TEST_SUCCESS_01_M";
 		// set tasks

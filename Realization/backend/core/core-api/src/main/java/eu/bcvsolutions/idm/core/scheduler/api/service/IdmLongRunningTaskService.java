@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmLongRunningTaskService extends
-	ReadWriteDtoService<IdmLongRunningTaskDto, IdmLongRunningTaskFilter>,
+	EventableDtoService<IdmLongRunningTaskDto, IdmLongRunningTaskFilter>,
 	AuthorizableService<IdmLongRunningTaskDto> {
 
 	/**

@@ -191,7 +191,7 @@ export class ReportTable extends Advanced.AbstractTableContent {
       return null;
     }
     // successfully executed reports only
-    if (Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.EXECUTED) {
+    if (entity.result && Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.EXECUTED) {
       return null;
     }
     //
@@ -349,7 +349,12 @@ export class ReportTable extends Advanced.AbstractTableContent {
               ({ data, rowIndex }) => {
                 const entity = data[rowIndex];
                 if (!entity.result || !entity.result.state) {
-                  return null;
+                  return (
+                    <Basic.Label
+                      level="default"
+                      value={ this.i18n('button.link.longRunningTask.deleted.label') }
+                      title={ this.i18n('button.link.longRunningTask.deleted.title') }/>
+                  );
                 }
                 const lrt = entity._embedded && entity._embedded.longRunningTask ? entity._embedded.longRunningTask : null;
                 const label = !lrt || Enums.OperationStateEnum.findSymbolByKey(entity.result.state) !== Enums.OperationStateEnum.RUNNING ? null : longRunningTaskManager.getProcessedCount(lrt);

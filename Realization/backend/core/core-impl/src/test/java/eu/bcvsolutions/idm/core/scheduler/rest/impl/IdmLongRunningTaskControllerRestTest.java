@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.rest.impl.IdmLongRunningTaskController;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
 
 /**
@@ -52,8 +53,18 @@ public class IdmLongRunningTaskControllerRestTest extends AbstractReadWriteDtoCo
 	}
 	
 	@Override
-	protected boolean isReadOnly() {
-		return true;
+	protected boolean supportsPatch() {
+		return false;
+	}
+	
+	@Override
+	protected boolean supportsPost() {
+		return false;
+	}
+	
+	@Override
+	protected boolean supportsPut() {
+		return false;
 	}
 	
 	@Test

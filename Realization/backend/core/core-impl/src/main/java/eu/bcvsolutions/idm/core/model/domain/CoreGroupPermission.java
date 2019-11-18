@@ -194,6 +194,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE),
+	LONGRUNNINGTASK(
+			IdmBasePermission.DELETE),
 	ROLEREQUEST(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.COUNT,
@@ -519,6 +521,8 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String SCHEDULER_UPDATE = "SCHEDULER" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SCHEDULER_DELETE = "SCHEDULER" + BasePermission.SEPARATOR + "DELETE";
 	public static final String SCHEDULER_EXECUTE = "SCHEDULER" + BasePermission.SEPARATOR + "EXECUTE";
+	//
+	public static final String LONGRUNNINGTASK_DELETE = "LONGRUNNINGTASK" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ROLE_REQUEST_ADMIN = "ROLEREQUEST" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String ROLE_REQUEST_COUNT = "ROLEREQUEST" + BasePermission.SEPARATOR + "COUNT";

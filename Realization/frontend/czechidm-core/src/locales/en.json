@@ -971,6 +971,7 @@
       "REQUEST": "Requests (universal)",
       "REQUESTITEM": "Requests - items (universal)",
       "SCHEDULER": "Scheduler",
+      "LONGRUNNINGTASK": "Long running tasks",
       "WORKFLOWDEFINITION": "Workflow - definitions",
       "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
       "WORKFLOWTASK": "Workflow - tasks",
@@ -5188,6 +5189,17 @@
           }
         }
       },
+      "core-remove-old-logs-long-running-task": {
+        "label": "Delete logging events",
+        "help": "Delete logging events (persisted in database by logger configuration) older than given number of days.",
+        "icon": "fa:trash",
+        "attributes": {
+          "removerecordolderthan": {
+            "label": "Number of days",
+            "help": "Delete logging events older than given number of days."
+          }
+        }
+      },
       "core-delete-executed-event-long-running-task": {
         "label": "Delete executed entity events",
         "help": "Delete sucessfully executed entity events (in the state 'EXECUTED') older than given number of days.",
@@ -5196,6 +5208,22 @@
           "numberofdays": {
             "label": "Number of days",
             "help": "Delete events older than given number of days."
+          }
+        }
+      },
+      "core-delete-long-running-task": {
+        "label": "Delete long running tasks",
+        "help": "Delete long running tasks older than given number of days.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Number of days",
+            "help": "Delete long running tasks older than given number of days."
+          },
+          "operationstate": {
+            "label": "Operation state",
+            "placeholder": "All states or ...",
+            "help": "Delete long running tasks in given state only."
           }
         }
       },

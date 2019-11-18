@@ -145,5 +145,56 @@
 			</trigger>
 		</triggers>		
 	</task>
-
+	
+	<task>
+		<description>Delete old logs from event logging tables (events, eventException and eventProperty).</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.audit.task.impl.RemoveOldLogsTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+			<parameter>
+				<key>removeRecordOlderThan</key>
+				<value>90</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 5 2 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
+	
+	<task>
+		<description>Delete old long running tasks.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.DeleteLongRunningTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+			<parameter>
+				<key>numberOfDays</key>
+				<value>90</value>
+			</parameter>
+			<parameter>
+				<key>operationState</key>
+				<value>EXECUTED</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 20 2 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
 </tasks>

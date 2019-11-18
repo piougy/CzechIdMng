@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.rpt.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -18,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDto;
 import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask_;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.rpt.api.domain.RptGroupPermission;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
@@ -112,6 +114,10 @@ public class DefaultRptReportService
 		}
 		if (filter.getTill() != null) {
 			predicates.add(builder.lessThanOrEqualTo(root.get(RptReport_.created), filter.getTill().plusDays(1)));
+		}
+		UUID longRunningTaskId = filter.getLongRunningTaskId();
+		if (longRunningTaskId != null) {
+			predicates.add(builder.equal(root.get(RptReport_.longRunningTask).get(IdmLongRunningTask_.id), longRunningTaskId));
 		}
 		//
 		return predicates;

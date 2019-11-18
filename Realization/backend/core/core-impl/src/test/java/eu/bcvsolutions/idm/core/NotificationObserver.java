@@ -19,7 +19,6 @@ import eu.bcvsolutions.idm.test.api.AbstractNotificationTest;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@SuppressWarnings("deprecation")
 public class NotificationObserver implements Observer {
 
 	// for synchronization thread

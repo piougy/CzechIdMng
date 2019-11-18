@@ -407,7 +407,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		} finally {
 			configurationService.setBooleanValue(
 					disabledTaskExecutor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED), 
-					true
+					false
 			);
 		}
 	}

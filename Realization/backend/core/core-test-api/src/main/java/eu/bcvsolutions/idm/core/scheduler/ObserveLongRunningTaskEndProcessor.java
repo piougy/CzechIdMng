@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.LongRunningTaskProcessor;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.event.LongRunningTaskEvent.LongRunningTaskEventType;
 
 /**
  * Listen LongRunningTask ends
@@ -36,6 +37,9 @@ public class ObserveLongRunningTaskEndProcessor
 		
 	@Override
 	public EventResult<IdmLongRunningTaskDto> process(EntityEvent<IdmLongRunningTaskDto> event) {
+		if (!event.hasType(LongRunningTaskEventType.END)) {
+			return null;
+		}
 		String taskId = getTaskId(event.getContent());
 		OperationResult result = event.getContent().getResult();
 		// TODO: event result should contain result value

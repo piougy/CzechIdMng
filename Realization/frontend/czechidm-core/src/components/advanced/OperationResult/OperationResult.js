@@ -187,11 +187,10 @@ export default class OperationResult extends Basic.AbstractContextComponent {
           (!value || !value.stackTrace)
           ||
           <div>
-            <textArea
+            <Basic.TextArea
               rows="10"
               value={value.stackTrace}
-              readOnly
-              style={{ width: '100%', marginBottom: 15 }}/>
+              readOnly/>
           </div>
         }
       </div>

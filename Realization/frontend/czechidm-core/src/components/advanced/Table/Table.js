@@ -360,7 +360,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           this.setState({
             hideTableShowLoading: null
           });
-        })
+        });
       });
     }
   }
@@ -1312,8 +1312,8 @@ const makeMapStateToProps = () => {
       _backendBulkActions: component.manager.supportsBulkAction() ? DataManager.getData(state, component.manager.getUiKeyForBulkActions()) : null,
       _isDevelopment: ConfigurationManager.getEnvironmentStage(state) === 'development'
     };
-  }
-return mapStateToProps;
-}
+  };
+  return mapStateToProps;
+};
 
 export default connect(makeMapStateToProps, null, null, { forwardRef: true})(AdvancedTable);

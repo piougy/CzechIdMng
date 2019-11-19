@@ -465,7 +465,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
           (!request.result.stackTrace)
           ||
           <div>
-            <textArea
+            <Basic.TextArea
               rows="10"
               value={ request.result.stackTrace }
               readOnly

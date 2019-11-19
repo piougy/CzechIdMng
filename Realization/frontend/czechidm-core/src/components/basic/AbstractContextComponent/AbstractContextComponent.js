@@ -246,6 +246,7 @@ class AbstractContextComponent extends AbstractComponent {
     const {match} = this.props;
     const routes = this.context.routes;
 
+
     const topLevelPath = routes.childRoutes[0].path;
     let currentPath = match.path;
     if (currentPath.startsWith(topLevelPath)) {
@@ -345,7 +346,7 @@ class AbstractContextComponent extends AbstractComponent {
    * Creates react-router Routes components for this component (url).
    */
   generateRouteComponents() {
-    const {match, location} = this.props;
+    const {match} = this.props;
 
     // Found children routes definitions (items from routes.js for this component).
     const childRoutes = this._getRouteDefinitions();
@@ -373,12 +374,18 @@ class AbstractContextComponent extends AbstractComponent {
       return lengthOfPathB - lengthOfPathA;
     });
 
+    // Get active language from redux state
+    const state = this.context.store.getState();
+    // Active language will be used as part of component key.
+    // Ensure recreation of component, when language will change.
+    const activeLng = state.config.get('i18nReady');
+
     const routes = [];
     // Generate react-redux Router components.
     childRoutesWithComponent.forEach(route => {
       const Component = this._getComponent(route);
       routes.push(<Route
-        key={`${route.id}${match.url}`}
+        key={`${route.id}${match.url}${activeLng}`}
         path={this._getConcatPath(match.path, route.concatedPath ? route.concatedPath : route.path)}
         render={(props) => <Component {...props}/>
         }/>);

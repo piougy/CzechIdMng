@@ -24,7 +24,7 @@ In this chapter will be describe migration for the backend part of IdM.
   - Spring ``4.2.8.RELEASE`` => ``5.1.9.RELEASE``
   - Spring Security ``4.0.4.RELEASE`` => ``5.1.6.RELEASE``
   - Spring Data ``1.9.5.RELEASE`` => ``2.1.10.RELEASE``
-  - Hibernate ``5.3.10.Final`` => ``5.3.10.Final``
+  - Hibernate ``4.3.11.Final`` => ``5.3.10.Final``
   - Spring Data Rest removed at all
 - Activiti ``5.22.0`` => ``6.0.0``
 - Groovy ``2.4.7`` => ``2.5.8``

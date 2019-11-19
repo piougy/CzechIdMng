@@ -27,15 +27,9 @@ export default class Div extends AbstractComponent {
     //
     return (
       <div className={ className } style={ style } title={ title }>
-        {
-          showLoading
-          ?
-          <Loading showLoading={ showLoading } showAnimation={ showAnimation }>
-            { this.props.children }
-          </Loading>
-          :
-          this.props.children
-        }
+        <Loading showLoading={ showLoading } showAnimation={ showAnimation }>
+          { this.props.children }
+        </Loading>
       </div>
     );
   }

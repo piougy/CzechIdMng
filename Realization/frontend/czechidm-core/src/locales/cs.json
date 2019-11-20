@@ -574,7 +574,8 @@
           "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
           "AUTOMATIC-ROLE-TREE-SELECT": "Výběr automatické role dle stromové struktury (SelectBox)",
           "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Výběr automatické role dle atributu (SelectBox)",
-          "OPERATION-STATE-ENUM": "Stav operace"
+          "OPERATION-STATE-ENUM": "Stav operace",
+          "WORKFLOW-DEFINITION-SELECT": "Výběr definice workflow (SelectBox)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
@@ -5289,6 +5290,21 @@
           "sentonly": {
             "label": "Pouze odeslané notifikace",
             "help": "Smazat odeslané notifikace. Jinak se vymaží notifikace bez ohledu na stav odeslání."
+          }
+        }
+      },
+      "core-delete-workflow-historic-instance-long-running-task": {
+        "label": "Smazat historické workflow procesy",
+        "help": "Vymaže historické workflow procesy, nežli zadaný počet dní dané definice workflow.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Počet dní",
+            "help": "Smazat historické workflow procesy starší, než-li zadaný počet dní."
+          },
+          "processdefinitionkey": {
+            "label": "Definice workflow",
+            "help": "Smazat historické workflow procesy pouze s touto definicí."
           }
         }
       },

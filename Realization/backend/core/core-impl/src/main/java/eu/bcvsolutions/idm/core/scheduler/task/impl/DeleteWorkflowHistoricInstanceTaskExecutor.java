@@ -21,14 +21,14 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
- * Remove historic workflow process instances
+ * Delete historic workflow process instances
  * 
  * @author Radek Tomiška
  * @since 9.7.12 
  */
 @Service
 @DisallowConcurrentExecution
-@Description("Remove historic workflow process instances.")
+@Description("Delete historic workflow process instances.")
 public class DeleteWorkflowHistoricInstanceTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory .getLogger(DeleteWorkflowHistoricInstanceTaskExecutor.class);

@@ -5253,7 +5253,7 @@
             "help": "Delete historic workflow processes older than given number of days."
           },
           "processdefinitionkey": {
-            "label": "Definice workflow",
+            "label": "Workflow definition",
             "help": "Delete historic workflow processes with this definition only."
           }
         }

@@ -67,4 +67,28 @@
 			</trigger>
 		</triggers>		
 	</task>
+	
+	<task>
+		<description>Delete old synchronization logs.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.DeleteSynchronizationLogTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+			<parameter>
+				<key>numberOfDays</key>
+				<value>180</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 35 2 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
 </tasks>

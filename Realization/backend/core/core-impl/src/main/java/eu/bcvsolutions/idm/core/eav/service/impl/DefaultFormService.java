@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationClassProperty;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -1138,6 +1139,45 @@ public class DefaultFormService implements FormService {
 					"FormValueService for class [{0}] not found, please check configuration", ownerType));
 		}
 		return formValueService;
+	}
+	
+	@Override
+	public void mergeValues(IdmFormDefinitionDto definition, FormableDto source, FormableDto target) {
+		IdmFormInstanceDto formInstance = this.getFormInstance(source, definition);
+		this.refillDeletedAttributeValue(formInstance);
+		
+		target.getEavs().clear();
+		target.getEavs().add(formInstance);
+	}
+	
+	/**
+	 * Form instance must contains delete attribute (with empty value). Without it
+	 * could be form values not deleted.
+	 * 
+	 * @param formInstance
+	 */
+	private void refillDeletedAttributeValue(IdmFormInstanceDto formInstance) {
+		Assert.notNull(formInstance, "Form instnace if mandatory!");
+		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
+		Assert.notNull(formDefinition);
+		//
+		formDefinition
+			.getFormAttributes()
+			.stream()
+			.forEach(formAttribute -> { //
+				List<IdmFormValueDto> values = formInstance.getValues();
+				boolean valueExists = values //
+						.stream() //
+						.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
+						.findFirst() //
+						.isPresent();
+				if (!valueExists) {
+					ArrayList<IdmFormValueDto> newValues = Lists.newArrayList(values);
+					IdmFormValueDto deletedValue = new IdmFormValueDto(formAttribute);
+					newValues.add(deletedValue);
+					formInstance.setValues(newValues);
+				}
+			});
 	}
 	
 

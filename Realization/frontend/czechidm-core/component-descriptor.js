@@ -556,6 +556,15 @@ module.exports = {
       component: require('./src/components/advanced/Form/EnumSelectBoxFormAttributeRenderer'),
       labelKey: 'core:component.advanced.EavForm.faceType.OPERATION-STATE-ENUM',
       enum: require('./src/enums/OperationStateEnum')
+    },
+    {
+      id: 'workflow-definition-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'SHORTTEXT',
+      faceType: 'WORKFLOW-DEFINITION-SELECT',
+      component: require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.WORKFLOW-DEFINITION-SELECT',
+      manager: require('./src/redux').WorkflowProcessDefinitionManager
     }
   ]
 };

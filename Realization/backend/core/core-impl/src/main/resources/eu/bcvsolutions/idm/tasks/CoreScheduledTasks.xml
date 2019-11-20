@@ -171,7 +171,7 @@
 	</task>
 	
 	<task>
-		<description>Delete old long running tasks.</description>
+		<description>Delete old executed long running tasks.</description>
 		<instanceId>idm-primary</instanceId>
 		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.DeleteLongRunningTaskExecutor</taskType>
 		<parameters>
@@ -193,6 +193,34 @@
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 20 2 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
+	
+	<task>
+		<description>Delete old sent notifications.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.DeleteNotificationTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+			<parameter>
+				<key>numberOfDays</key>
+				<value>180</value>
+			</parameter>
+			<parameter>
+				<key>sentOnly</key>
+				<value>true</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 25 2 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
 		</triggers>		

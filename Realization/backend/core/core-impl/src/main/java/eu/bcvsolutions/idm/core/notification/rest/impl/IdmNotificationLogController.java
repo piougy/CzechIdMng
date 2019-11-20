@@ -196,6 +196,26 @@ public class IdmNotificationLogController
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_DELETE + "')")
+	@ApiOperation(
+			value = "Delete notification", 
+			nickname = "deleteNotification", 
+			tags = { IdmNotificationLogController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_DELETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_DELETE, description = "") })
+				})
+	public ResponseEntity<?> delete(
+			@ApiParam(value = "Notification's uuid identifier.", required = true)
+			@PathVariable @NotNull String backendId) {
+		return super.delete(backendId);
+	}
+	
+	@Override
+	@ResponseBody
 	@RequestMapping(value = "/{backendId}/permissions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	@ApiOperation(

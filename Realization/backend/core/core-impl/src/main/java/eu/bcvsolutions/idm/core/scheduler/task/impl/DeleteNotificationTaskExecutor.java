@@ -17,38 +17,38 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
-import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 
 /**
- * Delete long running tasks.
+ * Delete notifications.
  * 
  * @author Radek Tomiška
  * @since 9.7.12
  */
-@Service(DeleteLongRunningTaskExecutor.TASK_NAME)
+@Service(DeleteNotificationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Delete long running tasks.")
-public class DeleteLongRunningTaskExecutor
-		extends AbstractSchedulableStatefulExecutor<IdmLongRunningTaskDto> {
+@Description("Delete notifications.")
+public class DeleteNotificationTaskExecutor
+		extends AbstractSchedulableStatefulExecutor<IdmNotificationLogDto> {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteLongRunningTaskExecutor.class);
-	public static final String TASK_NAME = "core-delete-long-running-task";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteNotificationTaskExecutor.class);
+	public static final String TASK_NAME = "core-delete-notification-long-running-task";
 	public static final String PARAMETER_NUMBER_OF_DAYS = "numberOfDays"; // events older than
-	public static final String PARAMETER_OPERATION_STATE = "operationState"; // archive state
+	public static final String PARAMETER_SENT_ONLY = "sentOnly"; // sent notification
 	//
-	public static final int DEFAULT_NUMBER_OF_DAYS = 90;
-	public static final OperationState DEFAULT_OPERATION_STATE = OperationState.EXECUTED;
+	public static final int DEFAULT_NUMBER_OF_DAYS = 180; // half year by default
+	public static final boolean DEFAULT_SENT_ONLY = true;
 	//
-	@Autowired private IdmLongRunningTaskService service;
+	@Autowired private IdmNotificationLogService service;
 	//
 	private int numberOfDays = 0; // optional
-	private OperationState operationState; // optional
+	private boolean sentOnly; // optional
 	
 	@Override
 	public String getName() {
@@ -65,12 +65,12 @@ public class DeleteLongRunningTaskExecutor
 		} else {
 			numberOfDays = 0;
 		}
-		operationState = getParameterConverter().toEnum(properties, PARAMETER_OPERATION_STATE, OperationState.class);
+		sentOnly = getParameterConverter().toBoolean(properties, PARAMETER_SENT_ONLY, DEFAULT_SENT_ONLY);
 	}
 	
 	@Override
 	protected boolean start() {
-		LOG.warn("Start deleting long running tasks older than [{}] days in state [{}].", numberOfDays, operationState);
+		LOG.warn("Start deleting notifications older than [{}] days [sentOnly: {}].", numberOfDays, sentOnly);
 		//
 		return super.start();
 	}
@@ -78,15 +78,18 @@ public class DeleteLongRunningTaskExecutor
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
 		result = super.end(result, ex);
-		LOG.warn("End deleting long running tasks older than [{}] days in state [{}]. Processed lrts [{}].",
-				numberOfDays, operationState, counter);
+		LOG.warn("End deleting notifications older than [{}] days [sent only: {}]. Processed notifications [{}].",
+				numberOfDays, sentOnly, counter);
 		return result;
 	}
 	
 	@Override
-	public Page<IdmLongRunningTaskDto> getItemsToProcess(Pageable pageable) {
-		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		filter.setOperationState(operationState);
+	public Page<IdmNotificationLogDto> getItemsToProcess(Pageable pageable) {
+		IdmNotificationFilter filter = new IdmNotificationFilter();
+		if (sentOnly) {
+			filter.setState(NotificationState.ALL);
+			filter.setSent(true);
+		}
 		if (numberOfDays > 0) {
 			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
 		}
@@ -94,8 +97,10 @@ public class DeleteLongRunningTaskExecutor
 	}
 
 	@Override
-	public Optional<OperationResult> processItem(IdmLongRunningTaskDto dto) {
-		service.delete(dto);
+	public Optional<OperationResult> processItem(IdmNotificationLogDto dto) {
+		if (service.get(dto) != null) { // child notification can be deleted before.
+			service.delete(dto);
+		}
 		//
 		return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 	}
@@ -104,7 +109,7 @@ public class DeleteLongRunningTaskExecutor
 	public List<String> getPropertyNames() {
 		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_NUMBER_OF_DAYS);
-		parameters.add(PARAMETER_OPERATION_STATE);
+		parameters.add(PARAMETER_SENT_ONLY);
 		//
 		return parameters;
 	}
@@ -113,7 +118,7 @@ public class DeleteLongRunningTaskExecutor
 	public Map<String, Object> getProperties() {
 		Map<String, Object> properties = super.getProperties();
 		properties.put(PARAMETER_NUMBER_OF_DAYS, numberOfDays);
-		properties.put(PARAMETER_OPERATION_STATE, operationState);
+		properties.put(PARAMETER_SENT_ONLY, sentOnly);
 		//
 		return properties;
 	}
@@ -123,11 +128,10 @@ public class DeleteLongRunningTaskExecutor
 		IdmFormAttributeDto numberOfDaysAttribute = new IdmFormAttributeDto(PARAMETER_NUMBER_OF_DAYS, PARAMETER_NUMBER_OF_DAYS, PersistentType.LONG);
 		numberOfDaysAttribute.setDefaultValue(String.valueOf(DEFAULT_NUMBER_OF_DAYS));
 		//
-		IdmFormAttributeDto operationStateAttribute = new IdmFormAttributeDto(PARAMETER_OPERATION_STATE, PARAMETER_OPERATION_STATE, PersistentType.ENUMERATION);
-		operationStateAttribute.setDefaultValue(DEFAULT_OPERATION_STATE.name());
-		operationStateAttribute.setFaceType(BaseFaceType.OPERATION_STATE_ENUM);
+		IdmFormAttributeDto sentAttribute = new IdmFormAttributeDto(PARAMETER_SENT_ONLY, PARAMETER_SENT_ONLY, PersistentType.BOOLEAN);
+		sentAttribute.setDefaultValue(String.valueOf(DEFAULT_SENT_ONLY));
 		//
-		return Lists.newArrayList(numberOfDaysAttribute, operationStateAttribute);
+		return Lists.newArrayList(numberOfDaysAttribute, sentAttribute);
 	}
 	
 	@Override

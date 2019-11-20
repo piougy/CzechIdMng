@@ -543,7 +543,8 @@
           "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
           "AUTOMATIC-ROLE-TREE-SELECT": "Select automatic role by tree structure (SelectBox)",
           "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Select automatic role by attribute (SelectBox)",
-          "OPERATION-STATE-ENUM": "Operation state"
+          "OPERATION-STATE-ENUM": "Operation state",
+          "WORKFLOW-DEFINITION-SELECT": "Select workflow definition (SelectBox)"
         },
         "attributes": {
           "empty": "Form definition was found, but doesn't contain editable attributes."
@@ -5224,6 +5225,36 @@
             "label": "Operation state",
             "placeholder": "All states or ...",
             "help": "Delete long running tasks in given state only."
+          }
+        }
+      },
+      "core-delete-notification-long-running-task": {
+        "label": "Delete notifications",
+        "help": "Delete notifications older than given number of days.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Number of days",
+            "help": "Delete notifications older than given number of days."
+          },
+          "sentonly": {
+            "label": "Sent only",
+            "help": "Delete sent notifications only. All notifications older than given number of days will be deleted otherwise."
+          }
+        }
+      },
+      "core-delete-workflow-historic-instance-long-running-task": {
+        "label": "Delete historic workflow processes",
+        "help": "Delete historic workflow processes older than given number of days and with the given workflow definition.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Number of days",
+            "help": "Delete historic workflow processes older than given number of days."
+          },
+          "processdefinitionkey": {
+            "label": "Workflow definition",
+            "help": "Delete historic workflow processes with this definition only."
           }
         }
       },

@@ -35,6 +35,10 @@ export class NotificationTable extends Advanced.AbstractTableContent {
     return 'content.notifications';
   }
 
+  getManager() {
+    return this.props.notificationManager;
+  }
+
   useFilter(event) {
     if (event) {
       event.preventDefault();
@@ -83,6 +87,14 @@ export class NotificationTable extends Advanced.AbstractTableContent {
           manager={notificationManager}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filterOpened={filterOpened}
+          showRowSelection={ SecurityManager.hasAnyAuthority(['NOTIFICATION_DELETE']) }
+          actions={
+            SecurityManager.hasAnyAuthority(['NOTIFICATION_DELETE'])
+            ?
+            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
+            :
+            null
+          }
           filter={
             <NotificationFilter
               ref="filterForm"

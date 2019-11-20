@@ -14,22 +14,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationRecipientFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationRecipientService;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
 import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
@@ -46,6 +52,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Notification service tests
  * 
  * TODO: move filters to rest layer
+ * FIXME: rename test by conventions
  * 
  * @author Radek Tomiška
  * @author Marek Klement
@@ -56,6 +63,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	@Autowired private NotificationManager notificationManager;
 	@Autowired private EmailNotificationSender emailService;
 	@Autowired private IdmNotificationLogRepository notificationRepository;
+	@Autowired private IdmNotificationRecipientService recipientService;
 	@Autowired private IdmNotificationConfigurationRepository notificationConfigurationRepository;
 	@Autowired private IdmNotificationLogService notificationLogService;
 	@Autowired private IdmIdentityService identityService;
@@ -69,6 +77,53 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		// TODO: make test stateless!
 		emailLogRepository.deleteAll();
 		notificationRepository.deleteAll();
+	}
+	
+	@Test
+	@Transactional
+	public void testReferentialIntegrity() {
+		// delete recipients and children
+		NotificationConfigurationDto config = createConfig();
+		IdmNotificationTemplateDto template = createTestTemplate("Idm notification", "subject");
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		List<IdmNotificationLogDto> notifications = notificationManager.send(
+				config.getTopic(), 
+				new IdmMessageDto.Builder().setTemplate(template).build(), Lists.newArrayList(identityOne, identityTwo)
+				);
+		Assert.assertEquals(1, notifications.size());
+		//
+		IdmNotificationLogDto notification = notificationLogService.get(notifications.get(0));
+		Assert.assertNotNull(notification);
+		IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
+		notificationFilter.setParent(notification.getId());
+		List<IdmEmailLogDto> emails = emailLogService.find(notificationFilter, null).getContent();
+		Assert.assertEquals(1, emails.size());
+		IdmEmailLogDto emailNotification = emails.get(0);
+		Assert.assertEquals(notification.getId(), emailNotification.getParent());
+		//
+		IdmNotificationRecipientFilter recipientFilter = new IdmNotificationRecipientFilter();
+		recipientFilter.setNotification(notification.getId());
+		List<IdmNotificationRecipientDto> notificationRecipients = recipientService.find(recipientFilter, null).getContent();
+		Assert.assertEquals(2, notificationRecipients.size());
+		Assert.assertTrue(notificationRecipients.stream().anyMatch(r -> r.getIdentityRecipient().equals(identityOne.getId())));
+		Assert.assertTrue(notificationRecipients.stream().anyMatch(r -> r.getIdentityRecipient().equals(identityTwo.getId())));
+		recipientFilter.setNotification(emailNotification.getId());
+		List<IdmNotificationRecipientDto> emailRecipients = recipientService.find(recipientFilter, null).getContent();
+		Assert.assertEquals(2, emailRecipients.size());
+		Assert.assertTrue(emailRecipients.stream().anyMatch(r -> r.getIdentityRecipient().equals(identityOne.getId())));
+		Assert.assertTrue(emailRecipients.stream().anyMatch(r -> r.getIdentityRecipient().equals(identityTwo.getId())));
+		//
+		// delete parent notification
+		notificationLogService.delete(notification);
+		//
+		// all removed
+		Assert.assertNull(notificationLogService.get(notification));
+		Assert.assertNull(notificationLogService.get(emailNotification));
+		recipientFilter.setNotification(notification.getId());
+		Assert.assertTrue(recipientService.find(recipientFilter, null).getContent().isEmpty());
+		recipientFilter.setNotification(emailNotification.getId());
+		Assert.assertTrue(recipientService.find(recipientFilter, null).getContent().isEmpty());
 	}
 
 	@Test

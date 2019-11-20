@@ -20,7 +20,8 @@ public enum NotificationGroupPermission implements GroupPermission {
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
-			IdmBasePermission.UPDATE),
+			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE),
 	NOTIFICATIONCONFIGURATION(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.READ, 
@@ -41,6 +42,7 @@ public enum NotificationGroupPermission implements GroupPermission {
 	public static final String NOTIFICATION_READ = "NOTIFICATION" + BasePermission.SEPARATOR + "READ";
 	public static final String NOTIFICATION_CREATE = "NOTIFICATION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String NOTIFICATION_UPDATE = "NOTIFICATION" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String NOTIFICATION_DELETE = "NOTIFICATION" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String NOTIFICATIONCONFIGURATION_READ = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "READ";
 	public static final String NOTIFICATIONCONFIGURATION_CREATE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "CREATE";

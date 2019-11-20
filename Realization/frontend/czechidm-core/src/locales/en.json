@@ -5227,6 +5227,21 @@
           }
         }
       },
+      "core-delete-notification-long-running-task": {
+        "label": "Delete notifications",
+        "help": "Delete notifications older than given number of days.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Number of days",
+            "help": "Delete notifications older than given number of days."
+          },
+          "sentonly": {
+            "label": "Sent only",
+            "help": "Delete sent notifications only. All notifications older than given number of days will be deleted otherwise."
+          }
+        }
+      },
       "core-add-new-automatic-role-contract-long-running-task": {
         "label": "Recalculate automatic role by tree structure for contracts",
         "help": "Assign roles for identities with contract match selected automatic role by tree structure.",

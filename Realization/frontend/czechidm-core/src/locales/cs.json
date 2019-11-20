@@ -5277,6 +5277,21 @@
           }
         }
       },
+      "core-delete-notification-long-running-task": {
+        "label": "Smazat notifikace",
+        "help": "Vymaže notifikace starší, nežli zadaný počet dní.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Počet dní",
+            "help": "Smazat notifikace starší, než-li zadaný počet dní."
+          },
+          "sentonly": {
+            "label": "Pouze odeslané notifikace",
+            "help": "Smazat odeslané notifikace. Jinak se vymaží notifikace bez ohledu na stav odeslání."
+          }
+        }
+      },
       "core-add-new-automatic-role-contract-long-running-task": {
         "label": "Přepočítat automatickou roli dle stromové struktury pro kontrakty",
         "help": "Přiřadí role pro uživatele s kontraktem vyhovující zadané automatické roli dle stromové struktury.",

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +15,14 @@ import java.util.stream.Collectors;
 
 import org.joda.time.LocalDate;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.ContractSliceConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -45,7 +48,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -82,6 +91,11 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 	private EntityStateManager entityStateManager;
 	@Autowired
 	private LongRunningTaskManager longRunningTaskManager;
+	@Autowired
+	private FormService formService;
+	
+	private final static String IP = "IP";
+	private final static String NUMBER_OF_FINGERS = "NUMBER_OF_FINGERS";
 	//
 
 	@Before
@@ -127,6 +141,200 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		assertEquals(slice.getContractValidTill(), contract.getValidTill());
 		assertFalse(contract.isValidNowOrInFuture());
 	}
+	
+	@Test
+	public void testCreateSliceWithEAVs() {
+		IdmIdentityDto identity = helper.createIdentity();
+		String contractCode = "contract-one";
+
+		IdmContractSliceDto slice = helper.createContractSlice(identity, null, null, null,
+				null);
+		slice.setContractCode(contractCode);
+		slice = contractSliceService.save(slice);
+		
+		// Init form definition for identity-contract
+		IdmFormDefinitionDto definition = this.initIdentityContractFormDefinition();
+
+		// Create slice with EAV values
+		IdmFormInstanceDto formInstanceDto = formService.getFormInstance(slice, definition);
+		Assert.assertNotNull(formInstanceDto);
+		Assert.assertNotNull(formInstanceDto.getFormDefinition());
+		Assert.assertEquals(0, formInstanceDto.getValues().size());
+		IdmFormAttributeDto attribute = formInstanceDto.getMappedAttributeByCode(NUMBER_OF_FINGERS);
+		formService.saveValues(slice, attribute, Lists.newArrayList(BigDecimal.TEN));
+		
+		// We need to save slice for invoke save slice to the contract
+		slice = contractSliceService.save(slice);
+		formInstanceDto = formService.getFormInstance(slice, definition);
+		Assert.assertNotNull(formInstanceDto);
+		Assert.assertNotNull(formInstanceDto.getFormDefinition());
+		Assert.assertEquals(1, formInstanceDto.getValues().size());
+		Assert.assertEquals(BigDecimal.TEN.longValue(),
+				((BigDecimal) formInstanceDto.getValues().get(0).getValue()).longValue());
+		
+		IdmContractSliceFilter filter = new IdmContractSliceFilter();
+		filter.setIdentity(identity.getId());
+		List<IdmContractSliceDto> results = contractSliceService.find(filter, null).getContent();
+		assertEquals(1, results.size());
+		IdmContractSliceDto createdSlice = results.get(0);
+		assertTrue(createdSlice.isValid());
+		assertEquals(null, createdSlice.getValidTill());
+
+		// Check created contract by that slice
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setIdentity(identity.getId());
+		List<IdmIdentityContractDto> resultsContract = contractService.find(filter, null).getContent().stream() //
+				.filter(c -> contractService.get(c.getId()).getControlledBySlices()) //
+				.collect(Collectors.toList());
+
+		assertEquals(1, resultsContract.size()); //
+		IdmIdentityContractDto contract = resultsContract.get(0);
+		assertEquals(slice.getContractValidFrom(), contract.getValidFrom());
+		assertEquals(slice.getContractValidTill(), contract.getValidTill());
+		assertTrue(contract.isValidNowOrInFuture());
+		
+		IdmFormInstanceDto contractFormInstanceDto = formService.getFormInstance(contract);
+		Assert.assertNotNull(contractFormInstanceDto);
+		Assert.assertNotNull(contractFormInstanceDto.getFormDefinition());
+		Assert.assertEquals(1, contractFormInstanceDto.getValues().size());
+		Assert.assertEquals(BigDecimal.TEN.longValue(),
+				((BigDecimal) contractFormInstanceDto.getValues().get(0).getValue()).longValue());
+	}
+	
+	@Test
+	public void testModifiedEAVOnSlice() {
+		IdmIdentityDto identity = helper.createIdentity();
+		String contractCode = "contract-one";
+
+		IdmContractSliceDto slice = helper.createContractSlice(identity, null, null, null,
+				null);
+		slice.setContractCode(contractCode);
+		slice = contractSliceService.save(slice);
+		
+		// Init form definition for identity-contract
+		IdmFormDefinitionDto definition = this.initIdentityContractFormDefinition();
+
+		// Create slice with EAV values
+		IdmFormInstanceDto formInstanceDto = formService.getFormInstance(slice, definition);
+		Assert.assertNotNull(formInstanceDto);
+		Assert.assertNotNull(formInstanceDto.getFormDefinition());
+		Assert.assertEquals(0, formInstanceDto.getValues().size());
+		IdmFormAttributeDto attribute = formInstanceDto.getMappedAttributeByCode(NUMBER_OF_FINGERS);
+		formService.saveValues(slice, attribute, Lists.newArrayList(BigDecimal.TEN));
+		
+		// We need to save slice for invoke save slice to the contract
+		slice = contractSliceService.save(slice);
+		formInstanceDto = formService.getFormInstance(slice, definition);
+		Assert.assertNotNull(formInstanceDto);
+		Assert.assertNotNull(formInstanceDto.getFormDefinition());
+		Assert.assertEquals(1, formInstanceDto.getValues().size());
+		Assert.assertEquals(BigDecimal.TEN.longValue(),
+				((BigDecimal) formInstanceDto.getValues().get(0).getValue()).longValue());
+		
+		formService.saveValues(slice, attribute, Lists.newArrayList(BigDecimal.ONE));
+		
+		// We need to save slice for invoke save slice to the contract
+		slice = contractSliceService.save(slice);
+		
+		IdmContractSliceFilter filter = new IdmContractSliceFilter();
+		filter.setIdentity(identity.getId());
+		List<IdmContractSliceDto> results = contractSliceService.find(filter, null).getContent();
+		assertEquals(1, results.size());
+		IdmContractSliceDto createdSlice = results.get(0);
+		assertTrue(createdSlice.isValid());
+		assertEquals(null, createdSlice.getValidTill());
+
+		// Check created contract by that slice
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setIdentity(identity.getId());
+		List<IdmIdentityContractDto> resultsContract = contractService.find(filter, null).getContent().stream() //
+				.filter(c -> contractService.get(c.getId()).getControlledBySlices()) //
+				.collect(Collectors.toList());
+
+		assertEquals(1, resultsContract.size()); //
+		IdmIdentityContractDto contract = resultsContract.get(0);
+		assertEquals(slice.getContractValidFrom(), contract.getValidFrom());
+		assertEquals(slice.getContractValidTill(), contract.getValidTill());
+		assertTrue(contract.isValidNowOrInFuture());
+		
+		IdmFormInstanceDto contractFormInstanceDto = formService.getFormInstance(contract);
+		Assert.assertNotNull(contractFormInstanceDto);
+		Assert.assertNotNull(contractFormInstanceDto.getFormDefinition());
+		Assert.assertEquals(1, contractFormInstanceDto.getValues().size());
+		Assert.assertEquals(BigDecimal.ONE.longValue(),
+				((BigDecimal) contractFormInstanceDto.getValues().get(0).getValue()).longValue());
+	}
+	
+	@Test
+	public void testDeleteEAVOnSlice() {
+		IdmIdentityDto identity = helper.createIdentity();
+		String contractCode = "contract-one";
+
+		IdmContractSliceDto slice = helper.createContractSlice(identity, null, null, null,
+				null);
+		slice.setContractCode(contractCode);
+		slice = contractSliceService.save(slice);
+		
+		// Init form definition for identity-contract
+		IdmFormDefinitionDto definition = this.initIdentityContractFormDefinition();
+
+		// Create slice with EAV values
+		IdmFormInstanceDto formInstanceDto = formService.getFormInstance(slice, definition);
+		Assert.assertNotNull(formInstanceDto);
+		Assert.assertNotNull(formInstanceDto.getFormDefinition());
+		Assert.assertEquals(0, formInstanceDto.getValues().size());
+		IdmFormAttributeDto attribute = formInstanceDto.getMappedAttributeByCode(NUMBER_OF_FINGERS);
+		formService.saveValues(slice, attribute, Lists.newArrayList(BigDecimal.TEN));
+		
+		// We need to save slice for invoke save slice to the contract
+		slice = contractSliceService.save(slice);
+		formInstanceDto = formService.getFormInstance(slice, definition);
+		Assert.assertNotNull(formInstanceDto);
+		Assert.assertNotNull(formInstanceDto.getFormDefinition());
+		Assert.assertEquals(1, formInstanceDto.getValues().size());
+		Assert.assertEquals(BigDecimal.TEN.longValue(),
+				((BigDecimal) formInstanceDto.getValues().get(0).getValue()).longValue());
+		
+		IdmContractSliceFilter filter = new IdmContractSliceFilter();
+		filter.setIdentity(identity.getId());
+		List<IdmContractSliceDto> results = contractSliceService.find(filter, null).getContent();
+		assertEquals(1, results.size());
+		IdmContractSliceDto createdSlice = results.get(0);
+		assertTrue(createdSlice.isValid());
+		assertEquals(null, createdSlice.getValidTill());
+
+		// Check created contract by that slice
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setIdentity(identity.getId());
+		List<IdmIdentityContractDto> resultsContract = contractService.find(filter, null).getContent().stream() //
+				.filter(c -> contractService.get(c.getId()).getControlledBySlices()) //
+				.collect(Collectors.toList());
+
+		assertEquals(1, resultsContract.size()); //
+		IdmIdentityContractDto contract = resultsContract.get(0);
+		assertEquals(slice.getContractValidFrom(), contract.getValidFrom());
+		assertEquals(slice.getContractValidTill(), contract.getValidTill());
+		assertTrue(contract.isValidNowOrInFuture());
+		
+		IdmFormInstanceDto contractFormInstanceDto = formService.getFormInstance(contract);
+		Assert.assertNotNull(contractFormInstanceDto);
+		Assert.assertNotNull(contractFormInstanceDto.getFormDefinition());
+		Assert.assertEquals(1, contractFormInstanceDto.getValues().size());
+		Assert.assertEquals(BigDecimal.TEN.longValue(),
+				((BigDecimal) contractFormInstanceDto.getValues().get(0).getValue()).longValue());
+		
+		formService.saveValues(slice, attribute, null);
+		
+		// We need to save slice for invoke save slice to the contract
+		slice = contractSliceService.save(slice);
+		
+		contractFormInstanceDto = formService.getFormInstance(contract);
+		Assert.assertNotNull(contractFormInstanceDto);
+		Assert.assertNotNull(contractFormInstanceDto.getFormDefinition());
+		Assert.assertEquals(0, contractFormInstanceDto.getValues().size());
+	}
+
+
 
 	@Test
 	public void createSliceValidInFutureTest() {
@@ -990,5 +1198,30 @@ public class ContractSliceManagerTest extends AbstractIntegrationTest {
 		filter.setResultCode(CoreResultCode.DIRTY_STATE.getCode());
 		filter.setOwnerType(IdmContractSlice.class.getName());
 		return entityStateManager.findStates(filter, null).getContent();
+	}
+	
+	private IdmFormDefinitionDto initIdentityContractFormDefinition() {
+
+		IdmFormDefinitionDto definition = formService.getDefinition(IdmIdentityContract.class);
+		
+		if (definition.getMappedAttributeByCode(IP) == null) {
+			IdmFormAttributeDto ipAttribute = new IdmFormAttributeDto(IP);
+			ipAttribute.setPersistentType(PersistentType.TEXT);
+			ipAttribute.setRequired(false);
+			ipAttribute.setDefaultValue(getHelper().createName());
+			ipAttribute.setFormDefinition(definition.getId());
+			formService.saveAttribute(ipAttribute);
+		}
+
+		if (definition.getMappedAttributeByCode(NUMBER_OF_FINGERS) == null) {
+			IdmFormAttributeDto numberOfFingersAttribute = new IdmFormAttributeDto(NUMBER_OF_FINGERS);
+			numberOfFingersAttribute.setPersistentType(PersistentType.DOUBLE);
+			numberOfFingersAttribute.setRequired(false);
+			numberOfFingersAttribute.setMax(BigDecimal.TEN);
+			numberOfFingersAttribute.setFormDefinition(definition.getId());
+			formService.saveAttribute(numberOfFingersAttribute);
+		}
+		
+		return formService.getDefinition(IdmIdentityContract.class);
 	}
 }

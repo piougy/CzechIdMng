@@ -1228,10 +1228,7 @@ public class DefaultIdmRoleRequestService
 		IdmRoleDto roleDto = DtoUtils.getEmbedded(conceptRole, IdmConceptRoleRequest_.role, IdmRoleDto.class);
 		if (roleDto != null && roleDto.getIdentityRoleAttributeDefinition() != null) {
 			IdmFormDefinitionDto formDefinitionDto = roleService.getFormAttributeSubdefinition(roleDto);
-			IdmFormInstanceDto formInstance = formService.getFormInstance(conceptRole, formDefinitionDto);
-			this.refillDeletedAttributeValue(formInstance);
-			identityRole.getEavs().clear();
-			identityRole.getEavs().add(formInstance);
+			formService.mergeValues(formDefinitionDto, conceptRole, identityRole);
 		}
 		
 		identityRole.setRole(conceptRole.getRole());
@@ -1248,36 +1245,6 @@ public class DefaultIdmRoleRequestService
 			identityRole.setAutomaticRole(conceptRole.getAutomaticRole());
 		}
 		return identityRole;
-	}
-
-	/**
-	 * Form instance must contains delete attribute (with empty value). Without it
-	 * could be form values not deleted.
-	 * 
-	 * @param formInstance
-	 */
-	private void refillDeletedAttributeValue(IdmFormInstanceDto formInstance) {
-		Assert.notNull(formInstance, "Form instnace if mandatory!");
-		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
-		Assert.notNull(formDefinition);
-		//
-		formDefinition
-			.getFormAttributes()
-			.stream()
-			.forEach(formAttribute -> { //
-				List<IdmFormValueDto> values = formInstance.getValues();
-				boolean valueExists = values //
-						.stream() //
-						.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
-						.findFirst() //
-						.isPresent();
-				if (!valueExists) {
-					ArrayList<IdmFormValueDto> newValues = Lists.newArrayList(values);
-					IdmFormValueDto deletedValue = new IdmFormValueDto(formAttribute);
-					newValues.add(deletedValue);
-					formInstance.setValues(newValues);
-				}
-			});
 	}
 
 	private IdmRoleRequestService getIdmRoleRequestService() {

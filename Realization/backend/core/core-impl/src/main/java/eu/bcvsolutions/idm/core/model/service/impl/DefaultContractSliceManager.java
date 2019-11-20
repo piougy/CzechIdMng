@@ -38,9 +38,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
@@ -99,8 +97,6 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 				new IdentityContractEvent(isNew ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
 						contract, ImmutableMap.copyOf(eventProperties)))
 				.getContent();
-		// Copy values of extended attributes
-		copyExtendedAttributes(slice, savedContract);
 
 		// Copy guarantees
 		copyGuarantees(slice, savedContract);
@@ -324,31 +320,9 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		contract.setDescription(slice.getDescription());
 		contract.setValidFrom(slice.getContractValidFrom());
 		contract.setValidTill(slice.getContractValidTill());
-	}
-
-	/**
-	 * Copy (clone) of attribute values from slice to contract
-	 * 
-	 * @param slice
-	 * @param contract
-	 */
-	private void copyExtendedAttributes(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
-		Assert.notNull(contract);
-		Assert.notNull(contract.getId());
-		Assert.notNull(slice);
-		Assert.notNull(slice.getId());
-		// TODO: all definitions should be copied - fix acc sync, i don't know why IdentityContractSyncTest fails ... (RT)
+		
 		IdmFormDefinitionDto definition = formService.getDefinition(contract.getClass());
-		// delete all current values
-		formService.deleteValues(contract, definition);
-		// copy all values from slice to contract 
-		// Load extended values for this slice
-		List<IdmFormValueDto> sliceValues = formService.getValues(slice, definition);
-		sliceValues.forEach(value -> {
-			DtoUtils.clearAuditFields(value);
-			value.setId(null);
-		});
-		formService.saveValues(contract, definition, sliceValues);
+		formService.mergeValues(definition, slice, contract);
 	}
 
 	@Transactional

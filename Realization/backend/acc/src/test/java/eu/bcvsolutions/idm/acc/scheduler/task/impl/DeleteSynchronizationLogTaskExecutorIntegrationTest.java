@@ -43,7 +43,7 @@ public class DeleteSynchronizationLogTaskExecutorIntegrationTest extends Abstrac
 	@Autowired private SysSystemAttributeMappingService attributeMappingService;
 	
 	@Test
-	public void testDeleteOldProvisioningArchives() {
+	public void testDeleteOldSynchronizationLogs() {
 		// prepare provisioning operations
 		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
 		AbstractSysSyncConfigDto syncConfigOne = createSyncConfig(systemOne);
@@ -89,6 +89,7 @@ public class DeleteSynchronizationLogTaskExecutorIntegrationTest extends Abstrac
 		properties = new HashMap<>();
 		properties.put(DeleteSynchronizationLogTaskExecutor.PARAMETER_NUMBER_OF_DAYS, 1);
 		properties.put(DeleteSynchronizationLogTaskExecutor.PARAMETER_SYSTEM, systemOther.getId());
+		AutowireHelper.autowire(taskExecutor);
 		taskExecutor.init(properties);
 		//
 		filter.setSystemId(systemOne.getId());

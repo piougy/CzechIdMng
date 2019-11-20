@@ -1,8 +1,9 @@
-package eu.bcvsolutions.idm.core.scheduler.task.impl;
+package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
@@ -15,40 +16,39 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
+import eu.bcvsolutions.idm.acc.eav.domain.AccFaceType;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
-import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
-import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
-import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
- * Delete notifications.
+ * Delete synchronization logs.
  * 
  * @author Radek Tomiška
  * @since 9.7.12
  */
-@Service(DeleteNotificationTaskExecutor.TASK_NAME)
+@Service(DeleteSynchronizationLogTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Delete notifications.")
-public class DeleteNotificationTaskExecutor
-		extends AbstractSchedulableStatefulExecutor<IdmNotificationLogDto> {
+@Description("Delete archived provisioning operations.")
+public class DeleteSynchronizationLogTaskExecutor
+		extends AbstractSchedulableStatefulExecutor<SysSyncLogDto> {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteNotificationTaskExecutor.class);
-	public static final String TASK_NAME = "core-delete-notification-long-running-task";
-	public static final String PARAMETER_NUMBER_OF_DAYS = "numberOfDays"; // events older than
-	public static final String PARAMETER_SENT_ONLY = "sentOnly"; // sent notification
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteSynchronizationLogTaskExecutor.class);
+	public static final String TASK_NAME = "acc-delete-synchronization-log-long-running-task";
+	public static final String PARAMETER_NUMBER_OF_DAYS = "numberOfDays"; // archive older than
+	public static final String PARAMETER_SYSTEM = "system"; // system
+	public static final int DEFAULT_NUMBER_OF_DAYS = 180;
 	//
-	public static final int DEFAULT_NUMBER_OF_DAYS = 180; // half year by default
-	public static final boolean DEFAULT_SENT_ONLY = true;
-	//
-	@Autowired private IdmNotificationLogService service;
+	@Autowired private SysSyncLogService service;
 	//
 	private int numberOfDays = 0; // optional
-	private boolean sentOnly; // optional
+	private UUID systemId = null; // optional
 	
 	@Override
 	public String getName() {
@@ -65,12 +65,13 @@ public class DeleteNotificationTaskExecutor
 		} else {
 			numberOfDays = 0;
 		}
-		sentOnly = getParameterConverter().toBoolean(properties, PARAMETER_SENT_ONLY, DEFAULT_SENT_ONLY);
+		systemId = getParameterConverter().toEntityUuid(properties, PARAMETER_SYSTEM, SysSystemDto.class);
 	}
 	
 	@Override
 	protected boolean start() {
-		LOG.warn("Start deleting notifications older than [{}] days [sentOnly: {}].", numberOfDays, sentOnly);
+		LOG.warn("Start deleting synchronization logs older than [{}] days with system [{}].",
+				numberOfDays, systemId);
 		//
 		return super.start();
 	}
@@ -78,18 +79,16 @@ public class DeleteNotificationTaskExecutor
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
 		result = super.end(result, ex);
-		LOG.warn("End deleting notifications older than [{}] days [sent only: {}]. Processed notifications [{}].",
-				numberOfDays, sentOnly, counter);
+		LOG.warn("End deleting synchronization logs older than [{}] days  with system [{}]. Processed logs [{}].", 
+				numberOfDays, systemId, counter);
 		return result;
 	}
 	
 	@Override
-	public Page<IdmNotificationLogDto> getItemsToProcess(Pageable pageable) {
-		IdmNotificationFilter filter = new IdmNotificationFilter();
-		if (sentOnly) {
-			filter.setState(NotificationState.ALL);
-			filter.setSent(Boolean.TRUE);
-		}
+	public Page<SysSyncLogDto> getItemsToProcess(Pageable pageable) {
+		SysSyncLogFilter filter = new SysSyncLogFilter();
+		filter.setSystemId(systemId);
+		// filter.setRunning(Boolean.FALSE);
 		if (numberOfDays > 0) {
 			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
 		}
@@ -97,10 +96,8 @@ public class DeleteNotificationTaskExecutor
 	}
 
 	@Override
-	public Optional<OperationResult> processItem(IdmNotificationLogDto dto) {
-		if (service.get(dto) != null) { // child notification can be deleted before.
-			service.delete(dto);
-		}
+	public Optional<OperationResult> processItem(SysSyncLogDto dto) {
+		service.delete(dto);
 		//
 		return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 	}
@@ -109,7 +106,7 @@ public class DeleteNotificationTaskExecutor
 	public List<String> getPropertyNames() {
 		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_NUMBER_OF_DAYS);
-		parameters.add(PARAMETER_SENT_ONLY);
+		parameters.add(PARAMETER_SYSTEM);
 		//
 		return parameters;
 	}
@@ -118,7 +115,7 @@ public class DeleteNotificationTaskExecutor
 	public Map<String, Object> getProperties() {
 		Map<String, Object> properties = super.getProperties();
 		properties.put(PARAMETER_NUMBER_OF_DAYS, numberOfDays);
-		properties.put(PARAMETER_SENT_ONLY, sentOnly);
+		properties.put(PARAMETER_SYSTEM, systemId);
 		//
 		return properties;
 	}
@@ -128,15 +125,13 @@ public class DeleteNotificationTaskExecutor
 		IdmFormAttributeDto numberOfDaysAttribute = new IdmFormAttributeDto(PARAMETER_NUMBER_OF_DAYS, PARAMETER_NUMBER_OF_DAYS, PersistentType.LONG);
 		numberOfDaysAttribute.setDefaultValue(String.valueOf(DEFAULT_NUMBER_OF_DAYS));
 		//
-		IdmFormAttributeDto sentAttribute = new IdmFormAttributeDto(PARAMETER_SENT_ONLY, PARAMETER_SENT_ONLY, PersistentType.BOOLEAN);
-		sentAttribute.setDefaultValue(String.valueOf(DEFAULT_SENT_ONLY));
+		IdmFormAttributeDto system = new IdmFormAttributeDto(
+				PARAMETER_SYSTEM,
+				"System", 
+				PersistentType.UUID);
+		system.setFaceType(AccFaceType.SYSTEM_SELECT);
 		//
-		return Lists.newArrayList(numberOfDaysAttribute, sentAttribute);
-	}
-	
-	@Override
-	public boolean supportsQueue() {
-		return false;
+		return Lists.newArrayList(numberOfDaysAttribute, system);
 	}
 	
     @Override
@@ -147,5 +142,10 @@ public class DeleteNotificationTaskExecutor
     @Override
 	public boolean requireNewTransaction() {
 		return true;
+	}
+    
+    @Override
+	public boolean supportsQueue() {
+		return false;
 	}
 }

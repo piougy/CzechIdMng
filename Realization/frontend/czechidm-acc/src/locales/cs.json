@@ -1544,6 +1544,22 @@
           }
         }
       },
+      "acc-delete-synchronization-log-long-running-task": {
+        "label": "Smazat logy synchronizací",
+        "help": "Vymaže logy synchronizací starší, nežli zadaný počet dní.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Počet dní",
+            "help": "Smazat logy starší, než-li zadaný počet dní."
+          },
+          "system": {
+            "label": "Systém",
+            "placeholder": "Všechny systémy či vyberte ...",
+            "help": "Smazat pouze logy na zadaném systému."
+          }
+        }
+      },
       "acc-synchronization-long-running-task": {
         "label": "Spustit synchronizaci",
         "help": "Spustit nakonfigurovanou synchronizaci.",

@@ -1542,6 +1542,22 @@
           }
         }
       },
+      "acc-delete-synchronization-log-long-running-task": {
+        "label": "Delete synchronization logs",
+        "help": "Delete synchronization logs older than given number of days.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Number of days",
+            "help": "Delete logs older than given number of days."
+          },
+          "system": {
+            "label": "System",
+            "placeholder": "All systems or select ...",
+            "help": "Delete logs on given system only."
+          }
+        }
+      },
       "acc-synchronization-long-running-task": {
         "label": "Run synchronization",
         "help": "Run configured synchronization.",

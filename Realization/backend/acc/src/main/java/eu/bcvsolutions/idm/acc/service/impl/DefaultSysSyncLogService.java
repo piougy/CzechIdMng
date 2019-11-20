@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.joda.time.DateTime;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -120,6 +121,18 @@ public class DefaultSysSyncLogService
 					.get(SysSystemMapping_.objectClass) //
 					.get(SysSchemaObjectClass_.system) //
 					.get(AbstractEntity_.id), systemId));
+		}
+		
+		// From
+		DateTime from = filter.getFrom();
+		if (from != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncLog_.created), from));
+		}
+		
+		// Till
+		DateTime till = filter.getTill();
+		if (till != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(SysSyncLog_.created), till));
 		}
 		
 		return predicates;

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.dto.filter;
 
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -20,6 +21,8 @@ public class SysSyncLogFilter extends DataFilter {
 	public static final String PARAMETER_SYNCHRONIZATION_CONFIG_ID = "synchronizationConfigId";
 	public static final String PARAMETER_RUNNING = "running";
 	public static final String PARAMETER_SYSTEM_ID = "systemId";
+	public static final String PARAMETER_FROM = "from"; // created from
+	public static final String PARAMETER_TILL = "till"; // created till
 	
 	public SysSyncLogFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -31,6 +34,22 @@ public class SysSyncLogFilter extends DataFilter {
 	
 	public SysSyncLogFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
 		super(SysSyncLogDto.class, data, parameterConverter);
+	}
+	
+	public DateTime getFrom() {
+		return getParameterConverter().toDateTime(data, PARAMETER_FROM);
+	}
+
+	public void setFrom(DateTime from) {
+		data.set(PARAMETER_FROM, from);
+	}
+
+	public DateTime getTill() {
+		return getParameterConverter().toDateTime(data, PARAMETER_TILL);
+	}
+
+	public void setTill(DateTime till) {
+		data.set(PARAMETER_TILL, till);
 	}
 	
 	public UUID getSynchronizationConfigId() {

@@ -87,6 +87,7 @@ public class DeleteLongRunningTaskExecutor
 	public Page<IdmLongRunningTaskDto> getItemsToProcess(Pageable pageable) {
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setOperationState(operationState);
+		filter.setRunning(Boolean.FALSE);
 		if (numberOfDays > 0) {
 			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
 		}

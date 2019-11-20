@@ -88,7 +88,7 @@ public class DeleteSynchronizationLogTaskExecutor
 	public Page<SysSyncLogDto> getItemsToProcess(Pageable pageable) {
 		SysSyncLogFilter filter = new SysSyncLogFilter();
 		filter.setSystemId(systemId);
-		// filter.setRunning(Boolean.FALSE);
+		filter.setRunning(Boolean.FALSE);
 		if (numberOfDays > 0) {
 			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
 		}

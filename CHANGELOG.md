@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - [#1932](https://redmine.czechidm.com/issues/1932) - LRT ``DeleteLongRunningTaskExecutor`` was created and scheduled by default to remove old executed long running tasks (``EXECUTED`` lrt older than 90 days will be removed by default schedule). Delete long running task is possible now (new permission ``LONGRUNNINGTASK_DELETE`` is needed) => **if you are using long running task reference in entity in your custom module, then custom processor (processing ``DELETE`` event with ``IdmLongRunningTaskDto`` content) has to be implemented (ensure referential integrity)**.
 - [#1933](https://redmine.czechidm.com/issues/1933) - LRT ``DeleteNotificationTaskExecutor`` was created and scheduled by default to remove old sent notifications (``sent`` notifications older than 180 days will be removed by default schedule). Delete notificationa is possible now (new permission ``NOTIFICATION_DELETE`` is needed).
 - [#1934](https://redmine.czechidm.com/issues/1934) - LRT ``DeleteSynchronizationLogTaskExecutor`` was created and scheduled by default to remove old synchronization logs (logs older than 180 days will be removed by default schedule).
+- [#1413](https://redmine.czechidm.com/issues/1413) - Implemented merging of EAVs from slices to contract. Beware, only EAVs with changed value will be updated now.
 
 ## [9.7.9]
 

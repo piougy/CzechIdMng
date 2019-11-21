@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.joda.time.LocalDate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -1122,9 +1123,16 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		IdmRoleRequestDto requestRemove = createRoleRequest(test1);
 		requestRemove = roleRequestService.save(requestRemove);
 
+		// Mock set of validity - only for test if created remove concept doesn't have filled validity
+		contract.setValidFrom(LocalDate.now());
+		contract.setValidTill(LocalDate.now());
 		IdmConceptRoleRequestDto conceptRemove = createRoleRemoveConcept(page.getContent().get(0).getId(), adminRole,
 				contract, requestRemove);
 		conceptRemove = conceptRoleRequestService.save(conceptRemove);
+		
+		// Remove concept should have not set a validity.
+		assertNull(conceptRemove.getValidFrom());
+		assertNull(conceptRemove.getValidTill());
 
 		roleRequestService.startRequestInternal(requestRemove.getId(), true);
 		requestRemove = roleRequestService.get(requestRemove.getId());

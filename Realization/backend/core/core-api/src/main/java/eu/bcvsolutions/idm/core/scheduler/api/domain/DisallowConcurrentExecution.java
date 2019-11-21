@@ -10,7 +10,9 @@ import java.lang.annotation.Target;
  * LRT cannot have multiple instances executed concurrently.
  * 
  * @author Radek Tomiška
+ * @deprecated @since 9.7.12 - unused, not suppored from the beginning.
  */
+@Deprecated
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

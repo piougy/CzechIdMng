@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
@@ -35,6 +36,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Long running tasks filter test.
+ * 
+ * Lookout - @Transactional is not used - long running task is saved in new transaction (~log with exception, prevent to rollback).
  * 
  * TODO: move filter tests to rest test
  *
@@ -56,14 +59,14 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 		task.setTaskProperties(taskExecutor.getProperties());
 		task.setTaskDescription(taskExecutor.getDescription());	
 		task.setInstanceId("mock");
-		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
+		task.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).build());
 		task = service.save(task);
 		//
 		IdmProcessedTaskItemDto processedItem = new IdmProcessedTaskItemDto();
 		processedItem.setLongRunningTask(task.getId());
 		processedItem.setReferencedDtoType(IdmIdentityDto.class.getCanonicalName());
 		processedItem.setReferencedEntityId(UUID.randomUUID());
-		processedItem.setOperationResult(new OperationResult.Builder(OperationState.CREATED).build());
+		processedItem.setOperationResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).build());
 		processedItem = itemService.save(processedItem);
 		//
 		IdmAttachmentDto attachment = new IdmAttachmentDto();
@@ -81,6 +84,21 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 		Assert.assertNull(service.get(task));
 		Assert.assertNull(itemService.get(processedItem));
 		Assert.assertNull(attachmentManager.get(attachment));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testDeleteRunningTask() {
+		TestTaskExecutor taskExecutor = new TestTaskExecutor(); 
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
+		task.setTaskType(taskExecutor.getClass().getCanonicalName());
+		task.setTaskProperties(taskExecutor.getProperties());
+		task.setTaskDescription(taskExecutor.getDescription());	
+		task.setInstanceId("mock");
+		task.setRunning(true);
+		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		task = service.save(task);
+		//
+		service.delete(task);
 	}
 
 	@Test

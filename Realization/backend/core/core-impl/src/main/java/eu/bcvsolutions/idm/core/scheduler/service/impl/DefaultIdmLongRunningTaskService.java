@@ -16,10 +16,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -188,6 +192,12 @@ public class DefaultIdmLongRunningTaskService
 	public void deleteInternal(IdmLongRunningTaskDto dto) {
 		Assert.notNull(dto);
 		Assert.notNull(dto.getId());
+		//
+		// running task cannot be deleted
+		if (dto.isRunning()) {
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DELETE_FAILED_IS_RUNNING,
+					ImmutableMap.of("taskId", dto.getId()));
+		}
 		//
 		itemService.deleteAllByLongRunningTask(get(dto.getId()));
 		//

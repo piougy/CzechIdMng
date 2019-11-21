@@ -163,9 +163,10 @@ public enum CoreResultCode implements ResultCode {
 	SCHEDULER_DRY_RUN_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "Task type [%s] does not support dry run mode."),
 	//
 	LONG_RUNNING_TASK_NOT_FOUND(HttpStatus.BAD_REQUEST, "Task type [%s] can not be instantiated"),
-	LONG_RUNNING_TASK_NOT_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is not running - can not be innterrupted or cancelled"),
+	LONG_RUNNING_TASK_NOT_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is not running - can not be innterrupted or cancelled."),
 	LONG_RUNNING_TASK_DIFFERENT_INSTANCE(HttpStatus.BAD_REQUEST, "Task [%s] has different instance [%s], can not be accessed from this instance [%s]."),
-	LONG_RUNNING_TASK_IS_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is already running - can not be started twice"),
+	LONG_RUNNING_TASK_IS_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is already running - can not be started twice."),
+	LONG_RUNNING_TASK_DELETE_FAILED_IS_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is already running - cannot be deleted. Cancel task or wait to complete."),
 	LONG_RUNNING_TASK_IS_PROCESSED(HttpStatus.BAD_REQUEST, "Task [%s] is already processed - can not be started twice"),
 	LONG_RUNNING_TASK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Task [%s] type [%s] ended on instance [%s] with exception."),
 	LONG_RUNNING_TASK_ITEM_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Processing task item for candidate [%s] ended with exception."),

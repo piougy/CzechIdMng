@@ -420,7 +420,7 @@ public class DefaultFormService implements FormService {
 		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
 		// check permissions - check access to filled form values
 		event.setPermission(permission);
-		// publish event for save form instance
+		// publish event for save form instance - see {@link #saveFormInstance(EntityEvent<IdmFormInstanceDto>)}
 		return entityEventManager.process(event).getContent();
 	}
 	
@@ -869,7 +869,7 @@ public class DefaultFormService implements FormService {
 		List<IdmFormValueDto> values = formValueService.getValues(ownerEntity, formDefinition, permission);
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(ownerEntity, formDefinition, values);
 		//
-		// evaluate permissions for form definition attributes by values - change attribute properties ao remove attribute at all
+		// evaluate permissions for form definition attributes by values - change attribute properties or remove attribute at all
 		if (!ObjectUtils.isEmpty(permissions)) {
 			Set<UUID> checkedAttributes = new HashSet<>(values.size());
 			for(IdmFormValueDto value : values) {
@@ -1157,9 +1157,9 @@ public class DefaultFormService implements FormService {
 	 * @param formInstance
 	 */
 	private void refillDeletedAttributeValue(IdmFormInstanceDto formInstance) {
-		Assert.notNull(formInstance, "Form instnace if mandatory!");
+		Assert.notNull(formInstance, "Form instance is required.");
 		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
-		Assert.notNull(formDefinition);
+		Assert.notNull(formDefinition, "Form definition is required.");
 		//
 		formDefinition
 			.getFormAttributes()

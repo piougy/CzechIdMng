@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  * @since 9.7.12 
  */
-@Service
+@Service(DeleteWorkflowHistoricInstanceTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Delete historic workflow process instances.")
 public class DeleteWorkflowHistoricInstanceTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {

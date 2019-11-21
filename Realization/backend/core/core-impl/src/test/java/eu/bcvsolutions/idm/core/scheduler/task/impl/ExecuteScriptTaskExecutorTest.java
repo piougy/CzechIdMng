@@ -146,13 +146,7 @@ public class ExecuteScriptTaskExecutorTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	public void testExeciteScriptWithResult() {
-		// remove previous long running task
-		List<IdmLongRunningTaskDto> tasks = longRunningTaskService.find(null).getContent();
-		for (IdmLongRunningTaskDto task : tasks) {
-			longRunningTaskService.delete(task);			
-		}
-		
+	public void testExecuteScriptWithResult() {		
 		IdmScriptDto scriptDto = new IdmScriptDto();
 		scriptDto.setCode(TEST_SCRIPT_CODE + "_3");
 		scriptDto.setName(TEST_SCRIPT_CODE + "_3");

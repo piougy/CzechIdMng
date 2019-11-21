@@ -42,7 +42,7 @@ public class IdmLongRunningTaskControllerRestTest extends AbstractReadWriteDtoCo
 		task.setTaskProperties(taskExecutor.getProperties());
 		task.setTaskDescription(taskExecutor.getDescription());	
 		task.setInstanceId("mock");
-		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
+		task.setResult(new OperationResult.Builder(OperationState.BLOCKED).build());
 		//
 		return task;
 	}

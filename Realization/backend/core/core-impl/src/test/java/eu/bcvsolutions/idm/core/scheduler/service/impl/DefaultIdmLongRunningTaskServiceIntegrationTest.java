@@ -86,7 +86,7 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 		Assert.assertNull(attachmentManager.get(attachment));
 	}
 	
-	@Test(expected = ResultCodeException.class)
+	@Test
 	public void testDeleteRunningTask() {
 		TestTaskExecutor taskExecutor = new TestTaskExecutor(); 
 		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
@@ -98,7 +98,17 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
 		task = service.save(task);
 		//
-		service.delete(task);
+		try {
+			service.delete(task);
+			//
+			fail();
+		} catch (ResultCodeException ex) {
+			// ok
+			task.setRunning(false);
+			task = service.save(task);
+			// now can be deleted
+			service.delete(task);
+		}
 	}
 
 	@Test

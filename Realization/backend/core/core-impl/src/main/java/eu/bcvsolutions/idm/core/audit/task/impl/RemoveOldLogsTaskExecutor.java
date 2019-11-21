@@ -28,7 +28,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
 
 /**
  * Long running task for remove old record from event logging tables.
- * Remove {@link IdmLoggingEventDto}, {@link IdmLoggingEventExceptionDto} and {@link IdmLoggingEventPropertyDto},
+ * Remove {@link IdmLoggingEventDto}, {@link IdmLoggingEventExceptionDto} and {@link IdmLoggingEventPropertyDto}.
+ * 
+ * TODO: remane to DeleteLogTaskExecutor
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -36,7 +38,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  */
 @Service(RemoveOldLogsTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Removes old logs from event logging tables (events, eventException and eventProperty).")
+@Description("Delete logs from event logging tables (events, eventException and eventProperty).")
 public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RemoveOldLogsTaskExecutor.class);
@@ -48,7 +50,7 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 	@Autowired
 	private IdmLoggingEventService loggingEventService;
 	//
-	private Long numberOfDays;
+	private int numberOfDays;
 	
 	@Override
 	public String getName() {
@@ -59,16 +61,32 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		//
-		numberOfDays = getParameterConverter().toLong(properties, PARAMETER_NUMBER_OF_DAYS);
+		Long givenNumberOfDays = getParameterConverter().toLong(properties, PARAMETER_NUMBER_OF_DAYS);
+		if (givenNumberOfDays != null) {
+			numberOfDays = Math.toIntExact(givenNumberOfDays);
+		} else {
+			numberOfDays = 0;
+		}
+	}
+	
+	@Override
+	protected boolean start() {
+		LOG.warn("Start deleting logs older than [{}] days.", numberOfDays);
+		//
+		return super.start();
+	}
+	
+	@Override
+	protected Boolean end(Boolean result, Exception ex) {
+		result = super.end(result, ex);
+		LOG.warn("End deleting logs older than [{}]. Processed logs [{}].",
+				numberOfDays, counter);
+		return result;
 	}
 	
 	@Override
 	public Boolean process() {
-		if (numberOfDays == null) {
-			LOG.warn("Parameter {} is not filled. This task will be skipped.", PARAMETER_NUMBER_OF_DAYS);
-			return Boolean.TRUE;
-		}
-		DateTime dateTimeTill = DateTime.now().minusDays(numberOfDays.intValue());
+		DateTime dateTimeTill = DateTime.now().minusDays(numberOfDays);
 		//
 		IdmLoggingEventFilter filter = new IdmLoggingEventFilter();
 		filter.setTill(dateTimeTill);

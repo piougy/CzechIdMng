@@ -52,6 +52,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
@@ -111,6 +112,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	@Autowired private LookupService lookupService;
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private IdmEntityEventService entityEventService;
+	@Autowired private EntityEventManager entityEventManager;
 	//
 	private DefaultFormService formService;
 	
@@ -1724,6 +1726,8 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	public void testPropagateHighEventPriority() {
 		try {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			Assert.assertTrue(entityEventManager.isAsynchronous());
+			//
 			FormableDto owner = getHelper().createIdentity((GuardedString) null);
 			getHelper().waitForResult(null, 1, 1);
 			//

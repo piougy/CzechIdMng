@@ -11,10 +11,17 @@ import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -41,6 +48,7 @@ public class DeleteWorkflowHistoricInstanceTaskExecutor extends AbstractSchedula
 	private int numberOfDays = 0; // optional
 	//
 	@Autowired private ProcessEngine processEngine;
+	@Autowired private PlatformTransactionManager platformTransactionManager;
 	
 	@Override
 	public String getName() {
@@ -94,7 +102,17 @@ public class DeleteWorkflowHistoricInstanceTaskExecutor extends AbstractSchedula
 		counter = 0L;
 		//
 		for (HistoricProcessInstance processInstance : historicInstances) {
-			processEngine.getHistoryService().deleteHistoricProcessInstance(processInstance.getId());
+			TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
+			template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+			//
+			// delete historic instance in new transaction => large data support or if task is ended with exception, then prevent to rollback
+			template.execute(new TransactionCallback<OperationResult>() {
+				public OperationResult doInTransaction(TransactionStatus transactionStatus) {
+					processEngine.getHistoryService().deleteHistoricProcessInstance(processInstance.getId());
+					//
+					return new OperationResult(OperationState.EXECUTED);
+				}
+			});
 			++counter;
 			//
 			boolean canContinue = updateState();

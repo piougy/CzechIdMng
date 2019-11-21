@@ -63,8 +63,10 @@ public class DefaultSysSyncLogService
 	@Override
 	public SysSyncLogDto get(Serializable id, BasePermission... permission) {
 		SysSyncLogDto dto = super.get(id, permission);
-		// fill action list
-		dto.setSyncActionLogs(getActionsForLog(dto.getId()));
+		if(dto != null) {
+			// fill action list
+			dto.setSyncActionLogs(getActionsForLog(dto.getId()));
+		}
 		return dto;
 	}
 

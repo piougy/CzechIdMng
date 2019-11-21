@@ -1046,8 +1046,11 @@ public class DefaultIdmRoleRequestService
 		conceptRoleRequest.setRoleRequest(roleRequest.getId());
 		if (contract != null) {
 			conceptRoleRequest.setIdentityContract(contract.getId());
-			conceptRoleRequest.setValidFrom(contract.getValidFrom());
-			conceptRoleRequest.setValidTill(contract.getValidTill());
+			// We don't want filling validity for REMOVE operation
+			if (ConceptRoleRequestOperation.REMOVE != operation) {
+				conceptRoleRequest.setValidFrom(contract.getValidFrom());
+				conceptRoleRequest.setValidTill(contract.getValidTill());
+			}
 		}
 		conceptRoleRequest.setIdentityRole(identityRoleId);
 		conceptRoleRequest.setRole(roleId);

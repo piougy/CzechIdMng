@@ -10,14 +10,14 @@ All parameters from AbstractComponent are supported. Added parameters:
 | --- | :--- | :--- | :--- |
 | showLoading  | bool   | Shows loading overlay | false |
 | showAnimation | bool    | When loading is active, shows animation too   |   true |
-| loadingTitle | string | Shows title, when loading is active | Zpracovává se ... |
+| loadingTitle | string | Shows title, when loading is active | Zpracovávám ... |
 
 ## Usage
 
 ```html
-<Loading showLoading={true} showAnimation={true}>
+<Loading showLoading={ true } showAnimation={ true }>
   ...
-    children
+  children
   ...
 </Loading>
 ```

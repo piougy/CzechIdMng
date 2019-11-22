@@ -298,28 +298,29 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
   }
 
   _addRole(index, value, event) {
-    //
     if (event) {
       event.preventDefault();
     }
-    let { selectedRows, selectedRoles } = this.state;
+    const { selectedRows, selectedRoles } = this.state;
     const { multiSelect } = this.props;
     //
+    const newSelectedRows = [];
+    const newSelectedRoles = [];
     if (multiSelect) {
-      selectedRows.push(value.id);
-      selectedRoles.push(value);
+      newSelectedRows.push(...selectedRows);
+      newSelectedRoles.push(...selectedRoles);
+      newSelectedRows.push(value.id);
+      newSelectedRoles.push(value);
       this.setState({
-        selectedRows,
-        selectedRoles
+        selectedRows: newSelectedRows,
+        selectedRoles: newSelectedRoles
       });
     } else {
-      selectedRows = [];
-      selectedRoles = [];
-      selectedRows.push(value.id);
-      selectedRoles.push(value);
+      newSelectedRows.push(value.id);
+      newSelectedRoles.push(value);
       this.setState({
-        selectedRows,
-        selectedRoles
+        selectedRows: newSelectedRows,
+        selectedRoles: newSelectedRoles
       });
     }
   }
@@ -329,13 +330,18 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       event.preventDefault();
     }
     //
-    let { selectedRows, selectedRoles } = this.state;
+    const { selectedRows, selectedRoles } = this.state;
     //
-    selectedRows = _.pull(selectedRows, value.id);
-    selectedRoles = _.pull(selectedRoles, value);
+    let newSelectedRows = [];
+    let newSelectedRoles = [];
+    newSelectedRows.push(...selectedRows);
+    newSelectedRoles.push(...selectedRoles);
+    //
+    newSelectedRows = _.pull(newSelectedRows, value.id);
+    newSelectedRoles = _.pull(newSelectedRoles, value);
     this.setState({
-      selectedRows,
-      selectedRoles
+      selectedRows: newSelectedRows,
+      selectedRoles: newSelectedRoles
     });
   }
 
@@ -343,14 +349,19 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     const entities = this.getManager().getEntities(this.context.store.getState(), `${ this.getUiKey() }-table`);
     const { selectedRows, selectedRoles } = this.state;
     //
+    const newSelectedRows = [];
+    const newSelectedRoles = [];
+    newSelectedRows.push(...selectedRows);
+    newSelectedRoles.push(...selectedRoles);
+    //
     entities.forEach(entity => {
-      selectedRows.push(entity.id);
-      selectedRoles.push(entity);
+      newSelectedRows.push(entity.id);
+      newSelectedRoles.push(entity);
     });
     //
     this.setState({
-      selectedRows,
-      selectedRoles
+      selectedRows: newSelectedRows,
+      selectedRoles: newSelectedRoles
     });
   }
 

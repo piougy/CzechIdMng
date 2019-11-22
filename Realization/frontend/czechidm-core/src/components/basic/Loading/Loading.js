@@ -6,7 +6,9 @@ import classNames from 'classnames';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 /**
- * Loading indicator/
+ * Loading indicator.
+ *
+ * Lookout: prevent to use Basic.Div inside => cicrular reference.
  *
  * @author Radek Tomiška
  */
@@ -51,11 +53,17 @@ class Loading extends AbstractComponent {
   }
 
   render() {
-    const { rendered, className, showAnimation, isStatic, loadingTitle, style } = this.props;
+    const { rendered, className, containerClassName, showAnimation, isStatic, loadingTitle, style, containerTitle } = this.props;
     if (!rendered) {
       return null;
     }
     const showLoading = this._showLoading();
+    //
+    // Loading is used as standard div => wee need to render css even if loading is not active
+    const _containerClassNames = classNames(
+      'loader-container',
+      containerClassName
+    );
     const loaderClassNames = classNames(
       className,
       'loading',
@@ -63,28 +71,29 @@ class Loading extends AbstractComponent {
       { static: isStatic }
     );
     return (
-      <div ref="container" className="loader-container" style={style}>
+      <div ref="container" className={ _containerClassNames } style={ style } title={ containerTitle }>
         {
           showLoading
           ?
-          <div className={loaderClassNames}>
+          <div className={ loaderClassNames }>
             <div className="loading-wave-top" />
-            {showAnimation
+            {
+              showAnimation
               ?
-              <div className="loading-wave-container" title={loadingTitle}>
+              <div className="loading-wave-container" title={ loadingTitle }>
                 <div className="loading-wave">
-                  <div></div><div></div><div></div><div></div><div></div>
+                  <div/><div/><div/><div/><div/>
                 </div>
               </div>
               :
               null
             }
-            <div className="title hidden">{loadingTitle}</div>
+            <div className="title hidden">{ loadingTitle }</div>
           </div>
           :
           null
         }
-        {this.props.children}
+        { this.props.children }
       </div>
     );
   }
@@ -107,7 +116,18 @@ Loading.propTypes = {
   /**
    * Loading title
    */
-  loadingTitle: PropTypes.string
+  loadingTitle: PropTypes.string,
+  /**
+   * Title - static container (div wrapper).
+   */
+  containerTitle: PropTypes.string,
+  /**
+   * Css - static container (div wrapper).
+   */
+  containerClassName: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.func
+  ])
 };
 Loading.defaultProps = {
   ...AbstractComponent.defaultProps,

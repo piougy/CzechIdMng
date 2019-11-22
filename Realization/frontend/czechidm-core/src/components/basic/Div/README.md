@@ -1,6 +1,14 @@
 # Div Component
 
-Div container (supports rendered and showLoading properties)
+Div container (supports rendered and showLoading properties).
+
+## Parameters
+
+All parameters from AbstractComponent are supported. Added parameters:
+
+| Parameter | Type | Description | Default  |
+| --- | :--- | :--- | :--- |
+| showAnimation | bool    | When loading is active, shows animation too   |   true |
 
 ## Usage
 

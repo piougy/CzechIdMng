@@ -74,7 +74,17 @@ class NodeTable extends Advanced.AbstractTableContent {
       treeNodeId: nodeId
     };
 
-    this.context.store.dispatch(this.getManager().queueFetchPermissions(nodeId, null, () => {
+    if (nodeId) {
+      this.context.store.dispatch(this.getManager().queueFetchPermissions(nodeId, null, () => {
+        this.setState({
+          selectedNodeId: nodeId
+        }, () => {
+          this.refs.treeNodeId.setValue(nodeId);
+          this.refs.table.useFilterData(data);
+          this.refs.identityTable.filterByTreeNodeId(nodeId);
+        });
+      }));
+    } else {
       this.setState({
         selectedNodeId: nodeId
       }, () => {
@@ -82,7 +92,7 @@ class NodeTable extends Advanced.AbstractTableContent {
         this.refs.table.useFilterData(data);
         this.refs.identityTable.filterByTreeNodeId(nodeId);
       });
-    }));
+    }
   }
 
   cancelFilter(event) {
@@ -227,7 +237,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                 manager={ treeNodeManager }
                 forceSearchParameters={ forceSearchParameters }
                 onChange={ this._useFilterByTree.bind(this) }
-                ŕendered={ showTree }
+                rendered={ showTree }
                 traverse={ false }
                 header={
                   !type || !showTreeTypeSelect

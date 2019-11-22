@@ -121,8 +121,7 @@ class Tree extends Basic.AbstractContextComponent {
           }
           return id;
         })
-        .filter(node => node !== null)
-      );
+        .filter(node => node !== null));
     }
     //
     this.setState({

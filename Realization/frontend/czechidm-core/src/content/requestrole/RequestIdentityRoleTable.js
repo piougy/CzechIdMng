@@ -149,7 +149,9 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     this.setState({
       showRoleByIdentitySelect: true
     }, () => {
-      this.refs.roleSelectByIdentity.focus();
+      setTimeout(() => {
+        this.refs.roleSelectByIdentity.focus();
+      }, 10);
     });
   }
 

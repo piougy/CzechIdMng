@@ -89,7 +89,7 @@ class NotificationDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('sent.success', { name: entity.name }) });
-    this.context.history.replace('notification/notifications/');
+    this.context.history.replace('/notification/notifications/');
   }
 
   _pickTemplate(template) {

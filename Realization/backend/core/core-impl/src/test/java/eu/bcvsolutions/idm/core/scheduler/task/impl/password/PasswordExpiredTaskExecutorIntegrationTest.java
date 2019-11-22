@@ -1,18 +1,16 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl.password;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.UUID;
 
-import java.time.LocalDate;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -25,49 +23,37 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
 
 /**
- * Send password warning message test
+ * Send password expired message test.
  * 
  * @author Radek Tomiška
  *
  */
-public class PasswordExpirationWarningIntegrationTest extends AbstractIntegrationTest {
+public class PasswordExpiredTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private IdmScheduledTaskService scheduledTaskService;
 	@Autowired private IdmLongRunningTaskService longRunningService;
 	@Autowired private IdmProcessedTaskItemService itemService;
 	@Autowired private IdmIdentityService identityService;
-	
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-	
-	@After
-	public void logout() {
-		super.logout();
-	}
 
 	@Test
-	public void testSimpleWarningMessageDry() {
+	public void testSimpleMessageDry() {
 		// prepare date
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		try {
 			IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-			password.setValidTill(LocalDate.now().plusDays(1));		
-			passwordService.save(password);
+			password.setValidTill(LocalDate.now().minusDays(1));		
+			password = passwordService.save(password);
 			// prepare task
 			IdmScheduledTaskDto scheduledTask = scheduledTaskService.save(SchedulerTestUtils.createIdmScheduledTask(UUID.randomUUID().toString()));
-			IdmLongRunningTaskDto longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpirationWarningTaskExecutor.class));
-			PasswordExpirationWarningTaskExecutor executor = AutowireHelper.autowireBean(new PasswordExpirationWarningTaskExecutor());
+			IdmLongRunningTaskDto longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpiredTaskExecutor.class));
+			PasswordExpiredTaskExecutor executor = AutowireHelper.autowireBean(new PasswordExpiredTaskExecutor());
 			executor.setLongRunningTaskId(longRunningTask.getId());
-			executor.init(ImmutableMap.of(PasswordExpirationWarningTaskExecutor.PARAMETER_DAYS_BEFORE, "2"));
+			executor.init(new HashMap<>());
 			// first process
 			Boolean result = executor.process();
 			Page<IdmProcessedTaskItemDto> queueItems = itemService.findQueueItems(scheduledTask, null);
@@ -82,9 +68,9 @@ public class PasswordExpirationWarningIntegrationTest extends AbstractIntegratio
 					.map(IdmProcessedTaskItemDto::getReferencedEntityId)
 					.anyMatch(password.getId()::equals));
 			// second process
-			longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpirationWarningTaskExecutor.class));
+			longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpiredTaskExecutor.class));
 			executor.setLongRunningTaskId(longRunningTask.getId());
-			executor.init(ImmutableMap.of(PasswordExpirationWarningTaskExecutor.PARAMETER_DAYS_BEFORE, "2"));
+			executor.init(new HashMap<>());
 			result = executor.process();
 			itemService.findQueueItems(scheduledTask, null);
 			logItems = itemService.findLogItems(longRunningTask, null);
@@ -95,36 +81,68 @@ public class PasswordExpirationWarningIntegrationTest extends AbstractIntegratio
 			Assert.assertEquals(0, logItems.getTotalElements());
 		} finally {
 			identityService.delete(identity);
-		}		
+		}
 	}
 	
 	@Test
-	public void testNotSendWarningMessageToDisabledIdentity() {
+	public void testNotSendMessageToDisabledIdentity() {
 		// prepare date
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
-		try {
-			IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-			password.setValidTill(LocalDate.now().plusDays(1));		
-			passwordService.save(password);
+		try{
+			IdmPasswordDto preparedPassword = passwordService.findOneByIdentity(identity.getId());
+			preparedPassword.setValidTill(LocalDate.now().minusDays(1));		
+			IdmPasswordDto password = passwordService.save(preparedPassword);
 			// disable identity
 			identity.setState(IdentityState.DISABLED_MANUALLY);
 			identityService.save(identity);
 			// prepare task
 			IdmScheduledTaskDto scheduledTask = scheduledTaskService.save(SchedulerTestUtils.createIdmScheduledTask(UUID.randomUUID().toString()));
-			IdmLongRunningTaskDto longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpirationWarningTaskExecutor.class));
-			PasswordExpirationWarningTaskExecutor executor = AutowireHelper.autowireBean(new PasswordExpirationWarningTaskExecutor());
+			IdmLongRunningTaskDto longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpiredTaskExecutor.class));
+			PasswordExpiredTaskExecutor executor = AutowireHelper.autowireBean(new PasswordExpiredTaskExecutor());
 			executor.setLongRunningTaskId(longRunningTask.getId());
-			executor.init(ImmutableMap.of(PasswordExpirationWarningTaskExecutor.PARAMETER_DAYS_BEFORE, "2"));
+			executor.init(new HashMap<>());
 			// first process
 			Boolean result = executor.process();
 			Page<IdmProcessedTaskItemDto> logItems = itemService.findLogItems(longRunningTask, null);
 			// check
 			Assert.assertTrue(result);
-			Assert.assertFalse(logItems.getContent()
+			Assert.assertFalse(logItems
+					.getContent()
 					.stream()
 					.map(IdmProcessedTaskItemDto::getReferencedEntityId)
 					.anyMatch(password.getId()::equals));
+		} finally {
+			identityService.delete(identity);
+		}
+	}
+	
+	@Test
+	public void testNotSendMessageValidTillToday() {
+		// prepare date
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		try{
+			IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+			password.setValidTill(LocalDate.now());		
+			passwordService.save(password);
+			// prepare task
+			IdmScheduledTaskDto scheduledTask = scheduledTaskService.save(SchedulerTestUtils.createIdmScheduledTask(UUID.randomUUID().toString()));
+			IdmLongRunningTaskDto longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpiredTaskExecutor.class));
+			PasswordExpiredTaskExecutor executor = AutowireHelper.autowireBean(new PasswordExpiredTaskExecutor());
+			executor.setLongRunningTaskId(longRunningTask.getId());
+			executor.init(new HashMap<>());
+			// first process
+			Boolean result = executor.process();
+			Page<IdmProcessedTaskItemDto> logItems = itemService.findLogItems(longRunningTask, null);
+			// check
+			Assert.assertTrue(result);
+			Assert.assertTrue(logItems
+					.getContent()
+					.stream()
+					.anyMatch(pi -> {
+						return pi.getReferencedEntityId().equals(password.getId()) && pi.getOperationResult().getState() == OperationState.NOT_EXECUTED;
+					}));
 		} finally {
 			identityService.delete(identity);
 		}

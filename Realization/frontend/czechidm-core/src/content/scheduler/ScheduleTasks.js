@@ -141,8 +141,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       },
       taskType: supportedTasks.has(entity.taskType) ? this._toOption(supportedTasks.get(entity.taskType)) : null
     }, () => {
-      this.refs.form.setData(entity);
-      this.refs.taskType.focus();
+      setTimeout(() => {
+        this.refs.form.setData(entity);
+        this.refs.taskType.focus();
+      }, 10);
     });
   }
 

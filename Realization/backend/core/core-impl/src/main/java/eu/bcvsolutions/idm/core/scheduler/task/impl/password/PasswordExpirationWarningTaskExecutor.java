@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl.password;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -26,6 +28,8 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
@@ -37,13 +41,14 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  *
  */
-@Service
+@Service(PasswordExpirationWarningTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Sends warning notification before password expires.")
 public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmPasswordDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PasswordExpirationWarningTaskExecutor.class);
 	protected static final String PARAMETER_DAYS_BEFORE = "days before";
+	public static final String TASK_NAME = "core-password-expiration-warning-long-running-task";
 	//
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private NotificationManager notificationManager;
@@ -52,6 +57,11 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 	//
 	private LocalDate expiration;
 	private Long daysBefore;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -109,5 +119,22 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_DAYS_BEFORE);
 		return parameters;
+	}
+	
+	@Override
+	public Map<String, Object> getProperties() {
+		Map<String, Object> properties = super.getProperties();
+		properties.put(PARAMETER_DAYS_BEFORE, daysBefore);
+		//
+		return properties;
+	}
+	
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		IdmFormAttributeDto numberOfDaysAttribute = new IdmFormAttributeDto(PARAMETER_DAYS_BEFORE, PARAMETER_DAYS_BEFORE, PersistentType.LONG);
+		numberOfDaysAttribute.setRequired(true);
+		numberOfDaysAttribute.setMin(BigDecimal.valueOf(1L));
+		//
+		return Lists.newArrayList(numberOfDaysAttribute);
 	}
 }

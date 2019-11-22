@@ -5329,6 +5329,20 @@
             "help": "Automatická role dle attributu."
           }
         }
+      },
+      "core-password-expiration-warning-long-running-task": {
+        "label": "Odeslat varování před končící platnosti hesla",
+        "help": "Odešle notifikaci pro uživatele s heslem platným méně než zadaný počet dnů.",
+        "attributes": {
+          "days-before": {
+            "label": "Počet dní předem",
+            "help": "Zadejte počet dnů větší nežli nula."
+          }
+        }
+      },
+      "core-password-expired-long-running-task": {
+        "label": "Vypršení platnosti hesla - notifikace a publikování eventy",
+        "help": "Odešle notifikaci pro uživatele, kterým vypršelo heslo. Zároveň publikuje eventu PASSWORD_EXPIRED pro zablokování hesla."
       }
     }
   },
@@ -5682,6 +5696,10 @@
     "PASSWORD_EXPIRATION_TASK_DAYS_BEFORE": {
       "title": "Úloha je chybně nakonfigurovaná",
       "message": "Atribut 'days before' je povinný, zadejte celé číslo vetší než nula, zadáno [{{daysBefore}}]."
+    },
+    "PASSWORD_EXPIRATION_TODAY_INFO": {
+      "title": "Platnost hesla dnes končí",
+      "message": "Heslo má platnost pouze do dnešního dne. Expirace hesla bude provedena zítra."
     },
     "PASSWORD_EXPIRED": {
       "title": "Platnost hesla vypršela",

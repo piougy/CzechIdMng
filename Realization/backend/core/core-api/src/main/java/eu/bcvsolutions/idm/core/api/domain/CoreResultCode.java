@@ -175,6 +175,7 @@ public enum CoreResultCode implements ResultCode {
 	LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD(HttpStatus.PARTIAL_CONTENT, "Task finished successfully, result can be download as separate attachment."),
 	//
 	PASSWORD_EXPIRATION_TASK_DAYS_BEFORE(HttpStatus.BAD_REQUEST, "'Days before' parameter is required and has to be number greater than zero, given [%s]."),
+	PASSWORD_EXPIRATION_TODAY_INFO(HttpStatus.NOT_MODIFIED, "Password is valid till today. Password expiration will be published next day."),
 	//
 	AUTOMATIC_ROLE_TASK_EMPTY(HttpStatus.BAD_REQUEST, "Automatic role id is required."),
 	AUTOMATIC_ROLE_TASK_INVALID(HttpStatus.BAD_REQUEST, "Set one of automatic role by tree structure or by attribute."),

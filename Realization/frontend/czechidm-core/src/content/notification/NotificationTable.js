@@ -59,7 +59,7 @@ export class NotificationTable extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.history.push(`/notification/notification/${uuidId}?new=1`);
     } else {
-      this.context.history.push('/notification/notification/' + entity.id);// notification/configurations
+      this.context.history.push(`/notification/notification/${ entity.id }`);
     }
   }
 

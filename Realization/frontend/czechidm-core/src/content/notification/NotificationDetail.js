@@ -7,7 +7,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import NotificationRecipient from './NotificationRecipient';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
-import NotificationSentState from '../notification/NotificationSentState';
+import NotificationSentState from './NotificationSentState';
 import NotificationLevelEnum from '../../enums/NotificationLevelEnum';
 import SearchParameters from '../../domain/SearchParameters';
 
@@ -26,7 +26,6 @@ class NotificationDetail extends Basic.AbstractContent {
     this.identityManager = new IdentityManager();
     this.notificationManager = new NotificationManager();
     this.notificationTemplateManager = new NotificationTemplateManager();
-    this._onChangeSelectTabs = this._onChangeSelectTabs.bind(this);
   }
 
   getContentKey() {

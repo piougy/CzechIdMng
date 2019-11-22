@@ -197,4 +197,24 @@
 			</trigger>
 		</triggers>		
 	</task>
+	
+	<task>
+		<description>Send notification for user after password expired and publish PASSWORD_EXPIRED event.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.password.PasswordExpiredTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 5 0 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
 </tasks>

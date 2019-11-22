@@ -11,7 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
@@ -24,23 +26,29 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
- * Publish event PASSWORD_EXPIRED event on identity after password expired.
+ * Send notification for user after password expired and publish PASSWORD_EXPIRED event.
  * 
  * @author Radek Tomiška
  *
  */
-@Service
+@Service(PasswordExpiredTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Publish PASSWORD_EXPIRED event on identity after password expired.")
+@Description("Send notification for user after password expired and publish PASSWORD_EXPIRED event.")
 public class PasswordExpiredTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmPasswordDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PasswordExpiredTaskExecutor.class);
+	public static final String TASK_NAME = "core-password-expired-long-running-task";
 	//
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private LookupService lookupService;
 	@Autowired private EntityEventManager entityEventManager;
 	//
 	private LocalDate expiration;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -52,13 +60,22 @@ public class PasswordExpiredTaskExecutor extends AbstractSchedulableStatefulExec
 	@Override
 	public Page<IdmPasswordDto> getItemsToProcess(Pageable pageable) {
 		IdmPasswordFilter filter = new IdmPasswordFilter();
-		filter.setValidTill(expiration);
+		filter.setValidTill(expiration); // valid till filter <=
 		filter.setIdentityDisabled(Boolean.FALSE);
+		//
 		return passwordService.find(filter, pageable);
 	}
 
 	@Override
 	public Optional<OperationResult> processItem(IdmPasswordDto dto) {
+		if (!expiration.isAfter(dto.getValidTill())) {
+			// skip the same date (valid till filter <=) - just info into lrt. Will be processed next day.
+			return Optional.of(new OperationResult
+					.Builder(OperationState.NOT_EXECUTED)
+					.setModel(new DefaultResultModel(CoreResultCode.PASSWORD_EXPIRATION_TODAY_INFO))
+					.build());
+		}
+		//
 		IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, dto.getIdentity());
 		LOG.info("Publishing [{}] event to identity [{}], password expired in [{}]", 
 				IdentityEventType.PASSWORD_EXPIRED, identity.getUsername(), dto.getValidTill());

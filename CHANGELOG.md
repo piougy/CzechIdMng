@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 - **All changes related to upgrade devstack dependencies can be found in [migration guide](./MIGRATION.md).**
 - **Websocket** support removed - Removed all classed for websocket notifications
+- [#1924](https://redmine.czechidm.com/issues/1924) - LRT ``PasswordExpiredTaskExecutor`` was scheduled by default to send notification for user after password expired and publish PASSWORD_EXPIRED event.
 - **Deprecated classes and methods removed**:
   - ``IdmTreeNodeFilter#setTreeNode(UUID)`` - @deprecated @since 9.4.0 - use ``IdmTreeNodeFilter#setParent(UUID)``.
   - ``IdmTreeNodeFilter#getTreeNode()`` - @deprecated @since 9.4.0 - use ``IdmTreeNodeFilter#getParent()``.

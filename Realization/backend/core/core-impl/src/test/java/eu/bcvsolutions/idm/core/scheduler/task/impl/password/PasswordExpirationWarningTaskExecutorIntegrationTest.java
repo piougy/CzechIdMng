@@ -1,12 +1,9 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl.password;
 
-import java.util.HashMap;
+import java.time.LocalDate;
 import java.util.UUID;
 
-import java.time.LocalDate;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,47 +23,35 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 import eu.bcvsolutions.idm.test.api.utils.SchedulerTestUtils;
 
 /**
- * Send password warning mesage test
+ * Send password warning message test
  * 
  * @author Radek Tomiška
  *
  */
-public class PasswordExpiredIntegrationTest extends AbstractIntegrationTest {
+public class PasswordExpirationWarningTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private IdmScheduledTaskService scheduledTaskService;
 	@Autowired private IdmLongRunningTaskService longRunningService;
 	@Autowired private IdmProcessedTaskItemService itemService;
 	@Autowired private IdmIdentityService identityService;
-	
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-	
-	@After
-	public void logout() {
-		super.logout();
-	}
 
 	@Test
 	public void testSimpleWarningMessageDry() {
 		// prepare date
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		try {
 			IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-			password.setValidTill(LocalDate.now().minusDays(1));		
+			password.setValidTill(LocalDate.now().plusDays(1));		
 			passwordService.save(password);
 			// prepare task
 			IdmScheduledTaskDto scheduledTask = scheduledTaskService.save(SchedulerTestUtils.createIdmScheduledTask(UUID.randomUUID().toString()));
-			IdmLongRunningTaskDto longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpiredTaskExecutor.class));
-			PasswordExpiredTaskExecutor executor = AutowireHelper.autowireBean(new PasswordExpiredTaskExecutor());
+			IdmLongRunningTaskDto longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpirationWarningTaskExecutor.class));
+			PasswordExpirationWarningTaskExecutor executor = AutowireHelper.autowireBean(new PasswordExpirationWarningTaskExecutor());
 			executor.setLongRunningTaskId(longRunningTask.getId());
 			executor.init(ImmutableMap.of(PasswordExpirationWarningTaskExecutor.PARAMETER_DAYS_BEFORE, "2"));
 			// first process
@@ -83,9 +68,9 @@ public class PasswordExpiredIntegrationTest extends AbstractIntegrationTest {
 					.map(IdmProcessedTaskItemDto::getReferencedEntityId)
 					.anyMatch(password.getId()::equals));
 			// second process
-			longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpiredTaskExecutor.class));
+			longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpirationWarningTaskExecutor.class));
 			executor.setLongRunningTaskId(longRunningTask.getId());
-			executor.init(new HashMap<>());
+			executor.init(ImmutableMap.of(PasswordExpirationWarningTaskExecutor.PARAMETER_DAYS_BEFORE, "2"));
 			result = executor.process();
 			itemService.findQueueItems(scheduledTask, null);
 			logItems = itemService.findLogItems(longRunningTask, null);
@@ -96,25 +81,25 @@ public class PasswordExpiredIntegrationTest extends AbstractIntegrationTest {
 			Assert.assertEquals(0, logItems.getTotalElements());
 		} finally {
 			identityService.delete(identity);
-		}
+		}		
 	}
 	
 	@Test
 	public void testNotSendWarningMessageToDisabledIdentity() {
 		// prepare date
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		//
-		try{
+		try {
 			IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
-			password.setValidTill(LocalDate.now().minusDays(1));		
+			password.setValidTill(LocalDate.now().plusDays(1));		
 			passwordService.save(password);
 			// disable identity
 			identity.setState(IdentityState.DISABLED_MANUALLY);
 			identityService.save(identity);
 			// prepare task
 			IdmScheduledTaskDto scheduledTask = scheduledTaskService.save(SchedulerTestUtils.createIdmScheduledTask(UUID.randomUUID().toString()));
-			IdmLongRunningTaskDto longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpiredTaskExecutor.class));
-			PasswordExpiredTaskExecutor executor = AutowireHelper.autowireBean(new PasswordExpiredTaskExecutor());
+			IdmLongRunningTaskDto longRunningTask = longRunningService.save(SchedulerTestUtils.createIdmLongRunningTask(scheduledTask, PasswordExpirationWarningTaskExecutor.class));
+			PasswordExpirationWarningTaskExecutor executor = AutowireHelper.autowireBean(new PasswordExpirationWarningTaskExecutor());
 			executor.setLongRunningTaskId(longRunningTask.getId());
 			executor.init(ImmutableMap.of(PasswordExpirationWarningTaskExecutor.PARAMETER_DAYS_BEFORE, "2"));
 			// first process

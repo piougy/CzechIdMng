@@ -59,7 +59,8 @@ export class ProvisioningOperationTable extends Advanced.AbstractTableContent {
     let searchParameters = this.getManager().getDefaultSearchParameters();
     //
     if (this.props.isArchive) {
-      searchParameters = searchParameters.setFilter('emptyProvisioning', Utils.Config.getConfig('identity.table.filter.disabled', null));
+      searchParameters = searchParameters.setFilter('emptyProvisioning',
+        Utils.Config.getConfig('provisioning-archive.table.filter.emptyProvisioning', null));
     }
     //
     return searchParameters;

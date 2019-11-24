@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * LRT integration test
+ * LRT integration test.
  * 
  * @author Radek Tomiška
  *

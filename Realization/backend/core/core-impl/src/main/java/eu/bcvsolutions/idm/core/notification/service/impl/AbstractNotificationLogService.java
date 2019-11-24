@@ -10,7 +10,10 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
@@ -48,6 +51,33 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(NotificationGroupPermission.NOTIFICATION, null); // notifications doesn't support data security for now 
 	}
+    
+    @Override
+    @Transactional
+    public void deleteInternal(DTO dto) {
+    	Assert.notNull(dto, "Notification is required.");
+    	Assert.notNull(dto.getId(), "Notification identifier is required.");
+    	//
+		try {
+			//
+	    	// delete recipients is done by hiberante mapping - see IdmNotification
+	    	//
+	    	// delete child notifications ... 
+			F filter = getFilterClass().getDeclaredConstructor().newInstance();
+			filter.setParent(dto.getId());
+	    	find(filter, null).getContent().forEach(this::delete);
+	    	//
+	    	super.deleteInternal(dto);
+		} catch (ReflectiveOperationException ex) {
+			throw new CoreException(
+					String.format(
+							"Service [%s] has wrong filter, fix implemented filter class [%s] (add default constructor).",
+							this.getClass(), getFilterClass()),
+					ex);
+		}
+    	
+    }
+    
 
     @Override
     protected E toEntity(DTO dto, E entity) {
@@ -65,7 +95,7 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
     }
 
     /**
-	 * We want to have recipients in returned lists
+	 * We want to have recipients in returned lists.
 	 */
 	@Override
 	protected List<DTO> toDtos(List<E> entities, boolean trimmed) {

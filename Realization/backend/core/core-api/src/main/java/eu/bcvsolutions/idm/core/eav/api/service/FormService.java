@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationClass;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
@@ -821,4 +822,14 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 */
 	List<InvalidFormAttributeDto> validate(IdmFormInstanceDto formInstance);
+
+	/**
+	 * Merge all EAV values for given definition from source DTO to target DTO.
+	 * Target DTO is not saved! Values are only set to list of EAVs.
+	 * 
+	 * @param definition
+	 * @param source
+	 * @param target
+	 */
+	void mergeValues(IdmFormDefinitionDto definition, FormableDto source, FormableDto target);
 }

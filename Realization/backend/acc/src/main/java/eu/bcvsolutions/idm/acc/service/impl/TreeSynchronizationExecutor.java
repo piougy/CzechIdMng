@@ -306,7 +306,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 
 			return;
 		} else {
-			addToItemLog(logItem, "Warning! - Tree - account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Tree node was not found and cannot be updated (maybe was deleted  within deleting of parent node).");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -368,7 +368,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			treeNode = treeNodeService.get(entityId);
 		}
 		if (treeNode == null) {
-			addToItemLog(logItem, "Warning! - Tree account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, "Warning! - Tree node was not found and cannot be deleted (maybe was deleted  within deleting of parent node).");
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;

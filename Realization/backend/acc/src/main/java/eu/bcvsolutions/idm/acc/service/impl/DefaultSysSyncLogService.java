@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Default synchronization log service
- * 
+ *
  * @author svandav
  *
  */
@@ -44,13 +44,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 public class DefaultSysSyncLogService
 		extends AbstractReadWriteDtoService<SysSyncLogDto, SysSyncLog, SysSyncLogFilter>
 		implements SysSyncLogService {
-	
+
 	private final SysSyncActionLogService syncActionLogService;
-	
+
 	@Autowired
 	public DefaultSysSyncLogService(
 			SysSyncLogRepository repository,
-			SysSyncActionLogService syncActionLogService, 
+			SysSyncActionLogService syncActionLogService,
 			ModelMapper modelMapper) { // model mapper: just for backward compatibility (constructor can be used externally)
 		super(repository);
 		//
@@ -59,26 +59,28 @@ public class DefaultSysSyncLogService
 		//
 		this.syncActionLogService = syncActionLogService;
 	}
-	
+
 	@Override
 	public SysSyncLogDto get(Serializable id, BasePermission... permission) {
 		SysSyncLogDto dto = super.get(id, permission);
-		// fill action list
-		dto.setSyncActionLogs(getActionsForLog(dto.getId()));
+		if (dto != null) {
+			// fill action list
+			dto.setSyncActionLogs(getActionsForLog(dto.getId()));
+		}
 		return dto;
 	}
 
 	@Override
 	public Page<SysSyncLogDto> find(SysSyncLogFilter filter, Pageable pageable, BasePermission... permission) {
 		Page<SysSyncLogDto> logs = super.find(filter, pageable, permission);
-		
+
 		for (SysSyncLogDto log : logs) {
 			log.setSyncActionLogs(getActionsForLog(log.getId()));
 		}
-		
+
 		return logs;
 	}
-	
+
 	@Override
 	@Transactional
 	public void delete(SysSyncLogDto syncLog, BasePermission... permission) {
@@ -98,21 +100,21 @@ public class DefaultSysSyncLogService
 	@Override
 	protected List<Predicate> toPredicates(Root<SysSyncLog> root, CriteriaQuery<?> query, CriteriaBuilder builder,
 			SysSyncLogFilter filter) {
-		
+
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
-		
+
 		// Sync-configuration ID
 		UUID syncConfigId = filter.getSynchronizationConfigId();
 		if (syncConfigId != null) {
 			predicates.add(builder.equal(root.get(SysSyncLog_.synchronizationConfig).get(AbstractEntity_.id), syncConfigId));
 		}
-		
+
 		// Sync running
 		Boolean running = filter.getRunning();
 		if (running != null) {
 			predicates.add(builder.equal(root.get(SysSyncLog_.running), running));
 		}
-		
+
 		// System ID
 		UUID systemId = filter.getSystemId();
 		if (systemId != null) {
@@ -122,11 +124,23 @@ public class DefaultSysSyncLogService
 					.get(SysSchemaObjectClass_.system) //
 					.get(AbstractEntity_.id), systemId));
 		}
-		
+
 		// Modified from
 		ZonedDateTime modifiedFrom = filter.getModifiedFrom();
 		if (modifiedFrom != null) {
 			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncLog_.modified), modifiedFrom));
+		}
+
+		// From
+		ZonedDateTime from = filter.getFrom();
+		if (from != null) {
+			predicates.add(builder.greaterThanOrEqualTo(root.get(SysSyncLog_.created), from));
+		}
+
+		// Till
+		ZonedDateTime till = filter.getTill();
+		if (till != null) {
+			predicates.add(builder.lessThanOrEqualTo(root.get(SysSyncLog_.created), till));
 		}
 
 		return predicates;
@@ -134,7 +148,7 @@ public class DefaultSysSyncLogService
 
 	/**
 	 * Method return all {@link SysSyncActionLogDto} for given log id
-	 * 
+	 *
 	 * @param logId
 	 * @return
 	 */

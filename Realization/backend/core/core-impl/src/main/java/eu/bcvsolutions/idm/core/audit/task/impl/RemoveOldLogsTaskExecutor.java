@@ -28,15 +28,17 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
 
 /**
  * Long running task for remove old record from event logging tables.
- * Remove {@link IdmLoggingEventDto}, {@link IdmLoggingEventExceptionDto} and {@link IdmLoggingEventPropertyDto},
- * 
+ * Remove {@link IdmLoggingEventDto}, {@link IdmLoggingEventExceptionDto} and {@link IdmLoggingEventPropertyDto}.
+ *
+ * TODO: rename to DeleteLogTaskExecutor
+ *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  *
  */
 @Service(RemoveOldLogsTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Removes old logs from event logging tables (events, eventException and eventProperty).")
+@Description("Delete logs from event logging tables (events, eventException and eventProperty).")
 public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RemoveOldLogsTaskExecutor.class);
@@ -44,35 +46,51 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 	public static final String TASK_NAME = "core-remove-old-logs-long-running-task";
 	public static final String PARAMETER_NUMBER_OF_DAYS = "removeRecordOlderThan";
 	public static final int DEFAULT_NUMBER_OF_DAYS = 90;
-	
+
 	@Autowired
 	private IdmLoggingEventService loggingEventService;
 	//
-	private Long numberOfDays;
-	
+	private int numberOfDays;
+
 	@Override
 	public String getName() {
 		return TASK_NAME;
 	}
-	
+
 	@Override
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		//
-		numberOfDays = getParameterConverter().toLong(properties, PARAMETER_NUMBER_OF_DAYS);
+		Long givenNumberOfDays = getParameterConverter().toLong(properties, PARAMETER_NUMBER_OF_DAYS);
+		if (givenNumberOfDays != null) {
+			numberOfDays = Math.toIntExact(givenNumberOfDays);
+		} else {
+			numberOfDays = 0;
+		}
 	}
-	
+
+	@Override
+	protected boolean start() {
+		LOG.warn("Start deleting logs older than [{}] days.", numberOfDays);
+		//
+		return super.start();
+	}
+
+	@Override
+	protected Boolean end(Boolean result, Exception ex) {
+		result = super.end(result, ex);
+		LOG.warn("End deleting logs older than [{}]. Processed logs [{}].",
+				numberOfDays, counter);
+		return result;
+	}
+
 	@Override
 	public Boolean process() {
-		if (numberOfDays == null) {
-			LOG.warn("Parameter {} is not filled. This task will be skipped.", PARAMETER_NUMBER_OF_DAYS);
-			return Boolean.TRUE;
-		}
-		ZonedDateTime dateTimeTill = ZonedDateTime.now().minusDays(numberOfDays.intValue());
+		ZonedDateTime dateTimeTill = ZonedDateTime.now().minusDays(numberOfDays);
 		//
 		IdmLoggingEventFilter filter = new IdmLoggingEventFilter();
 		filter.setTill(dateTimeTill);
-		
+
 		// only for get total elements
 		Page<IdmLoggingEventDto> loggingEvents = loggingEventService.find(
 				filter, PageRequest.of(0, 1, Sort.by(IdmLoggingEvent_.timestmp.getName())));
@@ -95,7 +113,7 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 		parameters.add(PARAMETER_NUMBER_OF_DAYS);
 		return parameters;
 	}
-	
+
 	@Override
 	public Map<String, Object> getProperties() {
 		Map<String, Object> properties = super.getProperties();
@@ -103,12 +121,12 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 		//
 		return properties;
 	}
-	
+
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		IdmFormAttributeDto numberOfDaysAttribute = new IdmFormAttributeDto(
-				PARAMETER_NUMBER_OF_DAYS, 
-				PARAMETER_NUMBER_OF_DAYS, 
+				PARAMETER_NUMBER_OF_DAYS,
+				PARAMETER_NUMBER_OF_DAYS,
 				PersistentType.LONG);
 		numberOfDaysAttribute.setDefaultValue(String.valueOf(DEFAULT_NUMBER_OF_DAYS));
 		//

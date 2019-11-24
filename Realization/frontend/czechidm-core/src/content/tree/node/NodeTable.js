@@ -73,7 +73,7 @@ class NodeTable extends Advanced.AbstractTableContent {
       ...this.refs.filterForm.getData(),
       treeNodeId: nodeId
     };
-
+    //
     if (nodeId) {
       this.context.store.dispatch(this.getManager().queueFetchPermissions(nodeId, null, () => {
         this.setState({

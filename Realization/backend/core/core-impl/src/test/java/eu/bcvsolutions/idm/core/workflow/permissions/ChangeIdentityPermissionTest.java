@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -66,7 +67,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
 /**
  * Test change permissions for identity
- * 
+ *
  * @author svandav
  *
  */
@@ -133,7 +134,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		loginAsAdmin(InitTestData.TEST_USER_1);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmRoleDto adminRole = roleService.getByCode(InitTestData.TEST_ADMIN_ROLE);
@@ -181,7 +182,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleSkipTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
 		loginAsAdmin();
@@ -225,7 +226,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleDisapproveTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
 		loginAsAdmin();
@@ -264,7 +265,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleWithSubprocessTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -370,11 +371,11 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		concept = conceptRoleRequestService.get(concept.getId());
 		assertNotNull(concept.getWfProcessId());
 	}
-	
+
 	@Test
 	public void approveIncompatibleRolesTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "false");
@@ -385,9 +386,9 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// Create test role for load candidates on approval incompatibility (TEST_USER_1)
 		IdmRoleDto role = getHelper().createRole(INCOMPATIBILITY_ROLE_TEST);
 		getHelper().createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
-		
+
 		IdmIdentityDto applicant = getHelper().createIdentity();
-		
+
 		// Create definition of incompatible roles
 		IdmRoleDto incompatibleRoleOne = getHelper().createRole();
 		IdmRoleDto incompatibleRoleTwo = getHelper().createRole();
@@ -395,11 +396,11 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		incompatibleRole.setSub(incompatibleRoleOne.getId());
 		incompatibleRole.setSuperior(incompatibleRoleTwo.getId());
 		incompatibleRole = incompatibleRoleService.save(incompatibleRole);
-		
+
 		// Assign first incompatible role
 		getHelper().createIdentityRole(applicant, incompatibleRoleOne);
 		loginAsAdmin();
-		
+
 		// Create request
 		IdmRoleRequestDto request = createRoleRequest(applicant);
 		request = roleRequestService.save(request);
@@ -442,7 +443,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			.isPresent();
 		// Incompatible role two must be assigned for applicant
 		assertTrue(exists);
-		
+
 		// Create next request
 		IdmRoleRequestDto requestNext = createRoleRequest(applicant);
 		requestNext = roleRequestService.save(requestNext);
@@ -451,9 +452,9 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// added new role is presents)
 		incompatibleRoles = roleRequestService.getIncompatibleRoles(requestNext);
 		assertEquals(0, incompatibleRoles.size());
-		
+
 	}
-	
+
 	@Test
 	public void defaultWithoutApproveTest() {
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
@@ -466,9 +467,9 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// Create test role for load candidates on approval incompatibility (TEST_USER_1)
 		IdmRoleDto role = getHelper().createRole(INCOMPATIBILITY_ROLE_TEST);
 		getHelper().createIdentityRole(identityService.getByUsername(InitTestData.TEST_USER_1), role);
-		
+
 		IdmIdentityDto applicant = getHelper().createIdentity();
-		
+
 		// Create definition of incompatible roles
 		IdmRoleDto incompatibleRoleOne = getHelper().createRole();
 		IdmRoleDto incompatibleRoleTwo = getHelper().createRole();
@@ -476,11 +477,11 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		incompatibleRole.setSub(incompatibleRoleOne.getId());
 		incompatibleRole.setSuperior(incompatibleRoleTwo.getId());
 		incompatibleRole = incompatibleRoleService.save(incompatibleRole);
-		
+
 		// Assign first incompatible role
 		getHelper().createIdentityRole(applicant, incompatibleRoleOne);
 		loginAsAdmin();
-		
+
 		// Create request
 		IdmRoleRequestDto request = createRoleRequest(applicant);
 		request = roleRequestService.save(request);
@@ -505,7 +506,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void testTaskCount() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
@@ -786,7 +787,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void testGetTaskByAnotherUser() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "true");
@@ -948,7 +949,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleWithSubprocessManagerTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -1010,7 +1011,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleWithSubprocessDisapproveTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -1142,9 +1143,16 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		IdmRoleRequestDto requestRemove = createRoleRequest(test1);
 		requestRemove = roleRequestService.save(requestRemove);
 
+		// Mock set of validity - only for test if created remove concept doesn't have filled validity
+		contract.setValidFrom(LocalDate.now());
+		contract.setValidTill(LocalDate.now());
 		IdmConceptRoleRequestDto conceptRemove = createRoleRemoveConcept(page.getContent().get(0).getId(), adminRole,
 				contract, requestRemove);
 		conceptRemove = conceptRoleRequestService.save(conceptRemove);
+
+		// Remove concept should have not set a validity.
+		assertNull(conceptRemove.getValidFrom());
+		assertNull(conceptRemove.getValidTill());
 
 		roleRequestService.startRequestInternal(requestRemove.getId(), true);
 		requestRemove = roleRequestService.get(requestRemove.getId());
@@ -1194,7 +1202,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void cancelWfOnRoleRequestDeleteTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
 		loginAsAdmin();
@@ -1243,7 +1251,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void cancelSubprocessOnContractDeleteTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -1296,7 +1304,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		String conceptWf = concept.getWfProcessId();
 		assertNotNull(conceptWf);
 		assertNotNull(workflowProcessInstanceService.get(conceptWf));
-		
+
 		// Delete the contract that is using in the concept
 		UUID contractId = concept.getIdentityContract();
 		assertNotNull(contractId);
@@ -1312,7 +1320,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// Main process has to be executed
 		assertEquals(RoleRequestState.EXECUTED, request.getState());
 	}
-	
+
 	@Test
 	public void cancelSubprocessOnRoleDeleteTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
@@ -1369,15 +1377,15 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		String conceptWf = concept.getWfProcessId();
 		assertNotNull(conceptWf);
 		assertNotNull(workflowProcessInstanceService.get(conceptWf));
-		
+
 		// Delete the role that is using in the concept
 		UUID roleId = concept.getRole();
 		assertNotNull(roleId);
-		
+
 		IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
 		identityRoleFilter.setRoleId(roleId);
 		identityRoleService.find(identityRoleFilter, null).getContent().forEach(identityRole -> identityRoleService.delete(identityRole));
-		
+
 		// Wf process for concept cannot be cancelled (because main process would be frozen ). Process will be disapproved.
 		roleService.deleteById(roleId);
 
@@ -1389,7 +1397,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		request = roleRequestService.get(request.getId());
 		// Main process has to be executed
 		assertEquals(RoleRequestState.EXECUTED, request.getState());
-		
+
 	}
 
 	@Test
@@ -1420,7 +1428,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 		IdmConceptRoleRequestDto concept = createRoleConcept(role, contract, request);
 		concept = conceptRoleRequestService.save(concept);
-		
+
 		IdmRequestIdentityRoleFilter requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
 		requestIdentityRoleFilter.setIncludeCandidates(true);
 		requestIdentityRoleFilter.setRoleRequestId(request.getId());
@@ -1453,7 +1461,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void testFindCandidatesWithSubprocess() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		// approve only by help desk
 		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
@@ -1468,7 +1476,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		// add role directly
 		getHelper().createIdentityRole(helpdeskIdentity, helpdeskRole);
 		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
-				
+
 		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
 		IdmIdentityDto guarantee = identityService.getByUsername(InitTestData.TEST_USER_2);
 
@@ -1510,10 +1518,10 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 		Set<IdmIdentityDto> candidates = workflowProcessInstanceService.getApproversForProcess(request.getWfProcessId());
 		assertEquals(1, candidates.size());
-		
+
 		candidates = workflowProcessInstanceService.getApproversForSubprocess(request.getWfProcessId());
 		assertEquals(0, candidates.size());
-		
+
 		requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
 		requestIdentityRoleFilter.setIncludeCandidates(true);
 		requestIdentityRoleFilter.setRoleRequestId(request.getId());
@@ -1536,7 +1544,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		filter.setIncludeApprovers(false);
 		requestDto = roleRequestService.get(request.getId(), filter);
 		assertNull(requestDto.getApprovers());
-		
+
 		// Subprocess - approve by Manager
 		request = roleRequestService.get(request.getId());
 		loginAsAdmin(guarantee.getUsername());
@@ -1582,7 +1590,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		requestDto = roleRequestService.get(request.getId(), filter);
 		assertNull(requestDto.getApprovers());
 	}
-	
+
 	@Test
 	public void testAccessIsAddedForOwnerAndImplementerToSubprocesses() {
 		// reset approvers
@@ -1620,7 +1628,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		roleRequestService.startRequestInternal(request.getId(), true);
 		request = roleRequestService.get(request.getId());
 		Assert.assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
-		
+
 		IdmRequestIdentityRoleFilter requestIdentityRoleFilter = new IdmRequestIdentityRoleFilter();
 		requestIdentityRoleFilter.setIncludeCandidates(true);
 		requestIdentityRoleFilter.setRoleRequestId(request.getId());
@@ -1657,7 +1665,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	/**
 	 * Return {@link WorkflowHistoricProcessInstanceDto} for current logged user
-	 * 
+	 *
 	 * @return
 	 */
 	private List<WorkflowHistoricProcessInstanceDto> getHistoricProcess(ZonedDateTime from) {
@@ -1695,7 +1703,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		request.setRequestedByType(RoleRequestedByType.MANUALLY);
 		return request;
 	}
-	
+
 	private void checkAndCompleteOneTask(WorkflowFilterDto taskFilter, String user, String decision) {
 		this.checkAndCompleteOneTask(taskFilter, user, decision, null);
 	}
@@ -1716,7 +1724,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	/**
 	 * Complete all tasks from user given in parameters. Complete will be done by
 	 * currently logged user.
-	 * 
+	 *
 	 * @param approverUser
 	 * @param decision
 	 */

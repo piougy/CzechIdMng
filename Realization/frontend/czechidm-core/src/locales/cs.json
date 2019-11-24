@@ -574,7 +574,8 @@
           "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
           "AUTOMATIC-ROLE-TREE-SELECT": "Výběr automatické role dle stromové struktury (SelectBox)",
           "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Výběr automatické role dle atributu (SelectBox)",
-          "OPERATION-STATE-ENUM": "Stav operace"
+          "OPERATION-STATE-ENUM": "Stav operace",
+          "WORKFLOW-DEFINITION-SELECT": "Výběr definice workflow (SelectBox)"
         },
         "attributes": {
           "empty": "Definice dalších atributů byla nalezena, ale neobsahuje žádné položky, které by bylo možné číst či editovat."
@@ -5277,6 +5278,36 @@
           }
         }
       },
+      "core-delete-notification-long-running-task": {
+        "label": "Smazat notifikace",
+        "help": "Vymaže notifikace starší, nežli zadaný počet dní.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Počet dní",
+            "help": "Smazat notifikace starší, než-li zadaný počet dní."
+          },
+          "sentonly": {
+            "label": "Pouze odeslané notifikace",
+            "help": "Smazat odeslané notifikace. Jinak se vymaží notifikace bez ohledu na stav odeslání."
+          }
+        }
+      },
+      "core-delete-workflow-historic-instance-long-running-task": {
+        "label": "Smazat historické workflow procesy",
+        "help": "Vymaže historické workflow procesy, nežli zadaný počet dní dané definice workflow.",
+        "icon": "fa:trash",
+        "attributes": {
+          "numberofdays": {
+            "label": "Počet dní",
+            "help": "Smazat historické workflow procesy starší, než-li zadaný počet dní."
+          },
+          "processdefinitionkey": {
+            "label": "Definice workflow",
+            "help": "Smazat historické workflow procesy pouze s touto definicí."
+          }
+        }
+      },
       "core-add-new-automatic-role-contract-long-running-task": {
         "label": "Přepočítat automatickou roli dle stromové struktury pro kontrakty",
         "help": "Přiřadí role pro uživatele s kontraktem vyhovující zadané automatické roli dle stromové struktury.",
@@ -5608,6 +5639,10 @@
     "LONG_RUNNING_TASK_IS_RUNNING": {
       "title": "Úloha již je spuštěna",
       "message": "Úloha [{{taskId}}] již je spuštěna - nelze ji spustit dvakrát."
+    },
+    "LONG_RUNNING_TASK_DELETE_FAILED_IS_RUNNING": {
+      "title": "Úloha již je spuštěna",
+      "message": "Úloha již je spuštěna - nelze ji odebrat. Před odebráním počejte na dokončení úlohy nebo úlohu zrušte."
     },
     "FOREST_INDEX_DISABLED": {
       "title": "Index je vypnutý",

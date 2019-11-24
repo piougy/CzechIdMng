@@ -38,9 +38,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
@@ -49,7 +47,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContra
 
 /**
  * Manager for contract slices
- * 
+ *
  * @author svandav
  *
  */
@@ -99,8 +97,6 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 				new IdentityContractEvent(isNew ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
 						contract, ImmutableMap.copyOf(eventProperties)))
 				.getContent();
-		// Copy values of extended attributes
-		copyExtendedAttributes(slice, savedContract);
 
 		// Copy guarantees
 		copyGuarantees(slice, savedContract);
@@ -113,7 +109,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	 * contract lover then contract valid till (plus protection interval) on given
 	 * slice, then contract will does not terminated (his valid till will be sets by
 	 * valid from on next slice)
-	 * 
+	 *
 	 * @param slice
 	 * @param contract
 	 * @param protectionInterval
@@ -122,7 +118,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 			int protectionInterval) {
 		Assert.notNull(contract, "Contract is required.");
 		Assert.notNull(contract.getId(), "Contract identifier is required.");
-		
+
 		List<IdmContractSliceDto> slices = this.findAllSlices(contract.getId());
 		IdmContractSliceDto nextSlice = this.findNextSlice(slice, slices);
 		if (nextSlice == null) {
@@ -142,7 +138,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 				.between( //
 						java.time.LocalDate.parse(slice.getContractValidTill().toString()), //
 						java.time.LocalDate.parse(nextSlice.getContractValidFrom().toString()));
-		
+
 		// Diff is not positive, it means valid from of contract in next slice is less then
 		// till of contract in current slice. We will do nothing.
 		if (diffInDays <= 0) {
@@ -303,7 +299,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	/**
 	 * Convert slice to the contract (does not save changes)
-	 * 
+	 *
 	 * @param slice
 	 * @param contract
 	 * @param validFrom
@@ -324,31 +320,9 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 		contract.setDescription(slice.getDescription());
 		contract.setValidFrom(slice.getContractValidFrom());
 		contract.setValidTill(slice.getContractValidTill());
-	}
 
-	/**
-	 * Copy (clone) of attribute values from slice to contract
-	 * 
-	 * @param slice
-	 * @param contract
-	 */
-	private void copyExtendedAttributes(IdmContractSliceDto slice, IdmIdentityContractDto contract) {
-		Assert.notNull(contract, "Contract is required.");
-		Assert.notNull(contract.getId(), "Contract identifier is required.");
-		Assert.notNull(slice, "Contract slice is required.");
-		Assert.notNull(slice.getId(), "Contract slice identifier is required.");
-		// TODO: all definitions should be copied - fix acc sync, i don't know why IdentityContractSyncTest fails ... (RT)
 		IdmFormDefinitionDto definition = formService.getDefinition(contract.getClass());
-		// delete all current values
-		formService.deleteValues(contract, definition);
-		// copy all values from slice to contract 
-		// Load extended values for this slice
-		List<IdmFormValueDto> sliceValues = formService.getValues(slice, definition);
-		sliceValues.forEach(value -> {
-			DtoUtils.clearAuditFields(value);
-			value.setId(null);
-		});
-		formService.saveValues(contract, definition, sliceValues);
+		formService.mergeValues(definition, slice, contract);
 	}
 
 	@Transactional
@@ -414,7 +388,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	@Override
 	public void recalculateContractSlice(IdmContractSliceDto slice, IdmContractSliceDto originalSlice, Map<String, Serializable> eventProperties) {
-		
+
 		boolean forceRecalculateCurrentUsingSlice = false;
 		Object forceRecalculateCurrentUsingSliceAsObject = eventProperties.get(IdmContractSliceService.FORCE_RECALCULATE_CURRENT_USING_SLICE);
 		if (forceRecalculateCurrentUsingSliceAsObject == null) {
@@ -591,7 +565,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	/**
 	 * Recalculate valid till on given slice and on previous slice
-	 * 
+	 *
 	 * @param slice
 	 * @param slices
 	 */
@@ -610,7 +584,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 
 	/**
 	 * Save slice without recalculate ... it means with skip this processor
-	 * 
+	 *
 	 * @param slice
 	 */
 	private void saveWithoutRecalculate(IdmContractSliceDto slice) {
@@ -621,7 +595,7 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	/**
 	 * Create or link contract from the slice or create relation on the exists
 	 * contract
-	 * 
+	 *
 	 * @param slice
 	 * @return
 	 */

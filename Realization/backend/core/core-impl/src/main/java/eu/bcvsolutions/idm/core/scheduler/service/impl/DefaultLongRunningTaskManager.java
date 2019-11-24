@@ -9,6 +9,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -30,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.ecm.entity.IdmAttachment;
@@ -129,11 +132,26 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// run as system - called from scheduler internally
 		securityService.setSystemAuthentication();
 		//
+		Set<String> processedTaskTypes = Sets.newHashSet();
 		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
 		service.findAllByInstance(instanceId, OperationState.CREATED).forEach(task -> {
-			LongRunningFutureTask<?> futureTask = processCreated(task.getId());
-			if (futureTask != null) {
-				taskList.add(futureTask);
+			String taskType = task.getTaskType();
+			if (!processedTaskTypes.contains(taskType)) {
+				try {
+					LongRunningFutureTask<?> futureTask = processCreated(task.getId());
+					if (futureTask != null) {
+						taskList.add(futureTask);
+						// prevent to persisted task starts twice
+						if (AutowireHelper.getTargetClass(futureTask.getExecutor()).isAnnotationPresent(DisallowConcurrentExecution.class)) {
+							processedTaskTypes.add(taskType);
+						}
+					}
+				} catch (ResultCodeException ex) {
+					// we want to process other task, if some task fails and log just once
+					processedTaskTypes.add(taskType);
+					// we want to know in log, some scheduled task is not complete before next execution attempt
+					ExceptionUtils.log(LOG, ex);
+				}
 			}
 		});
 		return taskList;

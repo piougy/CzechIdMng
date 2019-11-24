@@ -96,13 +96,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('successComplete', { name: task.name }) });
-    // TODO: fix me, both branches are called
-    if (this.context.history.goBack()) {
-      // nothig, router just can go back
-    } else {
-      // transmition to /task, history doesnt exist
-      this.context.history.push(`/tasks/identity/${task.variables.implementerIdentifier}`);
-    }
+    // transmition to /tasks
+    // goBack not working in Firefox!!!
+    this.context.history.push(`/tasks/identity/${ task.variables.implementerIdentifier }`);
   }
 
   _getApplicantAndRequester(task) {

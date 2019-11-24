@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
- * Delete entity events from queue integration test
+ * Delete entity events from queue integration test.
  * 
  * @author Radek Tomiška
  *
@@ -85,7 +85,7 @@ public class LongRunningTaskDeleteBulkActionIntegrationTest extends AbstractBulk
 			IdmLongRunningTaskDto dto = new IdmLongRunningTaskDto();
 			dto.setTaskType("mock");
 			dto.setInstanceId("mock");
-			dto.setResult(new OperationResult(OperationState.CREATED));
+			dto.setResult(new OperationResult(OperationState.BLOCKED));
 			//
 			results.add(service.save(dto));
 		}

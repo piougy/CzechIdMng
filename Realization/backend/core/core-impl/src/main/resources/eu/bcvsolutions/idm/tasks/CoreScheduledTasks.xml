@@ -1,16 +1,16 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
-<!-- 
-/** 
+<!--
+/**
   * XML with core scheduled tasks.
   *
-  * @author Ondrej Kopr 
-  * 
-  * 
-  **/ 
+  * @author Ondrej Kopr
+  *
+  *
+  **/
 -->
 <tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="IdmTasks.xsd">
-	
+
 	<task>
 		<description>Recalculate current using slices as contract. Find all slices which should be for actual date using as contract and copy their values to parent contracts.</description>
 		<instanceId>idm-primary</instanceId>
@@ -21,16 +21,16 @@
 				<value>idm-primary</value>
 			</parameter>
 		</parameters>
-		
+
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 30 0 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
-		</triggers>		
+		</triggers>
 	</task>
-	
+
 	<task>
 		<description>Remove roles by expired identity contracts (=> removes assigned roles).</description>
 		<instanceId>idm-primary</instanceId>
@@ -41,16 +41,16 @@
 				<value>idm-primary</value>
 			</parameter>
 		</parameters>
-		
+
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 0 1 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
-		</triggers>		
+		</triggers>
 	</task>
-	
+
 	<task>
 		<description>Remove expired roles.</description>
 		<instanceId>idm-primary</instanceId>
@@ -61,16 +61,16 @@
 				<value>idm-primary</value>
 			</parameter>
 		</parameters>
-		
+
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 15 1 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
-		</triggers>		
+		</triggers>
 	</task>
-	
+
 	<task>
 		<description>Start of assigned role's validity.</description>
 		<instanceId>idm-primary</instanceId>
@@ -81,16 +81,16 @@
 				<value>idm-primary</value>
 			</parameter>
 		</parameters>
-		
+
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 30 1 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
-		</triggers>		
+		</triggers>
 	</task>
-	
+
 	<task>
 		<description>Start of contract's validity.</description>
 		<instanceId>idm-primary</instanceId>
@@ -101,16 +101,16 @@
 				<value>idm-primary</value>
 			</parameter>
 		</parameters>
-		
+
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 45 1 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
-		</triggers>		
+		</triggers>
 	</task>
-	
+
 	<task>
 		<description>Default</description>
 		<instanceId>idm-primary</instanceId>
@@ -121,7 +121,7 @@
 		<instanceId>idm-primary</instanceId>
 		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess</taskType>
 	</task>
-	
+
 	<task>
 		<description>Delete executed entity events.</description>
 		<instanceId>idm-primary</instanceId>
@@ -136,16 +136,16 @@
 				<value>3</value>
 			</parameter>
 		</parameters>
-		
+
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 0 2 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
-		</triggers>		
+		</triggers>
 	</task>
-	
+
 	<task>
 		<description>Delete old logs from event logging tables (events, eventException and eventProperty).</description>
 		<instanceId>idm-primary</instanceId>
@@ -160,18 +160,18 @@
 				<value>90</value>
 			</parameter>
 		</parameters>
-		
+
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 5 2 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
-		</triggers>		
+		</triggers>
 	</task>
-	
+
 	<task>
-		<description>Delete old long running tasks.</description>
+		<description>Delete old executed long running tasks.</description>
 		<instanceId>idm-primary</instanceId>
 		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.DeleteLongRunningTaskExecutor</taskType>
 		<parameters>
@@ -188,16 +188,44 @@
 				<value>EXECUTED</value>
 			</parameter>
 		</parameters>
-		
+
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 20 2 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
-		</triggers>		
+		</triggers>
 	</task>
-	
+
+	<task>
+		<description>Delete old sent notifications.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.DeleteNotificationTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+			<parameter>
+				<key>numberOfDays</key>
+				<value>180</value>
+			</parameter>
+			<parameter>
+				<key>sentOnly</key>
+				<value>true</value>
+			</parameter>
+		</parameters>
+
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 25 2 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>
+	</task>
+
 	<task>
 		<description>Send notification for user after password expired and publish PASSWORD_EXPIRED event.</description>
 		<instanceId>idm-primary</instanceId>
@@ -208,13 +236,13 @@
 				<value>idm-primary</value>
 			</parameter>
 		</parameters>
-		
+
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
 				<cron>0 5 0 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
-		</triggers>		
+		</triggers>
 	</task>
 </tasks>

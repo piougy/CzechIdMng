@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationClassProperty;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -404,7 +405,7 @@ public class DefaultFormService implements FormService {
 		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
 		// check permissions - check access to filled form values
 		event.setPermission(permission);
-		// publish event for save form instance
+		// publish event for save form instance - see {@link #saveFormInstance(EntityEvent<IdmFormInstanceDto>)}
 		return entityEventManager.process(event).getContent();
 	}
 	
@@ -853,7 +854,7 @@ public class DefaultFormService implements FormService {
 		List<IdmFormValueDto> values = formValueService.getValues(ownerEntity, formDefinition, permission);
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(ownerEntity, formDefinition, values);
 		//
-		// evaluate permissions for form definition attributes by values - change attribute properties ao remove attribute at all
+		// evaluate permissions for form definition attributes by values - change attribute properties or remove attribute at all
 		if (!ObjectUtils.isEmpty(permissions)) {
 			Set<UUID> checkedAttributes = new HashSet<>(values.size());
 			for(IdmFormValueDto value : values) {
@@ -1127,6 +1128,45 @@ public class DefaultFormService implements FormService {
 					"FormValueService for class [{0}] not found, please check configuration", ownerType));
 		}
 		return formValueService;
+	}
+	
+	@Override
+	public void mergeValues(IdmFormDefinitionDto definition, FormableDto source, FormableDto target) {
+		IdmFormInstanceDto formInstance = this.getFormInstance(source, definition);
+		this.refillDeletedAttributeValue(formInstance);
+		
+		target.getEavs().clear();
+		target.getEavs().add(formInstance);
+	}
+	
+	/**
+	 * Form instance must contains delete attribute (with empty value). Without it
+	 * could be form values not deleted.
+	 * 
+	 * @param formInstance
+	 */
+	private void refillDeletedAttributeValue(IdmFormInstanceDto formInstance) {
+		Assert.notNull(formInstance, "Form instance is required.");
+		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
+		Assert.notNull(formDefinition, "Form definition is required.");
+		//
+		formDefinition
+			.getFormAttributes()
+			.stream()
+			.forEach(formAttribute -> { //
+				List<IdmFormValueDto> values = formInstance.getValues();
+				boolean valueExists = values //
+						.stream() //
+						.filter(formValue -> formAttribute.getId().equals(formValue.getFormAttribute())) //
+						.findFirst() //
+						.isPresent();
+				if (!valueExists) {
+					ArrayList<IdmFormValueDto> newValues = Lists.newArrayList(values);
+					IdmFormValueDto deletedValue = new IdmFormValueDto(formAttribute);
+					newValues.add(deletedValue);
+					formInstance.setValues(newValues);
+				}
+			});
 	}
 	
 

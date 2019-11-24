@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -23,6 +25,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog_;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
@@ -93,7 +96,10 @@ public class DeleteNotificationTaskExecutor
 		if (numberOfDays > 0) {
 			filter.setTill(DateTime.now().withTimeAtStartOfDay().minusDays(numberOfDays));
 		}
-		return service.find(filter, new PageRequest(0, pageable.getPageSize())); // new pageable is given => records are deleted and we need the first page all time
+		return service.find(
+				filter, 
+				new PageRequest(0, pageable.getPageSize(), new Sort(Direction.ASC, IdmNotificationLog_.parent.getName()))
+				); // new pageable is given => records are deleted and we need the first page all time
 	}
 
 	@Override

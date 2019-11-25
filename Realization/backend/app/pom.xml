@@ -208,7 +208,7 @@
 								</goals>
 								<phase>generate-resources</phase>
 								<configuration>
-									<arguments>build -p ${frontend.profile} -s ${frontend.stage}</arguments>
+									<arguments>build -p default -s production</arguments>
 									<workingDirectory>../../frontend/czechidm-app</workingDirectory>
 									<installDirectory>target</installDirectory>
 								</configuration>
@@ -275,34 +275,6 @@
 					<version>${project.version}</version>
 				</dependency>
 			</dependencies>
-		</profile>
-
-		<!-- Due portability of maven build among different OSs we need to distinguish
-			scripts for windows/unix. Profiles are activated automaticaly based on OS -->
-		<profile>
-			<id>Windows</id>
-			<activation>
-				<os>
-					<family>Windows</family>
-				</os>
-			</activation>
-			<properties>
-				<!--TODO make windows script of linux modules-link-or-skip -->
-				<script.environment />
-			</properties>
-		</profile>
-		<profile>
-			<id>unix</id>
-			<activation>
-				<os>
-					<family>unix</family>
-				</os>
-			</activation>
-			<properties>
-				<script.environment>modules-link-or-skip</script.environment>
-				<frontend.stage>production</frontend.stage>
-				<frontend.profile>default</frontend.profile>
-			</properties>
 		</profile>
 	</profiles>
 </project>

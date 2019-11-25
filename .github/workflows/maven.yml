@@ -18,3 +18,8 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file Realization/backend/aggregator/pom.xml -Prelease -DdocumentationOnly=true
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: idm.war
+        path: Realization/backend/aggregator/target

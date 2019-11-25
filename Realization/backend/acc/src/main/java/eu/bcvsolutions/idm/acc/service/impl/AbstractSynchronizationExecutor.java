@@ -227,7 +227,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		log.setSynchronizationConfig(config.getId());
 		log.setStarted(LocalDateTime.now());
 		log.setRunning(true);
-		log.setToken(lastToken != null ? lastToken.toString() : null);
+		log.setToken(lastToken != null ? lastToken : null);
 		log = syncStarted(log, context);
 
 		// List of all accounts keys (used in reconciliation)

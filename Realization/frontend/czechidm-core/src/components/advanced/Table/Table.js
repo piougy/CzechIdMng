@@ -910,7 +910,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             break;
           }
           default: {
-            this.getLogger().trace('[AdvancedTable] usind default for column face [' + column.props.face + ']');
+            this.getLogger().trace(`[AdvancedTable] usind default for column face [${ column.props.face }]`);
           }
         }
       }

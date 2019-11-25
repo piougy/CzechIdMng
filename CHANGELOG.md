@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - [#1933](https://redmine.czechidm.com/issues/1933) - LRT ``DeleteNotificationTaskExecutor`` was created and scheduled by default to remove old sent notifications (``sent`` notifications older than 180 days will be removed by default schedule). Delete notificationa is possible now (new permission ``NOTIFICATION_DELETE`` is needed).
 - [#1934](https://redmine.czechidm.com/issues/1934) - LRT ``DeleteSynchronizationLogTaskExecutor`` was created and scheduled by default to remove old synchronization logs (logs older than 180 days will be removed by default schedule).
 - [#1413](https://redmine.czechidm.com/issues/1413) - Implemented merging of EAVs from slices to contract. Beware, only EAVs with changed value will be updated now.
+- [#1932](https://redmine.czechidm.com/issues/1932) - LRT ``RemoveOldLogsTaskExecutor`` was scheduled by default to remove old logs (logs older than 90 days will be removed by default schedule).
 
 ## [9.7.9]
 

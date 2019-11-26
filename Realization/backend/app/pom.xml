@@ -111,6 +111,31 @@
 			<build>
 				<finalName>idm</finalName>
 				<plugins>
+					<!-- remove node_modules, because is there circular folder reference -->
+					<plugin>
+						<artifactId>maven-clean-plugin</artifactId>
+						<version>3.0.0</version>
+						<executions>
+							<execution>
+								<id>clean-node-modules</id>
+								<phase>clean</phase>
+								<goals>
+									<goal>clean</goal>
+								</goals>
+								<configuration>
+									<excludeDefaultDirectories>true</excludeDefaultDirectories>
+									<filesets>
+										<fileset>
+											<directory>../../frontend/czechidm-app/node_modules</directory>
+											<includes>
+												<include>**</include>
+											</includes>
+										</fileset>
+									</filesets>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>
 						<version>3.0.1</version>

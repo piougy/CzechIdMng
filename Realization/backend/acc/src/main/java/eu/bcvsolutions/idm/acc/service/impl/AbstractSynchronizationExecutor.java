@@ -130,7 +130,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
  * Abstract executor for do synchronization and reconciliation
- * 
+ *
  * @author svandav
  *
  */
@@ -182,7 +182,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	protected ProvisioningConfiguration provisioningConfiguration;
 	@Autowired
 	private ProcessEngine processEngine;
-	
+
 	@Autowired(required = false)
 	private CacheManager cacheManager;
 	// Instance of LRT
@@ -190,7 +190,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Returns entity type for this synchronization executor
-	 * 
+	 *
 	 * @return
 	 */
 	protected SystemEntityType getEntityType() {
@@ -226,7 +226,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		log.setSynchronizationConfig(config.getId());
 		log.setStarted(ZonedDateTime.now());
 		log.setRunning(true);
-		log.setToken(lastToken != null ? lastToken.toString() : null);
+		log.setToken(lastToken != null ? lastToken : null);
 		log = syncStarted(log, context);
 
 		// List of all accounts keys (used in reconciliation)
@@ -307,7 +307,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Method called after sync correctly ended.
-	 * 
+	 *
 	 * @param log
 	 * @param context
 	 */
@@ -370,9 +370,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					context.addActionType(action);
 					SynchronizationSituationType situation = SynchronizationSituationType.LINKED;
 
-					// Since removing 'Wish' can affect existing identities and provisioning of their accounts, 
+					// Since removing 'Wish' can affect existing identities and provisioning of their accounts,
 					// we will not do it if Ignore is set or if anything else than "update" is configured
-					if (linkedAction == SynchronizationLinkedActionType.UPDATE_ENTITY 
+					if (linkedAction == SynchronizationLinkedActionType.UPDATE_ENTITY
 							|| linkedAction == SynchronizationLinkedActionType.UPDATE_ACCOUNT) {
 						systemEntity = removeSystemEntityWishIfPossible(systemEntity, true, context);
 						context.addSystemEntity(systemEntity);
@@ -425,7 +425,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Resolve "Account doesn't exist in IDM" situation. Result can be UNLINKED or
 	 * UNMATCHED situations.
-	 * 
+	 *
 	 * @param context
 	 * @param systemEntity
 	 * @param icAttributes
@@ -477,7 +477,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Handle IC connector object
-	 * 
+	 *
 	 * @param tokenAttribute
 	 * @param itemContext
 	 * @return
@@ -531,7 +531,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Main method for synchronization item. This method is call form "custom
 	 * filter" and "connector sync" mode.
-	 * 
+	 *
 	 * @param uid
 	 * @param icObject
 	 * @param type
@@ -609,7 +609,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Start reconciliation. Is call after synchronization. Main purpose is find and
 	 * resolve missing accounts
-	 * 
+	 *
 	 * @param entityType
 	 * @param systemAccountsMap
 	 * @param config
@@ -687,7 +687,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Start export item (entity) to target resource
-	 * 
+	 *
 	 * @param context
 	 * @param uidAttribute
 	 * @param entity
@@ -768,7 +768,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Validate synchronization on: Exist, enable, running, has mapping, has
 	 * connector key, has connector configuration
-	 * 
+	 *
 	 * @param synchronizationConfigId
 	 * @return
 	 */
@@ -837,7 +837,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Compile filter for search from filter attribute and filter script
-	 * 
+	 *
 	 * @param config
 	 * @return
 	 */
@@ -1064,7 +1064,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					log, actionLogs);
 			return;
 		case LINK_AND_UPDATE_ENTITY:
-			// Could be update of entity skipped? 
+			// Could be update of entity skipped?
 			context.addSkipEntityUpdate(skipEntityUpdate(entity, context));
 			// Update entity without provisioning
 			context.addSkipProvisioning(true);
@@ -1130,7 +1130,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Call provisioning for given account
-	 * 
+	 *
 	 * @param account
 	 * @param entityType
 	 * @param log
@@ -1158,7 +1158,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Check if is supported provisioning for given entity type.
-	 * 
+	 *
 	 * @param entityType
 	 * @param logItem
 	 * @return
@@ -1173,7 +1173,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Call provisioning for given account
-	 * 
+	 *
 	 * @param entity
 	 * @param entityType
 	 * @param logItem
@@ -1184,7 +1184,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Create new instance of ACC account
-	 * 
+	 *
 	 * @param uid
 	 * @param system
 	 * @return
@@ -1200,7 +1200,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Create and persist new entity by data from IC attributes
-	 * 
+	 *
 	 * @param entityType
 	 * @param mappedAttributes
 	 * @param logItem
@@ -1244,7 +1244,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Create instance of relation between account and sync entity. Create and fill
 	 * relation instance. Do not persist she.
-	 * 
+	 *
 	 * @param account
 	 * @param entity
 	 * @param context
@@ -1261,7 +1261,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Fill data from IC attributes to entity (EAV and confidential storage too)
-	 * 
+	 *
 	 * @param account
 	 * @param entityType
 	 * @param uid
@@ -1285,7 +1285,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		List<SysSystemAttributeMappingDto> mappedAttributes = context.getMappedAttributes();
 		AccAccountDto account = context.getAccount();
 		List<IcAttribute> icAttributes = context.getIcObject().getAttributes();
-		
+
 		// Find entity ID, first try entity ID in the context then load by account
 		UUID entityId = context.getEntityId();
 		if (entityId == null && account != null) {
@@ -1329,7 +1329,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Add message to logItem. Add timestamp.
-	 * 
+	 *
 	 * @param logItem
 	 * @param text
 	 */
@@ -1352,7 +1352,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Operation remove entity account relations and linked roles
-	 * 
+	 *
 	 * @param account
 	 * @param removeIdentityRole
 	 * @param log
@@ -1389,7 +1389,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Log exception to SyncLog and SyncItemLog, do init syncActionLog
-	 * 
+	 *
 	 * @param synchronizationActionType
 	 * @param log
 	 * @param logItem
@@ -1410,7 +1410,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Find entity by correlation attribute
-	 * 
+	 *
 	 * @param attribute
 	 * @param entityType
 	 * @param icAttributes
@@ -1457,14 +1457,14 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Return specific correlation filter
-	 * 
+	 *
 	 * @return
 	 */
 	protected abstract CorrelationFilter getEntityFilter(SynchronizationContext context);
 
 	/**
 	 * Find all records
-	 * 
+	 *
 	 * @return
 	 */
 	protected List<DTO> findAll() {
@@ -1473,7 +1473,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Find by identifier
-	 * 
+	 *
 	 * @param entityId
 	 * @return
 	 */
@@ -1483,22 +1483,22 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Find dto by idm attribute
-	 * 
+	 *
 	 * @param idmAttributeName
 	 * @param value
-	 * @param context 
+	 * @param context
 	 * @return
 	 */
 	protected DTO findByAttribute(String idmAttributeName, String value, SynchronizationContext context) {
 		CorrelationFilter filter = this.getEntityFilter(context);
 		filter.setProperty(idmAttributeName);
 		filter.setValue(value);
-		
+
 		@SuppressWarnings("unchecked")
 		ReadWriteDtoService<DTO, BaseFilter> service = (ReadWriteDtoService<DTO, BaseFilter>) getService();
-		
+
 		List<DTO> entities = service.find((BaseFilter)filter, (Pageable)null).getContent();
-		
+
 		if (CollectionUtils.isEmpty(entities)) {
 			return null;
 		}
@@ -1524,7 +1524,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Fill entity with attributes from IC module (by mapped attributes).
-	 * 
+	 *
 	 * @param mappedAttributes
 	 * @param uid
 	 * @param icAttributes
@@ -1567,7 +1567,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Update extended attribute for given entity. Entity must be persisted first.
-	 * 
+	 *
 	 * @param mappedAttributes
 	 * @param uid
 	 * @param icAttributes
@@ -1633,7 +1633,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Update confidential attribute for given entity. Entity must be persisted
 	 * first.
-	 * 
+	 *
 	 * @param mappedAttributes
 	 * @param uid
 	 * @param icAttributes
@@ -1675,7 +1675,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Return true if can be value set to this entity for this mapped attribute.
-	 * 
+	 *
 	 * @param uid
 	 * @param attribute
 	 * @param entity
@@ -1803,9 +1803,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * Generate UID value from mapped attribute marked as UID (Unique ID). UID
 	 * mapped attribute must exist and returned value must be not null and must be
 	 * String.
-	 * 
+	 *
 	 * If is generated UID in the context, then will used.
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -1894,7 +1894,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * Start workflow process by wfDefinitionKey. Create input variables and put
 	 * them to the process. If log variable is present after the process started,
 	 * then add the log to the synchronization log.
-	 * 
+	 *
 	 * @param wfDefinitionKey
 	 * @param uid
 	 * @param situation
@@ -1949,7 +1949,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			addToItemLog(logItem, MessageFormat.format("Workflow (with id {0}) for missing entity situation ended.",
 					processInstance.getId()));
 			initSyncActionLog(situation.getAction(), OperationResultType.WF, logItem, log, actionLogs);
-			
+
 			// We don't wont history for workflow executed in synchronization!
 			processEngine.getHistoryService().deleteHistoricProcessInstance(processInstance.getId());
 			addToItemLog(logItem, MessageFormat.format("Workflow history for process instance [{0}] was deleted.",
@@ -1970,7 +1970,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Init sync action log
-	 * 
+	 *
 	 * @param actionType
 	 * @param resultType
 	 * @param logItem
@@ -1984,7 +1984,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Init sync action log
-	 * 
+	 *
 	 * @param actionType
 	 * @param resultType
 	 * @param logItem
@@ -2042,7 +2042,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Find entity by account
-	 * 
+	 *
 	 * @param account
 	 * @param log
 	 * @param logItem
@@ -2068,7 +2068,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Find account ID by entity ID
-	 * 
+	 *
 	 * @param entityId
 	 * @param systemId
 	 * @return
@@ -2092,7 +2092,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Create account and relation on him
-	 * 
+	 *
 	 * @param uid
 	 * @param callProvisioning
 	 * @param dto
@@ -2185,7 +2185,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Delete entity linked with given account
-	 * 
+	 *
 	 * @param account
 	 * @param entityType
 	 * @param log
@@ -2239,7 +2239,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Update (increased counter) and check state of sync (maybe was cancelled from
 	 * sync or LRT)
-	 * 
+	 *
 	 * @param result
 	 * @param log
 	 */
@@ -2260,7 +2260,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Default implementation of {@link IcResultsHandler}
-	 * 
+	 *
 	 * @author svandav
 	 *
 	 */
@@ -2296,7 +2296,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Default implementation of {@link IcSyncResultsHandler}
-	 * 
+	 *
 	 * @author svandav
 	 *
 	 */
@@ -2352,7 +2352,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Save DTO
-	 * 
+	 *
 	 * @param dto
 	 * @param skipProvisioning
 	 * @param context
@@ -2363,7 +2363,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Update account UID from system. UID mapped attribute must exist and returned
 	 * value must be not null and must be String
-	 * 
+	 *
 	 * @param logItem
 	 * @param account
 	 * @param mappedAttributes
@@ -2391,7 +2391,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * Method return Pair with left side contains action log that contains given
 	 * item log from parameter. And right side contains instance of item log from
 	 * action log.
-	 * 
+	 *
 	 * @param actionsLog
 	 * @param itemLog
 	 * @return
@@ -2411,7 +2411,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Method iterate over actionsLg given in parameter. And search itemLog in each
 	 * actionLog.
-	 * 
+	 *
 	 * @param actionsLog
 	 * @param itemLog
 	 * @return
@@ -2429,7 +2429,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Save action logs
-	 * 
+	 *
 	 * @param actionsLog
 	 * @return
 	 */
@@ -2442,7 +2442,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Skip entity update
-	 * 
+	 *
 	 * @param entity
 	 * @param context
 	 * @return

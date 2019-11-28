@@ -141,13 +141,15 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
   }
 
   _schemaAttributeChange(value) {
+    let passwordSelected = false;
     if (value && value.name === PASSWORD_ATTRIBUTE) {
-      this.refs.passwordAttribute.setValue(true);
-      // Set info alert for password attribute
-      this.setState({
-        passwordAttribute: true
-      });
+      passwordSelected = true;
     }
+    this.refs.passwordAttribute.setValue(passwordSelected);
+    // Set info alert for password attribute
+    this.setState({
+      passwordAttribute: passwordSelected
+    });
 
     if (!this.refs.name.getValue()) {
       this.refs.name.setValue(value.name);
@@ -242,7 +244,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     ref="systemMapping"
                     manager={systemMappingManager}
                     label={this.i18n('acc:entity.SystemAttributeMapping.systemMapping')}
-                    readOnly
+                    readOnly={_isDisabled}
                     required/>
                   <Basic.SelectBox
                     ref="schemaAttribute"
@@ -250,12 +252,14 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     forceSearchParameters={forceSearchParameters}
                     onChange={this._schemaAttributeChange.bind(this)}
                     label={this.i18n('acc:entity.SystemAttributeMapping.schemaAttribute')}
+                    readOnly={_isDisabled}
                     required
                     pageSize={ Domain.SearchParameters.MAX_SIZE }/>
                   <Basic.TextField
                     ref="name"
                     label={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
                     helpBlock={this.i18n('acc:entity.SystemAttributeMapping.name.help')}
+                    readOnly={_isDisabled}
                     required
                     max={255}/>
                   <Basic.EnumSelectBox
@@ -263,6 +267,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     enum={AttributeMappingStrategyTypeEnum}
                     onChange={this._strategyTypeChange.bind(this)}
                     label={this.i18n('acc:entity.SystemAttributeMapping.strategyType')}
+                    readOnly={_isDisabled}
                     required/>
                   <Basic.Checkbox
                     ref="sendAlways"
@@ -321,21 +326,25 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                   <Basic.Checkbox
                     ref="authenticationAttribute"
                     label={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.help')}/>
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.help')}
+                    readOnly={_isDisabled}/>
                   <Basic.Checkbox
                     ref="sendOnPasswordChange"
                     label={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.help')}/>
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.sendOnPasswordChange.help')}
+                    readOnly={_isDisabled}/>
                   <Basic.Checkbox
                     ref="passwordAttribute"
                     hidden={isSynchronization}
                     onChange={this._checkboxChanged.bind(this, 'passwordAttribute', null)}
                     label={this.i18n('acc:entity.SystemAttributeMapping.passwordAttribute.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.passwordAttribute.help')}/>
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.passwordAttribute.help')}
+                    readOnly={_isDisabled}/>
                   <Basic.Checkbox
                     ref="cached"
                     label={this.i18n('acc:entity.SystemAttributeMapping.cached.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.cached.help', { escape: false })}/>
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.cached.help', { escape: false })}
+                    readOnly={_isDisabled}/>
                   <Basic.LabelWrapper label=" ">
                     <Basic.Alert
                       rendered={_showNoRepositoryAlert && !passwordAttribute}
@@ -357,7 +366,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     headerText={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScriptSelectBox.label')}
                     label={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.label')}
                     helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.help')}
-                    scriptManager={scriptManager} />
+                    scriptManager={scriptManager}
+                    readOnly={_isDisabled}/>
                   <Advanced.ScriptArea
                     ref="transformToResourceScript"
                     rendered={!isMerge}
@@ -366,7 +376,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
                     helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help')}
                     label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.label')}
-                    scriptManager={scriptManager} />
+                    scriptManager={scriptManager}
+                    readOnly={_isDisabled}/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
                   <Basic.Button

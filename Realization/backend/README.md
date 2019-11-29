@@ -5,6 +5,7 @@ Java application deployable to Tomcat 9 application server.
 ## Requirements
 
 * Install `JDK`, tested versions:
+  * `jdk-1.8.0_211`
   * `jdk-11.0.2`
   * `openjdk 11.0.4.11`
 * Install `maven` - at least version `3.1` is required
@@ -24,7 +25,8 @@ Java application deployable to Tomcat 9 application server.
 ### Application modules [optional]
 * `acc` - Account management module
 * `rpt` - Report module
-* `module-example` - Example application module / skeleton
+* `example` - Example application module / skeleton
+* `tool` - various utilities for release product
 
 ### Maven modules [optional]
 * `module-aggregator` - complex builder of all modules
@@ -36,12 +38,12 @@ Build all mandatory project modules in order above (`mvn clean install`) + deplo
 The quickest way, how to build whole backend application, is to use `module-aggreagator`. In module-aggreagator folder, where pom.xml is located run command:
 
 ```
-mvn clean install
+mvn clean install -DskipTests
 ```
 or
 
 ```
-mvn clean install -Prelease
+mvn clean install -Prelease -DdocumentationOnly=true
 ```
 which build whole application - backend and frontend in one `idm.war` file (require gulp installation - see [frontend installation guide](../frontend/README.txt)).
 Deploy `idm.war` package is the same as above.

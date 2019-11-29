@@ -1,40 +1,34 @@
 {
-  "name": "czechidm-core",
-  "version": "10.0.0-snapshot",
-  "description": "Core module for CzechIdM",
-  "main": "index.js",
-  "scripts": {
-    "test": "npm run tests-set",
-    "test-lint": "npm run lint && npm run tests-set",
-    "tests-set": "mocha ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js",
-    "lint": "eslint ./",
-    "test-watch": "mocha --watch ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js"
+  "name" : "czechidm-core",
+  "version" : "10.0.0-snapshot",
+  "description" : "Core module for CzechIdM",
+  "main" : "index.js",
+  "scripts" : {
+    "test" : "npm run tests-set",
+    "test-lint" : "npm run lint && npm run tests-set",
+    "tests-set" : "mocha ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js",
+    "lint" : "eslint ./",
+    "test-watch" : "mocha --watch ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js"
   },
-  "keywords": [
-    "CzechIdM",
-    "core",
-    "IdM"
-  ],
-  "author": "BCV solutions s.r.o",
-  "license": "MIT",
-  "publishConfig": {
-    "registry": "http://nexus.bcvsolutions.eu/repository/npm-private/"
+  "keywords" : [ "CzechIdM", "core", "IdM" ],
+  "author" : "BCV solutions s.r.o",
+  "license" : "MIT",
+  "publishConfig" : {
+    "registry" : "http://nexus.bcvsolutions.eu/repository/npm-private/"
   },
-  "bugs": {
-    "url": "https://redmine.czechidm.com/projects/czechidmng"
+  "bugs" : {
+    "url" : "https://redmine.czechidm.com/projects/czechidmng"
   },
-  "homepage": "http://www.bcvsolutions.eu/",
-  "stringify": {
-    "appliesTo": {
-      "includeExtensions": [
-        ".md"
-      ]
+  "homepage" : "http://www.bcvsolutions.eu/",
+  "stringify" : {
+    "appliesTo" : {
+      "includeExtensions" : [ ".md" ]
     },
-    "minify": true
+    "minify" : true
   },
-  "dependencies": {
-    "github-markdown-css": "2.2.1",
-    "react-datetime": "2.2.0",
-    "react-select": "1.2.1"
+  "dependencies" : {
+    "github-markdown-css" : "2.2.1",
+    "react-datetime" : "2.2.0",
+    "react-select" : "1.2.1"
   }
 }

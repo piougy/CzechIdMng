@@ -3,11 +3,18 @@
 ## 💡 Introduction
 
 This guide describes the various things that are needed when migrating from CzechIdM version 9.7.x to version 10.
-In version 10 were upgraded major devstack dependencies (see list bellow). The goals:
-- Fix known issues with newer versions of currently used third party libraries (e.g. ModelMapper).
+In version 10 were upgraded major devstack dependencies (see list bellow).
+
+The goals of this version:
+- Fix known issues with newer versions of currently used third party libraries (e.g. ModelMapper). More than 100 vulnerabilities are removed.
 - To be up to date. Some third party libraries cannot be used with our old devstack.
 - Remove obsolete deprecated classes and methods.
 
+Why is migration good for you:
+- Frontend localization can be changed without refresh is needed.
+- Script textarea contains suggestion box (thx to newer library).
+- Frontend performance was increased.
+- Logger level can be changed by application configuration without restart is needed.
 
 # 🌗 Backend
 In this chapter will be describe migration for the backend part of IdM.
@@ -35,7 +42,7 @@ In this chapter will be describe migration for the backend part of IdM.
 - Forest index ``0.3.0`` => ``1.1.1``
 - ... *other minor and third party libraries*.
 
-> Note for developer: We are using java 11 (openjdk) and Tomcat 9 for development.
+> Note for developer: We are using openjdk and Tomcat 9 for development.
 
 #### Removed libraries
 

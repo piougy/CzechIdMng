@@ -106,6 +106,11 @@
 					<artifactId>idm-rpt-impl</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-tool</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 			</dependencies>
 
 			<build>
@@ -153,9 +158,10 @@
 											<directory>../../frontend/czechidm-app</directory>
 											<filtering>false</filtering>
 											<excludes>
-												<exclude>**/dist</exclude>
-												<exclude>**/czechidm-modules/**/node_modules/</exclude>
-												<exclude>**/node_modules</exclude>
+												<exclude>**/dist/**</exclude>
+												<exclude>**/czechidm-modules/**/node_modules/**</exclude>
+												<exclude>**/node_modules/**</exclude>
+												<exclude>node_modules/**</exclude>
 												<exclude>**/.*</exclude>
 											</excludes>
 										</resource>
@@ -202,10 +208,6 @@
 									<npmVersion>6.4.1</npmVersion>
 								</configuration>
 							</execution>
-							<!-- script within package.json checks whether node_modules directory
-								and its symlink exist and creates them if they do not exist -->
-							<!-- It is better use npm install and gulp install in two different
-								executions othwerwise exists way with npm run install-product -->
 							<execution>
 								<id>app npm install</id>
 								<goals>
@@ -216,6 +218,7 @@
 									<arguments>install</arguments>
 								</configuration>
 							</execution>
+							<!-- gulp install build all product modules together -->
 							<execution>
 								<id>app gulp install</id>
 								<goals>
@@ -233,7 +236,7 @@
 								</goals>
 								<phase>generate-resources</phase>
 								<configuration>
-									<arguments>build -p ${frontend.profile} -s ${frontend.stage}</arguments>
+									<arguments>build -p default -s production</arguments>
 									<workingDirectory>../../frontend/czechidm-app</workingDirectory>
 									<installDirectory>target</installDirectory>
 								</configuration>
@@ -268,6 +271,11 @@
 					<artifactId>idm-rpt-impl</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-tool</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 			</dependencies>
 		</profile>
 
@@ -299,35 +307,12 @@
 					<artifactId>idm-rpt-impl</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>idm-tool</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 			</dependencies>
-		</profile>
-
-		<!-- Due portability of maven build among different OSs we need to distinguish
-			scripts for windows/unix. Profiles are activated automaticaly based on OS -->
-		<profile>
-			<id>Windows</id>
-			<activation>
-				<os>
-					<family>Windows</family>
-				</os>
-			</activation>
-			<properties>
-				<!--TODO make windows script of linux modules-link-or-skip -->
-				<script.environment />
-			</properties>
-		</profile>
-		<profile>
-			<id>unix</id>
-			<activation>
-				<os>
-					<family>unix</family>
-				</os>
-			</activation>
-			<properties>
-				<script.environment>modules-link-or-skip</script.environment>
-				<frontend.stage>production</frontend.stage>
-				<frontend.profile>default</frontend.profile>
-			</properties>
 		</profile>
 	</profiles>
 </project>

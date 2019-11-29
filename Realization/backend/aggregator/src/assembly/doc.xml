@@ -77,5 +77,11 @@
       <outputDirectory>rpt</outputDirectory>
     </file>
 
+    <!-- tool -->
+    <file>
+      <source>../tool/target/idm-tool-${project.version}-javadoc.jar</source>
+      <outputDirectory>tool</outputDirectory>
+    </file>
+
   </files>
 </assembly>

@@ -46,6 +46,7 @@
 				<module>../acc</module>
 				<module>../vs</module>
 				<module>../rpt</module>
+				<module>../tool</module>
 			</modules>
 			<build>
 				<plugins>
@@ -67,34 +68,6 @@
 							</execution>
 						</executions>
 					</plugin>
-
-					<plugin>
-						<groupId>external.atlassian.jgitflow</groupId>
-						<artifactId>jgitflow-maven-plugin</artifactId>
-						<version>1.0-m5.1</version>
-						<dependencies>
-							<dependency>
-								<groupId>com.jcraft</groupId>
-								<artifactId>jsch</artifactId>
-								<version>0.1.54</version>
-							</dependency>
-						</dependencies>
-						<configuration>
-							<pushReleases>false</pushReleases>
-							<keepBranch>false</keepBranch>
-							<autoVersionSubmodules>true</autoVersionSubmodules>
-							<noTag>true</noTag>
-							<allowUntracked>true</allowUntracked>
-							<pullDevelop>false</pullDevelop>
-							<pullMaster>false</pullMaster>
-							<allowSnapshots>true</allowSnapshots>
-							<flowInitContext>
-								<masterBranchName>master</masterBranchName>
-								<developBranchName>develop</developBranchName>
-							</flowInitContext>
-							<enableSshAgent>true</enableSshAgent>
-						</configuration>
-					</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-deploy-plugin</artifactId>
@@ -104,24 +77,8 @@
 							<skip>true</skip>
 						</configuration>
 					</plugin>
-
 				</plugins>
 			</build>
-		</profile>
-
-		<profile>
-			<id>test-mssql</id>
-			<properties>
-				<spring.profiles.active>test,test-mssql</spring.profiles.active>
-			</properties>
-			<!-- There must be explicit named all submodules that allow testing with MsSQL -->
-			<modules>
-				<module>../ic</module>
-				<module>../acc</module>
-				<module>../vs</module>
-				<module>../rpt</module>
-				<module>../example</module>
-			</modules>
 		</profile>
 	</profiles>
 </project>

@@ -1131,10 +1131,11 @@ public class DefaultFormService implements FormService {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public void mergeValues(IdmFormDefinitionDto definition, FormableDto source, FormableDto target) {
-		IdmFormInstanceDto formInstance = this.getFormInstance(source, definition);
-		this.refillDeletedAttributeValue(formInstance);
-		
+		IdmFormInstanceDto formInstance = getFormInstance(source, definition);
+		refillDeletedAttributeValue(formInstance);
+		//
 		target.getEavs().clear();
 		target.getEavs().add(formInstance);
 	}

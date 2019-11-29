@@ -112,7 +112,7 @@ public class DefaultReleaseManager implements ReleaseManager {
 	@PostConstruct
 	public void init() {
 		String mavenBaseCommand = getMavenBaseCommand();
-		LOG.info("Maven command: [" + mavenBaseCommand + "].");
+		LOG.info("Maven command [{}].", mavenBaseCommand);
 		Assert.isTrue(new File(mavenBaseCommand).exists(), String.format("Maven command [%s] not found.", mavenBaseCommand));
 		getMavenVersion();
 		//
@@ -810,7 +810,7 @@ public class DefaultReleaseManager implements ReleaseManager {
 	    	if (process.exitValue() != 0) {
 	    		if (quiet) {
 	    			// show log, if process output is not redirected into file.
-	    			LOG.error(String.format("$s: {}", exceptionMessage), output);
+	    			LOG.error("{}: {}", exceptionMessage, output);
 	    		}
 	    		throw new ReleaseException(String.format("Update parent version failed [exit code: %s].", process.exitValue()));
 	    	}

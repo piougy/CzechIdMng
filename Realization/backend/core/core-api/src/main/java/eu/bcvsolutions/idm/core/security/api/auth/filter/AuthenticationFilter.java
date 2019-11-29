@@ -54,6 +54,7 @@ public class AuthenticationFilter extends GenericFilterBean {
 			.filter(f -> !f.isDisabled())
 			.filter(f -> isAuthenticated()
 					|| res.isCommitted()
+					|| f.authorize(request, response)
 					|| handleAuthenticationHeader(request, response, f))
 			.findFirst();
 

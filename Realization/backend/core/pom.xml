@@ -21,4 +21,36 @@
 		<module>core-impl</module>
 	</modules>
 
+	<profiles>
+		<profile>
+			<id>test-mssql</id>
+			<build>
+				<plugins>
+					<plugin>
+					    <groupId>org.flywaydb</groupId>
+					    <artifactId>flyway-maven-plugin</artifactId>
+					    <version>6.0.8</version>
+					    <configuration>
+						    <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+						    <url>jdbc:sqlserver://localhost;databaseName=bcv_idm_storage</url>
+						    <user>idmadmin</user>
+						    <password>idmadmin</password>
+						    <connectRetries>10</connectRetries>
+						    <skipDefaultCallbacks>false</skipDefaultCallbacks>
+						    <cleanDisabled>false</cleanDisabled>
+						    <skip>false</skip>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<dependencies>
+				<dependency>
+				    <groupId>com.microsoft.sqlserver</groupId>
+				    <artifactId>sqljdbc4</artifactId>
+				    <version>4.0</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
 </project>

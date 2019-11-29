@@ -38,6 +38,18 @@ public interface IdmAuthenticationFilter extends Configurable {
 	boolean authorize(String token, HttpServletRequest request, HttpServletResponse response);
 	
 	/**
+	 * Authenticate user based on request - most general method than above, token is not resolved from request automatically.
+	 * 
+	 * @param request
+	 * @param response
+	 * @return Whether the authorization was successful
+	 * 
+	 */
+	default boolean authorize(HttpServletRequest request, HttpServletResponse response) {
+		return false;
+	}
+	
+	/**
 	 * Return the name of HTTP header carrying the Authorization token.
 	 * Default is "Authorization".
 	 * 

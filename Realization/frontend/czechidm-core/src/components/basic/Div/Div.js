@@ -42,7 +42,7 @@ export default class Div extends AbstractComponent {
 Div.propTypes = {
   ...AbstractComponent.propTypes,
   /**
-   * when loading is visible, then show animation too
+   * When loading is visible, then show animation too.
    */
   showAnimation: PropTypes.bool,
 };

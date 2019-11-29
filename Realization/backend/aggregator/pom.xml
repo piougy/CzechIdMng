@@ -15,11 +15,16 @@
 		on all of its modules.
 	</description>
 
-
 	<modules>
 		<module>../parent</module>
 		<module>../core</module>
 		<module>../app</module>
+		<module>../example</module>
+		<module>../ic</module>
+		<module>../acc</module>
+		<module>../vs</module>
+		<module>../rpt</module>
+		<module>../tool</module>
 	</modules>
 
 	<build>
@@ -40,14 +45,6 @@
 		<profile>
 			<!-- Profile is used for releasing product. Usage is described in documentation -->
 			<id>release</id>
-			<modules>
-				<module>../example</module>
-				<module>../ic</module>
-				<module>../acc</module>
-				<module>../vs</module>
-				<module>../rpt</module>
-				<module>../tool</module>
-			</modules>
 			<build>
 				<plugins>
 					<plugin>

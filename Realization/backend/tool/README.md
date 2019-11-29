@@ -10,7 +10,7 @@
 
 ## How to build the tool
 
-Standalone ``idm-tool.jar`` can be build under ``dist`` profile. In the module folder (checkout master branch):
+Standalone ``idm-tool.jar`` can be build under ``dist`` profile. In the tool module folder (checkout master branch is needed):
 
 ```bash
 mvn clean package -Pdist
@@ -79,4 +79,4 @@ java -jar idm-tool.jar --revertVersion
 
 ## License
 
-[MIT License](./LICENSE)
+[MIT License](../../../LICENSE)

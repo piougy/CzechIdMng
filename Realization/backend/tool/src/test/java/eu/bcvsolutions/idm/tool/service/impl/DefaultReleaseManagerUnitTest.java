@@ -5,7 +5,9 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
@@ -20,6 +22,13 @@ import eu.bcvsolutions.idm.tool.service.api.ReleaseManager;
 public class DefaultReleaseManagerUnitTest extends AbstractUnitTest {
 
 	private DefaultReleaseManager releaseManager = new DefaultReleaseManager();
+	
+	@BeforeClass
+	public static void disableTestsOnDocumentation() {
+		// generalize unit test, but it's integration test (MAVEN_HOME) is needed 
+	    Boolean documentationOnly = Boolean.valueOf(System.getProperty("documentationOnly", "false"));
+	    Assume.assumeFalse(documentationOnly);
+	}
 	
 	@Before
 	public void initRepository() {

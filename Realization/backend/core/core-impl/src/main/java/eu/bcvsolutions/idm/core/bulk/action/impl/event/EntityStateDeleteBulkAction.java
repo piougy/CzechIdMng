@@ -25,10 +25,8 @@ public class EntityStateDeleteBulkAction extends AbstractRemoveBulkAction<IdmEnt
 
     public static final String NAME = "core-entity-state-delete-bulk-action";
     //
-    @Autowired
-    private IdmEntityStateService service;
-    @Autowired
-    private EntityStateManager entityStateManager;
+    @Autowired private IdmEntityStateService service;
+    @Autowired private EntityStateManager entityStateManager;
 
     @Override
     public String getName() {

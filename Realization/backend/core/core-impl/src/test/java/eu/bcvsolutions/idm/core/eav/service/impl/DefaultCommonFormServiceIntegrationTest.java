@@ -73,7 +73,7 @@ public class DefaultCommonFormServiceIntegrationTest extends AbstractIntegration
 		attributeDefinitionOne.setName(attributeDefinitionOne.getCode());
 		attributeDefinitionOne.setPersistentType(PersistentType.TEXT);
 		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(
-				IdmIdentity.class.getCanonicalName(),
+				IdmIdentity.class,
 				getHelper().createName(), 
 				Lists.newArrayList(attributeDefinitionOne));
 		return formDefinitionOne.getMappedAttributeByCode(attributeDefinitionOne.getCode());

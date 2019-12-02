@@ -1947,12 +1947,12 @@
           },
           "implementers": {
             "label": "Implementers",
-            "help": "Requests for implementing changes on the real system will be created for these implementers. Every implementer must be an identity in CzechIdM. Values are UUIDs of identities (multivalued).",
+            "help": "Requests for implementing changes on the real system will be created for these implementers. Every implementer must be an identity in CzechIdM.",
             "placeholder": ""
           },
           "implementerroles": {
             "label": "Roles of implementers",
-            "help": "All identities with these roles will be implementers. Every role must be a role in CzechIdM. Values are UUIDs of roles (multivalued).",
+            "help": "All identities with these roles will be implementers. Every role must be a role in CzechIdM.",
             "placeholder": ""
           },
           "disablesupported": {

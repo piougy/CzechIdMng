@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -230,12 +231,35 @@ public interface FormService extends ScriptEnabled {
 	 * @param formAttributes
 	 * @param permission base permissions to evaluate (AND)
 	 * @return
-	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @throws ForbiddenEntityException if authorization policies doesn't met 
+	 * @deprecated @since 10.0.0 - use {@link #createDefinition(Class, List, BasePermission...)} or {@link #createDefinition(String, String, String, List, BasePermission...)} instead
 	 */
+	@Deprecated
 	IdmFormDefinitionDto createDefinition(String type, String code, List<IdmFormAttributeDto> formAttributes, BasePermission... permission);
 	
 	/**
-	 * Creates main form definition for given owner type
+	 * Creates form definition
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param type definition type
+	 * @param code [optional] definition code (main with default code will be created, if no definition code is given)
+	 * @param module [optional] core module (~null) is used as default
+	 * @param formAttributes
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 10.0.0
+	 */
+	IdmFormDefinitionDto createDefinition(
+			String type,
+			String code, 
+			String module, 
+			List<IdmFormAttributeDto> formAttributes, 
+			BasePermission... permission);
+	
+	/**
+	 * Creates main form definition for given owner type.
+	 * The module is resolved by owner type automatically (by {@link EntityUtils#getModule(Class)}).
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param ownerType owner type
@@ -247,7 +271,8 @@ public interface FormService extends ScriptEnabled {
 	IdmFormDefinitionDto createDefinition(Class<? extends Identifiable> ownerType, List<IdmFormAttributeDto> formAttributes, BasePermission... permission);
 	
 	/**
-	 * Creates form definition
+	 * Creates form definition.
+	 * The module is resolved by owner type automatically (by {@link EntityUtils#getModule(Class)}).
 	 * 
 	 * @param ownerType owner type
 	 * @param code [optional] definition code (main with default code will be created, if no definition code is given)

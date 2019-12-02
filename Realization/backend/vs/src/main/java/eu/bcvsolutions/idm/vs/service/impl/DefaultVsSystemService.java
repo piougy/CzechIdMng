@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConfigurationServi
 import eu.bcvsolutions.idm.ic.czechidm.service.impl.CzechIdMIcConnectorService;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
+import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
 import eu.bcvsolutions.idm.vs.config.domain.VsConfiguration;
 import eu.bcvsolutions.idm.vs.connector.api.VsVirtualConnector;
 import eu.bcvsolutions.idm.vs.connector.basic.BasicVirtualConfiguration;
@@ -564,7 +565,7 @@ public class DefaultVsSystemService implements VsSystemService {
 		});
 
 		if (definition == null) {
-			IdmFormDefinitionDto createdDefinition = this.formService.createDefinition(type, key, formAttributes);
+			IdmFormDefinitionDto createdDefinition = this.formService.createDefinition(type, key, VirtualSystemModuleDescriptor.MODULE_ID, formAttributes);
 			createdDefinition.setName(MessageFormat.format("Virtual system for [{0}]", system.getName()));
 			createdDefinition.setUnmodifiable(true);
 			return this.formService.saveDefinition(createdDefinition);

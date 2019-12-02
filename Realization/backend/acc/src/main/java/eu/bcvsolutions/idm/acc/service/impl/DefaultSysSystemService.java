@@ -651,7 +651,7 @@ public class DefaultSysSystemService
 			attribute.setSeq(seq);
 			formAttributes.add(attribute);
 		}
-		return getFormService().createDefinition(SysSystem.class.getName(),
+		return getFormService().createDefinition(SysSystem.class,
 				connectorInstance.getConnectorKey().getFullName(), formAttributes);
 	}
 	
@@ -718,8 +718,7 @@ public class DefaultSysSystemService
 		attributeMinEvicTime.setSeq((short)6);
 		formAttributes.add(attributeMinEvicTime);
 	
-		return getFormService().createDefinition(SysSystem.class.getName(),
-				poolingDefinitionCode, formAttributes);
+		return getFormService().createDefinition(SysSystem.class, poolingDefinitionCode, formAttributes);
 	}
 	
 	/**

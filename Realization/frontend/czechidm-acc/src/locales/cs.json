@@ -1949,12 +1949,12 @@
           },
           "implementers": {
             "label": "Implementátoři",
-            "help": "Požadavky na zadání změn do koncového systému budou vytvořeny pro tyto implementátory. Každý implementátor musí být identita v CzechIdM. Hodnotami jsou UUID identit implementátorů (lze jich zadat více).",
+            "help": "Požadavky na zadání změn do koncového systému budou vytvořeny pro tyto implementátory. Každý implementátor musí být identita v CzechIdM.",
             "placeholder": ""
           },
           "implementerroles": {
             "label": "Role implementátorů",
-            "help": "Všechny identity s těmito přiřazenými rolemi jsou implementátoři. Každá role musí být rolí v CzechIdM. Hodnotami jsou UUID rolí (lze jich zadat více).",
+            "help": "Všechny identity s těmito přiřazenými rolemi jsou implementátoři. Každá role musí být rolí v CzechIdM.",
             "placeholder": ""
           },
           "disablesupported": {

@@ -53,6 +53,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -279,12 +280,23 @@ public class DefaultFormService implements FormService {
 	public IdmFormDefinitionDto saveDefinition(IdmFormDefinitionDto formDefinition, BasePermission... permission) {
 		return formDefinitionService.save(formDefinition, permission);
 	}
+	
+	@Override
+	@Transactional
+	public IdmFormDefinitionDto createDefinition(
+			String type,
+			String code,
+			List<IdmFormAttributeDto> formAttributes,
+			BasePermission... permission) {
+		return createDefinition(type, code, null, formAttributes, permission);
+	}
 
 	@Override
 	@Transactional
 	public IdmFormDefinitionDto createDefinition(
 			String type,
 			String code,
+			String module,
 			List<IdmFormAttributeDto> formAttributes,
 			BasePermission... permission) {
 		Assert.hasLength(type, "Form definition type is required.");
@@ -293,6 +305,7 @@ public class DefaultFormService implements FormService {
 		IdmFormDefinitionDto formDefinition = new IdmFormDefinitionDto();
 		formDefinition.setType(type);
 		formDefinition.setCode(code);
+		formDefinition.setModule(module);
 		formDefinition = formDefinitionService.save(formDefinition, permission);
 		//
 		// and their attributes
@@ -318,21 +331,19 @@ public class DefaultFormService implements FormService {
 			Class<? extends Identifiable> ownerType,
 			List<IdmFormAttributeDto> formAttributes,
 			BasePermission... permission) {
-		Assert.notNull(ownerType, "Owner type is required!");
-		//
-		return createDefinition(getDefaultDefinitionType(ownerType), null, formAttributes, permission);
+		return createDefinition(ownerType, null, formAttributes, permission);
 	}
 
 	@Override
 	@Transactional
 	public IdmFormDefinitionDto createDefinition(
 			Class<? extends Identifiable> ownerType,
-			String name,
+			String code,
 			List<IdmFormAttributeDto> formAttributes,
 			BasePermission... permission) {
-		Assert.notNull(ownerType, "Owner type is required!");
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
-		return createDefinition(getDefaultDefinitionType(ownerType), name, formAttributes, permission);
+		return createDefinition(getDefaultDefinitionType(ownerType), code, EntityUtils.getModule(ownerType), formAttributes, permission);
 	}
 
 	@Override

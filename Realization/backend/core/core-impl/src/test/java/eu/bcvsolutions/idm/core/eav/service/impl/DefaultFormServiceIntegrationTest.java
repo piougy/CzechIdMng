@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
@@ -320,6 +321,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 				IdmIdentityDto.class,
 				getHelper().createName(),
 				Lists.newArrayList(attributeOther));
+		Assert.assertEquals(CoreModuleDescriptor.MODULE_ID, definitionOther.getModule());
 		//
 		List<IdmFormAttributeDto> results = formService.getAttributes(definitionOne);
 		//

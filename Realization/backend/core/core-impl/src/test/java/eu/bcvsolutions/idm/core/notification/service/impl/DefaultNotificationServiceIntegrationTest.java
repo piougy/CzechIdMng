@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -235,6 +236,22 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		filter.setText(template2.getSubject());
 		result = notificationLogService.find(filter, null);
 		assertEquals("Wrong text message html",1, result.getTotalElements());
+	}
+	
+	@Test
+	public void testFilterByTopic() {
+		IdmNotificationTemplateDto template = createTestTemplate();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		NotificationConfigurationDto config = createConfig();
+		//
+		notificationManager.send(config.getTopic(), new IdmMessageDto.Builder().setTemplate(template).build(), identity);
+		IdmNotificationFilter filter = new IdmNotificationFilter();
+		// Test there is just one filtered log record.
+		filter.setTopic(config.getTopic());
+		assertEquals(1, notificationLogService.find(filter, null).getTotalElements());
+		// Test there is none log record after setting the filter to non-existing value.
+		filter.setTopic("nonexistingTopic-147258369");
+		assertEquals(0, notificationLogService.find(filter, null).getTotalElements());
 	}
 
 	@Test

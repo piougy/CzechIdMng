@@ -27,6 +27,7 @@ public class IdmNotificationFilter extends QuickFilter {
 	private Boolean sent;
 	private Class<? extends BaseEntity> notificationType;
 	private UUID parent;
+	private String topic;
 
 	public String getSender() {
 		return sender;
@@ -90,5 +91,13 @@ public class IdmNotificationFilter extends QuickFilter {
 	
 	public UUID getParent() {
 		return parent;
+	}
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
 	}
 }

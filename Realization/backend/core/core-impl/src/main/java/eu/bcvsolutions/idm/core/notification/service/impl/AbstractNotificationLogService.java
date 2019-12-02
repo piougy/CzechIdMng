@@ -112,7 +112,8 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 			predicates.add(builder.or(
 					builder.like(builder.lower(message.get(IdmMessage_.subject)), "%" + filter.getText().toLowerCase() + "%"),
 					builder.like(builder.lower(message.get(IdmMessage_.textMessage)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(message.get(IdmMessage_.htmlMessage)), "%" + filter.getText().toLowerCase() + "%")				
+					builder.like(builder.lower(message.get(IdmMessage_.htmlMessage)), "%" + filter.getText().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get(IdmNotification_.topic)), "%" + filter.getText().toLowerCase() + "%")
 					));
 		}
 		if (filter.getTill() != null) {
@@ -177,6 +178,10 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 			} else {
 				predicates.add(builder.isNull(root.get(IdmNotification_.sent)));
 			}
+		}
+		String topic = filter.getTopic();
+		if (StringUtils.isNotEmpty(topic)) {
+			predicates.add(builder.equal(root.get(IdmNotification_.topic),topic));
 		}
 		return predicates;
 	}

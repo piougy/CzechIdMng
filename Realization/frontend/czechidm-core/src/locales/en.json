@@ -3037,6 +3037,10 @@
         "sent": {
           "label": "Sent",
           "placeholder": "Sending status ..."
+        },
+        "topic": {
+          "label": "$t(entity.Notification.topic)",
+          "placeholder": "$t(entity.Notification.topic)"
         }
       }
     },

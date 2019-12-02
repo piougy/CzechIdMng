@@ -3088,6 +3088,10 @@
         "sent": {
           "label": "Odesláno",
           "placeholder": "Stav odeslání ..."
+        },
+        "topic": {
+          "label": "$t(entity.Notification.topic)",
+          "placeholder": "$t(entity.Notification.topic)"
         }
       }
     },

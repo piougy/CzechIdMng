@@ -67,6 +67,11 @@ export default class NotificationFilter extends Advanced.Filter {
                 placeholder={ this.i18n('content.notifications.filter.sent.placeholder') }
                 enum={ NotificationStateEnum }/>
             </Basic.Col>
+            <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="topic"
+                placeholder={this.i18n('content.notifications.filter.topic.placeholder')}/>
+            </Basic.Col>
             <Basic.Col lg={ 8 } >
             </Basic.Col>
           </Basic.Row>

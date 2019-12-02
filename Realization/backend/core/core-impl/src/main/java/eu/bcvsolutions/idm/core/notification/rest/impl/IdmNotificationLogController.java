@@ -263,6 +263,7 @@ public class IdmNotificationLogController
 		filter.setSent(getParameterConverter().toBoolean(parameters, "sent"));
 		filter.setNotificationType(notificationConfigurationService.toSenderType(getParameterConverter().toString(parameters, "notificationType")));
 		filter.setParent(getParameterConverter().toUuid(parameters, "parent"));
+		filter.setTopic(getParameterConverter().toString(parameters, "topic"));
 		return filter;
 	}
 }

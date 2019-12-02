@@ -6303,6 +6303,10 @@
     "MODEL_MAPPER_SERVICE_INIT_FAILED": {
       "title": "Inicializace model mapperu selhala",
       "message": "Pro službu [{{service}}] se chybně inicializoval model mapper. Zkuste restartujtovat aplikaci."
+    },
+    "LOGGER_LEVEL_NOT_FOUND": {
+      "title": "Úroveň logování neexistuje",
+      "message": "Zadaná úroveň logování neexistuje [{{level}}]. Dostupné úrovně jsou [TRACE, DEBUG, INFO, WARN, ERROR]."
     }
   },
   "validationError": {

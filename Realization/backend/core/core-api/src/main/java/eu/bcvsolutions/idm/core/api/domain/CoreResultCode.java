@@ -162,6 +162,9 @@ public enum CoreResultCode implements ResultCode {
 	SCHEDULER_RESUME_TRIGGER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
 	SCHEDULER_DRY_RUN_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "Task type [%s] does not support dry run mode."),
 	//
+	// logger
+	LOGGER_LEVEL_NOT_FOUND(HttpStatus.BAD_REQUEST, "Logger level [%s] does not exist. Available logger levels [TRACE, DEBUG, INFO, WARN, ERROR]."),
+	//
 	LONG_RUNNING_TASK_NOT_FOUND(HttpStatus.BAD_REQUEST, "Task type [%s] can not be instantiated"),
 	LONG_RUNNING_TASK_NOT_RUNNING(HttpStatus.BAD_REQUEST, "Task [%s] is not running - can not be innterrupted or cancelled."),
 	LONG_RUNNING_TASK_DIFFERENT_INSTANCE(HttpStatus.BAD_REQUEST, "Task [%s] has different instance [%s], can not be accessed from this instance [%s]."),

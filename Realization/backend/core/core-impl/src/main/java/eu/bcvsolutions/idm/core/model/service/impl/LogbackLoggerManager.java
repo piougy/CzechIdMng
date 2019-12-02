@@ -12,13 +12,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.comparator.CodeableComparator;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.LoggerManager;
 import eu.bcvsolutions.idm.core.model.event.processor.configuration.ConfigurationDeleteLoggerProcessor;
@@ -109,7 +112,7 @@ public class LogbackLoggerManager implements LoggerManager {
 	public org.slf4j.event.Level setLevel(String packageName, String level) {
 		Assert.hasLength(packageName, "Package name is required.");
 		//
-		return setLevel(packageName, StringUtils.isEmpty(level) ? null : org.slf4j.event.Level.valueOf(level.toUpperCase()));
+		return setLevel(packageName, toLevel(level));
 	}
 
 	@Override
@@ -127,14 +130,14 @@ public class LogbackLoggerManager implements LoggerManager {
 	        setLoggerLevel(packageName, actualLevel);
 		}
 		//
-		return actualLevel == null ? null : org.slf4j.event.Level.valueOf(actualLevel.levelStr);
+		return toLevel(actualLevel.levelStr);
 	}
 	
 	@Override
 	public org.slf4j.event.Level getLevel(String packageName) {
 		Level actualLevel = getLogger(packageName).getLevel();
 		//
-		return actualLevel == null ? null : org.slf4j.event.Level.valueOf(actualLevel.levelStr);
+		return toLevel(actualLevel.levelStr);
 	}
 	
 	@Override
@@ -213,5 +216,17 @@ public class LogbackLoggerManager implements LoggerManager {
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 		//
 		return loggerContext.getLogger(packageName);
+	}
+	
+	private org.slf4j.event.Level toLevel(String level) {
+		if (StringUtils.isEmpty(level)) {
+			return null;
+		}
+		//
+		try {
+			return org.slf4j.event.Level.valueOf(level.toUpperCase());
+		} catch (IllegalArgumentException ex) {
+			throw new ResultCodeException(CoreResultCode.LOGGER_LEVEL_NOT_FOUND, ImmutableMap.of("level", level));
+		}
 	}
 }

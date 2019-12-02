@@ -6253,6 +6253,10 @@
     "MODEL_MAPPER_SERVICE_INIT_FAILED": {
       "title": "Model mapper initialization failed",
       "message": "Model mapper is wrongly initialized for service [{{service}}]. Try to restart application."
+    },
+    "LOGGER_LEVEL_NOT_FOUND": {
+      "title": "Logger level does not exist",
+      "message": "Given logger level [{{level}}] does not exist. Available logger levels [TRACE, DEBUG, INFO, WARN, ERROR]."
     }
   },
   "validationError": {

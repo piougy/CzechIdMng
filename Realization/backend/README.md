@@ -4,10 +4,8 @@ Java application deployable to Tomcat 9 application server.
 
 ## Requirements
 
-* Install `JDK`, tested versions:
+* Install `JDK 8`, tested versions:
   * `jdk-1.8.0_211`
-  * `jdk-11.0.2`
-  * `openjdk 11.0.4.11`
 * Install `maven` - at least version `3.1` is required
 * Install `Tomcat`, tested versions:
   * `8.0.37`

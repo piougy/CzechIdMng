@@ -226,7 +226,7 @@ public class LogbackLoggerManager implements LoggerManager {
 		try {
 			return org.slf4j.event.Level.valueOf(level.toUpperCase());
 		} catch (IllegalArgumentException ex) {
-			throw new ResultCodeException(CoreResultCode.LOGGER_LEVEL_NOT_FOUND, ImmutableMap.of("level", level));
+			throw new ResultCodeException(CoreResultCode.LOGGER_LEVEL_NOT_FOUND, ImmutableMap.of("level", level), ex);
 		}
 	}
 }

@@ -401,6 +401,8 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
     		}
         } catch (SQLException ex) {
             throw new FlywaySqlException("Error while determining database product name", ex);
+        } finally {
+        	JdbcUtils.closeConnection(connection);
         }
 		//
 		return columnName;

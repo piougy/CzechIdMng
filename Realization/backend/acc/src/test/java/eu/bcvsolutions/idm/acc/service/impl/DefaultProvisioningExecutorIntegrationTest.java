@@ -17,7 +17,6 @@ import javax.sql.DataSource;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -96,10 +95,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-@Ignore
 public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private SysSystemService systemService;
 	@Autowired private SysSystemEntityService systemEntityService;
@@ -148,7 +145,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	
 	@Test
 	public void testGreenLineAccountProvisioning() {
-		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
 		ProvisioningAttributeDto usernameAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME);
 		ProvisioningAttributeDto firstNameAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_FIRSTNAME);
 		ProvisioningAttributeDto lastNameAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_LASTNAME);
@@ -194,7 +191,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	
 	@Test
 	public void testDisabledSystem() {
-		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
 		system.setDisabled(true);
 		system = systemService.save(system);
 		//
@@ -270,7 +267,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	
 	@Test
 	public void testReadonlySystem() {
-		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
 		system.setReadonly(true);
 		system = systemService.save(system);
 		ProvisioningAttributeDto usernameAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME);
@@ -349,7 +346,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	
 	@Test
 	public void testAsynchronousSystem() {
-		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
 		system.setQueue(true);
 		system = systemService.save(system);
 		//
@@ -368,7 +365,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertEquals(OperationState.CREATED, operation.getResultState());
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		assertTrue(systemEntity.isWish());
-		assertNull(helper.findResource(uid));
+		assertNull(getHelper().findResource(uid));
 		//
 		// execute LRT with incorrect setting - virtual at fist - expected no process
 		ProvisioningQueueTaskExecutor provisioningQueueExecutor = new ProvisioningQueueTaskExecutor();
@@ -379,7 +376,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertEquals(0L, lrt.getCount().longValue());
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		assertTrue(systemEntity.isWish());
-		assertNull(helper.findResource(uid));
+		assertNull(getHelper().findResource(uid));
 		//
 		// execute LRT with correct setting
 		provisioningQueueExecutor = new ProvisioningQueueTaskExecutor();
@@ -389,12 +386,12 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertEquals(1L, lrt.getCount().longValue());
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		assertFalse(systemEntity.isWish());
-		assertNotNull(helper.findResource(uid));
+		assertNotNull(getHelper().findResource(uid));
 	}
 	
 	@Test
 	public void testClearProvisioningBatchOnReadonlySystem() {
-		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
 		system.setReadonly(true);
 		system = systemService.save(system);
 		String firstname = "firstname";
@@ -417,7 +414,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		assertTrue(systemEntity.isWish());
-		assertNull(helper.findResource(uid));
+		assertNull(getHelper().findResource(uid));
 		//
 		// check batch
 		SysProvisioningBatchDto batch = provisioningBatchService.findBatch(systemEntity.getId());
@@ -435,7 +432,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		assertFalse(systemEntity.isWish());
-		TestResource resource = helper.findResource(uid);
+		TestResource resource = getHelper().findResource(uid);
 		assertNotNull(resource);
 		Assert.assertEquals(firstname, resource.getFirstname());
 		Assert.assertEquals(2, provisioningOperationService.findByBatchId(batch.getId(), null).getContent().size());
@@ -443,7 +440,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		// execute whole batch
 		provisioningExecutor.execute(batch);
 		//
-		resource = helper.findResource(uid);
+		resource = getHelper().findResource(uid);
 		Assert.assertEquals(firstname + 3, resource.getFirstname());
 		Assert.assertEquals(0, provisioningOperationService.findByBatchId(batch.getId(), null).getTotalElements());
 		Assert.assertNull(provisioningOperationService.get(readOnlyOperation.getId()));
@@ -455,7 +452,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	public void testRetryProvisioning() {
 		testProvisioningExceptionProcessor.setDisabled(false);
 		try {
-			SysSystemDto system = helper.createTestResourceSystem(true);
+			SysSystemDto system = getHelper().createTestResourceSystem(true);
 			SysProvisioningOperationDto provisioningOperation = createProvisioningOperation(system, "firstname");
 			Map<ProvisioningAttributeDto, Object> accoutObject = provisioningOperation.getProvisioningContext().getAccountObject();
 			String uid = (String) accoutObject.get(getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_NAME));
@@ -476,7 +473,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			Assert.assertTrue(batch.getNextAttempt().isAfter(now));
 			SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 			Assert.assertTrue(systemEntity.isWish());
-			Assert.assertNull(helper.findResource(uid));
+			Assert.assertNull(getHelper().findResource(uid));
 			// check failed operation is in archive too
 			List<SysProvisioningArchiveDto> archived = provisioningArchiveService
 					.find(
@@ -520,7 +517,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 			//
 			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 			Assert.assertFalse(systemEntity.isWish());
-			Assert.assertNotNull(helper.findResource(uid));
+			Assert.assertNotNull(getHelper().findResource(uid));
 			batch = provisioningBatchService.get(batch.getId());
 			Assert.assertNull(batch.getNextAttempt());
 			archived = provisioningArchiveService
@@ -538,7 +535,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	
 	@Test
 	public void testRetryProvisioningAfterPrepareConnectorObjectFailed() {
-		SysSystemDto system = helper.createTestResourceSystem(true);
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
 		// set the wrong password
 		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 		List<IdmFormValueDto> values = new ArrayList<>();
@@ -568,7 +565,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		Assert.assertTrue(batch.getNextAttempt().isAfter(now));
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		Assert.assertTrue(systemEntity.isWish());
-		Assert.assertNull(helper.findResource(uid));
+		Assert.assertNull(getHelper().findResource(uid));
 		//
 		batch.setNextAttempt(ZonedDateTime.now());
 		provisioningBatchService.save(batch);
@@ -596,7 +593,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		Assert.assertFalse(systemEntity.isWish());
-		Assert.assertNotNull(helper.findResource(uid));
+		Assert.assertNotNull(getHelper().findResource(uid));
 		batch = provisioningBatchService.get(batch.getId());
 		Assert.assertNull(batch.getNextAttempt());
 	}
@@ -860,12 +857,12 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	 */
 	private SysProvisioningOperationDto createProvisioningOperation(SysSystemDto system, String firstname) {
 		ProvisioningContext context = new ProvisioningContext();
-		SysSystemEntityDto systemEntity = helper.createSystemEntity(system);
+		SysSystemEntityDto systemEntity = getHelper().createSystemEntity(system);
 		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity, firstname);
 		context.setAccountObject(accoutObject);
 		//
 		// prepare provisioning operation
-		SysSystemMappingDto systemMapping = helper.getDefaultMapping(system);
+		SysSystemMappingDto systemMapping = getHelper().getDefaultMapping(system);
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
@@ -886,7 +883,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		context.setAccountObject(accoutObject);
 		//
 		// prepare provisioning operation
-		SysSystemMappingDto systemMapping = helper.getDefaultMapping(systemEntity.getSystem());
+		SysSystemMappingDto systemMapping = getHelper().getDefaultMapping(systemEntity.getSystem());
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()

@@ -439,7 +439,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 			//
 			IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
 			contract.setValidTill(LocalDate.now().minusDays(1));
-			identityContractService.save(contract);
+			contract = identityContractService.save(contract);
 			//
 			identity = identityService.get(identity);
 			Assert.assertEquals(IdentityState.VALID, identity.getState());
@@ -452,7 +452,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 			Assert.assertTrue(identity.isDisabled());
 			//
 			contract.setValidTill(null);
-			identityContractService.save(contract);
+			contract = identityContractService.save(contract);
 			//
 			identity = identityService.get(identity);
 			Assert.assertEquals(IdentityState.LEFT, identity.getState());

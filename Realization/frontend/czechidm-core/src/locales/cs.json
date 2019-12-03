@@ -3075,7 +3075,7 @@
         },
         "text": {
           "label": "Zpráva",
-          "placeholder": "Předmět, obsah zprávy"
+          "placeholder": "Předmět, obsah zprávy, topic"
         },
         "sender": {
           "label": "Odesílatel",

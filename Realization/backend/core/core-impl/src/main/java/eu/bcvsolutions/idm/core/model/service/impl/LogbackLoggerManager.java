@@ -130,14 +130,14 @@ public class LogbackLoggerManager implements LoggerManager {
 	        setLoggerLevel(packageName, actualLevel);
 		}
 		//
-		return toLevel(actualLevel.levelStr);
+		return actualLevel == null ? null : toLevel(actualLevel.levelStr);
 	}
 	
 	@Override
 	public org.slf4j.event.Level getLevel(String packageName) {
 		Level actualLevel = getLogger(packageName).getLevel();
 		//
-		return toLevel(actualLevel.levelStr);
+		return actualLevel == null ? null : toLevel(actualLevel.levelStr);
 	}
 	
 	@Override

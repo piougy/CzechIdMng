@@ -101,6 +101,7 @@ public abstract class AbstractSmsNotificationSender extends AbstractNotification
         if (notification.getId() != null) {
             smsLogDto.setParent(notification.getId());
         }
+        smsLogDto.setTopic(notification.getTopic());
         // clone message
         smsLogDto.setMessage(cloneMessage(notification));
         // clone recipients - resolve real email

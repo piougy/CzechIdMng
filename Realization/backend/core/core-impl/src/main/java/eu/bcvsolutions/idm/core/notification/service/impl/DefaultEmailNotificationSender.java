@@ -133,6 +133,7 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 		emailLog.setIdentitySender(notification.getIdentitySender());
 		emailLog.setType(IdmEmailLog.NOTIFICATION_TYPE);
 		emailLog.setAttachments(notification.getAttachments());
+		emailLog.setTopic(notification.getTopic());
 		emailLog = emailLogService.save(emailLog);
 		// TODO: remove after attachments will be persisted
 		emailLog.setAttachments(notification.getAttachments());

@@ -14,6 +14,7 @@ import NotificationLevelEnum from '../../../enums/NotificationLevelEnum';
 * Table of audit log for sms
 *
 * @author Peter Sourek
+* @author Radek Tomiška
 */
 export class SmsTable extends Advanced.AbstractTableContent {
 
@@ -51,7 +52,7 @@ export class SmsTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.history.push('/notification/sms/' + entity.id);
+    this.context.history.push(`/notification/sms/${ entity.id }`);
   }
 
   _getStatus(data, rowIndex) {
@@ -95,17 +96,18 @@ export class SmsTable extends Advanced.AbstractTableContent {
               }
             }/>
           <Advanced.Column property="created" sort face="datetime"/>
+          <Advanced.Column property="topic" sort face="text"/>
           <Advanced.Column property="message.level" sort face="enum" enumClass={NotificationLevelEnum}/>
           <Advanced.Column property="message.subject" sort face="text"/>
           <Advanced.Column
             property="recipients"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <NotificationRecipientsCell notification={ data[rowIndex] } identityOnly />
-                  );
-                }
-              }/>
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <NotificationRecipientsCell notification={ data[rowIndex] } identityOnly />
+                );
+              }
+            }/>
           <Advanced.Column
             property="sender"
             cell={

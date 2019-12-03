@@ -3024,7 +3024,7 @@
         },
         "text": {
           "label": "Message",
-          "placeholder": "Subject, content"
+          "placeholder": "Subject, content, topic"
         },
         "sender": {
           "label": "Sender",

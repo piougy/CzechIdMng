@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -248,7 +247,11 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 		// Test there is just one filtered log record.
 		filter.setTopic(config.getTopic());
-		assertEquals(1, notificationLogService.find(filter, null).getTotalElements());
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
+		//
+		Assert.assertEquals(2, notifications.size());
+		Assert.assertTrue(notifications.stream().anyMatch(n -> n.getType().equals(IdmNotificationLog.NOTIFICATION_TYPE)));
+		Assert.assertTrue(notifications.stream().anyMatch(n -> n.getType().equals(IdmEmailLog.NOTIFICATION_TYPE)));
 		// Test there is none log record after setting the filter to non-existing value.
 		filter.setTopic("nonexistingTopic-147258369");
 		assertEquals(0, notificationLogService.find(filter, null).getTotalElements());

@@ -1,6 +1,6 @@
 import React from 'react';
-import {parse} from 'qs';
-import {Route, Switch} from 'react-router-dom';
+import { parse } from 'qs';
+import { Route, Switch } from 'react-router-dom';
 //
 import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';

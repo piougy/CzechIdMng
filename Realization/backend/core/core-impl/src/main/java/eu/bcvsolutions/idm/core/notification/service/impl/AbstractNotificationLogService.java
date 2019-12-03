@@ -181,7 +181,7 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 		}
 		String topic = filter.getTopic();
 		if (StringUtils.isNotEmpty(topic)) {
-			predicates.add(builder.equal(root.get(IdmNotification_.topic),topic));
+			predicates.add(builder.equal(root.get(IdmNotification_.topic), topic));
 		}
 		return predicates;
 	}

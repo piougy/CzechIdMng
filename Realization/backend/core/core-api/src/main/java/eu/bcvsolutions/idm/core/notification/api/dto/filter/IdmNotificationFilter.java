@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 /**
  * Filter for notifications (notification, email ...)
  * 
- * TODO: add topic!
  * TODO: data filter
  * 
  * @author Radek Tomiška
@@ -93,10 +92,22 @@ public class IdmNotificationFilter extends QuickFilter {
 		return parent;
 	}
 
+	/**
+	 * Notification topic
+	 * 
+	 * @return
+	 * @since 10.0.0
+	 */
 	public String getTopic() {
 		return topic;
 	}
 
+	/**
+	 * Notification topic
+	 * 
+	 * @param topic
+	 * @since 10.0.0
+	 */
 	public void setTopic(String topic) {
 		this.topic = topic;
 	}

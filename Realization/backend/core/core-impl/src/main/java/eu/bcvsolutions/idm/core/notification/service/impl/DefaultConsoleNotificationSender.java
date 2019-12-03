@@ -83,6 +83,7 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 		IdmConsoleLogDto notificationLog = new IdmConsoleLogDto();
 		notificationLog.setSent(ZonedDateTime.now());
 		notificationLog.setParent(notification.getId());
+		notificationLog.setTopic(notification.getTopic());
 		// clone message
 		notificationLog.setMessage(getMessage(notification, showGuardedString));
 		// clone recipients - real recipient is console

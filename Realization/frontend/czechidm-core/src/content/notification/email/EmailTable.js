@@ -51,7 +51,7 @@ export class EmailTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.history.push('/notification/emails/' + entity.id);
+    this.context.history.push(`/notification/emails/${ entity.id }`);
   }
 
   _getStatus(data, rowIndex) {
@@ -95,17 +95,18 @@ export class EmailTable extends Advanced.AbstractTableContent {
               }
             }/>
           <Advanced.Column property="created" sort face="datetime"/>
+          <Advanced.Column property="topic" sort face="text"/>
           <Advanced.Column property="message.level" sort face="enum" enumClass={NotificationLevelEnum}/>
           <Advanced.Column property="message.subject" sort face="text"/>
           <Advanced.Column
             property="recipients"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <NotificationRecipientsCell notification={ data[rowIndex] } identityOnly />
-                  );
-                }
-              }/>
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <NotificationRecipientsCell notification={ data[rowIndex] } identityOnly />
+                );
+              }
+            }/>
           <Advanced.Column
             property="sender"
             cell={
@@ -120,7 +121,7 @@ export class EmailTable extends Advanced.AbstractTableContent {
                 return this._getStatus(data, rowIndex);
               }
             }
-            />
+          />
           <Advanced.Column property="sentLog" sort face="text" width="20%"/>
         </Advanced.Table>
       </div>

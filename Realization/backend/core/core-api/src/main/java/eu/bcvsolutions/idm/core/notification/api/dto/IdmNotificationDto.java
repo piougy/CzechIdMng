@@ -47,6 +47,7 @@ public class IdmNotificationDto extends AbstractDto implements BaseNotification 
     
     public IdmNotificationDto(IdmNotificationDto notification) {
         super(notification);
+        //
         topic = notification.getTopic();
         message = notification.getMessage();
         identitySender = notification.getIdentitySender();

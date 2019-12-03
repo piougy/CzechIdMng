@@ -61,7 +61,7 @@ export class NotificationTable extends Advanced.AbstractTableContent {
 
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.history.push(`/notification/notification/${uuidId}?new=1`);
+      this.context.history.push(`/notification/notification/${ uuidId }?new=1`);
     } else {
       this.context.history.push(`/notification/notification/${ entity.id }`);
     }
@@ -104,10 +104,15 @@ export class NotificationTable extends Advanced.AbstractTableContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('NOTIFICATION_CREATE')}>
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={ this.showDetail.bind(this, {}) }
+                rendered={ SecurityManager.hasAuthority('NOTIFICATION_CREATE') }>
                 <Basic.Icon type="fa" icon="plus"/>
-                {' '}
-                {this.i18n('button.send')}
+                { ' ' }
+                { this.i18n('button.send') }
               </Basic.Button>
             ]
           }

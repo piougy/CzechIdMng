@@ -40,15 +40,13 @@ export default class NotificationFilter extends Advanced.Filter {
             <Basic.Col lg={ 4 }>
               <Advanced.Filter.TextField
                 ref="text"
-                placeholder={ this.i18n('content.notifications.filter.text.placeholder') }/>
+                placeholder={ this.i18n('content.notifications.filter.text.placeholder') }
+                help={ Advanced.Filter.getTextHelp() }/>
             </Basic.Col>
             <Basic.Col lg={ 4 }>
-              <Advanced.Filter.SelectBox
-                ref="recipient"
-                placeholder={ this.i18n('content.notifications.filter.recipient.placeholder') }
-                multiSelect={ false }
-                manager={ identityManager }
-                returnProperty="username"/>
+              <Advanced.Filter.TextField
+                ref="topic"
+                placeholder={this.i18n('content.notifications.filter.topic.placeholder')}/>
             </Basic.Col>
             <Basic.Col lg={ 4 }>
               <Advanced.Filter.SelectBox
@@ -68,15 +66,18 @@ export default class NotificationFilter extends Advanced.Filter {
                 enum={ NotificationStateEnum }/>
             </Basic.Col>
             <Basic.Col lg={ 4 }>
-              <Advanced.Filter.TextField
-                ref="topic"
-                placeholder={this.i18n('content.notifications.filter.topic.placeholder')}/>
+              <Advanced.Filter.SelectBox
+                ref="recipient"
+                placeholder={ this.i18n('content.notifications.filter.recipient.placeholder') }
+                multiSelect={ false }
+                manager={ identityManager }
+                returnProperty="username"/>
             </Basic.Col>
             <Basic.Col lg={ 8 } >
             </Basic.Col>
           </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>
-      );
+    );
   }
 }

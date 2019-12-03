@@ -3,7 +3,7 @@ import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
 const authPath = '/authentication';
-const remoteAuthPath = authPath + '/remote-auth';
+const remoteAuthPath = `${ authPath }/remote-auth`;
 
 let lastToken = null;
 
@@ -26,11 +26,11 @@ export default class AuthenticateService {
       password
     };
     return RestApiService
-    .post(authPath, json, false) // false - we don't want to append auth token
-    .then(response => {
-      return response.json();
-    })
-    .then(this._handleOptionalErrorModel);
+      .post(authPath, json, false) // false - we don't want to append auth token
+      .then(response => {
+        return response.json();
+      })
+      .then(this._handleOptionalErrorModel);
   }
 
   remoteLogin() {

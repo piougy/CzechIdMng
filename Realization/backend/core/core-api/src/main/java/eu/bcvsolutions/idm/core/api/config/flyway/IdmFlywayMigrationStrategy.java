@@ -66,6 +66,8 @@ public class IdmFlywayMigrationStrategy implements FlywayMigrationStrategy {
             return databaseProductName;
         } catch (SQLException ex) {
             throw new FlywaySqlException("Error while determining database product name", ex);
+        } finally {
+        	JdbcUtils.closeConnection(connection);
         }
 	}
 	

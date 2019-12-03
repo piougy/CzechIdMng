@@ -26,6 +26,20 @@ class Login extends Basic.AbstractContent {
     return true;
   }
 
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (nextProps.userContext !== this.props.userContext) {
+      if (nextProps.userContext.isAuthenticated) {
+        // redirection to requested page before login
+        const { location } = this.props;
+        if (location.pathname === '/login') {
+          this.context.history.replace('/');
+        } else {
+          this.context.history.replace(location.pathname);
+        }
+      }
+    }
+  }
+
   _redirectIfIsAuthenticated() {
     if (this.props.userContext.isAuthenticated) {
       // redirection to requested page before login

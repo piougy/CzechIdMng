@@ -84,7 +84,7 @@ export class App extends Basic.AbstractContent {
    */
   generateRouteComponents() {
     const basicRoutes = super.generateRouteComponents();
-    const mockRoute = {component: Dashboard, access: [{ type: 'PERMIT_ALL' }]};
+    const mockRoute = {component: Dashboard, access: [{ type: 'IS_AUTHENTICATED' }]};
     return [<Route key="dashboard" exact path="/" component={this._getComponent(mockRoute)}/>, ...basicRoutes];
   }
 

@@ -6,7 +6,6 @@ import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import { FlashMessagesManager, ConfigurationManager, SecurityManager} from '../../../redux';
 import { i18n } from '../../../services/LocalizationService';
-import {AuthenticateService} from '../../../services';
 import IdmContext from '../../../context/idm-context';
 
 /**
@@ -326,12 +325,8 @@ class AbstractContextComponent extends AbstractComponent {
       // Maybe useless, because routes are filtered in Index.js!
       return require('../../../content/error/503');
     }
-    const userContext = AuthenticateService.getUserContext();
-    // Check if is user authenticated, if not, then redirect to the login page.
-    if (!userContext.isAuthenticated) {
-      return require('../../../content/Login');
-    }
-
+    const state = this.context.store.getState();
+    const userContext = state.security.userContext;
     // Check access to the component
     if (!SecurityManager.hasAccess(route.access, userContext)) {
       if (SecurityManager.isAuthenticated(userContext)) {

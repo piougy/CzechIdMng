@@ -44,7 +44,11 @@ class Login extends Basic.AbstractContent {
     this._redirectIfIsAuthenticated();
     this.refs.form.setData({});
     this.refs.username.focus();
-    this.context.store.dispatch(securityManager.remoteLogin());
+    //
+    const { userContext } = this.props;
+    if (!SecurityManager.isAuthenticated(userContext)) {
+      this.context.store.dispatch(securityManager.remoteLogin());
+    }
   }
 
   componentDidUpdate() {

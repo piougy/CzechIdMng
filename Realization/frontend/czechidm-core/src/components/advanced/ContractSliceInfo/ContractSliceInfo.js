@@ -59,7 +59,7 @@ export class ContractSliceInfo extends AbstractEntityInfo {
     const { entityIdentifier } = this.props;
     const _entity = this.getEntity();
     //
-    return `/identity/${encodeURIComponent(_entity._embedded.identity.username)}/contract-slice/${entityIdentifier}/detail`;
+    return `/identity/${encodeURIComponent(_entity._embedded.identity.id)}/contract-slice/${entityIdentifier}/detail`;
   }
 
   /**

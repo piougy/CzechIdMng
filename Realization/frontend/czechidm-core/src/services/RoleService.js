@@ -93,16 +93,16 @@ export default class RoleService extends AbstractRequestFormableService {
    */
   getAvailableAuthorities() {
     return RestApiService
-    .get(RestApiService.getUrl('/authorities/search/available'))
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(RestApiService.getUrl('/authorities/search/available'))
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -112,16 +112,16 @@ export default class RoleService extends AbstractRequestFormableService {
    */
   getAllAuthorities() {
     return RestApiService
-    .get(RestApiService.getUrl('/authorities/search/all'))
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(RestApiService.getUrl('/authorities/search/all'))
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -132,7 +132,7 @@ export default class RoleService extends AbstractRequestFormableService {
    */
   getAttributeFormDefinition(id) {
     return RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/attribute-form-definition`)
+      .get(`${ this.getApiPath() }/${ id }/attribute-form-definition`)
       .then(response => {
         return response.json();
       })
@@ -153,15 +153,15 @@ export default class RoleService extends AbstractRequestFormableService {
    */
   getIncompatibleRoles(id, token = null) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(id)}/incompatible-roles`, token)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/${ id }/incompatible-roles`, token)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }

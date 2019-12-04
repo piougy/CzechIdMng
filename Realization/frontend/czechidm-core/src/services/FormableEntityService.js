@@ -21,13 +21,13 @@ export default class FormableEntityService extends AbstractService {
 
   /**
    * Returns form definitions to given entity
-	 *
+   *
    * @param  {string} id entity identifier
    * @return {promise}
    */
   getFormDefinitions(id) {
     return RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/form-definitions`)
+      .get(`${ this.getApiPath() }/${ id }/form-definitions`)
       .then(response => {
         return response.json();
       })
@@ -41,14 +41,14 @@ export default class FormableEntityService extends AbstractService {
 
   /**
    * Returns filled form values
-	 *
+   *
    * @param  {string} id entity identifier
    * @param  {string} form definition code
    * @return {promise}
    */
   getFormValues(id, definitionCode) {
     return RestApiService
-      .get(this.getApiPath() + `/${ encodeURIComponent(id) }/form-values?definitionCode=${ encodeURIComponent(definitionCode) }`)
+      .get(`${ this.getApiPath() }/${ id }/form-values?definitionCode=${ encodeURIComponent(definitionCode) }`)
       .then(response => {
         return response.json();
       })
@@ -70,7 +70,7 @@ export default class FormableEntityService extends AbstractService {
    */
   saveFormValues(id, definitionCode, values) {
     return RestApiService
-      .post(this.getApiPath() + `/${ encodeURIComponent(id) }/form-values?definitionCode=${ encodeURIComponent(definitionCode) }`, values)
+      .post(`${ this.getApiPath() }/${ id }/form-values?definitionCode=${ encodeURIComponent(definitionCode) }`, values)
       .then(response => {
         return response.json();
       })
@@ -92,7 +92,7 @@ export default class FormableEntityService extends AbstractService {
    */
   saveFormValue(id, value) {
     return RestApiService
-      .post(this.getApiPath() + `/${ encodeURIComponent(id) }/form-value`, value)
+      .post(`${ this.getApiPath() }/${ id }/form-value`, value)
       .then(response => {
         return response.json();
       })
@@ -118,7 +118,7 @@ export default class FormableEntityService extends AbstractService {
       token = AuthenticateService.getTokenCIDMST();
     }
     //
-    return RestApiService.getUrl(this.getApiPath() + `/${ encodeURIComponent(formValue.ownerId) }/form-values/${ encodeURIComponent(formValue.id) }/download?cidmst=${ token }`);
+    return RestApiService.getUrl(`${ this.getApiPath() }/${ formValue.ownerId }/form-values/${ formValue.id }/download?cidmst=${ token }`);
   }
 
   /**
@@ -128,6 +128,6 @@ export default class FormableEntityService extends AbstractService {
    * @return {Promise}
    */
   downloadPreview(formValue) {
-    return RestApiService.download(this.getApiPath() + `/${ encodeURIComponent(formValue.ownerId) }/form-values/${ encodeURIComponent(formValue.id) }/preview`);
+    return RestApiService.download(`${ this.getApiPath() }/${ formValue.ownerId }/form-values/${ formValue.id }/preview`);
   }
 }

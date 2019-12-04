@@ -40,7 +40,7 @@ export class PasswordInfo extends AbstractEntityInfo {
   getLink() {
     const _entity = this.getEntity();
     //
-    return `/identity/${encodeURIComponent(_entity._embedded.identity.username)}/password/detail`;
+    return `/identity/${ _entity._embedded.identity.id }/password/detail`;
   }
 
   /**

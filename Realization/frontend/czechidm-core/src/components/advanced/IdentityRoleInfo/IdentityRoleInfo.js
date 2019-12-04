@@ -64,7 +64,7 @@ export class IdentityRoleInfo extends AbstractEntityInfo {
       return null;
     }
     //
-    return `/identity/${encodeURIComponent(entity._embedded.identityContract._embedded.identity.username)}/roles`;
+    return `/identity/${encodeURIComponent(entity._embedded.identityContract._embedded.identity.id)}/roles`;
     */
   }
 

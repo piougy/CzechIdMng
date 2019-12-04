@@ -1,6 +1,4 @@
-import { Services } from 'czechidm-core';
-import { Domain } from 'czechidm-core';
-import { Utils } from 'czechidm-core';
+import { Services, Domain, Utils } from 'czechidm-core';
 
 /**
  * Service controlls request for virtual systems
@@ -55,7 +53,7 @@ export default class VsRequestService extends Services.AbstractService {
   */
   realize(id, reason) {
     return Services.RestApiService
-      .put(this.getApiPath() + `/${encodeURIComponent(id)}/realize`, {reason})
+      .put(`${ this.getApiPath() }/${ id }/realize`, {reason})
       .then(response => {
         return response.json();
       })
@@ -75,7 +73,7 @@ export default class VsRequestService extends Services.AbstractService {
   */
   cancel(id, reason) {
     return Services.RestApiService
-      .put(this.getApiPath() + `/${encodeURIComponent(id)}/cancel`, {reason})
+      .put(`${ this.getApiPath() }/${ id }/cancel`, {reason})
       .then(response => {
         return response.json();
       })
@@ -95,7 +93,7 @@ export default class VsRequestService extends Services.AbstractService {
   */
   getConnectorObject(id) {
     return Services.RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/connector-object`)
+      .get(`${ this.getApiPath() }/${ id }/connector-object`)
       .then(response => {
         return response.json();
       })
@@ -116,7 +114,7 @@ export default class VsRequestService extends Services.AbstractService {
   */
   getWishConnectorObject(id) {
     return Services.RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/wish-connector-object`)
+      .get(`${ this.getApiPath() }/${ id }/wish-connector-object`)
       .then(response => {
         return response.json();
       })

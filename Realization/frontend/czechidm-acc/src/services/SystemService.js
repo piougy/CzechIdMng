@@ -287,7 +287,7 @@ class SystemService extends Services.AbstractService {
    */
   getAvailableRemoteConnectors(systemId) {
     return Services.RestApiService
-      .get(Services.RestApiService.getUrl(this.getApiPath() + `/${systemId}/search/remote`))
+      .get(Services.RestApiService.getUrl(`${ this.getApiPath() }/${ systemId }/search/remote`))
       .then(response => {
         return response.json();
       })
@@ -301,7 +301,7 @@ class SystemService extends Services.AbstractService {
 
   sendLongPollingRequest(systemId) {
     return Services.RestApiService
-      .get(`${this.getApiPath()}/${encodeURIComponent(systemId)}/check-running-sync`)
+      .get(`${this.getApiPath()}/${ systemId }/check-running-sync`)
       .then(response => response.json())
       .then(json => {
         if (Utils.Response.hasError(json)) {

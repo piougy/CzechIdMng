@@ -2,14 +2,15 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 //
-import { Basic, Domain, Utils } from 'czechidm-core';
-import { AccountManager } from '../../redux';
+import { Basic, Domain, Utils, Managers } from 'czechidm-core';
 import PasswordChangeForm from 'czechidm-core/src/content/identity/PasswordChangeForm';
+import { AccountManager } from '../../redux';
 //
 const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 const RESOURCE_IDM = `0:${IDM_NAME}`;
 //
 const accountManager = new AccountManager();
+const identityManager = new Managers.IdentityManager();
 
 /**
  * In this component include password change and send props with account options
@@ -39,8 +40,9 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
       return null;
     }
 
+    const identity = identityManager.getEntity(this.context.store.getState(), entityId);
     const options = [
-      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
+      { value: RESOURCE_IDM, niceLabel: `${ IDM_NAME }${ identity ? ` (${ identity.username })` : '' }` }
     ];
 
     accounts.forEach(acc => {
@@ -48,7 +50,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
       if (acc.inProtection) {
         return;
       }
-      const niceLabel = acc._embedded.system.name + ' (' + acc.uid + ')';
+      const niceLabel = `${ acc._embedded.system.name } (${ acc.uid })`;
       options.push({
         value: acc.id,
         niceLabel

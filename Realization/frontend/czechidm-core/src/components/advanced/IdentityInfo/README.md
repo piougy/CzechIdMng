@@ -9,7 +9,6 @@ All parameters from AbstractComponent are supported. Added parameters:
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
 | entity | instanceOf(Identity)  |  externally loaded identity. If entity is given, then fetching entity from BE is not needed.  |  |
-| username | string  |  Selected identity's username - identity will be loaded automatically. `entityIdentifier` alias, has lower priority  |  |
 | entityIdentifier | string  |  Selected identity's id - identity will be loaded automatically. `username` alias, has higher priority.  |  |
 | face | oneOf(['full', 'link', 'text'])  |  Decorator: <ul><li>`text`: entity's nice label only</li><li>`link`: entity's nice label with link to detail</li><li>`full`: full info card</li></ul>  |  full |
 | showLink | bool | Shows link to entity's detail | true |

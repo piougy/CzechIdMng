@@ -117,6 +117,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
       this.refs.role.focus();
     });
   }
+
   _onChangeSelectTabs(activeKey) {
     this.setState({
       activeKey

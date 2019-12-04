@@ -20,7 +20,7 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
   /**
    * Identity identifier - can be resolved from params (url) or from user context (global dashboard).
    *
-   * @return {string} id or username (prefered username - more readable)
+   * @return {string} id
    */
   getIdentityIdentifier() {
     const { entityId, userContext } = this.props;
@@ -29,7 +29,7 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
       return entityId;
     }
     if (userContext) {
-      return userContext.username;
+      return userContext.id;
     }
     return null;
   }

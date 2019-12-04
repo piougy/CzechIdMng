@@ -46,7 +46,7 @@ export default class FilterBuilderService extends AbstractService {
    */
   setEnabled(filterBuilderId) {
     return RestApiService
-      .patch(`${ this.getApiPath() }/${ encodeURIComponent(filterBuilderId) }/enable`)
+      .patch(`${ this.getApiPath() }/${ filterBuilderId }/enable`)
       .then(response => {
         if (response.status === 204) {
           return null;

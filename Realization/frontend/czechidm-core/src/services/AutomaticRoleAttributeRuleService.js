@@ -75,7 +75,7 @@ export default class AutomaticRoleAttributeRuleService extends AbstractService {
 
   updateByIdAndRecalculate(id, json) {
     return RestApiService
-      .put(this.getApiPath() + `/${encodeURIComponent(id)}${REACALCULATE_PATH}`, json)
+      .put(`${ this.getApiPath() }/${ id }${ REACALCULATE_PATH }`, json)
       .then(response => {
         return response.json();
       })

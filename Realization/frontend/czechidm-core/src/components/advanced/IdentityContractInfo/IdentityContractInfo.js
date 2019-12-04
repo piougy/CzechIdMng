@@ -73,7 +73,7 @@ export class IdentityContractInfo extends AbstractEntityInfo {
     const { entityIdentifier } = this.props;
     const _entity = this.getEntity();
     //
-    return `/identity/${ encodeURIComponent(_entity._embedded.identity.username) }/identity-contract/${ entityIdentifier }/detail`;
+    return `/identity/${ _entity._embedded.identity.id }/identity-contract/${ entityIdentifier }/detail`;
   }
 
   /**

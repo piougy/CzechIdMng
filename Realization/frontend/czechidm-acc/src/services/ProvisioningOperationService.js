@@ -46,10 +46,10 @@ export default class ProvisioningOperationService extends Services.AbstractServi
    * @param  {string} system identifier
    * @return {Promise}
    */
-  deleteAll(system = null) {
+  deleteAll(systemId = null) {
     let deleteUrl = '/action/bulk/delete';
-    if (!_.isNil(system)) {
-      deleteUrl = deleteUrl + `?system=${encodeURIComponent(system)}`;
+    if (!_.isNil(systemId)) {
+      deleteUrl = `${ deleteUrl }?system=${ systemId }`;
     }
     return Services.RestApiService
       .delete(Services.RestApiService.getUrl(this.getApiPath() + deleteUrl))

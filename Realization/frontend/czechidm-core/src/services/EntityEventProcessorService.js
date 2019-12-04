@@ -45,7 +45,7 @@ export default class EntityEventProcessorService extends AbstractService {
    */
   setEnabled(processorId, enable = true) {
     return RestApiService
-      .patch(`${ this.getApiPath() }/${ encodeURIComponent(processorId) }/${ enable ? 'enable' : 'disable' }`)
+      .patch(`${ this.getApiPath() }/${ processorId }/${ enable ? 'enable' : 'disable' }`)
       .then(response => {
         if (response.status === 204) {
           // construct basic information about de/activated module

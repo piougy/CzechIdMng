@@ -42,7 +42,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
     const { entity } = this.props;
     if (entity) {
       const identity = entity._embedded.identity;
-      this.context.store.dispatch(manager.fetchPermissions(entity.id, `${identity.username}-password-permission`));
+      this.context.store.dispatch(manager.fetchPermissions(entity.id, `${identity.id}-password-permission`));
     }
   }
 
@@ -130,88 +130,94 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
               rendered={ blockLoginDate !== null }
               text={ this.i18n('blockLoginDateInfo', { date: blockLoginDate })} />
             <Basic.AbstractForm ref="form" showLoading={ showLoadingFinal } data={ entity } >
-            <Basic.Row>
-              <Basic.Col lg={ 6 }>
-                <Basic.DateTimePicker
-                  readOnly
-                  ref="created"
-                  helpBlock={ this.i18n('created.help') }
-                  label={ this.i18n('created.label') }/>
-              </Basic.Col>
-              <Basic.Col lg={ 6 }>
-                <Basic.TextField
-                  readOnly
-                  ref="creator"
-                  helpBlock={ this.i18n('creator.help') }
-                  label={ this.i18n('creator.label') }/>
-              </Basic.Col>
-            </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.DateTimePicker
+                    readOnly
+                    ref="created"
+                    helpBlock={ this.i18n('created.help') }
+                    label={ this.i18n('created.label') }/>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.TextField
+                    readOnly
+                    ref="creator"
+                    helpBlock={ this.i18n('creator.help') }
+                    label={ this.i18n('creator.label') }/>
+                </Basic.Col>
+              </Basic.Row>
 
-            <Basic.Row>
-              <Basic.Col lg={ 6 }>
-                <Basic.DateTimePicker
-                  ref="validFrom"
-                  mode="date"
-                  readOnly
-                  helpBlock={ this.i18n('validFrom.help') }
-                  label={ this.i18n('validFrom.label') }/>
-              </Basic.Col>
-              <Basic.Col lg={ 6 }>
-                <Basic.DateTimePicker
-                  ref="validTill"
-                  mode="date"
-                  rendered={!isPasswordNeverExpiresFinall}
-                  readOnly={ !canSave }
-                  helpBlock={ this.i18n('validTill.help') }
-                  label={ this.i18n('validTill.label') }/>
-                <Basic.Alert
-                  ref="passwordNeverExpiresAndValidTillInfo"
-                  rendered={isPasswordNeverExpiresFinall}
-                  level="info"
-                  text={ this.i18n('passwordNeverExpiresAndValidTillInfo', { date: blockLoginDate })}
-                  style={ { margin: 0 } } />
-              </Basic.Col>
-            </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.DateTimePicker
+                    ref="validFrom"
+                    mode="date"
+                    readOnly
+                    helpBlock={ this.i18n('validFrom.help') }
+                    label={ this.i18n('validFrom.label') }/>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.DateTimePicker
+                    ref="validTill"
+                    mode="date"
+                    rendered={!isPasswordNeverExpiresFinall}
+                    readOnly={ !canSave }
+                    helpBlock={ this.i18n('validTill.help') }
+                    label={ this.i18n('validTill.label') }/>
+                  <Basic.Alert
+                    ref="passwordNeverExpiresAndValidTillInfo"
+                    rendered={isPasswordNeverExpiresFinall}
+                    level="info"
+                    text={ this.i18n('passwordNeverExpiresAndValidTillInfo', { date: blockLoginDate })}
+                    style={ { margin: 0 } } />
+                </Basic.Col>
+              </Basic.Row>
 
-            <Basic.Row>
-              <Basic.Col lg={ 6 }>
-                <Basic.TextField
-                  readOnly
-                  ref="unsuccessfulAttempts"
-                  helpBlock={ this.i18n('unsuccessfulAttempts.help') }
-                  label={ this.i18n('unsuccessfulAttempts.label') }/>
-              </Basic.Col>
-            </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.TextField
+                    readOnly
+                    ref="unsuccessfulAttempts"
+                    helpBlock={ this.i18n('unsuccessfulAttempts.help') }
+                    label={ this.i18n('unsuccessfulAttempts.label') }/>
+                </Basic.Col>
+              </Basic.Row>
 
-            <Basic.Row>
-              <Basic.Col lg={ 6 }>
-                <Basic.DateTimePicker
-                  mode="datetime"
-                  readOnly
-                  ref="lastSuccessfulLogin"
-                  helpBlock={ this.i18n('lastSuccessfulLogin.help') }
-                  label={ this.i18n('lastSuccessfulLogin.label') }/>
-              </Basic.Col>
-              <Basic.Col lg={ 6 }>
-                <Basic.DateTimePicker
-                  mode="datetime"
-                  ref="blockLoginDate"
-                  readOnly={ !canSave}
-                  helpBlock={ this.i18n('blockLoginDate.help') }
-                  label={ this.i18n('blockLoginDate.label') }/>
-              </Basic.Col>
-            </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.DateTimePicker
+                    mode="datetime"
+                    readOnly
+                    ref="lastSuccessfulLogin"
+                    helpBlock={ this.i18n('lastSuccessfulLogin.help') }
+                    label={ this.i18n('lastSuccessfulLogin.label') }/>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.DateTimePicker
+                    mode="datetime"
+                    ref="blockLoginDate"
+                    readOnly={ !canSave}
+                    helpBlock={ this.i18n('blockLoginDate.help') }
+                    label={ this.i18n('blockLoginDate.label') }/>
+                </Basic.Col>
+              </Basic.Row>
 
-            <Basic.Checkbox
-              ref="passwordNeverExpires"
-              readOnly={ !canSave }
-              onChange={ this.onChangePasswordNeverExpires.bind(this) }
-              helpBlock={ this.i18n('passwordNeverExpires.help') }
-              label={ this.i18n('passwordNeverExpires.label') }/>
+              <Basic.Checkbox
+                ref="passwordNeverExpires"
+                readOnly={ !canSave }
+                onChange={ this.onChangePasswordNeverExpires.bind(this) }
+                helpBlock={ this.i18n('passwordNeverExpires.help') }
+                label={ this.i18n('passwordNeverExpires.label') }/>
 
             </Basic.AbstractForm>
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={this.context.history.goBack} showLoading={showLoadingFinal}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button
+                type="button"
+                level="link"
+                onClick={this.context.history.goBack}
+                showLoading={showLoadingFinal}>
+                {this.i18n('button.back')}
+              </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"

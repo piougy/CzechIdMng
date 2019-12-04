@@ -68,7 +68,7 @@ class IdentityService extends FormableEntityService {
    */
   passwordChange(username, passwordChangeDto, token = null) {
     return RestApiService.put(
-      RestApiService.getUrl(`/public${ this.getApiPath() }/${ encodeURIComponent(username) }/password-change`),
+      RestApiService.getUrl(`/public${ this.getApiPath() }/${ username }/password-change`),
       passwordChangeDto,
       token
     );
@@ -103,7 +103,7 @@ class IdentityService extends FormableEntityService {
    * @return {Promise}
    */
   passwordMustChange(username, oldPassword, newPassword) {
-    return RestApiService.put(this.getApiPath() + `/password/must-change`, {
+    return RestApiService.put(`${ this.getApiPath() }/password/must-change`, {
       identity: username,
       oldPassword,
       newPassword
@@ -117,23 +117,23 @@ class IdentityService extends FormableEntityService {
    * @param token {string}
    * @return {Promise}
    */
-  getIncompatibleRoles(username, token = null) {
+  getIncompatibleRoles(identityId, token = null) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(username)}/incompatible-roles`, token)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/${ identityId }/incompatible-roles`, token)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
-  sendLongPollingRequest(username) {
+  sendLongPollingRequest(identityId) {
     return RestApiService
-      .get(`${this.getApiPath()}/${encodeURIComponent(username)}/check-unresolved-request`)
+      .get(`${ this.getApiPath() }/${ identityId }/check-unresolved-request`)
       .then(response => response.json())
       .then(json => {
         if (Utils.Response.hasError(json)) {
@@ -155,12 +155,12 @@ class IdentityService extends FormableEntityService {
   /**
    * Deactivates given identity
    *
-   * @param  {String} identity
+   * @param  {String} identity identifier
    * @return {Promise}
    */
-  deactivate(username) {
+  deactivate(id) {
     return RestApiService
-      .patch(this.getApiPath() + `/${encodeURIComponent(username)}/disable`, {})
+      .patch(`${ this.getApiPath() }/${ id }/disable`, {})
       .then(response => {
         return response.json();
       })
@@ -175,12 +175,12 @@ class IdentityService extends FormableEntityService {
   /**
    * Activates given identity
    *
-   * @param  {String} identity
+   * @param  {String} identity identifier
    * @return {Promise}
    */
-  activate(username) {
+  activate(id) {
     return RestApiService
-      .patch(this.getApiPath() + `/${encodeURIComponent(username)}/enable`, {})
+      .patch(`${ this.getApiPath() }/${ id }/enable`, {})
       .then(response => {
         return response.json();
       })
@@ -195,50 +195,50 @@ class IdentityService extends FormableEntityService {
   /**
    * Returns identity accounts
    *
-   * @param  {String} username
+   * @param  {String} identity identifier
    * @return {Promise}
    */
-  getAccounts(username) {
-    return RestApiService.get(this.getApiPath() + `/${encodeURIComponent(username)}/accounts`);
+  getAccounts(id) {
+    return RestApiService.get(`${ this.getApiPath() }/${ id }/accounts`);
   }
 
   /**
    * Get given identity's main position in organization
    *
-   * @param username {string}
+   * @param id {string} identity identifier
    * @param token {string}
    * @return {Promise}
    */
-  getWorkPosition(username) {
+  getWorkPosition(id) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(username)}/work-position`)
-    .then(response => {
-      if (response.status === 204) {
-        // no work position was found
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/${ id }/work-position`)
+      .then(response => {
+        if (response.status === 204) {
+          // no work position was found
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
-  getAuthorities(username) {
+  getAuthorities(id) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(username)}/authorities`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/${ id }/authorities`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -248,21 +248,23 @@ class IdentityService extends FormableEntityService {
    * @return Promise  task instance
    */
   changePermissions(id) {
-    return RestApiService.put(this.getApiPath() + `/${encodeURIComponent(id)}/change-permissions`, null).then(response => {
-      if (response.status === 403) {
-        throw new Error(403);
-      }
-      if (response.status === 404) {
-        throw new Error(404);
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+    return RestApiService
+      .put(`${ this.getApiPath() }/${ id }/change-permissions`, null)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -274,16 +276,16 @@ class IdentityService extends FormableEntityService {
    */
   getProfile(identityId, token = null) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile`, token)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/${ identityId }/profile`, token)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -295,7 +297,7 @@ class IdentityService extends FormableEntityService {
    */
   patchProfile(identityId, profile) {
     return RestApiService
-      .patch(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/profile`, profile)
+      .patch(`${ this.getApiPath() }/${ identityId }/profile`, profile)
       .then(response => response.json())
       .then(json => {
         if (Utils.Response.hasError(json)) {
@@ -310,7 +312,7 @@ class IdentityService extends FormableEntityService {
    */
   uploadProfileImage(identityId, formData) {
     return RestApiService
-      .upload(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/image`, formData)
+      .upload(`${ this.getApiPath() }/${ identityId }/profile/image`, formData)
       .then(response => {
         return response.json();
       })
@@ -329,7 +331,7 @@ class IdentityService extends FormableEntityService {
    * Get image from BE
    */
   downloadProfileImage(identityId) {
-    return RestApiService.download(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/image`);
+    return RestApiService.download(`${ this.getApiPath() }/${ identityId }/profile/image`);
   }
 
   /**
@@ -337,7 +339,7 @@ class IdentityService extends FormableEntityService {
    */
   deleteProfileImage(identityId) {
     return RestApiService
-      .delete(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/image`)
+      .delete(`${ this.getApiPath() }/${ identityId }/profile/image`)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;
@@ -363,16 +365,16 @@ class IdentityService extends FormableEntityService {
    */
   getProfilePermissions(identityId) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(identityId)}/profile/permissions`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/${ identityId }/profile/permissions`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -384,19 +386,19 @@ class IdentityService extends FormableEntityService {
    */
   getPassword(identityId) {
     return RestApiService
-    .get(this.getApiPath() + `/${ encodeURIComponent(identityId) }/password`)
-    .then(response => {
-      if (response.status === 204) { // no content - ok
-        return false;
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/${ identityId }/password`)
+      .then(response => {
+        if (response.status === 204) { // no content - ok
+          return false;
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }
 

@@ -72,9 +72,9 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.history.push(`/identity/new?id=${uuidId}`);
     } else if (!skipDashboard && !shiftKey) {
-      this.context.history.push(`/identity/${encodeURIComponent(entity.username)}/dashboard`);
+      this.context.history.push(`/identity/${ entity.id }/dashboard`);
     } else {
-      this.context.history.push(`/identity/${encodeURIComponent(entity.username)}/profile`);
+      this.context.history.push(`/identity/${ entity.id }/profile`);
     }
   }
 
@@ -263,7 +263,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             rendered={ _.includes(columns, 'entityInfo') }/>
           <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
           <Advanced.ColumnLink
-            to={ `/identity/:username/${ !skipDashboard ? 'dashboard' : 'profile' }` }
+            to={ `/identity/:id/${ !skipDashboard ? 'dashboard' : 'profile' }` }
             property="username"
             width="20%"
             sort

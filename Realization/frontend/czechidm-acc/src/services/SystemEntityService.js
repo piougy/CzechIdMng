@@ -1,13 +1,11 @@
-import { Services } from 'czechidm-core';
-import { Domain } from 'czechidm-core';
+import { Services, Domain, Utils } from 'czechidm-core';
+//
 import SystemEntityTypeEnum from '../domain/SystemEntityTypeEnum';
-import { Utils } from 'czechidm-core';
 
+/**
+ * @author Svanda
+ */
 export default class SystemEntityService extends Services.AbstractService {
-
-  constructor() {
-    super();
-  }
 
   // dto
   supportsPatch() {
@@ -34,7 +32,7 @@ export default class SystemEntityService extends Services.AbstractService {
   */
   getConnectorObject(id) {
     return Services.RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/connector-object`)
+      .get(`${ this.getApiPath() }/${ id }/connector-object`)
       .then(response => {
         if (!response) {
           return null;

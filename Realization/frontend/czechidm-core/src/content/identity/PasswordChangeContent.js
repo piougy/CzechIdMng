@@ -6,9 +6,12 @@ import * as Basic from '../../components/basic';
 import PasswordChangeForm from './PasswordChangeForm';
 import ComponentService from '../../services/ComponentService';
 import ConfigLoader from '../../utils/ConfigLoader';
+import { IdentityManager } from '../../redux';
 
 const IDM_NAME = ConfigLoader.getConfig('app.name', 'CzechIdM');
 const RESOURCE_IDM = `0:${IDM_NAME}`;
+
+const identityManager = new IdentityManager();
 
 /**
  * Password change on the identity detail - overidable content
@@ -26,8 +29,9 @@ class PasswordChangeContent extends Basic.AbstractContent {
     const { userContext, requireOldPassword } = this.props;
     const { entityId } = this.props.match.params;
     //
+    const identity = identityManager.getEntity(this.context.store.getState(), entityId);
     const options = [
-      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME} (${entityId})`}
+      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME}${ identity ? ` (${ identity.username })` : '' }` }
     ];
     return (
       <PasswordChangeForm

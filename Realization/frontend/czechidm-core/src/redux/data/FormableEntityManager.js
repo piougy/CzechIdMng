@@ -92,12 +92,12 @@ export default class FormableEntityManager extends EntityManager {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().saveFormValues(id, definitionCode, values)
-      .then(() => {
-        dispatch(this.fetchFormInstances(id, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(null, uiKey, error, cb));
-      });
+        .then(() => {
+          dispatch(this.fetchFormInstances(id, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
     };
   }
 
@@ -117,15 +117,15 @@ export default class FormableEntityManager extends EntityManager {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().saveFormValue(id, value)
-      .then(() => {
-        dispatch(this.fetchFormInstances(id, uiKey, cb));
-        if (cb) {
-          cb();
-        }
-      })
-      .catch(error => {
-        dispatch(this.receiveError(null, uiKey, error, cb));
-      });
+        .then(() => {
+          dispatch(this.fetchFormInstances(id, uiKey, cb));
+          if (cb) {
+            cb();
+          }
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
     };
   }
 

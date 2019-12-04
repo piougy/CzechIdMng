@@ -1,5 +1,4 @@
-import { Services } from 'czechidm-core';
-import { Domain, Utils } from 'czechidm-core';
+import { Services, Domain, Utils } from 'czechidm-core';
 
 /**
  * Reports
@@ -57,7 +56,7 @@ export default class ReportService extends Services.AbstractService {
    * @return {string} url
    */
   getDownloadUrl(reportId, rendererName) {
-    return Services.RestApiService.getUrl(this.getApiPath() + `/${encodeURIComponent(reportId)}/render?renderer=${encodeURIComponent(rendererName)}&cidmst=${Services.AuthenticateService.getTokenCIDMST()}`);
+    return Services.RestApiService.getUrl(`${ this.getApiPath() }/${ reportId }/render?renderer=${encodeURIComponent(rendererName)}&cidmst=${Services.AuthenticateService.getTokenCIDMST()}`);
   }
 
   /**
@@ -67,15 +66,15 @@ export default class ReportService extends Services.AbstractService {
    */
   getSupportedReports() {
     return Services.RestApiService
-    .get(this.getApiPath() + '/search/supported')
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(this.getApiPath() + '/search/supported')
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }

@@ -4,6 +4,9 @@ import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
 import AuthenticateService from './AuthenticateService';
 
+/**
+ * @author Svanda
+ */
 class WorkflowProcessDefinitionService extends AbstractService {
 
   getApiPath() {
@@ -32,7 +35,7 @@ class WorkflowProcessDefinitionService extends AbstractService {
 
   _getDefinitions(apiUrl) {
     return RestApiService
-      .get(apiUrl + '/')
+      .get(`${ apiUrl }/`)
       .then(response => {
         return response.json();
       })
@@ -63,7 +66,7 @@ class WorkflowProcessDefinitionService extends AbstractService {
    */
   downloadDiagram(id, cb) {
     return RestApiService
-      .download(this.getApiPath() + `/${id}/diagram`)
+      .download(`${ this.getApiPath() }/${ id }/diagram`)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -82,8 +85,7 @@ class WorkflowProcessDefinitionService extends AbstractService {
    * Generate and download diagram of process as XML file
    */
   getProcessDefinitionUrl(definitionId) {
-    return RestApiService.getUrl(this.getApiPath() +
-        `/${encodeURIComponent(definitionId)}/definition?cidmst=${AuthenticateService.getTokenCIDMST()}`);
+    return RestApiService.getUrl(`${ this.getApiPath() }/${ definitionId }/definition?cidmst=${AuthenticateService.getTokenCIDMST()}`);
   }
 }
 

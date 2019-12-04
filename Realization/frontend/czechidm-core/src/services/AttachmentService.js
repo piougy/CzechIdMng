@@ -15,10 +15,6 @@ const DEFAULT_DOWNLOAD_LINK_SUFFIX = '/download/';
 
 export default class AttachmentService extends AbstractRequestService {
 
-  constructor() {
-    super();
-  }
-
   getSubApiPath() {
     return '/attachments';
   }
@@ -51,7 +47,7 @@ export default class AttachmentService extends AbstractRequestService {
    */
   upload(formData) {
     return RestApiService
-      .upload(this.getApiPath() + `/upload`, formData)
+      .upload(`${ this.getApiPath() }/upload`, formData)
       .then(response => {
         return response.json();
       })
@@ -78,14 +74,14 @@ export default class AttachmentService extends AbstractRequestService {
   getDownloadUrl(attachmentId, downloadUrlPrefix, downloadUrlSuffix) {
     let downloadUrl = this.getApiPath();
     if (downloadUrlPrefix) {
-      downloadUrl = `/${downloadUrlPrefix}/${encodeURIComponent(attachmentId)}`;
+      downloadUrl = `/${ downloadUrlPrefix }/${ attachmentId }`;
       if (downloadUrlSuffix) {
-        downloadUrl = downloadUrl + `/${downloadUrlSuffix}`;
+        downloadUrl = `${ downloadUrl }/${ downloadUrlSuffix }`;
       }
     } else {
-      downloadUrl = `/${DEFAULT_DOWNLOAD_LINK_PREFIX}/${encodeURIComponent(attachmentId)}/${DEFAULT_DOWNLOAD_LINK_SUFFIX}`;
+      downloadUrl = `/${ DEFAULT_DOWNLOAD_LINK_PREFIX }/${ attachmentId }/${ DEFAULT_DOWNLOAD_LINK_SUFFIX }`;
     }
-    downloadUrl = `${downloadUrl}?cidmst=${AuthenticateService.getTokenCIDMST()}`;
+    downloadUrl = `${ downloadUrl }?cidmst=${ AuthenticateService.getTokenCIDMST() }`;
     return RestApiService.getUrl(downloadUrl);
   }
 }

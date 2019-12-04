@@ -95,46 +95,46 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       }
     });
     identityManager.preValidate(requestData)
-    .then(response => {
-      if (response.status === 204) {
-        const error = undefined;
-        this.setState({
-          validationError: error,
-          validationDefinition: true
-        });
+      .then(response => {
+        if (response.status === 204) {
+          const error = undefined;
+          this.setState({
+            validationError: error,
+            validationDefinition: true
+          });
 
-        throw error;
-      }
-      return response.json();
-    })
-    .then(json => {
-      let error;
-      if (Utils.Response.getFirstError(json)) {
-        error = Utils.Response.getFirstError(json);
-      } else if (json._errors) {
-        error = json._errors.pop();
-      }
+          throw error;
+        }
+        return response.json();
+      })
+      .then(json => {
+        let error;
+        if (Utils.Response.getFirstError(json)) {
+          error = Utils.Response.getFirstError(json);
+        } else if (json._errors) {
+          error = json._errors.pop();
+        }
 
-      if (error) {
-        this.setState({
-          validationError: error,
-          validationDefinition: true
-        });
+        if (error) {
+          this.setState({
+            validationError: error,
+            validationDefinition: true
+          });
 
-        throw error;
-      }
-      return json;
-    })
-    .catch(error => {
-      if (!error) {
-        return {};
-      }
-      if (error.statusEnum === PASSWORD_PREVALIDATION) {
-        this.addErrorMessage({hidden: true}, error);
-      } else {
-        this.addError(error);
-      }
-    });
+          throw error;
+        }
+        return json;
+      })
+      .catch(error => {
+        if (!error) {
+          return {};
+        }
+        if (error.statusEnum === PASSWORD_PREVALIDATION) {
+          this.addErrorMessage({hidden: true}, error);
+        } else {
+          this.addError(error);
+        }
+      });
   }
 
   save(event) {
@@ -144,9 +144,11 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const { entityId,
+    const {
+      entityId,
       userContext,
-      passwordChangeType } = this.props;
+      passwordChangeType
+    } = this.props;
     const formData = this.refs.form.getData();
 
     // add data from child component to formData
@@ -179,80 +181,91 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     }
     //
     identityService.passwordChange(entityId, requestData)
-    .then(response => {
-      this.setState({
-        showLoading: false
-      }, this.refs.form.processEnded());
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        const error = Utils.Response.getFirstError(json);
+      .then(response => {
+        this.setState({
+          showLoading: false
+        }, this.refs.form.processEnded());
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          const error = Utils.Response.getFirstError(json);
+
+          this.setState({
+            validationError: error,
+            validationDefinition: false
+          });
+
+          throw error;
+        }
+        return json;
+      })
+      .then(json => {
+        const successAccounts = [];
+        const failedAccounts = [];
+        json.forEach(result => {
+          const account = result.model.parameters.account;
+          const accountName = `${account.idm ? IDM_NAME : account.systemName} (${account.uid})`;
+          //
+          if (result.model.statusCode === 200) { // success
+            successAccounts.push(accountName);
+          } else {
+            failedAccounts.push(accountName);
+          }
+        });
+        if (successAccounts.length > 0) {
+          this.addMessage({
+            message: this.i18n('message.success', {
+              accounts: successAccounts.join(', '),
+              username: identityManager.getEntity(this.context.store.getState(), entityId).username
+            })
+          });
+        }
+        if (failedAccounts.length > 0) {
+          this.addMessage({
+            level: 'warning',
+            message: this.i18n('message.failed', {
+              accounts: failedAccounts.join(', '),
+              username: identityManager.getEntity(this.context.store.getState(), entityId).username
+            })
+          });
+        }
 
         this.setState({
-          validationError: error,
-          validationDefinition: false
+          validationError: null
+        }, () => {
+          // new token has to be set to security to prevent user logout
+          this.context.store.dispatch(securityManager.reloadToken());
+          //
+          this.refs.form.processEnded();
+          //
+          // we want clear password input after change
+          this.refs.form.setData({
+            accounts: formData.accounts,
+            oldPassword: null,
+            newPassword: null,
+            newPasswordAgain: null
+          });
+          this._preValidate(this.props.accountOptions);
         });
-
-        throw error;
-      }
-      return json;
-    })
-    .then(json => {
-      const successAccounts = [];
-      const failedAccounts = [];
-      json.forEach(result => {
-        const account = result.model.parameters.account;
-        const accountName = `${account.idm ? IDM_NAME : account.systemName} (${account.uid})`;
-        //
-        if (result.model.statusCode === 200) { // success
-          successAccounts.push(accountName);
+      })
+      .catch(error => {
+        if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+          this.addErrorMessage({hidden: true}, error);
         } else {
-          failedAccounts.push(accountName);
+          this.addError(error);
+          this._preValidate(this.props.accountOptions);
         }
-      });
-      if (successAccounts.length > 0) {
-        this.addMessage({ message: this.i18n('message.success', { accounts: successAccounts.join(', '), username: entityId }) });
-      }
-      if (failedAccounts.length > 0) {
-        this.addMessage({ level: 'warning', message: this.i18n('message.failed', { accounts: failedAccounts.join(', '), username: entityId }) });
-      }
 
-      this.setState({
-        validationError: null
-      }, () => {
-        // new token has to be set to security to prevent user logout
-        this.context.store.dispatch(securityManager.reloadToken());
-        //
-        this.refs.form.processEnded();
-        //
-        // we want clear password input after change
         this.refs.form.setData({
           accounts: formData.accounts,
-          oldPassword: null,
-          newPassword: null,
-          newPasswordAgain: null
+          oldPassword: formData.oldPassword
         });
-        this._preValidate(this.props.accountOptions);
+        this.refs.passwords.setValue(formData.newPassword);
       });
-    })
-    .catch(error => {
-      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
-        this.addErrorMessage({hidden: true}, error);
-      } else {
-        this.addError(error);
-        this._preValidate(this.props.accountOptions);
-      }
-
-      this.refs.form.setData({
-        accounts: formData.accounts,
-        oldPassword: formData.oldPassword
-      });
-      this.refs.passwords.setValue(formData.newPassword);
-    });
   }
 
 
@@ -282,7 +295,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     );
     //
     // if current user is admin, old password is never required
-    let oldPasswordRequired = (entityId === userContext.username) && !SecurityManager.isAdmin(userContext);
+    let oldPasswordRequired = (entityId === userContext.id) && !SecurityManager.isAdmin(userContext);
     if (oldPasswordRequired) {
       oldPasswordRequired = requireOldPasswordConfig;
     }
@@ -304,7 +317,10 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
 
       content.push(
         <Basic.AbstractForm ref="form">
-          <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')}
+          <Basic.TextField
+            type="password"
+            ref="oldPassword"
+            label={this.i18n('password.old')}
             hidden={!oldPasswordRequired}
             disabled={!accountsExits}
             required={oldPasswordRequired}/>

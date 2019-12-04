@@ -56,7 +56,7 @@ export default class AutomaticRoleAttributeService extends AbstractService {
    */
   recalculate(id, callback = null) {
     return RestApiService
-      .post(this.getApiPath() + '/' + id + REACALCULATE_PATH)
+      .post(`${ this.getApiPath() }/${ id }${ REACALCULATE_PATH }`)
       .then(jsonResponse => {
         if (Utils.Response.hasError(jsonResponse)) {
           throw Utils.Response.getFirstError(jsonResponse);
@@ -81,7 +81,7 @@ export default class AutomaticRoleAttributeService extends AbstractService {
    */
   deleteAutomaticRolesViaRequest(id) {
     return RestApiService
-      .delete(this.getApiPath() + `/delete-via-request/${encodeURIComponent(id)}`)
+      .delete(`${ this.getApiPath() }/delete-via-request/${ id }`)
       .then(response => {
         return response.json();
       })

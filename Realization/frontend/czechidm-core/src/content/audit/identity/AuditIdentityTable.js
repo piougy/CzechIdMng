@@ -181,8 +181,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
                     { this._getType(data[rowIndex][property]) }
                   </span>
                 );
-              }}
-              />
+              }}/>
           <Advanced.Column
             property="entityId"
             header={ this.i18n('entity.Audit.entity') }
@@ -216,7 +215,9 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
                 return this._getNiceLabelForOwner(data[rowIndex].ownerType, data[rowIndex].ownerCode);
               }}
           />
-          <Advanced.Column property="subOwnerCode" face="text"
+          <Advanced.Column
+            property="subOwnerCode"
+            face="text"
             cell={
               ({ rowIndex, data }) => {
                 return this._getNiceLabelForOwner(data[rowIndex].subOwnerType, data[rowIndex].subOwnerCode);
@@ -228,12 +229,16 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
             sort
             cell={
               ({ rowIndex, data, property }) => {
-                return <Basic.Label level={AuditModificationEnum.getLevel(data[rowIndex][property])} text={AuditModificationEnum.getNiceLabel(data[rowIndex][property])}/>;
-              }}
-              />
+                return (
+                  <Basic.Label
+                    level={AuditModificationEnum.getLevel(data[rowIndex][property])}
+                    text={AuditModificationEnum.getNiceLabel(data[rowIndex][property])}/>
+                );
+              }}/>
           <Advanced.Column property="modifier" sort face="text"/>
           <Advanced.Column property="timestamp" header={this.i18n('entity.Audit.revisionDate')} sort face="datetime"/>
-          <Advanced.Column hidden
+          <Advanced.Column
+            hidden
             property="changedAttributes"
             cell={
               ({ rowIndex, data, property }) => {

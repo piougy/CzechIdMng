@@ -93,7 +93,8 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * `render` method has to be on the end of react component
 * Character `_` at the start of attribute or method => private attribute or method
 * use less variables
-* use `encodeURIComponent` to encode parameters used directly in urls e.g. ``this.context.router.push(`identity/${encodeURIComponent(entity.username)}/profile`)``
+* prevent to use ``encodeURIComponent`` to encode parameters used directly in urls e.g. ``this.context.router.push(`identity/${encodeURIComponent(entity.username)}/profile`)``
+  * Use ``entity.id`` as url parameters to prevent encoding.
 * use `super.componentDidMount();` in all contents (extends `AbstractContent`).
 * use ``LocalizationTester`` to validate locales (see core test package),
 * listen redux state ``i18nReady: state.config.get('i18nReady')`` if your component / content use localization (F5 is not needed for the change locale).

@@ -30,7 +30,7 @@ class PasswordChangeDashboardButton extends Advanced.AbstractIdentityDashboardBu
   }
 
   onClick() {
-    this.context.history.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/password/change`);
+    this.context.history.push(`/identity/${ encodeURIComponent(this.getIdentityIdentifier()) }/password/change`);
   }
 }
 

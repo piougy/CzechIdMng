@@ -20,7 +20,6 @@ class IdentityRoleDashboard extends Basic.AbstractContent {
 
   render() {
     const { identity, entityId, permissions } = this.props;
-    console.log('%cIdentityRoleDashboard THIS', 'background:black;color:white;', this)
     //
     if (!entityId || !SecurityManager.hasAuthority('IDENTITYROLE_READ')) {
       return null;

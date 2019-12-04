@@ -5,7 +5,6 @@ import * as Utils from '../utils';
 
 class NotificationTemplateService extends AbstractService {
 
-  const
   getApiPath() {
     return '/notification-templates';
   }
@@ -35,7 +34,7 @@ class NotificationTemplateService extends AbstractService {
 
   notificationOperationById(id, operation) {
     return RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/${operation}`)
+      .get(`${ this.getApiPath() }/${ id }/${operation}`)
       .then(response => {
         return response.json();
       })

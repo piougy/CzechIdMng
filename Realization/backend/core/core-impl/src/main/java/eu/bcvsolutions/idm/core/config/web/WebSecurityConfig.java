@@ -130,6 +130,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	    firewall.setAllowUrlEncodedSlash(true);
 	    firewall.setAllowSemicolon(true);
 	    firewall.setAllowUrlEncodedPercent(true);
+	    //
 	    return firewall;
 	}
 	

@@ -32,7 +32,7 @@ class Dashboard extends Basic.AbstractContent {
     const { userContext } = this.props;
     if (userContext) {
       this.context.store.dispatch(
-        identityManager.fetchAuthorities(userContext.username, `identity-authorities-${ userContext.username }`, (entity, error) => {
+        identityManager.fetchAuthorities(userContext.id, `identity-authorities-${ userContext.id }`, (entity, error) => {
           this.handleError(error);
         })
       );
@@ -51,7 +51,7 @@ class Dashboard extends Basic.AbstractContent {
     const { userContext, authorities, identity } = this.props;
     const _authorities = authorities ? authorities.map(authority => authority.authority) : null;
 
-    this.props.match.params = { ...this.props.match.params, entityId: userContext.username };
+    this.props.match.params = { ...this.props.match.params, entityId: userContext.id };
     //
     return (
       <div>
@@ -63,7 +63,7 @@ class Dashboard extends Basic.AbstractContent {
               return (
                 <DashboardComponent
                   key={`${ComponentService.DASHBOARD_COMPONENT_TYPE}-${component.id}`}
-                  entityId={ userContext.username}/>
+                  entityId={ userContext.id }/>
               );
             }).values()]
           }
@@ -102,8 +102,8 @@ function select(state) {
   //
   return {
     userContext,
-    authorities: userContext ? DataManager.getData(state, `identity-authorities-${ userContext.username }`) : null,
-    identity: identityManager.getEntity(state, userContext.username),
+    authorities: userContext ? DataManager.getData(state, `identity-authorities-${ userContext.id }`) : null,
+    identity: identityManager.getEntity(state, userContext.id),
   };
 }
 

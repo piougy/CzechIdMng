@@ -43,39 +43,43 @@ class RequestService extends AbstractService {
   }
 
   createRequest(endpoint, entity) {
-    return RestApiService.post(this.getApiPath() + `/${endpoint}`, entity).then(response => {
-      if (response.status === 403) {
-        throw new Error(403);
-      }
-      if (response.status === 404) {
-        throw new Error(404);
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (ResponseUtils.hasError(json)) {
-        throw ResponseUtils.getFirstError(json);
-      }
-      return json;
-    });
+    return RestApiService
+      .post(`${ this.getApiPath() }/${ endpoint }`, entity)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (ResponseUtils.hasError(json)) {
+          throw ResponseUtils.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   startRequest(idRequest) {
-    return RestApiService.put(this.getApiPath() + `/${idRequest}/start`, null).then(response => {
-      if (response.status === 403) {
-        throw new Error(403);
-      }
-      if (response.status === 404) {
-        throw new Error(404);
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (ResponseUtils.hasError(json)) {
-        throw ResponseUtils.getFirstError(json);
-      }
-      return json;
-    });
+    return RestApiService
+      .put(`${ this.getApiPath() }/${ idRequest }/start`, null)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (ResponseUtils.hasError(json)) {
+          throw ResponseUtils.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -85,7 +89,7 @@ class RequestService extends AbstractService {
    */
   getChanges(id, entityId) {
     return RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/entity/${encodeURIComponent(entityId)}/changes`)
+      .get(`${ this.getApiPath() }/${ id }/entity/${ entityId }/changes`)
       .then(response => {
         if (response.status === 204) {
           return null;

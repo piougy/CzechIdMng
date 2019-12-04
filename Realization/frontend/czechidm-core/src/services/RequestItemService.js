@@ -37,21 +37,22 @@ class RequestItemService extends AbstractService {
   }
 
   startRequest(idRequest) {
-    return RestApiService.put(this.getApiPath() + `/${idRequest}/start`, null).then(response => {
-      if (response.status === 403) {
-        throw new Error(403);
-      }
-      if (response.status === 404) {
-        throw new Error(404);
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (ResponseUtils.hasError(json)) {
-        throw ResponseUtils.getFirstError(json);
-      }
-      return json;
-    });
+    return RestApiService.put(`${ this.getApiPath() }/${ idRequest }/start`, null)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (ResponseUtils.hasError(json)) {
+          throw ResponseUtils.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -60,7 +61,7 @@ class RequestItemService extends AbstractService {
    */
   getChanges(id) {
     return RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}/changes`)
+      .get(`${ this.getApiPath() }/${ id }/changes`)
       .then(response => {
         return response.json();
       })

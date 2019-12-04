@@ -64,14 +64,13 @@ class IdentityDashboard extends Basic.AbstractContent {
       return entityId;
     }
     if (userContext) {
-      // TODO: username or id?
-      return userContext.username;
+      return userContext.id;
     }
     return null;
   }
 
   onIdentityDetail() {
-    this.context.history.push(`/identity/${encodeURIComponent(this.getIdentityIdentifier())}/profile`);
+    this.context.history.push(`/identity/${ this.getIdentityIdentifier() }/profile`);
   }
 
   /**
@@ -127,7 +126,7 @@ class IdentityDashboard extends Basic.AbstractContent {
         return (
           <DashboardButtonComponent
             key={`${ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE}-${component.id}`}
-            entityId={ identity.username }
+            entityId={ identity.id }
             identity={ identity }
             permissions={ _permissions }/>
         );
@@ -141,7 +140,7 @@ class IdentityDashboard extends Basic.AbstractContent {
         return (
           <DashboardComponent
             key={`${ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE}-${component.id}`}
-            entityId={ identity.username }
+            entityId={ identity.id }
             identity={ identity }
             permissions={ _permissions }/>
         );

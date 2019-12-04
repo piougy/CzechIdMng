@@ -92,7 +92,7 @@ export default class AbstractService {
    */
   getById(id) {
     return RestApiService
-      .get(this.getApiPath() + `/${encodeURIComponent(id)}`)
+      .get(`${ this.getApiPath() }/${ id }`)
       .then(response => {
         return response.json();
       })
@@ -155,7 +155,7 @@ export default class AbstractService {
 
   deleteById(id) {
     return RestApiService
-      .delete(this.getApiPath() + `/${encodeURIComponent(id)}`)
+      .delete(`${ this.getApiPath() }/${ id }`)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;
@@ -176,12 +176,14 @@ export default class AbstractService {
   }
 
   /**
-	 * Delete is realized as PUT, because we need to use
-	 * body (is not supported for DELETE)
-	 */
+   * Delete is realized as PUT, because we need to use body (is not supported for DELETE).
+   *
+   * @param  {entity} entity
+   * @return {}        [description]
+   */
   delete(entity) {
     return RestApiService
-      .put(this.getApiPath() + `/${encodeURIComponent(entity.id)}/delete`, entity)
+      .put(`${ this.getApiPath() }/${ entity.id }/delete`, entity)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;
@@ -203,7 +205,7 @@ export default class AbstractService {
 
   updateById(id, json) {
     return RestApiService
-      .put(this.getApiPath() + `/${encodeURIComponent(id)}`, json)
+      .put(`${ this.getApiPath() }/${ id }`, json)
       .then(response => {
         return response.json();
       })
@@ -222,7 +224,7 @@ export default class AbstractService {
 
   patchById(id, json) {
     return RestApiService
-      .patch(this.getApiPath() + `/${encodeURIComponent(id)}`, json)
+      .patch(`${ this.getApiPath() }/${ id }`, json)
       .then(response => {
         return response.json();
       })
@@ -343,18 +345,18 @@ export default class AbstractService {
    */
   getRevisions(entityId) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(entityId)}/revisions`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    }).catch(ex => {
-      throw this._resolveException(ex);
-    });
+      .get(`${ this.getApiPath() }/${ entityId }/revisions`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      }).catch(ex => {
+        throw this._resolveException(ex);
+      });
   }
 
   /**
@@ -366,18 +368,18 @@ export default class AbstractService {
    */
   getRevision(entityId, revId) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(entityId)}/revisions/${encodeURIComponent(revId)}`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    }).catch(ex => {
-      throw this._resolveException(ex);
-    });
+      .get(`${ this.getApiPath() }/${ entityId }/revisions/${ revId }`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      }).catch(ex => {
+        throw this._resolveException(ex);
+      });
   }
 
   /**
@@ -387,18 +389,18 @@ export default class AbstractService {
    */
   getPermissions(id) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(id)}/permissions`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    }).catch(ex => {
-      throw this._resolveException(ex);
-    });
+      .get(`${ this.getApiPath() }/${ id }/permissions`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      }).catch(ex => {
+        throw this._resolveException(ex);
+      });
   }
 
   /**
@@ -411,7 +413,7 @@ export default class AbstractService {
    */
   action(method, actionName, id) {
     return RestApiService
-      .action(method, this.getApiPath() + `/${encodeURIComponent(id)}${actionName ? '/' + actionName : ''}`)
+      .action(method, `${ this.getApiPath() }/${ id }${actionName ? `/${ actionName }` : '' }`)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;
@@ -438,7 +440,7 @@ export default class AbstractService {
    */
   getAvailableBulkActions() {
     return RestApiService
-      .get(this.getApiPath() + `/bulk/actions`)
+      .get(`${ this.getApiPath() }/bulk/actions`)
       .then(response => {
         return response.json();
       })
@@ -461,7 +463,7 @@ export default class AbstractService {
    */
   processBulkAction(action, cb) {
     return RestApiService
-      .post(this.getApiPath() + `/bulk/action`, action)
+      .post(`${ this.getApiPath() }/bulk/action`, action)
       .then(response => {
         return response.json();
       })
@@ -487,7 +489,7 @@ export default class AbstractService {
    */
   prevalidateBulkAction(action, cb) {
     return RestApiService
-      .post(this.getApiPath() + `/bulk/prevalidate`, action)
+      .post(`${ this.getApiPath() }/bulk/prevalidate`, action)
       .then(response => {
         return response.json();
       })

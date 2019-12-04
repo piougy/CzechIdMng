@@ -39,26 +39,28 @@ class RoleRequestService extends AbstractService {
   }
 
   startRequest(idRequest) {
-    return RestApiService.put(this.getApiPath() + `/${idRequest}/start`, null).then(response => {
-      if (response.status === 403) {
-        throw new Error(403);
-      }
-      if (response.status === 404) {
-        throw new Error(404);
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (ResponseUtils.hasError(json)) {
-        throw ResponseUtils.getFirstError(json);
-      }
-      return json;
-    });
+    return RestApiService
+      .put(`${ this.getApiPath() }/${idRequest}/start`, null)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (ResponseUtils.hasError(json)) {
+          throw ResponseUtils.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   copyRolesByIdentity(roleRequestByIdentity) {
     return RestApiService
-      .post(this.getApiPath() + `/copy-roles`, roleRequestByIdentity)
+      .post(`${ this.getApiPath() }/copy-roles`, roleRequestByIdentity)
       .then(response => {
         return response.json();
       })
@@ -81,16 +83,16 @@ class RoleRequestService extends AbstractService {
    */
   getIncompatibleRoles(requestId, token = null) {
     return RestApiService
-    .get(this.getApiPath() + `/${encodeURIComponent(requestId)}/incompatible-roles`, token)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/${ requestId }/incompatible-roles`, token)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
 }

@@ -135,17 +135,19 @@ class PasswordChange extends Basic.AbstractContent {
     const oldPassword = this.refs.passwordOld.getValue();
     const password = this.refs.passwords.getValue();
 
-    identityManager.getService().passwordChange(
-      username,
-      {
-        oldPassword,
-        newPassword: password,
-        all: true, // change in idm and in all accounts
-        resources: [],
-        idm: enabledPasswordChangeForIdm
-      },
-      false
-    )
+    identityManager
+      .getService()
+      .passwordChange(
+        username,
+        {
+          oldPassword,
+          newPassword: password,
+          all: true, // change in idm and in all accounts
+          resources: [],
+          idm: enabledPasswordChangeForIdm
+        },
+        false
+      )
       .then(response => {
         this.setState({
           showLoading: false

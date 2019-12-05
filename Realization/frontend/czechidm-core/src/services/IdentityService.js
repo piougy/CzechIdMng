@@ -68,7 +68,7 @@ class IdentityService extends FormableEntityService {
    */
   passwordChange(username, passwordChangeDto, token = null) {
     return RestApiService.put(
-      RestApiService.getUrl(`/public${ this.getApiPath() }/${ username }/password-change`),
+      RestApiService.getUrl(`/public${ this.getApiPath() }/${ encodeURIComponent(username) }/password-change`),
       passwordChangeDto,
       token
     );
@@ -113,7 +113,7 @@ class IdentityService extends FormableEntityService {
   /**
    * Incompatible roles are resolved from currently assigned identity roles
    *
-   * @param username {string}
+   * @param identityId {string}
    * @param token {string}
    * @return {Promise}
    */

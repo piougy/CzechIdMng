@@ -18,7 +18,6 @@ import { componentDescriptors } from '../dist/modules/componentAssembler';
 // application routes root
 import App from './layout/App';
 import store from './store';
-import routes from './routes';
 
 // global promise init
 // TODO: https://github.com/qubyte/fetch-ponyfill
@@ -26,7 +25,8 @@ Promise.polyfill();
 
 store.dispatch(ConfigActions.appInit(config, moduleDescriptors, componentDescriptors, (error) => {
   if (!error) {
-
+    // We need to init routes after configuration will be loaded
+    const routes = require('./routes');
     // App entry point
     ReactDOM.render(
       <Provider store={store}>

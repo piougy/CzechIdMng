@@ -93,7 +93,9 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
                     : ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD),
           requestedByType: 'MANUALLY'
         }}, () => {
-        this.save(this, false, false);
+        setTimeout(() => {
+          this.save(this, false, false);
+        }, 10);
       });
     } else {
       this.context.store.dispatch(automaticRoleRequestManager.fetchEntity(_entityId));
@@ -113,15 +115,14 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
       if (showCurrentRules) {
         this.context.store.dispatch(automaticRoleAttributeRuleManager.fetchEntities(forceSearchParameters, `${uiKeyRules}-${role}`));
       }
-    } else {
-      if (_request) {
-        let forceSearchParameters = automaticRoleAttributeRuleManager.getDefaultSearchParameters();
-        if (_request.automaticRole) {
-          forceSearchParameters = forceSearchParameters.setFilter('automaticRoleAttributeId', _request.automaticRole);
-        }
-        if (showCurrentRules) {
-          this.context.store.dispatch(automaticRoleAttributeRuleManager.fetchEntities(forceSearchParameters, `${uiKeyRules}-${_request.automaticRole}`));
-        }
+    } else if (_request) {
+      let forceSearchParameters = automaticRoleAttributeRuleManager.getDefaultSearchParameters();
+      if (_request.automaticRole) {
+        forceSearchParameters = forceSearchParameters.setFilter('automaticRoleAttributeId', _request.automaticRole);
+      }
+      if (showCurrentRules) {
+        this.context.store.dispatch(automaticRoleAttributeRuleManager
+          .fetchEntities(forceSearchParameters, `${uiKeyRules}-${_request.automaticRole}`));
       }
     }
   }
@@ -136,20 +137,17 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     if (validate && !this.refs.form.isFormValid()) {
       return;
     }
-
-    this.setState({showLoading: true});
+    // this.setState({showLoading: true});
     const formEntity = this.refs.form.getData();
 
     if (formEntity.id === undefined) {
       this.context.store.dispatch(automaticRoleRequestManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
       }));
+    } else if (startRequest) {
+      this.context.store.dispatch(automaticRoleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
     } else {
-      if (startRequest) {
-        this.context.store.dispatch(automaticRoleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
-      } else {
-        this.context.store.dispatch(automaticRoleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
-      }
+      this.context.store.dispatch(automaticRoleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
     }
   }
 

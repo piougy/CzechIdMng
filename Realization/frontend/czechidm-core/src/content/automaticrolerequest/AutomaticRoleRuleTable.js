@@ -86,7 +86,9 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
         add: multiAdd
       }
     }, () => {
-      this.refs.detail.getForm().setData(entityFormData);
+      setTimeout(() => {
+        this.refs.detail.getForm().setData(entityFormData);
+      }, 10);
     });
   }
 

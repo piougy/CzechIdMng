@@ -92,9 +92,9 @@ export default class SecurityManager {
 
   _handleUserAuthSuccess(dispatch, getState, redirect, json) {
     const decoded = AuthenticateService.decodeToken(json.token);
-    const userName = decoded.currentUsername;
+    const identityId = decoded.currentIdentityId;
     // load identity profile
-    identityService.getProfile(userName, json.token)
+    identityService.getProfile(identityId, json.token)
       .catch(error => {
         // profile is optional - logged identity couldn't have permission for read profile (or profile not found)
         flashMessagesManager.addErrorMessage({ hidden: true, level: 'info' }, error);
@@ -105,7 +105,7 @@ export default class SecurityManager {
         const userContext = {
           id: json.authentication.currentIdentityId,
           isAuthenticated: true,
-          username: userName,
+          username: json.username,
           tokenCIDMST: json.token,
           tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
           authorities: json.authorities.map(authority => authority.authority),

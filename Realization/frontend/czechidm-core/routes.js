@@ -725,11 +725,6 @@ module.exports = {
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTOMATICROLEATTRIBUTE_READ'] } ],
       childRoutes: [
         {
-          path: '/',
-          component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
-          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTOMATICROLEATTRIBUTE_READ'] } ]
-        },
-        {
           path: '/rules',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeRules'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTOMATICROLEATTRIBUTERULE_READ'] } ]
@@ -738,6 +733,11 @@ module.exports = {
           path: '/identities',
           component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeIdentities'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
+        },
+        {
+          path: '/',
+          component: require('./src/content/automaticrole/attribute/AutomaticRoleAttributeContent'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTOMATICROLEATTRIBUTE_READ'] } ]
         }
       ]
     },

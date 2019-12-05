@@ -92,12 +92,6 @@ class IdentityDetail extends Basic.AbstractContent {
         return;
       }
       this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: entity.username }) });
-      //
-      // when username was changed, then new url is replaced
-      const { identity } = this.props;
-      if (identity.username !== entity.username) {
-        this.context.history.replace(`/identity/${encodeURIComponent(entity.username)}/profile`);
-      }
     });
   }
 

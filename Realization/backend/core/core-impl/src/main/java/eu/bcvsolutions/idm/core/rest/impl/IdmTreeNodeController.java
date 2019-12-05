@@ -667,6 +667,12 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 	protected IdmTreeNodeFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmTreeNodeFilter filter = new IdmTreeNodeFilter(parameters);
 		//
+		// @deprecated @since 9.4.0 => will be removed finally in 10.x
+		UUID legacyParentId = getParameterConverter().toUuid(parameters, "treeNodeId");
+		if (legacyParentId != null && filter.getParent() == null) {
+			filter.setParent(legacyParentId);
+		}
+		//
 		return filter;
 	}	
 }

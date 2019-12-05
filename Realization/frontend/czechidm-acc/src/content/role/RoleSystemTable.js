@@ -142,7 +142,7 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
     //
     return (
       <div>
-      <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
@@ -197,48 +197,48 @@ export class RoleSystemTable extends Advanced.AbstractTableContent {
             }
             sort={ false }
             rendered={ showDetailButton }/>
-            <Advanced.Column
-              property="_embedded.systemMapping.entityType"
-              header={this.i18n('acc:entity.SystemEntity.entityType')}
-              rendered={_.includes(columns, 'entityType')}
-              face="enum"
-              enumClass={SystemEntityTypeEnum}
-              sort
-              sortProperty="systemMapping.entityType" />
-            <Advanced.Column
-              property="_embedded.role.name"
-              header={ this.i18n('core:entity.Role._type') }
-              rendered={ _.includes(columns, 'role') }
-              sort
-              sortProperty="role.name"
-              cell={
-                ({ rowIndex, data }) => {
-                  return (
-                    <Advanced.RoleInfo
-                      entityIdentifier={ data[rowIndex]._embedded.role.id }
-                      entity={ data[rowIndex]._embedded.role }
-                      face="popover"
-                      showIcon/>
-                  );
-                }
-              }/>
-            <Advanced.Column
-              header={this.i18n('acc:entity.RoleSystem.system')}
-              rendered={_.includes(columns, 'system')}
-              sort
-              sortProperty="system.name"
-              cell={
-                this.systemInfoCard.bind(this)
-              } />
-            <Advanced.Column
-              property="systemMapping"
-              header={this.i18n('acc:entity.RoleSystem.systemMapping')}
-              rendered={_.includes(columns, 'mapping')}
-              cell={
-                ({ rowIndex, data }) => {
-                  return this._getSystemMappingLink(data[rowIndex]);
-                }
-              }/>
+          <Advanced.Column
+            property="_embedded.systemMapping.entityType"
+            header={this.i18n('acc:entity.SystemEntity.entityType')}
+            rendered={_.includes(columns, 'entityType')}
+            face="enum"
+            enumClass={SystemEntityTypeEnum}
+            sort
+            sortProperty="systemMapping.entityType" />
+          <Advanced.Column
+            property="_embedded.role.name"
+            header={ this.i18n('core:entity.Role._type') }
+            rendered={ _.includes(columns, 'role') }
+            sort
+            sortProperty="role.name"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.RoleInfo
+                    entityIdentifier={ data[rowIndex]._embedded.role.id }
+                    entity={ data[rowIndex]._embedded.role }
+                    face="popover"
+                    showIcon/>
+                );
+              }
+            }/>
+          <Advanced.Column
+            header={this.i18n('acc:entity.RoleSystem.system')}
+            rendered={_.includes(columns, 'system')}
+            sort
+            sortProperty="system.name"
+            cell={
+              this.systemInfoCard.bind(this)
+            } />
+          <Advanced.Column
+            property="systemMapping"
+            header={this.i18n('acc:entity.RoleSystem.systemMapping')}
+            rendered={_.includes(columns, 'mapping')}
+            cell={
+              ({ rowIndex, data }) => {
+                return this._getSystemMappingLink(data[rowIndex]);
+              }
+            }/>
         </Advanced.Table>
       </div>
     );

@@ -105,7 +105,7 @@ public class DefaultReportManager implements ReportManager {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("reportExecutor", report.getExecutorName()));
 		}
 		// create new executor instance
-		executor = (ReportExecutor) AutowireHelper.createBean(executor.getClass());
+		executor = (ReportExecutor) AutowireHelper.createBean(AutowireHelper.getTargetClass(executor));
 		// set event - event will continue after executor is processed
 		executor.setEvent(event);
 		// check if lrt for report is already prepared by scheduler

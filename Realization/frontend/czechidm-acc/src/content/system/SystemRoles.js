@@ -14,10 +14,6 @@ const uiKey = 'system-roles-table';
  */
 export default class SystemRoles extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getUiKey() {
     return uiKey;
   }

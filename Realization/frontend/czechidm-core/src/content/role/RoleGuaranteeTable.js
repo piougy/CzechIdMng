@@ -124,7 +124,8 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
                     entityType="identity"
                     entityIdentifier={ entity.guarantee }
                     entity={ entity._embedded.guarantee }
-                    face="popover"/>
+                    face="popover"
+                    showIcon/>
                 );
               }
             }/>

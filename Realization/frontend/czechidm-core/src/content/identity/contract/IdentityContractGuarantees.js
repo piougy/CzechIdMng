@@ -22,10 +22,6 @@ const identityManager = new IdentityManager();
  */
 class IdentityContractGuarantees extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   componentDidMount() {
     // Lookot: getNavigationKey cannot be used -> profile vs users main tab
     this.selectSidebarItem('identity-contract-guarantees');

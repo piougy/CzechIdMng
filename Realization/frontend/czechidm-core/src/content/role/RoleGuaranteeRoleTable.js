@@ -17,10 +17,6 @@ let roleManager = new RoleManager();
 */
 export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.role.guarantees';
   }
@@ -131,7 +127,8 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
                     entityType="role"
                     entityIdentifier={ entity.guaranteeRole }
                     entity={ entity._embedded.guaranteeRole }
-                    face="popover"/>
+                    face="popover"
+                    showIcon/>
                 );
               }
             }/>

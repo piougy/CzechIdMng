@@ -19,10 +19,6 @@ const systemManager = new SystemManager();
  */
 class SystemEntitiesContent extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return manager;
   }
@@ -44,15 +40,16 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
       system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.match.params.entityId
     });
     if (!Utils.Entity.isNew(entity)) {
-      manager.getService().getConnectorObject(entity.id)
-      .then(json => {
-        const detail = _.merge({}, this.state.detail);
-        detail.connectorObject = json;
-        this.setState({detail});
-      })
-      .catch(error => {
-        this.addError(error);
-      });
+      manager.getService()
+        .getConnectorObject(entity.id)
+        .then(json => {
+          const detail = _.merge({}, this.state.detail);
+          detail.connectorObject = json;
+          this.setState({detail});
+        })
+        .catch(error => {
+          this.addError(error);
+        });
     }
     //
     super.showDetail(entityFormData, () => {
@@ -145,7 +142,13 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               property="uid"
               header={this.i18n('acc:entity.SystemEntity.uid')}
               sort />
-            <Advanced.Column property="entityType" width="75px" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
+            <Advanced.Column
+              property="entityType"
+              width={ 75 }
+              header={ this.i18n('acc:entity.SystemEntity.entityType') }
+              sort
+              face="enum"
+              enumClass={SystemEntityTypeEnum} />
             <Advanced.Column
               property="wish"
               sort
@@ -162,7 +165,10 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
 
           <form onSubmit={this.save.bind(this, {})}>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={ !Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={!_showLoading}
+              text={this.i18n('edit.header', { name: detail.entity.name })}
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
@@ -193,20 +199,22 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
               <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>
 
               <Basic.Table
-                showLoading = {!detail || !detail.hasOwnProperty('connectorObject')}
+                showLoading={ !detail || !detail.hasOwnProperty('connectorObject') }
                 data={detail && detail.connectorObject ? detail.connectorObject.attributes : null}
                 noData={this.i18n('component.basic.Table.noData')}
                 className="table-bordered"
                 rendered={ !Utils.Entity.isNew(detail.entity) }>
                 <Basic.Column property="name" header={this.i18n('label.property')}/>
-                  <Basic.Column property="values" header={this.i18n('label.value')}
-                    cell={
-                      ({ rowIndex, data }) => {
-                        return (
-                          Utils.Ui.toStringValue(data[rowIndex].values)
-                        );
-                      }
-                    }/>
+                <Basic.Column
+                  property="values"
+                  header={this.i18n('label.value')}
+                  cell={
+                    ({ rowIndex, data }) => {
+                      return (
+                        Utils.Ui.toStringValue(data[rowIndex].values)
+                      );
+                    }
+                  }/>
               </Basic.Table>
             </Basic.Modal.Body>
 
@@ -268,15 +276,15 @@ class Filter extends Advanced.Filter {
         <Basic.AbstractForm ref="filterForm">
           <Basic.Row className="last">
             <Basic.Col lg={ 4 }>
+              <Advanced.Filter.TextField
+                ref="text"
+                placeholder={ this.i18n('acc:content.system.entities.filter.text.placeholder') }/>
+            </Basic.Col>
+            <Basic.Col lg={ 4 }>
               <Advanced.Filter.EnumSelectBox
                 ref="entityType"
                 placeholder={ this.i18n('acc:entity.SystemEntity.entityType') }
                 enum={ SystemEntityTypeEnum }/>
-            </Basic.Col>
-            <Basic.Col lg={ 4 }>
-              <Advanced.Filter.TextField
-                ref="text"
-                placeholder={ this.i18n('acc:content.system.entities.filter.text.placeholder') }/>
             </Basic.Col>
             <Basic.Col lg={ 4 } className="text-right">
               <Advanced.Filter.FilterButtons cancelFilter={ onCancel }/>

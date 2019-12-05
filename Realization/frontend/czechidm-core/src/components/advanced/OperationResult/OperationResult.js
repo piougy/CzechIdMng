@@ -169,7 +169,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
             <Basic.EnumValue
               level={ message ? message.level : null }
               value={value.state}
-              style={{ marginLeft: downloadComponent ? 15 : 0 }}
+              style={{ marginRight: downloadComponent ? 15 : 0 }}
               enum={ OperationStateEnum }
               label={ stateLabel }/>
           </Basic.Div>

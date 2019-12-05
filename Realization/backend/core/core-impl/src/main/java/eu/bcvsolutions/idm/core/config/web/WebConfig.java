@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.config.web;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -29,9 +32,11 @@ import org.springframework.web.servlet.config.annotation.ContentNegotiationConfi
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.util.UrlPathHelper;
 
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
@@ -79,6 +84,19 @@ public class WebConfig extends HateoasAwareSpringDataWebConfiguration {
 			mapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false); // db (e.g. posgresql) does not save nanos
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false); // db (e.g. posgresql) does not save nanos
+			//
+			mapper.addHandler(new DeserializationProblemHandler() {
+				
+				/**
+				 * Support simple LocalDate given for ZonedDateTime (e.g. in eavs)
+				 */
+	            @Override
+	            public Object handleWeirdStringValue(DeserializationContext ctxt, Class<?> targetType, String valueToConvert, String failureMsg) {
+	                LocalDate date = LocalDate.parse(valueToConvert, DateTimeFormatter.ISO_DATE);
+	                //
+	                return date.atStartOfDay(ctxt.getTimeZone().toZoneId());
+	            }
+	        });
 			//
 			return mapper;
 		});

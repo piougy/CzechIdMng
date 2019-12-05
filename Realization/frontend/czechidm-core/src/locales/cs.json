@@ -340,7 +340,7 @@
       },
       "messages": "Hlášení",
       "configuration": "Konfigurace aplikace",
-      "userLabel": "{{entityId}}",
+      "userLabel": "{{loggedUsername}}",
       "login": "$t(content.login.header)",
       "logout": "Odhlásit",
       "system": "Nastavení",

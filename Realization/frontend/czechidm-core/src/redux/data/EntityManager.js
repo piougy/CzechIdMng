@@ -150,7 +150,7 @@ export default class EntityManager {
     if (!entityId) {
       return null;
     }
-    return this.getService().getAbsoluteApiPath() + `/${entityId}`;
+    return `${ this.getService().getAbsoluteApiPath() }/${ entityId }`;
   }
 
   getLocalizationPrefix() {
@@ -253,13 +253,14 @@ export default class EntityManager {
       searchParameters = this.getSearchParameters(searchParameters);
       uiKey = this.resolveUiKey(uiKey);
       dispatch(this.requestEntities(searchParameters, uiKey));
-      this.getService().search(searchParameters)
-      .then(json => {
-        dispatch(this.receiveEntities(searchParameters, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError({}, uiKey, error, cb));
-      });
+      this.getService()
+        .search(searchParameters)
+        .then(json => {
+          dispatch(this.receiveEntities(searchParameters, json, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError({}, uiKey, error, cb));
+        });
     };
   }
 
@@ -277,16 +278,17 @@ export default class EntityManager {
       searchParameters = searchParameters.setName(SearchParameters.NAME_COUNT);
       uiKey = this.resolveUiKey(uiKey);
       dispatch(this.dataManager.requestData(uiKey));
-      this.getService().count(searchParameters)
-      .then(count => {
-        this.dataManager.receiveData(uiKey, count, cb);
-        if (cb) {
-          cb(count, null, uiKey);
-        }
-      })
-      .catch(error => {
-        dispatch(this.receiveError({}, uiKey, error, cb));
-      });
+      this.getService()
+        .count(searchParameters)
+        .then(count => {
+          this.dataManager.receiveData(uiKey, count, cb);
+          if (cb) {
+            cb(count, null, uiKey);
+          }
+        })
+        .catch(error => {
+          dispatch(this.receiveError({}, uiKey, error, cb));
+        });
     };
   }
 
@@ -341,15 +343,16 @@ export default class EntityManager {
       //
       uiKey = this.resolveUiKey(uiKey, id);
       dispatch(this.requestEntity(id, uiKey));
-      this.getService().getById(id)
-      .then(json => {
-        dispatch(this.queueFetchPermissions(id, uiKey, () => {
-          dispatch(this.receiveEntity(id, json, uiKey, cb));
-        }));
-      })
-      .catch(error => {
-        dispatch(this.receiveError({ id }, uiKey, error, cb));
-      });
+      this.getService()
+        .getById(id)
+        .then(json => {
+          dispatch(this.queueFetchPermissions(id, uiKey, () => {
+            dispatch(this.receiveEntity(id, json, uiKey, cb));
+          }));
+        })
+        .catch(error => {
+          dispatch(this.receiveError({ id }, uiKey, error, cb));
+        });
     };
   }
 
@@ -412,32 +415,33 @@ export default class EntityManager {
       }
       //
       uiKey = this.resolveUiKey(uiKey, id);
-      this.getService().getPermissions(id)
-      .then(permissions => {
-        dispatch({
-          type: RECEIVE_PERMISSIONS,
-          id,
-          entityType: this.getEntityType(),
-          permissions,
-          uiKey
+      this.getService()
+        .getPermissions(id)
+        .then(permissions => {
+          dispatch({
+            type: RECEIVE_PERMISSIONS,
+            id,
+            entityType: this.getEntityType(),
+            permissions,
+            uiKey
+          });
+          // load permissions to default ui key - refresh
+          dispatch({
+            type: RECEIVE_PERMISSIONS,
+            id,
+            entityType: this.getEntityType(),
+            permissions,
+            uiKey: this.resolveUiKey(null, id)
+          });
+          if (cb) {
+            cb(permissions);
+          }
+        })
+        .catch(error => {
+          if (cb) {
+            cb(null, error);
+          }
         });
-        // load permissions to default ui key - refresh
-        dispatch({
-          type: RECEIVE_PERMISSIONS,
-          id,
-          entityType: this.getEntityType(),
-          permissions,
-          uiKey: this.resolveUiKey(null, id)
-        });
-        if (cb) {
-          cb(permissions);
-        }
-      })
-      .catch(error => {
-        if (cb) {
-          cb(null, error);
-        }
-      });
     };
   }
 
@@ -458,13 +462,14 @@ export default class EntityManager {
     uiKey = this.resolveUiKey(uiKey, entity.id);
     return (dispatch) => {
       dispatch(this.requestEntity(entity.id, uiKey));
-      this.getService().updateById(entity.id, entity)
-      .then(json => {
-        dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(entity, uiKey, error, cb));
-      });
+      this.getService()
+        .updateById(entity.id, entity)
+        .then(json => {
+          dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(entity, uiKey, error, cb));
+        });
     };
   }
 
@@ -512,13 +517,14 @@ export default class EntityManager {
     uiKey = this.resolveUiKey(uiKey, '[new]');
     return (dispatch) => {
       dispatch(this.requestEntity('[new]', uiKey));
-      this.getService().create(entity)
-      .then(json => {
-        dispatch(this.receiveEntity(json.id, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(entity, uiKey, error, cb));
-      });
+      this.getService()
+        .create(entity)
+        .then(json => {
+          dispatch(this.receiveEntity(json.id, json, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(entity, uiKey, error, cb));
+        });
     };
   }
 
@@ -539,13 +545,14 @@ export default class EntityManager {
     uiKey = this.resolveUiKey(uiKey, entity.id);
     return (dispatch) => {
       dispatch(this.requestEntity(entity.id, uiKey));
-      this.getService().deleteById(entity.id)
-      .then(() => {
-        dispatch(this.deletedEntity(entity.id, entity, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(entity, uiKey, error, cb));
-      });
+      this.getService()
+        .deleteById(entity.id)
+        .then(() => {
+          dispatch(this.deletedEntity(entity.id, entity, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(entity, uiKey, error, cb));
+        });
     };
   }
 
@@ -557,71 +564,84 @@ export default class EntityManager {
    * @param  {func} cb - function will be called after entities are deleted or error occured
    * @return {object} - action
    */
-   deleteEntities(entities, uiKey = null, cb = null) {
-     return (dispatch) => {
-       dispatch(
-         this.startBulkAction(
-           {
-             name: 'delete',
-             title: this.i18n(`action.delete.header`, { count: entities.length })
-           },
-           entities.length
-         )
-       );
-       const successEntities = [];
-       const approveEntities = [];
-       let currentEntity = null; // currentEntity in loop
-       entities.reduce((sequence, entity) => {
-         return sequence.then(() => {
-           // stops when first error occurs
-           currentEntity = entity;
-           return this.getService().deleteById(entity.id);
-         }).then(() => {
-           dispatch(this.updateBulkAction());
-           successEntities.push(entity);
-           // remove entity to redux store
-           dispatch(this.deletedEntity(entity.id, entity, uiKey));
-         }).catch(error => {
-           if (error && error.statusCode === 202) {
-             dispatch(this.updateBulkAction());
-             approveEntities.push(entity);
-           } else {
-             if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
-               if (!cb) { // if no callback given, we need show error
-                 dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
-               } else { // otherwise caller has to show eror etc. himself
-                 cb(entity, error, null);
-               }
-             }
-             throw error;
-           }
-         });
-       }, Promise.resolve())
-       .catch((error) => {
-         // nothing - message is propagated before
-         // catch is before then - we want execute next then clausule
-         return error;
-       })
-       .then((error) => {
-         if (successEntities.length > 0) {
-           dispatch(this.flashMessagesManager.addMessage({
-             level: 'success',
-             message: this.i18n(`action.delete.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
-           }));
-         }
-         if (approveEntities.length > 0) {
-           dispatch(this.flashMessagesManager.addMessage({
-             level: 'info',
-             message: this.i18n(`action.delete.accepted`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
-           }));
-         }
-         dispatch(this.stopBulkAction());
-         if (cb) {
-           cb(null, error, successEntities);
-         }
-       });
-     };
-   }
+  deleteEntities(entities, uiKey = null, cb = null) {
+    return (dispatch) => {
+      dispatch(
+        this.startBulkAction(
+          {
+            name: 'delete',
+            title: this.i18n(`action.delete.header`, { count: entities.length })
+          },
+          entities.length
+        )
+      );
+      const successEntities = [];
+      const approveEntities = [];
+      let currentEntity = null; // currentEntity in loop
+      entities.reduce((sequence, entity) => {
+        return sequence
+          .then(() => {
+            // stops when first error occurs
+            currentEntity = entity;
+            return this.getService().deleteById(entity.id);
+          })
+          .then(() => {
+            dispatch(this.updateBulkAction());
+            successEntities.push(entity);
+            // remove entity to redux store
+            dispatch(this.deletedEntity(entity.id, entity, uiKey));
+          })
+          .catch(error => {
+            if (error && error.statusCode === 202) {
+              dispatch(this.updateBulkAction());
+              approveEntities.push(entity);
+            } else {
+              if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
+                if (!cb) { // if no callback given, we need show error
+                  dispatch(this.flashMessagesManager.addErrorMessage({
+                    title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) })
+                  }, error));
+                } else { // otherwise caller has to show eror etc. himself
+                  cb(entity, error, null);
+                }
+              }
+              throw error;
+            }
+          });
+      }, Promise.resolve())
+        .catch((error) => {
+          // nothing - message is propagated before
+          // catch is before then - we want execute next then clausule
+          return error;
+        })
+        .then((error) => {
+          if (successEntities.length > 0) {
+            dispatch(this.flashMessagesManager.addMessage({
+              level: 'success',
+              message: this.i18n(`action.delete.success`, {
+                count: successEntities.length,
+                records: this.getNiceLabels(successEntities).join(', '),
+                record: this.getNiceLabel(successEntities[0])
+              })
+            }));
+          }
+          if (approveEntities.length > 0) {
+            dispatch(this.flashMessagesManager.addMessage({
+              level: 'info',
+              message: this.i18n(`action.delete.accepted`, {
+                count: approveEntities.length,
+                records: this.getNiceLabels(approveEntities).join(', '),
+                record: this.getNiceLabel(approveEntities[0])
+              })
+            }));
+          }
+          dispatch(this.stopBulkAction());
+          if (cb) {
+            cb(null, error, successEntities);
+          }
+        });
+    };
+  }
 
   /**
    * Common bulk action on single entity, supports put (=> update) actions only
@@ -676,29 +696,29 @@ export default class EntityManager {
           }
         });
       }, Promise.resolve())
-      .catch((error) => {
-        // nothing - message is propagated before
-        // catch is before then - we want execute next then clausule
-        return error;
-      })
-      .then((error) => {
-        if (successEntities.length > 0) {
-          dispatch(this.flashMessagesManager.addMessage({
-            level: 'success',
-            message: this.i18n(`action.${actionName}.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
-          }));
-        }
-        if (approveEntities.length > 0) {
-          dispatch(this.flashMessagesManager.addMessage({
-            level: 'info',
-            message: this.i18n(`action.${actionName}.accepted`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
-          }));
-        }
-        dispatch(this.stopBulkAction());
-        if (cb) {
-          cb(null, error, successEntities);
-        }
-      });
+        .catch((error) => {
+          // nothing - message is propagated before
+          // catch is before then - we want execute next then clausule
+          return error;
+        })
+        .then((error) => {
+          if (successEntities.length > 0) {
+            dispatch(this.flashMessagesManager.addMessage({
+              level: 'success',
+              message: this.i18n(`action.${actionName}.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
+            }));
+          }
+          if (approveEntities.length > 0) {
+            dispatch(this.flashMessagesManager.addMessage({
+              level: 'info',
+              message: this.i18n(`action.${actionName}.accepted`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
+            }));
+          }
+          dispatch(this.stopBulkAction());
+          if (cb) {
+            cb(null, error, successEntities);
+          }
+        });
     };
   }
 
@@ -744,23 +764,23 @@ export default class EntityManager {
           throw error;
         });
       }, Promise.resolve())
-      .catch((error) => {
-        // nothing - message is propagated before
-        // catch is before then - we want execute next then clausule
-        return error;
-      })
-      .then((error) => {
-        if (successEntities.length > 0) {
-          dispatch(this.flashMessagesManager.addMessage({
-            level: 'success',
-            message: this.i18n(`action.duplicate.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
-          }));
-        }
-        dispatch(this.stopBulkAction());
-        if (cb) {
-          cb(null, error, successEntities);
-        }
-      });
+        .catch((error) => {
+          // nothing - message is propagated before
+          // catch is before then - we want execute next then clausule
+          return error;
+        })
+        .then((error) => {
+          if (successEntities.length > 0) {
+            dispatch(this.flashMessagesManager.addMessage({
+              level: 'success',
+              message: this.i18n(`action.duplicate.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
+            }));
+          }
+          dispatch(this.stopBulkAction());
+          if (cb) {
+            cb(null, error, successEntities);
+          }
+        });
     };
   }
 
@@ -869,7 +889,7 @@ export default class EntityManager {
         cb(null, error);
       } else {
         dispatch(this.flashMessagesManager.addErrorMessage({
-          key: 'error-' + this.getEntityType()
+          key: `error-${ this.getEntityType() }`
         }, error));
       }
       dispatch({
@@ -951,7 +971,7 @@ export default class EntityManager {
   }
 
   /**
-   *	Returns entities by ids, if entities are contained in applicateion state.
+   * Returns entities by ids, if entities are contained in applicateion state.
    *
    * @param  {state} state [description]
    * @param  {array[string|number]} ids  entity ids
@@ -994,7 +1014,7 @@ export default class EntityManager {
    * @return {boolean} - true, when entity is not contained in state and loading does not processing
    */
   fetchEntityIsNeeded(state, id, uiKey = null, cb = null) {
-    uiKey = this.resolveUiKey(uiKey. id);
+    uiKey = this.resolveUiKey(uiKey.id);
     // entity is saved in state
     if (this.getEntity(state, id)) {
       return false;
@@ -1164,6 +1184,7 @@ export default class EntityManager {
       type: STOP_BULK_ACTION
     };
   }
+
   /**
    * Load revisions from server
    *
@@ -1337,13 +1358,14 @@ export default class EntityManager {
    */
   prevalidateBulkAction(action, cb) {
     return (dispatch) => {
-      this.getService().prevalidateBulkAction(action, cb)
-      .then(json => {
-        return json;
-      })
-      .catch(error => {
-        dispatch(this.receiveError(null, null, error, cb));
-      });
+      this.getService()
+        .prevalidateBulkAction(action, cb)
+        .then(json => {
+          return json;
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, null, error, cb));
+        });
     };
   }
 
@@ -1356,13 +1378,14 @@ export default class EntityManager {
    */
   processBulkAction(action, cb) {
     return (dispatch) => {
-      this.getService().processBulkAction(action, cb)
-      .then(json => {
-        return json;
-      })
-      .catch(error => {
-        dispatch(this.receiveError(null, null, error, cb));
-      });
+      this.getService()
+        .processBulkAction(action, cb)
+        .then(json => {
+          return json;
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, null, error, cb));
+        });
     };
   }
 }

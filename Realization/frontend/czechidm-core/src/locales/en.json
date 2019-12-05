@@ -310,7 +310,7 @@
       },
       "messages": "Messages history",
       "configuration": "Configuration",
-      "userLabel": "{{entityId}}",
+      "userLabel": "{{loggedUsername}}",
       "login": "$t(content.login.header)",
       "logout": "Log Out",
       "system": "Settings",

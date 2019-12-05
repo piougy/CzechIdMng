@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * once a day after midnight.
  * 
  * TODO: statefull + continue on exception
+ * FIXME: create role request!
  * 
  * @author Jan Helbich
  * @author Radek Tomiška

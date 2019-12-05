@@ -63,7 +63,7 @@ export default class IncompatibleRoleWarning extends Basic.AbstractContextCompon
                 }
               ]
             }>
-            <Basic.Column property="label"/>
+            <Basic.Column property="label" width={ 150 }/>
             <Basic.Column property="value"/>
           </Basic.Table>
         </Basic.Panel>

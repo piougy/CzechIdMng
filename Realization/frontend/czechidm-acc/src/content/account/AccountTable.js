@@ -50,15 +50,16 @@ export class AccountTable extends Advanced.AbstractTableContent {
     }
     this.setState({
       systemEntity: entity.systemEntity
-    }, ()=> {
+    }, () => {
       if (!Utils.Entity.isNew(entity)) {
-        manager.getService().getConnectorObject(entity.id)
-        .then(json => {
-          this.setState({connectorObject: json});
-        })
-        .catch(error => {
-          this.addError(error);
-        });
+        manager.getService()
+          .getConnectorObject(entity.id)
+          .then(json => {
+            this.setState({connectorObject: json});
+          })
+          .catch(error => {
+            this.addError(error);
+          });
       }
       super.showDetail(entity, () => {
         this.refs.uid.focus();
@@ -175,6 +176,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
             property=""
             header=""
             className="detail-button"
+            rendered={ Managers.SecurityManager.hasAllAuthorities(['SYSTEM_READ']) }
             cell={
               ({ rowIndex, data }) => {
                 return (
@@ -199,7 +201,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
             rendered={ _.includes(columns, 'targetEntity') }
             header={ this.i18n('acc:entity.Account.targetEntity') }
             cell={ this.renderTargetEntity.bind(this) }
-            />
+          />
           <Advanced.Column
             header={ this.i18n('acc:entity.System.name') }
             rendered={ _.includes(columns, 'system') }
@@ -302,13 +304,15 @@ export class AccountTable extends Advanced.AbstractTableContent {
               <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>
 
               <Basic.Table
-                showLoading = { !connectorObject && !this.state.hasOwnProperty('connectorObject') }
+                showLoading={ !connectorObject && !this.state.hasOwnProperty('connectorObject') }
                 data={ connectorObject ? connectorObject.attributes : null }
                 noData={ this.i18n('component.basic.Table.noData') }
                 className="table-bordered"
                 rendered={ !Utils.Entity.isNew(detail.entity) }>
                 <Basic.Column property="name" header={ this.i18n('label.property') }/>
-                <Basic.Column property="values" header={ this.i18n('label.value') }
+                <Basic.Column
+                  property="values"
+                  header={ this.i18n('label.value') }
                   cell={
                     ({ rowIndex, data }) => {
                       return (

@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
  */
 @Entity
 @Table(name = "idm_identity_role", indexes = {
+		@Index(name = "ux_idm_identity_role_cont_aut", columnList = "identity_contract_id,automatic_role_id", unique = true),
 		@Index(name = "idx_idm_identity_role_ident_c", columnList = "identity_contract_id"),
 		@Index(name = "idx_idm_identity_role_con_pos", columnList = "contract_position_id"),
 		@Index(name = "idx_idm_identity_role_role", columnList = "role_id"),

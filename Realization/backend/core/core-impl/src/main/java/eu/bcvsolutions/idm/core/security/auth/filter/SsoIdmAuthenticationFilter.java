@@ -152,7 +152,7 @@ public class SsoIdmAuthenticationFilter extends AbstractAuthenticationFilter {
 		return token;
 	}
 
-	private boolean isSsoDisabledForIdentity(IdmIdentityDto identity) {
+	protected boolean isSsoDisabledForIdentity(IdmIdentityDto identity) {
 		// TODO 
 		// Create a new permission APP_SSODISABLED, which could disable SSO for "less important" administrators.
 		// This requires a change in IdmAuthorizationPolicyService#getGrantedAuthorities

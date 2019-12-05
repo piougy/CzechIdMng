@@ -14,10 +14,6 @@ const manager = new ContractSliceManager();
  */
 class ContractSliceContent extends Basic.AbstractContent {
 
-  constructor(props) {
-    super(props);
-  }
-
   getContentKey() {
     return 'content.contract-slice.detail';
   }
@@ -30,7 +26,7 @@ class ContractSliceContent extends Basic.AbstractContent {
     const contractId = (query) ? query.contractId : null;
 
     if (this._isNew()) {
-      this.context.store.dispatch(manager.receiveEntity(entityId, {'parentContract': contractId }));
+      this.context.store.dispatch(manager.receiveEntity(entityId, { parentContract: contractId }));
     } else {
       this.context.store.dispatch(manager.fetchEntity(entityId));
     }

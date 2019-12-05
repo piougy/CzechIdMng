@@ -37,15 +37,16 @@ class ContractSlice extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading, params } = this.props;
-
+    const { identityId } = this.props.match.params;
+    const { entity, showLoading } = this.props;
+    //
     return (
       <div>
         <Basic.PageHeader showLoading={!entity && showLoading}>
-          {manager.getNiceLabel(entity)} <small> {this.i18n('content.contract-slice.detail.header')}</small>
+          { manager.getNiceLabel(entity) } <small> { this.i18n('content.contract-slice.detail.header') }</small>
         </Basic.PageHeader>
 
-        <OrganizationPosition identity={ params.identityId }/>
+        <OrganizationPosition identity={ identityId }/>
 
         <Advanced.TabPanel parentId="identity-contract-slices" match={ this.props.match }>
           {this.getRoutes()}

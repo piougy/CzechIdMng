@@ -117,7 +117,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
         this.context.history.goBack();
       } else {
         const { identityId } = this.props.match.params;
-        this.context.history.replace(`/identity/${encodeURIComponent(identityId)}/contract-slice/${entity.id}/detail`);
+        this.context.history.replace(`/identity/${ identityId }/contract-slice/${ entity.id }/detail`);
       }
     });
   }
@@ -131,8 +131,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
     const { _showLoading, entityFormData } = this.state;
     const { identityId} = this.props.match.params;
 
-    const parentForceSearchParameters = new SearchParameters()
-    .setFilter('identity', identityId ? identityId : SearchParameters.BLANK_UUID);
+    const parentForceSearchParameters = new SearchParameters().setFilter('identity', identityId || SearchParameters.BLANK_UUID);
     const canSave = contractSliceManager.canSave(entity, _permissions);
 
     return (

@@ -112,7 +112,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
     this.setState({
       showLoading: false
     });
-    this.context.history.replace('notification/templates/');
+    this.context.history.replace('/notification/templates/');
   }
 
   onRedeployOrBackup(actionValue, event) {

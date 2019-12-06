@@ -66,6 +66,7 @@ import eu.bcvsolutions.idm.core.model.event.processor.NeverEndingProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.ObserveDtoProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.TestIdentityNotifyProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -81,6 +82,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private EntityStateManager entityStateManager;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private EventConfiguration eventConfiguration;
+	@Autowired private SecurityService securityService;
 	@Autowired
 	@Qualifier("testTwoEntityEventProcessorOne")
 	private EntityEventProcessor<?> testTwoEntityEventProcessorOne;
@@ -223,6 +226,8 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	
 	@Test 
 	public void testProcessorSameOrder() {
+		Assert.assertFalse(eventConfiguration.isAsynchronous());
+		//
 		EntityEvent<TestContentTwo> event = new CoreEvent<>(CoreEventType.EAV_SAVE, new TestContentTwo());
 		EventContext<TestContentTwo> context = manager.process(event);
 		//
@@ -232,7 +237,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 
 	@Test
 	public void testConfigPropertyEventTypeOverwrite() {
-		String eventTypeName = System.nanoTime() + "_test_type";
+		String eventTypeName = getHelper().createName() + "_test_type";
 		EventType type = (EventType) () -> eventTypeName;
 		EntityEvent<TestContentTwo> event = new CoreEvent<>(type, new TestContentTwo());
 		EventContext<TestContentTwo> context = manager.process(event);
@@ -264,55 +269,54 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		EntityEvent<TestContent> event = new CoreEvent<>(TestEntityEventProcessorConfiguration.EVENT_TYPE_ORDER, new TestContent());
 		EventContext<TestContent> context = manager.process(event);
 		//
-		// Look out: processors are executed in random order in configured order is same
+		// Look out: processors are executed in random order, if configured order is same
 		assertEquals(7, context.getResults().size());
 	}
 	
-	// FIXME: pool size fails
-//	@Test
-//	public void testMultiThreadEventProcessing() {
-//		List<IdmEntityEventDto> events = new ArrayList<>();
-//		try {
-//			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
-//			int count = 250; // 15s 
-//			//
-//			// create events
-//			String eventType = getHelper().createName();
-//			for (int i = 0; i < count; i++) {
-//				MockOwner mockOwner = new MockOwner();
-//				IdmEntityEventDto entityEvent = new IdmEntityEventDto();
-//				entityEvent.setOwnerType(mockOwner.getClass().getCanonicalName());
-//				entityEvent.setEventType(eventType);
-//				entityEvent.setOwnerId((UUID) mockOwner.getId());
-//				entityEvent.setContent(mockOwner);
-//				entityEvent.setInstanceId(configurationService.getInstanceId());
-//				entityEvent.setResult(new OperationResultDto(OperationState.CREATED));
-//				entityEvent.setPriority(PriorityType.NORMAL);
-//				events.add(entityEventService.save(entityEvent));
-//			}
-//			//
-//			IdmEntityEventFilter filter = new IdmEntityEventFilter();
-//			filter.setOwnerType(MockOwner.class.getCanonicalName());
-//			filter.setEventType(eventType);
-//			filter.setStates(Lists.newArrayList(OperationState.CREATED, OperationState.RUNNING));
-//			Assert.assertEquals(count, entityEventService.find(filter, PageRequest.of(0, 1)).getTotalElements());
-//			//
-//			// execute
-//			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
-//			//
-//			// wait for executed events
-//			getHelper().waitForResult(res -> {
-//				return entityEventService.find(filter, PageRequest.of(0, 1)).getTotalElements() != 0;
-//			}, 1000, Integer.MAX_VALUE);
-//			//
-//			// check what happened
-//			filter.setStates(Lists.newArrayList(OperationState.EXECUTED));
-//			Assert.assertEquals(count, entityEventService.find(filter, PageRequest.of(0, 1)).getTotalElements());			
-//		} finally {
-//			events.forEach(e -> entityEventService.delete(e));
-//			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
-//		}
-//	}
+	@Test
+	public void testMultiThreadEventProcessing() {
+		List<IdmEntityEventDto> events = new ArrayList<>();
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			int count = 250; // 15s 
+			//
+			// create events
+			String eventType = getHelper().createName();
+			for (int i = 0; i < count; i++) {
+				MockOwner mockOwner = new MockOwner();
+				IdmEntityEventDto entityEvent = new IdmEntityEventDto();
+				entityEvent.setOwnerType(mockOwner.getClass().getCanonicalName());
+				entityEvent.setEventType(eventType);
+				entityEvent.setOwnerId((UUID) mockOwner.getId());
+				entityEvent.setContent(mockOwner);
+				entityEvent.setInstanceId(configurationService.getInstanceId());
+				entityEvent.setResult(new OperationResultDto(OperationState.CREATED));
+				entityEvent.setPriority(PriorityType.NORMAL);
+				events.add(entityEventService.save(entityEvent));
+			}
+			//
+			IdmEntityEventFilter filter = new IdmEntityEventFilter();
+			filter.setOwnerType(MockOwner.class.getCanonicalName());
+			filter.setEventType(eventType);
+			filter.setStates(Lists.newArrayList(OperationState.CREATED, OperationState.RUNNING));
+			Assert.assertEquals(count, entityEventService.find(filter, PageRequest.of(0, 1)).getTotalElements());
+			//
+			// execute
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			//
+			// wait for executed events
+			getHelper().waitForResult(res -> {
+				return entityEventService.find(filter, PageRequest.of(0, 1)).getTotalElements() != 0;
+			}, 1000, 10);
+			//
+			// check what happened
+			filter.setStates(Lists.newArrayList(OperationState.EXECUTED));
+			Assert.assertEquals(count, entityEventService.find(filter, PageRequest.of(0, 1)).getTotalElements());			
+		} finally {
+			events.forEach(e -> entityEventService.delete(e));
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		}
+	}
 	
 	@Test
 	public void testRemoveDuplicateEventsForTheSameOwner() {
@@ -612,10 +616,10 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			// wait for executed event is running
 			getHelper().waitForResult(res -> {
 				return !manager.isRunningOwner(identity.getId());
-			}, 500, Integer.MAX_VALUE);
+			}, 500, 20);
 			getHelper().waitForResult(res -> {
 				return entityEventService.find(filter, PageRequest.of(0, 1)).getContent().isEmpty();
-			}, 500, Integer.MAX_VALUE);
+			}, 500, 20);
 			Assert.assertTrue(manager.isRunningOwner(identity.getId()));
 			//
 			IdmEntityEventDto entityEvent = entityEventService.find(filter, PageRequest.of(0, 1)).getContent().get(0);
@@ -665,7 +669,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			// wait for executed event is running
 			getHelper().waitForResult(res -> {
 				return !manager.isRunningOwner(identity.getId());
-			}, 500, Integer.MAX_VALUE);
+			}, 500, 20);
 			Assert.assertTrue(manager.isRunningOwner(identity.getId()));
 			//
 			//
@@ -688,19 +692,20 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 	@Test
 	public void testExecuteAsyncEventUnderEventCreatorAuthentication() {
 		try {
-			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
-			
 			// Create role request - identity roles has to be created under creators authority
 			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 			loginAsAdmin(identity.getUsername());
+			Assert.assertEquals(identity.getUsername(), securityService.getCurrentUsername());
 			IdmRoleDto role = getHelper().createRole();
+			//
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
 			//
 			IdmRoleRequestDto request = getHelper().createRoleRequest(getHelper().getPrimeContract(identity), role);
 			getHelper().executeRequest(request, false, false);
 			
 			getHelper().waitForResult(res -> {
 				return identityRoleService.findValidRoles(identity.getId(), null).getContent().isEmpty();
-			}, 500, Integer.MAX_VALUE);
+			}, 500, 20);
 			
 			List<IdmIdentityRoleDto> roles = identityRoleService.findValidRoles(identity.getId(), null).getContent();
 			//
@@ -734,7 +739,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			
 			getHelper().waitForResult(res -> {
 				return identityRoleService.findValidRoles(identity.getId(), null).getContent().isEmpty();
-			}, 500, Integer.MAX_VALUE);
+			}, 500, 20);
 			//
 			// created events for the request
 			IdmEntityEventFilter filter = new IdmEntityEventFilter();

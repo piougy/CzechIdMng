@@ -53,7 +53,7 @@ export default class VsRequestService extends Services.AbstractService {
   */
   realize(id, reason) {
     return Services.RestApiService
-      .put(`${ this.getApiPath() }/${ id }/realize`, {reason})
+      .put(`${ this.getApiPath() }/${ encodeURIComponent(id) }/realize`, {reason})
       .then(response => {
         return response.json();
       })
@@ -73,7 +73,7 @@ export default class VsRequestService extends Services.AbstractService {
   */
   cancel(id, reason) {
     return Services.RestApiService
-      .put(`${ this.getApiPath() }/${ id }/cancel`, {reason})
+      .put(`${ this.getApiPath() }/${ encodeURIComponent(id) }/cancel`, {reason})
       .then(response => {
         return response.json();
       })
@@ -93,7 +93,7 @@ export default class VsRequestService extends Services.AbstractService {
   */
   getConnectorObject(id) {
     return Services.RestApiService
-      .get(`${ this.getApiPath() }/${ id }/connector-object`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/connector-object`)
       .then(response => {
         return response.json();
       })
@@ -114,7 +114,7 @@ export default class VsRequestService extends Services.AbstractService {
   */
   getWishConnectorObject(id) {
     return Services.RestApiService
-      .get(`${ this.getApiPath() }/${ id }/wish-connector-object`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/wish-connector-object`)
       .then(response => {
         return response.json();
       })

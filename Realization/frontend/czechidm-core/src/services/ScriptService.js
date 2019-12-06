@@ -47,7 +47,7 @@ class ScriptService extends AbstractService {
    */
   scriptOperationById(id, operation) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/${operation}`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/${ operation }`)
       .then(response => {
         return response.json();
       })
@@ -69,7 +69,7 @@ class ScriptService extends AbstractService {
 
   // script references
   _getScriptReferences(scriptId) {
-    return RestApiService.get(`${ this.getApiPath() }/${ scriptId }/getScriptReferences`);
+    return RestApiService.get(`${ this.getApiPath() }/${ encodeURIComponent(scriptId) }/getScriptReferences`);
   }
 }
 

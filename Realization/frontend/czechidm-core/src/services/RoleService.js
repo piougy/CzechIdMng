@@ -132,7 +132,7 @@ export default class RoleService extends AbstractRequestFormableService {
    */
   getAttributeFormDefinition(id) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/attribute-form-definition`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/attribute-form-definition`)
       .then(response => {
         return response.json();
       })
@@ -153,7 +153,7 @@ export default class RoleService extends AbstractRequestFormableService {
    */
   getIncompatibleRoles(id, token = null) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/incompatible-roles`, token)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/incompatible-roles`, token)
       .then(response => {
         return response.json();
       })

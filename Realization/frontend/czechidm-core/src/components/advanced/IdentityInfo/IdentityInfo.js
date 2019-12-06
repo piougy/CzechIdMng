@@ -35,7 +35,7 @@ export class IdentityInfo extends AbstractEntityInfo {
   }
 
   /**
-   * Override super.getEntityId() - adds username for backward compatibility (but will be removed in 10.x)
+   * Override super.getEntityId() - adds username for backward compatibility
    *
    * @return {string} id
    */
@@ -45,11 +45,11 @@ export class IdentityInfo extends AbstractEntityInfo {
     if (entityIdentifier) {
       return entityIdentifier;
     }
-    if (entity) {
-      return entity.id;
-    }
     if (username) {
       return username;
+    }
+    if (entity) {
+      return entity.username;
     }
     return null;
   }
@@ -75,9 +75,9 @@ export class IdentityInfo extends AbstractEntityInfo {
     const { skipDashboard } = this.props;
     //
     if (!skipDashboard) {
-      return `/identity/${ this.getEntityId()}/dashboard`;
+      return `/identity/${ encodeURIComponent(this.getEntityId()) }/dashboard`;
     }
-    return `/identity/${ this.getEntityId() }/profile`;
+    return `/identity/${ encodeURIComponent(this.getEntityId()) }/profile`;
   }
 
   /**
@@ -216,6 +216,11 @@ IdentityInfo.propTypes = {
    */
   entity: PropTypes.object,
   /**
+   * Selected identity's username - identity will be loaded automatically  (username entityIdentifier)
+   */
+  username: PropTypes.string,
+  /**
+   * Selected identity's id (username alias) - identity will be loaded automatically
    * Selected identity's id - identity will be loaded automatically
    */
   entityIdentifier: PropTypes.string,

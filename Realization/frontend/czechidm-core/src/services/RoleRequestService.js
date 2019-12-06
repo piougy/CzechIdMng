@@ -83,7 +83,7 @@ class RoleRequestService extends AbstractService {
    */
   getIncompatibleRoles(requestId, token = null) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ requestId }/incompatible-roles`, token)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(requestId) }/incompatible-roles`, token)
       .then(response => {
         return response.json();
       })

@@ -42,7 +42,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
     const { entity } = this.props;
     if (entity) {
       const identity = entity._embedded.identity;
-      this.context.store.dispatch(manager.queueFetchPermissions(entity.id, `${identity.id}-password-permission`));
+      this.context.store.dispatch(manager.queueFetchPermissions(entity.id, `${identity.username}-password-permission`));
     }
   }
 

@@ -45,51 +45,55 @@ class SystemService extends Services.AbstractService {
   }
 
   generateSchema(id) {
-    return Services.RestApiService.post(this.getApiPath() + `/${id}/generate-schema`, null).then(response => {
-      if (response.status === 403) {
-        throw new Error(403);
-      }
-      if (response.status === 404) {
-        throw new Error(404);
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+    return Services.RestApiService
+      .post(`${ this.getApiPath() }/${ encodeURIComponent(id) }/generate-schema`, null)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   duplicate(id) {
-    return Services.RestApiService.post(this.getApiPath() + `/${id}/duplicate`, null).then(response => {
-      if (response.status === 403) {
-        throw new Error(403);
-      }
-      if (response.status === 404) {
-        throw new Error(404);
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+    return Services.RestApiService
+      .post(`${ this.getApiPath() }/${ encodeURIComponent(id) }/duplicate`, null)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
    * Returns connector form definition to given system
-	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
-	 *
+   * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+   *
    * @param  {string} id system identifier
    * @return {promise}
    */
   getConnectorFormDefinition(id) {
     return Services.RestApiService
-      .get(this.getApiPath() + `/${id}/connector-form-definition`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/connector-form-definition`)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -109,14 +113,14 @@ class SystemService extends Services.AbstractService {
 
   /**
    * Returns filled connector configuration
-	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
-	 *
+   * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+   *
    * @param  {string} id system identifier
    * @return {promise}
    */
   getConnectorFormValues(id) {
     return Services.RestApiService
-      .get(this.getApiPath() + `/${id}/connector-form-values`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/connector-form-values`)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -144,7 +148,7 @@ class SystemService extends Services.AbstractService {
    */
   getPoolingConnectorFormDefinition(id) {
     return Services.RestApiService
-      .get(this.getApiPath() + `/${id}/pooling-connector-form-definition`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/pooling-connector-form-definition`)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -171,7 +175,7 @@ class SystemService extends Services.AbstractService {
    */
   getPoolingConnectorFormValues(id) {
     return Services.RestApiService
-      .get(this.getApiPath() + `/${id}/pooling-connector-form-values`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/pooling-connector-form-values`)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -198,7 +202,7 @@ class SystemService extends Services.AbstractService {
    */
   saveConnectorFormValues(id, values) {
     return Services.RestApiService
-      .post(this.getApiPath() + `/${id}/connector-form-values`, values)
+      .post(`${ this.getApiPath() }/${ encodeURIComponent(id) }/connector-form-values`, values)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -225,7 +229,7 @@ class SystemService extends Services.AbstractService {
    */
   savePoolingConnectorFormValues(id, values) {
     return Services.RestApiService
-      .post(this.getApiPath() + `/${id}/pooling-connector-form-values`, values)
+      .post(`${ this.getApiPath() }/${ encodeURIComponent(id) }/pooling-connector-form-values`, values)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -245,21 +249,23 @@ class SystemService extends Services.AbstractService {
 
 
   checkSystem(id) {
-    return Services.RestApiService.get(this.getApiPath() + `/${id}/check`, null).then(response => {
-      if (response.status === 403) {
-        throw new Error(403);
-      }
-      if (response.status === 404) {
-        throw new Error(404);
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+    return Services.RestApiService
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/check`, null)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -270,7 +276,7 @@ class SystemService extends Services.AbstractService {
   getAvailableConnectors() {
     // TODO: filter etc.
     return Services.RestApiService
-      .get(Services.RestApiService.getUrl(this.getApiPath() + `/search/local`))
+      .get(Services.RestApiService.getUrl(`${ this.getApiPath() }/search/local`))
       .then(response => {
         return response.json();
       })
@@ -287,7 +293,7 @@ class SystemService extends Services.AbstractService {
    */
   getAvailableRemoteConnectors(systemId) {
     return Services.RestApiService
-      .get(Services.RestApiService.getUrl(`${ this.getApiPath() }/${ systemId }/search/remote`))
+      .get(Services.RestApiService.getUrl(`${ this.getApiPath() }/${ encodeURIComponent(systemId) }/search/remote`))
       .then(response => {
         return response.json();
       })
@@ -301,7 +307,7 @@ class SystemService extends Services.AbstractService {
 
   sendLongPollingRequest(systemId) {
     return Services.RestApiService
-      .get(`${this.getApiPath()}/${ systemId }/check-running-sync`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(systemId) }/check-running-sync`)
       .then(response => response.json())
       .then(json => {
         if (Utils.Response.hasError(json)) {

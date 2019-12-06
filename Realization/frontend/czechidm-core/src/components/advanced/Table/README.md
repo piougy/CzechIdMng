@@ -80,8 +80,8 @@ class Team extends Basic.AbstractContent {
   onRowDoubleClick(event, rowIndex, data) {
     console.log('onRowDoubleClick', rowIndex, data, event);
     // redirect to profile
-    const id = data[rowIndex]['id'];
-    this.context.history.push('/identity/' + id + '/profile');
+    const identityIdentifier = data[rowIndex].username;
+    this.context.history.push('/identity/' + identityIdentifier + '/profile');
   }
 
   useFilter(event) {
@@ -152,7 +152,7 @@ class Team extends Basic.AbstractContent {
                 </Basic.Button>
               ]
             }>
-            <Advanced.ColumnLink to="/identity/:id/profile" property="username" width="20%" sort={true} face="text"/>
+            <Advanced.ColumnLink to="/identity/:username/profile" property="username" width="20%" sort={true} face="text"/>
             <Advanced.Column property="lastName" width="15%" sort={true} face="text" />
             <Advanced.Column property="firstName" width="15%" face="text" />
             <Advanced.Column property="email" width="15%" face="text" />

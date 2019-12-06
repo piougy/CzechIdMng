@@ -32,7 +32,7 @@ export default class SystemEntityService extends Services.AbstractService {
   */
   getConnectorObject(id) {
     return Services.RestApiService
-      .get(`${ this.getApiPath() }/${ id }/connector-object`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/connector-object`)
       .then(response => {
         if (!response) {
           return null;

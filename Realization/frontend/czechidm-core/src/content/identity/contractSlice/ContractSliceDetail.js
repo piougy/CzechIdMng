@@ -117,7 +117,7 @@ class ContractSliceDetail extends Basic.AbstractContent {
         this.context.history.goBack();
       } else {
         const { identityId } = this.props.match.params;
-        this.context.history.replace(`/identity/${ identityId }/contract-slice/${ entity.id }/detail`);
+        this.context.history.replace(`/identity/${ encodeURIComponent(identityId) }/contract-slice/${ entity.id }/detail`);
       }
     });
   }

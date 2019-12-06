@@ -74,7 +74,7 @@ module.exports = {
             iconColor: '#428BCA',
             order: 10,
             priority: 0,
-            path: '/identity/:loggedId/profile',
+            path: '/identity/:loggedUsername/profile',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ],
             items: [
               {
@@ -1403,7 +1403,7 @@ module.exports = {
         labelKey: 'navigation.menu.userLabel',
         icon: 'user',
         order: 10,
-        path: '/identity/:loggedId/profile'
+        path: '/identity/:loggedUsername/profile'
       },
       {
         id: 'messages',

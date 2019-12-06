@@ -84,7 +84,7 @@ Single navigation item parameters:
       'iconColor': '#428BCA',
       'order': 10,
       'priority': 0,
-      'path': '/user/:loggedId/profile',
+      'path': '/user/:loggedUsername/profile',
       'items': [
         {
           'id': 'profile-personal',

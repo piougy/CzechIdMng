@@ -210,12 +210,10 @@ export function resolveNavigationParameters(userContext = null, params = null) {
     parameterValues = new Immutable.Map({});
   }
   if (userContext) {
-    // deprecated - use 'loggedId'
     parameterValues = parameterValues.set('loggedUsername', userContext.username || 'guest');
-    //
     parameterValues = parameterValues.set('loggedId', userContext.id || 'guest');
     if (!parameterValues.has('entityId')) {
-      parameterValues = parameterValues.set('entityId', userContext.id || 'guest');
+      parameterValues = parameterValues.set('entityId', userContext.username || 'guest');
     }
   }
   return parameterValues.toJS();

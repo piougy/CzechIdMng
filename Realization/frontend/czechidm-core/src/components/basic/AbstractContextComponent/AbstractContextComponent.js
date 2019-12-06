@@ -379,13 +379,33 @@ class AbstractContextComponent extends AbstractComponent {
     // Generate react-redux Router components.
     childRoutesWithComponent.forEach(route => {
       const Component = this._getComponent(route);
+
       routes.push(<Route
         key={`${route.id}${match.url}${activeLng}`}
         path={this._getConcatPath(match.path, route.concatedPath ? route.concatedPath : route.path)}
-        render={(props) => <Component {...props}/>
+        render={(props) => {
+          // Decode params
+          if (props.match && props.match.params) {
+            const params = props.match.params;
+            for (const param in params) {
+              if (params.hasOwnProperty(param)) {
+                const decodedParam = this.decodeURIComponentSafe(params[param]);
+                params[param] = decodedParam;
+              }
+            }
+          }
+          return <Component {...props}/>;
+        }
         }/>);
     });
     return routes;
+  }
+
+  decodeURIComponentSafe(s) {
+    if (!s) {
+      return s;
+    }
+    return decodeURIComponent(s.replace(/%(?![0-9][0-9a-fA-F]+)/g, '%25'));
   }
 
   /**

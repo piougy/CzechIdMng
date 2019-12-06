@@ -199,7 +199,7 @@
       "message_0": "N/A",
       "message": "Do you want to backup  [<strong>{{record}}</strong>]?",
       "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to backup <strong>{{count}}</strong> selected records?",
-      "error": "An error occurred while backup selected record: [{{record}}",
+      "error": "An error occurred while backup selected record",
       "success_0": "N/A",
       "success": "Selected record [{{record}}] were successfully backup",
       "success_plural": "Selected records [{{records}}] were successfully backup",
@@ -5880,7 +5880,7 @@
     },
     "BACKUP_FAIL": {
       "title": "Backup failed",
-      "message": "Backup for script [{{script}}] failed. Error: [{{error}}]."
+      "message": "Backup for selected record failed."
     },
     "DEPLOY_ERROR": {
       "title": "Deployment of entity failed",

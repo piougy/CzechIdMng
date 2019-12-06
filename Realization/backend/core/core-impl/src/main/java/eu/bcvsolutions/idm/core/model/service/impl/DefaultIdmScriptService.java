@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
+import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript_;
@@ -457,7 +458,7 @@ public class DefaultIdmScriptService
 	 * @return
 	 */
 	private String getBackupFileName(String directory, IdmScriptDto script) {
-		return directory + script.getCode() + "_" + securityService.getCurrentUsername() + "_"
+		return directory + script.getCode() + "_" + SpinalCase.format(securityService.getCurrentUsername()) + "_"
 				+ System.currentTimeMillis() + EXPORT_FILE_SUFIX;
 	}
 

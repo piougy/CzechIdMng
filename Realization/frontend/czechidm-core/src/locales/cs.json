@@ -216,7 +216,7 @@
       "message_1": "Opravdu chcete zálohovat vybraný záznam [<strong>{{record}}</strong>]?",
       "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete zálohovat <strong>{{count}}</strong> vybrané záznamy?",
       "message_5": "Vybráno záznamů: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete zálohovat <strong>{{count}}</strong> vybraných záznamů?",
-      "error": "Při zálohování záznamu [{{record}}] nastala chyba",
+      "error": "Při zálohování záznamu nastala chyba",
       "success_0": "N/A",
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně zálohován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně zálohovány",
@@ -5930,7 +5930,7 @@
     },
     "BACKUP_FAIL": {
       "title": "Záloha nebyla provedena",
-      "message": "Záloha pro script [{{script}}] selhala z důvodu: [{{error}}]."
+      "message": "Záloha záznamu selhala."
     },
     "DEPLOY_ERROR": {
       "title": "Nezdařené nahrání entity",

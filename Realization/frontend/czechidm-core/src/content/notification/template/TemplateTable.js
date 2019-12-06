@@ -57,7 +57,7 @@ export class TemplateTable extends Advanced.AbstractTableContent {
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
       this.context.store.dispatch(manager.notificationBulkOperationForEntities(selectedEntities, bulkActionValue, uiKey, (entity, error, successEntities) => {
-        if (entity && error) {
+        if (error) {
           this.addErrorMessage({ title: this.i18n(`action.${bulkActionValue}.error`, { record: manager.getNiceLabel(entity) }) }, error);
         }
         if (!error && successEntities) {

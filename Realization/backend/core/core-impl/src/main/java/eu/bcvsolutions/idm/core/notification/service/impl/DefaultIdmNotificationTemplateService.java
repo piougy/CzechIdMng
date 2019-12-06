@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.jaxb.JaxbCharacterEscapeEncoder;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
@@ -524,7 +525,7 @@ public class DefaultIdmNotificationTemplateService extends
 	 * @return
 	 */
 	private String getBackupFileName(String directory, IdmNotificationTemplateDto template) {
-		return directory + template.getCode() + "_" + securityService.getCurrentUsername() + "_"
+		return directory + template.getCode() + "_" + SpinalCase.format(securityService.getCurrentUsername()) + "_"
 				+ System.currentTimeMillis() + EXPORT_FILE_SUFIX;
 	}
 	

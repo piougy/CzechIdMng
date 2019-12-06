@@ -65,7 +65,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: scriptManager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
       this.context.store.dispatch(scriptManager.scriptBulkOperationForEntities(selectedEntities, bulkActionValue, uiKey, (entity, error, successEntities) => {
-        if (entity && error) {
+        if (error) {
           this.addErrorMessage({ title: this.i18n(`action.${bulkActionValue}.error`, { record: scriptManager.getNiceLabel(entity) }) }, error);
         }
         if (!error && successEntities) {
@@ -166,8 +166,7 @@ export class ScriptTable extends Advanced.AbstractTableContent {
             ]
           }
           _searchParameters={ this.getSearchParameters() }
-          className={ className }
-          >
+          className={ className }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -184,13 +183,15 @@ export class ScriptTable extends Advanced.AbstractTableContent {
           <Advanced.ColumnLink to="/scripts/:id/detail" property="code" sort />
           <Advanced.Column property="name" sort />
           <Advanced.Column property="category" sort face="enum" enumClass={ScriptCategoryEnum}/>
-          <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {
-            if (data[rowIndex] && data[rowIndex].description !== null) {
-              const description = data[rowIndex].description.replace(/<(?:.|\n)*?>/gm, '').substr(0, MAX_DESCRIPTION_LENGTH);
-              return description.substr(0, Math.min(description.length, description.lastIndexOf(' ')));
-            }
-            return '';
-          }}/>
+          <Advanced.Column
+            property="description"
+            cell={ ({ rowIndex, data }) => {
+              if (data[rowIndex] && data[rowIndex].description !== null) {
+                const description = data[rowIndex].description.replace(/<(?:.|\n)*?>/gm, '').substr(0, MAX_DESCRIPTION_LENGTH);
+                return description.substr(0, Math.min(description.length, description.lastIndexOf(' ')));
+              }
+              return '';
+            }}/>
         </Advanced.Table>
       </div>
     );

@@ -101,8 +101,10 @@ export default class ScriptDetail extends Basic.AbstractContent {
     if (error) {
       this.setState({
         showLoading: false
-      }, this.refs.form.processEnded());
-      this.addError(error);
+      }, () => {
+        this.refs.form.processEnded();
+        this.addError(error);
+      });
       return;
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
@@ -113,7 +115,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
         showLoading: false
       }, this.refs.form.processEnded());
       //
-      this.context.history.replace('/scripts/' + entity.id + '/detail');
+      this.context.history.replace(`/scripts/${ entity.id }/detail`);
     }
   }
 
@@ -163,29 +165,29 @@ export default class ScriptDetail extends Basic.AbstractContent {
                   height="25em"
                   helpBlock={this.i18n('entity.Script.script.help')}
                   label={this.i18n('entity.Script.script.label')}/>
-                </Basic.AbstractForm>
-              </Basic.PanelBody>
+              </Basic.AbstractForm>
+            </Basic.PanelBody>
 
-              <Basic.PanelFooter showLoading={showLoading} >
-                <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
-                <Basic.SplitButton
-                  level="success"
-                  title={ this.i18n('button.saveAndContinue') }
-                  onClick={ this.save.bind(this, 'CONTINUE') }
-                  showLoading={ showLoading }
-                  showLoadingIcon
-                  showLoadingText={ this.i18n('button.saving') }
-                  rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}
-                  dropup>
-                  <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
-                </Basic.SplitButton>
-              </Basic.PanelFooter>
-              {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-              <input type="submit" className="hidden"/>
-            </Basic.Panel>
-          </form>
-        </div>
-      );
+            <Basic.PanelFooter showLoading={showLoading} >
+              <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.SplitButton
+                level="success"
+                title={ this.i18n('button.saveAndContinue') }
+                onClick={ this.save.bind(this, 'CONTINUE') }
+                showLoading={ showLoading }
+                showLoadingIcon
+                showLoadingText={ this.i18n('button.saving') }
+                rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'SCRIPT_CREATE' : 'SCRIPT_UPDATE')}
+                dropup>
+                <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+              </Basic.SplitButton>
+            </Basic.PanelFooter>
+            {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+            <input type="submit" className="hidden"/>
+          </Basic.Panel>
+        </form>
+      </div>
+    );
   }
 }
 

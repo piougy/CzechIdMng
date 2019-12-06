@@ -5,7 +5,8 @@ import java.text.Normalizer;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Spinal case string transformation
+ * Spinal case string transformation.
+ * Usable in urls.
  * 
  * @author Radek Tomiška
  */

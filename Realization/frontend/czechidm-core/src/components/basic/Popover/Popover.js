@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import { HashRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 //
+import IdmContext from '../../../context/idm-context';
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Icon from '../Icon/Icon';
 import Tooltip from '../Tooltip/Tooltip';
@@ -95,9 +96,11 @@ export default class BasicPopover extends AbstractContextComponent {
                 // because React-bootstrap Popover uses for generating value new instance of React.
                 // So Redux and Router wrapping doesn't work!
               <Provider store={this.context.store}>
-                <Router>
-                  {_value}
-                </Router>
+                <IdmContext.Provider value={{store: this.context.store}}>
+                  <Router>
+                    {_value}
+                  </Router>
+                </IdmContext.Provider>
               </Provider>
               )
 

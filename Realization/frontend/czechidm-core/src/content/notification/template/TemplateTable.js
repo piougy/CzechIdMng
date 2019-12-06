@@ -151,12 +151,15 @@ export class TemplateTable extends Advanced.AbstractTableContent {
             }
             buttons={
               [
-                <Basic.Button level="success" key="add_button" className="btn-xs"
-                        onClick={this.showDetail.bind(this, {})}
-                        rendered={SecurityManager.hasAuthority('NOTIFICATIONTEMPLATE_CREATE')}>
+                <Basic.Button
+                  level="success"
+                  key="add_button"
+                  className="btn-xs"
+                  onClick={ this.showDetail.bind(this, {}) }
+                  rendered={ SecurityManager.hasAuthority('NOTIFICATIONTEMPLATE_CREATE') }>
                   <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
-                  {this.i18n('button.add')}
+                  { ' ' }
+                  { this.i18n('button.add') }
                 </Basic.Button>
               ]
             }
@@ -175,15 +178,17 @@ export class TemplateTable extends Advanced.AbstractTableContent {
               }
               sort={false}/>
             <Advanced.Column property="code" width="125px" sort/>
-            <Advanced.Column property="name" sort
+            <Advanced.Column
+              property="name"
+              sort
               cell={
-              ({ rowIndex, data }) => {
-                if (data[rowIndex].module) {
-                  return (data[rowIndex].name + ' ' + '(' + data[rowIndex].module + ')');
+                ({ rowIndex, data }) => {
+                  if (data[rowIndex].module) {
+                    return (data[rowIndex].name + ' ' + '(' + data[rowIndex].module + ')');
+                  }
+                  return (data[rowIndex].name);
                 }
-                return (data[rowIndex].name);
-              }
-            }/>
+              }/>
             <Advanced.Column property="subject" sort/>
             <Advanced.Column
               property="unmodifiable"

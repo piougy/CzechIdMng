@@ -1829,7 +1829,9 @@
         "header": "new code list"
       },
       "filter": {
-        "text": "Code or name"
+        "text": {
+          "placeholder": "Code or name"
+        }
       },
       "attributes": {
         "title": "Attributes"
@@ -1850,6 +1852,11 @@
         "create": {
           "title": "New code list value",
           "header": "New code list value"
+        },
+        "filter": {
+          "text": {
+            "placeholder": "Code or value"
+          }
         },
         "save": {
           "success": "Code list value [{{record}}] successfully saved"

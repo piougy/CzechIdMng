@@ -57,7 +57,7 @@ export class CodeListTable extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.history.push(`/code-lists/${uuidId}/detail?new=1`);
     } else {
-      this.context.history.push('/code-lists/' + entity.id + '/detail');
+      this.context.history.push(`/code-lists/${ entity.id }/detail`);
     }
   }
 
@@ -79,10 +79,10 @@ export class CodeListTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('filter.text')}/>
+                      placeholder={this.i18n('filter.text.placeholder')}/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 } className="text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -120,7 +120,7 @@ export class CodeListTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="name" sort/>
         </Advanced.Table>
       </div>
-      );
+    );
   }
 }
 

@@ -1877,7 +1877,9 @@
         "header": "Nový číselník"
       },
       "filter": {
-        "text": "Kód či název"
+        "text": {
+          "placeholder": "Kód či název"
+        }
       },
       "attributes": {
         "title": "Atributy číselníku"
@@ -1898,6 +1900,11 @@
         "create": {
           "title": "Nová hodnota číselníku",
           "header": "Nová hodnota číselníku"
+        },
+        "filter": {
+          "text": {
+            "placeholder": "Kód či honota"
+          }
         },
         "save": {
           "success": "Hodnota číselníku [{{record}}] byla úspěšně uložena"

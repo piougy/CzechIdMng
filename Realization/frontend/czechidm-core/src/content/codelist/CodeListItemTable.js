@@ -147,7 +147,7 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('filter.text.placeholder')}/>
+                      placeholder={ this.i18n('filter.text.placeholder') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
@@ -268,7 +268,7 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
           </form>
         </Basic.Modal>
       </div>
-      );
+    );
   }
 }
 

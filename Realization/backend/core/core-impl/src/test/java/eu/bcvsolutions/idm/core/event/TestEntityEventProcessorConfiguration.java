@@ -135,6 +135,7 @@ public class TestEntityEventProcessorConfiguration {
 		
 		public TestProcessorTwo(Integer order) {
 			super(CoreEventType.EAV_SAVE);
+			//
 			this.order = order;
 		}
 		
@@ -142,6 +143,7 @@ public class TestEntityEventProcessorConfiguration {
 		public EventResult<TestContentTwo> process(EntityEvent<TestContentTwo> event) {
 			event.getContent().setText(order.toString());			
 			DefaultEventResult.Builder<TestContentTwo> result = new DefaultEventResult.Builder<>(event, this);
+			//
 			return result.build();
 		}
 

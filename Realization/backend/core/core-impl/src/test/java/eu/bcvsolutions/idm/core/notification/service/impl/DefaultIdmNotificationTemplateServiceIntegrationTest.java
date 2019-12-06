@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -157,7 +158,7 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 			assertEquals(1, files.length);
 			File backup = files[0];
 			assertTrue(backup.exists());
-			assertTrue(backup.getName().contains(InitTestData.TEST_USER_1));
+			assertTrue(backup.getName().contains(SpinalCase.format(InitTestData.TEST_USER_1)));
 			assertTrue(backup.getName().contains(testTemplate.getCode()));
 		} catch (Exception e) {
 			fail();
@@ -201,7 +202,7 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 		assertEquals(1, files.length);
 		File backup = files[0];
 		assertTrue(backup.exists());
-		assertTrue(backup.getName().contains(InitTestData.TEST_USER_1));
+		assertTrue(backup.getName().contains(SpinalCase.format(InitTestData.TEST_USER_1)));
 		assertTrue(backup.getName().contains(testTemplateNew.getCode()));
 	}
 

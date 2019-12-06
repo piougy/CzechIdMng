@@ -296,8 +296,10 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
         entity
       }
     }, () => {
-      this.refs.triggerForm.setData(entity);
-      this.refs.type.focus();
+      setTimeout(() => {
+        this.refs.triggerForm.setData(entity);
+        this.refs.type.focus();
+      }, 10);
     });
   }
 

@@ -59,7 +59,7 @@ class VsRequestDetail extends Basic.AbstractContent {
       return;
     }
     manager.realize('realize', [entity ? entity.id : null], this, () => {
-      this.context.router.goBack();
+      this.context.history.goBack();
       // this._initConnectorObject(entity.id);
     });
   }
@@ -69,7 +69,7 @@ class VsRequestDetail extends Basic.AbstractContent {
       return;
     }
     manager.cancel('cancel', [entity ? entity.id : null], this, () => {
-      this.context.router.goBack();
+      this.context.history.goBack();
       // this._initConnectorObject(entity.id);
     });
   }

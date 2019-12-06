@@ -512,7 +512,12 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
               text={this.i18n('edit.header')}
               rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-                <AutomaticRoleAttributeRuleDetail ref="detail" entity={detail.entity} manager={automaticRoleAttributeRuleManager} attributeId={detail.entity.id} />
+              <AutomaticRoleAttributeRuleDetail
+                ref="detail"
+                readOnly={readOnly}
+                entity={detail.entity}
+                manager={automaticRoleAttributeRuleManager}
+                attributeId={detail.entity.id}/>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button

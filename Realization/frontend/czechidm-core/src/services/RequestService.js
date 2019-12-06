@@ -89,7 +89,7 @@ class RequestService extends AbstractService {
    */
   getChanges(id, entityId) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/entity/${ entityId }/changes`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/entity/${ encodeURIComponent(entityId) }/changes`)
       .then(response => {
         if (response.status === 204) {
           return null;

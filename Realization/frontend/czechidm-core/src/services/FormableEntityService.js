@@ -27,7 +27,7 @@ export default class FormableEntityService extends AbstractService {
    */
   getFormDefinitions(id) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/form-definitions`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/form-definitions`)
       .then(response => {
         return response.json();
       })
@@ -48,7 +48,7 @@ export default class FormableEntityService extends AbstractService {
    */
   getFormValues(id, definitionCode) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/form-values?definitionCode=${ encodeURIComponent(definitionCode) }`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/form-values?definitionCode=${ encodeURIComponent(definitionCode) }`)
       .then(response => {
         return response.json();
       })
@@ -70,7 +70,7 @@ export default class FormableEntityService extends AbstractService {
    */
   saveFormValues(id, definitionCode, values) {
     return RestApiService
-      .post(`${ this.getApiPath() }/${ id }/form-values?definitionCode=${ encodeURIComponent(definitionCode) }`, values)
+      .post(`${ this.getApiPath() }/${ encodeURIComponent(id) }/form-values?definitionCode=${ encodeURIComponent(definitionCode) }`, values)
       .then(response => {
         return response.json();
       })
@@ -92,7 +92,7 @@ export default class FormableEntityService extends AbstractService {
    */
   saveFormValue(id, value) {
     return RestApiService
-      .post(`${ this.getApiPath() }/${ id }/form-value`, value)
+      .post(`${ this.getApiPath() }/${ encodeURIComponent(id) }/form-value`, value)
       .then(response => {
         return response.json();
       })
@@ -118,7 +118,10 @@ export default class FormableEntityService extends AbstractService {
       token = AuthenticateService.getTokenCIDMST();
     }
     //
-    return RestApiService.getUrl(`${ this.getApiPath() }/${ formValue.ownerId }/form-values/${ formValue.id }/download?cidmst=${ token }`);
+    const ownerId = encodeURIComponent(formValue.ownerId);
+    const valueId = encodeURIComponent(formValue.id);
+    //
+    return RestApiService.getUrl(`${ this.getApiPath() }/${ ownerId }/form-values/${ valueId }/download?cidmst=${ token }`);
   }
 
   /**
@@ -128,6 +131,9 @@ export default class FormableEntityService extends AbstractService {
    * @return {Promise}
    */
   downloadPreview(formValue) {
-    return RestApiService.download(`${ this.getApiPath() }/${ formValue.ownerId }/form-values/${ formValue.id }/preview`);
+    const ownerId = encodeURIComponent(formValue.ownerId);
+    const valueId = encodeURIComponent(formValue.id);
+    //
+    return RestApiService.download(`${ this.getApiPath() }/${ ownerId }/form-values/${ valueId }/preview`);
   }
 }

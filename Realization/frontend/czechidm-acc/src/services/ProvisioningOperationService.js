@@ -1,7 +1,6 @@
 import _ from 'lodash';
 //
-import { Services } from 'czechidm-core';
-import { Domain, Utils } from 'czechidm-core';
+import { Services, Domain, Utils } from 'czechidm-core';
 import SystemEntityTypeEnum from '../domain/SystemEntityTypeEnum';
 
 /**
@@ -10,10 +9,6 @@ import SystemEntityTypeEnum from '../domain/SystemEntityTypeEnum';
  * @author Radek Tomiška
  */
 export default class ProvisioningOperationService extends Services.AbstractService {
-
-  constructor() {
-    super();
-  }
 
   getNiceLabel(entity) {
     if (!entity) {
@@ -49,7 +44,7 @@ export default class ProvisioningOperationService extends Services.AbstractServi
   deleteAll(systemId = null) {
     let deleteUrl = '/action/bulk/delete';
     if (!_.isNil(systemId)) {
-      deleteUrl = `${ deleteUrl }?system=${ systemId }`;
+      deleteUrl = `${ deleteUrl }?system=${ encodeURIComponent(systemId) }`;
     }
     return Services.RestApiService
       .delete(Services.RestApiService.getUrl(this.getApiPath() + deleteUrl))

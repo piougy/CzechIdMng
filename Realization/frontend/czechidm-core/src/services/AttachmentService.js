@@ -74,12 +74,12 @@ export default class AttachmentService extends AbstractRequestService {
   getDownloadUrl(attachmentId, downloadUrlPrefix, downloadUrlSuffix) {
     let downloadUrl = this.getApiPath();
     if (downloadUrlPrefix) {
-      downloadUrl = `/${ downloadUrlPrefix }/${ attachmentId }`;
+      downloadUrl = `/${ downloadUrlPrefix }/${ encodeURIComponent(attachmentId) }`;
       if (downloadUrlSuffix) {
         downloadUrl = `${ downloadUrl }/${ downloadUrlSuffix }`;
       }
     } else {
-      downloadUrl = `/${ DEFAULT_DOWNLOAD_LINK_PREFIX }/${ attachmentId }/${ DEFAULT_DOWNLOAD_LINK_SUFFIX }`;
+      downloadUrl = `/${ DEFAULT_DOWNLOAD_LINK_PREFIX }/${ encodeURIComponent(attachmentId) }/${ DEFAULT_DOWNLOAD_LINK_SUFFIX }`;
     }
     downloadUrl = `${ downloadUrl }?cidmst=${ AuthenticateService.getTokenCIDMST() }`;
     return RestApiService.getUrl(downloadUrl);

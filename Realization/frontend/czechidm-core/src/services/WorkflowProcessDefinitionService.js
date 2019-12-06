@@ -66,7 +66,7 @@ class WorkflowProcessDefinitionService extends AbstractService {
    */
   downloadDiagram(id, cb) {
     return RestApiService
-      .download(`${ this.getApiPath() }/${ id }/diagram`)
+      .download(`${ this.getApiPath() }/${ encodeURIComponent(id) }/diagram`)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -85,7 +85,9 @@ class WorkflowProcessDefinitionService extends AbstractService {
    * Generate and download diagram of process as XML file
    */
   getProcessDefinitionUrl(definitionId) {
-    return RestApiService.getUrl(`${ this.getApiPath() }/${ definitionId }/definition?cidmst=${AuthenticateService.getTokenCIDMST()}`);
+    const _id = encodeURIComponent(definitionId);
+    //
+    return RestApiService.getUrl(`${ this.getApiPath() }/${ _id }/definition?cidmst=${AuthenticateService.getTokenCIDMST()}`);
   }
 }
 

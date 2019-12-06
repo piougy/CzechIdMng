@@ -72,9 +72,9 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.history.push(`/identity/new?id=${uuidId}`);
     } else if (!skipDashboard && !shiftKey) {
-      this.context.history.push(`/identity/${ entity.id }/dashboard`);
+      this.context.history.push(`/identity/${ encodeURIComponent(entity.username) }/dashboard`);
     } else {
-      this.context.history.push(`/identity/${ entity.id }/profile`);
+      this.context.history.push(`/identity/${ encodeURIComponent(entity.username) }/profile`);
     }
   }
 
@@ -257,13 +257,17 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             sort
             cell={
               ({ rowIndex, data }) => (
-                <Advanced.EntityInfo entityType="identity" entityIdentifier={ data[rowIndex].id } entity={ data[rowIndex] } face="popover"/>
+                <Advanced.EntityInfo
+                  entityType="identity"
+                  entityIdentifier={ data[rowIndex].username }
+                  entity={ data[rowIndex] }
+                  face="popover"/>
               )
             }
             rendered={ _.includes(columns, 'entityInfo') }/>
           <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
           <Advanced.ColumnLink
-            to={ `/identity/:id/${ !skipDashboard ? 'dashboard' : 'profile' }` }
+            to={ `/identity/:username/${ !skipDashboard ? 'dashboard' : 'profile' }` }
             property="username"
             width="20%"
             sort

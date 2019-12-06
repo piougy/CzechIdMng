@@ -119,7 +119,7 @@ class IdentityService extends FormableEntityService {
    */
   getIncompatibleRoles(identityId, token = null) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ identityId }/incompatible-roles`, token)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/incompatible-roles`, token)
       .then(response => {
         return response.json();
       })
@@ -133,7 +133,7 @@ class IdentityService extends FormableEntityService {
 
   sendLongPollingRequest(identityId) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ identityId }/check-unresolved-request`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/check-unresolved-request`)
       .then(response => response.json())
       .then(json => {
         if (Utils.Response.hasError(json)) {
@@ -160,7 +160,7 @@ class IdentityService extends FormableEntityService {
    */
   deactivate(id) {
     return RestApiService
-      .patch(`${ this.getApiPath() }/${ id }/disable`, {})
+      .patch(`${ this.getApiPath() }/${ encodeURIComponent(id) }/disable`, {})
       .then(response => {
         return response.json();
       })
@@ -180,7 +180,7 @@ class IdentityService extends FormableEntityService {
    */
   activate(id) {
     return RestApiService
-      .patch(`${ this.getApiPath() }/${ id }/enable`, {})
+      .patch(`${ this.getApiPath() }/${ encodeURIComponent(id) }/enable`, {})
       .then(response => {
         return response.json();
       })
@@ -199,7 +199,7 @@ class IdentityService extends FormableEntityService {
    * @return {Promise}
    */
   getAccounts(id) {
-    return RestApiService.get(`${ this.getApiPath() }/${ id }/accounts`);
+    return RestApiService.get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/accounts`);
   }
 
   /**
@@ -211,7 +211,7 @@ class IdentityService extends FormableEntityService {
    */
   getWorkPosition(id) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/work-position`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/work-position`)
       .then(response => {
         if (response.status === 204) {
           // no work position was found
@@ -229,7 +229,7 @@ class IdentityService extends FormableEntityService {
 
   getAuthorities(id) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/authorities`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/authorities`)
       .then(response => {
         return response.json();
       })
@@ -249,7 +249,7 @@ class IdentityService extends FormableEntityService {
    */
   changePermissions(id) {
     return RestApiService
-      .put(`${ this.getApiPath() }/${ id }/change-permissions`, null)
+      .put(`${ this.getApiPath() }/${ encodeURIComponent(id) }/change-permissions`, null)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -276,7 +276,7 @@ class IdentityService extends FormableEntityService {
    */
   getProfile(identityId, token = null) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ identityId }/profile`, token)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/profile`, token)
       .then(response => {
         return response.json();
       })
@@ -297,7 +297,7 @@ class IdentityService extends FormableEntityService {
    */
   patchProfile(identityId, profile) {
     return RestApiService
-      .patch(`${ this.getApiPath() }/${ identityId }/profile`, profile)
+      .patch(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/profile`, profile)
       .then(response => response.json())
       .then(json => {
         if (Utils.Response.hasError(json)) {
@@ -312,7 +312,7 @@ class IdentityService extends FormableEntityService {
    */
   uploadProfileImage(identityId, formData) {
     return RestApiService
-      .upload(`${ this.getApiPath() }/${ identityId }/profile/image`, formData)
+      .upload(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/profile/image`, formData)
       .then(response => {
         return response.json();
       })
@@ -331,7 +331,7 @@ class IdentityService extends FormableEntityService {
    * Get image from BE
    */
   downloadProfileImage(identityId) {
-    return RestApiService.download(`${ this.getApiPath() }/${ identityId }/profile/image`);
+    return RestApiService.download(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/profile/image`);
   }
 
   /**
@@ -339,7 +339,7 @@ class IdentityService extends FormableEntityService {
    */
   deleteProfileImage(identityId) {
     return RestApiService
-      .delete(`${ this.getApiPath() }/${ identityId }/profile/image`)
+      .delete(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/profile/image`)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;
@@ -365,7 +365,7 @@ class IdentityService extends FormableEntityService {
    */
   getProfilePermissions(identityId) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ identityId }/profile/permissions`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/profile/permissions`)
       .then(response => {
         return response.json();
       })
@@ -386,7 +386,7 @@ class IdentityService extends FormableEntityService {
    */
   getPassword(identityId) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ identityId }/password`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/password`)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return false;

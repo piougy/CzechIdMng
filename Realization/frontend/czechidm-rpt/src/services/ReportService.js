@@ -56,7 +56,11 @@ export default class ReportService extends Services.AbstractService {
    * @return {string} url
    */
   getDownloadUrl(reportId, rendererName) {
-    return Services.RestApiService.getUrl(`${ this.getApiPath() }/${ reportId }/render?renderer=${encodeURIComponent(rendererName)}&cidmst=${Services.AuthenticateService.getTokenCIDMST()}`);
+    const _id = encodeURIComponent(reportId);
+    const _name = encodeURIComponent(rendererName);
+    const _token = Services.AuthenticateService.getTokenCIDMST();
+    //
+    return Services.RestApiService.getUrl(`${ this.getApiPath() }/${ _id }/render?renderer=${ _name }&cidmst=${ _token }`);
   }
 
   /**
@@ -66,7 +70,7 @@ export default class ReportService extends Services.AbstractService {
    */
   getSupportedReports() {
     return Services.RestApiService
-      .get(this.getApiPath() + '/search/supported')
+      .get(`${ this.getApiPath() }/search/supported`)
       .then(response => {
         return response.json();
       })

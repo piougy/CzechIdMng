@@ -92,7 +92,7 @@ export default class AbstractService {
    */
   getById(id) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }`)
       .then(response => {
         return response.json();
       })
@@ -155,7 +155,7 @@ export default class AbstractService {
 
   deleteById(id) {
     return RestApiService
-      .delete(`${ this.getApiPath() }/${ id }`)
+      .delete(`${ this.getApiPath() }/${ encodeURIComponent(id) }`)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;
@@ -183,7 +183,7 @@ export default class AbstractService {
    */
   delete(entity) {
     return RestApiService
-      .put(`${ this.getApiPath() }/${ entity.id }/delete`, entity)
+      .put(`${ this.getApiPath() }/${ encodeURIComponent(entity.id) }/delete`, entity)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;
@@ -205,7 +205,7 @@ export default class AbstractService {
 
   updateById(id, json) {
     return RestApiService
-      .put(`${ this.getApiPath() }/${ id }`, json)
+      .put(`${ this.getApiPath() }/${ encodeURIComponent(id) }`, json)
       .then(response => {
         return response.json();
       })
@@ -224,7 +224,7 @@ export default class AbstractService {
 
   patchById(id, json) {
     return RestApiService
-      .patch(`${ this.getApiPath() }/${ id }`, json)
+      .patch(`${ this.getApiPath() }/${ encodeURIComponent(id) }`, json)
       .then(response => {
         return response.json();
       })
@@ -345,7 +345,7 @@ export default class AbstractService {
    */
   getRevisions(entityId) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ entityId }/revisions`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(entityId) }/revisions`)
       .then(response => {
         return response.json();
       })
@@ -368,7 +368,7 @@ export default class AbstractService {
    */
   getRevision(entityId, revId) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ entityId }/revisions/${ revId }`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(entityId) }/revisions/${ encodeURIComponent(revId) }`)
       .then(response => {
         return response.json();
       })
@@ -389,7 +389,7 @@ export default class AbstractService {
    */
   getPermissions(id) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/permissions`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/permissions`)
       .then(response => {
         return response.json();
       })
@@ -413,7 +413,7 @@ export default class AbstractService {
    */
   action(method, actionName, id) {
     return RestApiService
-      .action(method, `${ this.getApiPath() }/${ id }${actionName ? `/${ actionName }` : '' }`)
+      .action(method, `${ this.getApiPath() }/${ encodeURIComponent(id) }${actionName ? `/${ actionName }` : '' }`)
       .then(response => {
         if (response.status === 204) { // no content - ok
           return null;

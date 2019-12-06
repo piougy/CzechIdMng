@@ -61,7 +61,7 @@ class RequestItemService extends AbstractService {
    */
   getChanges(id) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/changes`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/changes`)
       .then(response => {
         return response.json();
       })

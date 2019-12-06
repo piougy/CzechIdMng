@@ -295,7 +295,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
     );
     //
     // if current user is admin, old password is never required
-    let oldPasswordRequired = (entityId === userContext.id) && !SecurityManager.isAdmin(userContext);
+    let oldPasswordRequired = (entityId === userContext.username || entityId === userContext.id) && !SecurityManager.isAdmin(userContext);
     if (oldPasswordRequired) {
       oldPasswordRequired = requireOldPasswordConfig;
     }

@@ -29,7 +29,7 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
       return entityId;
     }
     if (userContext) {
-      return userContext.id;
+      return userContext.username;
     }
     return null;
   }

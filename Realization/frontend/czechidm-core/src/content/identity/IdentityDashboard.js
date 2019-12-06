@@ -70,7 +70,7 @@ class IdentityDashboard extends Basic.AbstractContent {
   }
 
   onIdentityDetail() {
-    this.context.history.push(`/identity/${ this.getIdentityIdentifier() }/profile`);
+    this.context.history.push(`/identity/${ encodeURIComponent(this.getIdentityIdentifier()) }/profile`);
   }
 
   /**
@@ -126,7 +126,7 @@ class IdentityDashboard extends Basic.AbstractContent {
         return (
           <DashboardButtonComponent
             key={`${ComponentService.IDENTITY_DASHBOARD_BUTTON_COMPONENT_TYPE}-${component.id}`}
-            entityId={ identity.id }
+            entityId={ identity.username }
             identity={ identity }
             permissions={ _permissions }/>
         );
@@ -140,7 +140,7 @@ class IdentityDashboard extends Basic.AbstractContent {
         return (
           <DashboardComponent
             key={`${ComponentService.IDENTITY_DASHBOARD_COMPONENT_TYPE}-${component.id}`}
-            entityId={ identity.id }
+            entityId={ identity.username }
             identity={ identity }
             permissions={ _permissions }/>
         );

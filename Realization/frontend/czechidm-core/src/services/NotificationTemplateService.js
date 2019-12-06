@@ -34,7 +34,7 @@ class NotificationTemplateService extends AbstractService {
 
   notificationOperationById(id, operation) {
     return RestApiService
-      .get(`${ this.getApiPath() }/${ id }/${operation}`)
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/${ operation }`)
       .then(response => {
         return response.json();
       })

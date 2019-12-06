@@ -75,7 +75,7 @@ export class ContractPositionInfo extends AbstractEntityInfo {
       return null;
     }
     //
-    const identityIdentifier = encodeURIComponent(_entity._embedded.identityContract._embedded.identity.id);
+    const identityIdentifier = encodeURIComponent(_entity._embedded.identityContract._embedded.identity.username);
     return `/identity/${ identityIdentifier }/identity-contract/${ _entity.identityContract }/positions`;
   }
 

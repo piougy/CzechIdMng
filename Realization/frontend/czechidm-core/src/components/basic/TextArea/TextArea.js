@@ -8,6 +8,42 @@ import Tooltip from '../Tooltip/Tooltip';
 
 class TextArea extends AbstractFormComponent {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      ...this.state,
+      isTrimmableWarning: this.isAnyLineTrimmable(props.value)
+    };
+  }
+
+  onChange(event) {
+    super.onChange(event);
+    this.setState({
+      isTrimmableWarning: this.isAnyLineTrimmable(event.target.value)
+    });
+  }
+
+  /**
+   * Checks whether any of individual rows in the TextArea contains
+   * leading or trailing whitespaces
+   *
+  * @return {bool}
+  */
+  isAnyLineTrimmable(area) {
+    if (!area && (typeof area !== 'string')) {
+      return false;
+    }
+    const split = area.split(/\r?\n/);
+    let line;
+    for (line of split) {
+      if (this.isStringTrimmable(line)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
   getValidationDefinition(required) {
     const { min, max } = this.props;
     let validation = super.getValidationDefinition(min ? true : required);
@@ -31,6 +67,37 @@ class TextArea extends AbstractFormComponent {
 
   getRequiredValidationSchema() {
     return Joi.string().required();
+  }
+
+  /**
+   * Returns soft validation result invoking warning only
+   * @return {validationResult object} Object containing setting of validationResult
+   */
+  softValidationResult() {
+    const {type, warnIfIsTrimmable} = this.props;
+    const {isTrimmableWarning} = this.state;
+
+    // Leading/trailing white-spaces warning
+    // omits password fields from validation
+    if (type !== 'password' && warnIfIsTrimmable && isTrimmableWarning) {
+      return {
+        status: 'warning',
+        class: 'has-warning has-feedback',
+        isValid: true,
+        message: this.i18n('validationError.string.isTrimmable')
+      };
+    }
+    return null;
+  }
+
+  /**
+   *  Sets value and calls validations
+   */
+  setValue(value, cb) {
+    this.setState({
+      isTrimmableWarning: this.isAnyLineTrimmable(value),
+      value
+    }, this.validate.bind(this, false, cb));
   }
 
   /**
@@ -98,12 +165,14 @@ TextArea.propTypes = {
   placeholder: PropTypes.string,
   rows: PropTypes.number,
   min: PropTypes.number,
-  max: PropTypes.number
+  max: PropTypes.number,
+  warnIfIsTrimmable: PropTypes.bool
 };
 
 TextArea.defaultProps = {
   ...AbstractFormComponent.defaultProps,
-  rows: 3
+  rows: 3,
+  warnIfIsTrimmable: false
 };
 
 export default TextArea;

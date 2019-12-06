@@ -58,6 +58,21 @@ class AbstractFormComponent extends AbstractContextComponent {
     return value;
   }
 
+  /**
+   * Returns true if the string in the <value> argument contains some leading or trailing white-spaces
+   * @return {bool}
+   */
+  isStringTrimmable(value) {
+    if (!value || (typeof value !== 'string')) {
+      return false;
+    }
+    const trimmedVal = value.trim();
+    if (value !== trimmedVal) {
+      return true;
+    }
+    return false;
+  }
+
   _resolveValue(props) {
     const value = props.value != null ? this.normalizeValue(props.value) : null;
     this.setState({ value });
@@ -176,38 +191,65 @@ class AbstractFormComponent extends AbstractContextComponent {
   validate(showValidationError, cb) {
     const{value, validation} = this.state;
     const showValidations = showValidationError != null ? showValidationError : true;
-    if (!validation) {
+
+    let result;
+    if (validation) {
+      result = validation.validate(value);
+      // custom validate
+      if (this.props.validate) {
+        result = this.props.validate(value, result);
+      }
+      if (result.error) {
+        let key;
+        const params = {};
+        if (result.error.key) {
+          key = result.error.key;
+        } else {
+          const detail = result.error.details[0];
+          key = detail.type;
+          const limit = detail.context.limit;
+          if (limit) {
+            merge(params, {count: limit});
+          }
+          const valids = detail.context.valids;
+          if (valids) {
+            merge(params, {valids});
+          }
+        }
+        const message = this._localizationValidation(key, params);
+        this.setState({
+          validationResult: {
+            status: 'error',
+            class: 'has-error has-feedback',
+            isValid: false,
+            message
+          },
+          showValidationError: showValidations
+        }, () => {
+          if (cb) {
+            cb(result);
+          }
+        }); // show validation error on UI
+        return false;
+      }
+    }
+    //
+    const softValidationResult = this.softValidationResult();
+    if (softValidationResult) {
+      this.setState({
+        validationResult: softValidationResult
+      });
       return true;
     }
-    let result = validation.validate(value);
-    // custom validate
-    if (this.props.validate) {
-      result = this.props.validate(value, result);
-    }
-    if (result.error) {
-      let key;
-      const params = {};
-      if (result.error.key) {
-        key = result.error.key;
-      } else {
-        const detail = result.error.details[0];
-        key = detail.type;
-        const limit = detail.context.limit;
-        if (limit) {
-          merge(params, {count: limit});
-        }
-        const valids = detail.context.valids;
-        if (valids) {
-          merge(params, {valids});
-        }
-      }
-      const message = this._localizationValidation(key, params);
+
+    if (validation) {
       this.setState({
         validationResult: {
-          status: 'error',
-          class: 'has-error has-feedback',
-          isValid: false,
-          message
+          status: null,
+          class: '',
+          isValid: true,
+          message: null,
+          showValidationError: true
         },
         showValidationError: showValidations
       }, () => {
@@ -215,23 +257,12 @@ class AbstractFormComponent extends AbstractContextComponent {
           cb(result);
         }
       }); // show validation error on UI
-      return false;
     }
-    this.setState({
-      validationResult: {
-        status: null,
-        class: '',
-        isValid: true,
-        message: null,
-        showValidationError: true
-      },
-      showValidationError: showValidations
-    }, () => {
-      if (cb) {
-        cb(result);
-      }
-    }); // show validation error on UI
     return true;
+  }
+
+  softValidationResult() {
+    return null;
   }
 
   getValue() {
@@ -367,6 +398,10 @@ class AbstractFormComponent extends AbstractContextComponent {
       }
       if (this.state.showValidationError && this.getValidationResult().status === 'error') {
         feedback = <Icon icon="warning-sign" className="form-control-feedback" />;
+      }
+      if (this.getValidationResult().status === 'warning') {
+        feedback = <Icon icon="warning-sign" className="form-control-feedback" />;
+        validationClass = 'has-warning has-feedback';
       }
     }
     if (validationErrors && validationErrors.length > 0) {

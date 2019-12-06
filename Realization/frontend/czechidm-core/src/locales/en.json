@@ -6268,7 +6268,8 @@
       "email": "format of e-mail is not valid!",
       "max" : "Enter the maximum {{count}} character!",
       "max_plural" : "Enter the maximum {{count}} characters!",
-      "guid": "Enter a valid uuid identifier"
+      "guid": "Enter a valid uuid identifier",
+      "isTrimmable": "Contains some whitespace characters at the beginning or the end of the text!"
     },
     "number": {
       "min" : "Min value is: {{count}}!",

@@ -281,9 +281,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (event) {
       event.preventDefault();
     }
-    if (!this.refs.bulkActionAttributes.isValid()) {
-      return;
-    }
     const _searchParameters = this._mergeSearchParameters(this.props._searchParameters);
 
     const { selectedRows, removedRows } = this.state;

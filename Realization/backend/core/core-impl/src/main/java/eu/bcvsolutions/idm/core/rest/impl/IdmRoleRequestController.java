@@ -271,7 +271,9 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		checkAccess(dto, IdmBasePermission.DELETE);
 		// Request in Executed state can not be delete or change
 		OperationResultDto systemState = dto.getSystemState();
-		if (RoleRequestState.EXECUTED == dto.getState() && systemState != null && OperationState.CANCELED != systemState.getState()) {
+		if (RoleRequestState.EXECUTED == dto.getState() && systemState != null
+				&& OperationState.EXECUTED != systemState.getState()
+				&& OperationState.CANCELED != systemState.getState()) {
 			// Request was executed in IdM, but system state is not canceled -> we will change the system state to CANCELED.
 			OperationResultDto systemResult = new OperationResultDto.Builder(OperationState.CANCELED)
 					.setModel(new DefaultResultModel(CoreResultCode.ROLE_REQUEST_SYSTEM_STATE_CANCELED,

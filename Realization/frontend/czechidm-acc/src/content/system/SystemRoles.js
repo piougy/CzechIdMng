@@ -37,6 +37,7 @@ export default class SystemRoles extends Basic.AbstractContent {
         <Basic.Panel className="no-border last">
           <RoleSystemTableComponent
             columns={ _.difference(RoleSystemTable.defaultProps.columns, ['system']) }
+            showRowSelection
             uiKey={ `${this.getUiKey()}-${entityId}` }
             forceSearchParameters={ forceSearchParameters }
             menu="system"

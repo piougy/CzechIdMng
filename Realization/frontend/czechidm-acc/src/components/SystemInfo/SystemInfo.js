@@ -93,11 +93,11 @@ export class SystemInfo extends Advanced.AbstractEntityInfo {
 SystemInfo.propTypes = {
   ...Advanced.AbstractEntityInfo.propTypes,
   /**
-   * Selected entity - has higher priority
+   * Selected entity - has higher priority.
    */
   entity: PropTypes.object,
   /**
-   * Selected entity's id - entity will be loaded automatically
+   * Selected entity's id - entity will be loaded automatically.
    */
   entityIdentifier: PropTypes.string,
   //

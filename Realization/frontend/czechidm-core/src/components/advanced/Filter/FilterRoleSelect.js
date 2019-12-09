@@ -23,9 +23,10 @@ FilterRoleSelect.propTypes = {
    */
   relation: PropTypes.oneOf(['EQ', 'NEQ'])
 };
-const { labelSpan, componentSpan, ...otherDefaultProps } = RoleSelect.defaultProps; // labelSpan etc. override
+const { labelSpan, componentSpan, disableable, ...otherDefaultProps } = RoleSelect.defaultProps; // labelSpan etc. override
 FilterRoleSelect.defaultProps = {
   ...otherDefaultProps,
   relation: 'EQ',
-  uiKey: 'filter-role-tree'
+  uiKey: 'filter-role-tree',
+  disableable: false
 };

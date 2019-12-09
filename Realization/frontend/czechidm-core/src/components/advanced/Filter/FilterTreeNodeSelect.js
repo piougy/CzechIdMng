@@ -24,9 +24,10 @@ FilterTreeNodeSelect.propTypes = {
    */
   relation: PropTypes.oneOf(['EQ', 'NEQ'])
 };
-const { labelSpan, componentSpan, ...otherDefaultProps } = TreeNodeSelect.defaultProps; // labelSpan etc. override
+const { labelSpan, componentSpan, disableable, ...otherDefaultProps } = TreeNodeSelect.defaultProps; // labelSpan etc. override
 FilterTreeNodeSelect.defaultProps = {
   ...otherDefaultProps,
   relation: 'EQ',
-  uiKey: 'filter-tree-node-tree'
+  uiKey: 'filter-tree-node-tree',
+  disableable: false
 };

@@ -371,7 +371,10 @@ class SelectBox extends AbstractFormComponent {
   getFiltersDefiniton(input) {
     const filters = [];
     for (const field of this.props.searchInFields) {
-      filters.push({ field, 'value': input });
+      filters.push({
+        field,
+        value: input
+      });
     }
     return filters;
   }
@@ -544,9 +547,16 @@ class SelectBox extends AbstractFormComponent {
       clearable,
       showLoading,
       optionComponent,
-      valueComponent
+      valueComponent,
+      disableable
     } = this.props;
-    const { isLoading, options, readOnly, disabled, value } = this.state;
+    const {
+      isLoading,
+      options,
+      readOnly,
+      disabled,
+      value
+    } = this.state;
     //
     // from new version react-select is necessary turn off onBlurResetsInput and closeOnSelect
     // onBlurResetsInput made problems with submit form and focus
@@ -571,7 +581,15 @@ class SelectBox extends AbstractFormComponent {
         searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
         clearable={clearable}
         onInputChange={this.onInputChange.bind(this)}
-        options={options}
+        options={ options.map(option => {
+          const _option = _.clone(option);
+          // turn off disabled feature => @todo: react-select 2.x has this feature outofbox
+          if (!disableable) {
+            _option.disabled = false;
+          }
+          //
+          return _option;
+        })}
         onOpen={ this.onOpen.bind(this) }
         optionComponent={ optionComponent }
         valueComponent={ valueComponent }/>
@@ -635,7 +653,11 @@ SelectBox.propTypes = {
   /**
    * Value decorator - generalize ValueDecorator
    */
-  valueComponent: PropTypes.func
+  valueComponent: PropTypes.func,
+  /**
+   * If disabled option can be selected.
+   */
+  disableable: PropTypes.bool
 };
 
 SelectBox.defaultProps = {
@@ -650,6 +672,7 @@ SelectBox.defaultProps = {
   loadMoreContent: true,
   optionComponent: OptionDecorator,
   valueComponent: ValueDecorator,
+  disableable: true
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

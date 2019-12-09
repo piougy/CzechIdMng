@@ -23,8 +23,9 @@ FilterSelectBox.propTypes = {
    */
   relation: PropTypes.oneOf(['EQ', 'NEQ'])
 };
-const { labelSpan, componentSpan, ...otherDefaultProps } = Basic.SelectBox.defaultProps; // labelSpan etc. override
+const { labelSpan, componentSpan, disableable, ...otherDefaultProps } = Basic.SelectBox.defaultProps; // labelSpan etc. override
 FilterSelectBox.defaultProps = {
   ...otherDefaultProps,
-  relation: 'EQ'
+  relation: 'EQ',
+  disableable: false
 };

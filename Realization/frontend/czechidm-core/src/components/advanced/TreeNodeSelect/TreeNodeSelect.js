@@ -18,7 +18,7 @@ const treeNodeManager = new TreeNodeManager(); // default manager in manager in 
 *
 * @author Radek Tomiška
 */
-class TreeNodeSelect extends Basic.AbstractFormComponent {
+export default class TreeNodeSelect extends Basic.AbstractFormComponent {
 
   constructor(props, context) {
     super(props, context);
@@ -357,7 +357,8 @@ class TreeNodeSelect extends Basic.AbstractFormComponent {
       value,
       hidden,
       multiSelect,
-      validationErrors
+      validationErrors,
+      disableable
     } = this.props;
     const {
       treeTypeId,
@@ -420,7 +421,8 @@ class TreeNodeSelect extends Basic.AbstractFormComponent {
                 useFirst={ useFirstType && !selectedTreeType }
                 required={ required }
                 validationErrors={ validationErrors }
-                readOnly={ readOnly }/>
+                readOnly={ readOnly }
+                disableable={ disableable }/>
             </div>
             { this._renderShowTreeIcon() }
           </div>
@@ -440,7 +442,8 @@ class TreeNodeSelect extends Basic.AbstractFormComponent {
               required={ required }
               validationErrors={ validationErrors }
               value={ value }
-              multiSelect={ multiSelect }/>
+              multiSelect={ multiSelect }
+              disableable={ disableable }/>
           </div>
           {
             showTreeType
@@ -463,7 +466,7 @@ class TreeNodeSelect extends Basic.AbstractFormComponent {
               forceSearchParameters={ modalForceSearchParameters }
               ŕendered={ showTree }
               traverse={ false }
-              clearable={ (required && !multiSelect) ? false : true }
+              clearable={ !((required && !multiSelect)) }
               multiSelect={ multiSelect }
               selected={ !selected || _.isArray(selected) ? selected : [ selected ] }
               header={
@@ -475,17 +478,19 @@ class TreeNodeSelect extends Basic.AbstractFormComponent {
                   entityType="treeType"
                   useFirst={ useFirstType && !selectedTreeType }
                   ref="selectedTreeType"
-                  value={ selectedTreeType ? selectedTreeType : null }
+                  value={ selectedTreeType || null }
                   manager={ this.getTreeTypeManager() }
                   onChange={ this.onChangeSelectedTreeType.bind(this) }
                   clearable={ false }
                   className="small"
-                  style={{ marginBottom: 0 }}/>
+                  style={{ marginBottom: 0 }}
+                  disableable={ disableable }/>
               }
               onChange={ this.onModalSelect.bind(this) }
               onDoubleClick={ (nodeId) => this.onSelect(nodeId) }
               bodyStyle={{ overflowY: 'auto', maxHeight: 450 }}
-              />
+              disableable={ disableable }
+            />
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
             <Basic.Button
@@ -498,7 +503,7 @@ class TreeNodeSelect extends Basic.AbstractFormComponent {
               level="success"
               showLoadingIcon
               onClick={ this.onSelect.bind(this, null) }
-              disabled={ !selected || (_.isArray(selected) && selected.length === 0) ? true : false }>
+              disabled={ !!(!selected || (_.isArray(selected) && selected.length === 0)) }>
               {this.i18n('button.select')}
             </Basic.Button>
           </Basic.Modal.Footer>
@@ -564,7 +569,11 @@ TreeNodeSelect.propTypes = {
   /**
    * "Hard filters".
    */
-  forceSearchParameters: PropTypes.object
+  forceSearchParameters: PropTypes.object,
+  /**
+   * If disabled option can be selected.
+   */
+  disableable: PropTypes.bool
 };
 
 TreeNodeSelect.defaultProps = {
@@ -575,7 +584,6 @@ TreeNodeSelect.defaultProps = {
   defaultTreeType: null,
   useFirstType: true,
   showTreeType: false,
-  multiSelect: false
+  multiSelect: false,
+  disableable: true
 };
-
-export default connect(null, null, null, { forwardRef: true})(TreeNodeSelect);

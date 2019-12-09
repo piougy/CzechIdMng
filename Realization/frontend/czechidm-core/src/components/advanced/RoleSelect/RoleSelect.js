@@ -465,7 +465,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       validationErrors,
       value,
       rendered,
-      forceSearchParameters
+      forceSearchParameters,
+      disableable
     } = this.props;
     //
     const {
@@ -511,7 +512,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               forceSearchParameters={ forceSearchParameters }
               niceLabel={(r) => {
                 return this.getManager().getNiceLabel(r, showEnvironment);
-              }}/>
+              }}
+              disableable={ disableable }/>
           </Basic.Div>
           { this._renderShowTreeIcon() }
         </Basic.Div>
@@ -604,7 +606,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                     cell={
                       ({ rowIndex, data }) => {
                         const isSelected = _.includes(selectedRows, data[rowIndex].id);
-                        if (data[rowIndex].disabled) {
+                        if (data[rowIndex].disabled && disableable) {
                           return (
                             null
                           );
@@ -716,7 +718,11 @@ RoleSelect.propTypes = {
   /**
    * The component is in multi select mode
    */
-  multiSelect: PropTypes.bool
+  multiSelect: PropTypes.bool,
+  /**
+   * If disabled option can be selected.
+   */
+  disableable: PropTypes.bool
 };
 RoleSelect.defaultProps = {
   ...Basic.AbstractFormComponent.defaultProps,
@@ -725,5 +731,6 @@ RoleSelect.defaultProps = {
   roleCatalogueManager,
   multiSelect: false,
   showActionButtons: true,
-  selectRowClass: 'success'
+  selectRowClass: 'success',
+  disableable: true
 };

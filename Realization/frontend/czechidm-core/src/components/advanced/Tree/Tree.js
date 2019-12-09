@@ -636,11 +636,16 @@ class Tree extends Basic.AbstractContextComponent {
    * @return {Boolean}
    */
   _isDisabled(node) {
-    if (Utils.Entity.isDisabled(node)){
+    const { roots, disableable } = this.props;
+    //
+    if (disableable === false) {
+      return false;
+    }
+    //
+    if (Utils.Entity.isDisabled(node)) {
       return true;
     }
     // try to find in roots
-    const { roots } = this.props;
     let result = false;
     if (roots) {
       roots.forEach(rootNode => {
@@ -1083,7 +1088,11 @@ Tree.propTypes = {
   /**
    * Show refresh button
    */
-  showRefreshButton: PropTypes.bool
+  showRefreshButton: PropTypes.bool,
+  /**
+   * If disabled option can be selected.
+   */
+  disableable: PropTypes.bool
 };
 
 Tree.defaultProps = {
@@ -1091,7 +1100,8 @@ Tree.defaultProps = {
   traverse: false,
   multiSelect: false,
   clearable: true,
-  showRefreshButton: true
+  showRefreshButton: true,
+  disableable: true
 };
 
 function select(state, component) {

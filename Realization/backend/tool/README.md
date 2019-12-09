@@ -1,19 +1,20 @@
 # CzechIdM Tool
 
 ## Features
-- Change product version - set version for all modules.
 - Release product version - release product under final version, new development version will be set, tag will be prepared.
+- Change product version - set version for all modules.
+- Get product version - for test reasons only.
 
 ## Requirements
 
-- Install `maven` - at least version `3.1` is required.
+- Install `maven` - at least version `3.1` is required (Configure ``MAVEN_HOME`` environment property or use ``mavenHome`` IdM tool argument).
 
 ## How to build the tool
 
 Standalone ``idm-tool.jar`` can be build under ``dist`` profile. In the tool module folder (checkout master branch is needed):
 
 ```bash
-mvn clean package -Pdist
+mvn clean package -Pdist -DskipTests
 ```
 
 Executable ``jar`` will contain all required libraries (all-in-one).
@@ -43,6 +44,71 @@ New development version will be set as ``developVersion`` argument.
 java -jar idm-tool.jar --publish --username <git username> --password <git password or developer token>
 ```
 
+**Nexus credential has to be configured in maven** for deploy artefacts into our private ``maven-releases`` repository.
+
+Example of ``settings.xml``:
+
+```xml
+<settings>
+  <servers>
+    <!-- Nexus servers -->
+    <server>
+      <id>maven-releases/id>
+      <username>username</username>
+      <password>password</password>
+    </server>
+    <server>
+      <id>maven-releases</id>
+      <username>username</username>
+      <password>password</password>
+    </server>
+    <server>
+      <id>nexus</id>
+      <username>username</username>
+      <password>password</password>
+    </server>
+    <server>
+      <id>nexus-public</id>
+      <username>username</username>
+      <password>password</password>
+    </server>
+  </servers>
+
+  <pluginGroups>
+     <pluginGroup>external.atlassian.jgitflow</pluginGroup>
+  </pluginGroups>
+
+  <profiles>
+    <profile>
+      <id>nexus-repo</id>
+      <repositories>
+        <repository>
+          <id>maven-snapshots</id>
+          <url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
+          <releases><enabled>false</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <repository>
+          <id>maven-release</id>
+          <url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+          <id>archetype</id>
+          <url>https://nexus.bcvsolutions.eu/repository/maven-public-releases/</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>nexus-repo</activeProfile>
+  </activeProfiles>
+</settings>
+```
+
 ### Get product version
 
 Get current product version.
@@ -70,6 +136,7 @@ java -jar idm-tool.jar --revertVersion
 
 ## Future development
 
+- build product only (without deploy - e.g. build and test snapshot version)
 - release other module
 - build project artefacts (~war):
   - download or use product in defined version

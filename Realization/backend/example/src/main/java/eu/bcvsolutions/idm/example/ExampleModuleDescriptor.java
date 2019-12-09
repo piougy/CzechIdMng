@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.example.domain.ExampleGroupPermission;
 import eu.bcvsolutions.idm.example.domain.ExampleResultCode;
 
 /**
- * Example module descriptor
+ * Example module descriptor.
  * 
  * @author Radek Tomiška
  *

@@ -110,7 +110,7 @@ conceptRoleRequestService.save(conceptDto);</script>
 def candidates = null;
 
 //Find all role guarantees
-candidates = new ArrayList(identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 10000)).getContent());
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
 }
@@ -193,7 +193,7 @@ if(!skip){
 def candidates = null;
 
 //Find all role guarantees
-candidates = new ArrayList(identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(conceptRole.role, new org.springframework.data.domain.PageRequest(0, 10000)).getContent());
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
 }
@@ -296,7 +296,7 @@ automaticRoleRequestService.save(requestDto);</script>
 def candidates = null;
 
 //Find all role guarantees
-candidates = new ArrayList(identityService.findGuaranteesByRoleId(entityEvent.content.role, new org.springframework.data.domain.PageRequest(0, 100)).getContent());
+candidates = new ArrayList(identityService.findGuaranteesByRoleId(entityEvent.content.role, new org.springframework.data.domain.PageRequest(0, 10000)).getContent());
 if(candidates.isEmpty()){
   candidates.add(identityService.getByUsername("admin"));
 }

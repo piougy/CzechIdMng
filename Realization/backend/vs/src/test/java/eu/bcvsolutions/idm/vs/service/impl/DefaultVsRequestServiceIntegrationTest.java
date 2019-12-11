@@ -863,7 +863,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 	public SysSystemDto createVirtualSystem(String userImplementerName, List<String> attributes) {
 		IdmIdentityDto userImplementer = helper.createIdentity(userImplementerName);
 		VsSystemDto config = new VsSystemDto();
-		config.setName("vsSystemOne" + new Date().getTime());
+		config.setName(helper.createName());
 		config.setImplementers(ImmutableList.of(userImplementer.getId()));
 		if (attributes != null) {
 			config.setAttributes(attributes);

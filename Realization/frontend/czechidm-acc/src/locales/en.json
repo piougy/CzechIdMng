@@ -2133,6 +2133,14 @@
       "title": "Provisioning - password must be GuardedString",
       "message": "Password attribute must be type of GuardedString!"
     },
+    "PROVISIONING_PASSWORD_CREATE_ACCOUNT_UID_NOT_FOUND": {
+      "title": "Password cannot be changed",
+      "message": "Password for account [{{uid}}] on system [{{system}}] cannot be changed. Account not exist on the target system (provisioning was canceled or skipped). Create account (execute provisioning) at first."
+    },
+    "PROVISIONING_CREATE_ACCOUNT_UID_NOT_FOUND": {
+      "title": "Account cannot be created",
+      "message": "Account [{{uid}}] on system [{{system}}] cannot be created. UID attribute (mapped attribute marked as 'Is identifier') was not given in provisioning attributes."
+    },
     "PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE": {
       "title": "Provisioning - attribute value is not in correct type",
       "message": "Schema of attribute [{{attribute}}] defines type of [{{schemaAttributeType}}]. But value type is [{{valueType}}]!"

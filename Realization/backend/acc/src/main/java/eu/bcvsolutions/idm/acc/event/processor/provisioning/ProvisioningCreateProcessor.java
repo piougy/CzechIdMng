@@ -1,12 +1,22 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
+
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
@@ -15,10 +25,12 @@ import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -65,13 +77,47 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		//
 		// Transform last guarded string into classic string
 		List<IcAttribute> transformedIcAttributes = transformGuardedStringToString(provisioningOperation, connectorObject.getAttributes());
-		IcUidAttribute icUid = connectorFacade.createObject(systemService.getConnectorInstance(system), connectorConfig,
-				connectorObject.getObjectClass(), transformedIcAttributes);
 		//
-		// set connector object back to provisioning context
-		provisioningOperation.getProvisioningContext().setConnectorObject(connectorObject);
-		provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation); // has to be first - we need to replace guarded strings before systemEntityService.save(systemEntity)
-		return icUid;
+		try {
+			IcUidAttribute icUid = connectorFacade.createObject(systemService.getConnectorInstance(system), connectorConfig,
+					connectorObject.getObjectClass(), transformedIcAttributes);
+			//
+			// set connector object back to provisioning context
+			provisioningOperation.getProvisioningContext().setConnectorObject(connectorObject);
+			provisioningOperation = provisioningOperationService.saveOperation(provisioningOperation); // has to be first - we need to replace guarded strings before systemEntityService.save(systemEntity)
+			//
+			return icUid;
+		} catch (IllegalArgumentException ex) {
+			if (CollectionUtils.isEmpty(transformedIcAttributes)) {
+				// nothing to do
+				throw ex;
+			}
+			// try to throw "better" exception
+			Set<Attribute> attributes = transformedIcAttributes
+				.stream()
+				.map(icAttribute -> {
+					return ConnIdIcConvertUtil.convertIcAttribute(icAttribute);
+				})
+				.collect(Collectors.toSet());
+			//
+			if (AttributeUtil.getNameFromAttributes(Sets.newHashSet(attributes)) == null) {
+				if (AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes) != null) {
+					// from password change
+					throw new ResultCodeException(
+							AccResultCode.PROVISIONING_PASSWORD_CREATE_ACCOUNT_UID_NOT_FOUND,
+							ImmutableMap.of("uid", String.valueOf(connectorObject.getUidValue()), "system", system.getCode()),
+							ex);
+				} else {
+					// from account creation
+					throw new ResultCodeException(
+							AccResultCode.PROVISIONING_CREATE_ACCOUNT_UID_NOT_FOUND,
+							ImmutableMap.of("uid", String.valueOf(connectorObject.getUidValue()), "system", system.getCode()),
+							ex);
+				}
+			}
+			
+			throw ex;
+		}
 	}
 	
 	@Override

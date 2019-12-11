@@ -53,6 +53,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
@@ -91,6 +92,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * - readonly system provisioning
  * - asynchronous system provisioning
  * - fill provisioning attributes
+ * - change password without account is created
+ * - create account without uid attribute is given
  * 
  * @author Radek Tomiška
  *
@@ -114,6 +117,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	@Autowired private SchedulerManager schedulerManager;
 	@Autowired private SysProvisioningAttributeRepository provisioningAttributeRepository;
 	@Autowired private IdmIdentityService identitySerivce;
+	@Autowired private SysSystemAttributeMappingService attributeMappingService;
 	//
 	private SysProvisioningOperationService provisioningOperationService;
 	private ProvisioningExecutor provisioningExecutor;
@@ -826,6 +830,129 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertEquals(OperationState.NOT_EXECUTED, provisionings.get(0).getResultState());
 		assertEquals(OperationState.NOT_EXECUTED, provisionings.get(1).getResultState());
 
+	}
+	
+	@Test
+	public void testChangePasswordWithoutAccountExist() {
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		ProvisioningContext context = new ProvisioningContext();
+		SysSystemEntityDto systemEntity = getHelper().createSystemEntity(system);
+		ProvisioningAttributeDto passwordAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_PASSWORD);
+		//
+		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();		
+		accoutObject.put(passwordAttribute, new GuardedString("password"));
+		context.setAccountObject(accoutObject);
+		//
+		// prepare provisioning operation
+		SysSystemMappingDto systemMapping = getHelper().getDefaultMapping(system);
+		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
+		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
+		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+				.setSystem(system.getId())
+				.setOperationType(ProvisioningOperationType.CREATE)
+				.setSystemEntity(systemEntity)
+				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
+		SysProvisioningOperationDto provisioningOperation = operationBuilder.build();
+		// set default result state
+		provisioningOperation.setResult(new OperationResult(OperationState.CREATED));
+		//
+		// publish event
+		provisioningExecutor.execute(provisioningOperation);
+		//
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemEntity(provisioningOperation.getSystemEntity());
+		filter.setSystemId(system.getId());
+		//
+		List<SysProvisioningOperationDto> operations = provisioningOperationService.find(filter, null).getContent();
+		Assert.assertEquals(1, operations.size());
+		//
+		Assert.assertEquals(
+				AccResultCode.PROVISIONING_PASSWORD_CREATE_ACCOUNT_UID_NOT_FOUND.getCode(), 
+				operations.get(0).getResult().getModel().getStatusEnum());
+	}
+	
+	@Test
+	public void testCreateAccountWithoutUid() {
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		ProvisioningContext context = new ProvisioningContext();
+		SysSystemEntityDto systemEntity = getHelper().createSystemEntity(system);
+		ProvisioningAttributeDto lastNameAttribute = getProvisioningAttribute(TestHelper.ATTRIBUTE_MAPPING_LASTNAME);
+		//
+		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();		
+		accoutObject.put(lastNameAttribute, "lastOne");
+		context.setAccountObject(accoutObject);
+		//
+		// prepare provisioning operation
+		SysSystemMappingDto systemMapping = getHelper().getDefaultMapping(system);
+		attributeMappingService
+			.getAllPasswordAttributes(system.getId(), systemMapping.getId())
+			.forEach(attributeMappingService::delete);
+		
+		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
+		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
+		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+				.setSystem(system.getId())
+				.setOperationType(ProvisioningOperationType.CREATE)
+				.setSystemEntity(systemEntity)
+				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
+		SysProvisioningOperationDto provisioningOperation = operationBuilder.build();
+		// set default result state
+		provisioningOperation.setResult(new OperationResult(OperationState.CREATED));
+		//
+		// publish event
+		provisioningExecutor.execute(provisioningOperation);
+		//
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemEntity(provisioningOperation.getSystemEntity());
+		filter.setSystemId(system.getId());
+		//
+		List<SysProvisioningOperationDto> operations = provisioningOperationService.find(filter, null).getContent();
+		Assert.assertEquals(1, operations.size());
+		//
+		Assert.assertEquals(
+				AccResultCode.PROVISIONING_CREATE_ACCOUNT_UID_NOT_FOUND.getCode(), 
+				operations.get(0).getResult().getModel().getStatusEnum());
+	}
+	
+	@Test
+	public void testCreateAccountWithEmptyAttributes() {
+		SysSystemDto system = getHelper().createTestResourceSystem(true);
+		ProvisioningContext context = new ProvisioningContext();
+		SysSystemEntityDto systemEntity = getHelper().createSystemEntity(system);
+		//
+		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();		
+		context.setAccountObject(accoutObject);
+		//
+		// prepare provisioning operation
+		SysSystemMappingDto systemMapping = getHelper().getDefaultMapping(system);
+		attributeMappingService
+			.getAllPasswordAttributes(system.getId(), systemMapping.getId())
+			.forEach(attributeMappingService::delete);
+		
+		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassService.get(systemMapping.getObjectClass()).getObjectClassName());
+		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
+		SysProvisioningOperationDto.Builder operationBuilder = new SysProvisioningOperationDto.Builder()
+				.setSystem(system.getId())
+				.setOperationType(ProvisioningOperationType.CREATE)
+				.setSystemEntity(systemEntity)
+				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
+		SysProvisioningOperationDto provisioningOperation = operationBuilder.build();
+		// set default result state
+		provisioningOperation.setResult(new OperationResult(OperationState.CREATED));
+		//
+		// publish event
+		provisioningExecutor.execute(provisioningOperation);
+		//
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setSystemEntity(provisioningOperation.getSystemEntity());
+		filter.setSystemId(system.getId());
+		//
+		List<SysProvisioningOperationDto> operations = provisioningOperationService.find(filter, null).getContent();
+		Assert.assertEquals(1, operations.size());
+		//
+		Assert.assertEquals(
+				AccResultCode.PROVISIONING_FAILED.getCode(), 
+				operations.get(0).getResult().getModel().getStatusEnum());
 	}
 	
 	/**

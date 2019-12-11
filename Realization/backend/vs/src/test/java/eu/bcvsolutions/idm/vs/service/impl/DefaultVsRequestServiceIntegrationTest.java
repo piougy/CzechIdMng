@@ -2,18 +2,16 @@ package eu.bcvsolutions.idm.vs.service.impl;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -81,7 +79,6 @@ import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
  * @author Patrik Stloukal
  */
 @Component
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationTest {
 
 	private static final String USER_ONE_NAME = "vsUserOne";
@@ -866,7 +863,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 	public SysSystemDto createVirtualSystem(String userImplementerName, List<String> attributes) {
 		IdmIdentityDto userImplementer = helper.createIdentity(userImplementerName);
 		VsSystemDto config = new VsSystemDto();
-		config.setName("vsSystemOne" + new Date().getTime());
+		config.setName(helper.createName());
 		config.setImplementers(ImmutableList.of(userImplementer.getId()));
 		if (attributes != null) {
 			config.setAttributes(attributes);

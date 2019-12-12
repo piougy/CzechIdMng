@@ -9,15 +9,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
-import java.time.ZonedDateTime;
-import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -92,6 +93,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
 	//
 	private DefaultIdmIdentityRoleService service;
+	private Random random = new Random();
 
 	@Before
 	public void init() {
@@ -803,7 +805,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 
 	@Test
 	public void testSubdefinitionManuallyLong() {
-		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 
 		IdmRoleDto role = createRoleWithAttributes(prepareAttributeOne());
 
@@ -818,17 +820,18 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		assertEquals(two.getId(), duplicated.getId());
 		
 		IdmFormAttributeDto attribute = getAttribute(ATTRIBUTE_ONE, role);
-		setValue(one, attribute, System.currentTimeMillis());
+		
+		setValue(one, attribute, System.currentTimeMillis() - random.nextLong());
 
 		duplicated = service.getDuplicated(one, two, null);
 		assertNull(duplicated);
 
-		setValue(two, attribute, System.currentTimeMillis());
+		setValue(two, attribute, System.currentTimeMillis() - random.nextLong());
 
 		duplicated = service.getDuplicated(one, two, null);
 		assertNull(duplicated);
 
-		long currentTimeMillis = System.currentTimeMillis();
+		long currentTimeMillis = System.currentTimeMillis() - random.nextLong();
 		setValue(two, attribute, currentTimeMillis);
 		setValue(one, attribute, currentTimeMillis);
 
@@ -844,7 +847,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		assertNotNull(duplicated);
 		assertEquals(two.getId(), duplicated.getId());
 		
-		currentTimeMillis = System.currentTimeMillis();
+		currentTimeMillis = System.currentTimeMillis() - random.nextLong();
 		setValue(two, attribute, currentTimeMillis);
 		
 		duplicated = service.getDuplicated(one, two, Boolean.FALSE);

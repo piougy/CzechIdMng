@@ -189,10 +189,10 @@ class AbstractFormComponent extends AbstractContextComponent {
   }
 
   validate(showValidationError, cb) {
-    const{value, validation} = this.state;
+    const {value, validation} = this.state;
     const showValidations = showValidationError != null ? showValidationError : true;
 
-    let result;
+    let result = null;
     if (validation) {
       result = validation.validate(value);
       // custom validate

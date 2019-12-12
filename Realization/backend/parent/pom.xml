@@ -842,6 +842,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.1.1</version>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -850,6 +851,9 @@
 								</goals>
 							</execution>
 						</executions>
+						<configuration>
+							<doclint>none</doclint>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>

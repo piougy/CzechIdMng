@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -32,8 +33,11 @@ public class DefaultSysProvisioningAttributeService implements SysProvisioningAt
 		this.repository = repository;
 	}
 	
+	/**
+	 * Provisioning operation is saved in new transaction, attributes has to be saved too.
+	 */
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void saveAttributes(ProvisioningOperation operation) {
 		Assert.notNull(operation, "Operation is required.");
 		Assert.notNull(operation.getId(), "Operation identifier is required.");

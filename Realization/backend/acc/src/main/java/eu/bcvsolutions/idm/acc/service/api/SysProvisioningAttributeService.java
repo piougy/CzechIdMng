@@ -27,7 +27,6 @@ public interface SysProvisioningAttributeService {
 	 */
 	int deleteAttributes(ProvisioningOperation operation);
 	
-	
 	/**
 	 * Delete attributes for deleted operation or archive.
 	 * 

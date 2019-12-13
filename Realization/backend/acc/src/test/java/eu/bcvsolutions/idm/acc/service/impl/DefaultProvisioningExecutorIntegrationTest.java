@@ -414,6 +414,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), readOnlyOperation.getResult().getModel().getStatusEnum());
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		provisioningExecutor.execute(updateProvisioningOperation(systemEntity, firstname + 2)); // 2 - update
+		getHelper().waitForResult(null, 1, 1); // FIXME: how to order operations created in the same milis?
 		provisioningExecutor.execute(updateProvisioningOperation(systemEntity, firstname + 3)); // 3 - update
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
@@ -786,7 +787,21 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		filter.setSystemId(system.getId());
 		filter.setEmptyProvisioning(Boolean.FALSE);
 		//
-		Assert.assertFalse(provisioningOperationService.find(filter, null).getContent().isEmpty());
+		List<SysProvisioningOperationDto> operations = provisioningOperationService.find(filter, null).getContent();
+		Assert.assertFalse(operations.isEmpty());
+		provisioningOperation = operations.get(0);
+		List<SysProvisioningAttribute> attributes = provisioningAttributeRepository.findAllByProvisioningId(provisioningOperation.getId());
+		Assert.assertFalse(attributes.isEmpty());
+		//
+		system.setReadonly(false);
+		system = systemService.save(system);
+		//
+		provisioningExecutor.execute(provisioningOperation);
+		//
+		Assert.assertNull(provisioningOperationService.get(provisioningOperation.getId()));
+		// checkout skeleton provisioning attributes
+		attributes = provisioningAttributeRepository.findAllByProvisioningId(provisioningOperation.getId());
+		Assert.assertTrue(attributes.isEmpty());
 	}
 	
 	@Test

@@ -116,7 +116,8 @@ export default class OptionDecorator extends AbstractContextComponent {
   }
 
   /**
-   * Entity is disabled.
+   * Entity is disabled for select option.
+   * Lookout: Icon can use private _disabled property, if not disableable select is used
    *
    * @param  {dto}  entity
    * @return {Boolean} Return undefined, when disabled option hasn't be controlled.
@@ -136,7 +137,7 @@ export default class OptionDecorator extends AbstractContextComponent {
    */
   renderIcon(entity) {
     return (
-      <Icon value={ this.getEntityIcon(entity) } style={{ marginRight: 5, fontSize: '0.9em' }}/>
+      <Icon value={ this.getEntityIcon(entity) } style={{ marginRight: 5, width: 16, fontSize: '0.9em' }}/>
     );
   }
 
@@ -184,7 +185,11 @@ export default class OptionDecorator extends AbstractContextComponent {
         onTouchEnd={ disabled === true ? undefined : this.handleTouchEnd.bind(this) }
         title={ option.title }>
         <div>
-          { this.renderIcon(option) }
+          {
+            option._moreOption
+            ||
+            this.renderIcon(option)
+          }
           { children }
         </div>
         { this.renderDescription(option) }

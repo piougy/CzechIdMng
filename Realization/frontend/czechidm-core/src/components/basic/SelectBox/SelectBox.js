@@ -163,14 +163,27 @@ class SelectBox extends AbstractFormComponent {
             };
             if (!data.complete) {
               data.options.push({
-                [NICE_LABEL]: <Waypoint onEnter={this._loadMoreContent.bind(this, input)}>{this.i18n('results', { escape: false, count: data.options.length, total: result.page.totalElements})}</Waypoint>,
+                [NICE_LABEL]: (
+                  <Waypoint
+                    onEnter={ this._loadMoreContent.bind(this, input) }>
+                    { this.i18n('results', { escape: false, count: data.options.length, total: result.page.totalElements }) }
+                  </Waypoint>
+                ),
                 [ITEM_FULL_KEY]: input,
+                _moreOption: true,
+                _disabled: true, // prevent to enable this option by not disableable select box
                 disabled: true // info only
               });
             } else {
               data.options.push({
-                [NICE_LABEL]: this.i18n('results', { escape: false, count: data.options.length, total: result.page.totalElements}),
+                [NICE_LABEL]: this.i18n('results', {
+                  escape: false,
+                  count: data.options.length,
+                  total: result.page.totalElements
+                }),
                 [ITEM_FULL_KEY]: input,
+                _moreOption: true,
+                _disabled: true, // prevent to enable this option by not disableable select box
                 disabled: true // info only
               });
             }
@@ -584,7 +597,8 @@ class SelectBox extends AbstractFormComponent {
         options={ options.map(option => {
           const _option = _.clone(option);
           // turn off disabled feature => @todo: react-select 2.x has this feature outofbox
-          if (!disableable) {
+          if (!disableable && !_option._disabled) {
+            _option._disabled = _option.disabled; // original ino private prop
             _option.disabled = false;
           }
           //

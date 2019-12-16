@@ -6,7 +6,7 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { SecurityManager, IdentityManager, WorkflowTaskInstanceManager, RoleRequestManager } from '../../redux';
+import { SecurityManager, WorkflowTaskInstanceManager, RoleRequestManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import OperationStateEnum from '../../enums/OperationStateEnum';
 
@@ -25,7 +25,6 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
     this.state = {
       filterOpened: props.filterOpened
     };
-    this.identityManager = new IdentityManager();
   }
 
   getUiKey() {
@@ -176,11 +175,10 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                 </Basic.Row>
                 <Basic.Row className="last">
                   <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.SelectBox
+                    <Advanced.Filter.IdentitySelect
                       ref="applicants"
-                      placeholder={this.i18n('filter.applicants.placeholder')}
-                      multiSelect
-                      manager={this.identityManager}/>
+                      placeholder={ this.i18n('filter.applicants.placeholder') }
+                      multiSelect/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
                     <Advanced.Filter.FilterDate

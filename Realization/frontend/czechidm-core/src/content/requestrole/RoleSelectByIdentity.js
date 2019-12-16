@@ -21,6 +21,7 @@ const IDENTITY_ROLE_BY_IDENTITY_UIKEY = 'identity-role-by-identity';
 * Component for select roles by identity.
 *
 * @author Ondrej Kopr
+* @author Radek Tomiška
 */
 class RoleSelectByIdentity extends Basic.AbstractContextComponent {
 
@@ -251,6 +252,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
         </span>
       );
     }
+    return null;
   }
 
   _identityRoleIcon(value) {
@@ -258,13 +260,16 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
     if (identityRole) {
       if (identityRole.automaticRole) {
         return 'component:automatic-role';
-      } else if (identityRole.directRole) {
+      }
+      if (identityRole.directRole) {
         return 'component:sub-role';
-      } else if (identityRole._embedded.role.childrenCount > 0) {
+      }
+      if (identityRole._embedded.role.childrenCount > 0) {
         return 'component:business-role';
       }
       return 'component:role';
     }
+    return null;
   }
 
   /**
@@ -342,7 +347,10 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                   <span>
                     { this.i18n('source.header') }
                     <small style={{ fontSize: '0.7em', marginLeft: 5 }}>
-                      <Basic.ShortText text={ identityManager.getNiceLabel(selectedIdentity) } maxLength={ 30 } cutChar={ '' }/>
+                      <Basic.ShortText
+                        text={ identityManager.getNiceLabel(selectedIdentity) }
+                        maxLength={ 30 }
+                        cutChar={ '' }/>
                     </small>
                   </span>
                 }
@@ -350,7 +358,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 style={{ paddingTop: 0 }}
                 icon="component:identity"/>
 
-              <Basic.SelectBox
+              <Advanced.IdentitySelect
                 ref="select"
                 label={ this.i18n('selectUser.label') }
                 helpBlock={ this.i18n('selectUser.help') }
@@ -430,7 +438,14 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
           <Basic.Div style={{ marginLeft: -15, marginRight: -15 }}>
             <Basic.ContentHeader text={ this.i18n('roleSelectionHeader') } style={{ paddingRight: 15, paddingLeft: 15, marginBottom: 0 }}/>
             <div style={{ display: 'flex' }}>
-              <div style={{ flex: 1, borderRight: '1px solid #ddd', overflowY: 'auto', maxHeight: TREE_COMPONENT_HEIGHT, minHeight: TREE_COMPONENT_HEIGHT }}>
+              <div
+                style={{
+                  flex: 1,
+                  borderRight: '1px solid #ddd',
+                  overflowY: 'auto',
+                  maxHeight: TREE_COMPONENT_HEIGHT,
+                  minHeight: TREE_COMPONENT_HEIGHT
+                }}>
                 <Advanced.Tree
                   showLoading={ identityRoleShowLoading }
                   ref="identityRoleSelect"
@@ -443,7 +458,7 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                   nodeNiceLabel={ this._identityRoleNiceLabel.bind(this) }
                   nodeIcon={ this._identityRoleIcon.bind(this)}
                   nodeIconClassName={ null }
-                  header={ this.i18n('roleSelect', {'username': identityManager.getNiceLabel(selectedIdentity)}) }
+                  header={ this.i18n('roleSelect', { username: identityManager.getNiceLabel(selectedIdentity) }) }
                   bodyStyle={{ overflowX: 'visible' }}/>
               </div>
 
@@ -498,7 +513,14 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 </Basic.Row>
               </div>
 
-              <div style={{ flex: 1, borderLeft: '1px solid #ddd', overflowY: 'auto', minHeight: TREE_COMPONENT_HEIGHT, maxHeight: TREE_COMPONENT_HEIGHT }}>
+              <div
+                style={{
+                  flex: 1,
+                  borderLeft: '1px solid #ddd',
+                  overflowY: 'auto',
+                  minHeight: TREE_COMPONENT_HEIGHT,
+                  maxHeight: TREE_COMPONENT_HEIGHT
+                }}>
                 <Advanced.Tree
                   showLoading={ identityRoleShowLoading }
                   ref="selectedIdentityRoles"

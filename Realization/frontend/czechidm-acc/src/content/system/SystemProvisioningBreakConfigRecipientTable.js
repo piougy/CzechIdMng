@@ -27,8 +27,6 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
         }
       }
     };
-    this.identityManager = new Managers.IdentityManager();
-    this.roleManager = new Managers.RoleManager();
   }
 
   getContentKey() {
@@ -158,11 +156,16 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
   }
 
   _getRecipientType(entity) {
-    if (entity && entity.role) {
+    if (!entity) {
+      return null;
+    }
+    if (entity.role) {
       return (<Basic.Label level="info" text={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.role')}/>);
-    } else if (entity && entity.identity) {
+    }
+    if (entity.identity) {
       return (<Basic.Label level="success" text={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.identity')}/>);
     }
+    return null;
   }
 
   _getRecipientName(entity) {
@@ -173,22 +176,26 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
             entityType="role"
             entityIdentifier={ entity.role }
             entity={ entity._embedded.role }
-            face="popover"/>
+            face="popover"
+            showIcon/>
         );
       }
       return entity.role;
-    } else if (entity && entity.identity) {
+    }
+    if (entity && entity.identity) {
       if (entity._embedded) {
         return (
           <Advanced.EntityInfo
             entityType="identity"
             entityIdentifier={ entity.identity }
             entity={ entity._embedded.identity }
-            face="popover"/>
+            face="popover"
+            showIcon/>
         );
       }
       return entity.identity;
     }
+    return null;
   }
 
   getTableButtons(showAddButton) {
@@ -199,10 +206,9 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
           key="add_button"
           className="btn-xs"
           onClick={ this.showDetail.bind(this, null) }
-          rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') && showAddButton }>
-          <Basic.Icon type="fa" icon="plus"/>
-          {' '}
-          {this.i18n('button.add')}
+          rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') && showAddButton }
+          icon="fa:plus">
+          { this.i18n('button.add') }
         </Basic.Button>
       ]);
   }
@@ -216,10 +222,10 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Modal show={ detail.show } showLoading={ detail.showLoading } onHide={ this._closeModal.bind(this) }>
-          <form onSubmit={this.saveDetail.bind(this)}>
+          <form onSubmit={ this.saveDetail.bind(this) }>
             <Basic.Modal.Header text={this.i18n('acc:content.provisioningBreakConfigRecipient.new')} rendered={isNew} />
             <Basic.Modal.Header text={this.i18n('acc:content.provisioningBreakConfigRecipient.edit')} rendered={!isNew} />
             <Basic.Modal.Body>
@@ -235,24 +241,32 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
                   ]}
                   onChange={ this.changeRecipientType.bind(this)}
                   required/>
-                <Basic.SelectBox
+                <Advanced.IdentitySelect
                   ref="identity"
-                  label={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.identity')}
-                  hidden={detail.entity.type === ROLE_TYPE}
-                  manager={this.identityManager}/>
-                <Basic.SelectBox
+                  label={ this.i18n('acc:entity.ProvisioningBreakConfigRecipient.identity') }
+                  hidden={ detail.entity.type === ROLE_TYPE }/>
+                <Advanced.RoleSelect
                   ref="role"
-                  label={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.role')}
-                  hidden={detail.entity.type === IDENTITY_TYPE}
-                  manager={this.roleManager}/>
+                  label={ this.i18n('acc:entity.ProvisioningBreakConfigRecipient.role') }
+                  hidden={ detail.entity.type === IDENTITY_TYPE }/>
               </Basic.AbstractForm>
-              {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
-              <input type="submit" className="hidden"/>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
               <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('button.cancel')}</Basic.Button>
-              <Basic.Button ref="yesButton" level="success" onClick={this.saveDetail.bind(this)} rendered={isNew}>{this.i18n('button.create')}</Basic.Button>
-              <Basic.Button ref="yesButton" level="success" onClick={this.saveDetail.bind(this)} rendered={!isNew}>{this.i18n('button.save')}</Basic.Button>
+              <Basic.Button
+                ref="yesButton"
+                level="success"
+                onClick={ this.saveDetail.bind(this) }
+                rendered={ isNew }>
+                { this.i18n('button.create') }
+              </Basic.Button>
+              <Basic.Button
+                ref="yesButton"
+                level="success"
+                onClick={ this.saveDetail.bind(this) }
+                rendered={ !isNew }>
+                {this.i18n('button.save')}
+              </Basic.Button>
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
@@ -266,22 +280,24 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
           showRowSelection={ Managers.SecurityManager.hasAuthority('SYSTEM_DELETE') && showRowSelection }
           className={ className }
           filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
-                  <div className="col-lg-4">
-                    <Advanced.Filter.SelectBox
-                      ref="identityId"
-                      manager={this.identityManager}/>
-                  </div>
-                  <div className="col-lg-4">
-                    <Advanced.Filter.SelectBox
-                      ref="roleId"
-                      manager={this.roleManager}/>
-                  </div>
-                  <div className="col-lg-4 text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                  </div>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.IdentitySelect
+                      label={ null }
+                      placeholder={ this.i18n('entity.Identity._type') }
+                      ref="identityId"/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.RoleSelect
+                      label={ null }
+                      placeholder={ this.i18n('entity.Role._type') }
+                      ref="roleId"/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
+                  </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
@@ -291,9 +307,8 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
             ]
           }
-          buttons = {this.getTableButtons(showAddButton)}
-          _searchParameters={ this.getSearchParameters() }
-          >
+          buttons={ this.getTableButtons(showAddButton) }
+          _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -312,7 +327,7 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
             property="type"
             rendered={_.includes(columns, 'type')}
             header={this.i18n('acc:entity.ProvisioningBreakConfigRecipient.type.label')}
-            width="130px"
+            width={ 130 }
             cell={({ rowIndex, data }) => {
               return (
                 this._getRecipientType(data[rowIndex])
@@ -330,7 +345,7 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
               );
             }}/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

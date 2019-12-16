@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { IdentityManager } from '../../redux';
 import * as Utils from '../../utils';
 import * as Domain from '../../domain';
 /**
@@ -24,7 +23,6 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
         entity: {}
       }
     };
-    this.identityManager = new IdentityManager();
   }
 
   getContentKey() {
@@ -96,11 +94,10 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
             <Basic.AbstractForm ref="filterForm">
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
-                  <Advanced.Filter.SelectBox
+                  <Advanced.Filter.IdentitySelect
                     ref="candidateOrAssigned"
-                    rendered={_.includes(columns, 'taskAssignee')}
-                    placeholder={this.i18n('entity.WorkflowTaskInstance.taskAssignee')}
-                    manager={this.identityManager}/>
+                    rendered={ _.includes(columns, 'taskAssignee') }
+                    placeholder={ this.i18n('entity.WorkflowTaskInstance.taskAssignee') }/>
                 </Basic.Col>
                 <Basic.Col lg={ 6 } className="text-right">
                   <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

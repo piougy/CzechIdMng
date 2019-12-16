@@ -2,12 +2,12 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { RoleRequestManager, IdentityManager} from '../../redux';
 import RoleRequestTable from './RoleRequestTable';
-import uuid from 'uuid';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 
 const uiKey = 'role-request-table';
@@ -83,7 +83,12 @@ class RoleRequests extends Advanced.AbstractTableContent {
           this.refs.table.reload();
         }
         if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
-          this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
+          this.addMessage({
+            message:
+              this.i18n('content.roleRequests.action.startRequest.duplicated', {
+                created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))
+              }),
+            level: 'warning'});
           return;
         }
         if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
@@ -103,7 +108,6 @@ class RoleRequests extends Advanced.AbstractTableContent {
     }, () => {
       // Rejected
     });
-    return;
   }
 
   /**

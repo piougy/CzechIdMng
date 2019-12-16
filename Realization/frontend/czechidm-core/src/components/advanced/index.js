@@ -33,6 +33,7 @@ import WorkflowTaskInfo from './WorkflowTaskInfo/WorkflowTaskInfo';
 import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTemplateInfo';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
+import IdentitySelect from './IdentitySelect/IdentitySelect';
 import Recaptcha from './Recaptcha/Recaptcha';
 import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
 import SchedulerTaskInfo from './SchedulerTaskInfo/SchedulerTaskInfo';
@@ -94,6 +95,7 @@ const Components = {
   NotificationTemplateInfo,
   ScriptArea,
   RoleSelect,
+  IdentitySelect,
   Recaptcha,
   IdentitiesInfo,
   SchedulerTaskInfo,

@@ -16,6 +16,7 @@ import FilterDate from './FilterDate';
 import FilterTreeNodeSelect from './FilterTreeNodeSelect';
 import FilterRoleCatalogueSelect from './FilterRoleCatalogueSelect';
 import FilterRoleSelect from './FilterRoleSelect';
+import FilterIdentitySelect from './FilterIdentitySelect';
 
 /**
  * Filter mainly for advanced table.
@@ -113,3 +114,4 @@ Filter.FilterDate = FilterDate;
 Filter.TreeNodeSelect = FilterTreeNodeSelect;
 Filter.RoleCatalogueSelect = FilterRoleCatalogueSelect;
 Filter.RoleSelect = FilterRoleSelect;
+Filter.IdentitySelect = FilterIdentitySelect;

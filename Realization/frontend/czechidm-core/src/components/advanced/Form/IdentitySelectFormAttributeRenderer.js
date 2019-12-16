@@ -3,15 +3,16 @@ import React from 'react';
 import SearchParameters from '../../../domain/SearchParameters';
 import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
 import SelectBoxFormAttributeRenderer from './SelectBoxFormAttributeRenderer';
-import RoleSelect from '../RoleSelect/RoleSelect';
+import IdentitySelect from '../IdentitySelect/IdentitySelect';
 
 /**
  * Role select component
  * - TODO: validation
  *
  * @author Radek Tomiška
+ * @since 10.1.0
  */
-export default class RoleSelectFormAttributeRenderer extends SelectBoxFormAttributeRenderer {
+export default class IdentitySelectFormAttributeRenderer extends SelectBoxFormAttributeRenderer {
 
   constructor(props) {
     super(props);
@@ -49,7 +50,7 @@ export default class RoleSelectFormAttributeRenderer extends SelectBoxFormAttrib
     }
     //
     return (
-      <RoleSelect
+      <IdentitySelect
         ref={ AbstractFormAttributeRenderer.INPUT }
         uiKey={ uiKey || `form-attribute-${attribute.code}` }
         manager={ this.getManager() }

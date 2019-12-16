@@ -3,9 +3,7 @@ import React from 'react';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import NotificationStateEnum from '../../enums/NotificationStateEnum';
-import { IdentityManager } from '../../redux';
 
-const identityManager = new IdentityManager();
 
 /**
 * Common notification filter
@@ -49,11 +47,10 @@ export default class NotificationFilter extends Advanced.Filter {
                 placeholder={this.i18n('content.notifications.filter.topic.placeholder')}/>
             </Basic.Col>
             <Basic.Col lg={ 4 }>
-              <Advanced.Filter.SelectBox
+              <Advanced.Filter.IdentitySelect
                 ref="sender"
                 placeholder={ this.i18n('content.notifications.filter.sender.placeholder') }
                 multiSelect={ false }
-                manager={ identityManager }
                 returnProperty="username"/>
             </Basic.Col>
           </Basic.Row>
@@ -66,11 +63,10 @@ export default class NotificationFilter extends Advanced.Filter {
                 enum={ NotificationStateEnum }/>
             </Basic.Col>
             <Basic.Col lg={ 4 }>
-              <Advanced.Filter.SelectBox
+              <Advanced.Filter.IdentitySelect
                 ref="recipient"
                 placeholder={ this.i18n('content.notifications.filter.recipient.placeholder') }
                 multiSelect={ false }
-                manager={ identityManager }
                 returnProperty="username"/>
             </Basic.Col>
             <Basic.Col lg={ 8 } >

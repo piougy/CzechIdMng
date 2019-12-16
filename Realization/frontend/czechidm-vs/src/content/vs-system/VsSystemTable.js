@@ -1,14 +1,12 @@
-
 import React from 'react';
 //
-import { Basic, Managers} from 'czechidm-core';
+import { Basic, Advanced, Managers} from 'czechidm-core';
 import { SystemTable} from 'czechidm-acc';
 import VsSystemService from '../../services/VsSystemService';
-const {SystemManager} = require('czechidm-acc').Managers;
 
-const identityManager = new Managers.IdentityManager();
+const { SystemManager } = require('czechidm-acc').Managers;
+
 const systemManager = new SystemManager();
-const roleManager = new Managers.RoleManager();
 const vsSystemService = new VsSystemService();
 
 /**
@@ -37,17 +35,17 @@ export default class VsSystemTable extends SystemTable {
     this.setState({showLoading: true});
     const detail = this.refs['create-form'].getData();
     vsSystemService.createVirtualSystem(detail)
-    .then(json => {
-      this.addMessage({ message: this.i18n('vs:content.vs-system.action.create.success', { system: json.name }) });
-      this.setState({showLoading: false, show: false});
-      this.context.store.dispatch(systemManager.receiveEntity(json.id, json, null, ()=> {
-        this.context.history.push(`/system/${json.id}/detail`);
-      }));
-    })
-    .catch(error => {
-      this.setState({showLoading: false, show: false});
-      this.addError(error);
-    });
+      .then(json => {
+        this.addMessage({ message: this.i18n('vs:content.vs-system.action.create.success', { system: json.name }) });
+        this.setState({showLoading: false, show: false});
+        this.context.store.dispatch(systemManager.receiveEntity(json.id, json, null, () => {
+          this.context.history.push(`/system/${json.id}/detail`);
+        }));
+      })
+      .catch(error => {
+        this.setState({showLoading: false, show: false});
+        this.addError(error);
+      });
   }
 
   _showModal() {
@@ -57,6 +55,7 @@ export default class VsSystemTable extends SystemTable {
       }
     });
   }
+
   _closeModal() {
     this.setState({show: false});
   }
@@ -92,9 +91,9 @@ export default class VsSystemTable extends SystemTable {
     const roleName = this.refs.roleName.getValue();
     const oldName = this.refs.name.getValue();
     const name = event.currentTarget.value;
-    const newRoleName = name + '-users';
+    const newRoleName = `${ name }-users`;
 
-    if (!oldName || oldName + '-users' === roleName) {
+    if (!oldName || `${ oldName }-users` === roleName) {
       this.refs.roleName.setValue(newRoleName);
     }
   }
@@ -130,18 +129,16 @@ export default class VsSystemTable extends SystemTable {
                       placeholder={this.i18n('vs:content.vs-system.name.placeholder')}
                       onChange={ this._onChangeName.bind(this) }
                       required/>
-                    <Basic.SelectBox
+                    <Advanced.IdentitySelect
                       ref="implementers"
                       label={this.i18n('vs:content.vs-system.implementers.label')}
                       placeholder={this.i18n('vs:content.vs-system.implementers.placeholder')}
-                      manager={identityManager }
                       value={null}
                       multiSelect/>
-                    <Basic.SelectBox
+                    <Advanced.RoleSelect
                       ref="implementerRoles"
                       label={this.i18n('vs:content.vs-system.implementerRoles.label')}
                       placeholder={this.i18n('vs:content.vs-system.implementerRoles.placeholder')}
-                      manager={roleManager }
                       value={null}
                       multiSelect/>
                     <Basic.Checkbox

@@ -168,7 +168,6 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="warningLimit"
-                    type="number"
                     validation={ Utils.Ui.getIntegerValidation() }
                     helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.help')}
                     label={this.i18n('acc:entity.ProvisioningBreakConfig.warningLimit.label')}/>
@@ -186,7 +185,6 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="disableLimit"
-                    type="number"
                     validation={ Utils.Ui.getIntegerValidation() }
                     helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.help')}
                     label={this.i18n('acc:entity.ProvisioningBreakConfig.disableLimit.label')}/>
@@ -227,21 +225,20 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
                 {this.i18n('button.saveAndContinue')}
               </Basic.Button>
             </Basic.PanelFooter>
-
-            <Basic.Panel className="no-border" showLoading={_showLoading}>
-              <Basic.PanelHeader text={this.i18n('acc:content.provisioningBreakConfigRecipient.title')}/>
-              <Basic.Alert level="info" text={this.i18n('recipientInfo')} rendered={isNew}/>
-              <SystemProvisioningBreakConfigRecipientTable
-                uiKey={ `provisioning-break-config-recipient-${configId}` }
-                manager={ this.provisioningBreakRecipientManager }
-                forceSearchParameters={ this.provisioningBreakRecipientManager.getSearchParameters().setFilter('breakConfigId', configId) }
-                provisioningBreakConfigId={ configId }
-                rendered={ !isNew }
-                className="no-margin"/>
-            </Basic.Panel>
-
           </Basic.Panel>
         </form>
+
+        <Basic.Panel className="no-border" showLoading={_showLoading}>
+          <Basic.PanelHeader text={this.i18n('acc:content.provisioningBreakConfigRecipient.title')}/>
+          <Basic.Alert level="info" text={this.i18n('recipientInfo')} rendered={isNew}/>
+          <SystemProvisioningBreakConfigRecipientTable
+            uiKey={ `provisioning-break-config-recipient-${configId}` }
+            manager={ this.provisioningBreakRecipientManager }
+            forceSearchParameters={ this.provisioningBreakRecipientManager.getSearchParameters().setFilter('breakConfigId', configId) }
+            provisioningBreakConfigId={ configId }
+            rendered={ !isNew }
+            className="no-margin"/>
+        </Basic.Panel>
       </div>
     );
   }

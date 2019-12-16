@@ -277,7 +277,7 @@ module.exports = {
       type: 'form-attribute-renderer',
       persistentType: 'UUID',
       faceType: 'IDENTITY-SELECT',
-      component: require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      component: require('./src/components/advanced/Form/IdentitySelectFormAttributeRenderer'),
       labelKey: 'core:component.advanced.EavForm.faceType.IDENTITY-SELECT',
       manager: require('./src/redux').IdentityManager
     },

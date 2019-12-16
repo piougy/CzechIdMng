@@ -56,7 +56,7 @@ export default class EntityUtils {
   }
 
   /**
-   *	Returns entities by ids, if entities are contained in applicateion state.
+   * Returns entities by ids, if entities are contained in applicateion state.
    *
    * @param  {state} state [description]
    * @param  {string} entityType - entity type (e.g. Identity)

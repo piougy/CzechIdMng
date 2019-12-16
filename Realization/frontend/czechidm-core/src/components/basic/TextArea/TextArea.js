@@ -36,7 +36,7 @@ class TextArea extends AbstractFormComponent {
     const split = area.split(/\r?\n/);
     let line;
     for (line of split) {
-      if (this.isStringTrimmable(line)) {
+      if (this.isTrimmable(line)) {
         return true;
       }
     }
@@ -74,12 +74,12 @@ class TextArea extends AbstractFormComponent {
    * @return {validationResult object} Object containing setting of validationResult
    */
   softValidationResult() {
-    const {type, warnIfIsTrimmable} = this.props;
+    const {type, warnIfTrimmable} = this.props;
     const {isTrimmableWarning} = this.state;
 
     // Leading/trailing white-spaces warning
     // omits password fields from validation
-    if (type !== 'password' && warnIfIsTrimmable && isTrimmableWarning) {
+    if (type !== 'password' && warnIfTrimmable && isTrimmableWarning) {
       return {
         status: 'warning',
         class: 'has-warning has-feedback',
@@ -166,13 +166,13 @@ TextArea.propTypes = {
   rows: PropTypes.number,
   min: PropTypes.number,
   max: PropTypes.number,
-  warnIfIsTrimmable: PropTypes.bool
+  warnIfTrimmable: PropTypes.bool
 };
 
 TextArea.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   rows: 3,
-  warnIfIsTrimmable: false
+  warnIfTrimmable: false
 };
 
 export default TextArea;

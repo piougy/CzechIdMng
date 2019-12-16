@@ -11,7 +11,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | rows  | number   | Number of rows in text area  | 3 |
 | min  | number   | Minimal number string characters for intput |  |
 | max  | number   | Maximal number string characters for input  |  |
-| warnIfIsTrimmable | bool | Enables/disables warning that there are any leading/trailing white-spaces in the input. | false |
+| warnIfTrimmable | bool | Enables/disables warning that there are any leading/trailing white-spaces in the input. | false |
 ## Usage
 
 ```html
@@ -23,6 +23,6 @@ All parameters from AbstractFormComponent are supported. Added parameters:
    validation={Joi.string().length()}
    min={2}
    max={100}
-   warnIfIsTrimmable
+   warnIfTrimmable
  />
 ```

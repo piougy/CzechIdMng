@@ -164,7 +164,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         validation={ this.getInputValidation() }
         required={ this.isRequired() }
-        warnIfIsTrimmable
+        warnIfTrimmable
         confidential={ attribute.confidential }
         validationErrors={ validationErrors }
         className={ className }
@@ -181,7 +181,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
         ref={ AbstractFormAttributeRenderer.INPUT }
         type={ attribute.confidential ? 'password' : 'text' }
         required={ this.isRequired() }
-        warnIfIsTrimmable
+        warnIfTrimmable
         label={
           <span>
             { this.getLabel(null, showOriginalValue) }

@@ -13,7 +13,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | min  | number   | Minimal number string characters for intput |  |
 | max  | number   | Maximal number string characters for input  |  |
 | confidential  | bool   | Confidential text field - if it is filled, then shows asterix only and supports to add new value. If new value is not given, then returns undefined value (this is used for preserving previous value).  | false  |
-| warnIfIsTrimmable | bool | Enables/disables warning that there are any leading/trailing white-spaces in the input. | true |
+| warnIfTrimmable | bool | Enables/disables warning that there are any leading/trailing white-spaces in the input. | true |
 
 ## Usage
 
@@ -25,6 +25,6 @@ All parameters from AbstractFormComponent are supported. Added parameters:
            validation={Joi.string().email()}
            min={2}
            max={100}
-           warnIfIsTrimmable
+           warnIfTrimmable
  />
 ```

@@ -10,6 +10,7 @@ import HelpIcon from '../HelpIcon/HelpIcon';
 
 /**
  * @author Vít Švanda
+ * @author Ondrej Husnik
  */
 class AbstractFormComponent extends AbstractContextComponent {
 
@@ -62,7 +63,7 @@ class AbstractFormComponent extends AbstractContextComponent {
    * Returns true if the string in the <value> argument contains some leading or trailing white-spaces
    * @return {bool}
    */
-  isStringTrimmable(value) {
+  isTrimmable(value) {
     if (!value || (typeof value !== 'string')) {
       return false;
     }
@@ -241,23 +242,21 @@ class AbstractFormComponent extends AbstractContextComponent {
       });
       return true;
     }
-
-    if (validation) {
-      this.setState({
-        validationResult: {
-          status: null,
-          class: '',
-          isValid: true,
-          message: null,
-          showValidationError: true
-        },
-        showValidationError: showValidations
-      }, () => {
-        if (cb) {
-          cb(result);
-        }
-      }); // show validation error on UI
-    }
+    //
+    this.setState({
+      validationResult: {
+        status: null,
+        class: '',
+        isValid: true,
+        message: null,
+        showValidationError: true
+      },
+      showValidationError: showValidations
+    }, () => {
+      if (cb) {
+        cb(result);
+      }
+    }); // show validation error on UI
     return true;
   }
 

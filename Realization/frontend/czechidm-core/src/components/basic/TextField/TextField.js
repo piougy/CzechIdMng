@@ -15,6 +15,7 @@ const CONFIDENTIAL_VALUE = '*****';
  *
  * @author Vít Švanda
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  */
 class TextField extends AbstractFormComponent {
 
@@ -26,7 +27,7 @@ class TextField extends AbstractFormComponent {
         showInput: false
       },
       inputType: props.type,
-      isTrimmableWarning: this.isStringTrimmable(props.value)
+      isTrimmableWarning: this.isTrimmable(props.value)
     };
 
   }
@@ -80,11 +81,11 @@ class TextField extends AbstractFormComponent {
    * @return {validationResult object} Object containing setting of validationResult
    */
   softValidationResult() {
-    const {type, warnIfIsTrimmable} = this.props;
+    const {type, warnIfTrimmable} = this.props;
     const {isTrimmableWarning} = this.state;
 
     // ommits password fields from validation
-    if (type !== 'password' && warnIfIsTrimmable && isTrimmableWarning) {
+    if (type !== 'password' && warnIfTrimmable && isTrimmableWarning) {
       return {
         status: 'warning',
         class: 'has-warning has-feedback',
@@ -112,8 +113,8 @@ class TextField extends AbstractFormComponent {
         showInput: true
       }
     });
-    if (this.props.warnIfIsTrimmable) {
-      const isTrimmableWarning = this.isStringTrimmable(event.target.value);
+    if (this.props.warnIfTrimmable) {
+      const isTrimmableWarning = this.isTrimmable(event.target.value);
       this.setState({isTrimmableWarning});
     }
   }
@@ -196,7 +197,7 @@ class TextField extends AbstractFormComponent {
  */
   setValue(value, cb) {
     this.setState({
-      isTrimmableWarning: this.isStringTrimmable(value),
+      isTrimmableWarning: this.isTrimmable(value),
       value
     }, this.validate.bind(this, false, cb));
   }
@@ -339,14 +340,14 @@ TextField.propTypes = {
    * Confidential text field - if it is filled, then shows asterix only and supports to add new value
    */
   confidential: PropTypes.bool,
-  warnIfIsTrimmable: PropTypes.bool
+  warnIfTrimmable: PropTypes.bool
 };
 
 TextField.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   type: 'text',
   confidential: false,
-  warnIfIsTrimmable: true
+  warnIfTrimmable: true
 };
 
 export default TextField;

@@ -47,7 +47,6 @@ import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
@@ -78,7 +77,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultEntityEventManagerIntergationTest extends AbstractIntegrationTest {
 
 	@Autowired private ApplicationContext context;
-	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private EntityStateManager entityStateManager;
 	@Autowired private IdmIdentityRoleService identityRoleService;
@@ -244,7 +242,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 		assertEquals(0, context.getResults().size());
 
 		String configPropName = testTwoEntityEventProcessorOne.getConfigurationPropertyName(EntityEventProcessor.PROPERTY_EVENT_TYPES);
-		configurationService.setValue(configPropName, eventTypeName);
+		getHelper().setConfigurationValue(configPropName, eventTypeName);
 
 		EntityEvent<TestContentTwo> event2 = new CoreEvent<>(type, new TestContentTwo());
 		EventContext<TestContentTwo> context2 = manager.process(event2);
@@ -289,7 +287,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 				entityEvent.setEventType(eventType);
 				entityEvent.setOwnerId((UUID) mockOwner.getId());
 				entityEvent.setContent(mockOwner);
-				entityEvent.setInstanceId(configurationService.getInstanceId());
+				entityEvent.setInstanceId(eventConfiguration.getAsynchronousInstanceId());
 				entityEvent.setResult(new OperationResultDto(OperationState.CREATED));
 				entityEvent.setPriority(PriorityType.NORMAL);
 				events.add(entityEventService.save(entityEvent));
@@ -332,7 +330,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 				entityEvent.setEventType("empty");
 				entityEvent.setOwnerId((UUID) mockOwner.getId());
 				entityEvent.setContent(mockOwner);
-				entityEvent.setInstanceId(configurationService.getInstanceId());
+				entityEvent.setInstanceId(eventConfiguration.getAsynchronousInstanceId());
 				entityEvent.setResult(new OperationResultDto(OperationState.CREATED));
 				entityEvent.setPriority(PriorityType.NORMAL);
 				events.add(entityEventService.save(entityEvent));

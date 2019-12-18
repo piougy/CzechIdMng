@@ -2,8 +2,10 @@
 
 ## Features
 - Release product version - release product under final version, new development version will be set, tag will be prepared.
+- Release module version - release module under final version, new development version will be set, tag will be prepared.
 - Change product version - set version for all modules.
 - Get product version - for test reasons only.
+- Build product version - for test reasons only.
 
 ## Requirements
 
@@ -128,16 +130,42 @@ java -jar idm-tool.jar --setVersion --developVersion 10.1.0-SNAPSHOT
 
 ### Revert product version
 
-Changed versions by previous command can be reverted if needed. Module descriptors (pom.xml, package.json) are reverted only.
+Changed versions by previous command can be reverted if needed (before commit, usable after change product version only). Module descriptors (pom.xml, package.json) are reverted only.
 
 ```bash
 java -jar idm-tool.jar --revertVersion
 ```
 
+### Build product
+
+Build product only under current develop version in develop branch.
+
+```bash
+java -jar idm-tool.jar --build
+```
+
+Maven ``install`` command is used, artifact will be installed into the local maven repository (=> usable as dependency for other module).
+
+### Release module
+
+All commands above are available for standalone module too. The only difference is **added parameter** with **module identifier**:
+
+```bash
+java -jar idm-tool.jar --module idm-rec --release --releaseVersion 2.0.0 --developVersion 2.1.0-SNAPSHOT -username <git username> --password <git password or developer token>
+```
+then
+```bash
+java -jar idm-tool.jar --module idm-rec --publish --username <git username> --password <git password or developer token>
+```
+
+The command above expects ``idm-tool.jar`` is placed in the same folder, where the module root (repository) folder is and has the same name as module identifier. In example above is used recertification module identifier.
+
+Module can contains one frontend module and one or more backend modules (e.g. parent + api + impl). Module structure has respect module archetype generator (``Realization`` folders, frontend module with ``czechidm-`` prefix etc.).
+
+Standalone modules are most probably in private repository, so credentials are needed.
+
 ## Future development
 
-- build product only (without deploy - e.g. build and test snapshot version)
-- release other module
 - build project artefacts (~war):
   - download or use product in defined version
 	- download or use project artefart

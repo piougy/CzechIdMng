@@ -334,7 +334,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		filter.setOperationState(OperationState.EXECUTED);
 		getHelper().waitForResult(res -> {
 			return service.find(filter, null).getContent().size() != 3;
-		}, 500, Integer.MAX_VALUE);
+		}, 500, 20);
 		//
 		List<IdmLongRunningTaskDto> ltrs = service.find(filter, null).getContent();
 		//

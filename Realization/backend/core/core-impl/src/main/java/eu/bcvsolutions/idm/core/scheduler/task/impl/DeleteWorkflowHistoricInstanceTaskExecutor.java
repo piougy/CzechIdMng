@@ -30,6 +30,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
 /**
  * Delete historic workflow process instances
  * 
+ * TODO: remove @DisallowConcurrentExecution and add sort to support multi LRT run
+ * 
  * @author Radek Tomiška
  * @since 9.7.12 
  */

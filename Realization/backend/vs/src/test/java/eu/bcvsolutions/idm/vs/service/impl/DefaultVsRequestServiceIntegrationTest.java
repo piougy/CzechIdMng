@@ -2,12 +2,11 @@ package eu.bcvsolutions.idm.vs.service.impl;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

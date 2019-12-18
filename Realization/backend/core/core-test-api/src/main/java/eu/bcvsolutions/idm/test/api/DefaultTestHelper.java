@@ -766,7 +766,7 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public void waitForResult(Function<String, Boolean> continueFunction, Integer interationWaitMilis, Integer iterationCount) {
-		int maxCounter = iterationCount == null ? 50 : iterationCount;
+		int maxCounter = (iterationCount == null) ? 50 : (iterationCount > 300) ? 300 : iterationCount;
 		int waitTime = interationWaitMilis == null ? 300 : interationWaitMilis;
 		//
 		int counter = 0;

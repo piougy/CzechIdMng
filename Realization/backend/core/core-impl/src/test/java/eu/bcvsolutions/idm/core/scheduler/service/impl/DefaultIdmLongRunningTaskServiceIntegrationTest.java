@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
@@ -86,6 +87,34 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 		Assert.assertNull(service.get(task));
 		Assert.assertNull(itemService.get(processedItem));
 		Assert.assertNull(attachmentManager.get(attachment));
+	}
+	
+	@Test
+	public void testFindAllByInstance() {
+		TestTaskExecutor taskExecutor = new TestTaskExecutor(); 
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
+		task.setTaskType(taskExecutor.getClass().getCanonicalName());
+		task.setTaskProperties(taskExecutor.getProperties());
+		task.setTaskDescription(taskExecutor.getDescription());	
+		task.setInstanceId(getHelper().createName());
+		task.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).build());
+		IdmLongRunningTaskDto taskOne = service.save(task);
+		//
+		task = new IdmLongRunningTaskDto();
+		task.setTaskType(taskExecutor.getClass().getCanonicalName());
+		task.setTaskProperties(taskExecutor.getProperties());
+		task.setTaskDescription(taskExecutor.getDescription());	
+		task.setInstanceId(getHelper().createName());
+		task.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).build());
+		IdmLongRunningTaskDto taskTwo = service.save(task);
+		//
+		List<IdmLongRunningTaskDto> tasks = service.findAllByInstance(taskOne.getInstanceId(), OperationState.NOT_EXECUTED);
+		Assert.assertEquals(1, tasks.size());
+		Assert.assertEquals(taskOne.getId(), tasks.get(0).getId());
+		//
+		tasks = service.findAllByInstance(taskTwo.getInstanceId(), OperationState.NOT_EXECUTED);
+		Assert.assertEquals(1, tasks.size());
+		Assert.assertEquals(taskTwo.getId(), tasks.get(0).getId());
 	}
 	
 	@Test

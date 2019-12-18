@@ -38,7 +38,9 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  *
  */
 @Service("scriptAuthorityService")
-public class DefaultIdmScriptAuthorityService extends AbstractReadWriteDtoService<IdmScriptAuthorityDto, IdmScriptAuthority, IdmScriptAuthorityFilter> implements IdmScriptAuthorityService {
+public class DefaultIdmScriptAuthorityService 
+		extends AbstractReadWriteDtoService<IdmScriptAuthorityDto, IdmScriptAuthority, IdmScriptAuthorityFilter> 
+		implements IdmScriptAuthorityService {
 	
 	private final ApplicationContext applicationContext;
 	private List<AvailableServiceDto> services;

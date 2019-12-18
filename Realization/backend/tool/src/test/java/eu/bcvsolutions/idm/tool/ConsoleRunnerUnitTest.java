@@ -33,6 +33,11 @@ public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
+	public void testMainModule() {
+		ConsoleRunner.main(new String []{ "-h", "-m", "mock" });
+	}
+	
+	@Test
 	public void testWrongArgs() {
 		consoleRunner.run(new String []{});
 	}
@@ -49,6 +54,13 @@ public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 		Mockito.when(releaseManager.release("1", "2")).thenReturn("2");	
 		//
 		consoleRunner.run(new String []{ "--release", "--releaseVersion", "1", "--developVersion", "2" });
+	}
+	
+	@Test
+	public void testBuild() {
+		Mockito.when(releaseManager.build()).thenReturn("2");	
+		//
+		consoleRunner.run(new String []{ "--build" });
 	}
 
 	@Test
@@ -79,7 +91,7 @@ public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 	public void testSetOptionalParameters() {
 		consoleRunner.run(new String []{ 
 				"--getVersion", 
-				"-p", "./mock", 
+				"-r", "./mock", 
 				"--masterBranch", "mock",
 				"--username", "mock",
 				"--password", "mock" 

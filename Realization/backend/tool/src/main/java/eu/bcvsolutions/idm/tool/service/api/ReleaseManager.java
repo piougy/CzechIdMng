@@ -4,8 +4,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.tool.exception.ReleaseException;
 
 /**
- * Release product:
- * - change product version
+ * Release manager:
+ * - change version
  * - prepare release branches and tags
  * - deploy into nexus
  * 
@@ -23,55 +23,21 @@ public interface ReleaseManager {
 	 * Release candidate suffix. (Final resease is without suffix - just semantic version)
 	 */
 	String RELEASE_CANDIDATE_VERSION_SUFFIX = "RC";
-
-	/**
-	 * All product backend modules.
-	 */
-	String[] BACKEND_MODULES = new String[]{
-			"acc",
-			"aggregator",
-			"app",
-			"core",
-			"core/core-api",
-			"core/core-impl",
-			"core/core-test-api",
-			"example",
-			"ic",
-			"parent",
-			"rpt",
-			"rpt/rpt-api",
-			"rpt/rpt-impl",
-			"tool", // not supported for 9.7.x versions
-			"vs"
-	};
-	
-	/**
-	 * All product frontend modules (prefix 'czechidm-' is required by convention).
-	 */
-	String[] FRONTEND_MODULES = new String[]{
-			"acc",
-			"app",
-			"core",
-			"example",
-			"rpt",
-			"tool", // not supported for 9.7.x versions
-			"vs"
-	};
 	
 	void init();
 	
 	/**
-	 * Current product version on the active branch. 
-	 * All product modules have to have the same version, {@link ReleaseException} is thrown otherwise.
+	 * Current version on the active branch. 
+	 * All modules have to have the same version, {@link ReleaseException} is thrown otherwise.
 	 * 
 	 * @param branch name [optional] development branch will be used as default.
 	 * @return
-	 * @throws ReleaseException if all product modules has not the same version.
+	 * @throws ReleaseException if all modules has not the same version.
 	 */
 	String getCurrentVersion(String branchName);
 
 	/**
-	 * Set versions for all product modules (frontend and backend too).
+	 * Set versions for all modules (frontend and backend too).
 	 * Development branch is used (changes are made in development branch only).
 	 * 
 	 * @param newVersion
@@ -80,18 +46,26 @@ public interface ReleaseManager {
 	String setVersion(String newVersion);
 	
 	/**
-	 * Set snapshot  versions for all product modules (frontend and backend too).
+	 * Set snapshot  versions for all modules (frontend and backend too).
 	 * Development branch is used (changes are made in development branch only).
 	 * 
 	 * @param newVersion
-	 * @return
+	 * @return snapshot version
 	 */
 	String setSnapshotVersion(String newVersion);
 	
 	/**
-	 * Release product.
+	 * Build project under current develop version on develop branch.
+	 * Maven 'install' command is used, artifact will be installed into the local maven repository (=> usable for build a module).
+	 *  
+	 * @return built version
+	 */
+	String build();
+	
+	/**
+	 * Release project.
 	 * - set releaseVersion to development branch ("develop" by default)
-	 * - build and deploy product into nexus
+	 * - build and deploy project into nexus
 	 * - create tag with releaseVersion
 	 * - merge releaseVersion into production branch ("master" by default) - if production branch is not defined then 
 	 *   no merge is executed - sometimes merge is not needed (e.g. when some old hotfix branch is released - set null)
@@ -112,25 +86,25 @@ public interface ReleaseManager {
 	void publishRelease();	
 	
 	/**
-	 * Revert product project files (pom.xml, package.json).
+	 * Revert project files (pom.xml, package.json).
 	 * 
 	 * @return reverted verion;
 	 */
 	String revertRelease();	
 	
 	/**
-	 * Path to product root folder on file system.
+	 * Path to repository root folder on file system.
 	 * 
 	 * @return
 	 */
-	String getProductRoot();
+	String getRepositoryRoot();
 	
 	/**
-	 * Path to product root folder on file system.
+	 * Path to git repository root folder on file system.
 	 * 
-	 * @param productRoot
+	 * @param repositoryRoot
 	 */
-	void setProductRoot(String productRoot);
+	void setRepositoryRoot(String repositoryRoot);
 
 	/**
 	 * Maven home directory (where executable mvn command is placed).

@@ -13,14 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.tool.service.api.ReleaseManager;
-import eu.bcvsolutions.idm.tool.service.impl.DefaultReleaseManager;
+import eu.bcvsolutions.idm.tool.service.impl.ModuleReleaseManager;
+import eu.bcvsolutions.idm.tool.service.impl.ProductReleaseManager;
 
 /**
  * Console entry point
  * - change product versions (BE + FE)
  * - release product version
  * 
- * TODO: use some properties 
+ * TODO: use some properties .
+ * FIXME: split mega if into command implementation.
  * 
  * @author Radek Tomiška
  *
@@ -33,7 +35,7 @@ public class ConsoleRunner {
 	
 	public static void main(String [] args) {
 		ConsoleRunner instance = new ConsoleRunner();
-		instance.releaseManager = new DefaultReleaseManager();
+		//
 		try {
 			instance.run(args);
 		} catch (Exception ex) {
@@ -43,109 +45,125 @@ public class ConsoleRunner {
 	
 	@SuppressWarnings("static-access")
 	public void run(String [] args) {
+		//
 		// available commands
 		Option optionHelp = OptionBuilder
-        		.withLongOpt("help")
-        		.withDescription("print this message.")
-        		.create("h");
+	    		.withLongOpt("help")
+	    		.withDescription("print this message.")
+	    		.create("h");
+		Option optionBuild = OptionBuilder
+	    		.withLongOpt("build")
+	    		.withDescription("Build product only under current develop version in develop branch.\n"
+	    				+ "Maven 'install' command is used, artifact will be installed into the local maven repository (=> usable as dependency for other module).")
+	    		.create();
 		Option optionRelease = OptionBuilder
-        		.withLongOpt("release")
-        		.withDescription("release product under 'releaseVersion' argument. New development version will be set as 'developVersion' argument.")
-        		.create();
+	    		.withLongOpt("release")
+	    		.withDescription("Release product under 'releaseVersion' argument. New development version will be set as 'developVersion' argument.")
+	    		.create();
 		Option optionPublish = OptionBuilder
-        		.withLongOpt("publish")
-        		.withDescription("Push prepared development, production and tags into origin repository.")
-        		.create();
+	    		.withLongOpt("publish")
+	    		.withDescription("Push prepared development, production and tags into origin repository.")
+	    		.create();
 		Option optionGetVersion = OptionBuilder
-        		.withLongOpt("getVersion")
-        		.withDescription("Get current product version (on the development branch or set 'developmentBranch' argument).")
-        		.create();
+	    		.withLongOpt("getVersion")
+	    		.withDescription("Get current product version (on the development branch or set 'developmentBranch' argument).")
+	    		.create();
 		Option optionSetVersion = OptionBuilder
-        		.withLongOpt("setVersion")
-        		.withDescription("Set current product version (on the development branch - development branch can be changed only).")
-        		.create();
+	    		.withLongOpt("setVersion")
+	    		.withDescription("Set current product version (on the development branch - development branch can be changed only).")
+	    		.create();
 		Option optionRevertVersion = OptionBuilder
-        		.withLongOpt("revertVersion")
-        		.withDescription("Revert (~checkout) product project files (pom.xml, package.json).")
-        		.create();
+	    		.withLongOpt("revertVersion")
+	    		.withDescription("Revert (~checkout) product project files (pom.xml, package.json).")
+	    		.create();
 		//
 		// product root
-        Option optionProductLocaltion = OptionBuilder
-        		.withLongOpt("productLocation")
-        		.withDescription("Product root folder - should contain all product modules (<productLocation>/Realization/...).\n"
-        				+ "Folder 'CzechIdMng' in the same folder as idm-tool.jar will be used as default.")
-        		.withArgName("path")
-                .hasArg()
-        		.create("p");
-        //
-        // optional arguments
-        Option optionMavenHome = OptionBuilder
-        		.isRequired(false)
-        		.withLongOpt("mavenHome")
-        		.withDescription("Maven home directory.\n"
-        				+ "MAVEN_HOME system property will be used as default.\n"
-        				+ "Maven directory should contain command <mavenHome>/bin/mvn.")
-        		.withArgName("path")
-                .hasArg()
-        		.create();
-        Option optionDevelopBranch = OptionBuilder
-        		.isRequired(false)
-        		.withLongOpt("developBranch")
-        		.withDescription("Branch with feature - working branch.\n"
-        				+ "'develop' will be used as default.")
-        		.withArgName("branchName")
-                .hasArg()
-        		.create();
-        Option optionMasterBranch = OptionBuilder
-        		.isRequired(false)
-        		.withLongOpt("masterBranch")
-        		.withDescription("Branch for releases - where feature has to be merged after release.\n"
-        				+ "'master' will be used as default.\n"
-        				+ "'none' can be given - merge don't be executed (e.g. when some old hotfix branch is released)..\n")
-        		.withArgName("masterBranch")
-                .hasArg()
-        		.create();
-        Option optionReleaseVersion = OptionBuilder
-        		.isRequired(false)
-        		.withLongOpt("releaseVersion")
-        		.withDescription("Usable with 'release' command. Release will be create under this version.\n"
-        				+ "Stable semantic version will be used as default (=> current no snapshot version).")
-        		.withArgName("version")
-                .hasArg()
-        		.create();
-        Option optionDevelopVersion = OptionBuilder
-        		.isRequired(false)
-        		.withLongOpt("developVersion")
-        		.withDescription("Usable with 'release' command. After release this version will be used in development branch.\n"
-        				+ "Next snapshot semantic version will be used as default (=> current snapshot version + 1).")
-        		.withArgName("snapshot version")
-                .hasArg()
-        		.create();
-        Option optionUsername = OptionBuilder
-        		.isRequired(false)
-        		.withLongOpt("username")
-        		.withDescription("Usable with 'publish' command. Git credentials.")
-        		.withArgName("git username")
-                .hasArg()
-        		.create();
-        Option optionPassword = OptionBuilder
-        		.isRequired(false)
-        		.withLongOpt("password")
-        		.withDescription("Usable with 'publish' command. Git credentials.\n"
-        				+ "If two-factor authntication is enabled for <username>, "
-        				+ "then token has to be given (see git documentation, how to generate authentication token for developers).\n"
-        				+ "If ssh key is used, then put passphrase for ssh key (It loads the known hosts and private keys from their "
-        				+ "default locations (identity, id_rsa and id_dsa) in the user’s .ssh directory.).")
-        		.withArgName("git password / token / ssh passphrase ")
-                .hasArg()
-        		.create();
-        //
+		Option optionRepositoryLocation = OptionBuilder
+	    		.withLongOpt("repositoryLocation")
+	    		.withDescription("Repository root folder - should contain all modules (<repositoryLocation>/Realization/...).\n"
+	    				+ "Folder 'CzechIdMng' in the same folder as idm-tool.jar will be used as default for product.\n"
+	    				+ "Folder '<module>' in the same folder as idm-tool.jar will be used as default for module.\n")
+	    		.withArgName("path")
+	            .hasArg()
+	    		.create("r");
+	    //
+	    // optional arguments
+		Option optionMavenHome = OptionBuilder
+	    		.isRequired(false)
+	    		.withLongOpt("mavenHome")
+	    		.withDescription("Maven home directory.\n"
+	    				+ "MAVEN_HOME system property will be used as default.\n"
+	    				+ "Maven directory should contain command <mavenHome>/bin/mvn.")
+	    		.withArgName("path")
+	            .hasArg()
+	    		.create();
+		Option optionDevelopBranch = OptionBuilder
+	    		.isRequired(false)
+	    		.withLongOpt("developBranch")
+	    		.withDescription("Branch with feature - working branch.\n"
+	    				+ "'develop' will be used as default.")
+	    		.withArgName("branchName")
+	            .hasArg()
+	    		.create();
+		Option optionMasterBranch = OptionBuilder
+	    		.isRequired(false)
+	    		.withLongOpt("masterBranch")
+	    		.withDescription("Branch for releases - where feature has to be merged after release.\n"
+	    				+ "'master' will be used as default.\n"
+	    				+ "'none' can be given - merge don't be executed (e.g. when some old hotfix branch is released)..\n")
+	    		.withArgName("masterBranch")
+	            .hasArg()
+	    		.create();
+		Option optionReleaseVersion = OptionBuilder
+	    		.isRequired(false)
+	    		.withLongOpt("releaseVersion")
+	    		.withDescription("Usable with 'release' command. Release will be create under this version.\n"
+	    				+ "Stable semantic version will be used as default (=> current no snapshot version).")
+	    		.withArgName("version")
+	            .hasArg()
+	    		.create();
+		Option optionDevelopVersion = OptionBuilder
+	    		.isRequired(false)
+	    		.withLongOpt("developVersion")
+	    		.withDescription("Usable with 'release' command. After release this version will be used in development branch.\n"
+	    				+ "Next snapshot semantic version will be used as default (=> current snapshot version + 1).")
+	    		.withArgName("snapshot version")
+	            .hasArg()
+	    		.create();
+		Option optionUsername = OptionBuilder
+	    		.isRequired(false)
+	    		.withLongOpt("username")
+	    		.withDescription("Usable with 'publish' command. Git credentials.")
+	    		.withArgName("git username")
+	            .hasArg()
+	    		.create();
+		Option optionPassword = OptionBuilder
+	    		.isRequired(false)
+	    		.withLongOpt("password")
+	    		.withDescription("Usable with 'publish' command. Git credentials.\n"
+	    				+ "If two-factor authntication is enabled for <username>, "
+	    				+ "then token has to be given (see git documentation, how to generate authentication token for developers).\n"
+	    				+ "If ssh key is used, then put passphrase for ssh key (It loads the known hosts and private keys from their "
+	    				+ "default locations (identity, id_rsa and id_dsa) in the user’s .ssh directory.).")
+	    		.withArgName("git password / token / ssh passphrase ")
+	            .hasArg()
+	    		.create();
+	    // module switch
+		Option optionModule = OptionBuilder
+	    		.isRequired(false)
+	    		.withLongOpt("module")
+	    		.withDescription("Switch to module release / build.")
+	    		.withArgName("moduleId")
+	    		.hasArg()
+	    		.create('m');
+		
 		Options options = new Options();
 		
         // available commands
         OptionGroup commandGroup = new OptionGroup();
         commandGroup.setRequired(true);
         commandGroup.addOption(optionHelp);
+        commandGroup.addOption(optionBuild);
         commandGroup.addOption(optionRelease);
         commandGroup.addOption(optionPublish);
         commandGroup.addOption(optionSetVersion);
@@ -153,7 +171,7 @@ public class ConsoleRunner {
         commandGroup.addOption(optionRevertVersion);
         options.addOptionGroup(commandGroup);
         //
-        options.addOption(optionProductLocaltion);
+        options.addOption(optionRepositoryLocation);
         options.addOption(optionMavenHome);
         options.addOption(optionDevelopBranch);
         options.addOption(optionMasterBranch);
@@ -161,17 +179,28 @@ public class ConsoleRunner {
         options.addOption(optionDevelopVersion);
         options.addOption(optionUsername);
         options.addOption(optionPassword);
+        options.addOption(optionModule);
 		//
 		try {
+			// parse arguments
 			CommandLineParser parser = new BasicParser();
 			CommandLine commandLine = parser.parse(options, args, false);
+			//
+			if (releaseManager == null) {
+				if (commandLine.hasOption(optionModule.getLongOpt())) {
+					releaseManager = new ModuleReleaseManager(commandLine.getOptionValue(optionModule.getLongOpt()));
+				} else {
+					releaseManager = new ProductReleaseManager();
+				}
+			}
+			//
 			if (commandLine.hasOption(optionHelp.getLongOpt())) {
 				printHelp(options);
 				return;
 			}
 			//
-			if (commandLine.hasOption(optionProductLocaltion.getLongOpt())) {
-				releaseManager.setProductRoot(commandLine.getOptionValue(optionProductLocaltion.getLongOpt()));
+			if (commandLine.hasOption(optionRepositoryLocation.getLongOpt())) {
+				releaseManager.setRepositoryRoot(commandLine.getOptionValue(optionRepositoryLocation.getLongOpt()));
 			}
 			if (commandLine.hasOption(optionDevelopBranch.getLongOpt())) {
 				releaseManager.setDevelopBranch(commandLine.getOptionValue(optionDevelopBranch.getLongOpt()));
@@ -197,7 +226,11 @@ public class ConsoleRunner {
 			// before run - check props is set
 			releaseManager.init();
 			//
-			if (commandLine.hasOption(optionRelease.getLongOpt())) {
+			if (commandLine.hasOption(optionBuild.getLongOpt())) {
+				String currentVersion = releaseManager.build();
+				//
+				LOG.info("Product version [{}] successfully built and installed into local maven repository.", currentVersion);
+			} else if (commandLine.hasOption(optionRelease.getLongOpt())) {
 				String releaseVersion = commandLine.getOptionValue(optionReleaseVersion.getLongOpt());
 				String developVersion = commandLine.getOptionValue(optionDevelopVersion.getLongOpt());
 				//
@@ -207,7 +240,7 @@ public class ConsoleRunner {
 				LOG.info("Product version released [{}]. New development version [{}].", releasedVersion, currentVersion);
 				LOG.info("Branches [{}], [{}] and tag [{}] are prepared to push into origin (use --publish command).",
 						releaseManager.getDevelopBranch(), releaseManager.getMasterBranch(), releasedVersion);
-				
+
 			} else if (commandLine.hasOption(optionPublish.getLongOpt())) {
 				
 				releaseManager.publishRelease();
@@ -251,6 +284,6 @@ public class ConsoleRunner {
 	
 	protected void printHelp(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(150, "java -jar idm-tool.jar", null, options, null);
+		formatter.printHelp(175, "java -jar idm-tool.jar", null, options, null);
 	}
 }

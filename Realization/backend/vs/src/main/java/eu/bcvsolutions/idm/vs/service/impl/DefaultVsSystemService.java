@@ -188,6 +188,7 @@ public class DefaultVsSystemService implements VsSystemService {
 
 		if (!system.isVirtual()) {
 			system.setVirtual(true);
+			system.getConnectorServer().setPassword(null); // Prevents from resaving password with GuardedString.SECRED_PROXY_STRING loaded above.
 			system = this.systemService.save(system);
 		}
 

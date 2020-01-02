@@ -419,11 +419,13 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				vsAttribute = new VsAttributeDto(currentAttribute.getName(), currentAttribute.isMultiValue(), true);
 				IcAttribute changedAttribute = changeObject.getAttributeByName(currentAttribute.getName());
 				if (changedAttribute.isMultiValue()) {
+					vsAttribute.setChanged(false);
 					if (changedAttribute.getValues() != null) {
 						changedAttribute.getValues().forEach(value -> {
 							if (currentAttribute.getValues() != null && currentAttribute.getValues().contains(value)) {
 								vsAttribute.getValues().add(new VsAttributeValueDto(value, value, null));
 							} else {
+								vsAttribute.setChanged(true);
 								vsAttribute.getValues()
 										.add(new VsAttributeValueDto(value, null, VsValueChangeType.ADDED));
 							}
@@ -432,6 +434,7 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 					if (currentAttribute.getValues() != null) {
 						currentAttribute.getValues().forEach(value -> {
 							if (changedAttribute.getValues() == null || !changedAttribute.getValues().contains(value)) {
+								vsAttribute.setChanged(true);
 								vsAttribute.getValues()
 										.add(new VsAttributeValueDto(value, value, VsValueChangeType.REMOVED));
 							}

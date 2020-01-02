@@ -11,6 +11,7 @@ import VsOperationType from '../../enums/VsOperationType';
 import VsRequestState from '../../enums/VsRequestState';
 
 const accManagers = require('czechidm-acc').Managers;
+
 const manager = new VsRequestManager();
 const systemManager = new accManagers.SystemManager();
 

@@ -38,6 +38,7 @@ class VsRequestDetail extends Basic.AbstractContent {
     super.componentDidMount();
     //
     const { entity } = this.props;
+
     if (entity) {
       this._initConnectorObject(entity.id);
     }
@@ -76,19 +77,19 @@ class VsRequestDetail extends Basic.AbstractContent {
 
   _initConnectorObject(entityId) {
     manager.getService().getConnectorObject(entityId)
-    .then(json => {
-      this.setState({connectorObject: json});
-    })
-    .catch(error => {
-      this.addError(error);
-    });
+      .then(json => {
+        this.setState({connectorObject: json});
+      })
+      .catch(error => {
+        this.addError(error);
+      });
     manager.getService().getWishConnectorObject(entityId)
-    .then(json => {
-      this.setState({wishConnectorObject: json});
-    })
-    .catch(error => {
-      this.addError(error);
-    });
+      .then(json => {
+        this.setState({wishConnectorObject: json});
+      })
+      .catch(error => {
+        this.addError(error);
+      });
   }
 
   _getImplementers(entity) {
@@ -115,6 +116,7 @@ class VsRequestDetail extends Basic.AbstractContent {
       // sort by property
       return _(compiledAttributes).sortBy('property').value();
     }
+    return null;
   }
 
   /**
@@ -169,10 +171,11 @@ class VsRequestDetail extends Basic.AbstractContent {
 
     return entity.value;
   }
+
   /**
    * Create value (highlights changes) cell for attributes table
    */
-  _getWishValueCell( old = false, showChanges = true, { rowIndex, data}) {
+  _getWishValueCell(old = false, showChanges = true, { rowIndex, data}) {
     const entity = data[rowIndex];
     if (!entity || (!entity.value && !entity.values)) {
       return '';
@@ -218,25 +221,26 @@ class VsRequestDetail extends Basic.AbstractContent {
     const _showLoading = showLoading || this.state.showLoading;
 
     if (_showLoading) {
-      return (<Basic.Panel>
-        <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
-        <Basic.PanelBody>
-          <Basic.Loading show isStatic />
-        </Basic.PanelBody>
-      </Basic.Panel>);
+      return (
+        <Basic.Panel>
+          <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
+          <Basic.PanelBody>
+            <Basic.Loading show isStatic />
+          </Basic.PanelBody>
+        </Basic.Panel>);
     }
 
     const searchBefore = new Domain.SearchParameters()
-    .setFilter('uid', entity ? entity.uid : null)
-    .setFilter('systemId', entity ? entity.system : Domain.SearchParameters.BLANK_UUID)
-    .setFilter('createdBefore', entity ? entity.created : null)
-    .setFilter('state', 'IN_PROGRESS');
+      .setFilter('uid', entity ? entity.uid : null)
+      .setFilter('systemId', entity ? entity.system : Domain.SearchParameters.BLANK_UUID)
+      .setFilter('createdBefore', entity ? entity.created : null)
+      .setFilter('state', 'IN_PROGRESS');
 
     const searchAfter = new Domain.SearchParameters()
-    .setFilter('uid', entity ? entity.uid : null)
-    .setFilter('systemId', entity ? entity.system : Domain.SearchParameters.BLANK_UUID)
-    .setFilter('createdAfter', entity ? entity.created : null)
-    .setFilter('state', 'IN_PROGRESS');
+      .setFilter('uid', entity ? entity.uid : null)
+      .setFilter('systemId', entity ? entity.system : Domain.SearchParameters.BLANK_UUID)
+      .setFilter('createdAfter', entity ? entity.created : null)
+      .setFilter('state', 'IN_PROGRESS');
 
     const wishData = this._getWishData();
     const isInProgress = entity ? (entity.state === 'IN_PROGRESS') : false;
@@ -250,7 +254,7 @@ class VsRequestDetail extends Basic.AbstractContent {
               <Basic.TextArea
                 ref="realize-reason"
                 placeholder={this.i18n('vs:content.vs-requests.realize-reason.placeholder')}
-                />
+              />
             </Basic.AbstractForm>
           </div>
         </Basic.Confirm>
@@ -266,108 +270,118 @@ class VsRequestDetail extends Basic.AbstractContent {
         </Basic.Confirm>
         <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title') } />
 
-          <Basic.Panel>
-            <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
-            <Basic.PanelBody>
-              <div>
-                <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
-                    <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
-                      {this._getImplementers(entity)}
-                    </Basic.LabelWrapper>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.TextArea
-                      ref="reason"
-                      label={this.i18n('vs:entity.VsRequest.reason.label')}
-                      readOnly
-                      rows={6}
-                      rendered={entity && entity.reason }
-                      value={entity ? entity.reason : null}/>
-                  </Basic.Col>
-                </Basic.Row>
-                <Basic.Row>
-                  <Basic.Col lg={ 12 }>
-                    <Basic.LabelWrapper readOnly label={this.i18n('wishAttributes') + ':'}>
-                      <Basic.Alert
-                        level="warning"
-                        icon="trash"
-                        rendered={isDeleteOperation && isInProgress}
-                        style={{display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px', maxWidth: '600px'}}
-                        text={this.i18n('alert.accountShouldBeDeleted')}/>
-                      <Basic.Alert
-                        level="success"
-                        icon="ok"
-                        rendered={isCreateOperation && isInProgress}
-                        style={{display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px', maxWidth: '600px'}}
-                        text={this.i18n('alert.accountShouldBeCreated')}/>
-                      <Basic.Table
-                        data={wishData}
-                        rendered={!isDeleteOperation}
-                        noData={this.i18n('component.basic.Table.noData')}
-                        rowClass={({rowIndex, data}) => { return (data[rowIndex].changed) ? 'warning' : ''; }}
-                        className="table-bordered">
-                        <Basic.Column property="name" header={this.i18n('label.property')}/>
-                        <Basic.Column property="value" header={this.i18n('label.targetValue')} cell={this._getWishValueCell.bind(this, false, isInProgress)}/>
-                        <Basic.Column property="oldValue" rendered={isInProgress} header={this.i18n('label.oldValue')} cell={this._getWishValueCell.bind(this, true, false)}/>
-                      </Basic.Table>
-                    </Basic.LabelWrapper>
-                  </Basic.Col>
-                </Basic.Row>
-                <Basic.Row>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.LabelWrapper readOnly ref="vs-request-table-before" label={this.i18n('beforeRequests.label') + ':'}>
-                      <VsRequestTable
-                        uiKey="vs-request-table-before"
-                        columns= {['state', 'operationType', 'created', 'uid']}
-                        showFilter={false}
-                        forceSearchParameters={searchBefore}
-                        showToolbar={false}
-                        showPageSize={false}
-                        showRowSelection={false}
-                        showId={false}
-                        filterOpened={false} />
-                    </Basic.LabelWrapper>
-                  </Basic.Col>
-                  <Basic.Col lg={ 6 }>
-                    <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
-                      <VsRequestTable
-                        uiKey="vs-request-table-after"
-                        columns= {['state', 'operationType', 'created', 'uid']}
-                        showFilter={false}
-                        forceSearchParameters={searchAfter}
-                        showToolbar={false}
-                        showPageSize={false}
-                        showRowSelection={false}
-                        showId={false}
-                        filterOpened={false} />
-                    </Basic.LabelWrapper>
-                  </Basic.Col>
-                </Basic.Row>
-              </div>
-            </Basic.PanelBody>
-            <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>{ this.i18n('button.back') }</Basic.Button>
-              <Basic.SplitButton
-                level="success"
-                id="request-realize"
-                title={ this.i18n('button.request.realize') }
-                onClick={this.realize.bind(this, entity) }
-                showLoading={ _showLoading }
-                showLoadingIcon
-                showLoadingText={ this.i18n('button.saving') }
-                rendered={ manager.canSave(entity, _permissions) && isInProgress }
-                pullRight
-                dropup>
-                <Basic.MenuItem
-                  eventKey="1"
-                  onClick={this.cancel.bind(this, entity)}>
-                  {this.i18n('button.request.cancel')}
-                </Basic.MenuItem>
-              </Basic.SplitButton>
-            </Basic.PanelFooter>
-          </Basic.Panel>
+        <Basic.Panel>
+          <Basic.PanelHeader text={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic') } />
+          <Basic.PanelBody>
+            <div>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
+                  <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
+                    {this._getImplementers(entity)}
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.TextArea
+                    ref="reason"
+                    label={this.i18n('vs:entity.VsRequest.reason.label')}
+                    readOnly
+                    rows={6}
+                    rendered={entity && entity.reason }
+                    value={entity ? entity.reason : null}/>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 12 }>
+                  <Basic.LabelWrapper readOnly label={this.i18n('wishAttributes') + ':'}>
+                    <Basic.Alert
+                      level="warning"
+                      icon="trash"
+                      rendered={isDeleteOperation && isInProgress}
+                      style={{display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px', maxWidth: '600px'}}
+                      text={this.i18n('alert.accountShouldBeDeleted')}/>
+                    <Basic.Alert
+                      level="success"
+                      icon="ok"
+                      rendered={isCreateOperation && isInProgress}
+                      style={{display: 'block', margin: 'auto', marginTop: '30px', marginBottom: '30px', maxWidth: '600px'}}
+                      text={this.i18n('alert.accountShouldBeCreated')}/>
+                    <Basic.Table
+                      data={wishData}
+                      rendered={!isDeleteOperation}
+                      noData={this.i18n('component.basic.Table.noData')}
+                      rowClass={({rowIndex, data}) => { return (data[rowIndex].changed) ? 'warning' : ''; }}
+                      className="table-bordered">
+                      <Basic.Column property="name" header={this.i18n('label.property')}/>
+                      <Basic.Column
+                        property="value"
+                        header={this.i18n('label.targetValue')}
+                        cell={this._getWishValueCell.bind(this, false, isInProgress)}/>
+                      <Basic.Column
+                        property="oldValue"
+                        rendered={isInProgress}
+                        header={this.i18n('label.oldValue')}
+                        cell={this._getWishValueCell.bind(this, true, false)}/>
+                    </Basic.Table>
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+              </Basic.Row>
+              <Basic.Row>
+                <Basic.Col lg={ 6 }>
+                  <Basic.LabelWrapper
+                    readOnly
+                    ref="vs-request-table-before"
+                    label={this.i18n('beforeRequests.label') + ':'}>
+                    <VsRequestTable
+                      uiKey="vs-request-table-before"
+                      columns={['state', 'operationType', 'created', 'uid']}
+                      showFilter={false}
+                      forceSearchParameters={searchBefore}
+                      showToolbar={false}
+                      showPageSize={false}
+                      showRowSelection={false}
+                      showId={false}
+                      filterOpened={false} />
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+                <Basic.Col lg={ 6 }>
+                  <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
+                    <VsRequestTable
+                      uiKey="vs-request-table-after"
+                      columns={['state', 'operationType', 'created', 'uid']}
+                      showFilter={false}
+                      forceSearchParameters={searchAfter}
+                      showToolbar={false}
+                      showPageSize={false}
+                      showRowSelection={false}
+                      showId={false}
+                      filterOpened={false} />
+                  </Basic.LabelWrapper>
+                </Basic.Col>
+              </Basic.Row>
+            </div>
+          </Basic.PanelBody>
+          <Basic.PanelFooter>
+            <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>{ this.i18n('button.back') }</Basic.Button>
+            <Basic.SplitButton
+              level="success"
+              id="request-realize"
+              title={ this.i18n('button.request.realize') }
+              onClick={this.realize.bind(this, entity) }
+              showLoading={ _showLoading }
+              showLoadingIcon
+              showLoadingText={ this.i18n('button.saving') }
+              rendered={ manager.canSave(entity, _permissions) && isInProgress }
+              pullRight
+              dropup>
+              <Basic.MenuItem
+                eventKey="1"
+                onClick={this.cancel.bind(this, entity)}>
+                {this.i18n('button.request.cancel')}
+              </Basic.MenuItem>
+            </Basic.SplitButton>
+          </Basic.PanelFooter>
+        </Basic.Panel>
       </div>
     );
   }

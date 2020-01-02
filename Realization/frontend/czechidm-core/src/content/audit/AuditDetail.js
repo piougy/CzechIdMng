@@ -51,13 +51,13 @@ class AuditDetail extends Basic.AbstractContent {
   /**
    * After change props is necessary to reload tables with data
    */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const { entityId, revID } = this.props.match.params;
-
-    if (entityId !== nextProps.match.params.entityId || revID !== nextProps.match.params.revID) {
-      this._reloadComponent(nextProps);
-    }
-  }
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   const { entityId, revID } = this.props.match.params;
+  //
+  //   if (entityId !== nextProps.match.params.entityId || revID !== nextProps.match.params.revID) {
+  //     this._reloadComponent(nextProps);
+  //   }
+  // }
 
   _reloadComponent(props) {
     const { entityId, revID } = props.match.params;

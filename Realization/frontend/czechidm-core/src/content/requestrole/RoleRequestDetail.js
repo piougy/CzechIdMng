@@ -250,7 +250,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
   _getIdentityId(props) {
     const { _request, location} = props;
-    const applicantFromUrl = location ? location.query.applicantId : null;
+    const applicantFromUrl = location && location.query ? location.query.applicantId : null;
 
     return _request ? _request.applicant : applicantFromUrl;
   }

@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import pathToRegexp from 'path-to-regexp';
 import _ from 'lodash';
-import Immutable from 'immutable';
 //
 import { SecurityManager } from '../../../redux';
 import DefaultCell from './DefaultCell';

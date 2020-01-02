@@ -341,7 +341,7 @@ class AbstractContextComponent extends AbstractComponent {
    * Creates react-router Routes components for this component (url).
    */
   generateRouteComponents() {
-    const {match} = this.props;
+    const {match, location} = this.props;
 
     // Found children routes definitions (items from routes.js for this component).
     const childRoutes = this._getRouteDefinitions();
@@ -380,8 +380,22 @@ class AbstractContextComponent extends AbstractComponent {
     childRoutesWithComponent.forEach(route => {
       const Component = this._getComponent(route);
 
+      const routeChildRoutes = route.childRoutes;
+      // React key will be add to Routes for ensure destroing the child component if URL will be changed (or localization).
+      let keyUrl = match.url;
+      if (!routeChildRoutes || routeChildRoutes.length === 0) {
+        // Workaround: I don't have enough informations for create correct dynamic key for route.
+        // Specific match params missing in this phase (are in render function ... see row 395, but there is too late for generate key for whole route).
+        // So I use workaround:
+        //
+        // First: I use match.url from parent route (good for agendas with tabs as Identity, Role ...).
+        // Second: But this doesn't work for details without parent component (AuditDetail, RoleRequestDetil, ...), because key will be not changed
+        // if ID of entity changed in URL (parent match.url is doesn't contains ID of entity). So I add full url to key if route doesn't have child routes.
+        keyUrl = location.pathname;
+      }
+      const key = `${route.id}${keyUrl}${activeLng}`;
       routes.push(<Route
-        key={`${route.id}${match.url}${activeLng}`}
+        key={key}
         path={this._getConcatPath(match.path, route.concatedPath ? route.concatedPath : route.path)}
         render={(props) => {
           // Decode params

@@ -20,15 +20,19 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.vs.TestHelper;
 import eu.bcvsolutions.idm.vs.config.domain.VsConfiguration;
@@ -61,6 +65,10 @@ public class VsSystemServiceTest extends AbstractIntegrationTest {
 	private IdmRoleService roleService;
 	@Autowired
 	private SysRoleSystemService roleSystemService;
+	@Autowired
+	private SysSystemService systemService;
+	@Autowired
+	private ConfidentialStorage confidentialStorage;
 
 	@Before
 	public void init() {
@@ -174,6 +182,27 @@ public class VsSystemServiceTest extends AbstractIntegrationTest {
 		List<AbstractSysSyncConfigDto> syncConfigs = configService.find(filter, null).getContent();
 		Assert.assertEquals("Wrong size of synchronizations!", 1, syncConfigs.size());
 		Assert.assertNotNull("Sync config is null!", syncConfigs.get(0));
+	}
+	
+	@Test
+	/**
+	 * Test proves bug fix of password overriding trouble of the remote ConnectorServer.
+	 * This occurred when switching from VS system to remote ConnectorServer.   
+	 */
+	public void testPasswordNotOverriden() {
+		final String testPassword = "myPassword123456";
+		VsSystemDto config = new VsSystemDto();
+		config.setName(helper.createName());
+		SysSystemDto system = helper.createVirtualSystem(config);
+		system.setRemote(true);
+		system.setVirtual(false);
+		system.getConnectorServer().setPassword(new GuardedString(testPassword));
+		system = systemService.save(system);
+				
+		String storedPassword = confidentialStorage.getGuardedString(system.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD).asString();
+		
+		Assert.assertEquals(testPassword, storedPassword);
 	}
 
 	@Test

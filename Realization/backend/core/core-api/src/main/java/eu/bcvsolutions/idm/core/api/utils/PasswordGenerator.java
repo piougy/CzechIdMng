@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
 /**
  * Password generator
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  */
 
 public class PasswordGenerator {
@@ -124,7 +124,7 @@ public class PasswordGenerator {
 		}
 		if (policy.getMinUpperChar() != null && policy.getMinUpperChar() != 0) {
 			String upper = removeProhibited(upperBase, prohibited);
-			password.append(getRandomChars(upperBase, policy.getMinUpperChar(), null));
+			password.append(getRandomChars(upper, policy.getMinUpperChar(), null));
 			base.append(upper);
 		}
 		if (policy.getMinSpecialChar() != null && policy.getMinSpecialChar() != 0) {
@@ -148,7 +148,7 @@ public class PasswordGenerator {
 				base.append(policy.getNumberBase());
 				base = new StringBuilder(removeProhibited(base.toString(), policy.getProhibitedCharacters()));
 			}
-			password.append(getRandomChars(shuffle(base).toString(), missingLength, null));
+			password.append(getRandomChars(shuffle(base).toString(), missingLength, policy.getProhibitedCharacters()));
 		}
 		
 		return shuffle(password).toString();

@@ -1,0 +1,19 @@
+type IdmIdentity {
+    id: ID!
+    username: String!
+    firstName: String
+    lastName: String
+    externalCode: String
+    externalId: String
+    email: String
+	phone: String
+	titleBefore: String
+	titleAfter: String
+	description: String
+	disabled: Boolean
+	state: String
+}
+
+type Query {
+    identities(page: Int, size: Int): [IdmIdentity]!
+}

@@ -30,6 +30,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 import org.springframework.web.util.UrlPathHelper;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -101,6 +102,12 @@ public class WebConfig extends HateoasAwareSpringDataWebConfiguration {
 			return mapper;
 		});
 	}
+	
+	@Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+		// FIXME: websocket are not used in our devstack ... fix graphql.servlet.websocket.enabled=false (newer version)?
+        return null;
+    }
 
 	@Bean
 	public FilterRegistrationBean<CorsFilter> corsFilter() {

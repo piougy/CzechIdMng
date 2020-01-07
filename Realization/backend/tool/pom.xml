@@ -25,7 +25,7 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<mainClass>eu.bcvsolutions.idm.tool.ConsoleRunner</mainClass>
 							<addClasspath>true</addClasspath>
-            				<classpathPrefix>lib/</classpathPrefix>
+            	<classpathPrefix>lib</classpathPrefix>
 						</manifest>
 						<manifestEntries>
 							<Implementation-Build>${buildNumber}</Implementation-Build>

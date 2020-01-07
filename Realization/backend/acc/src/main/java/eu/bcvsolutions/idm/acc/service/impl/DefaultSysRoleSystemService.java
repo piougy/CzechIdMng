@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -151,6 +152,7 @@ public class DefaultSysRoleSystemService
 		// Roles using in concepts
 		Set<UUID> roleIds = concepts.stream() //
 				.map(IdmConceptRoleRequestDto::getRole) //
+				.filter(Objects::nonNull) //
 				.distinct() //
 				.collect(Collectors.toSet());
 		// We have direct roles, but we need sub-roles too. Beware here could be many

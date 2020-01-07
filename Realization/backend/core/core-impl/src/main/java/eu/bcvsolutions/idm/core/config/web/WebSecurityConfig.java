@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.security.auth.filter.ExtendExpirationFilter;
 import eu.bcvsolutions.idm.core.security.auth.filter.StartUserTransactionFilter;
 
 /**
- * Web security configuration
+ * Web security configuration.
  * 
  * @author Radek Tomiška 
  *

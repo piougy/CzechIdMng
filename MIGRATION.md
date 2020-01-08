@@ -195,7 +195,7 @@ Example (from ``IdmConceptRoleRequestDto``):
 
 #### Logback configuration
 
-Configuration file in test package ``logback-test.xml`` has to removed. New ``logback.xml`` with content has to be added:
+Configuration **file in test package ``logback-test.xml`` has to be removed**. New ``logback.xml`` with content has to be added:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>

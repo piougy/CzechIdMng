@@ -149,8 +149,10 @@ Due to breaking changes above, custom module requires some refactoring, before i
   - ``Assert`` - add message
   - ``IOUtils.closeQuietly`` - refactor with ``try-with-resources`` syntax.
   - ``class.newInstance()`` is deprecated - use ``class.getDeclaredConstructor().newInstance()`` - ``ReflectiveOperationException`` can be catched if needed.
-- run tests (all green)
-- run application and test
+- Configure [logback](#logback-configuration) for tests.
+- Configure [application properties](#test-profile-properties) for tests.
+- Run tests (all green).
+- Run application, test rest api or continue with frontend upgrade.
 
 
 #### Serialized dtos

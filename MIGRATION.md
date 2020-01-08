@@ -225,6 +225,8 @@ Configuration file in test package ``logback-test.xml`` has to removed. New ``lo
 </configuration>
 ```
 
+> Note for developer: every custom module has ``logback-test.xml`` and this file has to be removed. Test cannot run without this change.
+
 #### Test profile properties
 
 Configuration file in test package ``application.properties`` has to be updated (mainly jpa properties changed), use content (copy / paste):
@@ -377,8 +379,6 @@ multipart.max-file-size=1Mb
 ```
 
 
-
-> Note for developer: every custom module has ``logback-test.xml``. Test cannot run without this change.
 
 # 🌓 Frontend
 In this chapter will be describe migration for the frontend part of IdM.

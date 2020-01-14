@@ -249,11 +249,11 @@ public class DefaultSysSystemService
 
 		// fill connector configuration from form values
 		IcConnectorConfigurationImpl configuration = null;
-		if(SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())){
+		if (SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())){
 			// For CzechIdM connector framework is needs system ID (exactly for virtual systems).
 			 configuration = new IcConnectorConfigurationCzechIdMImpl();
 			 ((IcConnectorConfigurationCzechIdMImpl)configuration).setSystemId(system.getId());
-		}else {
+		} else {
 			 configuration = new IcConnectorConfigurationImpl();
 		}
 		// Create configuration for pool
@@ -440,12 +440,9 @@ public class DefaultSysSystemService
 		IdmFormDefinitionDto formDefinition = getFormService().getDefinition(SysSystem.class.getName(),
 				connectorInstance.getConnectorKey().getFullName());
 		//
-		if (formDefinition == null) {
-			// we creates new form definition
-			formDefinition = createConnectorFormDefinition(connectorInstance);
-			formDefinition.setUnmodifiable(true);
-		}
-		
+		formDefinition = resolveConnectorFormDefinition(formDefinition, connectorInstance);
+		formDefinition.setUnmodifiable(true);
+		//
 		return formDefinition;
 	}
 	
@@ -636,7 +633,7 @@ public class DefaultSysSystemService
 	 * @param connectorKey
 	 * @return
 	 */
-	private synchronized IdmFormDefinitionDto createConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+	private synchronized IdmFormDefinitionDto resolveConnectorFormDefinition(IdmFormDefinitionDto formDefinition, IcConnectorInstance connectorInstance) {
 		IcConnectorConfiguration conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 		if (conf == null) {
 			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
@@ -645,14 +642,39 @@ public class DefaultSysSystemService
 		//
 		List<IcConfigurationProperty> properties = conf.getConfigurationProperties().getProperties();
 		List<IdmFormAttributeDto> formAttributes = new ArrayList<>(properties.size());
-		for (short seq = 0; seq < properties.size(); seq++) {
-			IcConfigurationProperty property = properties.get(seq);
-			IdmFormAttributeDto attribute = formPropertyManager.toFormAttribute(property);
-			attribute.setSeq(seq);
-			formAttributes.add(attribute);
+		//
+		if (formDefinition == null) {
+			// create new form definition
+			for (short seq = 0; seq < properties.size(); seq++) {
+				IcConfigurationProperty property = properties.get(seq);
+				IdmFormAttributeDto attribute = formPropertyManager.toFormAttribute(property);
+				attribute.setSeq(seq);
+				formAttributes.add(attribute);
+			}
+			formDefinition = getFormService().createDefinition(SysSystem.class.getName(),
+					connectorInstance.getConnectorKey().getFullName(), formAttributes);
+		} else {
+			// check attributes / attribute can be added into form definition
+			// update attribute is not supported now
+			for (short seq = 0; seq < properties.size(); seq++) {
+				IcConfigurationProperty property = properties.get(seq);
+
+				IdmFormAttributeDto formAttribute = formDefinition.getMappedAttributeByCode(property.getName());
+				if (formAttribute == null) {
+					LOG.info("Connector attribute [{}] not found in definition, attributte will be added into definition with code [{}].",
+							property.getName(),
+							formDefinition.getCode());
+					//
+					formAttribute = formPropertyManager.toFormAttribute(property);
+					formAttribute.setFormDefinition(formDefinition.getId());
+					formAttribute.setSeq(seq);
+					formAttribute = getFormService().saveAttribute(formAttribute);
+					formDefinition.addFormAttribute(formAttribute);
+				}
+			}
 		}
-		return getFormService().createDefinition(SysSystem.class.getName(),
-				connectorInstance.getConnectorKey().getFullName(), formAttributes);
+		//
+		return formDefinition;
 	}
 	
 	/**

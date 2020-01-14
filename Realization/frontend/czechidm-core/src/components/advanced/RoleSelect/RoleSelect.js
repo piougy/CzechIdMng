@@ -512,7 +512,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
           backdrop="static"
           keyboard>
           <Basic.Modal.Header text={ this.getHeader() } closeButton/>
-          <Basic.Modal.Body style={{ padding: 0 }}>
+          <Basic.Modal.Body style={ showTree === true ? { padding: 0 } : {} }>
             <Basic.Row>
               <Basic.Col
                 lg={ 3 }
@@ -528,7 +528,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               </Basic.Col>
               <Basic.Col
                 lg={ showTree ? 9 : 12 }
-                style={{ paddingLeft: 0 }}>
+                style={ showTree === true ? { paddingLeft: 0 } : {} }>
                 <Table
                   ref="table"
                   condensed

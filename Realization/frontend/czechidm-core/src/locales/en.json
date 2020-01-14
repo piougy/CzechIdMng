@@ -1111,7 +1111,7 @@
         },
         "help": {
           "header": "Change password",
-          "body": "<div class=\"alert alert-info\">The change password form is only for external employees. An internal employee can change his password after signing in to his profile.</div>To change your password, fill out the form. In this form, you enter your username, your existing password, the new password you want, and finally your new password for review. You can then confirm the change by clicking the <button class=\"btn btn-xs btn-success\">Change password</button> button."
+          "body": "<div class=\"alert alert-info\">The change password form is only for external employees. An internal employee can change his password after signing in to his profile.</div>To change your password, fill out the form. In this form, you enter your username, your existing password, the new password you want, and finally your new password for review. You can then confirm the change by clicking the <button class=\"btn btn-xs btn-success disabled soft-disabled\">Change password</button> button."
         }
       },
       "strength" : {

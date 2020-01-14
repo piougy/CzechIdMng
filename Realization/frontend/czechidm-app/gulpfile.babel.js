@@ -440,7 +440,7 @@ gulp.task('styles', () => {
         version: 10,
         theme: `"${ config.theme }"` // wrap to quotes - less engine needs it to skip formating slash characters
       }
-    }))
+    }).on('error', util.log))
     .pipe(autoprefixer('last 10 versions', 'ie 9'))
     .pipe(minifyCSS({keepBreaks: false}))
     .pipe(concat('main.css'))

@@ -19,6 +19,11 @@
 	<modules>
 		<module>../parent</module>
 		<module>../core</module>
+		<module>../example</module>
+		<module>../ic</module>
+		<module>../acc</module>
+		<module>../vs</module>
+		<module>../rpt</module>
 		<module>../app</module>
 	</modules>
 
@@ -40,13 +45,6 @@
 		<profile>
 			<!-- Profile is used for releasing product. Usage is described in documentation -->
 			<id>release</id>
-			<modules>
-				<module>../example</module>
-				<module>../ic</module>
-				<module>../acc</module>
-				<module>../vs</module>
-				<module>../rpt</module>
-			</modules>
 			<build>
 				<plugins>
 					<plugin>

@@ -168,6 +168,7 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
         			concept.setIdentityContract(contractId);
         			concept.setRole(automaticRolAttributeDto.getRole());
         			concept.setAutomaticRole(automaticRoleId);
+        			concept.setIdentityRole(identityRole.getId());
     				concept.setOperation(ConceptRoleRequestOperation.REMOVE);
     				concepts.add(concept);
 

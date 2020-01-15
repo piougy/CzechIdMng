@@ -43,6 +43,7 @@ public abstract class AbstractSysSyncConfigDto extends AbstractDto {
 	private String name;
 	private String description;
 	private boolean reconciliation = false;
+	private boolean differentialSync = false;
 	private boolean customFilter = false;
 	private String token;
 	private String customFilterScript;
@@ -102,6 +103,14 @@ public abstract class AbstractSysSyncConfigDto extends AbstractDto {
 
 	public void setReconciliation(boolean reconciliation) {
 		this.reconciliation = reconciliation;
+	}
+
+	public boolean isDifferentialSync() {
+		return differentialSync;
+	}
+
+	public void setDifferentialSync(boolean differentialSync) {
+		this.differentialSync = differentialSync;
 	}
 
 	public boolean isCustomFilter() {

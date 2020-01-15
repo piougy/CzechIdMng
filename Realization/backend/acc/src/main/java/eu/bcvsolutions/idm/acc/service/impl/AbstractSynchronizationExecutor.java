@@ -4,6 +4,8 @@ import java.beans.IntrospectionException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -22,11 +25,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
-import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
@@ -72,10 +75,12 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.event.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -97,12 +102,14 @@ import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -182,7 +189,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	protected ProvisioningConfiguration provisioningConfiguration;
 	@Autowired
 	private ProcessEngine processEngine;
-
+	@Autowired
+	@Lazy
+	private ProvisioningService provisioningService;
 	@Autowired(required = false)
 	private CacheManager cacheManager;
 	// Instance of LRT
@@ -219,7 +228,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
 		// Load last token
 		String lastToken = config.isReconciliation() ? null : config.getToken();
-		IcSyncToken lastIcToken = Strings.isNullOrEmpty(lastToken) ? null :  new IcSyncTokenImpl(lastToken);
+		IcSyncToken lastIcToken = Strings.isNullOrEmpty(lastToken) ? null : new IcSyncTokenImpl(lastToken);
 
 		// Create basic synchronization log
 		SysSyncLogDto log = new SysSyncLogDto();
@@ -240,6 +249,12 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			// add logs to context
 			context.addLog(log).addActionLogs(actionsLog);
+
+			// Is differential sync enabled?
+			if (config.isDifferentialSync()) {
+				log.addToLog(
+						"Synchronization is running as differential (entities will be updated only if least one attribute was changed).");
+			}
 
 			if (config.isCustomFilter() || config.isReconciliation()) {
 				// Custom filter Sync
@@ -297,6 +312,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Method called after sync started.
+	 * 
 	 * @param log
 	 * @param context
 	 */
@@ -332,6 +348,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		// Set default unknown action type
 		context.addActionType(SynchronizationActionType.UNKNOWN);
+
+		// If differential sync is disabled, then is every entity marks as different.
+		context.setIsEntityDifferent(!config.isDifferentialSync());
+
 		try {
 
 			// Find system entity for uid
@@ -370,8 +390,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					context.addActionType(action);
 					SynchronizationSituationType situation = SynchronizationSituationType.LINKED;
 
-					// Since removing 'Wish' can affect existing identities and provisioning of their accounts,
-					// we will not do it if Ignore is set or if anything else than "update" is configured
+					// Since removing 'Wish' can affect existing identities and provisioning of
+					// their accounts,
+					// we will not do it if Ignore is set or if anything else than "update" is
+					// configured
 					if (linkedAction == SynchronizationLinkedActionType.UPDATE_ENTITY
 							|| linkedAction == SynchronizationLinkedActionType.UPDATE_ACCOUNT) {
 						systemEntity = removeSystemEntityWishIfPossible(systemEntity, true, context);
@@ -963,6 +985,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// Linked action is UPDATE_ENTITY
 			updateAccountUid(context);
 			doUpdateEntity(context);
+			if (context.getConfig().isDifferentialSync() && !context.isEntityDifferent()) {
+				// If differential sync is enabled and this entity should be not updated, then
+				// set item to ignore action.
+				initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.IGNORE, logItem, log,
+						actionLogs);
+				return;
+			}
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.SUCCESS, logItem, log,
 					actionLogs);
 			return;
@@ -1005,6 +1034,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			return;
 		case CREATE_ENTITY:
 
+			// We don't want compute different in create entity situation.
+			context.setIsEntityDifferent(true);
+
 			// Generate UID value from mapped attribute marked as UID (Unique
 			// ID).
 			// UID mapped attribute must exist and returned value must be not
@@ -1043,7 +1075,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		SysSyncItemLogDto logItem = context.getLogItem();
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 
-		addToItemLog(logItem, MessageFormat.format("Account does not exist, but an entity [{0}] was found by correlation (entity unlinked).", entityId));
+		addToItemLog(logItem, MessageFormat.format(
+				"Account does not exist, but an entity [{0}] was found by correlation (entity unlinked).", entityId));
 		addToItemLog(logItem, MessageFormat.format("Unlinked action is {0}", action));
 		DTO entity = findById(entityId);
 
@@ -1224,7 +1257,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, true, context);
 		// Update confidential attribute (entity must be persisted first)
-		updateConfidentialAttributes(mappedAttributes, uid, icAttributes, entity, true, context);
+		// updateConfidentialAttributes(mappedAttributes, uid, icAttributes, entity,
+		// true, context);
 
 		EntityAccountDto roleAccount = createEntityAccount(account, entity, context);
 		this.getEntityAccountService().save(roleAccount);
@@ -1272,6 +1306,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param actionLogs
 	 */
 	protected void doUpdateEntity(SynchronizationContext context) {
+
 		String uid = context.getUid();
 		SysSyncLogDto log = context.getLog();
 		SysSyncItemLogDto logItem = context.getLogItem();
@@ -1289,21 +1324,23 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// Find entity ID, first try entity ID in the context then load by account
 		UUID entityId = context.getEntityId();
 		if (entityId == null && account != null) {
-			 entityId = getEntityByAccount(account.getId());
+			entityId = getEntityByAccount(account.getId());
 		}
 		DTO entity = null;
 		if (entityId != null) {
 			entity = this.getService().get(entityId);
 		}
 		if (entity != null) {
+			// Update extended attribute
+			updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
+			// Update confidential attribute
+			// updateConfidentialAttributes(mappedAttributes, uid, icAttributes, entity,
+			// false, context);
 			// Update entity
 			entity = fillEntity(mappedAttributes, uid, icAttributes, entity, false, context);
-			entity = this.save(entity, true, context);
-			// Update extended attribute (entity must be persisted first)
-			updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
-			// Update confidential attribute (entity must be persisted
-			// first)
-			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
+			if (context.isEntityDifferent()) {
+				entity = this.save(entity, true, context);
+			}
 
 			// Entity updated
 			addToItemLog(logItem, MessageFormat.format("Entity with id {0} was updated", entity.getId()));
@@ -1312,7 +1349,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			}
 
 			SystemEntityType entityType = context.getEntityType();
-			if (this.isProvisioningImplemented(entityType, logItem) && !context.isSkipProvisioning()) {
+			if (context.isEntityDifferent() && this.isProvisioningImplemented(entityType, logItem)
+					&& !context.isSkipProvisioning()) {
 				// Call provisioning for this entity
 				callProvisioningForEntity(entity, entityType, logItem);
 			}
@@ -1335,7 +1373,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected void addToItemLog(Loggable logItem, String text) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(ZonedDateTime.now());
+		ZonedDateTime now = ZonedDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter
+				.ofPattern(ConfigurationService.DEFAULT_APP_DATETIME_WITH_SECONDS_FORMAT);
+		sb.append(formatter.format(now));
 		sb.append(": ");
 		sb.append(text);
 		text = sb.toString();
@@ -1364,8 +1405,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		EntityAccountFilter entityAccountFilter = this.createEntityAccountFilter();
 		entityAccountFilter.setAccountId(account.getId());
-		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.find(entityAccountFilter, null).getContent();
+		List<EntityAccountDto> entityAccounts = this.getEntityAccountService().find(entityAccountFilter, null)
+				.getContent();
 		if (entityAccounts.isEmpty()) {
 			addToItemLog(logItem, "Warning! - Entity account relation was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
@@ -1497,7 +1538,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		@SuppressWarnings("unchecked")
 		ReadWriteDtoService<DTO, BaseFilter> service = (ReadWriteDtoService<DTO, BaseFilter>) getService();
 
-		List<DTO> entities = service.find((BaseFilter)filter, (Pageable)null).getContent();
+		List<DTO> entities = service.find((BaseFilter) filter, (Pageable) null).getContent();
 
 		if (CollectionUtils.isEmpty(entities)) {
 			return null;
@@ -1529,8 +1570,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param uid
 	 * @param icAttributes
 	 * @param entity
-	 * @param create
-	 *            (is create or update entity situation)
+	 * @param create           (is create or update entity situation)
 	 * @param context
 	 * @return
 	 */
@@ -1551,18 +1591,49 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
-			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes, context);
 			// Set transformed value from target system to entity
-			try {
-				EntityUtils.setEntityValue(dto, attributeProperty, transformedValue);
-			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | ProvisioningException e) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,
-						ImmutableMap.of("property", attributeProperty, "uid", uid), e);
-			}
-
+			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes, context);
+			setEntityValue(uid, dto, context, attribute, attributeProperty, transformedValue);
 		});
 		return dto;
+	}
+
+	/**
+	 * Set attribute's value to the entity with check difference between old and new
+	 * value.
+	 * 
+	 * @param uid
+	 * @param dto
+	 * @param context
+	 * @param attribute
+	 * @param attributeProperty
+	 * @param transformedValue
+	 */
+	protected void setEntityValue(String uid, DTO dto, SynchronizationContext context,
+			SysSystemAttributeMappingDto attribute, String attributeProperty, Object transformedValue) {
+
+		try {
+			if (context.isEntityDifferent()) {
+				EntityUtils.setEntityValue(dto, attributeProperty, transformedValue);
+			} else {
+				Object entityValue = EntityUtils.getEntityValue(dto, attributeProperty);
+				SysSchemaAttributeDto schemaAttributeDto = DtoUtils.getEmbedded(attribute,
+						SysSystemAttributeMapping_.schemaAttribute.getName(), SysSchemaAttributeDto.class);
+				Assert.notNull(schemaAttributeDto, "Schema attribute cannot be null!");
+				if (!provisioningService.isAttributeValueEquals(entityValue, transformedValue, schemaAttributeDto)) {
+					context.setIsEntityDifferent(true);
+					addToItemLog(context.getLogItem(),
+							MessageFormat.format(
+									"Value of entity attribute [{0}] was changed. First change was detected -> entity in IdM will be updated.",
+									attributeProperty));
+					EntityUtils.setEntityValue(dto, attributeProperty, transformedValue);
+				}
+			}
+		} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| ProvisioningException e) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,
+					ImmutableMap.of("property", attributeProperty, "uid", uid), e);
+		}
 	}
 
 	/**
@@ -1572,8 +1643,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param uid
 	 * @param icAttributes
 	 * @param entity
-	 * @param create
-	 *            (is create or update entity situation)
+	 * @param create           (is create or update entity situation)
 	 * @param context
 	 * @return
 	 */
@@ -1612,37 +1682,74 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
 						ImmutableMap.of("uid", uid, "message", message));
 			}
+
+			List<Serializable> values = null;
 			if (transformedValue instanceof List<?>) {
+				// TODO: Convert List GuardedStrings to Strings!
 				((List<?>) transformedValue).stream().forEach(value -> {
 					if (value != null && !(value instanceof Serializable)) {
 						String message = MessageFormat.format(
-								"Value [{0}] is not serializable for the attribute [{1}] and UID [{2}]!", value, attribute,
-								uid);
+								"Value [{0}] is not serializable for the attribute [{1}] and UID [{2}]!", value,
+								attribute, uid);
 						throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
 								ImmutableMap.of("uid", uid, "message", message));
 					}
 				});
-				formService.saveValues(dto, defAttribute, (List<Serializable>) transformedValue);
+				values = ((List<Serializable>) transformedValue);
 			} else {
-				formService.saveValues(dto, defAttribute, Lists.newArrayList((Serializable) transformedValue));
+				// Convert GuardedString to string
+				values = Lists.newArrayList(
+						transformedValue instanceof GuardedString ? ((GuardedString) transformedValue).asString()
+								: (Serializable) transformedValue);
+			}
+
+			if (!context.isEntityDifferent()) {
+				List<IdmFormValueDto> previousValues = formService.getValues(dto.getId(),
+						entityType.getEntityType(), defAttribute);
+				if (defAttribute.isConfidential() && previousValues != null) {
+					previousValues.forEach(formValue -> {
+						formValue.setValue(formService.getConfidentialPersistentValue(formValue));
+					});
+				}
+
+				List<IdmFormValueDto> newValues = values.stream().filter(value -> value != null).map(value -> {
+					IdmFormValueDto formValue = new IdmFormValueDto(defAttribute);
+					formValue.setValue(value);
+					return formValue;
+				}).collect(Collectors.toList());
+
+				boolean isEavValuesSame = this.isEavValuesSame(newValues, previousValues);
+				if (!isEavValuesSame) {
+					context.setIsEntityDifferent(true);
+					addToItemLog(context.getLogItem(),
+							MessageFormat.format(
+									"Value of EAV attribute [{0}] was changed. First change was detected -> entity in IdM will be updated.",
+									attributeProperty));
+				}
+			}
+
+			if (context.isEntityDifferent()) {
+				formService.saveValues(dto, defAttribute, values);
 			}
 		});
 		return dto;
 	}
 
 	/**
-	 * Update confidential attribute for given entity. Entity must be persisted
-	 * first.
+	 * @deprecated since 10.1.0
+	 * 
+	 *             Update confidential attribute for given entity. Entity must be
+	 *             persisted first.
 	 *
 	 * @param mappedAttributes
 	 * @param uid
 	 * @param icAttributes
 	 * @param entity
-	 * @param create
-	 *            (is create or update entity situation)
+	 * @param create           (is create or update entity situation)
 	 * @param context
 	 * @return
 	 */
+	@Deprecated
 	protected DTO updateConfidentialAttributes(List<SysSystemAttributeMappingDto> mappedAttributes, String uid,
 			List<IcAttribute> icAttributes, DTO dto, boolean create, SynchronizationContext context) {
 		mappedAttributes.stream().filter(attribute -> {
@@ -1666,9 +1773,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 						ImmutableMap.of("property", attributeProperty, "class", transformedValue.getClass().getName()));
 			}
 
-			confidentialStorage.saveGuardedString(dto.getId(), dto.getClass(), attribute.getIdmPropertyName(),
+			confidentialStorage.saveGuardedString(dto.getId(), dto.getClass(), attributeProperty,
 					(GuardedString) transformedValue);
-
 		});
 		return dto;
 	}
@@ -1679,8 +1785,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param uid
 	 * @param attribute
 	 * @param entity
-	 * @param create
-	 *            (create or update entity situation)
+	 * @param create    (create or update entity situation)
 	 * @return
 	 */
 	protected boolean canSetValue(String uid, SysSystemAttributeMappingDto attribute, DTO dto, boolean create) {
@@ -1747,6 +1852,44 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			return;
 		}
 		cache.put(key, value);
+	}
+
+	/**
+	 * Are input EAV values same
+	 * 
+	 * @param newValues
+	 * @param previousValues
+	 * @return
+	 */
+	private boolean isEavValuesSame(List<IdmFormValueDto> newValues, List<IdmFormValueDto> previousValues) {
+		if (newValues == null && previousValues == null) {
+			return true;
+		}
+
+		if (newValues == null && previousValues != null) {
+			newValues = Lists.newArrayList();
+		}
+
+		if (previousValues == null && newValues != null) {
+			previousValues = Lists.newArrayList();
+		}
+
+		if (newValues.size() == 0 && previousValues.size() == 0) {
+			return true;
+		}
+
+		if (newValues.size() != previousValues.size()) {
+			return false;
+		}
+
+		final List<IdmFormValueDto> previousValuesFinal = previousValues;
+		long countOfChangedValues = newValues.stream().filter(value -> {
+			return previousValuesFinal.stream().filter(previousValue -> {
+				return previousValue.isEquals(value);
+			}).count() == 0;
+		}).count();
+
+		return countOfChangedValues == 0;
 	}
 
 	private Cache getCache() {
@@ -1849,18 +1992,20 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
-	 * Removes the flag "wish" from system entity, if the flag is true and removing the flag is possible and safe
-	 * = it won't lead to any unwanted linking:
-	 * A) The system entity wasn't linked to any IdM entity before this synchronization.
-	 *    It's just some relic of previous operations in IdM. The entity on the system exists, so we
-	 *    will correct the information that it is only Wish (because it really exists).
-	 * B) The system entity is linked to IdM entity and automapping existing accounts is allowed.
-	 *    This can happen when identity had been assigned a role, but provisioning hadn't been executed yet
-	 *    for some reason (read-only system, error,...). Since automapping is enabled, we can remove the flag,
-	 *    so following provisioning will be Update and not Create.
+	 * Removes the flag "wish" from system entity, if the flag is true and removing
+	 * the flag is possible and safe = it won't lead to any unwanted linking: A) The
+	 * system entity wasn't linked to any IdM entity before this synchronization.
+	 * It's just some relic of previous operations in IdM. The entity on the system
+	 * exists, so we will correct the information that it is only Wish (because it
+	 * really exists). B) The system entity is linked to IdM entity and automapping
+	 * existing accounts is allowed. This can happen when identity had been assigned
+	 * a role, but provisioning hadn't been executed yet for some reason (read-only
+	 * system, error,...). Since automapping is enabled, we can remove the flag, so
+	 * following provisioning will be Update and not Create.
 	 *
 	 * @param systemEntity The system entity which will be processed
-	 * @param existingLink If the link (AccAccount) already exists for this system entity
+	 * @param existingLink If the link (AccAccount) already exists for this system
+	 *                     entity
 	 * @param context
 	 * @return Updated system entity
 	 */
@@ -1876,11 +2021,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (existingLink && !provisioningConfiguration.isAllowedAutoMappingOnExistingAccount()) {
 			addToItemLog(logItem, MessageFormat.format(
 					"WARNING: Existing system entity ({0}) has the flag Wish, which means it was neither created by IdM nor linked by synchronization. "
-					+ "But account for this entity already exists and it is linked to IdM entity [{1}]."
-					+ "Auto mapping of existing accounts is not allowed by property [{2}]. "
-					+ "We will not remove the flag Wish, because that would effectively complete the auto mapping.",
-					systemEntity.getUid(), context.getEntityId(), ProvisioningConfiguration.PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT));
-			initSyncActionLog(context.getActionType(), OperationResultType.WARNING, logItem, context.getLog(), context.getActionLogs());
+							+ "But account for this entity already exists and it is linked to IdM entity [{1}]."
+							+ "Auto mapping of existing accounts is not allowed by property [{2}]. "
+							+ "We will not remove the flag Wish, because that would effectively complete the auto mapping.",
+					systemEntity.getUid(), context.getEntityId(),
+					ProvisioningConfiguration.PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT));
+			initSyncActionLog(context.getActionType(), OperationResultType.WARNING, logItem, context.getLog(),
+					context.getActionLogs());
 			return systemEntity;
 		}
 		addToItemLog(logItem, MessageFormat.format(
@@ -1926,7 +2073,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_UID, uid);
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_ENTITY_TYPE, entityType);
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_SYNC_SITUATION, situation.name());
-		variables.put(SynchronizationService.WF_VARIABLE_KEY_IC_ATTRIBUTES, context.getIcObject() != null ? context.getIcObject().getAttributes() : null);
+		variables.put(SynchronizationService.WF_VARIABLE_KEY_IC_ATTRIBUTES,
+				context.getIcObject() != null ? context.getIcObject().getAttributes() : null);
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_ACTION_TYPE, action.name());
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_ENTITY_ID, dto != null ? dto.getId() : null);
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_ACC_ACCOUNT_ID, account != null ? account.getId() : null);
@@ -2078,8 +2226,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		entityAccountFilter.setEntityId(entityId);
 		entityAccountFilter.setSystemId(systemId);
 		entityAccountFilter.setOwnership(Boolean.TRUE);
-		List<EntityAccountDto> entityAccounts = this.getEntityAccountService()
-				.find(entityAccountFilter, null).getContent();
+		List<EntityAccountDto> entityAccounts = this.getEntityAccountService().find(entityAccountFilter, null)
+				.getContent();
 		if (entityAccounts.isEmpty()) {
 			return null;
 		} else {
@@ -2131,9 +2279,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		if (account == null) {
 			// Identity account won't be created
-			addToItemLog(logItem,
-					MessageFormat.format("Link between uid {0} and entity {1} will not be created due to specific settings of synchronization. "
-							+ "Processing of this item is finished.", uid, entityIdentification));
+			addToItemLog(logItem, MessageFormat.format(
+					"Link between uid {0} and entity {1} will not be created due to specific settings of synchronization. "
+							+ "Processing of this item is finished.",
+					uid, entityIdentification));
 			return;
 		}
 
@@ -2163,13 +2312,15 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
-	 * Apply settings that are specific to this type of entity.
-	 * Default implementation does nothing to the account.
+	 * Apply settings that are specific to this type of entity. Default
+	 * implementation does nothing to the account.
+	 * 
 	 * @param account
 	 * @param entity
 	 * @param context
 	 */
-	protected AccAccountDto applySpecificSettingsBeforeLink(AccAccountDto account, DTO entity, SynchronizationContext context) {
+	protected AccAccountDto applySpecificSettingsBeforeLink(AccAccountDto account, DTO entity,
+			SynchronizationContext context) {
 		return account;
 	}
 

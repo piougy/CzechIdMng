@@ -926,6 +926,10 @@
         "label": "Reconciliation",
         "help": "Executes full reconciliation instead of synchronization. Synchronization will be executed for all accounts without filter. Search for missing accounts will be executed for all entities in CzechIdM."
       },
+      "differentialSync": {
+        "label": "Process only differences",
+        "help": "Performs entity update and provisioning only if at least one change in a value of the mapped attributes is found."
+      },
       "correlationAttribute": "Correlation attribute",
       "systemMapping": "Set of mapped attributes",
       "linkedAction": "Linked",

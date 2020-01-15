@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,6 +27,8 @@ import com.google.common.collect.ImmutableMap;
 import com.zaxxer.hikari.HikariDataSource;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.OperationResultType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
@@ -34,11 +38,17 @@ import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.scheduler.task.impl.SynchronizationSchedulableTaskExecutor;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -46,6 +56,9 @@ import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -64,6 +77,7 @@ import joptsimple.internal.Strings;
  * Acc / Provisioning test helper
  * 
  * @author Radek Tomiška
+ * @author Vít Švanda
  */
 @Primary
 @Component("accTestHelper")
@@ -82,6 +96,9 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 	@Autowired private AccIdentityAccountService identityAccountService;
 	@Autowired private DefaultSysSystemMappingService mappingService;
 	@Autowired private ApplicationContext context;
+	@Autowired private SysSyncConfigService syncConfigService;
+	@Autowired private SysSyncItemLogService syncItemLogService;
+	@Autowired private SysSyncActionLogService syncActionLogService;
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -374,6 +391,41 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 		.createBean(SynchronizationSchedulableTaskExecutor.class);
 		lrt.init(ImmutableMap.of(SynchronizationService.PARAMETER_SYNCHRONIZATION_ID, config.getId().toString()));
 		lrt.process();
+	}
+	
+	@Override
+	public SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType, int count,
+			OperationResultType resultType) {
+		SysSyncConfigFilter logFilter = new SysSyncConfigFilter();
+		logFilter.setId(config.getId());
+		logFilter.setIncludeLastLog(Boolean.TRUE);
+		List<AbstractSysSyncConfigDto> configs = syncConfigService.find(logFilter, null).getContent();
+		assertEquals(1, configs.size());
+		SysSyncLogDto log = configs.get(0).getLastSyncLog();
+		if (actionType == null) {
+			return log;
+		}
+
+		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
+		actionLogFilter.setSynchronizationLogId(log.getId());
+		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
+
+		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
+			if (resultType == null) {
+				return actionType == action.getSyncAction();
+			}
+			return actionType == action.getSyncAction() && action.getOperationResult() == resultType;
+		}).findFirst().get();
+
+		if (resultType != null) {
+			assertEquals(resultType, actionLog.getOperationResult());
+		}
+		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
+		itemLogFilter.setSyncActionLogId(actionLog.getId());
+		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
+		assertEquals(count, items.size());
+
+		return log;
 	}
 	
 	/**

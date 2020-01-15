@@ -19,6 +19,7 @@ public class SysSyncConfigFilter extends DataFilter {
 	public static final String PARAMETER_SYSTEM_ID = "systemId";
 	public static final String PARAMETER_NAME = "name";
 	public static final String PARAMETER_INCLUDE_LAST_LOG = "includeLastLog";
+	public static final String PARAMETER_DIFFERENTIAL_SYNC = "differentialSync";
 	
 	public SysSyncConfigFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -54,6 +55,14 @@ public class SysSyncConfigFilter extends DataFilter {
 
 	public void setIncludeLastLog(Boolean includeLastLog) {
 		data.set(PARAMETER_INCLUDE_LAST_LOG, includeLastLog);
+	}
+	
+	public Boolean getDifferentialSync() {
+		return getParameterConverter().toBoolean(data, PARAMETER_DIFFERENTIAL_SYNC);
+	}
+	
+	public void setDifferentialSync(Boolean differentialSync) {
+		data.set(PARAMETER_DIFFERENTIAL_SYNC, differentialSync);
 	}
 
 }

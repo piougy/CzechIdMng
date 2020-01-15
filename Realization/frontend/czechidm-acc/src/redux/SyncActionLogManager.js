@@ -3,12 +3,8 @@ import { SyncActionLogService } from '../services';
 
 const service = new SyncActionLogService();
 
-export default class SyncActionLogManager
- extends Managers.EntityManager {
+export default class SyncActionLogManager extends Managers.EntityManager {
 
-  constructor() {
-    super();
-  }
 
   getService() {
     return service;

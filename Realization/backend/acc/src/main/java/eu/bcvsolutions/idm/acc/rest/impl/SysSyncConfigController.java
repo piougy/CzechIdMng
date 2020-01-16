@@ -274,6 +274,7 @@ public class SysSyncConfigController
 	protected SysSyncConfigFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SysSyncConfigFilter filter = new SysSyncConfigFilter(parameters);
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
+		filter.setDifferentialSync(getParameterConverter().toBoolean(parameters, "differentialSync"));
 		return filter;
 	}
 

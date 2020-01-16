@@ -229,6 +229,28 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		// Delete log
 		syncLogService.delete(log);
 	}
+	
+	@Test
+	public void doStartSyncB_Linked_doFilterByDifferentialSync () {
+		SysSyncConfigFilter configFilterByName = new SysSyncConfigFilter();
+		SysSyncConfigFilter configFilterByDiffSync = new SysSyncConfigFilter();
+		configFilterByName.setName(SYNC_CONFIG_NAME);
+		configFilterByDiffSync.setDifferentialSync(null);
+		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilterByName, null).getContent();
+		
+		// Make sure that there is just 1 SysSyncConfigDto with given name
+		Assert.assertEquals(1, syncConfigs.size());
+		AbstractSysSyncConfigDto syncConfigDto = syncConfigs.get(0);
+		syncConfigDto.setDifferentialSync(true);
+		syncConfigDto = syncConfigService.save(syncConfigDto);
+		
+		// Test that all found DTOs have differentialSync item set to true.
+		configFilterByDiffSync.setDifferentialSync(true);
+		syncConfigService.find(configFilterByDiffSync, null).getContent().forEach(dto -> Assert.assertEquals(true, dto.isDifferentialSync()));
+		// Test that all found DTOs have differentialSync item set to false.		
+		configFilterByDiffSync.setDifferentialSync(false);
+		syncConfigService.find(configFilterByDiffSync, null).getContent().forEach(dto -> Assert.assertEquals(false, dto.isDifferentialSync()));
+	}
 
 	@Test
 	public void doStartSyncB_Linked_doEntityUpdate() {

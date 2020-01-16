@@ -227,7 +227,7 @@ class SystemSynchronizationConfigs extends Advanced.AbstractTableContent {
           titlePlacement="bottom"
           onClick={ this._cancelSynchronization.bind(this, entity) }
           className="btn-xs"
-          icon="fa:remove"/>
+          icon="fa:cog fa-spin"/>
       );
     } else {
       results.push(

@@ -12,6 +12,10 @@ class SyncResult extends Basic.AbstractContent {
   render() {
     const {log} = this.props;
 
+    // Sorting of a actions
+    log.syncActionLogs.sort((actionA, actionB) => {
+      return actionB.operationResult.localeCompare(actionA.operationResult);
+    });
     const actions = [];
     for (const action of log.syncActionLogs) {
       let level = 'default';

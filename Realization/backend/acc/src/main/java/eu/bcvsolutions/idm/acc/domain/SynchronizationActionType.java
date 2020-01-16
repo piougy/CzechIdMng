@@ -9,7 +9,7 @@ package eu.bcvsolutions.idm.acc.domain;
 public enum SynchronizationActionType {
 
 	CREATE_ENTITY,
-	UPDATE_ENTITY, 
+	UPDATE_ENTITY,
 	DELETE_ENTITY,
 	LINK_AND_UPDATE_ACCOUNT, //create link and produce entity save event (call provisioning)
 	LINK_AND_UPDATE_ENTITY, // create link, update entity

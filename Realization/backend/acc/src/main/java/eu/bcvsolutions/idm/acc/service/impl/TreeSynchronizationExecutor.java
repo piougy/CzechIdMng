@@ -228,7 +228,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		// Update extended attribute (entity must be persisted first)
 		updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, true, context);
 		// Update confidential attribute (entity must be persisted first)
-		updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode, true, context);
+		// updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode, true, context);
 
 		// Create new Entity account relation
 		EntityAccountDto entityAccount = this.createEntityAccountDto();
@@ -286,11 +286,13 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		if (treeNode != null) {
 			// Update entity
 			treeNode = fillEntity(mappedAttributes, uid, icAttributes, treeNode, false, context);
-			treeNode = this.save(treeNode, true, context);
+			if (context.isEntityDifferent()) {
+				treeNode = this.save(treeNode, true, context);
+			}
 			// Update extended attribute (entity must be persisted first)
 			updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, false, context);
 			// Update confidential attribute (entity must be persisted first)
-			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode, false, context);
+			// updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode, false, context);
 
 			// TreeNode Updated
 			addToItemLog(logItem, MessageFormat.format("TreeNode with id {0} was updated", treeNode.getId()));
@@ -299,7 +301,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			}
 
 			SystemEntityType entityType = context.getEntityType();
-			if (this.isProvisioningImplemented(entityType, logItem)) {
+			if ( context.isEntityDifferent() && this.isProvisioningImplemented(entityType, logItem)) {
 				// Call provisioning for this entity
 				callProvisioningForEntity(treeNode, entityType, logItem);
 			}

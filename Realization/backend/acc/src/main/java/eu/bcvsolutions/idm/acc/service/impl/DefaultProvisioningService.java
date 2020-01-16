@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -163,6 +164,12 @@ public class DefaultProvisioningService implements ProvisioningService {
 			return Arrays.equals((byte[]) idmValue, (byte[]) icValueTransformed);
 		}
 		
+		// When is IdM value LocalDate and transformed value is String, then we try create instance of
+		// LocalDate first
+		if (idmValue instanceof LocalDate && icValueTransformed instanceof String) {
+			icValueTransformed = LocalDate.parse(icValueTransformed.toString());
+		}
+
 		return Objects.equals(idmValue, icValueTransformed);
 	}
 

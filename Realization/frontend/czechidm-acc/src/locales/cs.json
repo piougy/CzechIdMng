@@ -927,6 +927,10 @@
         "label": "Rekonciliace",
         "help": "Pokud je zaškrtnuto, bude provedena plná rekonciliace (namísto synchronizace). To znamená, že bude provedena synchronizace pro všechny účty (nastavení filtru nebude bráno v potaz) a dále vyhledání chybějících účtů (proti všem příslušným entitám v IdM)."
       },
+      "differentialSync": {
+        "label": "Zpracovávat pouze rozdíly",
+        "help": "Provede úpravu a provisioning entity pouze pokud, je nalezena alespoň jedna změna v hodnotě mapovaných atributů."
+      },
       "correlationAttribute": "Korelační atribut",
       "systemMapping": "Sada mapovaných atributů",
       "linkedAction": "Vazba existuje",

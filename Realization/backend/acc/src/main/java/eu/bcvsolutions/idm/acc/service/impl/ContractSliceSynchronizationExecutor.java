@@ -1,14 +1,13 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.beans.IntrospectionException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -65,7 +64,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice_;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
@@ -259,6 +257,16 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 				} else {
 					dto.getEmbedded().put(SYNC_CONTRACT_FIELD, new SyncIdentityContractDto());
 				}
+				// Check if new guarantees are different than current guarantees.
+				SyncIdentityContractDto syncIdentityContractDto = (SyncIdentityContractDto) dto.getEmbedded().get(SYNC_CONTRACT_FIELD);
+				if (syncIdentityContractDto != null && !context.isEntityDifferent()) {
+					List<IdmIdentityDto> newGuarantees = syncIdentityContractDto.getGuarantees();
+					if (!isGuaranteesSame(dto, newGuarantees)) {
+						// Guarantees are different
+						context.setIsEntityDifferent(true);
+						addToItemLog(context.getLogItem(), MessageFormat.format("Value of entity attribute [{0}] was changed. Entity in IdM will be updated.", attributeProperty));
+					}
+				}
 				return;
 			}
 			// Valid till attribute is sets only if is that slice last!
@@ -272,13 +280,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 				}
 			}
 			// Set transformed value from target system to entity
-			try {
-				EntityUtils.setEntityValue(dto, attributeProperty, transformedValue);
-			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | ProvisioningException e) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,
-						ImmutableMap.of("property", attributeProperty, "uid", uid), e);
-			}
+			setEntityValue(uid, dto, context, attribute, attributeProperty, transformedValue);
 
 		});
 		return dto;
@@ -820,5 +822,29 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			return defaultTask;
 		}
 		return tasks.get(0);
+	}
+	
+	/**
+	 * Check if current contract's slices guarantees are same as in account values
+	 * 
+	 * @param dto
+	 * @param newGuarantees
+	 * @return
+	 */
+	private boolean isGuaranteesSame(IdmContractSliceDto dto, List<IdmIdentityDto> newGuarantees) {
+		// Guarantees
+		IdmContractSliceGuaranteeFilter guaranteeFilter = new IdmContractSliceGuaranteeFilter();
+		guaranteeFilter.setContractSliceId(dto.getId());
+
+		List<IdmContractSliceGuaranteeDto> currentGuarantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		List<UUID> currentGuranteeIds = currentGuarantees.stream().map(gurrantee -> {
+			return gurrantee.getGuarantee();
+		}).collect(Collectors.toList());
+		
+		List<UUID> newGuranteeIds = newGuarantees.stream().map(gurrantee -> {
+			return gurrantee.getId();
+		}).collect(Collectors.toList());
+		
+		return CollectionUtils.isEqualCollection(currentGuranteeIds, newGuranteeIds);
 	}
 }

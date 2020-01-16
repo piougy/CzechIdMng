@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -35,28 +36,21 @@ import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccContractAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccContractAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.TestContractResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccContractAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
@@ -124,10 +118,6 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 	private SysSyncConfigService syncConfigService;
 	@Autowired
 	private SysSyncLogService syncLogService;
-	@Autowired
-	private SysSyncItemLogService syncItemLogService;
-	@Autowired
-	private SysSyncActionLogService syncActionLogService;
 	@Autowired
 	private EntityManager entityManager;
 	@Autowired
@@ -552,7 +542,6 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 		helper.startSynchronization(config);
 	
-
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
 		Assert.assertFalse(log.isRunning());
@@ -591,7 +580,145 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 		// Delete log
 		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void testDifferentSyncChangeGuarantee() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
 
+		helper.createIdentity(CONTRACT_OWNER_ONE);
+		helper.createIdentity(CONTRACT_OWNER_TWO);
+		helper.createIdentity(CONTRACT_LEADER_ONE);
+		IdmIdentityDto defaultLeader = helper.createIdentity(CONTRACT_LEADER_TWO);
+
+		// Set default leader to sync configuration
+		SysSyncContractConfigDto configContract = (SysSyncContractConfigDto) config;
+		configContract.setDefaultLeader(defaultLeader.getId());
+		config = syncConfigService.save(configContract);
+
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+		contractFilter.setValue("1");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+		contractFilter.setValue("2");
+		Assert.assertEquals(0, contractService.find(contractFilter, null).getTotalElements());
+
+		helper.startSynchronization(config);
+	
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Enable different sync.
+		config.setDifferentialSync(true);
+		config = syncConfigService.save(config);
+		Assert.assertTrue(config.isDifferentialSync());
+
+		// Start sync with enable different sync - no change was made on
+		// identity, so only ignore update should be made.
+		helper.startSynchronization(config);
+		log = helper.checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 3, OperationResultType.IGNORE);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		contractFilter.setValue("1");
+		List<IdmIdentityContractDto> contractsOne = contractService.find(contractFilter, null).getContent();
+		Assert.assertEquals(1, contractsOne.size());
+		IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
+		guaranteeFilter.setIdentityContractId(contractsOne.get(0).getId());
+		List<IdmContractGuaranteeDto> gurantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		Assert.assertEquals(1, gurantees.size());
+		IdmIdentityDto guarantee = DtoUtils.getEmbedded(gurantees.get(0), IdmContractGuarantee_.guarantee);
+		// Direct leader from resource
+		Assert.assertEquals(CONTRACT_LEADER_ONE, guarantee.getUsername());
+		guaranteeService.delete(gurantees.get(0));
+		
+		// Start sync with enable different sync - guarantee was deleted
+		// so standard update should be made.
+		helper.startSynchronization(config);
+		log = helper.checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1, OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void testDifferentSyncChangePositions() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		AbstractSysSyncConfigDto config = doCreateSyncConfig(system);
+		Assert.assertTrue(config instanceof SysSyncContractConfigDto);
+
+		helper.createIdentity(CONTRACT_OWNER_THREE);
+
+		// Set default tree type to sync configuration
+		IdmTreeTypeDto treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
+		Assert.assertNotNull(treeType);
+		SysSyncContractConfigDto configContract = (SysSyncContractConfigDto) config;
+		configContract.setDefaultTreeType(treeType.getId());
+		config = syncConfigService.save(configContract);
+
+		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
+		contractFilter.setProperty(IdmIdentityContract_.position.getName());
+
+		// Set work positions to resources
+		this.getBean().initContractPositionTest();
+		helper.startSynchronization(config);
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// For contract One must be found workposition (one)
+		contractFilter.setValue("1");
+		IdmIdentityContractDto contractOne = contractService.find(contractFilter, null).getContent().get(0);
+		Assert.assertNotNull(contractOne);
+		
+		IdmContractPositionFilter positionFitler = new IdmContractPositionFilter();
+		positionFitler.setIdentityContractId(contractOne.getId());
+		List<IdmContractPositionDto> positions = contractPositionService.find(positionFitler, null).getContent();
+		Assert.assertEquals(1, positions.size());
+		Assert.assertEquals("one", DtoUtils.getEmbedded(positions.get(0), IdmContractPosition_.workPosition, IdmTreeNodeDto.class).getCode());
+		
+		// Enable different sync.
+		config.setDifferentialSync(true);
+		config = syncConfigService.save(config);
+		Assert.assertTrue(config.isDifferentialSync());
+		
+		// Start sync with enable different sync - no change was made on so only ignore update should be made.
+		helper.startSynchronization(config);
+		log = helper.checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1, OperationResultType.IGNORE);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		// Delete position name
+		contractPositionService.delete(positions.get(0));
+		
+		// Start sync with enable different sync - position name was changed, standard update should be made.
+		helper.startSynchronization(config);
+		log = helper.checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1, OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		// For contract One must be found workposition (one)
+		contractFilter.setValue("1");
+		contractOne = contractService.find(contractFilter, null).getContent().get(0);
+		Assert.assertNotNull(contractOne);
+
+		positionFitler = new IdmContractPositionFilter();
+		positionFitler.setIdentityContractId(contractOne.getId());
+		positions = contractPositionService.find(positionFitler, null).getContent();
+		Assert.assertEquals(1, positions.size());
+		Assert.assertEquals("one", DtoUtils
+				.getEmbedded(positions.get(0), IdmContractPosition_.workPosition, IdmTreeNodeDto.class).getCode());
+
+		// Delete log
+		syncLogService.delete(log);
 	}
 
 	@Test
@@ -964,27 +1091,9 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 	private SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType,
 			int count) {
-		SysSyncLogFilter logFilter = new SysSyncLogFilter();
-		logFilter.setSynchronizationConfigId(config.getId());
-		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
-		Assert.assertEquals(1, logs.size());
-		SysSyncLogDto log = logs.get(0);
-
-		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
-		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
-
-		SysSyncActionLogDto actionLog = actions.stream().filter(action -> {
-			return actionType == action.getSyncAction();
-		}).findFirst().get();
-
-		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
-		itemLogFilter.setSyncActionLogId(actionLog.getId());
-		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
-		Assert.assertEquals(count, items.size());
-		return log;
+		return helper.checkSyncLog(config, actionType, count, OperationResultType.SUCCESS);
 	}
-
+	
 	public AbstractSysSyncConfigDto doCreateSyncConfig(SysSystemDto system) {
 
 		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();

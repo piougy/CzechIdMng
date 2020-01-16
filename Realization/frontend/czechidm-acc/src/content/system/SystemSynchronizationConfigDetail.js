@@ -3,9 +3,8 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import moment from 'moment';
 //
-import { Basic, Domain, Managers, Utils, Advanced, Services} from 'czechidm-core';
+import { Basic, Domain, Managers, Utils, Advanced} from 'czechidm-core';
 import { SynchronizationConfigManager, SynchronizationLogManager, SystemMappingManager, SystemAttributeMappingManager} from '../../redux';
 import ReconciliationMissingAccountActionTypeEnum from '../../domain/ReconciliationMissingAccountActionTypeEnum';
 import SynchronizationLinkedActionTypeEnum from '../../domain/SynchronizationLinkedActionTypeEnum';
@@ -95,7 +94,9 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
           missingEntityAction: SynchronizationMissingEntityActionTypeEnum.findKeyBySymbol(SynchronizationMissingEntityActionTypeEnum.CREATE_ENTITY),
           missingAccountAction: ReconciliationMissingAccountActionTypeEnum.findKeyBySymbol(ReconciliationMissingAccountActionTypeEnum.IGNORE),
           filterOperation: IcFilterOperationTypeEnum.findKeyBySymbol(IcFilterOperationTypeEnum.GREATER_THAN),
-          enabled: false
+          enabled: true,
+          differentialSync: true,
+          name: 'Sync'
         },
         enabled: false
       });
@@ -405,6 +406,10 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     readOnly={isSelectedTree}
                     label={this.i18n('acc:entity.SynchronizationConfig.reconciliation.label')}
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.reconciliation.help')}/>
+                  <Basic.Checkbox
+                    ref="differentialSync"
+                    label={this.i18n('acc:entity.SynchronizationConfig.differentialSync.label')}
+                    helpBlock={this.i18n('acc:entity.SynchronizationConfig.differentialSync.help')}/>
                   <Basic.LabelWrapper
                     hidden={!isSelectedTree}
                     label=" ">

@@ -2,12 +2,15 @@ package eu.bcvsolutions.idm.acc;
 
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.domain.OperationResultType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
@@ -190,5 +193,17 @@ public interface TestHelper extends eu.bcvsolutions.idm.test.api.TestHelper {
 	 * @return
 	 */
 	String getSchemaColumnName(String columnName);
+
+	/**
+	 * Check result of sync
+	 * 
+	 * @param config
+	 * @param actionType
+	 * @param count
+	 * @param resultType
+	 * @return
+	 */
+	SysSyncLogDto checkSyncLog(AbstractSysSyncConfigDto config, SynchronizationActionType actionType, int count,
+			OperationResultType resultType);
 
 }

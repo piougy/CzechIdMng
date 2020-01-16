@@ -138,6 +138,8 @@ java -jar idm-tool.jar --revertVersion
 
 ### Build product
 
+Available @since version 10.1.0.
+
 Build product only under current develop version in develop branch.
 
 ```bash
@@ -148,10 +150,12 @@ Maven ``install`` command is used, artifact will be installed into the local mav
 
 ### Release module
 
+Available @since version 10.1.0.
+
 All commands above are available for standalone module too. The only difference is **added parameter** with **module identifier**:
 
 ```bash
-java -jar idm-tool.jar --module idm-rec --release --releaseVersion 2.0.0 --developVersion 2.1.0-SNAPSHOT -username <git username> --password <git password or developer token>
+java -jar idm-tool.jar --module idm-rec --release --releaseVersion 2.0.0 --developVersion 2.1.0-SNAPSHOT --username <git username> --password <git password or developer token>
 ```
 then
 ```bash

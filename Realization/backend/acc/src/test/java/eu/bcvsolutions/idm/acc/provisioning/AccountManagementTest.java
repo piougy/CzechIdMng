@@ -375,6 +375,49 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(accountOne);
 	}
 	
+	@Test
+	/**
+	 * IdentityAccount already exist, but doesn't have relation on RoleSystem. This
+	 * could happen if system mapping was deleted and recreated or if was role use
+	 * as sync default role, but without mapping on this system.
+	 */
+	public void testNoRemoveIdentityAccountIfRoleSystemRemovedAndRecreate( ) {
+		IdmRoleDto roleOne = getHelper().createRole();
+
+		// create test system with mapping and link her to role
+		SysSystemDto systemOne = getHelper().createTestResourceSystem(true);
+		SysRoleSystemDto roleSystem = getHelper().createRoleSystem(roleOne, systemOne);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleRequestDto roleRequestOne = getHelper().createRoleRequest(identity, roleOne);
+		
+		getHelper().executeRequest(roleRequestOne, false);
+
+		// check after create
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+
+		// check created account
+		AccAccountDto accountOne = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountOne);
+		Assert.assertNotNull(getHelper().findResource(accountOne.getRealUid()));
+		
+		// Delete role-system -> relation on role-system from identity-account will be removed.
+		roleSystemService.delete(roleSystem);
+		roleSystem = getHelper().createRoleSystem(roleOne, systemOne);
+		
+		// Execute ACM and provisioning via bulk action
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityAccountManagementBulkAction.NAME);
+		bulkAction.setIdentifiers(Sets.newHashSet(identity.getId()));
+		bulkActionManager.processAction(bulkAction);
+		
+		// Account must exist
+		AccAccountDto accountTwo = accountService.getAccount(identity.getUsername(), systemOne.getId());
+		Assert.assertNotNull(accountTwo);
+		Assert.assertNotNull(getHelper().findResource(accountTwo.getRealUid()));
+		// Account must have same ID as original -> must not be deleted
+		Assert.assertEquals(accountOne.getId(), accountTwo.getId());
+	}
 	
 	@Test
 	public void incrementalProvisioningWithoutRequest( ) {

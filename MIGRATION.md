@@ -33,6 +33,7 @@ In this chapter will be describe migration for the backend part of IdM.
   - Spring Data ``1.9.5.RELEASE`` => ``2.1.10.RELEASE``
   - Hibernate ``4.3.11.Final`` => ``5.3.10.Final``
   - Spring Data Rest removed at all
+- Flyway ``4.0`` => ``5.2.4``
 - Activiti ``5.22.0`` => ``6.0.0``
 - Groovy ``2.4.7`` => ``2.5.8``
  - Groovy Sandbox ``1.11`` => ``1.19``
@@ -61,6 +62,8 @@ In this chapter will be describe migration for the backend part of IdM.
 ## Database migration
 
 When the CzechIdM version 10 is started for the first time, it will do an automatic update (as with any 9 version) to the schema by provided Flyway change scripts.
+
+Updated Flyway version requires **PostgresSQL database version >= 9.4** ([supported versions](https://flywaydb.org/documentation/database/postgresql)).
 
 > Note for developer: Default database name configured for the all ``dev`` profiles was renamed to ``bcv_idm_10`` to prevent update (by Flyway) old database on the background - **old database can be used for LTS version 9.7.x development**, so clone database is needed.
 
@@ -91,6 +94,7 @@ Based on upgraded libraries we have to add and remove configuration properties (
 - **Joda time library was removed** - all entities, dtos and services use java time now ⇒ api was changed, all places which used joda time have to be refactored (included workflow and groovy scripts). The related issue is with [serialized dtos](#serialized-dtos) in workflow properties and operation result.
 - **Activiti** 6 registered new ``formService`` bean usable in workflow definition ⇒ IdM eav service is not available under ``formService`` name any more. New bean alias ``idmFormService`` was created and has to be used in workflows.
 - **Hibernate** removed data type ``org.hibernate.type.StringClobType`` - all entities has to be refactored, type ``org.hibernate.type.TextType`` has to be used.
+- **Flyway** removed [support](https://flywaydb.org/documentation/database/postgresql) for old PostgreSgl databases lower than version 9.4.
 - **Envers** changed api for extending criteria (check ``AuditCriterion`` usage).
 - **Mockito** changes behavior for ``any(Class)`` checker - doesn't support ``null`` parameter value now. This is used just in unit tests. Test can be compiled but doesn't work.
 - **Spring** data repository api changes:

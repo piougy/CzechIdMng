@@ -23,6 +23,7 @@ import NotificationManager from './NotificationManager';
 import ConfigurationManager from './ConfigurationManager';
 import EmailManager from './EmailManager';
 import BackendModuleManager from './BackendModuleManager';
+import CacheManager from './CacheManager';
 import RoleCatalogueManager from './RoleCatalogueManager';
 import RoleCatalogueRoleManager from './RoleCatalogueRoleManager';
 import RoleCompositionManager from './RoleCompositionManager';
@@ -96,6 +97,7 @@ const ManagerRoot = {
   ConfigurationManager,
   EmailManager,
   BackendModuleManager,
+  CacheManager,
   RoleCatalogueManager,
   RoleCatalogueRoleManager,
   RoleCompositionManager,

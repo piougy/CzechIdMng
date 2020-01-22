@@ -2917,6 +2917,10 @@
           }
         }
       },
+      "cache": {
+        "header": "Cache",
+        "title": "Cache"
+      },
       "entity-event-processors": {
         "header": "Processory",
         "title": "Processory",
@@ -4273,6 +4277,10 @@
         "label": "Suffix",
         "help": "Suffix bude automaticky doplněn na konec vygenerované části. Pro vynechání suffixu nechte pole prázdné."
       }
+    },
+    "Cache": {
+      "name": "Název",
+      "size": "Počet hodnot"
     },
     "Module": {
       "id": "Id",

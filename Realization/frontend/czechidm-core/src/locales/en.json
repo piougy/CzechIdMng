@@ -2866,6 +2866,10 @@
           }
         }
       },
+      "cache": {
+        "header": "Cache",
+        "title": "Cache"
+      },
       "entity-event-processors": {
         "header": "Processors",
         "title": "Processors",
@@ -4235,6 +4239,10 @@
       "build": "Build",
       "buildNumber": "Revision",
       "buildTimestamp": "Build date"
+    },
+    "Cache": {
+      "name": "Name",
+      "size": "Number of values"
     },
     "EntityEventProcessor": {
       "id": "ID",

@@ -13,6 +13,19 @@ import eu.bcvsolutions.idm.tool.exception.ReleaseException;
  *
  */
 public interface ReleaseManager {
+
+	/**
+	 * Base semantic version types.
+	 *  
+	 * @author Radek Tomiška
+	 *
+	 */
+	enum VersionType {
+		MAJOR, // 1.x.x
+		MINOR, // x.1.x
+		PATCH, // x.x.1
+		HOTFIX // x.x.x.1
+	}
 	
 	/**
 	 * Development version suffix.
@@ -23,6 +36,11 @@ public interface ReleaseManager {
 	 * Release candidate suffix. (Final resease is without suffix - just semantic version)
 	 */
 	String RELEASE_CANDIDATE_VERSION_SUFFIX = "RC";
+	
+	/**
+	 * Maximum changed files by release command. Use force parameter to skip check.
+	 */
+	int MAX_RELEASE_CHANGES = 30;
 	
 	void init();
 	
@@ -55,6 +73,24 @@ public interface ReleaseManager {
 	String setSnapshotVersion(String newVersion);
 	
 	/**
+	 * Get next snapshot version.
+	 * 
+	 * @param versionNumber [optional] current version (final or snapshot are supported). 1.0.0 version is used as default.
+	 * @param versionType [optional] last version number is incremented by default. e.g 1.0.1 => 1.0.2-SNAPSHOT is returned.
+	 * @return next develop snapshot version.
+	 */
+	String getNextSnapshotVersionNumber(String versionNumber, VersionType versionType);
+	
+	/**
+	 * Given version is snapshot (develop) version.
+	 * 
+	 * @param newVersion
+	 * @return true, when snapshot
+	 * @since 10.1.0
+	 */
+	boolean isSnapshotVersion(String newVersion);
+	
+	/**
 	 * Build project under current develop version on develop branch.
 	 * Maven 'install' command is used, artifact will be installed into the local maven repository (=> usable for build a module).
 	 *  
@@ -83,14 +119,26 @@ public interface ReleaseManager {
 	/**
 	 * Push prepared development, production and tags into origin repository.
 	 */
-	void publishRelease();	
+	void publish();	
+	
+	/**
+	 * Release and publish command.
+	 * 
+	 * @see #release(String, String)
+	 * @see #publish()
+	 * @param releaseVersion
+	 * @param newDevelopVersion
+	 * @return released version
+	 */
+	String releaseAndPublish(String releaseVersion, String newDevelopVersion);
 	
 	/**
 	 * Revert project files (pom.xml, package.json).
+	 * Changed versions by release command can be reverted if needed (before commit, usable after change product version only).
 	 * 
 	 * @return reverted verion;
 	 */
-	String revertRelease();	
+	String revertVersion();	
 	
 	/**
 	 * Path to repository root folder on file system.
@@ -159,4 +207,11 @@ public interface ReleaseManager {
 	 * @param password
 	 */
 	void setPassword(GuardedString password);
+	
+	/**
+	 * Count of files changed by release command will not be checked. Limit of changed files is {@link #}
+	 * 
+	 * @param force
+	 */
+	void setForce(boolean force);
 }

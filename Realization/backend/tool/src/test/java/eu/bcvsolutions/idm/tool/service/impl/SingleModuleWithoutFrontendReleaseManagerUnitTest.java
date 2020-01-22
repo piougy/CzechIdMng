@@ -6,6 +6,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
+
 /**
  * Test release on mock repository.
  * 
@@ -30,7 +32,6 @@ public class SingleModuleWithoutFrontendReleaseManagerUnitTest extends AbstractR
 		String version = "1.0.0-SNAPSHOT";
 		//
 		try {
-			releaseManager.setQuiet(true); // don't mess test logs
 			releaseManager.setLocal(true); // local test repository only
 			//
 			// prepare mock repository
@@ -46,7 +47,7 @@ public class SingleModuleWithoutFrontendReleaseManagerUnitTest extends AbstractR
 			File backendFolder = new File(realizationFolder.getPath() + "/backend");
 			Assert.assertTrue(backendFolder.mkdir());
 			
-			FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "/pom.xml"),
+			FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "/pom.xml"),
 					"<project>"
 					+ "<modelVersion>4.0.0</modelVersion>"
 					+ "<parent>"
@@ -57,7 +58,8 @@ public class SingleModuleWithoutFrontendReleaseManagerUnitTest extends AbstractR
 					+ "<artifactId>idm-" + ROOT_MODULE_ID + "</artifactId>"
 					+ "<packaging>jar</packaging>"
 					+ "<version>" + version + "</version>" +
-					"</project>");
+					"</project>",
+					AttachableEntity.DEFAULT_CHARSET);
 			//
 			releaseManager.setRepositoryRoot(repositoryRootFolder.getPath());
 			releaseManager.gitInitRepository();

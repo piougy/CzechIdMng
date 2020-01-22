@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
@@ -19,12 +21,18 @@ import com.google.common.collect.Lists;
  * @author Radek Tomiška
  * @since 10.1.0
  */
+@Service
 public class ModuleReleaseManager extends AbstractReleaseManager {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ModuleReleaseManager.class);
-	protected static final String IDM_PREFIX = "idm-"; // module prefix => all artefacts has to start with "idm-" prefix => better find in .war/WEB-INF/libs
+	protected static final String IDM_PREFIX_BACKEND = "idm-"; // backend module prefix => all artefacts has to start with "idm-" prefix => better find in .war/WEB-INF/libs
 	//
-	private String moduleId; // required e.g. rec, crt, idm-extras ...
+	private String repositoryRoot = null; // sub folder same as moduleIdentifier as default
+	private String moduleId = null; // required e.g. rec, crt, idm-extras ...
+	
+	public ModuleReleaseManager() {
+		this(null);
+	}
 	
 	/**
 	 * Repository root is same as module identifier in current folder ~ git clone in the same folder.
@@ -32,14 +40,38 @@ public class ModuleReleaseManager extends AbstractReleaseManager {
 	 * @param moduleId
 	 */
 	public ModuleReleaseManager(String moduleId) {
-		this(String.format("./%s", moduleId), moduleId);
+		this(StringUtils.isEmpty(moduleId) ? null : String.format("./%s", moduleId), moduleId);
 	}
 	
 	public ModuleReleaseManager(String repositoryRoot, String moduleId) {
 		super(repositoryRoot);
 		//
+		this.repositoryRoot = repositoryRoot;
+		this.moduleId = moduleId;
+	}
+	
+	@Override
+	public void init() {
 		Assert.hasLength(moduleId, "Module identifier is required.");
 		//
+		if (repositoryRoot == null) {
+			repositoryRoot = String.format("./%s", moduleId);
+		}
+		//
+		super.init();
+	}
+	
+	@Override
+	public void setRepositoryRoot(String repositoryRoot) {
+		this.repositoryRoot = repositoryRoot;
+	}
+	
+	@Override
+	public String getRepositoryRoot() {
+		return repositoryRoot;
+	}
+	
+	public void setModuleId(String moduleId) {
 		this.moduleId = moduleId;
 	}
 	
@@ -48,10 +80,10 @@ public class ModuleReleaseManager extends AbstractReleaseManager {
 		String rootBackendModuleName = moduleId;
 		File rootBackendFolder = new File(getBackendModuleBasePath(rootBackendModuleName));
 		if (!rootBackendFolder.exists()) {
-			if (rootBackendModuleName.startsWith(IDM_PREFIX)) {
-				rootBackendModuleName = rootBackendModuleName.replaceFirst(IDM_PREFIX, "");
+			if (rootBackendModuleName.startsWith(IDM_PREFIX_BACKEND)) {
+				rootBackendModuleName = rootBackendModuleName.replaceFirst(IDM_PREFIX_BACKEND, "");
 			} else {
-				rootBackendModuleName = String.format("%s%s", IDM_PREFIX, rootBackendModuleName);
+				rootBackendModuleName = String.format("%s%s", IDM_PREFIX_BACKEND, rootBackendModuleName);
 			}
 			// => all artefacts has to start with "idm-" prefix => better find in .war/WEB-INF/libs
 			rootBackendFolder = new File(getBackendModuleBasePath(rootBackendModuleName));
@@ -76,10 +108,10 @@ public class ModuleReleaseManager extends AbstractReleaseManager {
 			backendModules.add(String.format("%s/%s", rootBackendModuleName, subApiModuleName));
 		} else {
 			// try to append / remove "idm-" prefix
-			if (subApiModuleName.startsWith(IDM_PREFIX)) {
-				subApiModuleName = subApiModuleName.replaceFirst(IDM_PREFIX, "");
+			if (subApiModuleName.startsWith(IDM_PREFIX_BACKEND)) {
+				subApiModuleName = subApiModuleName.replaceFirst(IDM_PREFIX_BACKEND, "");
 			} else {
-				subApiModuleName = String.format("%s%s", IDM_PREFIX, subApiModuleName);
+				subApiModuleName = String.format("%s%s", IDM_PREFIX_BACKEND, subApiModuleName);
 			}
 			subApiModuleFolder = new File(getBackendModuleBasePath(String.format("%s/%s", rootBackendModuleName, subApiModuleName)));
 			if (subApiModuleFolder.exists()) {
@@ -93,10 +125,10 @@ public class ModuleReleaseManager extends AbstractReleaseManager {
 			backendModules.add(String.format("%s/%s", rootBackendModuleName, subImplModuleName));
 		} else {
 			// try to append / remove "idm-" prefix
-			if (subImplModuleName.startsWith(IDM_PREFIX)) {
-				subImplModuleName = subImplModuleName.replaceFirst(IDM_PREFIX, "");
+			if (subImplModuleName.startsWith(IDM_PREFIX_BACKEND)) {
+				subImplModuleName = subImplModuleName.replaceFirst(IDM_PREFIX_BACKEND, "");
 			} else {
-				subImplModuleName = String.format("%s%s", IDM_PREFIX, subImplModuleName);
+				subImplModuleName = String.format("%s%s", IDM_PREFIX_BACKEND, subImplModuleName);
 			}
 			subImplModuleFolder = new File(getBackendModuleBasePath(String.format("%s/%s", rootBackendModuleName, subImplModuleName)));
 			if (subImplModuleFolder.exists()) {
@@ -111,8 +143,8 @@ public class ModuleReleaseManager extends AbstractReleaseManager {
 	protected List<String> getFrontendModules(String forVersion) {
 		List<String> frontendModules = new ArrayList<>(1);
 		String frontendModule = moduleId;
-		if (frontendModule.startsWith(IDM_PREFIX)) {
-			frontendModule = frontendModule.replaceFirst(IDM_PREFIX, "");
+		if (frontendModule.startsWith(IDM_PREFIX_BACKEND)) {
+			frontendModule = frontendModule.replaceFirst(IDM_PREFIX_BACKEND, "");
 		}
 		//
 		File modulePackage = new File(String.format("%s/package.json", getFrontendModuleBasePath(frontendModule)));

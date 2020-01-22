@@ -25,7 +25,7 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<mainClass>eu.bcvsolutions.idm.tool.ConsoleRunner</mainClass>
 							<addClasspath>true</addClasspath>
-            	<classpathPrefix>lib</classpathPrefix>
+            				<classpathPrefix>lib</classpathPrefix>
 						</manifest>
 						<manifestEntries>
 							<Implementation-Build>${buildNumber}</Implementation-Build>
@@ -48,6 +48,12 @@
 			<artifactId>idm-core-test-api</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
+			<exclusions>
+		    	<exclusion>
+		    		<groupId>com.github.tntim96</groupId>
+		    		<artifactId>fakesmtp</artifactId>
+		    	</exclusion>
+		    </exclusions>
 		</dependency>
 		<dependency>
 		    <groupId>com.fasterxml.jackson.dataformat</groupId>

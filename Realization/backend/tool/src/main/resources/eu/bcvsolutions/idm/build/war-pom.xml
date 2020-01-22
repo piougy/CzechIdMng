@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>eu.bcvsolutions.idm</groupId>
+	<artifactId>idm-app</artifactId>
+	<version>1.0.0</version>
+	<packaging>war</packaging>
+	<name>CzechIdM Application</name>
+	<description>CzechIdM web application for tool usage only - war is compiled.</description>
+
+	<build>
+		<finalName>idm</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.2.3</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+					<webappDirectory>./war</webappDirectory>
+					<archive>
+						<manifestEntries>
+							<mode>tool</mode>
+							<url>https://github.com/bcvsolutions/CzechIdMng/tree/develop/Realization/backend/tool</url>
+							<Specification-Title>Application built by CzechIdM Tool.</Specification-Title>
+							<CzechIdM-Version>${czechidm.version}</CzechIdM-Version>
+							<Tool-Version>${tool.version}</Tool-Version>
+							<Installed-Modules>${installed.modules}</Installed-Modules>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+	</profiles>
+</project>

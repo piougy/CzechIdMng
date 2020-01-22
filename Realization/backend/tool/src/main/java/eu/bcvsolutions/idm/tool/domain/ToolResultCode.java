@@ -17,7 +17,8 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
  */
 public enum ToolResultCode implements ResultCode {
 
-	RELEASE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Release failed [%s]");
+	RELEASE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Release failed [%s]"),
+	BUILD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Build failed [%s]");
 
 	private final HttpStatus status;
 	private final String message;

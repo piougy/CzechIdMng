@@ -6,24 +6,35 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.tool.exception.BuildException;
 import eu.bcvsolutions.idm.tool.exception.ReleaseException;
-import eu.bcvsolutions.idm.tool.service.api.ReleaseManager;
+import eu.bcvsolutions.idm.tool.service.impl.ProductReleaseManager;
+import eu.bcvsolutions.idm.tool.service.impl.ProjectManager;
 
 /**
- * Release manager test
+ * Console runner test
+ * - just formal test to propagate given command line arguments properly.
  * 
  * @author Radek Tomiška
  *
  */
 public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 	
-	@Mock private ReleaseManager releaseManager;
+	@Mock private ProductReleaseManager productReleaseManager;
+	@Mock private ProjectManager projectManager;
 	//
 	@InjectMocks 
 	private ConsoleRunner consoleRunner;
 	
 	@Test
 	public void testHelp() {
+		Mockito.when(productReleaseManager.isSnapshotVersion(null)).thenReturn(true);	
+		//
+		consoleRunner.run(new String []{ "-h" });
+	}
+	
+	@Test
+	public void testHelpWithSnapsotLink() {
 		consoleRunner.run(new String []{ "-h" });
 	}
 	
@@ -43,22 +54,46 @@ public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test(expected = ReleaseException.class)
-	public void testException() {
-		Mockito.when(releaseManager.getCurrentVersion("branch")).thenThrow(ReleaseException.class);	
+	public void testParseException() {
+		Mockito.when(productReleaseManager.getCurrentVersion("branch")).thenThrow(ReleaseException.class);	
 		//
-		consoleRunner.run(new String []{ "--getVersion", "--developBranch", "branch" });
+		consoleRunner.run(new String []{ "--get-version", "--develop-branch", "branch" });
+	}
+	
+	@Test
+	public void testVersion() {
+		consoleRunner.run(new String []{ "--version" });
 	}
 	
 	@Test
 	public void testRelease() {
-		Mockito.when(releaseManager.release("1", "2")).thenReturn("2");	
+		Mockito.when(productReleaseManager.release("1", "2")).thenReturn("2");	
 		//
-		consoleRunner.run(new String []{ "--release", "--releaseVersion", "1", "--developVersion", "2" });
+		consoleRunner.run(new String []{ "--release", "--release-version", "1", "--develop-version", "2" });
+	}
+	
+	@Test
+	public void testReleasePublish() {
+		consoleRunner.run(new String []{ "--release-publish" });
+		consoleRunner.run(new String []{ "--release-publish", "--major" });
+		consoleRunner.run(new String []{ "--release-publish", "--minor", "--release-version", "1" });
+		consoleRunner.run(new String []{ "--release-publish", "--patch" });
+		consoleRunner.run(new String []{ "--release-publish", "--hotfix" });
+	}
+	
+	@Test
+	public void testBuildProject() {
+		consoleRunner.run(new String []{ "--build", "-p" });
+	}
+	
+	@Test(expected = BuildException.class)
+	public void testProjectWithoutBuildCommand() {
+		consoleRunner.run(new String []{ "-p", "--release" });
 	}
 	
 	@Test
 	public void testBuild() {
-		Mockito.when(releaseManager.build()).thenReturn("2");	
+		Mockito.when(productReleaseManager.build()).thenReturn("2");	
 		//
 		consoleRunner.run(new String []{ "--build" });
 	}
@@ -70,31 +105,35 @@ public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testSetVersion() {
-		Mockito.when(releaseManager.setVersion("2")).thenReturn("2");
+		Mockito.when(productReleaseManager.setVersion("2")).thenReturn("2");
 		//
-		consoleRunner.run(new String []{ "--setVersion", "--developVersion", "2" });
+		consoleRunner.run(new String []{ "--set-version", "--develop-version", "2" });
 	}
 	
 	@Test
 	public void testGetVersion() {
-		Mockito.when(releaseManager.getCurrentVersion("branch")).thenReturn("2");
+		Mockito.when(productReleaseManager.getCurrentVersion("branch")).thenReturn("2");
 		//
-		consoleRunner.run(new String []{ "--getVersion", "--developBranch", "branch", "--masterBranch", "none" });
+		consoleRunner.run(new String []{ "--get-version", "--develop-branch", "branch", "--master-branch", "none" });
 	}
 	
 	@Test
 	public void testRevertVersion() {
-		consoleRunner.run(new String []{ "--revertVersion" });
+		consoleRunner.run(new String []{ "--revert-version" });
 	}
 	
 	@Test
 	public void testSetOptionalParameters() {
-		consoleRunner.run(new String []{ 
-				"--getVersion", 
+		consoleRunner.run(new String []{
+				"--get-version", 
 				"-r", "./mock", 
-				"--masterBranch", "mock",
+				"--master-branch", "mock",
 				"--username", "mock",
-				"--password", "mock" 
+				"--password", "mock",
+				"--maven-home", "mock",
+				"--node-home", "mock",
+				"--force",
+				"--clean"
 				});
 	}
 }

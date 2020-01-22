@@ -2,28 +2,23 @@ package eu.bcvsolutions.idm.tool.service.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
-import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
@@ -31,11 +26,11 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonEncoding;
@@ -61,7 +56,6 @@ import eu.bcvsolutions.idm.tool.service.api.ReleaseManager;
  * - https://stackoverflow.com/questions/20496084/git-status-ignore-line-endings-identical-files-windows-linux-environment
  * 
  * TODO: refactor GitManager
- * TODO: refactor MavenManager
  * 
  * @author Radek Tomiška
  * @since 10.1.0
@@ -72,17 +66,17 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 	public static String DEFAULT_REPOSITORY_LOCATION = "./CzechIdMng";
 	//
 	private ObjectMapper mapper;
+	private MavenManager mavenManager;
 	// props
 	private String repositoryRoot = DEFAULT_REPOSITORY_LOCATION; // default location ./CzechIdMng will be used - git clone in the same folder
-	private String mavenHome; // MAVEN_HOME will be used as default
 	private String developBranch = "develop";
+	private String mavenHome; // MAVEN_HOME will be used as default
 	private String masterBranch = "master";
-	private boolean quiet = false; // show log, if process output is not redirected into file.
 	private boolean local = false; // local git repository and build only
+	private boolean force = false; // skip check for count of project files changes
 	private String username; // git username (for publish release)
 	private GuardedString password; // git password (for publish realese) or ssh passphrase
 	// cache
-	private String mavenBaseCommand;
 	private Git git;
 	
 	public AbstractReleaseManager(String repositoryRoot) {
@@ -125,12 +119,8 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 	abstract protected String getRootBackendModule();
 	
 	@Override
-	@PostConstruct
 	public void init() {
-		String mavenBaseCommand = getMavenBaseCommand();
-		LOG.info("Maven command [{}].", mavenBaseCommand);
-		Assert.isTrue(new File(mavenBaseCommand).exists(), String.format("Maven command [%s] not found.", mavenBaseCommand));
-		getMavenVersion();
+		mavenManager = new MavenManager(mavenHome);
 		//
 		String repositoryRoot = getRepositoryRoot();
 		LOG.info("Repository location: [{}].", repositoryRoot);
@@ -165,13 +155,18 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		//
 		// set stable version
 		setVersion(releaseVersion);
-		gitAdd();
-		gitCommit(String.format("Release version [%s] - prepare", releaseVersion));
+		if (checkChanges() > 0) { // prevent to create empty commit
+			gitAddAll();
+			gitCommit(String.format("Release version [%s] - prepare", releaseVersion));
+		}
 		// deploy - its saver than merge stable into master (this takes long time and conflict can occurs)
 		deploy();
-		// package-lock is changed after build + deploy => we need to commit it into tag / master
-		gitAdd();
-		gitCommit(String.format("Release version [%s] - alfter build", releaseVersion));
+		//
+		if (checkChanges() > 0) { // prevent to create empty commit
+			// package-lock is changed after build + deploy => we need to commit it into tag / master
+			gitAddAll();
+			gitCommit(String.format("Release version [%s] - alfter build", releaseVersion));
+		}
 		// create tag
 		gitCreateTag(releaseVersion);
 		// merge into master, if branch is given
@@ -180,18 +175,20 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		if (StringUtils.isNotEmpty(masterBranch)) {
 			gitSwitchBranch(masterBranch);
 			gitPull();
-			// merge develop into master - conflict can occurs => just this and next step schould be repeated.
+			// merge develop into master - conflict can occurs => just this and next step should be repeated.
 			gitMerge(getDevelopBranch());
 			// switch develop
 			gitSwitchBranch(getDevelopBranch());
 		}
 		// set new develop version version
 		if (StringUtils.isEmpty(newDevelopVersion)) {
-			newDevelopVersion = getNextSnapshotVersionNumber(releaseVersion);
+			newDevelopVersion = getNextSnapshotVersionNumber(releaseVersion, null);
 		}
 		setVersion(newDevelopVersion);
-		gitAdd();
-		gitCommit(String.format("New develop version [%s]", newDevelopVersion));
+		if (checkChanges() > 0) { // prevent to create empty commit
+			gitAddAll();
+			gitCommit(String.format("New develop version [%s]", newDevelopVersion));
+		}
 		//
 		LOG.info("Version released [{}]. New development version [{}].", releaseVersion, newDevelopVersion);
 		LOG.info("Branches [{}], [{}] and tag [{}] are prepared to push into origin.",
@@ -201,7 +198,7 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 	}
 
 	@Override
-	public void publishRelease() {
+	public void publish() {
 		String masterBranch = getMasterBranch();
 		if (StringUtils.isNotEmpty(masterBranch)) {
 			gitPush(masterBranch);
@@ -211,6 +208,14 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		//
 		LOG.info("Branches [{}], [{}] and prepared tags pushed into origin.",
 				getDevelopBranch(), getMasterBranch());
+	}
+	
+	@Override
+	public String releaseAndPublish(String releaseVersion, String newDevelopVersion) {
+		String releasedVersion = release(releaseVersion, newDevelopVersion);
+		publish();
+		//
+		return releasedVersion;
 	}
 	
 	@Override
@@ -257,14 +262,21 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 	public String setSnapshotVersion(String newVersion) {
 		Assert.hasLength(newVersion, "New version is required.");
 		//
-		if (!newVersion.endsWith(SNAPSHOT_VERSION_SUFFIX)) {
+		if (!isSnapshotVersion(newVersion)) {
 			newVersion = String.format("%s-%s", newVersion, SNAPSHOT_VERSION_SUFFIX);
 		}
 		return setVersion(newVersion);
 	}
 	
 	@Override
-	public String revertRelease() {
+	public boolean isSnapshotVersion(String version) {
+		Assert.hasLength(version, "Version is required.");
+		//
+		return version.toUpperCase().endsWith(SNAPSHOT_VERSION_SUFFIX);
+	}
+	
+	@Override
+	public String revertVersion() {
 		gitSwitchBranch(getDevelopBranch());
 		//
 		String forVersion = getCurrentBackendModuleVersion(getRootBackendModule());
@@ -320,15 +332,6 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		} catch (Exception ex) {
 			throw new ReleaseException("Switch branch failed", ex);
 		}
-	}
-	
-	/**
-	 * Output will be shown only on exception.
-	 *
-	 * @param quiet
-	 */
-	public void setQuiet(boolean quiet) {
-		this.quiet = quiet;
 	}
 	
 	/**
@@ -397,6 +400,11 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		this.password = password;
 	}
 	
+	@Override
+	public void setForce(boolean force) {
+		this.force = force;
+	}
+	
 	/**
 	 * Initialized xml object mapper;
 	 * 
@@ -407,88 +415,8 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 	}
 	
 	/**
-	 * Resolved executable mvn command (by given home directory and OS).
-	 *
-	 * @return
-	 */
-	protected String getMavenBaseCommand() {
-		if (mavenBaseCommand == null) {
-			if (StringUtils.isEmpty(mavenHome)) {
-				mavenHome = System.getenv("MAVEN_HOME");
-			}
-			String commandName = "mvn";
-			if (StringUtils.isEmpty(mavenHome)) {
-				// maven home is not specified, try to execute global command
-				mavenBaseCommand = commandName;
-			} else {
-				String baseCommand = String.format("%s/bin/%s", mavenHome, commandName);
-				if (isWindows()) {
-					// append cmd for windows
-					mavenBaseCommand = String.format("%s.cmd", baseCommand);
-				} else {
-					mavenBaseCommand = baseCommand;
-				}
-			}
-		}
-		//
-		return mavenBaseCommand;
-	}
-	
-	protected String getMavenVersion() {
-		ProcessBuilder processBuilder = new ProcessBuilder();
-    	processBuilder.command(getMavenBaseCommand(), "-v");
-    	execute(processBuilder, "Check maven version failed");
-    	// TODO: return maven version
-    	return null;
-	}
-	
-	/**
-	 * Execute process.
-	 *
-	 * @param processBuilder
-	 * @param exceptionMessage
-	 * @throws InterruptedException
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @return log file with process execution output
-	 */
-	protected String execute(ProcessBuilder processBuilder, String exceptionMessage) {
-		File logFile = null;
-		try {
-			logFile = File.createTempFile(UUID.randomUUID().toString(), "-log.txt");
-			//
-			processBuilder.redirectErrorStream(true);
-			if (quiet) {
-				processBuilder.redirectOutput(logFile);
-			} else {
-				processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-			}
-	    	//
-	    	Process process = processBuilder.start();
-			// wait for end
-			process.waitFor();
-			// throw exception on failure
-			String output = IOUtils.toString(new FileInputStream(logFile), AttachableEntity.DEFAULT_CHARSET);
-	    	if (process.exitValue() != 0) {
-	    		if (quiet) {
-	    			// show log, if process output is not redirected into file.
-	    			LOG.error("{}: {}", exceptionMessage, output);
-	    		}
-	    		throw new ReleaseException(String.format("Update parent version failed [exit code: %s].", process.exitValue()));
-	    	}
-			//
-	    	return output;
-		} catch (InterruptedException | IOException ex) {
-			throw new ReleaseException(ex);
-        } finally {
-        	FileUtils.deleteQuietly(logFile);
-        }
-	}
-	
-	/**
 	 * Init repository - usable for tests
 	 */
-	@SuppressWarnings("deprecation")
 	protected void gitInitRepository() {
 		File repositoryRoot = new File(getRepositoryRoot());
 		Assert.isTrue(repositoryRoot.exists(), "Product root has to exist.");
@@ -498,15 +426,19 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 				.init()
 				.setDirectory(repositoryRoot)
 				.call();
-			FileUtils.writeStringToFile(new File(repositoryRoot.getPath() + "/README.md"), "test repo");
-			gitAdd();
+			FileUtils.writeStringToFile(new File(repositoryRoot.getPath() + "/README.md"), "test repo", AttachableEntity.DEFAULT_CHARSET);
+			gitAddAll();
 			gitCommit("start commit");
 		} catch (Exception ex) {
 			throw new ReleaseException("Init repository failed", ex);
 		}
 	}
 	
-	protected void gitAdd() {
+	/**
+	 * 
+	 * @param update true => ignore untracked files
+	 */
+	protected void gitAddAll() {
 		try {
 			git
 				.add()
@@ -549,7 +481,7 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		Assert.hasLength(tagVersion, "Tag version (~name) is required.");
 		//
 		boolean isSnapshotVersion = false;
-		if (tagVersion.toUpperCase().endsWith(SNAPSHOT_VERSION_SUFFIX)) {
+		if (isSnapshotVersion(tagVersion)) {
 			LOG.warn("Tag will be created for development version [{}] - it's only for development puprose (should not be pushed to origin).",
 					tagVersion);
 			isSnapshotVersion = true;
@@ -649,10 +581,44 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 	protected boolean gitIsClean() {
 		try {
 			Status call = git.status().call();
+			//
 			return call.isClean();
 		} catch (NoWorkTreeException | GitAPIException ex) {
 			throw new ReleaseException("Check status failed", ex);
 		}
+	}
+	
+	protected long gitAllChangesCount() {
+		try {
+			Status status = git.status().call();
+			//
+			return status.getAdded().size()
+				+ status.getChanged().size()
+				+ status.getRemoved().size()
+				+ status.getMissing().size()
+				+ status.getModified().size()
+				+ status.getConflicting().size()
+				+ status.getUntracked().size();
+		} catch (NoWorkTreeException | GitAPIException ex) {
+			throw new ReleaseException("Check status failed", ex);
+		}
+	}
+	
+	protected long checkChanges() {
+		long changesCount = gitAllChangesCount();
+		if (MAX_RELEASE_CHANGES < changesCount) {
+			if (force) {
+				LOG.warn("Count of changed files by release command [%s] exceeded, force argument is set. Limit [%s].");
+			} else {
+				throw new ReleaseException(String.format("Count of changed files by release command [%s] exceeded. "
+						+ "Limit [%s]. "
+						+ "Check changes directly in your repository (e.g. check line endings is not changed - .gitattributes with text=auto directive) "
+						+ "or add --force into tool agumetr to skip this check.", 
+						changesCount, MAX_RELEASE_CHANGES));
+			}
+		}
+		//
+		return changesCount;
 	}
 	
 	protected void gitCheckout(List<String> files) {
@@ -703,11 +669,7 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		return new TransportConfigCallback() {
 			@Override
 			public void configure(Transport transport) {
-				if (username == null) {
-					LOG.warn("No credentials given. Set username and password, if repository authentication is needed.");
-				} else {
-					LOG.info("Git credentials given, username [{}].", username);
-				}
+				
 				//
 				transport.setCredentialsProvider(getCredentialsProvider());
 				//
@@ -720,10 +682,16 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 							if (password != null) {
 								session.setPassword(password.asString());
 								//
-								LOG.info("Ssh password given, will be set for public key ...");
+								LOG.info("Ssh passphrase given, will be set for ssh public key ...");
 							}
 						}
 					});
+				} else {
+					if (username == null || password == null) {
+						LOG.warn("No credentials given. Set git username and password, if repository authentication is needed.");
+					} else {
+						LOG.info("Git credentials given, username [{}].", username);
+					}
 				}
 			}
 		};
@@ -776,7 +744,7 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 	}
 	
 	protected String getCurrentFrontendModuleVersion(String moduleName) {
-		File modulePackage = new File(String.format("%s/package.json", getFrontendModuleBasePath(moduleName)));
+		File modulePackage = new File(getFrontendModuleBasePath(moduleName), "package.json");
 		Assert.isTrue(modulePackage.exists(), String.format("Frontend module [%s] not found on filesystem.", moduleName));
 		//
 		try {
@@ -793,7 +761,7 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		String newVersion = fullVersionName.toLowerCase();
 		//
 		for (String frontendModule : getFrontendModules(newVersion)) {
-			File modulePackage = new File(String.format("%s/package.json", getFrontendModuleBasePath(frontendModule)));
+			File modulePackage = new File(getFrontendModuleBasePath(frontendModule), "package.json");
 			Assert.isTrue(modulePackage.exists(), String.format("Frontend module [%s] not found on filesystem.", frontendModule));
 			//
 			try {
@@ -880,42 +848,39 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 	
 	protected void setBackendVersion(String fullVersionName) {
 		String newVersion = fullVersionName.toUpperCase();
-		LOG.info("Setting backend version [{}] ... ", newVersion);
+		LOG.info("Setting backend version [{}] ...", newVersion);
 		//
 		String rootBackendModule = getRootBackendModule();
 		String rootModulePath = getBackendModuleBasePath(rootBackendModule);
+		File rootModuleFolder = new File(rootModulePath);
 		//
-		ProcessBuilder processBuilder = new ProcessBuilder();
 		if (!hasParentModule(rootBackendModule)) {
-			processBuilder.command(
-					getMavenBaseCommand(),
+			mavenManager.command(
+					rootModuleFolder,
 					"versions:update-parent",
 					"-DparentVersion="+newVersion,
 					"-DgenerateBackupPoms=false");
-			processBuilder.directory(new File(rootModulePath));
-			execute(processBuilder, "Update parent version failed");
 		}
 		//
-		processBuilder = new ProcessBuilder();
-		processBuilder.command(
-				getMavenBaseCommand(),
+		mavenManager.command(
+				rootModuleFolder,
 				"versions:set",
 				"-DnewVersion="+newVersion,
 				"-DprocessAllModules=true",
 				"-DprocessParent=false",
 				"-DgenerateBackupPoms=false");
-		processBuilder.directory(new File(rootModulePath));
-		execute(processBuilder, "Set backend versions failed");
 		//
-		processBuilder = new ProcessBuilder();
-		processBuilder.command(
-				getMavenBaseCommand(),
+		mavenManager.command(
+				rootModuleFolder,
 				"-N",
 				"versions:update-child-modules",
 				"-DgenerateBackupPoms=false");
-		processBuilder.directory(new File(rootModulePath));
-		execute(processBuilder, "Set backend versions failed");
-		execute(processBuilder, "Set backend versions failed"); // FIXME: has to be executed twice ... why ...?
+		// FIXME: has to be executed twice ... why ...?
+		mavenManager.command(
+				rootModuleFolder,
+				"-N",
+				"versions:update-child-modules",
+				"-DgenerateBackupPoms=false");
 		//
 		LOG.info("Backend version set to [{}]", newVersion);
 	}
@@ -925,16 +890,58 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 				.replaceFirst("-" + SNAPSHOT_VERSION_SUFFIX, "")
 				.replaceFirst("-" + RELEASE_CANDIDATE_VERSION_SUFFIX, "");
 	}
-
-	protected String getNextSnapshotVersionNumber(String versionNumber) {
+	
+	@Override
+	public String getNextSnapshotVersionNumber(String versionNumber, VersionType versionType) {
+		if (StringUtils.isEmpty(versionNumber)) {
+			versionNumber = "1.0.0"; // default version
+		}
 		String versionNumberWithoutSnapshot = getVersionNumber(versionNumber);
 		//
-		String[] versionNumbers = versionNumberWithoutSnapshot.split("\\.");
+		String[] versionStrings = versionNumberWithoutSnapshot.split("\\.");
+		List<Integer> versionNumbers = new ArrayList<>(versionStrings.length);
 		String newVersion;
 		try {
-			String lastNumberAsString = versionNumbers[versionNumbers.length - 1];
-			Integer lastNumber = Integer.valueOf(lastNumberAsString);
-			versionNumbers[versionNumbers.length - 1] = String.valueOf(lastNumber + 1);
+			for (String versionString : versionStrings) {
+				versionNumbers.add(Integer.valueOf(versionString));
+			}
+			int incrementVersionPosition;
+			if (versionType == null) {
+				// last version number will be incremented by default
+				incrementVersionPosition = versionNumbers.size() - 1;
+			} else switch (versionType) {
+				case MAJOR: {
+					incrementVersionPosition = 0;
+					break;
+				}
+				case MINOR: {
+					incrementVersionPosition = 1;
+					break;
+				}
+				case PATCH: {
+					incrementVersionPosition = 2;
+					break;
+				}
+				case HOTFIX: {
+					incrementVersionPosition = 3;
+					break;
+				}
+				default: {
+					throw new UnsupportedOperationException(String.format("Version type [%s] is not supported.", versionType));
+				}
+			}
+			// add zeros to missing version positions
+			for (int i = 1; i <= incrementVersionPosition; i++) {
+				if (versionNumbers.size() == incrementVersionPosition) {
+					versionNumbers.add(0);
+				}
+			}
+			// reset other versions e.g. major 2.0.0 from 1.3.4
+			for (int i = incrementVersionPosition + 1; i < versionNumbers.size(); i++) {
+				versionNumbers.set(i, 0);
+			}
+			//
+			versionNumbers.set(incrementVersionPosition, versionNumbers.get(incrementVersionPosition) + 1);
 			//
 			newVersion = StringUtils.join(versionNumbers, '.');
 		} catch (NumberFormatException ex) {
@@ -965,15 +972,12 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		LOG.info("Build [true] and deploy [{}] version [{}] into nexus, this will take several minutes ...",
 				isDeploy, currentVersion);
 		//
-    	ProcessBuilder processBuilder = new ProcessBuilder();
-    	processBuilder.command(
-    			getMavenBaseCommand(), 
-    			"clean", 
-    			isDeploy ? "deploy" : "install",
-    			"-Prelease", 
-    			"-DdocumentationOnly=true");
-    	processBuilder.directory(new File(getBackendModuleBasePath(getRootBackendModule())));
-    	execute(processBuilder, "Deploy failed");
+		File projectFolder = new File(getBackendModuleBasePath(getRootBackendModule()));
+		if (isDeploy) {
+			mavenManager.deploy(projectFolder);
+		} else {
+			mavenManager.install(projectFolder);
+		}
     	//
     	LOG.debug("Version [{}] successfully built. Deploy into nexus [{}]", currentVersion, isDeploy);
     	//
@@ -986,9 +990,5 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		LOG.info("Version [{}] successfully deployed to nexus.", currentVersion);
 		//
 		return currentVersion;
-	}
-	
-	private boolean isWindows() {
-		return SystemUtils.IS_OS_WINDOWS;
 	}
 }

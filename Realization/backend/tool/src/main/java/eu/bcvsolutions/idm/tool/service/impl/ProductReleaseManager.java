@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
 /**
  * Release product by maven, gulp and git:
  * - change product version - all product modules have to have the same version number.
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
  * @author Radek Tomiška
  *
  */
+@Service
 public class ProductReleaseManager extends AbstractReleaseManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProductReleaseManager.class);

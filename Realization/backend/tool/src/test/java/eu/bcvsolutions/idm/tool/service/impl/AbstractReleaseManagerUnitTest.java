@@ -8,6 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.tool.service.api.ReleaseManager.VersionType;
 
 /**
  * Test release on mock repository.
@@ -47,7 +48,20 @@ public abstract class AbstractReleaseManagerUnitTest extends AbstractUnitTest {
 		Assert.assertEquals(newVesion, getReleaseManager().setVersion(newVesion));
 		Assert.assertEquals(newVesion, getReleaseManager().getCurrentVersion());
 		//
-		Assert.assertEquals("1.0.0-SNAPSHOT", getReleaseManager().revertRelease());
+		Assert.assertEquals("1.0.0-SNAPSHOT", getReleaseManager().revertVersion());
+		Assert.assertEquals("1.0.0-SNAPSHOT", getReleaseManager().getCurrentVersion());
+	}
+	
+	@Test
+	public void testIsSnapshotVersion() {
+		Assert.assertTrue(getReleaseManager().isSnapshotVersion("1.0.0-SNAPSHOT"));
+		Assert.assertFalse(getReleaseManager().isSnapshotVersion("1.0.0"));
+		//
+		String newVesion = "2.0.0-SNAPSHOT";
+		Assert.assertEquals(newVesion, getReleaseManager().setVersion(newVesion));
+		Assert.assertEquals(newVesion, getReleaseManager().getCurrentVersion());
+		//
+		Assert.assertEquals("1.0.0-SNAPSHOT", getReleaseManager().revertVersion());
 		Assert.assertEquals("1.0.0-SNAPSHOT", getReleaseManager().getCurrentVersion());
 	}
 	
@@ -67,13 +81,18 @@ public abstract class AbstractReleaseManagerUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testNextSnapshotVersionNumber() {
-		Assert.assertEquals("1.0.1-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("1.0.0-SNAPSHOT"));
-		Assert.assertEquals("1.1.24-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("1.1.23-SNAPSHOT"));
+		Assert.assertEquals("1.0.1-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("1.0.0-SNAPSHOT", null));
+		Assert.assertEquals("1.1.24-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("1.1.23-SNAPSHOT", null));
+		Assert.assertEquals("2.0.0-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("1.1.23-SNAPSHOT", VersionType.MAJOR));
+		Assert.assertEquals("1.2.0-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("1.1.23-SNAPSHOT", VersionType.MINOR));
+		Assert.assertEquals("1.1.24-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("1.1.23-SNAPSHOT", VersionType.PATCH));
+		Assert.assertEquals("1.1.23.1-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("1.1.23-SNAPSHOT", VersionType.HOTFIX));
+		Assert.assertEquals("1.0.1-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber(null, null));
 	}
 	
 	@Test
 	public void testNotSemanticNextSnapshotVersionNumber() {
-		Assert.assertEquals("mock.1-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("mock"));
+		Assert.assertEquals("mock.1-SNAPSHOT", getReleaseManager().getNextSnapshotVersionNumber("mock", null));
 	}
 	
 	@Test
@@ -91,7 +110,7 @@ public abstract class AbstractReleaseManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testRelease() {
 		Assert.assertEquals("1.0.0-SNAPSHOT", getReleaseManager().getCurrentVersion());
-		getReleaseManager().gitAdd();
+		getReleaseManager().gitAddAll();
 		getReleaseManager().gitCommit("before test release");
 		//
 		Assert.assertEquals("1.0.0", getReleaseManager().release(null, null));
@@ -100,7 +119,7 @@ public abstract class AbstractReleaseManagerUnitTest extends AbstractUnitTest {
 		getReleaseManager().gitSwitchBranch("master");
 		Assert.assertEquals("1.0.0", getReleaseManager().getCurrentVersion());
 		// just finish UC - local repository without origin cannot be pushed ...
-		getReleaseManager().publishRelease();
+		getReleaseManager().publish();
 	}
 	
 	@Test
@@ -114,7 +133,7 @@ public abstract class AbstractReleaseManagerUnitTest extends AbstractUnitTest {
 			getReleaseManager().gitSwitchBranch("hotfix");
 			getReleaseManager().setDevelopBranch(develop);
 			getReleaseManager().setVersion("2.3.6-SNAPSHOT");
-			getReleaseManager().gitAdd();
+			getReleaseManager().gitAddAll();
 			getReleaseManager().gitCommit("start hotfix");
 			//
 			getReleaseManager().gitCreateBranch(master);
@@ -136,16 +155,16 @@ public abstract class AbstractReleaseManagerUnitTest extends AbstractUnitTest {
 		Assert.assertEquals("1.0.0-SNAPSHOT", getReleaseManager().getCurrentVersion());
 		//
 		getReleaseManager().setVersion("1.0.1");
-		getReleaseManager().gitAdd();
+		getReleaseManager().gitAddAll();
 		getReleaseManager().gitCommit("develop branch");
 		getReleaseManager().gitSwitchBranch("master");
 		getReleaseManager().gitMerge("develop");
-		getReleaseManager().gitAdd();
+		getReleaseManager().gitAddAll();
 		getReleaseManager().gitCommit("merge develop branch");
 		Assert.assertEquals("1.0.1", getReleaseManager().getCurrentVersion());
 		//
 		getReleaseManager().setVersion("2.0.1-SNAPSHOT");
-		getReleaseManager().gitAdd();
+		getReleaseManager().gitAddAll();
 		getReleaseManager().gitCommit("new develop version");
 		try {
 			getReleaseManager().setMasterBranch(null);

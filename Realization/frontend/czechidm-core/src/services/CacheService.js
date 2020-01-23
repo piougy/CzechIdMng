@@ -2,6 +2,11 @@ import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
+/**
+ * Cache operations
+ *
+ * @author Peter Štrunc
+ */
 export default class CacheService extends AbstractService {
 
   getApiPath() {

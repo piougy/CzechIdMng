@@ -7,6 +7,8 @@ import DataManager from './DataManager';
 
 /**
  * Provides information about caches from backend and their administrative methods.
+ *
+ * @author Peter Štrunc
  */
 export default class CacheManager extends EntityManager {
 

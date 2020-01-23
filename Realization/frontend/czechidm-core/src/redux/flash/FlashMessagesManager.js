@@ -1,8 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { push } from 'connected-react-router';
-import sha1 from 'sha1';
-// import moment from 'moment';
+import sha256 from 'js-sha256';
 // api
 import { LocalizationService, AuthenticateService } from '../../services';
 
@@ -111,7 +110,10 @@ export default class FlashMessagesManager {
       return null;
     }
     // automatic localization
-    const messageTitle = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.title', this._prepareParams(resultModel.parameters, `${resultModel.statusEnum} (${resultModel.statusCode}:${resultModel.id})`));
+    const messageTitle = LocalizationService.i18n(
+      `${ resultModel.module }:error.${ resultModel.statusEnum }.title`,
+      this._prepareParams(resultModel.parameters, `${ resultModel.statusEnum } (${ resultModel.statusCode }:${ resultModel.id })`)
+    );
     let defaultMessage = resultModel.message;
     if (!_.isEmpty(resultModel.parameters)) {
       defaultMessage += ' (';
@@ -126,7 +128,10 @@ export default class FlashMessagesManager {
       }
       defaultMessage += ')';
     }
-    const messageText = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.message', this._prepareParams(resultModel.parameters, defaultMessage));
+    const messageText = LocalizationService.i18n(
+      `${ resultModel.module }:error.${ resultModel.statusEnum }.message`,
+      this._prepareParams(resultModel.parameters, defaultMessage)
+    );
     //
     const levelStatusCode = parseInt(resultModel.statusCode, 10);
     let level; // 4xx - warning message, 5xx - error message
@@ -203,7 +208,10 @@ export default class FlashMessagesManager {
     //
     const message = this.convertFromResultModel(notificationMessage.model);
     // TODO: registrable message converters
-    if (notificationMessage.key === 'core:event' && notificationMessage.model && notificationMessage.model.parameters && notificationMessage.model.parameters.processors) {
+    if (notificationMessage.key === 'core:event'
+        && notificationMessage.model
+        && notificationMessage.model.parameters
+        && notificationMessage.model.parameters.processors) {
       message.children = (
         <div>
           <ol style={{ listStylePosition: 'inside' }}>
@@ -240,8 +248,9 @@ export default class FlashMessagesManager {
           () => {
             dispatch(this.addMessage(errorMessage));
             dispatch(this._clearConfiguations());
-          }
-          , this.getServerUnavailableTimeout());
+          },
+          this.getServerUnavailableTimeout()
+        );
       // TODO: module defined exception handlers
       } else if (this._isLoginError(error)) {
 
@@ -252,7 +261,7 @@ export default class FlashMessagesManager {
           if (error.parameters && error.parameters.token) {
             const currentToken = AuthenticateService.getTokenCIDMST();
             // Make SHA1 hash from token
-            const currentTokenHash = sha1(currentToken);
+            const currentTokenHash = sha256(currentToken);
             const tokenFromErrorHash = error.parameters.token;
             if (tokenFromErrorHash !== currentTokenHash) {
               return;
@@ -325,7 +334,9 @@ export default class FlashMessagesManager {
   isServerUnavailableError(error) {
     if (error
         && error.message
-        && (error.message.indexOf('NetworkError') > -1 || error.message.indexOf('Failed to fetch') > -1 || (error.statusCode && (error.statusCode === '400' || error.statusCode === '503')))) {
+        && (error.message.indexOf('NetworkError') > -1
+          || error.message.indexOf('Failed to fetch') > -1
+          || (error.statusCode && (error.statusCode === '400' || error.statusCode === '503')))) {
       return true;
     }
     return false;
@@ -337,9 +348,10 @@ export default class FlashMessagesManager {
   isSyntaxError(error) {
     if (error
         && error.message
-        && (error.name === 'SyntaxError' && error.message.indexOf('JSON.parse') === 0 )) {
+        && (error.name === 'SyntaxError' && error.message.indexOf('JSON.parse') === 0)) {
       return true;
-    } else if (error && error.stack && error.stack.indexOf('SyntaxError') === 0) {
+    }
+    if (error && error.stack && error.stack.indexOf('SyntaxError') === 0) {
       return true;
     }
     return false;

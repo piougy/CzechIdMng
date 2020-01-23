@@ -142,6 +142,7 @@ public class ProjectManager {
 			if (!modulesFolder.exists()) {
 				LOG.info("Folder with modules not found, modules will not be installed.");
 			} else {
+				ObjectMapper mapper = new ObjectMapper();
 				for (File module : modulesFolder.listFiles()) {
 					String moduleName = module.getName();
 					//
@@ -175,7 +176,6 @@ public class ProjectManager {
 						File moduleFrontendFolder = new File(String.format("%s/fe-sources/czechidm-modules", extractedModuleFolder.getPath()));
 						//
 						if (moduleFrontendFolder.exists()) {
-							ObjectMapper mapper = new ObjectMapper();
 							// check BE vs. FE version -> throw exception otherwise
 							for (File moduleFolder : moduleFrontendFolder.listFiles()) {
 								File modulePackage = new File(moduleFolder.getPath(), "package.json");

@@ -2,6 +2,11 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import org.springframework.hateoas.core.Relation;
 
+/**
+ * Dto representing one cache.
+ *
+ * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
+ */
 @Relation(collectionRelation = "caches")
 public class IdmCacheDto extends AbstractComponentDto {
 

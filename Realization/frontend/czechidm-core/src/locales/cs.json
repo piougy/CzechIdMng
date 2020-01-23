@@ -80,6 +80,7 @@
     "detail": "Detail",
     "download": "$t(label.download)",
     "edit": "Upravit",
+    "evict": "Vyprázdnit",
     "filter": {
       "toogle": "Filtr ",
       "use": "Filtrovat",
@@ -185,6 +186,13 @@
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně deaktivován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
+    },
+    "evict": {
+      "action": "Vyprázdnit",
+      "header": "Vyprázdnit cache",
+      "message": "Opravdu chcete vypázdnit cache [{{record}}]?",
+      "success": "Cache [{{record}}] byla úspěšně vyprázdněna.",
+      "error": "Cache s názvem [{{record}}] neexistuje"
     },
     "redeploy": {
       "action": "Obnovit z disku (redeploy)",

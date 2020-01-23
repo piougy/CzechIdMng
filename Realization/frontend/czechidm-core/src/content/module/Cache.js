@@ -4,16 +4,14 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
 import { CacheManager, DataManager, SecurityManager } from '../../redux';
 import * as Utils from '../../utils';
-import ConfigLoader from '../../utils/ConfigLoader';
 import ResultCodesModal from './ResultCodesModal';
 
 /**
- * BE modules administration
+ * Caches administration
  *
- * @author Radek Tomiška
+ * @author Peter Štrunc
  */
 class Cache extends Basic.AbstractContent {
 
@@ -105,7 +103,7 @@ class Cache extends Basic.AbstractContent {
               ({rowIndex, data}) => {
                 return (
                   <Basic.Button
-                    level="success"
+                    level="warning"
                     onClick={this.onEvict.bind(this, data[rowIndex], true)}
                     className="btn-xs"
                     title={this.i18n('button.evict')}
@@ -115,7 +113,7 @@ class Cache extends Basic.AbstractContent {
                 );
               }
             }
-            rendered={SecurityManager.hasAuthority('MODULE_UPDATE')}/>
+            rendered={SecurityManager.hasAuthority('APP_ADMIN')}/>
         </Basic.Table>
       </div>
     );
@@ -136,8 +134,8 @@ Cache.defaultProps = {
 function select(state) {
   return {
     userContext: state.security.userContext,
-    caches: DataManager.getData(state, CacheManager.UI_KEY_MODULES),
-    showLoading: Utils.Ui.isShowLoading(state, CacheManager.UI_KEY_MODULES)
+    caches: DataManager.getData(state, CacheManager.UI_KEY_CACHES),
+    showLoading: Utils.Ui.isShowLoading(state, CacheManager.UI_KEY_CACHES)
   };
 }
 

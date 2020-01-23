@@ -1,7 +1,6 @@
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
-import SearchParameters from '../domain/SearchParameters';
 
 export default class CacheService extends AbstractService {
 
@@ -17,7 +16,7 @@ export default class CacheService extends AbstractService {
   }
 
   /**
-   * Returns all installed modules
+   * Returns all available caches
    *
    * @return Promise
    */

@@ -4,10 +4,9 @@ import EntityManager from './EntityManager';
 import ConfigurationManager from './ConfigurationManager';
 import { CacheService } from '../../services';
 import DataManager from './DataManager';
-import { backendConfigurationInit } from '../config/actions';
 
 /**
- * Provides informations  about modules from backend and their administrative methods.
+ * Provides information about caches from backend and their administrative methods.
  */
 export default class CacheManager extends EntityManager {
 
@@ -31,21 +30,19 @@ export default class CacheManager extends EntityManager {
   }
 
   fetchAvailableCaches() {
-    const uiKey = CacheManager.UI_KEY_MODULES;
+    const uiKey = CacheManager.UI_KEY_CACHES;
     //
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().getAvailableCaches()
         .then(json => {
           let caches = new Immutable.Map();
-          console.log("json ", json, json['_embedded'])
           json._embedded[this.getCollectionType()].forEach(item => {
             caches = caches.set(item.id, item);
           });
           dispatch(this.dataManager.receiveData(uiKey, caches));
         })
         .catch(error => {
-          // TODO: data uiKey
           dispatch(this.receiveError(null, uiKey, error));
         });
     };
@@ -54,20 +51,19 @@ export default class CacheManager extends EntityManager {
   /**
    * Evict cache with given name
    *
-   * @param {string} moduleId
-   * @param {boolean} enable
+   * @param {string} cacheId
    * @param {func} cb
    */
   evictCache(cacheId, cb = null) {
     if (!cacheId) {
       return null;
     }
-    const uiKey = CacheManager.UI_KEY_MODULES;
+    const uiKey = CacheManager.UI_KEY_CACHES;
     return (dispatch, getState) => {
       dispatch(this.requestEntity(cacheId, uiKey));
       this.getService().evictCache(cacheId)
         .then(json => {
-          const caches = DataManager.getData(getState(), CacheManager.UI_KEY_MODULES);
+          const caches = DataManager.getData(getState(), CacheManager.UI_KEY_CACHES);
           if (caches.has(json.id)) {
             //caches.get(json.id).size = json.size;
           }
@@ -83,6 +79,6 @@ export default class CacheManager extends EntityManager {
   }
 }
 
-CacheManager.UI_KEY_MODULES = 'cache';
+CacheManager.UI_KEY_CACHES = 'cache';
 CacheManager.CODE_MODULE_ID = 'core';
 CacheManager.APP_MODULE_ID = 'app';

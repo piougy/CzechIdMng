@@ -599,7 +599,7 @@ module.exports = {
         {
           path: 'cache',
           component: require('./src/content/module/Cache'),
-          access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
+          access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN']}]
         }
       ]
     },

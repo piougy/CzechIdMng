@@ -62,7 +62,7 @@ import eu.bcvsolutions.idm.tool.service.api.ReleaseManager;
  */
 public abstract class AbstractReleaseManager implements ReleaseManager {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProductReleaseManager.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractReleaseManager.class);
 	public static String DEFAULT_REPOSITORY_LOCATION = "./CzechIdMng";
 	//
 	private ObjectMapper mapper;

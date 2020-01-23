@@ -111,7 +111,7 @@ public class MavenManager {
     			"-DdocumentationOnly=true");
 	}
 	
-	public String getMavenVersion() {
+	public final String getMavenVersion() {
 		ProcessBuilder processBuilder = new ProcessBuilder();
     	processBuilder.command(getMavenBaseCommand(), "-v");
     	execute(processBuilder, "Check maven version failed");

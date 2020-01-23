@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.tool.service.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -176,12 +175,13 @@ public class ProjectManager {
 						File moduleFrontendFolder = new File(String.format("%s/fe-sources/czechidm-modules", extractedModuleFolder.getPath()));
 						//
 						if (moduleFrontendFolder.exists()) {
+							ObjectMapper mapper = new ObjectMapper();
 							// check BE vs. FE version -> throw exception otherwise
 							for (File moduleFolder : moduleFrontendFolder.listFiles()) {
 								File modulePackage = new File(moduleFolder.getPath(), "package.json");
 								try (InputStream is = new FileInputStream(modulePackage)) {
 									// FIXME: refactor super class from product / project manager (DRY - #getCurrentFrontendModuleVersion).
-									JsonNode json = new ObjectMapper().readTree(IOUtils.toString(is, AttachableEntity.DEFAULT_CHARSET));
+									JsonNode json = mapper.readTree(IOUtils.toString(is, AttachableEntity.DEFAULT_CHARSET));
 									String frontendModuleVersion = json.get("version").textValue();
 									if (!StringUtils.equalsIgnoreCase(backendModuleVersion, frontendModuleVersion)) {
 										throw new BuildException(String.format("Module [%s] versions differs [BE: %s] vs [FE: %s]. "
@@ -196,10 +196,10 @@ public class ProjectManager {
 							FileUtils.copyDirectory(moduleFrontendFolder, extractedFrontendModulesFolder);
 							FileUtils.copyDirectory(moduleFrontendFolder, productFrontendModulesFolder); // we need to know, what was installed in target war
 						} else {
-							LOG.info("Module [{}] not contain frontend.", module.getName(), getVersion(extractedModuleFolder));
+							LOG.info("Module [{}] not contain frontend.", module.getName());
 						}
-					} catch(ZipException ex) {
-						LOG.warn("Module [] cannot be extracted, is not .jar library. Library will be installed without frontend resolving.");
+					} catch (ZipException ex) {
+						LOG.warn("Module [{}] cannot be extracted, is not .jar library. Library will be installed without frontend resolving.", module.getName());
 					}
 					//
 					installedModules.add(module.getName());
@@ -258,7 +258,7 @@ public class ProjectManager {
 		this.nodeHome = nodeHome;
 	}	
 	
-	private String getVersion(File library) throws FileNotFoundException, IOException {
+	private String getVersion(File library) throws IOException {
 		Assert.notNull(library, "Java library (jar, war) is required.");
 		//
 		String manifestPath = String.format("%s/META-INF/MANIFEST.MF", library.getPath());

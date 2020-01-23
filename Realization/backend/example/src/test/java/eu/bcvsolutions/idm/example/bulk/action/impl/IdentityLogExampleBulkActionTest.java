@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDeleteBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -55,6 +56,7 @@ public class IdentityLogExampleBulkActionTest extends AbstractBulkActionTest {
 		IdmBulkActionDto exampleAction = findBulkAction(IdmIdentity.class, IdentityLogExampleBulkAction.BULK_ACTION_NAME);
 		
 		assertNotNull(exampleAction);
+		Assert.assertEquals(NotificationLevel.INFO, exampleAction.getLevel());
 		
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityDto identity2 = getHelper().createIdentity();

@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation_;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -49,5 +50,10 @@ public class ProvisioningOperationCancelBulkAction extends AbstractProvisioningO
 	@Override
 	public int getOrder() {
 		return 100;
+	}
+	
+	@Override
+	public NotificationLevel getLevel() {
+		return NotificationLevel.WARNING;
 	}
 }

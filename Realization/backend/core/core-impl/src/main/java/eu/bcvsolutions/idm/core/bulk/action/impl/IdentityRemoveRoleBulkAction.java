@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -313,6 +314,11 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 500;
+	}
+	
+	@Override
+	public NotificationLevel getLevel() {
+		return NotificationLevel.WARNING;
 	}
 
 	@Override

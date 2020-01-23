@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import eu.bcvsolutions.idm.core.api.dto.AbstractComponentDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Basic DTO for bulk actions. The DTO contains information about bulk
@@ -52,6 +54,8 @@ public class IdmBulkActionDto extends AbstractComponentDto {
 	private List<IdmFormAttributeDto> formAttributes;
 	private boolean showWithoutSelection;
 	private boolean showWithSelection;
+	@ApiModelProperty(notes = "Action level - decorator only (label with color).")
+	private NotificationLevel level;
 
 	public UUID getLongRunningTaskId() {
 		return longRunningTaskId;
@@ -162,5 +166,13 @@ public class IdmBulkActionDto extends AbstractComponentDto {
 
 	public void setShowWithSelection(boolean showWithSelection) {
 		this.showWithSelection = showWithSelection;
+	}
+	
+	public void setLevel(NotificationLevel level) {
+		this.level = level;
+	}
+	
+	public NotificationLevel getLevel() {
+		return level;
 	}
 }

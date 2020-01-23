@@ -48,7 +48,7 @@ class Button extends AbstractComponent {
     //
     const classNames = classnames(
       'btn',
-      `btn-${ level }`,
+      `btn-${ (level === 'error' ? 'danger' : level) }`,
       { hidden },
       className
     );
@@ -60,9 +60,11 @@ class Button extends AbstractComponent {
     return (
       <Tooltip placement={ titlePlacement } value={ title } delayShow={ titleDelayShow }>
         <span>
+          {/* button type is given dynamicaly */}
+          {/* eslint-disable react/button-has-type */}
           <button
             ref="button"
-            type={ type ? type : 'button' }
+            type={ type || 'button' }
             disabled={ disabled || showLoading }
             className={ classNames }
             style={ style }
@@ -91,14 +93,17 @@ class Button extends AbstractComponent {
               </span>
               :
               <span>
-                <Icon value={ icon } className="icon-left" style={ (text || (children && React.Children.count(children) > 0)) ? { marginRight: 5 } : {} }/>
+                <Icon
+                  value={ icon }
+                  className="icon-left"
+                  style={ (text || (children && React.Children.count(children) > 0)) ? { marginRight: 5 } : {} }/>
                 { text }
                 { children }
               </span>
             }
           </button>
         </span>
-     </Tooltip>
+      </Tooltip>
     );
   }
 }
@@ -108,7 +113,7 @@ Button.propTypes = {
   /**
    * Button level / css / class
    */
-  level: PropTypes.oneOf(['default', 'success', 'warning', 'info', 'danger', 'link', 'primary']),
+  level: PropTypes.oneOf(['default', 'success', 'warning', 'info', 'danger', 'error', 'link', 'primary']),
   /**
    * When showLoading is true, then showLoadingIcon is shown
    */

@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDeleteBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
@@ -55,6 +57,8 @@ public class IdentityDeleteBulkActionTest extends AbstractBulkActionTest {
 		
 		
 		IdmBulkActionDto bulkAction = this.findBulkAction(IdmIdentity.class, IdentityDeleteBulkAction.NAME);
+		Assert.assertEquals(NotificationLevel.ERROR, bulkAction.getLevel());
+		
 		Set<UUID> ids = this.getIdFromList(identities);
 		bulkAction.setIdentifiers(this.getIdFromList(identities));
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);

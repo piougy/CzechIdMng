@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 
@@ -193,6 +194,11 @@ public class IdentityLogExampleBulkAction extends AbstractBulkAction<IdmIdentity
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 40000;
+	}
+	
+	@Override
+	public NotificationLevel getLevel() {
+		return NotificationLevel.INFO;
 	}
 
 	@Override

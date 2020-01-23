@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -352,5 +353,10 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 800;
+	}
+	
+	@Override
+	public NotificationLevel getLevel() {
+		return NotificationLevel.WARNING;
 	}
 }

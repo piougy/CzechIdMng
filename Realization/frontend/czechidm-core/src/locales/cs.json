@@ -81,6 +81,7 @@
     "download": "$t(label.download)",
     "edit": "Upravit",
     "evict": "Vyprázdnit",
+    "evictAll": "Vyprázdnit vše",
     "filter": {
       "toogle": "Filtr ",
       "use": "Filtrovat",
@@ -191,8 +192,10 @@
       "action": "Vyprázdnit",
       "header": "Vyprázdnit cache",
       "message": "Opravdu chcete vypázdnit cache [{{record}}]?",
+      "message_2": "Opravdu chcete vypázdnit všechny cache?",
       "success": "Cache [{{record}}] byla úspěšně vyprázdněna.",
-      "error": "Cache s názvem [{{record}}] neexistuje"
+      "success_2": "Všechny cache byly úspěšně vyprázdněny.",
+      "error": "Cache s daným názvem neexistuje"
     },
     "redeploy": {
       "action": "Obnovit z disku (redeploy)",

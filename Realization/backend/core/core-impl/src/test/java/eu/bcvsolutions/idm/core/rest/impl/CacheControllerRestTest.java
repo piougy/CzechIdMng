@@ -30,6 +30,8 @@ public class CacheControllerRestTest extends AbstractRestTest{
 	public static final String TEST_CACHE_NAME = "TEST_CACHE";
 	public static final String TEST_CACHE_NAME_2 = "TEST_CACHE_2";
 	public static final String TEST_CACHE_NAME_3 = "TEST_CACHE_3";
+	public static final String TEST_CACHE_NAME_4 = "TEST_CACHE_4";
+	public static final String TEST_CACHE_NAME_5 = "TEST_CACHE_5";
 
 	@Autowired
 	CacheManager cacheManager;
@@ -102,6 +104,53 @@ public class CacheControllerRestTest extends AbstractRestTest{
 		Assert.assertEquals(4, testCacheAfterEvict.getSize());
 	}
 
+	@Test
+	public void testEvictAll() {
+		Cache cache = cacheManager.getCache(TEST_CACHE_NAME_4);
+		cache.put("key1", "val1");
+		cache.put("key2", "val2");
+		cache.put("key3", "val3");
+		cache.put("key4", "val4");
+		Cache cache2 = cacheManager.getCache(TEST_CACHE_NAME_5);
+		cache2.put("key5", "val5");
+		cache2.put("key6", "val6");
+		//
+		List<IdmCacheDto> results = find();
+
+		IdmCacheDto testCache = results.stream().filter(c -> TEST_CACHE_NAME_4.equals(c.getName())).findFirst().orElse(null);
+		IdmCacheDto testCache2 = results.stream().filter(c -> TEST_CACHE_NAME_5.equals(c.getName())).findFirst().orElse(null);
+
+		Assert.assertNotNull(testCache);
+		Assert.assertNotNull(testCache2);
+		Assert.assertEquals(4, testCache.getSize());
+		Assert.assertEquals(2, testCache2.getSize());
+
+		final int resultCode = evictAll();
+		Assert.assertEquals(204, resultCode);
+
+		List<IdmCacheDto> resultsAfterEvict = find();
+
+		IdmCacheDto testCacheAfterEvict = resultsAfterEvict.stream().filter(c -> TEST_CACHE_NAME_4.equals(c.getName())).findFirst().orElse(null);
+		IdmCacheDto testCache2AfterEvict = resultsAfterEvict.stream().filter(c -> TEST_CACHE_NAME_5.equals(c.getName())).findFirst().orElse(null);
+
+		Assert.assertNotNull(testCacheAfterEvict);
+		Assert.assertNotNull(testCache2AfterEvict);
+		Assert.assertEquals(0, testCacheAfterEvict.getSize());
+		Assert.assertEquals(0, testCache2AfterEvict.getSize());
+	}
+
+	private int evictAll() {
+		try {
+			return getMockMvc().perform(put(BaseController.BASE_PATH + "/caches/evict")
+					.with(authentication(getAdminAuthentication()))
+					.contentType(TestHelper.HAL_CONTENT_TYPE))
+					.andReturn().getResponse().getStatus();
+			//
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed evict all", ex);
+		}
+	}
+
 	private int evict(final String name) {
 		try {
 			return getMockMvc().perform(put(BaseController.BASE_PATH + "/caches/" + name + "/evict")
@@ -110,7 +159,7 @@ public class CacheControllerRestTest extends AbstractRestTest{
 					.andReturn().getResponse().getStatus();
 			//
 		} catch (Exception ex) {
-			throw new RuntimeException("Failed to find entities", ex);
+			throw new RuntimeException("Failed evict cache " + name, ex);
 		}
 	}
 

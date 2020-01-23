@@ -81,6 +81,7 @@
     "download": "$t(label.download)",
     "edit": "Edit",
     "evict": "Evict",
+    "evictAll": "Evict all",
     "filter": {
       "toogle": "Filter",
       "use": "Filter",
@@ -180,8 +181,10 @@
       "action": "Evict",
       "header": "Evict cache",
       "message": "Do you want to evict cache [{{record}}]?",
+      "message_plural": "Do you want to evict all caches?",
       "success": "Cache [{{record}}] was successfuly evicted.",
-      "error": "Cache [{{record}}] does not exist"
+      "success_plural": "All caches  were successfuly evicted.",
+      "error": "Cache does not exist"
     },
     "redeploy": {
       "action": "Recover from disk (redeploy)",

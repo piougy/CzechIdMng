@@ -64,9 +64,6 @@ export default class CacheManager extends EntityManager {
       this.getService().evictCache(cacheId)
         .then(json => {
           const caches = DataManager.getData(getState(), CacheManager.UI_KEY_CACHES);
-          if (caches.has(json.id)) {
-            //caches.get(json.id).size = json.size;
-          }
           dispatch(this.dataManager.receiveData(uiKey, caches));
           if (cb) {
             cb(json, null);
@@ -77,7 +74,32 @@ export default class CacheManager extends EntityManager {
         });
     };
   }
+
+
+/**
+   * Evict all caches
+   *
+   * @param {func} cb
+   */
+  evictAllCaches(cb = null) {
+    const uiKey = CacheManager.UI_KEY_CACHES;
+    return (dispatch, getState) => {
+      dispatch(this.requestEntity(uiKey));
+      this.getService().evictAllCaches()
+        .then(json => {
+          const caches = DataManager.getData(getState(), CacheManager.UI_KEY_CACHES);
+          dispatch(this.dataManager.receiveData(uiKey, caches));
+          if (cb) {
+            cb(json, null);
+          }
+        })
+        .catch(error => {
+          dispatch(this.receiveError({ }, uiKey, error, cb));
+        });
+    };
+  }
 }
+
 
 CacheManager.UI_KEY_CACHES = 'cache';
 CacheManager.CODE_MODULE_ID = 'core';

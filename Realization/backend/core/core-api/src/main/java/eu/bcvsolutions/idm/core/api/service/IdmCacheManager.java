@@ -28,4 +28,10 @@ public interface IdmCacheManager {
      * @throws eu.bcvsolutions.idm.core.api.exception.ResultCodeException If cache with given name does not exist
      */
     void evictCache(String cacheId);
+
+    /**
+     * Evicts all caches which are present in container at the time of method call. To determine which caches to evict
+     * it uses {@link IdmCacheManager#getAllAvailableCaches()}
+     */
+    void evictAllCaches();
 }

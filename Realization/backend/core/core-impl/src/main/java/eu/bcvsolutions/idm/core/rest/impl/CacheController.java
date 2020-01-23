@@ -90,4 +90,25 @@ public class CacheController {
 		cacheManager.evictCache(cacheId);
 	}
 
+	/**
+	 * Evict all caches. It evicts all caches, that are present in container at the time of calling this method.
+	 *
+	 */
+	@ResponseStatus(code = HttpStatus.NO_CONTENT)
+	@RequestMapping(value = "/evict", method = { RequestMethod.PATCH, RequestMethod.PUT })
+	@PreAuthorize("hasAuthority('" + APP_ADMIN + "')")
+	@ApiOperation(
+			value = "Evict all caches",
+			nickname = "evictAllCaches",
+			tags = { CacheController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = APP_ADMIN, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = APP_ADMIN, description = "") })
+			})
+	public void evictAllCaches() {
+		cacheManager.evictAllCaches();
+	}
+
 }

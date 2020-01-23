@@ -4,6 +4,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import { CacheManager, DataManager, SecurityManager } from '../../redux';
 import * as Utils from '../../utils';
 import ResultCodesModal from './ResultCodesModal';
@@ -45,7 +46,7 @@ class Cache extends Basic.AbstractContent {
     this.context.store.dispatch(this.cacheManager.fetchAvailableCaches());
   }
 
-  onEvict(entity, enable, event) {
+  onEvict(entity, event) {
     if (event) {
       event.preventDefault();
     }
@@ -61,12 +62,33 @@ class Cache extends Basic.AbstractContent {
           this.addError(error);
         }
       }));
+
+
     }, () => {
       // Rejected
     });
   }
 
-
+  onEvictAll(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs[`confirm-evict`].show(
+      this.i18n(`action.evict.message`, { count: 2 }),
+      this.i18n(`action.evict.header`, { count: 1 })
+    ).then(() => {
+      this.context.store.dispatch(this.cacheManager.evictAllCaches((patchedEntity, error) => {
+        if (!error) {
+          this.addMessage({ message: this.i18n(`action.evict.success`, { count: 2 }) });
+          this.reload();
+        } else {
+          this.addError(error);
+        }
+      }));
+    }, () => {
+      // Rejected
+    });
+  }
 
   render() {
     const { caches, showLoading } = this.props;
@@ -87,6 +109,26 @@ class Cache extends Basic.AbstractContent {
 
         <ResultCodesModal detail={ detail } />
 
+        <Basic.Toolbar>
+          <div>
+            <div className="pull-right">
+              <Basic.Button
+                level="warning"
+                onClick={this.onEvictAll.bind(this)}
+                className="btn-xs"
+                title={this.i18n('button.evictAll')}
+                titlePlacement="bottom">
+                {this.i18n('button.evictAll')}
+              </Basic.Button>
+              <Advanced.RefreshButton
+                onClick={this.reload.bind(this)}
+                title={this.i18n('button.refresh')}
+                showLoading={showLoading}/>
+            </div>
+            <div className="clearfix"/>
+          </div>
+        </Basic.Toolbar>
+
         <Basic.Table
           ref="table"
           data={_caches}
@@ -104,7 +146,7 @@ class Cache extends Basic.AbstractContent {
                 return (
                   <Basic.Button
                     level="warning"
-                    onClick={this.onEvict.bind(this, data[rowIndex], true)}
+                    onClick={this.onEvict.bind(this, data[rowIndex])}
                     className="btn-xs"
                     title={this.i18n('button.evict')}
                     titlePlacement="bottom">

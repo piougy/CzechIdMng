@@ -58,6 +58,14 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
         cache.clear();
     }
 
+    @Override
+    public void evictAllCaches() {
+        Optional.ofNullable(getAllAvailableCaches()).orElse(Page.empty())
+                .getContent().stream()
+                .map(IdmCacheDto::getId)
+                .forEach(this::evictCache);
+    }
+
     private IdmCacheDto toDto(Cache cache) {
         final IdmCacheDto result = new IdmCacheDto();
         final Object nativeCache = cache.getNativeCache();

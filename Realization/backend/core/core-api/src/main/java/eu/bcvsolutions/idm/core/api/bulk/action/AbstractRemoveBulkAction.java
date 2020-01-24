@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 
 /**
  * Abstract class for all remove operations
@@ -70,6 +71,11 @@ public abstract class AbstractRemoveBulkAction<DTO extends AbstractDto, F extend
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 10000;
+	}
+	
+	@Override
+	public NotificationLevel getLevel() {
+		return NotificationLevel.ERROR;
 	}
 
 }

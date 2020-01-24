@@ -68,6 +68,11 @@ public class SysSyncConfig extends AbstractEntity {
 	@NotNull
 	@Column(name = "reconciliation", nullable = false)
 	private boolean reconciliation = false;
+	
+	@Audited
+	@NotNull
+	@Column(name = "differential_sync", nullable = false)
+	private boolean differentialSync = false;
 
 	@Audited
 	@NotNull
@@ -184,6 +189,14 @@ public class SysSyncConfig extends AbstractEntity {
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean isDifferentialSync() {
+		return differentialSync;
+	}
+
+	public void setDifferentialSync(boolean differentialSync) {
+		this.differentialSync = differentialSync;
 	}
 
 	public void setName(String name) {

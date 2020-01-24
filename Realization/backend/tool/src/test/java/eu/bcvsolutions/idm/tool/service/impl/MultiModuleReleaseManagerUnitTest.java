@@ -6,6 +6,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
+
 /**
  * Test release on mock repository.
  * 
@@ -30,7 +32,6 @@ public class MultiModuleReleaseManagerUnitTest extends AbstractReleaseManagerUni
 		String version = "1.0.0-SNAPSHOT";
 		//
 		try {
-			releaseManager.setQuiet(true); // don't mess test logs
 			releaseManager.setLocal(true); // local test repository only
 			//
 			// prepare mock repository
@@ -50,9 +51,10 @@ public class MultiModuleReleaseManagerUnitTest extends AbstractReleaseManagerUni
 			//
 			// create all BE and FE modules
 			FileUtils.writeStringToFile(new File(frontendFolder.getPath() +"/czechidm-" + ROOT_MODULE_ID + "/package.json"),
-					"{ \"version\" : \"1.0.0-snapshot\" }");
+					"{ \"version\" : \"1.0.0-snapshot\" }",
+					AttachableEntity.DEFAULT_CHARSET);
 			// root
-			FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "/pom.xml"),
+			FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "/pom.xml"),
 					"<project>"
 					+ "<modelVersion>4.0.0</modelVersion>"
 					+ "<parent>"
@@ -60,42 +62,45 @@ public class MultiModuleReleaseManagerUnitTest extends AbstractReleaseManagerUni
 					  + "<artifactId>idm-parent</artifactId>"
 					  + "<version>10.0.0</version>"
 					+ "</parent>"
-					+ "<artifactId>" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "</artifactId>"
+					+ "<artifactId>" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "</artifactId>"
 					+ "<packaging>pom</packaging>"
 					+ "<version>" + version + "</version>"
 					+ "<modules>"
-						+ "<module>" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "-api</module>"
-						+ "<module>" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "-impl</module>"
+						+ "<module>" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "-api</module>"
+						+ "<module>" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "-impl</module>"
 					+ "</modules>" +
-					"</project>");
+					"</project>",
+					AttachableEntity.DEFAULT_CHARSET);
 			// api
-			FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID
-					+ "/" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "-api/pom.xml"),
+			FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID
+					+ "/" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "-api/pom.xml"),
 					"<project>"
 					+ "<modelVersion>4.0.0</modelVersion>"
 					+ "<parent>"
 					  + "<relativePath>../pom.xml</relativePath>"
 					  + "<groupId>eu.bcvsolutions.idm</groupId>"
-					  + "<artifactId>" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "</artifactId>"
+					  + "<artifactId>" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "</artifactId>"
 					  + "<version>" + version + "</version>"
 					+ "</parent>"
-					+ "<artifactId>" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "-api</artifactId>"
+					+ "<artifactId>" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "-api</artifactId>"
 					+ "<packaging>jar</packaging>" +
-					"</project>");
+					"</project>",
+					AttachableEntity.DEFAULT_CHARSET);
 			// impl
-			FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID 
-					+ "/" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "-impl/pom.xml"),
+			FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID 
+					+ "/" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "-impl/pom.xml"),
 					"<project>"
 					+ "<modelVersion>4.0.0</modelVersion>"
 					+ "<parent>"
 					  + "<relativePath>../pom.xml</relativePath>"
 					  + "<groupId>eu.bcvsolutions.idm</groupId>"
-					  + "<artifactId>" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "</artifactId>"
+					  + "<artifactId>" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "</artifactId>"
 					  + "<version>" + version + "</version>"
 					+ "</parent>"
-					+ "<artifactId>" + ModuleReleaseManager.IDM_PREFIX + ROOT_MODULE_ID + "-impl</artifactId>"
+					+ "<artifactId>" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "-impl</artifactId>"
 					+ "<packaging>jar</packaging>" +
-					"</project>");
+					"</project>",
+					AttachableEntity.DEFAULT_CHARSET);
 			
 			//
 			releaseManager.setRepositoryRoot(repositoryRootFolder.getPath());

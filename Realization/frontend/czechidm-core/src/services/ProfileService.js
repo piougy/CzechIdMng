@@ -8,10 +8,6 @@ import SearchParameters from '../domain/SearchParameters';
  */
 class ProfileService extends AbstractService {
 
-  constructor() {
-    super();
-  }
-
   getApiPath() {
     return '/profiles';
   }

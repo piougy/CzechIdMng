@@ -65,7 +65,7 @@ export default class BasicTabs extends AbstractComponent {
         animation={false}
         unmountOnExit={unmountOnExit}
         onSelect={ onSelect || this._onChangeSelectTabs.bind(this)}
-        activeKey={ _activeKey }
+        activeKey={ onSelect ? activeKey : _activeKey }
         className={ classNames }
         style={ style }>
         { this._getRenderedChildren(this.props.children) }

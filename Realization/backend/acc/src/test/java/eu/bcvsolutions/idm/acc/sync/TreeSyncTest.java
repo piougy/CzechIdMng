@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.collections.Lists;
 
 import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -52,6 +54,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
@@ -66,9 +69,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class TreeSyncTest extends AbstractIntegrationTest {
 
-	private static final String SYNC_CONFIG_NAME = "syncTreeAdvancedConfigName";
-	private static final String SYSTEM_NAME = "systemSyncTreeAdvancedTest";
-	private static final String TREE_TYPE_TEST = "TREE_ADVANCED_TEST";
 	private static final String ATTRIBUTE_NAME = "__NAME__";
 	private static final String CHANGED = "changed";
 
@@ -86,10 +86,6 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 	private SysSyncConfigService syncConfigService;
 	@Autowired
 	private SysSyncLogService syncLogService;
-	@Autowired
-	private SysSyncItemLogService syncItemLogService;
-	@Autowired
-	private SysSyncActionLogService syncActionLogService;
 	@Autowired
 	private EntityManager entityManager;
 	@Autowired
@@ -116,18 +112,12 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 
 	@Test
 	public void syncNodesUnderExistsRoot() {
-		this.getBean().doCreateSyncConfig();
-
-		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
-		configFilter.setName(SYNC_CONFIG_NAME);
-		List<AbstractSysSyncConfigDto> syncConfigs = syncConfigService.find(configFilter, null).getContent();
-
-		Assert.assertEquals(1, syncConfigs.size());
-		AbstractSysSyncConfigDto syncConfigCustom = syncConfigs.get(0);
+		String treeTypeCode = helper.createName();
+		AbstractSysSyncConfigDto syncConfigCustom = this.getBean().doCreateSyncConfig(treeTypeCode);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
-
+		
 		IdmTreeTypeDto treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
-			return tree.getName().equals(TREE_TYPE_TEST);
+			return tree.getName().equals(treeTypeCode);
 		}).findFirst().get();
 
 		// We want to sync all account under that node!
@@ -150,19 +140,7 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 		Assert.assertFalse(log.isRunning());
 		Assert.assertFalse(log.isContainsError());
 
-		SysSyncActionLogFilter actionLogFilter = new SysSyncActionLogFilter();
-		actionLogFilter.setSynchronizationLogId(log.getId());
-		List<SysSyncActionLogDto> actions = syncActionLogService.find(actionLogFilter, null).getContent();
-		Assert.assertEquals(1, actions.size());
-
-		SysSyncActionLogDto createEntityActionLog = actions.stream().filter(action -> {
-			return SynchronizationActionType.CREATE_ENTITY == action.getSyncAction();
-		}).findFirst().get();
-
-		SysSyncItemLogFilter itemLogFilter = new SysSyncItemLogFilter();
-		itemLogFilter.setSyncActionLogId(createEntityActionLog.getId());
-		List<SysSyncItemLogDto> items = syncItemLogService.find(itemLogFilter, null).getContent();
-		Assert.assertEquals(6, items.size());
+		helper.checkSyncLog(syncConfigCustom, SynchronizationActionType.CREATE_ENTITY, 6, OperationResultType.SUCCESS);
 
 		Assert.assertEquals(1, treeNodeService.findRoots(treeType.getId(), null).getContent().size());
 		IdmTreeNodeDto root = treeNodeService.findRoots(treeType.getId(), null).getContent().get(0);
@@ -174,10 +152,74 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 		// Delete log
 		syncLogService.delete(log);
 	}
+	
+	@Test
+	public void testDifferentialSync() {
+		String treeTypeCode = helper.createName();
+		AbstractSysSyncConfigDto syncConfigCustom = this.getBean().doCreateSyncConfig(treeTypeCode);
+		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
+
+		IdmTreeTypeDto treeType = treeTypeService.find(null).getContent().stream().filter(tree -> {
+			return tree.getName().equals(treeTypeCode);
+		}).findFirst().get();
+
+		// We want to sync all account under that node!
+		IdmTreeNodeDto treeNodeExistedNode = helper.createTreeNode(treeType, null);
+
+		syncConfigCustom.setRootsFilterScript("if(account){ def parentValue = account.getAttributeByName(\"" + helper.getSchemaColumnName("PARENT") + "\").getValue();"
+				+ " if(parentValue == null || parentValue.isEmpty()){"
+				+ "	 account.getAttributeByName(\"" + helper.getSchemaColumnName("PARENT") + "\").setValues([\""+treeNodeExistedNode.getId()+"\"]); return Boolean.TRUE;}}"
+				+ " \nreturn Boolean.FALSE;");
+		syncConfigService.save(syncConfigCustom);
+
+		//
+		helper.startSynchronization(syncConfigCustom);
+		//
+		SysSyncLogFilter logFilter = new SysSyncLogFilter();
+		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
+		List<SysSyncLogDto> logs = syncLogService.find(logFilter, null).getContent();
+		Assert.assertEquals(1, logs.size());
+		SysSyncLogDto log = logs.get(0);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		helper.checkSyncLog(syncConfigCustom, SynchronizationActionType.CREATE_ENTITY, 6, OperationResultType.SUCCESS);
+		
+		// Enable different sync.
+		syncConfigCustom.setDifferentialSync(true);
+		syncConfigCustom = syncConfigService.save(syncConfigCustom);
+		Assert.assertTrue(syncConfigCustom.isDifferentialSync());
+
+		// Start sync with enable different sync - no change was made, so only ignore
+		// update should be made.
+		helper.startSynchronization(syncConfigCustom);
+		log = helper.checkSyncLog(syncConfigCustom, SynchronizationActionType.UPDATE_ENTITY, 6, OperationResultType.IGNORE);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Change code of node
+		IdmTreeNodeDto root = treeNodeService.findRoots(treeType.getId(), null).getContent().get(0);
+		List<IdmTreeNodeDto> children = treeNodeService.findChildrenByParent(root.getId(), null).getContent();
+		Assert.assertEquals(1, children.size());
+		IdmTreeNodeDto child = children.get(0);
+		Assert.assertEquals(child.getCode(), "1");
+		child.setCode(helper.createName());
+		treeNodeService.save(child);
+
+		// Start sync with enable different sync - Node code value changed, so standard update should be made.
+		helper.startSynchronization(syncConfigCustom);
+		log = helper.checkSyncLog(syncConfigCustom, SynchronizationActionType.UPDATE_ENTITY, 1, OperationResultType.SUCCESS);
+		log = helper.checkSyncLog(syncConfigCustom, SynchronizationActionType.UPDATE_ENTITY, 5, OperationResultType.IGNORE);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		// Delete log
+		syncLogService.delete(log);
+	}
 
 	@Transactional
-	public void doCreateSyncConfig() {
-		initData();
+	public AbstractSysSyncConfigDto doCreateSyncConfig(String treeTypeCode) {
+		initData(treeTypeCode);
 
 		SysSystemMappingFilter mappingFilter = new SysSystemMappingFilter();
 		mappingFilter.setEntityType(SystemEntityType.TREE);
@@ -202,17 +244,19 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 		syncConfigCustom.setSystemMapping(mapping.getId());
 		syncConfigCustom.setCorrelationAttribute(uidAttribute.getId());
 		syncConfigCustom.setReconciliation(true);
-		syncConfigCustom.setName(SYNC_CONFIG_NAME);
-		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.IGNORE);
+		syncConfigCustom.setName(helper.createName());
+		syncConfigCustom.setLinkedAction(SynchronizationLinkedActionType.UPDATE_ENTITY);
 		syncConfigCustom.setUnlinkedAction(SynchronizationUnlinkedActionType.IGNORE);
 		syncConfigCustom.setMissingEntityAction(SynchronizationMissingEntityActionType.CREATE_ENTITY);
 		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
 
-		syncConfigService.save(syncConfigCustom);
+		syncConfigCustom = syncConfigService.save(syncConfigCustom);
 
 		SysSyncConfigFilter configFilter = new SysSyncConfigFilter();
 		configFilter.setSystemId(system.getId());
 		Assert.assertEquals(1, syncConfigService.find(configFilter, null).getTotalElements());
+		
+		return syncConfigCustom;
 	}
 
 	@Transactional
@@ -222,11 +266,11 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 		q.executeUpdate();
 	}
 
-	private void initData() {
+	private void initData(String treeTypeCode) {
 
 		// create test system
 		system = helper.createSystem("test_tree_resource");
-		system.setName(SYSTEM_NAME);
+		system.setName(helper.createName());
 		system = systemService.save(system);
 		// key to EAV
 		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
@@ -236,8 +280,8 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
 
 		IdmTreeTypeDto treeType = new IdmTreeTypeDto();
-		treeType.setCode(TREE_TYPE_TEST);
-		treeType.setName(TREE_TYPE_TEST);
+		treeType.setCode(treeTypeCode);
+		treeType.setName(treeTypeCode);
 		treeType = treeTypeService.save(treeType);
 
 		// Create synchronization mapping

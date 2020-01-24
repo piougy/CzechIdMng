@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 
+import com.beust.jcommander.internal.Lists;
+
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -233,6 +235,186 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void testDifferntialSyncNoChanges() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		// Different sync is disabled by default.
+		Assert.assertFalse(config.isDifferentialSync());
+
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+
+		// Start sync for create identity
+		helper.startSynchronization(config);
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		IdmIdentityDto identity = identities.get(0);
+		
+		// Start sync with disable different sync - no change was made on
+		// identity, but standard update should be made.
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		// Identity had to be modified by sync!
+//		ZonedDateTime originalModified = identity.getModified();
+//		ZonedDateTime modified = identityService.get(identity.getId()).getModified();
+//		Assert.assertNull(originalModified);
+//		Assert.assertNotNull(modified);
+		
+		// Enable different sync.
+		config.setDifferentialSync(true);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		Assert.assertTrue(config.isDifferentialSync());
+		
+		// Start sync with enable different sync - no change was made on
+		// identity, so only ignore update should be made.
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1,
+				OperationResultType.IGNORE);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		// Identity was not updated!
+//		originalModified = modified;
+//		modified = identityService.get(identity.getId()).getModified();
+//		Assert.assertNotNull(originalModified);
+//		Assert.assertNotNull(modified);
+//		Assert.assertTrue(modified.isEqual(originalModified));
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+	
+	@Test
+	public void testDifferntialSyncWithEntityChange() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		// Different sync is disabled by default.
+		Assert.assertFalse(config.isDifferentialSync());
+
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+
+		// Start sync for create identity
+		helper.startSynchronization(config);
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		IdmIdentityDto identity = identities.get(0);
+		
+		// Enable different sync.
+		config.setDifferentialSync(true);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		Assert.assertTrue(config.isDifferentialSync());
+		
+		// Start sync with enable different sync - no change was made on
+		// identity, so only ignore update should be made.
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1,
+				OperationResultType.IGNORE);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		identity.setFirstName(getHelper().createName());
+		identity = identityService.save(identity);
+		
+		// Start sync with enable different sync - first name was changed
+		// -> standard update should be made.
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		String originalFirstName = identity.getFirstName();
+		String firstName = identityService.get(identity.getId()).getFirstName();
+		Assert.assertNotEquals(originalFirstName, firstName);
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+	
+	@Test
+	public void testDifferntialSyncWithEAVChange() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		// Different sync is disabled by default.
+		Assert.assertFalse(config.isDifferentialSync());
+
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+		List<IdmIdentityDto> identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(0, identities.size());
+
+		// Start sync for create identity
+		helper.startSynchronization(config);
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		identities = identityService.find(identityFilter, null).getContent();
+		Assert.assertEquals(1, identities.size());
+		IdmIdentityDto identity = identities.get(0);
+		
+		// Enable different sync.
+		config.setDifferentialSync(true);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+		Assert.assertTrue(config.isDifferentialSync());
+		
+		// Start sync with enable different sync - no change was made on
+		// identity, so only ignore update should be made.
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1,
+				OperationResultType.IGNORE);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		List<IdmFormValueDto> values = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
+		Assert.assertEquals(1, values.size());
+		IdmFormValueDto emailTwo = values.get(0);
+		Assert.assertEquals(identity.getEmail(), emailTwo.getValue());
+		
+		String emailTwoValue = getHelper().createName();
+		formService.saveValues(identity, ATTRIBUTE_EMAIL_TWO, Lists.newArrayList(emailTwoValue));
+		
+		// Start sync with enable different sync - email two in EAV was changed
+		// -> standard update should be made.
+		helper.startSynchronization(config);
+		log = checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1,
+				OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		values = formService.getValues(identity, ATTRIBUTE_EMAIL_TWO);
+		Assert.assertEquals(1, values.size());
+		emailTwo = values.get(0);
+		Assert.assertEquals(identity.getEmail(), emailTwo.getValue());
+
+		// Delete log
+		syncLogService.delete(log);
+		syncConfigService.delete(config);
+	}
+	
+	@Test
 	public void testCreateIdentityWithDefaultContractAndRoleSync() {
 		SysSystemDto system = initData();
 		Assert.assertNotNull(system);
@@ -399,10 +581,12 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// !!!!To delete - Test doesn't pass on the Jenkins, we need to more information
 		if (identityAccounts.size() > 1) {
 			identityAccounts.forEach(identityAccountDtoOne -> {
+				System.out.println("Id - identityAccount: " + identityAccountDtoOne.getId());
 				System.out.println("Account: " + identityAccountDtoOne.getAccount());
 				System.out.println("RoleSystem: " + identityAccountDtoOne.getRoleSystem());
 				System.out.println("Identity: " + identityAccountDtoOne.getIdentity());
 				System.out.println("IdentityRole: " + identityAccountDtoOne.getIdentityRole());
+				System.out.println("----");
 			});
 		}
 		// !!!

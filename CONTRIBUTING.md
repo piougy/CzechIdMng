@@ -55,7 +55,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Java
   * Class - fields first, then constructors, then public methods, then private methods
   * ``final`` modifier only there, when is needed (its discutable, but we are using it this way)
-  * keep formatting like author - e.g. inline @Autocomplete, stream formating
+  * keep formatting like author - e.g. inline @Autocomplete, stream formatting
 * Modules
   * Spring bean names, component names, services, entities etc. should start with module identifier prefix.
   * Registrable bean names (e.g. ``AuthorizationEvaluator``, ``FilterBuilder``, ``IdmAuthenticationFilter`` ...) should start with module prefix ``core-sso-authentication-filter``. This name could be used as bean name in Spring context.
@@ -87,7 +87,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Use JSDoc for documentation (`@author` etc.) https://developers.google.com/closure/compiler/docs/js-for-compiler
 * Make tests (mocha, chai)
 * Use identity operator `!==`, `===`. Look out - check boolean values always `parameter === true` or `parameter !== null`.
-* Naming convention for object is the same as in java - camelCase, "private" attributes and methods starting with `_`, e.g. `_links`, `_trimmed`
+* Naming convention for objects is the same as in java - camelCase, singular etc. Exception are contents representing url or route - can be in plurar (e.g. Identities, Roles with the list of entities).
 * `constructor` method has to be at the start of class
 * `componentDidMount` and the next react lifecycle methods has to be in the lifecycle order.
 * `render` method has to be on the end of react component

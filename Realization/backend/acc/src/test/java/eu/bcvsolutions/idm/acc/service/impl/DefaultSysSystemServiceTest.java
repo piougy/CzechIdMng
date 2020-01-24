@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import com.google.common.collect.ImmutableList;
@@ -32,6 +33,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysConnectorKeyDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
@@ -95,6 +97,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -812,6 +815,61 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// Clear deferred result and subscribers
 		defaultPollingManager.getSuspendedRequests().clear();
 		defaultPollingManager.getRegistredSubscribers().clear();
+	}
+	
+	/**
+	 * Add connector attribute into form definition after definition exist (e.g. attribute was added into connector configuration).
+	 */
+	@Test
+	@Transactional
+	public void testAddConnectorAttributeDefensivelly() {
+		// tested on AD connector
+		SysSystemDto system = new SysSystemDto();
+		system.setName(getHelper().createName());
+		//
+		IcConnectorKeyImpl key = new IcConnectorKeyImpl();
+		key.setFramework("connId");
+		key.setConnectorName("net.tirasa.connid.bundles.ad.ADConnector");
+		key.setBundleName("net.tirasa.connid.bundles.ad");
+		key.setBundleVersion("1.3.4.27");
+		//
+		system.setConnectorKey(new SysConnectorKeyDto(key));
+		system = systemService.save(system);
+
+		IdmFormDefinitionDto formDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		//
+		// remove some attribute (e.g. first one)
+		Assert.assertFalse(formDefinition.getFormAttributes().isEmpty());
+		int attributesCount = formDefinition.getFormAttributes().size();
+		IdmFormAttributeDto lastAttribute = formDefinition.getFormAttributes().get(attributesCount - 1);
+		//
+		// delete attribute
+		formService.deleteAttribute(lastAttribute);
+		Assert.assertEquals(attributesCount - 1, formService.getDefinition(formDefinition.getId()).getFormAttributes().size());
+		//
+		formDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		Assert.assertEquals(attributesCount, formDefinition.getFormAttributes().size());
+		//
+		IdmFormAttributeDto recreatedLastAttribute = formDefinition.getFormAttributes().get(attributesCount - 1);
+		//
+		Assert.assertEquals(lastAttribute.getCode(), recreatedLastAttribute.getCode());
+		Assert.assertEquals(lastAttribute.getName(), recreatedLastAttribute.getName());
+		Assert.assertEquals(lastAttribute.getDefaultValue(), recreatedLastAttribute.getDefaultValue());
+		Assert.assertEquals(lastAttribute.getDescription(), recreatedLastAttribute.getDescription());
+		Assert.assertEquals(lastAttribute.getFaceType(), recreatedLastAttribute.getFaceType());
+		Assert.assertEquals(lastAttribute.getPersistentType(), recreatedLastAttribute.getPersistentType());
+		Assert.assertEquals(lastAttribute.getPlaceholder(), recreatedLastAttribute.getPlaceholder());
+		Assert.assertEquals(lastAttribute.getRegex(), recreatedLastAttribute.getRegex());
+		Assert.assertEquals(lastAttribute.getValidationMessage(), recreatedLastAttribute.getValidationMessage());
+		Assert.assertEquals(lastAttribute.getMax(), recreatedLastAttribute.getMax());
+		Assert.assertEquals(lastAttribute.getMin(), recreatedLastAttribute.getMin());
+		Assert.assertEquals(lastAttribute.getSeq(), recreatedLastAttribute.getSeq());
+		Assert.assertEquals(lastAttribute.isConfidential(), recreatedLastAttribute.isConfidential());
+		Assert.assertEquals(lastAttribute.isRequired(), recreatedLastAttribute.isRequired());
+		Assert.assertEquals(lastAttribute.isReadonly(), recreatedLastAttribute.isReadonly());
+		Assert.assertEquals(lastAttribute.isMultiple(), recreatedLastAttribute.isMultiple());
+		Assert.assertEquals(lastAttribute.isUnique(), recreatedLastAttribute.isUnique());
+		Assert.assertEquals(lastAttribute.isUnmodifiable(), recreatedLastAttribute.isUnmodifiable());
 	}
 
 	private AbstractSysSyncConfigDto createSync(SysSystemDto system) {

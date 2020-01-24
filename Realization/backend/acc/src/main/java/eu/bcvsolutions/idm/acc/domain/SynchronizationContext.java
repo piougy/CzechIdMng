@@ -83,6 +83,7 @@ public class SynchronizationContext implements Serializable {
 	private AbstractDto entityDto;
 	// Properties - map for additionally data. Good as cache for contract ...
 	private Map<String, Object> properties = new HashMap<String, Object>();
+	private boolean isEntityDifferent = false;
 
 	public String getUid() {
 		return uid;
@@ -298,6 +299,15 @@ public class SynchronizationContext implements Serializable {
 
 	public SynchronizationContext setProperties(Map<String, Object> properties) {
 		this.properties = properties;
+		return this;
+	}
+	
+	public boolean isEntityDifferent() {
+		return isEntityDifferent;
+	}
+
+	public SynchronizationContext setIsEntityDifferent(boolean isEntityDifferent) {
+		this.isEntityDifferent = isEntityDifferent;
 		return this;
 	}
 

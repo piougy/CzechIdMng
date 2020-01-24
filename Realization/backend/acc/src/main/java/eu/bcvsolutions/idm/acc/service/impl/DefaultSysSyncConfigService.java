@@ -183,6 +183,11 @@ public class DefaultSysSyncConfigService
 		if (StringUtils.isNotEmpty(name)) {
 			predicates.add(builder.equal(root.get(SysSyncConfig_.name), name));
 		}
+		// differentialSync
+		Boolean differentialSync = filter.getDifferentialSync();
+		if(differentialSync != null) {
+			predicates.add(builder.equal(root.get(SysSyncConfig_.differentialSync), differentialSync));
+		}
 		//
 		return predicates;
 	}

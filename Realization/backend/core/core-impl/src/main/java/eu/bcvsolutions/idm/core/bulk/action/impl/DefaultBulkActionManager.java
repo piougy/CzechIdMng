@@ -136,6 +136,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		actionDto.setShowWithoutSelection(action.showWithoutSelection());
 		actionDto.setShowWithSelection(action.showWithSelection());
 		actionDto.setDisabled(action.isDisabled());
+		actionDto.setLevel(action.getLevel());
 		//
 		return actionDto;
 	}

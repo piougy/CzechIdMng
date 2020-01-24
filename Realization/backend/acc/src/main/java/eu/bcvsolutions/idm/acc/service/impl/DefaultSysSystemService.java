@@ -86,15 +86,15 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
  * Default target system configuration service
- * 
+ *
  * @author Radek Tomiška
  *
  */
 @Service
-public class DefaultSysSystemService 
+public class DefaultSysSystemService
 		extends AbstractFormableService<SysSystemDto, SysSystem, SysSystemFilter>
 		implements SysSystemService {
-	
+
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysSystemService.class);
 
 	private final SysSystemRepository systemRepository;
@@ -112,13 +112,13 @@ public class DefaultSysSystemService
 
 	@Autowired
 	public DefaultSysSystemService(
-			SysSystemRepository systemRepository, 
+			SysSystemRepository systemRepository,
 			FormService formService,
-			IcConfigurationFacade icConfigurationFacade, 
+			IcConfigurationFacade icConfigurationFacade,
 			SysSchemaObjectClassService objectClassService,
-			SysSchemaAttributeService attributeService, 
+			SysSchemaAttributeService attributeService,
 			SysSyncConfigService synchronizationConfigService,
-			FormPropertyManager formPropertyManager, 
+			FormPropertyManager formPropertyManager,
 			ConfidentialStorage confidentialStorage,
 			IcConnectorFacade connectorFacade,
 			SysSystemFormValueService systemFormValueService,
@@ -153,7 +153,7 @@ public class DefaultSysSystemService
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.schemaObjectClassService = schemaObjectClassService;
 	}
-	
+
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return null; //new AuthorizableType(AccGroupPermission.SYSTEM, getEntityClass());
@@ -182,7 +182,7 @@ public class DefaultSysSystemService
 		//
 		return entity;
 	}
-	
+
 	@Override
 	@Transactional
 	public SysSystemDto saveInternal(SysSystemDto dto) {
@@ -200,7 +200,7 @@ public class DefaultSysSystemService
 	public SysSystemDto getByCode(String name) {
 		return toDto(systemRepository.findOneByName(name));
 	}
-	
+
 	@Override
 	protected List<Predicate> toPredicates(Root<SysSystem> root, CriteriaQuery<?> query, CriteriaBuilder builder, SysSystemFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
@@ -211,13 +211,13 @@ public class DefaultSysSystemService
 							builder.like(builder.lower(root.get(SysSystem_.name)), "%" + filter.getText().toLowerCase() + "%"),
 							builder.like(builder.lower(root.get(SysSystem_.description)), "%" + filter.getText().toLowerCase() + "%")
 							));
-			
+
 		}
 		if (filter.getVirtual() != null) {
 			predicates.add(builder.equal(root.get(SysSystem_.virtual), filter.getVirtual()));
 		}
 		if (filter.getPasswordPolicyGenerationId() != null) {
-			predicates.add(builder.equal(root.get(SysSystem_.passwordPolicyGenerate).get(IdmPasswordPolicy_.id), filter.getPasswordPolicyGenerationId()));		
+			predicates.add(builder.equal(root.get(SysSystem_.passwordPolicyGenerate).get(IdmPasswordPolicy_.id), filter.getPasswordPolicyGenerationId()));
 		}
 		if (filter.getPasswordPolicyValidationId() != null) {
 			predicates.add(builder.equal(root.get(SysSystem_.passwordPolicyValidate).get(IdmPasswordPolicy_.id), filter.getPasswordPolicyValidationId()));
@@ -249,16 +249,16 @@ public class DefaultSysSystemService
 
 		// fill connector configuration from form values
 		IcConnectorConfigurationImpl configuration = null;
-		if(SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())){
+		if (SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())){
 			// For CzechIdM connector framework is needs system ID (exactly for virtual systems).
 			 configuration = new IcConnectorConfigurationCzechIdMImpl();
 			 ((IcConnectorConfigurationCzechIdMImpl)configuration).setSystemId(system.getId());
-		}else {
+		} else {
 			 configuration = new IcConnectorConfigurationImpl();
 		}
 		// Create configuration for pool
 		fillPoolingConnectorConfiguration(configuration, system.getConnectorInstance(), system);
-		
+
 		IcConfigurationProperties properties = new IcConfigurationPropertiesImpl();
 		configuration.setConfigurationProperties(properties);
 		//
@@ -277,7 +277,7 @@ public class DefaultSysSystemService
 				properties.getProperties().add(property);
 			}
 		}
-		
+
 		return configuration;
 	}
 
@@ -286,15 +286,15 @@ public class DefaultSysSystemService
 	public IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass){
 		Assert.notNull(systemId, "System ID cannot be null!");
 		Assert.notNull(uid, "Account UID cannot be null!");
-		
+
 		SysSystemDto system = this.get(systemId);
 		Assert.notNull(system, "System cannot be null!");
-		
+
 		return connectorFacade.readObject(system.getConnectorInstance(), this.getConnectorConfiguration(system),
 				objectClass, new IcUidAttributeImpl(null, uid, null));
-		
+
 	}
-	
+
 
 	@Override
 	@Transactional
@@ -324,7 +324,7 @@ public class DefaultSysSystemService
 	public List<SysSchemaObjectClassDto> generateSchema(SysSystemDto system) {
 		Assert.notNull(system, "System is required.");
 		Assert.notNull(system.getId(), "System identifier is required.");
-		
+
 		// Find connector identification persisted in system
 		IcConnectorKey connectorKey = system.getConnectorKey();
 		if (connectorKey == null) {
@@ -342,7 +342,7 @@ public class DefaultSysSystemService
 		// Call IC module and find schema for given connector key and
 		// configuration
 		IcSchema icSchema = null;
-		
+
 		try {
 			icSchema = icConfigurationFacade.getSchema(system.getConnectorInstance(), connectorConfig);
 		} catch (Exception ex) {
@@ -391,10 +391,10 @@ public class DefaultSysSystemService
 			// new instance)
 			sysObjectClass = convertIcObjectClassInfo(objectClass, sysObjectClass);
 			sysObjectClass.setSystem(system.getId());
-			
-			// object class may not exist 
+
+			// object class may not exist
 			sysObjectClass = schemaObjectClassService.save(sysObjectClass);
-			
+
 			sysObjectClasses.add(sysObjectClass);
 
 			List<SysSchemaAttributeDto> attributesInSystem = null;
@@ -440,24 +440,21 @@ public class DefaultSysSystemService
 		IdmFormDefinitionDto formDefinition = getFormService().getDefinition(SysSystem.class.getName(),
 				connectorInstance.getConnectorKey().getFullName());
 		//
-		if (formDefinition == null) {
-			// we creates new form definition
-			formDefinition = createConnectorFormDefinition(connectorInstance);
-			formDefinition.setUnmodifiable(true);
-		}
-		
+		formDefinition = resolveConnectorFormDefinition(formDefinition, connectorInstance);
+		formDefinition.setUnmodifiable(true);
+		//
 		return formDefinition;
 	}
-	
+
 	@Override
 	@Transactional
 	public IdmFormDefinitionDto getPoolingConnectorFormDefinition(IcConnectorInstance connectorInstance) {
 		Assert.notNull(connectorInstance, "Connector instance is required.");
 		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
-	
+
 		IdmFormDefinitionDto formDefinitionPooling = getFormService().getDefinition(SysSystem.class.getName(),
 				getPoolingFormDefinitionCode(connectorInstance));
-		
+
 		if (formDefinitionPooling == null) {
 			formDefinitionPooling = createPoolingFormDefinition(connectorInstance);
 		}
@@ -486,7 +483,7 @@ public class DefaultSysSystemService
 
 		// Duplicate connector configuration values in EAV
 		IcConnectorInstance connectorInstance = originalSystem.getConnectorInstance();
-		
+
 		if(connectorInstance != null && connectorInstance.getConnectorKey() != null && connectorInstance.getConnectorKey().getFramework() != null){
 			IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(connectorInstance);
 			List<IdmFormValueDto> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
@@ -496,7 +493,7 @@ public class DefaultSysSystemService
 				systemFormValueService.duplicate(value.getId(), systemEntity);
 			});
 		}
-		
+
 		// Duplicate schema
 		SysSchemaObjectClassFilter objectClassFilter = new SysSchemaObjectClassFilter();
 		objectClassFilter.setSystemId(id);
@@ -509,7 +506,7 @@ public class DefaultSysSystemService
 			SysSystemMappingFilter systemMappingFilter = new SysSystemMappingFilter();
 			systemMappingFilter.setSystemId(id);
 			systemMappingService.find(systemMappingFilter, null).getContent().stream().filter(mapping -> {
-				
+
 				// Find mapping for this schema
 				return mapping.getObjectClass().equals(originalSchemaId);
 			}).forEach(mapping -> {
@@ -520,7 +517,7 @@ public class DefaultSysSystemService
 				// Duplicate sync configs
 				List<AbstractSysSyncConfigDto> syncConfigs = findSyncConfigs(id);
 				syncConfigs.stream().filter(syncConfig -> {
-					
+
 					// Find configuration of sync for this mapping
 					return syncConfig.getSystemMapping().equals(originalMappingId);
 				}).forEach(syncConfig -> {
@@ -542,7 +539,7 @@ public class DefaultSysSystemService
 		EntityUtils.clearAuditFields(originalSystem);
 		return originalSystem;
 	}
-	
+
 	private SysSchemaObjectClassDto convertIcObjectClassInfo(IcObjectClassInfo objectClass,
 			SysSchemaObjectClassDto sysObjectClass) {
 		if (objectClass == null) {
@@ -575,10 +572,10 @@ public class DefaultSysSystemService
 		sysAttribute.setCreateable(attributeInfo.isCreateable());
 		return sysAttribute;
 	}
-	
+
 	/**
 	 * Creates configuration for pool by EAV values
-	 * 
+	 *
 	 * @param configuration
 	 * @param connectorInstance
 	 * @param system
@@ -629,14 +626,14 @@ public class DefaultSysSystemService
 			connectorPoolConfiguration.setMaxWait((long) maxWait);
 		}
 	}
-	
+
 	/**
 	 * Create form definition to given connectorInstance by connector properties
-	 * 
+	 *
 	 * @param connectorKey
 	 * @return
 	 */
-	private synchronized IdmFormDefinitionDto createConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+	private synchronized IdmFormDefinitionDto resolveConnectorFormDefinition(IdmFormDefinitionDto formDefinition, IcConnectorInstance connectorInstance) {
 		IcConnectorConfiguration conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 		if (conf == null) {
 			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
@@ -645,25 +642,50 @@ public class DefaultSysSystemService
 		//
 		List<IcConfigurationProperty> properties = conf.getConfigurationProperties().getProperties();
 		List<IdmFormAttributeDto> formAttributes = new ArrayList<>(properties.size());
-		for (short seq = 0; seq < properties.size(); seq++) {
-			IcConfigurationProperty property = properties.get(seq);
-			IdmFormAttributeDto attribute = formPropertyManager.toFormAttribute(property);
-			attribute.setSeq(seq);
-			formAttributes.add(attribute);
+		//
+		if (formDefinition == null) {
+			// create new form definition
+			for (short seq = 0; seq < properties.size(); seq++) {
+				IcConfigurationProperty property = properties.get(seq);
+				IdmFormAttributeDto attribute = formPropertyManager.toFormAttribute(property);
+				attribute.setSeq(seq);
+				formAttributes.add(attribute);
+			}
+			formDefinition = getFormService().createDefinition(SysSystem.class.getName(),
+					connectorInstance.getConnectorKey().getFullName(), formAttributes);
+		} else {
+			// check attributes / attribute can be added into form definition
+			// update attribute is not supported now
+			for (short seq = 0; seq < properties.size(); seq++) {
+				IcConfigurationProperty property = properties.get(seq);
+
+				IdmFormAttributeDto formAttribute = formDefinition.getMappedAttributeByCode(property.getName());
+				if (formAttribute == null) {
+					LOG.info("Connector attribute [{}] not found in definition, attributte will be added into definition with code [{}].",
+							property.getName(),
+							formDefinition.getCode());
+					//
+					formAttribute = formPropertyManager.toFormAttribute(property);
+					formAttribute.setFormDefinition(formDefinition.getId());
+					formAttribute.setSeq(seq);
+					formAttribute = getFormService().saveAttribute(formAttribute);
+					formDefinition.addFormAttribute(formAttribute);
+				}
+			}
 		}
-		return getFormService().createDefinition(SysSystem.class,
-				connectorInstance.getConnectorKey().getFullName(), formAttributes);
+		//
+		return formDefinition;
 	}
-	
+
 	/**
 	 * Create form definition for connector pooling configuration
-	 * 
+	 *
 	 * @param connectorInstance
 	 * @return
 	 */
 	private synchronized IdmFormDefinitionDto createPoolingFormDefinition(IcConnectorInstance connectorInstance) {
 		IcConnectorConfiguration config = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
-		
+
 		String poolingDefinitionCode = getPoolingFormDefinitionCode(connectorInstance);
 		if (config == null) {
 			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found!",
@@ -672,12 +694,12 @@ public class DefaultSysSystemService
 		//
 		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
 		IcObjectPoolConfiguration poolConfiguration = config.getConnectorPoolConfiguration();
-		
+
 		IdmFormAttributeDto attributePoolingSupported = new IdmFormAttributeDto(POOLING_SUPPORTED_PROPERTY, POOLING_SUPPORTED_NAME, PersistentType.BOOLEAN);
 		attributePoolingSupported.setDefaultValue(String.valueOf(false));
 		attributePoolingSupported.setSeq((short)1);
 		formAttributes.add(attributePoolingSupported);
-		
+
 		// Max idle objects
 		IdmFormAttributeDto attributeMaxIdle = new IdmFormAttributeDto(MAX_IDLE_PROPERTY, MAX_IDLE_NAME, PersistentType.INT);
 		if(poolConfiguration != null) {
@@ -685,7 +707,7 @@ public class DefaultSysSystemService
 		}
 		attributeMaxIdle.setSeq((short)2);
 		formAttributes.add(attributeMaxIdle);
-		
+
 		// Max idle objects
 		IdmFormAttributeDto attributeMinIdle = new IdmFormAttributeDto(MIN_IDLE_PROPERTY, MIN_IDLE_NAME, PersistentType.INT);
 		if(poolConfiguration != null) {
@@ -693,7 +715,7 @@ public class DefaultSysSystemService
 		}
 		attributeMinIdle.setSeq((short)3);
 		formAttributes.add(attributeMinIdle);
-		
+
 		// Max objects (idle + active).
 		IdmFormAttributeDto attributeMaxObjects = new IdmFormAttributeDto(MAX_OBJECTS_PROPERTY, MAX_OBJECTS_NAME, PersistentType.INT);
 		if(poolConfiguration != null) {
@@ -701,7 +723,7 @@ public class DefaultSysSystemService
 		}
 		attributeMaxObjects.setSeq((short)4);
 		formAttributes.add(attributeMaxObjects);
-		
+
 		// Max time to wait if the pool is waiting for a free object. Zero means do not wait.
 		IdmFormAttributeDto attributeMaxWait = new IdmFormAttributeDto(MAX_WAIT_PROPERTY, MAX_WAIT_NAME, PersistentType.LONG);
 		if(poolConfiguration != null) {
@@ -709,7 +731,7 @@ public class DefaultSysSystemService
 		}
 		attributeMaxWait.setSeq((short)5);
 		formAttributes.add(attributeMaxWait);
-		
+
 		// Minimum time to wait before evicting idle objects. Zero means do not wait.
 		IdmFormAttributeDto attributeMinEvicTime = new IdmFormAttributeDto(MIN_TIME_TO_EVIC_PROPERTY, MIN_TIME_TO_EVIC_NAME, PersistentType.LONG);
 		if(poolConfiguration != null) {
@@ -717,10 +739,10 @@ public class DefaultSysSystemService
 		}
 		attributeMinEvicTime.setSeq((short)6);
 		formAttributes.add(attributeMinEvicTime);
-	
+
 		return getFormService().createDefinition(SysSystem.class, poolingDefinitionCode, formAttributes);
 	}
-	
+
 	/**
 	 * Returns name (code) of form-definition pool configuration
 	 * @param connectorInstance
@@ -793,7 +815,7 @@ public class DefaultSysSystemService
 
 		return mapping;
 	}
-	
+
 	/**
 	 * Duplication of sync configuration. Is not in sync service, because we need use IDs cache (Old vs New IDs)
 	 * @param syncConfigId
@@ -826,7 +848,7 @@ public class DefaultSysSystemService
 		clonedSyncConfig.setEnabled(false);
 		synchronizationConfigService.save(clonedSyncConfig);
 	}
-	
+
 	/**
 	 * Find new mapped attribute by old mapped attribute (uses cache ids)
 	 * @param oldAttribute
@@ -854,10 +876,10 @@ public class DefaultSysSystemService
 
 	/**
 	 * Create new system name for duplicate
-	 * 
+	 *
 	 * @param name
 	 * @param i
-	 * 
+	 *
 	 * @return
 	 */
 	private String duplicateName(String name, int i) {
@@ -949,7 +971,7 @@ public class DefaultSysSystemService
 
 	/**
 	 * Basic table connector
-	 * 
+	 *
 	 * @return
 	 */
 	@Deprecated

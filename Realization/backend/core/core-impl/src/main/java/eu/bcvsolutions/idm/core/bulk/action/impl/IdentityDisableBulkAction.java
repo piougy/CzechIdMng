@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
@@ -55,6 +56,11 @@ public class IdentityDisableBulkAction extends AbstractBulkAction<IdmIdentityDto
 	@Override
 	public int getOrder() {
 		return super.getOrder() + 100;
+	}
+	
+	@Override
+	public NotificationLevel getLevel() {
+		return NotificationLevel.WARNING;
 	}
 
 	@Override

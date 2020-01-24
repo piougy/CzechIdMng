@@ -69,5 +69,4 @@ public class SystemDuplicateBulkAction extends AbstractBulkAction<SysSystemDto, 
 	public ReadWriteDtoService<SysSystemDto, SysSystemFilter> getService() {
 		return systemService;
 	}
-
 }

@@ -40,9 +40,10 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
 
   componentDidUpdate() {
     const { entity } = this.props;
+    const { entityId } = this.props.match.params;
+    //
     if (entity) {
-      const identity = entity._embedded.identity;
-      this.context.store.dispatch(manager.queueFetchPermissions(entity.id, `${identity.username}-password-permission`));
+      this.context.store.dispatch(manager.queueFetchPermissions(entity.id, `${ entityId }-password-permission`));
     }
   }
 
@@ -254,7 +255,7 @@ function select(state, component) {
     _permissions: Utils.Permission.getPermissions(state, `${entityId}-password-permission`),
     entity: DataManager.getData(state, uiKey),
     userContext: state.security.userContext,
-    showLoading: Utils.Ui.isShowLoading(state, uiKey) && Utils.Ui.isShowLoading(state, uiKeyPermission)
+    showLoading: Utils.Ui.isShowLoading(state, uiKey) || Utils.Ui.isShowLoading(state, uiKeyPermission)
   };
 }
 

@@ -670,9 +670,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         );
       } else {
         modalContent = (
-          <div>
+          <Basic.Div>
             <Basic.Modal.Header
-              text={ this.i18n(backendBulkAction.module + ':eav.bulk-action.' + backendBulkAction.name + '.label') }/>
+              text={ this.i18n(`${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.label`) }/>
             <Basic.Modal.Body>
               <Basic.Alert
                 level="info"
@@ -685,7 +685,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 { this.i18n('button.close') }
               </Basic.Button>
             </Basic.Modal.Footer>
-          </div>
+          </Basic.Div>
         );
       }
     } else if (backendBulkAction) {
@@ -699,24 +699,33 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             <Basic.AbstractForm ref="bulkActionForm" showLoading={bulkActionShowLoading}>
               <Basic.Alert
                 level="warning"
-                text={this.i18n('bulkAction.selectAllRecordsWarning',
-                  {
+                text={
+                  this.i18n('bulkAction.selectAllRecordsWarning', {
                     count,
                     action: this.i18n(`${backendBulkAction.module}:eav.bulk-action.${backendBulkAction.name}.label`),
                     date: now,
                     escape: false
-                  })}
+                  })
+                }
                 rendered={isSelectedAll} />
-              <Basic.Row rendered={!isSelectedAll} style={ { marginLeft: 0, marginRight: 0, marginBottom: 15 } }>
-                <span dangerouslySetInnerHTML={{ __html: this.i18n('bulkAction.message' + (selectedRows.length === 0 ? '_empty' : ''), {
-                  count: selectedRows.length,
-                  entities: manager.getNiceLabels(selectedEntities).join(', '),
-                  name: this.i18n(`${backendBulkAction.module}:eav.bulk-action.${backendBulkAction.name}.label`) }) }}/>
+              <Basic.Row rendered={ !isSelectedAll } style={{ marginLeft: 0, marginRight: 0, marginBottom: 15 }}>
+                {
+                  this.i18n(`bulkAction.message${ (selectedRows.length === 0 ? '_empty' : '') }`, {
+                    count: selectedRows.length,
+                    entities: manager.getNiceLabels(selectedEntities).join(', '),
+                    name: this.i18n(`${backendBulkAction.module}:eav.bulk-action.${backendBulkAction.name}.label`),
+                    escape: false
+                  })
+                }
               </Basic.Row>
               <Basic.Row rendered={removedEnties.length > 0} style={ { marginLeft: 0, marginRight: 0, marginBottom: 15 } }>
-                <span dangerouslySetInnerHTML={{ __html: this.i18n('bulkAction.removedRecord', {
-                  count: removedEnties.length,
-                  entities: manager.getNiceLabels(removedEnties).join(', ') }) }}/>
+                {
+                  this.i18n('bulkAction.removedRecord', {
+                    count: removedEnties.length,
+                    entities: manager.getNiceLabels(removedEnties).join(', '),
+                    escape: false
+                  })
+                }
               </Basic.Row>
               <Basic.Alert
                 level="info"
@@ -743,7 +752,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             </Basic.Button>
             <Basic.Button
               type="submit"
-              level="success"
+              level={ backendBulkAction.level ? backendBulkAction.level.toLowerCase() : 'success' }
               showLoading={ bulkActionShowLoading }
               showLoadingIcon
               showLoadingText={ this.i18n('button.saving') }>

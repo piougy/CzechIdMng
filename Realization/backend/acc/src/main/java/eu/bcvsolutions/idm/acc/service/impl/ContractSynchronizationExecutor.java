@@ -1,14 +1,13 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.beans.IntrospectionException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -64,7 +63,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractGuaranteeEvent.ContractGuaranteeEventType;
@@ -86,6 +84,13 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProces
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
+
+/**
+ * Synchronization of contracts
+ * 
+ * @author Vít Švanda
+ *
+ */
 
 @Component
 public class ContractSynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityContractDto>
@@ -272,18 +277,32 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			// they), but to the embedded map.
 			if (CONTRACT_GUARANTEES_FIELD.equals(attributeProperty)) {
 				SyncIdentityContractDto syncIdentityContractDto = (SyncIdentityContractDto) dto.getEmbedded().get(SYNC_CONTRACT_FIELD);
+				
 				if (transformedValue instanceof SyncIdentityContractDto) {
+					SyncIdentityContractDto transformedValueSyncIdentityContract = (SyncIdentityContractDto) transformedValue;
+					
 					if (syncIdentityContractDto == null) {
-						dto.getEmbedded().put(SYNC_CONTRACT_FIELD, (SyncIdentityContractDto) transformedValue);
+						dto.getEmbedded().put(SYNC_CONTRACT_FIELD, transformedValueSyncIdentityContract);
 					} else {
-						syncIdentityContractDto.setGuarantees(((SyncIdentityContractDto) transformedValue).getGuarantees());
+						syncIdentityContractDto.setGuarantees(transformedValueSyncIdentityContract.getGuarantees());
 					}
 				} else if (syncIdentityContractDto == null) {
 					dto.getEmbedded().put(SYNC_CONTRACT_FIELD, new SyncIdentityContractDto());
 				}
+				
+				// Check if new guarantees are different than current guarantees.
+				syncIdentityContractDto = (SyncIdentityContractDto) dto.getEmbedded().get(SYNC_CONTRACT_FIELD);
+				if (syncIdentityContractDto != null && !context.isEntityDifferent()) {
+					List<IdmIdentityDto> newGuarantees = syncIdentityContractDto.getGuarantees();
+					if (!isGuaranteesSame(dto, newGuarantees)) {
+						// Guarantees are different
+						context.setIsEntityDifferent(true);
+						addToItemLog(context.getLogItem(), MessageFormat.format("Value of entity attribute [{0}] was changed. Entity in IdM will be updated.", attributeProperty));
+					}
+				}
 				return;
 			}
-			// Positions will be set no to the dto (we does not have field for
+			// Positions will be set no to the DTO (we does not have field for
 			// they), but to the embedded map.
 			if (CONTRACT_POSITIONS_FIELD.equals(attributeProperty)) {
 				SyncIdentityContractDto syncIdentityContractDto = (SyncIdentityContractDto) dto.getEmbedded().get(SYNC_CONTRACT_FIELD);
@@ -296,19 +315,72 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				} else if(syncIdentityContractDto == null) {
 					dto.getEmbedded().put(SYNC_CONTRACT_FIELD, new SyncIdentityContractDto());
 				}
+				
+				// Check if new positions are different than current positions.
+				syncIdentityContractDto = (SyncIdentityContractDto) dto.getEmbedded().get(SYNC_CONTRACT_FIELD);
+				if (syncIdentityContractDto != null && !context.isEntityDifferent()) {
+					List<IdmTreeNodeDto> newPositions = syncIdentityContractDto.getPositions();
+					if (!isPositionsSame(dto, newPositions)) {
+						// Positions are different
+						context.setIsEntityDifferent(true);
+						addToItemLog(context.getLogItem(), MessageFormat.format("Value of entity attribute [{0}] was changed. Entity in IdM will be updated.", attributeProperty));
+					}
+				}
 				return;
 			}
 			// Set transformed value from target system to entity
-			try {
-				EntityUtils.setEntityValue(dto, attributeProperty, transformedValue);
-			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | ProvisioningException e) {
-				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_NOT_SET,
-						ImmutableMap.of("property", attributeProperty, "uid", uid), e);
-			}
+			setEntityValue(uid, dto, context, attribute, attributeProperty, transformedValue);
 
 		});
 		return dto;
+	}
+
+	/**
+	 * Check if current contract's guarantees are same as in account values
+	 * 
+	 * @param dto
+	 * @param newGuarantees
+	 * @return
+	 */
+	private boolean isGuaranteesSame(IdmIdentityContractDto dto, List<IdmIdentityDto> newGuarantees) {
+		// Guarantees
+		IdmContractGuaranteeFilter guaranteeFilter = new IdmContractGuaranteeFilter();
+		guaranteeFilter.setIdentityContractId(dto.getId());
+
+		List<IdmContractGuaranteeDto> currentGuarantees = guaranteeService.find(guaranteeFilter, null).getContent();
+		List<UUID> currentGuranteeIds = currentGuarantees.stream().map(gurrantee -> {
+			return gurrantee.getGuarantee();
+		}).collect(Collectors.toList());
+		
+		List<UUID> newGuranteeIds = newGuarantees.stream().map(gurrantee -> {
+			return gurrantee.getId();
+		}).collect(Collectors.toList());
+		
+		return CollectionUtils.isEqualCollection(currentGuranteeIds, newGuranteeIds);
+	}
+	
+	/**
+	 * Check if current contract's positions are same as in account values
+	 * 
+	 * @param dto
+	 * @param newPositions
+	 * @return
+	 */
+	private boolean isPositionsSame(IdmIdentityContractDto dto, List<IdmTreeNodeDto> newPositions) {
+		// Find current positions
+		IdmContractPositionFilter positionFilter = new IdmContractPositionFilter();
+		positionFilter.setIdentityContractId(dto.getId());
+		List<IdmContractPositionDto> currentPositions = contractPositionService.find(positionFilter, null).getContent();
+		
+		List<UUID> currentPositionsIds = currentPositions.stream().map(position -> {
+			return position.getWorkPosition();
+		}).collect(Collectors.toList());
+		
+		List<UUID> newPositionIds = newPositions.stream().map(position -> {
+			return position.getId();
+		}).collect(Collectors.toList());
+		
+		return CollectionUtils.isEqualCollection(currentPositionsIds, newPositionIds);
 	}
 
 	/**

@@ -23,8 +23,10 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
@@ -122,10 +124,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	@Autowired
 	private SysSyncLogService syncLogService;
 	@Autowired
-	private SysSyncItemLogService syncItemLogService;
-	@Autowired
-	private SysSyncActionLogService syncActionLogService;
-	@Autowired
 	private EntityManager entityManager;
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -149,6 +147,10 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private AccIdentityAccountService identityAccountService;
+	@Autowired
+	private SysSyncItemLogService syncItemLogService;
+	@Autowired
+	private SysSyncActionLogService syncActionLogService;
 
 	@Before
 	public void init() {
@@ -242,6 +244,8 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 
 		IdmTreeTypeDto treeType = helper.createTreeType();
 		IdmTreeNodeDto defaultNode = helper.createTreeNode(treeType, null);
+		helper.createTreeNode(treeType, ContractSliceSyncTest.WORK_POSITION_CODE,
+				null);
 
 		((SysSyncContractConfigDto) config).setDefaultTreeType(treeType.getId());
 		((SysSyncContractConfigDto) config).setDefaultTreeNode(defaultNode.getId());
@@ -274,10 +278,30 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		List<IdmFormValueDto> values = formService.getValues(slice, formDefinition, EXTENDED_ATTRIBUTE);
 		Assert.assertEquals(1, values.size());
 		Assert.assertEquals(slice.getPosition(), values.get(0).getValue());
+		
+		// Enable different sync.
+		config.setDifferentialSync(true);
+		config = syncConfigService.save(config);
+		Assert.assertTrue(config.isDifferentialSync());
+
+		// Start sync with enable different sync - no change was made, so only ignore update should be made.
+		helper.startSynchronization(config);
+		// Three ignored updates
+		log = helper.checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 4, OperationResultType.IGNORE);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+		
+		// Change EAV slice value
+		formService.saveValues(slice, formDefinition, EXTENDED_ATTRIBUTE, Lists.newArrayList(getHelper().createName()));
+		
+		// Start sync with enable different sync - EAV value changed, so standard ignore update should be made.
+		helper.startSynchronization(config);
+		log = helper.checkSyncLog(config, SynchronizationActionType.UPDATE_ENTITY, 1, OperationResultType.SUCCESS);
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
 
 		// Delete log
 		syncLogService.delete(log);
-
 	}
 
 	@Test

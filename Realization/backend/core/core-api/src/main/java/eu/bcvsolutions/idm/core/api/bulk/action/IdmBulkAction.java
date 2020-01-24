@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 
 /**
  * Interface for bulk operation
@@ -106,5 +107,15 @@ public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 	 */
 	default boolean showWithSelection() {
 		return true;
+	}
+	
+	/**
+	 * Returns {@link NotificationLevel}, for decorate action importance / danger (e.g. actions for delete should have {@link NotificationLevel#ERROR}).
+	 * Returns {@link NotificationLevel#SUCCESS} by default (~backward compatible).
+	 * 
+	 * @return
+	 */
+	default NotificationLevel getLevel() {
+		return NotificationLevel.SUCCESS;
 	}
 }

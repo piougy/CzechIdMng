@@ -6,6 +6,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
+
 /**
  * Test release on mock repository.
  * 
@@ -31,7 +33,6 @@ public class ProductReleaseManagerUnitTest extends AbstractReleaseManagerUnitTes
 		String version = "1.0.0-SNAPSHOT";
 		//
 		try {
-			releaseManager.setQuiet(true); // don't mess test logs
 			releaseManager.setLocal(true); // local test repository only
 			//
 			// prepare mock repository
@@ -52,7 +53,8 @@ public class ProductReleaseManagerUnitTest extends AbstractReleaseManagerUnitTes
 			// create all BE and FE modules
 			for (String module : ProductReleaseManager.FRONTEND_MODULES) {
 				FileUtils.writeStringToFile(new File(frontendFolder.getPath() +"/czechidm-" + module + "/package.json"),
-						"{ \"version\" : \"1.0.0-snapshot\" }");
+						"{ \"version\" : \"1.0.0-snapshot\" }",
+						AttachableEntity.DEFAULT_CHARSET);
 			}
 			for (String module : ProductReleaseManager.BACKEND_MODULES) {
 				if (module.equals("parent")) {
@@ -68,7 +70,8 @@ public class ProductReleaseManagerUnitTest extends AbstractReleaseManagerUnitTes
 									+ "<id>release</id>"
 								+ "</profile>"
 							+ "</profiles>" +
-							"</project>");
+							"</project>",
+							AttachableEntity.DEFAULT_CHARSET);
 				} else if (module.equals("aggregator")) {
 					FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + module + "/pom.xml"),
 							"<project>"
@@ -98,7 +101,8 @@ public class ProductReleaseManagerUnitTest extends AbstractReleaseManagerUnitTes
 									+ "<id>release</id>"
 								+ "</profile>"
 							+ "</profiles>" +	
-							"</project>");
+							"</project>",
+							AttachableEntity.DEFAULT_CHARSET);
 				} else {
 					FileUtils.writeStringToFile(new File(backendFolder.getPath() +"/" + module + "/pom.xml"),
 							"<project>"
@@ -111,7 +115,8 @@ public class ProductReleaseManagerUnitTest extends AbstractReleaseManagerUnitTes
 							+ "</parent>"
 							+ "<artifactId>idm-" + module.replaceAll("/", "-") + "</artifactId>"
 							+ "<packaging>jar</packaging>" +
-							"</project>");
+							"</project>",
+							AttachableEntity.DEFAULT_CHARSET);
 				}
 			}
 			//

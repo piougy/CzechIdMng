@@ -235,7 +235,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
     values.forEach(v => {
       if (v && !_.includes(presentValues, v)) {
         _options.unshift({
-          v,
+          value: v,
           niceLabel: this.i18n(v)
         });
       }

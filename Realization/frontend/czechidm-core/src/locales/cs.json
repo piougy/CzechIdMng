@@ -5005,6 +5005,11 @@
         "help": "Odstraní vybrané role.",
         "icon": "fa:trash"
       },
+      "configuration-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Odstraní vybrané konfigurace",
+        "icon": "fa:trash"
+      },
       "core-entity-event-delete-bulk-action": {
         "label": "Odebrat",
         "help": "Odstraní vybrané události.",

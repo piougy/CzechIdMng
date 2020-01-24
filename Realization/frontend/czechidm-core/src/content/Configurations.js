@@ -334,9 +334,6 @@ class Configurations extends Advanced.AbstractTableContent {
             }
             filterOpened={ filterOpened }
             filterOpen={ this._filterOpen.bind(this) }
-            actions={
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-            }
             buttons={
               [
                 <span>

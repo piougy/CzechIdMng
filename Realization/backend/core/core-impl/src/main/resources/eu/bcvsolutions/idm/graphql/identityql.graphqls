@@ -12,6 +12,28 @@ type IdmIdentity {
 	description: String
 	disabled: Boolean
 	state: String
+	primeContract: IdmIdentityContract
+	assignedRoles: [IdmIdentityRole]
+}
+
+type IdmIdentityContract {
+    id: ID!
+    position: String
+    workPosition: String
+    description: String
+}
+
+type IdmRole {
+    id: ID!
+    baseCode: String!
+    code: String!
+    name: String
+}
+
+type IdmIdentityRole {
+    id: ID!
+    identity: IdmIdentity!
+    role: IdmRole!
 }
 
 type Query {

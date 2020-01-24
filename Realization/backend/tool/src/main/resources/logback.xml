@@ -5,10 +5,6 @@
 <configuration>
 	<include resource="org/springframework/boot/logging/logback/base.xml"/>
 	
-	<springProperty name="spring.profiles.active" source="spring.profiles.active"/>
-	
-	<springProfile name="default">
-        <logger name="eu.bcvsolutions.idm.tool" level="INFO"/>
-        <logger name="org.eclipse.jgit" level="INFO"/>
-    </springProfile>
+  <logger name="eu.bcvsolutions.idm.tool" level="INFO"/>
+  <logger name="org.eclipse.jgit" level="INFO"/>
 </configuration>

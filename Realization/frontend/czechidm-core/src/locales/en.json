@@ -340,7 +340,10 @@
         "noResultsText": "No result",
         "searchPromptText": "Start typing ...",
         "searchingText": "Searching ...",
-        "results": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ..."
+        "results": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ...",
+        "emptyOption": {
+          "label": "-- empty --"
+        }
       },
       "Table" : {
         "Pagination" : {

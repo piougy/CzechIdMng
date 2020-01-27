@@ -58,9 +58,10 @@ class EnumSelectBox extends SelectBox {
 
   getOptions(props = null) {
     const _props = props || this.props;
+    const results = [];
+
     if (_props.enum) {
       const enumeration = _props.enum;
-      const results = [];
       if (enumeration) {
         for (const enumItem in enumeration) {
           if (_.isSymbol(enumeration[enumItem])) {
@@ -68,20 +69,22 @@ class EnumSelectBox extends SelectBox {
             results.push(item);
           }
         }
-        return results;
       }
-    }
-    if (_props.options) {
+    } else if (_props.options) {
       const options = _props.options;
-      const results = [];
       for (const item in options) {
         if (!options.hasOwnProperty(item)) {
           continue;
         }
         results.push(this.itemRenderer(options[item]));
       }
-      return results;
     }
+    // add empty option at start
+    if (_props.clearable && results.length > 0) {
+      results.unshift(this.getEmptyOption());
+    }
+
+    return results;
   }
 
   itemRenderer(enumItem, key) {
@@ -337,7 +340,6 @@ class EnumSelectBox extends SelectBox {
           clearable={ clearable }
           ignoreAccents={ false }
           multi={ multiSelect }
-          onValueClick={ this.gotoContributor }
           valueKey={ SelectBox.ITEM_VALUE }
           labelKey={ fieldLabel }
           noResultsText={ this.i18n('component.basic.SelectBox.noResultsText') }

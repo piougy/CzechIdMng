@@ -113,7 +113,7 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getOptions(input, forceSearchParameters, useFirst = false, addToEnd = false) {
-    const { manager } = this.props;
+    const { manager, clearable, multiSelect, placeholder } = this.props;
     const { options } = this.state;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
@@ -161,6 +161,10 @@ class SelectBox extends AbstractFormComponent {
               options: finalOptions,
               complete: finalOptions.length >= result.page.totalElements,
             };
+            // add empty option at start
+            if (clearable && !multiSelect && data.options.length > 0) {
+              data.options.unshift(this.getEmptyOption());
+            }
             if (!data.complete) {
               data.options.push({
                 [NICE_LABEL]: (
@@ -200,6 +204,23 @@ class SelectBox extends AbstractFormComponent {
         }
       }));
     });
+  }
+
+  /**
+   * Empty option for clearable selects.
+   *
+   * @return {option}
+   */
+  getEmptyOption() {
+    const label = this.i18n('emptyOption.label', { defaultValue: '-- empty --' });
+    //
+    return {
+      [NICE_LABEL]: label,
+      [ITEM_FULL_KEY]: label,
+      [ITEM_VALUE]: null,
+      _clearable: true,
+      _moreOption: true // prevent to show icon
+    };
   }
 
   /**
@@ -401,6 +422,12 @@ class SelectBox extends AbstractFormComponent {
     if (result === false) {
       return;
     }
+
+    if (value && value._clearable) {
+      // null option
+      value = null;
+    }
+
     this.setState({
       value
     }, () => {
@@ -578,12 +605,11 @@ class SelectBox extends AbstractFormComponent {
         ref="selectComponent"
         isLoading={ isLoading || showLoading}
         value={value}
-        onChange={this.onChange}
+        onChange={ this.onChange }
         disabled={readOnly || disabled}
         ignoreCase
         ignoreAccents={false}
         multi={ multiSelect }
-        onValueClick={this.gotoContributor}
         valueKey={ITEM_FULL_KEY}
         labelKey={fieldLabel}
         onBlurResetsInput={false}

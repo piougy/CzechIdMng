@@ -16,10 +16,6 @@ const automaticRoleAttributeManager = new AutomaticRoleAttributeManager();
  */
 class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.automaticRoles.attribute.rule';
   }

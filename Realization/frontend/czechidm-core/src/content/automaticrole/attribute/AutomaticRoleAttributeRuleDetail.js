@@ -304,6 +304,10 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     return this.refs.value;
   }
 
+  isFormValid() {
+    return this.getForm().isFormValid() && this.getValue().isValid();
+  }
+
   getCompiledData() {
     const formData = this.getForm().getData();
     let value = this.getValue().getValue();
@@ -648,7 +652,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
             required={ !(typeForceSearchParameters === null) }
             manager={ this.formAttributeManager }/>
           <Basic.Row>
-            <div className="col-lg-4">
+            <Basic.Col lg={ 4 }>
               <Basic.EnumSelectBox
                 ref="comparison"
                 required
@@ -656,10 +660,10 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
                 onChange={ this._comparsionChange.bind(this) }
                 label={ this.i18n('entity.AutomaticRole.attribute.comparison') }
                 enum={ AutomaticRoleAttributeRuleComparisonEnum }/>
-            </div>
-            <div className="col-lg-8">
+            </Basic.Col>
+            <Basic.Col lg={ 8 }>
               { this._getValueField(type, valueRequired, formAttribute, attributeName) }
-            </div>
+            </Basic.Col>
           </Basic.Row>
         </Basic.AbstractForm>
       </Basic.Div>

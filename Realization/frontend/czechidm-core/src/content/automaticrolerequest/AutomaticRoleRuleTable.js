@@ -113,7 +113,7 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    if (!this.refs.detail.getForm().isFormValid()) {
+    if (!this.refs.detail.isFormValid()) {
       return;
     }
     const {createConceptFunc, updateConceptFunc} = this.props;

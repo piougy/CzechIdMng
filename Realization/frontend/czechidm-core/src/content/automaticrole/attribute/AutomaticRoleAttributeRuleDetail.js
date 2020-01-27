@@ -275,7 +275,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       type: AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY),
       valueRequired: true, // flag for required field
       formAttribute: null, // instance of form attribute, is used for computed field input
-      attributeName: null // name of identity attribute
+      attributeName: null, // name of identity attribute
+      hideValueField: false // Flag for hide attribute value intput
     };
   }
 
@@ -429,13 +430,18 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   }
 
   _comparsionChange(option) {
-    let valueRequired = false;
-    if (option && option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.EQUALS)) {
-      valueRequired = true;
+    let valueRequired = true;
+    let hideValueField = false;
+    if (option && (
+      option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_EMPTY) ||
+      option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_NOT_EMPTY))) {
+      valueRequired = false;
+      hideValueField = true;
     }
     //
     this.setState({
-      valueRequired
+      valueRequired,
+      hideValueField
     });
   }
 
@@ -601,7 +607,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       type,
       valueRequired,
       formAttribute,
-      attributeName
+      attributeName,
+      hideValueField
     } = this.state;
 
     let data = this.state.entity;
@@ -648,7 +655,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
             required={ !(typeForceSearchParameters === null) }
             manager={ this.formAttributeManager }/>
           <Basic.Row>
-            <div className="col-lg-4">
+            <Basic.Div className={hideValueField ? 'col-lg-12' : 'col-lg-4'}>
               <Basic.EnumSelectBox
                 ref="comparison"
                 required
@@ -656,10 +663,10 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
                 onChange={ this._comparsionChange.bind(this) }
                 label={ this.i18n('entity.AutomaticRole.attribute.comparison') }
                 enum={ AutomaticRoleAttributeRuleComparisonEnum }/>
-            </div>
-            <div className="col-lg-8">
+            </Basic.Div>
+            <Basic.Div className="col-lg-8">
               { this._getValueField(type, valueRequired, formAttribute, attributeName) }
-            </div>
+            </Basic.Div>
           </Basic.Row>
         </Basic.AbstractForm>
       </Basic.Div>

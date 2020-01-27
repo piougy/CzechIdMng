@@ -692,7 +692,146 @@ public class DefaultIdmAutomaticRoleAttributeService
 						cb.isNull(path));
 			}
 			return cb.equal(path, value);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.NOT_EQUALS) {
+			//
+			// is necessary explicit type to as String
+			path.as(String.class);
+			//
+			if (BooleanUtils.isTrue(negation)) {
+				Predicate predicate = null;
+				//
+				if (value instanceof Boolean) {
+					// for boolean must be specific equals (isTrue or isFalse, notEqual doesn't works)
+					Expression<Boolean> booleanAs = path.as(Boolean.class);
+					if (BooleanUtils.isTrue((Boolean) value)) {
+						predicate = cb.notEqual(booleanAs, cb.literal(Boolean.FALSE));
+					} else {
+						predicate = cb.notEqual(booleanAs, cb.literal(Boolean.TRUE));
+					}
+				} else {
+					// for other type just classic negative compare
+					predicate = cb.equal(path, value);
+				}
+				//
+				return cb.or(
+						predicate,
+						cb.isNotNull(path));
+			}
+			return cb.or(
+					cb.notEqual(path, value),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.START_WITH) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			likeExpression.append('%');
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.notLike(path.as(String.class), likeExpression.toString()),
+						cb.isNull(path)
+						);
+			}
+			return cb.like(path.as(String.class), likeExpression.toString());
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.NOT_START_WITH) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			likeExpression.append('%');
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.like(path.as(String.class), likeExpression.toString());
+			}
+			return cb.or(
+					cb.notLike(path.as(String.class), likeExpression.toString()),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.END_WITH) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append('%');
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.notLike(path.as(String.class), likeExpression.toString()),
+						cb.isNull(path)
+						);
+			}
+			return cb.like(path.as(String.class), likeExpression.toString());
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.NOT_END_WITH) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append('%');
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.like(path.as(String.class), likeExpression.toString());
+			}
+			return cb.or(
+					cb.notLike(path.as(String.class), likeExpression.toString()),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
+			// For EAV is required also expression not exists with attribute
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.isNotNull(path);
+			}
+
+			return cb.or(
+					cb.equal(path, ""),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY) {
+			// For EAV is required also expression not exists with attribute
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.equal(path, ""),
+						cb.isNull(path)
+						);
+			}
+
+			return cb.and(
+					cb.isNotNull(path),
+					cb.not(cb.equal(path, ""))
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.CONTAINS) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append('%');
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			likeExpression.append('%');
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.notLike(path.as(String.class), likeExpression.toString()),
+						cb.isNull(path)
+						);
+			}
+			return cb.like(path.as(String.class), likeExpression.toString());
+		}  else if (comparsion == AutomaticRoleAttributeRuleComparison.NOT_CONTAINS) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append('%');
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			likeExpression.append('%');
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.like(path.as(String.class), likeExpression.toString());
+			}
+			return cb.or(
+					cb.notLike(path.as(String.class), likeExpression.toString()),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.LESS_THAN_OR_EQUAL) {
+			BigDecimal valueAsNumber = new BigDecimal(String.valueOf(value));
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.gt(path.as(Number.class), valueAsNumber),
+						cb.isNull(path)
+						);
+			}
+			return cb.le(path.as(Number.class), valueAsNumber);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.GREATER_THAN_OR_EQUAL) {
+			BigDecimal valueAsNumber = new BigDecimal(String.valueOf(value));
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.lt(path.as(Number.class), valueAsNumber),
+						cb.isNull(path)
+						);
+			}
+			return cb.ge(path.as(Number.class), valueAsNumber);
 		}
+
 		throw new UnsupportedOperationException("Operation: " + comparsion.name() + ", isn't supported for identity rules.");
 	}
 	

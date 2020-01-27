@@ -7,12 +7,11 @@ import Helmet from 'react-helmet';
 import * as Utils from '../../../utils';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
-import { SecurityManager } from '../../../redux';
+import { SecurityManager, AutomaticRoleAttributeManager } from '../../../redux';
 import AutomaticRoleAttributeRuleTypeEnum from '../../../enums/AutomaticRoleAttributeRuleTypeEnum';
 import AutomaticRoleAttributeRuleComparisonEnum from '../../../enums/AutomaticRoleAttributeRuleComparisonEnum';
 import IdentityAttributeEnum from '../../../enums/IdentityAttributeEnum';
 import ContractAttributeEnum from '../../../enums/ContractAttributeEnum';
-import { AutomaticRoleAttributeManager } from '../../../redux';
 
 const automaticRoleAttributeManager = new AutomaticRoleAttributeManager();
 

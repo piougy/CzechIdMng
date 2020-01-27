@@ -10,6 +10,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { RoleManager, AutomaticRoleAttributeRuleManager } from '../../redux';
 import AutomaticRoleAttributeRuleDetail from '../automaticrole/attribute/AutomaticRoleAttributeRuleDetail';
+import AutomaticRoleAttributeRuleComparisonEnum from '../../enums/AutomaticRoleAttributeRuleComparisonEnum';
 
 /**
 * Table for keep automatic role rules concept. Input are all current assigned roles's rules
@@ -480,15 +481,16 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
                 );
               }
             }
-            />
+          />
           <Basic.Column
             header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.value.label')}
             property="value"
-            />
+          />
           <Basic.Column
             header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.comparison')}
             property="comparison"
-            />
+            face="enum"
+            enumClass={ AutomaticRoleAttributeRuleComparisonEnum }/>
           <Basic.Column
             header={this.i18n('label.action')}
             className="action"

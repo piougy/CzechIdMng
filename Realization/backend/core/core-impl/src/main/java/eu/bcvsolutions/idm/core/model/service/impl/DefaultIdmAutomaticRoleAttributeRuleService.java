@@ -124,6 +124,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 		//
 		if (filter.getAutomaticRoleAttributeId() != null) {
 			predicates.add(builder.equal(
+
 					root.get(IdmAutomaticRoleAttributeRule_.automaticRoleAttribute).get(AbstractEntity_.id),
 					filter.getAutomaticRoleAttributeId()));
 		}
@@ -171,7 +172,6 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 	@Override
 	public void deleteRuleWithSkipCheckLastRule(IdmAutomaticRoleAttributeRuleDto dto) {
 		AutomaticRoleAttributeRuleEvent automaticRoleAttributeRuleEvent = new AutomaticRoleAttributeRuleEvent(AutomaticRoleAttributeRuleEventType.DELETE, dto);
-		automaticRoleAttributeRuleEvent.getProperties().put(AutomaticRoleAttributeRuleDeleteProcessor.SKIP_CHECK_LAST_RULE, Boolean.TRUE);
 		entityEventManager.process(automaticRoleAttributeRuleEvent);
 	}
 

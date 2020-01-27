@@ -782,7 +782,22 @@
       "CONTRACT_EAV": "Extended attribute of contract"
     },
     "AutomaticRoleAttributeRuleComparisonEnum": {
-      "EQUALS": "Equals"
+      "EQUALS": "Equals",
+      "NOT_EQUALS": "Not Equals",
+      "START_WITH": "Start with",
+      "NOT_START_WITH": "Not start with",
+      "END_WITH": "End with",
+      "NOT_END_WITH": "Not end with",
+      "IS_EMPTY": "Is empty",
+      "IS_NOT_EMPTY": "Is not empty",
+      "CONTAINS": "Contains",
+      "NOT_CONTAINS": "Not contains",
+      "LESS_THAN_OR_EQUAL": "Less or equal than",
+      "GREATER_THAN_OR_EQUAL": "Greater or equal than",
+      "helpBlock": {
+        "LESS_THAN_OR_EQUAL": "This option can only be used with numeric types.",
+        "GREATER_THAN_OR_EQUAL": "This option can only be used with numeric types."
+      }
     },
     "IdentityAttributeEnum": {
       "USERNAME": "User name (String)",

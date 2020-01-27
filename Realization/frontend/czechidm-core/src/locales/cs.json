@@ -813,7 +813,22 @@
       "CONTRACT_EAV": "Rozšířený atribut pracovního úvazku"
     },
     "AutomaticRoleAttributeRuleComparisonEnum": {
-      "EQUALS": "Rovná se"
+      "EQUALS": "Rovná se",
+      "NOT_EQUALS": "Nerovná se",
+      "START_WITH": "Začíná na",
+      "NOT_START_WITH": "Nezačíná na",
+      "END_WITH": "Končí na",
+      "NOT_END_WITH": "Nekončí na",
+      "IS_EMPTY": "Je prazdný",
+      "IS_NOT_EMPTY": "Není prazdný",
+      "CONTAINS": "Obsahuje",
+      "NOT_CONTAINS": "Nebosahuje",
+      "LESS_THAN_OR_EQUAL": "Menší nebo rovno než",
+      "GREATER_THAN_OR_EQUAL": "Větší nebo rovno než",
+      "helpBlock": {
+        "LESS_THAN_OR_EQUAL": "Tuto možnost lze použít pouze s číselnými typy.",
+        "GREATER_THAN_OR_EQUAL": "Tuto možnost lze použít pouze s číselnými typy."
+      }
     },
     "IdentityAttributeEnum": {
       "USERNAME": "Uživatelské jméno (String)",

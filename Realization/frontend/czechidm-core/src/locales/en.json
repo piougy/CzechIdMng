@@ -1737,7 +1737,8 @@
         "attributeCantBeUsed": {
           "text": "Attribute [{{name}}] can't be used for create new rule",
           "confidential": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute is marked as confidential.",
-          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute has persistent type TEXT."
+          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute has persistent type TEXT.",
+          "multivaluedCantBeUsed": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), with multivalued attribute can't be used this comparsion."
         }
       },
       "recalculate": {

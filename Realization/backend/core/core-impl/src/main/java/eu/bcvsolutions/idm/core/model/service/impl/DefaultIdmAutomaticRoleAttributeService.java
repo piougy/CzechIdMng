@@ -558,11 +558,9 @@ public class DefaultIdmAutomaticRoleAttributeService
 					castToType(singularAttribute, rule.getValue()),
 					cb,
 					rule.getComparison(),
-					!pass);
+					!pass, false);
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
-			//
-			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
 			//
 			Subquery<IdmIdentityContractFormValue> subquery = query.subquery(IdmIdentityContractFormValue.class);
 			Root<IdmIdentityContractFormValue> subRoot = subquery.from(IdmIdentityContractFormValue.class);
@@ -570,21 +568,39 @@ public class DefaultIdmAutomaticRoleAttributeService
 			//
 			Path<?> path = subRoot.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
 			//
+			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
+			if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
+				subquery.where(
+						cb.or(
+						getPredicateForNullFormAttribute(root, query, cb, formAttributeDto),
+						cb.and(
+							cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
+							cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
+							getPredicateWithComparsion(path, null, cb, rule.getComparison(), null, false)
+							)
+						));
+
+				if (pass) {
+					return cb.not(cb.exists(subquery));
+				} else {
+					return cb.exists(subquery);
+				}
+			}
+			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
+			//
 			subquery.where(
 					cb.and(
 						cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
 						cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-						getPredicateWithComparsion(path, value, cb, rule.getComparison(), null)
+						getPredicateWithComparsion(path, value, cb, rule.getComparison(), null, false)
 						)
 					);
 			//
-			Predicate existsInEav = getPredicateForConnection(subquery, cb, pass);
+			Predicate existsInEav = getPredicateForConnection(subquery, cb, pass, formAttributeDto.isMultiple());
 			//
 			return existsInEav;
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.IDENTITY_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
-			//
-			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
 			//
 			Subquery<IdmIdentity> subquery = query.subquery(IdmIdentity.class);
 			Root<IdmIdentity> subRoot = subquery.from(IdmIdentity.class);
@@ -595,15 +611,36 @@ public class DefaultIdmAutomaticRoleAttributeService
 			subQueryIdentityEav.select(subRootIdentityEav);
 			//
 			Path<?> path = subRootIdentityEav.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
+			//
+			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
+			if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
+				subQueryIdentityEav.where(
+						cb.or(
+						getPredicateForNullFormAttribute(root, query, cb, formAttributeDto),
+						cb.and(
+							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), root),
+							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
+							getPredicateWithComparsion(path, null, cb, rule.getComparison(), null, false)
+							)
+						));
+
+				if (pass) {
+					return cb.not(cb.exists(subquery));
+				} else {
+					return cb.exists(subquery);
+				}
+			}
+			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
+			//
 			subQueryIdentityEav.where(
 					cb.and(
 							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), subRoot),
 							cb.equal(root.get(IdmIdentityContract_.identity), subRoot),
 							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-							getPredicateWithComparsion(path, value, cb, rule.getComparison(), null)
+							getPredicateWithComparsion(path, value, cb, rule.getComparison(), null, false)
 							));
 			//
-			Predicate existsInEav = getPredicateForConnection(subQueryIdentityEav, cb, pass);
+			Predicate existsInEav = getPredicateForConnection(subQueryIdentityEav, cb, pass, formAttributeDto.isMultiple());
 			//
 			subquery.where(
 					cb.and(
@@ -623,14 +660,70 @@ public class DefaultIdmAutomaticRoleAttributeService
 			//
 			subquery.where(cb.and(cb.equal(subRoot.get(IdmIdentity_.id), root.get(IdmIdentityContract_.identity).get(AbstractEntity_.id)), // correlation attr
 					getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
-							rule.getComparison(), null)));
+							rule.getComparison(), null, false)));
 			//
-			return getPredicateForConnection(subquery, cb, pass);
+			return getPredicateForConnection(subquery, cb, pass, false);
 		} else {
 			throw new UnsupportedOperationException("Type: " + rule.getType().name() + ", isn't supported for contract rules!");
 		}
 	}
+
+	/**
+	 * Method is used for compose predicate for empty rule.
+	 * TODO: Method has to many parameters, try find better solutions.
+	 *
+	 * @param subquery
+	 * @param subRoot
+	 * @param rule
+	 * @param root
+	 * @param query
+	 * @param cb
+	 * @param pass
+	 * @param path
+	 * @param formAttributeDto
+	 * @return
+	 */
+	private Predicate getPredicateForEmpty(Subquery<IdmIdentityContractFormValue> subquery,
+			Root<IdmIdentityContractFormValue> subRoot, IdmAutomaticRoleAttributeRuleDto rule,
+			Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder cb,
+			boolean pass, Path<?> path, IdmFormAttributeDto formAttributeDto) {
+		subquery.where(
+				cb.or(
+				getPredicateForNullFormAttribute(root, query, cb, formAttributeDto),
+				cb.and(
+					cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
+					cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
+					getPredicateWithComparsion(path, null, cb, rule.getComparison(), null, false)
+					)
+				));
+
+		if (pass) {
+			return cb.not(cb.exists(subquery));
+		} else {
+			return cb.exists(subquery);
+		}
+	}
 	
+	/**
+	 * Get predicate for given 
+	 *
+	 * @param root
+	 * @param query
+	 * @param cb
+	 * @param formAttributeDto
+	 * @return
+	 */
+	private Predicate getPredicateForNullFormAttribute(Root<IdmIdentityContract> root, CriteriaQuery<?> query,CriteriaBuilder cb, IdmFormAttributeDto formAttributeDto) {
+		Subquery<IdmIdentityContractFormValue> subqueryNull = query.subquery(IdmIdentityContractFormValue.class);
+		Root<IdmIdentityContractFormValue> subRootNull = subqueryNull.from(IdmIdentityContractFormValue.class);
+		subqueryNull.select(subRootNull);
+		
+		subqueryNull.where(cb.and(
+				cb.equal(subRootNull.get(IdmIdentityContractFormValue_.owner), root),
+				cb.equal(subRootNull.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId())
+				));
+		return cb.not(root.in((subqueryNull)));
+	}
 	/**
 	 * Method is used for connect {@link Subquery} with outer query.
 	 * In equal return exists otherwise return is null
@@ -639,12 +732,16 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @param subQuery
 	 * @param cb
 	 * @param pass
+	 * @param multivalued
 	 * @return
 	 */
-	private Predicate getPredicateForConnection(Subquery<?> subQuery, CriteriaBuilder cb, boolean pass) {
+	private Predicate getPredicateForConnection(Subquery<?> subQuery, CriteriaBuilder cb, boolean pass, boolean multivalued) {
 		if (pass) {
 			return cb.exists(subQuery);
-		} else { 
+		} else {
+			if (multivalued) {
+				return cb.not(cb.exists(subQuery));
+			}
 			return cb.isNull(subQuery);
 		}
 	}
@@ -661,7 +758,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @return
 	 */
 	private Predicate getPredicateWithComparsion(Path<?> path, Object value, CriteriaBuilder cb,
-			AutomaticRoleAttributeRuleComparison comparsion, Boolean negation) {
+			AutomaticRoleAttributeRuleComparison comparsion, Boolean negation, boolean multivalued) {
 		Assert.notNull(comparsion, "Comparison operator is required.");
 		Assert.notNull(path, "Path is required.");
 		Assert.notNull(cb, "Criteria builder is required.");
@@ -713,6 +810,9 @@ public class DefaultIdmAutomaticRoleAttributeService
 					predicate = cb.equal(path, value);
 				}
 				//
+				if (multivalued) {
+					return predicate;
+				}
 				return cb.or(
 						predicate,
 						cb.isNotNull(path));
@@ -772,21 +872,21 @@ public class DefaultIdmAutomaticRoleAttributeService
 			}
 
 			return cb.or(
-					cb.equal(path, ""),
+					cb.equal(path.as(String.class), ""),
 					cb.isNull(path)
 					);
 		} else if (comparsion == AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY) {
 			// For EAV is required also expression not exists with attribute
 			if (BooleanUtils.isTrue(negation)) {
 				return cb.or(
-						cb.equal(path, ""),
+						cb.equal(path.as(String.class), ""),
 						cb.isNull(path)
 						);
 			}
 
 			return cb.and(
 					cb.isNotNull(path),
-					cb.not(cb.equal(path, ""))
+					cb.not(cb.equal(path.as(String.class), ""))
 					);
 		} else if (comparsion == AutomaticRoleAttributeRuleComparison.CONTAINS) {
 			StringBuilder likeExpression = new StringBuilder();
@@ -814,22 +914,29 @@ public class DefaultIdmAutomaticRoleAttributeService
 					);
 		} else if (comparsion == AutomaticRoleAttributeRuleComparison.LESS_THAN_OR_EQUAL) {
 			BigDecimal valueAsNumber = new BigDecimal(String.valueOf(value));
+			// Beware there CAN'T be used path.as(Number.class). DB cast column again into numeric and then throw error
+			// path is already Number type by method getSingularAttributeForEav(
+			Path<Number> numberPath = (Path<Number>) path;
 			if (BooleanUtils.isTrue(negation)) {
 				return cb.or(
-						cb.gt(path.as(Number.class), valueAsNumber),
+						cb.gt(numberPath, valueAsNumber),
 						cb.isNull(path)
 						);
 			}
-			return cb.le(path.as(Number.class), valueAsNumber);
+
+			return cb.le(numberPath, valueAsNumber);
 		} else if (comparsion == AutomaticRoleAttributeRuleComparison.GREATER_THAN_OR_EQUAL) {
 			BigDecimal valueAsNumber = new BigDecimal(String.valueOf(value));
+			// Beware there CAN'T be used path.as(Number.class). DB cast column again into numeric and then throw error
+			// path is already Number type by method getSingularAttributeForEav(
+			Path<Number> numberPath = (Path<Number>) path;
 			if (BooleanUtils.isTrue(negation)) {
 				return cb.or(
-						cb.lt(path.as(Number.class), valueAsNumber),
+						cb.lt(numberPath, valueAsNumber),
 						cb.isNull(path)
 						);
 			}
-			return cb.ge(path.as(Number.class), valueAsNumber);
+			return cb.ge(numberPath, valueAsNumber);
 		}
 
 		throw new UnsupportedOperationException("Operation: " + comparsion.name() + ", isn't supported for identity rules.");

@@ -13,6 +13,7 @@ import { TreeNodeManager, RoleTreeNodeManager, RoleManager, AutomaticRoleRequest
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import AutomaticRoleRequestTypeEnum from '../../enums/AutomaticRoleRequestTypeEnum';
+import AutomaticRoleAttributeRuleComparisonEnum from '../../enums/AutomaticRoleAttributeRuleComparisonEnum';
 import SearchParameters from '../../domain/SearchParameters';
 import AutomaticRoleRuleTable from './AutomaticRoleRuleTable';
 import RecursionTypeEnum from '../../enums/RecursionTypeEnum';
@@ -359,10 +360,20 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
               property="value"
               face="text"
               header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.value.label')}
+              cell={
+                ({ rowIndex, data }) => {
+                  const value = data[rowIndex].value;
+                  if (!value || value === undefined || value === 'null') {
+                    return '';
+                  }
+                  return value;
+                }
+              }
               sort/>
             <Advanced.Column
               property="comparison"
-              face="text"
+              face="enum"
+              enumClass={ AutomaticRoleAttributeRuleComparisonEnum }
               header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.comparison')}
               sort/>
           </Advanced.Table>
@@ -549,15 +560,15 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
 
     return (
       <div>
-        <form onSubmit={this.save.bind(this, this, false, true)}>
-          <Helmet title={this.i18n('title')} />
-          <Basic.Confirm ref="confirm-delete" level="danger"/>
-          <Basic.ContentHeader rendered={showRequestDetail}>
-            <Basic.Icon value="component:automatic-role"/>
-            {' '}
-            <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-          </Basic.ContentHeader>
-          <Basic.Panel rendered={showRequestDetail}>
+        <Helmet title={this.i18n('title')} />
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.ContentHeader rendered={showRequestDetail}>
+          <Basic.Icon value="component:automatic-role"/>
+          {' '}
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+        </Basic.ContentHeader>
+        <Basic.Panel rendered={showRequestDetail}>
+          <form onSubmit={this.save.bind(this, this, false, true)}>
             <Basic.AbstractForm readOnly={!isEditable} ref="form" data={request} showLoading={showLoading} style={{ padding: '15px 15px 0 15px' }}>
               <Basic.Row>
                 <div className="col-lg-6">
@@ -612,76 +623,78 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
                 placeholder={this.i18n('entity.AutomaticRoleRequest.description.placeholder')}
                 label={this.i18n('entity.AutomaticRoleRequest.description.label')}/>
             </Basic.AbstractForm>
-            <div style={{ padding: '15px 15px 0 15px' }}>
-              {
-                this._renderRoleConceptTable(request, showCurrentRules && isAttributeRequest && !isDeleteRequest, isEditable, showLoading, _currentRoleRules, addedConcepts, changedConcepts, removedConcepts, showLoadingButtonRemove)
-              }
-              {
-                this._renderRoleConceptChangesTable(request, forceSearchParameters, isAttributeRequest && !isDeleteRequest)
-              }
-              <Basic.AbstractForm
+          </form>
+          <div style={{ padding: '15px 15px 0 15px' }}>
+            {
+              this._renderRoleConceptTable(request, showCurrentRules && isAttributeRequest && !isDeleteRequest, isEditable, showLoading, _currentRoleRules, addedConcepts, changedConcepts, removedConcepts, showLoadingButtonRemove)
+            }
+            {
+              this._renderRoleConceptChangesTable(request, forceSearchParameters, isAttributeRequest && !isDeleteRequest)
+            }
+            <Basic.AbstractForm
+              readOnly
+              ref="form-wf"
+              rendered={request.wfProcessId ? true : false}
+              data={request}
+              showLoading={showLoading}>
+              <Basic.LabelWrapper
                 readOnly
-                ref="form-wf"
-                rendered={request.wfProcessId ? true : false}
-                data={request}
-                showLoading={showLoading}>
-                <Basic.LabelWrapper
-                  readOnly
-                  hidden={!_adminMode}
-                  ref="wfProcessId"
-                  label={this.i18n('entity.AutomaticRoleRequest.wfProcessId')}>
-                  <Advanced.WorkflowProcessInfo
-                    entityIdentifier={request && request.wfProcessId}
-                    showLoading={!request}
-                    face="full"
-                    showLink/>
-                </Basic.LabelWrapper>
-                <Basic.TextField
-                  ref="currentActivity"
-                  hidden
-                  readOnly
-                  label={this.i18n('entity.AutomaticRoleRequest.currentActivity')}/>
-                <Basic.TextField
-                  ref="candicateUsers"
-                  hidden
-                  readOnly
-                  label={this.i18n('entity.AutomaticRoleRequest.candicateUsers')}/>
-              </Basic.AbstractForm>
-              { // Renders result of operation (includes stack trace)
-                this._operationResultComponent(request)
-              }
-            </div>
-            <Basic.PanelFooter>
-              <Basic.Button type="button" level="link"
-                onClick={this.context.history.goBack}
-                showLoading={showLoading}>
-                {this.i18n('button.back')}
-              </Basic.Button>
-              <Basic.Button
-                onClick={this.save.bind(this, this, false, true)}
-                disabled={!isEditable}
-                rendered={_adminMode}
-                level="success"
-                type="submit"
-                showLoading={showLoading}>
-                {this.i18n('button.save')}
-              </Basic.Button>
-                {' '}
-              <Basic.Button
-                level="success"
-                disabled={!isEditable}
-                showLoading={showLoading}
-                onClick={this.save.bind(this, this, true, true)}
-                rendered={ request && automaticRoleRequestManager.canSave(request, _permissions)}
-                titlePlacement="bottom"
-                title={this.i18n('button.createRequest.tooltip')}>
-                <Basic.Icon type="fa" icon="object-group"/>
-                {' '}
-                { this.i18n('button.createRequest.label') }
-              </Basic.Button>
-            </Basic.PanelFooter>
-          </Basic.Panel>
-        </form>
+                hidden={!_adminMode}
+                ref="wfProcessId"
+                label={this.i18n('entity.AutomaticRoleRequest.wfProcessId')}>
+                <Advanced.WorkflowProcessInfo
+                  entityIdentifier={request && request.wfProcessId}
+                  showLoading={!request}
+                  face="full"
+                  showLink/>
+              </Basic.LabelWrapper>
+              <Basic.TextField
+                ref="currentActivity"
+                hidden
+                readOnly
+                label={this.i18n('entity.AutomaticRoleRequest.currentActivity')}/>
+              <Basic.TextField
+                ref="candicateUsers"
+                hidden
+                readOnly
+                label={this.i18n('entity.AutomaticRoleRequest.candicateUsers')}/>
+            </Basic.AbstractForm>
+            { // Renders result of operation (includes stack trace)
+              this._operationResultComponent(request)
+            }
+          </div>
+          <Basic.PanelFooter>
+            <Basic.Button
+              type="button"
+              level="link"
+              onClick={this.context.history.goBack}
+              showLoading={showLoading}>
+              {this.i18n('button.back')}
+            </Basic.Button>
+            <Basic.Button
+              onClick={this.save.bind(this, this, false, true)}
+              disabled={!isEditable}
+              rendered={_adminMode}
+              level="success"
+              type="submit"
+              showLoading={showLoading}>
+              {this.i18n('button.save')}
+            </Basic.Button>
+            {' '}
+            <Basic.Button
+              level="success"
+              disabled={!isEditable}
+              showLoading={showLoading}
+              onClick={this.save.bind(this, this, true, true)}
+              rendered={ request && automaticRoleRequestManager.canSave(request, _permissions)}
+              titlePlacement="bottom"
+              title={this.i18n('button.createRequest.tooltip')}>
+              <Basic.Icon type="fa" icon="object-group"/>
+              {' '}
+              { this.i18n('button.createRequest.label') }
+            </Basic.Button>
+          </Basic.PanelFooter>
+        </Basic.Panel>
       </div>
     );
   }

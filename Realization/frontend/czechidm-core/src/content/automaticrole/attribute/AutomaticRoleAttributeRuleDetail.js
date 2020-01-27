@@ -276,7 +276,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       valueRequired: true, // flag for required field
       formAttribute: null, // instance of form attribute, is used for computed field input
       attributeName: null, // name of identity attribute
-      hideValueField: false // Flag for hide attribute value intput
+      hideValueField: false, // Flag for hide attribute value intput
+      incompatibleWithMultiple: true // Flag for check multivalued eavs and comparsion
     };
   }
 
@@ -303,6 +304,10 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
 
   getValue() {
     return this.refs.value;
+  }
+
+  isFormValid() {
+    return this.getForm().isFormValid() && this.getValue().isValid();
   }
 
   getCompiledData() {
@@ -421,27 +426,37 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     this.setState({
       typeForceSearchParameters,
       type: option ? option.value : null,
-      entity: newEntity
+      entity: newEntity,
+      incompatibleWithMultiple: false
     }, () => {
       // clear values in specific fields
       this.refs.attributeName.setValue(null);
       this.refs.formAttribute.setValue(null);
+      this.refs.comparison.setValue(AutomaticRoleAttributeRuleComparisonEnum.EQUALS);
     });
   }
 
   _comparsionChange(option) {
     let valueRequired = true;
     let hideValueField = false;
+    let incompatibleWithMultiple = true;
     if (option && (
       option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_EMPTY) ||
       option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_NOT_EMPTY))) {
       valueRequired = false;
       hideValueField = true;
     }
+    if (option && (
+      option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.EQUALS) ||
+      option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_EMPTY) ||
+      option.value === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_NOT_EMPTY))) {
+      incompatibleWithMultiple = false;
+    }
     //
     this.setState({
       valueRequired,
-      hideValueField
+      hideValueField,
+      incompatibleWithMultiple
     });
   }
 
@@ -470,36 +485,36 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     //
     if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY) ||
     type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT)) {
-      finalComponent = this._getValueFieldForEntity(entity, type, value, attributeName);
+      finalComponent = this._getValueFieldForEntity(entity, type, value, attributeName, valueRequired);
     } else if (formAttribute) {
       finalComponent = this._getValueFieldForEav(formAttribute, value, valueRequired);
     } else {
       // form attribute doesn't exists
-      finalComponent = this._getDefaultTextField(value);
+      finalComponent = this._getDefaultTextField(value, valueRequired);
     }
     return finalComponent;
   }
 
-  _getValueFieldForEntity(entity, type, value, attributeName) {
+  _getValueFieldForEntity(entity, type, value, attributeName, valueRequired) {
     if (attributeName == null) {
-      return this._getDefaultTextField(value);
+      return this._getDefaultTextField(value, valueRequired);
     }
     // identity attributes
     if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
       // disabled is obly attribute that has different face
       if (IdentityAttributeEnum.findSymbolByKey(attributeName) === IdentityAttributeEnum.DISABLED) {
-        return this._getDefaultBooleanSelectBox(value);
+        return this._getDefaultBooleanSelectBox(value, valueRequired);
       }
-      return this._getDefaultTextField(value);
+      return this._getDefaultTextField(value, valueRequired);
     }
     // contracts attributes
     // contract has externe and main as boolean and valid attributes as date
     if (ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.MAIN || ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.EXTERNE) {
-      return this._getDefaultBooleanSelectBox(value);
+      return this._getDefaultBooleanSelectBox(value, valueRequired);
     } else if (ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.VALID_FROM || ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.VALID_TILL) {
-      return this._getDefaultDateTimePicker(value);
+      return this._getDefaultDateTimePicker(value, valueRequired);
     }
-    return this._getDefaultTextField(value);
+    return this._getDefaultTextField(value, valueRequired);
   }
 
   _getValueFieldForEav(formAttribute, value, valueRequired) {
@@ -507,7 +522,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     const component = this.formAttributeManager.getFormComponent(formAttribute);
     if (!component || !component.component) {
       // when component doesn't exists show default field
-      return this._getDefaultTextField(value);
+      return this._getDefaultTextField(value, valueRequired);
     }
     if (formAttribute.persistentType === 'TEXT') {
       return (
@@ -533,12 +548,13 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     _formAttribute.defaultValue = null;
     _formAttribute.required = valueRequired;
     _formAttribute.readonly = readOnly; // readnOnly from props has prio, default value is false
+    _formAttribute.multiple = false; // Multiple value cannot be added
     //
     // is neccessary transform value to array
+    console.log(4445, valueRequired);
     return (
       <FormValueComponent
         ref="value"
-        required={ valueRequired }
         attribute={ _formAttribute }
         readOnly={ readOnly }
         values={[{ value }]}/>
@@ -548,9 +564,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   /**
    * Return simple text field for value input
    */
-  _getDefaultTextField(value) {
+  _getDefaultTextField(value, valueRequired) {
     const { readOnly } = this.props;
-    const { valueRequired } = this.state;
     //
     return (
       <Basic.TextField
@@ -566,8 +581,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   /**
    * Return date time picker
    */
-  _getDefaultDateTimePicker(value) {
-    const { valueRequired } = this.state;
+  _getDefaultDateTimePicker(value, valueRequired) {
     const { readOnly } = this.props;
     //
     return (
@@ -585,8 +599,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   /**
    * Return default boolean select box
    */
-  _getDefaultBooleanSelectBox(value) {
-    const { valueRequired } = this.state;
+  _getDefaultBooleanSelectBox(value, valueRequired) {
     const { readOnly } = this.props;
     //
     return (
@@ -600,16 +613,36 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     );
   }
 
+  /**
+   * Return warning for incompatible form attribute with comparsion
+   */
+  _showIncompatibleWarning(show, formAttribute) {
+    if (show && formAttribute) {
+      return (
+        <Basic.Col lg={ 8 }>
+          <Basic.LabelWrapper label={ this.i18n('entity.AutomaticRole.attribute.value.label') }>
+            <Basic.Alert text={this.i18n('attributeCantBeUsed.multivaluedCantBeUsed', {name: formAttribute.name})}/>
+          </Basic.LabelWrapper>
+        </Basic.Col>
+      );
+    }
+    return null;
+  }
+
   render() {
     const { uiKey, entity, readOnly} = this.props;
     const {
       typeForceSearchParameters,
+      hideValueField,
       type,
-      valueRequired,
       formAttribute,
-      attributeName,
-      hideValueField
+      incompatibleWithMultiple,
+      valueRequired,
+      attributeName
     } = this.state;
+
+    console.log(444, valueRequired);
+    const incompatibleFinal = incompatibleWithMultiple && formAttribute && formAttribute.multiple;
 
     let data = this.state.entity;
     if (!data) {
@@ -655,18 +688,20 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
             required={ !(typeForceSearchParameters === null) }
             manager={ this.formAttributeManager }/>
           <Basic.Row>
-            <Basic.Div className={hideValueField ? 'col-lg-12' : 'col-lg-4'}>
+            <Basic.Col lg={ hideValueField ? 12 : 4 }>
               <Basic.EnumSelectBox
                 ref="comparison"
+                clearable={ false }
                 required
                 useFirst
                 onChange={ this._comparsionChange.bind(this) }
                 label={ this.i18n('entity.AutomaticRole.attribute.comparison') }
                 enum={ AutomaticRoleAttributeRuleComparisonEnum }/>
-            </Basic.Div>
-            <Basic.Div className="col-lg-8">
+            </Basic.Col>
+            { this._showIncompatibleWarning(incompatibleFinal, formAttribute) }
+            <Basic.Col lg={ 8 } style={{ display: hideValueField || incompatibleFinal ? '' : '' }}>
               { this._getValueField(type, valueRequired, formAttribute, attributeName) }
-            </Basic.Div>
+            </Basic.Col>
           </Basic.Row>
         </Basic.AbstractForm>
       </Basic.Div>

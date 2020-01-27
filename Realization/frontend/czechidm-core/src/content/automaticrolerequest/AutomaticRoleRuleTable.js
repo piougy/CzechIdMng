@@ -114,7 +114,7 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    if (!this.refs.detail.getForm().isFormValid()) {
+    if (!this.refs.detail.isFormValid()) {
       return;
     }
     const {createConceptFunc, updateConceptFunc} = this.props;
@@ -485,12 +485,30 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
           <Basic.Column
             header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.value.label')}
             property="value"
-          />
+            cell={
+              ({ rowIndex, data }) => {
+                const value = data[rowIndex].value;
+                if (!value || value === undefined || value === 'null') {
+                  return '';
+                }
+                return value;
+              }
+            }/>
           <Basic.Column
             header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.comparison')}
             property="comparison"
             face="enum"
-            enumClass={ AutomaticRoleAttributeRuleComparisonEnum }/>
+            cell={
+              ({ rowIndex, data }) => {
+                const value = data[rowIndex].comparison;
+                if (!value) {
+                  return '';
+                }
+                return (
+                  <Basic.EnumValue value={ value } enum={ AutomaticRoleAttributeRuleComparisonEnum } />
+                );
+              }
+            }/>
           <Basic.Column
             header={this.i18n('label.action')}
             className="action"

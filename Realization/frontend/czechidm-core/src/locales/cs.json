@@ -822,7 +822,7 @@
       "IS_EMPTY": "Je prazdný",
       "IS_NOT_EMPTY": "Není prazdný",
       "CONTAINS": "Obsahuje",
-      "NOT_CONTAINS": "Nebosahuje",
+      "NOT_CONTAINS": "Neobsahuje",
       "LESS_THAN_OR_EQUAL": "Menší nebo rovno než",
       "GREATER_THAN_OR_EQUAL": "Větší nebo rovno než",
       "helpBlock": {
@@ -1785,7 +1785,8 @@
         "attributeCantBeUsed": {
           "text": "Atribut [{{name}}] nemůže být použit pro vytvoření nového pravidla",
           "confidential": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je označen jako tajný.",
-          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je typu TEXT."
+          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je typu TEXT.",
+          "multivaluedCantBeUsed": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), s vícehodnotovým atributem nelze použít toto porovnání."
         }
       },
       "recalculate": {

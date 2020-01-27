@@ -170,7 +170,16 @@ export class AutomaticRoleAttributeRuleTable extends Advanced.AbstractTableConte
             header={ this.i18n('entity.AutomaticRole.attribute.comparison') }/>
           <Advanced.Column
             property="value"
-            header={ this.i18n('entity.AutomaticRole.attribute.value.label') }/>
+            header={ this.i18n('entity.AutomaticRole.attribute.value.label') }
+            cell={
+              ({ rowIndex, data }) => {
+                const value = data[rowIndex].value;
+                if (!value || value === undefined || value === 'null') {
+                  return '';
+                }
+                return value;
+              }
+            }/>
         </Advanced.Table>
       </Basic.Div>
     );

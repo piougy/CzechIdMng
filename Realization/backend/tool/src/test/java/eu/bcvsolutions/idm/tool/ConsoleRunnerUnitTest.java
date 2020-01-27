@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.tool;
 
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,6 +27,13 @@ public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 	//
 	@InjectMocks 
 	private ConsoleRunner consoleRunner;
+	
+	@BeforeClass
+	public static void disableTestsOnDocumentation() {
+		// generalize unit test, but it's integration test (MAVEN_HOME) is needed 
+	    Boolean documentationOnly = Boolean.valueOf(System.getProperty("documentationOnly", "false"));
+	    Assume.assumeFalse(documentationOnly);
+	}
 	
 	@Test
 	public void testHelp() {

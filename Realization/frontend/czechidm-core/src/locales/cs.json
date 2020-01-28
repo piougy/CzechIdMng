@@ -191,10 +191,14 @@
     "evict": {
       "action": "Vyprázdnit",
       "header": "Vyprázdnit cache",
-      "message": "Opravdu chcete vypázdnit cache [{{record}}]?",
+      "message_0": "N/A",
+      "message_1": "Opravdu chcete vypázdnit cache [{{record}}]?",
       "message_2": "Opravdu chcete vypázdnit všechny cache?",
-      "success": "Cache [{{record}}] byla úspěšně vyprázdněna.",
+      "message_5": "Opravdu chcete vypázdnit všechny cache?",
+      "success_0": "N/A",
+      "success_1": "Cache [{{record}}] byla úspěšně vyprázdněna.",
       "success_2": "Všechny cache byly úspěšně vyprázdněny.",
+      "success_5": "Všechny cache byly úspěšně vyprázdněny.",
       "error": "Cache s daným názvem neexistuje"
     },
     "redeploy": {

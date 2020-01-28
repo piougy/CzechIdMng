@@ -180,8 +180,10 @@
     "evict": {
       "action": "Evict",
       "header": "Evict cache",
+      "message_0": "N/A",
       "message": "Do you want to evict cache [{{record}}]?",
       "message_plural": "Do you want to evict all caches?",
+      "success_0": "N/A",
       "success": "Cache [{{record}}] was successfuly evicted.",
       "success_plural": "All caches  were successfuly evicted.",
       "error": "Cache does not exist"

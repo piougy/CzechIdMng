@@ -81,7 +81,7 @@ class EnumSelectBox extends SelectBox {
     }
     // add empty option at start
     if (_props.clearable && results.length > 0) {
-      results.unshift(this.getEmptyOption());
+      results.unshift(this.getEmptyOption(_props.emptyOptionLabel));
     }
 
     return results;

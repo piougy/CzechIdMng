@@ -702,7 +702,10 @@
       "state": {
         "label": "State",
         "help": "System state",
-        "placeholder": "System is active or choose other state ..."
+        "placeholder": "System is active or choose other state ...",
+        "active": {
+          "label": "System is <strong>active</strong>"
+        }
       }
     },
     "ConnectorServer": {

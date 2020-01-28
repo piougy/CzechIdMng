@@ -342,7 +342,7 @@
         "searchingText": "Searching ...",
         "results": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ...",
         "emptyOption": {
-          "label": "-- empty --"
+          "label": "-- not selected --"
         }
       },
       "Table" : {

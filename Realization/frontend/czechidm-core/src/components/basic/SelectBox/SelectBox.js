@@ -113,7 +113,7 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getOptions(input, forceSearchParameters, useFirst = false, addToEnd = false) {
-    const { manager, clearable, multiSelect, placeholder } = this.props;
+    const { manager, clearable, multiSelect, emptyOptionLabel } = this.props;
     const { options } = this.state;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
@@ -163,7 +163,7 @@ class SelectBox extends AbstractFormComponent {
             };
             // add empty option at start
             if (clearable && !multiSelect && data.options.length > 0) {
-              data.options.unshift(this.getEmptyOption());
+              data.options.unshift(this.getEmptyOption(emptyOptionLabel));
             }
             if (!data.complete) {
               data.options.push({
@@ -209,10 +209,12 @@ class SelectBox extends AbstractFormComponent {
   /**
    * Empty option for clearable selects.
    *
+   * @param  {string} custom label text
    * @return {option}
+   * @since 10.1.0
    */
-  getEmptyOption() {
-    const label = this.i18n('emptyOption.label', { defaultValue: '-- empty --' });
+  getEmptyOption(emptyOptionLabel) {
+    const label = emptyOptionLabel || this.i18n('emptyOption.label', { defaultValue: '-- not selected --' });
     //
     return {
       [NICE_LABEL]: label,
@@ -697,7 +699,11 @@ SelectBox.propTypes = {
   /**
    * If disabled option can be selected.
    */
-  disableable: PropTypes.bool
+  disableable: PropTypes.bool,
+  /**
+   * Empty option label (text). Default emptyOption.label localization.
+   */
+  emptyOptionLabel: PropTypes.string
 };
 
 SelectBox.defaultProps = {

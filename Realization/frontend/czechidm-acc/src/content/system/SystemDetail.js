@@ -285,6 +285,7 @@ class SystemDetail extends Basic.AbstractContent {
                   label={ this.i18n('acc:entity.System.state.label', { escape: false }) }
                   placeholder={ this.i18n('acc:entity.System.state.placeholder') }
                   helpBlock={ this.i18n('acc:entity.System.state.help') }
+                  emptyOptionLabel={ this.i18n('acc:entity.System.state.active.label', { escape: false }) }
                   options={[
                     {
                       value: 'readonly',

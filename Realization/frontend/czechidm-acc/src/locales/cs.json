@@ -703,7 +703,10 @@
       "state": {
         "label": "Stav",
         "help": "Stav systému",
-        "placeholder": "Systém je aktivní nebo vyberte jiný stav ..."
+        "placeholder": "Systém je aktivní nebo vyberte jiný stav ...",
+        "active": {
+          "label": "Systém je <strong>aktivní</strong>"
+        }
       }
     },
     "ConnectorServer": {

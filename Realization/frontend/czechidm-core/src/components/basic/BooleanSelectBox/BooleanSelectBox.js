@@ -34,7 +34,7 @@ export default class BooleanSelectBox extends EnumSelectBox {
     }
     // add empty option at start
     if (this.props.clearable && results.length > 0) {
-      results.unshift(this.getEmptyOption());
+      results.unshift(this.getEmptyOption(this.props.emptyOptionLabel));
     }
     return results;
   }

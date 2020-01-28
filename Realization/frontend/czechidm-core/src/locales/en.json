@@ -80,6 +80,8 @@
     "detail": "Detail",
     "download": "$t(label.download)",
     "edit": "Edit",
+    "evict": "Evict",
+    "evictAll": "Evict all",
     "filter": {
       "toogle": "Filter",
       "use": "Filter",
@@ -174,6 +176,15 @@
       "success_0": "N/A",
       "success": "Selected record [{{record}}] were successfully deactivated",
       "success_plural": "Selected records [{{records}}] were successfully deactivated"
+    },
+    "evict": {
+      "action": "Evict",
+      "header": "Evict cache",
+      "message": "Do you want to evict cache [{{record}}]?",
+      "message_plural": "Do you want to evict all caches?",
+      "success": "Cache [{{record}}] was successfuly evicted.",
+      "success_plural": "All caches  were successfuly evicted.",
+      "error": "Cache does not exist"
     },
     "redeploy": {
       "action": "Recover from disk (redeploy)",
@@ -2869,6 +2880,10 @@
           }
         }
       },
+      "cache": {
+        "header": "Cache",
+        "title": "Cache"
+      },
       "entity-event-processors": {
         "header": "Processors",
         "title": "Processors",
@@ -4238,6 +4253,10 @@
       "build": "Build",
       "buildNumber": "Revision",
       "buildTimestamp": "Build date"
+    },
+    "Cache": {
+      "name": "Name",
+      "size": "Number of values"
     },
     "EntityEventProcessor": {
       "id": "ID",

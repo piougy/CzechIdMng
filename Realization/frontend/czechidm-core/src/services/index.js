@@ -25,6 +25,7 @@ import NotificationService from './NotificationService';
 import ConfigurationService from './ConfigurationService';
 import EmailService from './EmailService';
 import BackendModuleService from './BackendModuleService';
+import CacheService from './CacheService';
 import RoleCatalogueService from './RoleCatalogueService';
 import RoleCatalogueRoleService from './RoleCatalogueRoleService';
 import RoleCompositionService from './RoleCompositionService';
@@ -101,6 +102,7 @@ const ServiceRoot = {
   ConfigurationService,
   EmailService,
   BackendModuleService,
+  CacheService,
   RoleCatalogueService,
   RoleCatalogueRoleService,
   RoleCompositionService,

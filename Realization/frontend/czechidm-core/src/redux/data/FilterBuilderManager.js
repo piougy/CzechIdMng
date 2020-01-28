@@ -39,7 +39,7 @@ export default class FilterBuildersManager extends EntityManager {
       this.getService().getRegisteredFilterBuilders()
         .then(json => {
           let filterBuilders = new Immutable.Map();
-          json._embedded.filterBuilders.forEach(filterBuilder => {
+          json._embedded[this.getCollectionType()].forEach(filterBuilder => {
             filterBuilders = filterBuilders.set(filterBuilder.id, filterBuilder);
           });
           dispatch(this.dataManager.receiveData(uiKey, filterBuilders));

@@ -80,6 +80,8 @@
     "detail": "Detail",
     "download": "$t(label.download)",
     "edit": "Upravit",
+    "evict": "Vyprázdnit",
+    "evictAll": "Vyprázdnit vše",
     "filter": {
       "toogle": "Filtr ",
       "use": "Filtrovat",
@@ -185,6 +187,15 @@
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně deaktivován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
+    },
+    "evict": {
+      "action": "Vyprázdnit",
+      "header": "Vyprázdnit cache",
+      "message": "Opravdu chcete vypázdnit cache [{{record}}]?",
+      "message_2": "Opravdu chcete vypázdnit všechny cache?",
+      "success": "Cache [{{record}}] byla úspěšně vyprázdněna.",
+      "success_2": "Všechny cache byly úspěšně vyprázdněny.",
+      "error": "Cache s daným názvem neexistuje"
     },
     "redeploy": {
       "action": "Obnovit z disku (redeploy)",
@@ -2920,6 +2931,10 @@
           }
         }
       },
+      "cache": {
+        "header": "Cache",
+        "title": "Cache"
+      },
       "entity-event-processors": {
         "header": "Processory",
         "title": "Processory",
@@ -4276,6 +4291,10 @@
         "label": "Suffix",
         "help": "Suffix bude automaticky doplněn na konec vygenerované části. Pro vynechání suffixu nechte pole prázdné."
       }
+    },
+    "Cache": {
+      "name": "Název",
+      "size": "Počet hodnot"
     },
     "Module": {
       "id": "Id",

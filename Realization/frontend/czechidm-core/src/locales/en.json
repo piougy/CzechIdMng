@@ -4979,6 +4979,11 @@
         "help": "Remove selected roles.",
         "icon": "fa:trash"
       },
+      "configuration-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected configuration items.",
+        "icon": "fa:trash"
+      },
       "core-entity-event-delete-bulk-action": {
         "label": "Remove",
         "help": "Remove selected events.",

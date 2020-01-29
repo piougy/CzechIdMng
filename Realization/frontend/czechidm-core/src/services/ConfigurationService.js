@@ -25,6 +25,10 @@ export default class ConfigurationService extends AbstractService {
     return true;
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   getGroupPermission() {
     return 'CONFIGURATION';
   }

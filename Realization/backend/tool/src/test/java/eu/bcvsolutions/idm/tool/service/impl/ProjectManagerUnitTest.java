@@ -9,6 +9,8 @@ import java.util.jar.Manifest;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.core.api.utils.ZipUtils;
@@ -27,6 +29,13 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 	@Test
 	public void testBuild() {
 		createMockProjectStructure();
+	}
+	
+	@BeforeClass
+	public static void disableTestsOnDocumentation() {
+		// generalize unit test, but it's integration test (MAVEN_HOME) is needed 
+	    Boolean documentationOnly = Boolean.valueOf(System.getProperty("documentationOnly", "false"));
+	    Assume.assumeFalse(documentationOnly);
 	}
 	
 	private void createMockProjectStructure() {

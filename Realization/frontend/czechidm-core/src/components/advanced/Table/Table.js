@@ -979,7 +979,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   options={ selectedRows.length <= 0 ? _actionsWithoutSelection : _actionsWithSelection }
                   placeholder={ this.i18n('bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count }) }
                   rendered={ _actions.length > 0 && showRowSelection }
-                  searchable={ false }/>
+                  searchable={ false }
+                  emptyOptionLabel={ false }/>
               </Basic.Div>
               <Basic.Div className="pull-right">
                 { buttons }

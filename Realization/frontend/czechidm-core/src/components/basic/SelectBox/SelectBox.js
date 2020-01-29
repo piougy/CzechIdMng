@@ -162,15 +162,28 @@ class SelectBox extends AbstractFormComponent {
               complete: finalOptions.length >= result.page.totalElements,
             };
             // add empty option at start
+            let hasEmptyOption = false;
             if (clearable && !multiSelect && data.options.length > 0) {
-              data.options.unshift(this.getEmptyOption(emptyOptionLabel));
+              const emptyOption = this.getEmptyOption(emptyOptionLabel);
+              if (emptyOption) {
+                if (result.page.number === 0) { // only once
+                  data.options.unshift(emptyOption);
+                }
+                hasEmptyOption = true; // we need to know on all pages
+              }
             }
             if (!data.complete) {
               data.options.push({
                 [NICE_LABEL]: (
                   <Waypoint
                     onEnter={ this._loadMoreContent.bind(this, input) }>
-                    { this.i18n('results', { escape: false, count: data.options.length, total: result.page.totalElements }) }
+                    {
+                      this.i18n('results', {
+                        escape: false,
+                        count: data.options.length - (hasEmptyOption ? 1 : 0),
+                        total: result.page.totalElements
+                      })
+                    }
                   </Waypoint>
                 ),
                 [ITEM_FULL_KEY]: input,
@@ -182,7 +195,7 @@ class SelectBox extends AbstractFormComponent {
               data.options.push({
                 [NICE_LABEL]: this.i18n('results', {
                   escape: false,
-                  count: data.options.length,
+                  count: data.options.length - (hasEmptyOption ? 1 : 0),
                   total: result.page.totalElements
                 }),
                 [ITEM_FULL_KEY]: input,
@@ -214,6 +227,11 @@ class SelectBox extends AbstractFormComponent {
    * @since 10.1.0
    */
   getEmptyOption(emptyOptionLabel) {
+    if (emptyOptionLabel === false) {
+      // option will not be shown
+      return null;
+    }
+    //
     const label = emptyOptionLabel || this.i18n('emptyOption.label', { defaultValue: '-- not selected --' });
     //
     return {
@@ -702,8 +720,13 @@ SelectBox.propTypes = {
   disableable: PropTypes.bool,
   /**
    * Empty option label (text). Default emptyOption.label localization.
+   *
+   * false = empty option will not be shown
    */
-  emptyOptionLabel: PropTypes.string
+  emptyOptionLabel: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.bool
+  ])
 };
 
 SelectBox.defaultProps = {

@@ -255,7 +255,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		Assert.assertFalse(log.isContainsError());
 		identities = identityService.find(identityFilter, null).getContent();
 		Assert.assertEquals(1, identities.size());
-		IdmIdentityDto identity = identities.get(0);
+//		IdmIdentityDto identity = identities.get(0);
 		
 		// Start sync with disable different sync - no change was made on
 		// identity, but standard update should be made.

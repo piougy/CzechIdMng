@@ -251,6 +251,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return new PageImpl<UUID>(content, pageable, total);
 	}
 
+	@Override
 	@Transactional(readOnly = true)
 	public long count(final F filter, BasePermission... permission) {
 		return getRepository().count(toCriteria(filter, false, permission));

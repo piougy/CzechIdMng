@@ -270,7 +270,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				context.addTokenAttribute(tokenAttribute);
 				// Resolve filter for custom search
 				IcFilter filter = resolveSynchronizationFilter(config);
-				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
+				log.addToLog(MessageFormat.format("Start search with filter [{0}].", filter != null ? filter : "NONE"));
 
 				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter,
 						new DefaultResultHandler(context, systemAccountsList));
@@ -317,7 +317,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param context
 	 */
 	protected SysSyncLogDto syncStarted(SysSyncLogDto log, SynchronizationContext context) {
-		log.addToLog(MessageFormat.format("Synchronization was started in {0}.", log.getStarted()));
+		log.addToLog(MessageFormat.format("Synchronization was started in [{0}].", log.getStarted()));
 		return log;
 	}
 
@@ -328,7 +328,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param context
 	 */
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
-		log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", ZonedDateTime.now()));
+		log.addToLog(MessageFormat.format("Synchronization was correctly ended in [{0}].", ZonedDateTime.now()));
 		return log;
 	}
 
@@ -620,7 +620,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			actionsLog = saveActionLogs(actionsLog, log.getId());
 			//
 			if (!existingItemLog) {
-				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
+				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID [{0}]!", uid));
 				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);
 				itemLog = syncItemLogService.save(itemLog);
@@ -686,7 +686,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					updateAndCheckState(result, log);
 
 				} catch (Exception ex) {
-					String message = MessageFormat.format("Reconciliation - error for uid {0}", uid);
+					String message = MessageFormat.format("Reconciliation - error for uid [{0}]", uid);
 					log.addToLog(message);
 					log.addToLog(Throwables.getStackTraceAsString(ex));
 					LOG.error(message, ex);
@@ -697,7 +697,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					actionsLog = saveActionLogs(actionsLog, log.getId());
 					//
 					if (!existingItemLog) {
-						addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
+						addToItemLog(itemLog, MessageFormat.format("Missing action log for UID [{0}]!", uid));
 						initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 								actionsLog);
 						itemLog = syncItemLogService.save(itemLog);
@@ -769,7 +769,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			updateAndCheckState(result, log);
 
 		} catch (Exception ex) {
-			String message = MessageFormat.format("Export - error for entity {0}", entity.getId());
+			String message = MessageFormat.format("Export - error for entity [{0}]", entity.getId());
 			log.addToLog(message);
 			log.addToLog(Throwables.getStackTraceAsString(ex));
 			LOG.error(message, ex);
@@ -779,7 +779,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
 			//
 			if (!existingItemLog) {
-				addToItemLog(itemLog, MessageFormat.format("Missing action log for entity {0}!", entity.getId()));
+				addToItemLog(itemLog, MessageFormat.format("Missing action log for entity [{0}]!", entity.getId()));
 				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);
 				itemLog = syncItemLogService.save(itemLog);
@@ -956,9 +956,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		List<SysSyncActionLogDto> actionLogs = context.getActionLogs();
 		AccAccountDto account = context.getAccount();
 
-		addToItemLog(logItem, MessageFormat.format("IdM Account ({0}) exists in IDM (LINKED)", account.getUid()));
+		addToItemLog(logItem, MessageFormat.format("IdM Account [{0}] exists in IDM (LINKED)", account.getUid()));
 
-		addToItemLog(logItem, MessageFormat.format("Linked action is {0}", action));
+		addToItemLog(logItem, MessageFormat.format("Linked action is [{0}]", action));
 
 		switch (action) {
 		case IGNORE:
@@ -1077,7 +1077,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		addToItemLog(logItem, MessageFormat.format(
 				"Account does not exist, but an entity [{0}] was found by correlation (entity unlinked).", entityId));
-		addToItemLog(logItem, MessageFormat.format("Unlinked action is {0}", action));
+		addToItemLog(logItem, MessageFormat.format("Unlinked action is [{0}]", action));
 		DTO entity = findById(entityId);
 
 		switch (action) {
@@ -1131,7 +1131,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		addToItemLog(logItem,
 				"Account doesn't exist on target system, but account in IdM was found (missing account).");
-		addToItemLog(logItem, MessageFormat.format("Missing account action is {0}", action));
+		addToItemLog(logItem, MessageFormat.format("Missing account action is [{0}]", action));
 		switch (action) {
 		case IGNORE:
 			// Ignore we will do nothing
@@ -1264,7 +1264,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		this.getEntityAccountService().save(roleAccount);
 
 		// Entity created
-		addToItemLog(logItem, MessageFormat.format("Entity with id {0} was created", entity.getId()));
+		addToItemLog(logItem, MessageFormat.format("Entity with id [{0}] was created", entity.getId()));
 		if (logItem != null) {
 			logItem.setDisplayName(this.getDisplayNameForEntity(entity));
 		}
@@ -1312,7 +1312,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		SysSyncItemLogDto logItem = context.getLogItem();
 
 		if (context.isSkipEntityUpdate()) {
-			addToItemLog(logItem, MessageFormat.format("Update of entity for account with uid {0} is skipped", uid));
+			addToItemLog(logItem, MessageFormat.format("Update of entity for account with uid [{0}] is skipped", uid));
 			return;
 		}
 
@@ -1343,7 +1343,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			}
 
 			// Entity updated
-			addToItemLog(logItem, MessageFormat.format("Entity with id {0} was updated", entity.getId()));
+			addToItemLog(logItem, MessageFormat.format("Entity with id [{0}] was updated", entity.getId()));
 			if (logItem != null) {
 				logItem.setDisplayName(this.getDisplayNameForEntity(entity));
 			}
@@ -1413,7 +1413,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					actionLogs);
 			return;
 		}
-		addToItemLog(logItem, MessageFormat.format("Entity-account relations to delete {0}", entityAccounts));
+		addToItemLog(logItem, MessageFormat.format("Entity-account relations to delete [{0}]", entityAccounts));
 
 		entityAccounts.stream().forEach(entityAccount -> {
 			// We will remove role account, but without delete connected
@@ -1421,7 +1421,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			this.getEntityAccountService().delete(entityAccount, false);
 			addToItemLog(logItem,
 					MessageFormat.format(
-							"Entity-account relation deleted (without call delete provisioning) (entity: {0}, id: {1})",
+							"Entity-account relation deleted (without call delete provisioning) (entity: [{0}], id: [{1}])",
 							entityAccount.getEntity(), entityAccount.getId()));
 
 		});
@@ -1440,7 +1440,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	private void loggingException(SynchronizationActionType synchronizationActionType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs, String uid, Exception e) {
-		String message = MessageFormat.format("Synchronization - exception during {0} for UID {1}",
+		String message = MessageFormat.format("Synchronization - exception during [{0}] for UID [{1}]",
 				synchronizationActionType, uid);
 		log.setContainsError(true);
 		logItem.setMessage(message);
@@ -1913,7 +1913,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// System entity for this uid was found. We will find account
 			// for this system entity.
 			addToItemLog(logItem, MessageFormat.format(
-					"System entity ({1}) for this UID ({0}) was found. We try to find account for this system entity",
+					"System entity [{1}] for this UID [{0}] was found. We try to find account for this system entity",
 					uid, systemEntity.getId()));
 			accountFilter.setSystemEntityId(systemEntity.getId());
 			accounts = accountService.find(accountFilter, null).getContent();
@@ -1926,7 +1926,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// and must be String
 			String attributeUid = this.generateUID(context);
 			addToItemLog(logItem, MessageFormat.format(
-					"Account was not found. We try to find account for UID ({0}) (generated from the mapped attribute marked as Identifier)",
+					"Account was not found. We try to find account for UID [{0}] (generated from the mapped attribute marked as Identifier)",
 					attributeUid));
 
 			accountFilter.setUid(attributeUid);
@@ -2031,7 +2031,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			return systemEntity;
 		}
 		addToItemLog(logItem, MessageFormat.format(
-				"Existing system entity ({0}) has the flag Wish, we can safely remove it (the system entity really exists).",
+				"Existing system entity [{0}] has the flag Wish, we can safely remove it (the system entity really exists).",
 				systemEntity.getUid()));
 		systemEntity.setWish(false);
 		return systemEntityService.save(systemEntity);
@@ -2067,7 +2067,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		AbstractSysSyncConfigDto config = context.getConfig();
 
 		addToItemLog(logItem,
-				MessageFormat.format("Workflow for {0} situation was found. We will start it.", situation));
+				MessageFormat.format("Workflow for [{0}] situation was found. We will start it.", situation));
 
 		Map<String, Object> variables = new HashMap<>();
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_UID, uid);
@@ -2094,7 +2094,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		}
 		if (processInstance.isEnded()) {
-			addToItemLog(logItem, MessageFormat.format("Workflow (with id {0}) for missing entity situation ended.",
+			addToItemLog(logItem, MessageFormat.format("Workflow (with id [{0}]) for missing entity situation ended.",
 					processInstance.getId()));
 			initSyncActionLog(situation.getAction(), OperationResultType.WF, logItem, log, actionLogs);
 
@@ -2106,7 +2106,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		} else {
 			// If workflow not ended, then the history will be not deleted!
 			addToItemLog(logItem, MessageFormat.format(
-					"Workflow (with id {0}) for missing entity situation not ended (will be ended asynchronously).",
+					"Workflow (with id [{0}]) for missing entity situation not ended (will be ended asynchronously).",
 					processInstance.getId()));
 			initSyncActionLog(situation.getAction(), OperationResultType.WF, logItem, log, actionLogs);
 		}
@@ -2280,7 +2280,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (account == null) {
 			// Identity account won't be created
 			addToItemLog(logItem, MessageFormat.format(
-					"Link between uid {0} and entity {1} will not be created due to specific settings of synchronization. "
+					"Link between uid [{0}] and entity [{1}] will not be created due to specific settings of synchronization. "
 							+ "Processing of this item is finished.",
 					uid, entityIdentification));
 			return;
@@ -2288,7 +2288,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		account = accountService.save(account);
 		addToItemLog(logItem,
-				MessageFormat.format("Account with uid {0} and id {1} was created", uid, account.getId()));
+				MessageFormat.format("Account with uid [{0}] and id [{1}] was created", uid, account.getId()));
 
 		// Create new entity account relation
 		EntityAccountDto entityAccount = this.createEntityAccount(account, dto, context);
@@ -2298,7 +2298,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// Identity account Created
 		addToItemLog(logItem,
 				MessageFormat.format(
-						"Entity account relation  with id ({0}), between account ({1}) and entity ({2}) was created",
+						"Entity account relation  with id [{0}], between account [{1}] and entity [{2}] was created",
 						entityAccount.getId(), uid, entityIdentification));
 		logItem.setType(entityAccount.getClass().getSimpleName());
 		logItem.setIdentification(entityAccount.getId().toString());
@@ -2531,7 +2531,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// and must be String
 		String attributeUid = this.generateUID(context);
 		if (!account.getUid().equals(attributeUid)) {
-			addToItemLog(logItem, MessageFormat.format("IdM Account UID ({0}) is different ({1}). We will update it.",
+			addToItemLog(logItem, MessageFormat.format("IdM Account UID [{0}] is different [{1}]. We will update it.",
 					account.getUid(), attributeUid));
 			account.setUid(attributeUid);
 			account = accountService.save(account);

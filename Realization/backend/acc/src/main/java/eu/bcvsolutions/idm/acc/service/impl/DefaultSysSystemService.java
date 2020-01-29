@@ -651,7 +651,7 @@ public class DefaultSysSystemService
 				attribute.setSeq(seq);
 				formAttributes.add(attribute);
 			}
-			formDefinition = getFormService().createDefinition(SysSystem.class.getName(),
+			formDefinition = getFormService().createDefinition(SysSystem.class,
 					connectorInstance.getConnectorKey().getFullName(), formAttributes);
 		} else {
 			// check attributes / attribute can be added into form definition

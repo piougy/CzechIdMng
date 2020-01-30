@@ -1816,6 +1816,10 @@
       },
       "detail": {
         "title": "Basic information"
+      },
+      "form-values": {
+        "header": "Attribute's values",
+        "title": "Attribute's values"
       }
     },
     "form-values": {
@@ -5046,6 +5050,11 @@
         "label": "Remove",
         "help": "Remove selected contracted positions.",
         "icon": "fa:trash"
+      },
+      "core-form-value-delete-bulk-action": {
+        "label": "Remove values",
+        "help": "Remove selected values. Notify event will be published for value's owner (e.g. automatic roles or provisioning will be processed).",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {
@@ -5685,6 +5694,10 @@
     "FORM_ATTRIBUTE_INVALID_REGEX": {
       "title": "Regular expression is not valid",
       "message": "Regular expression [{{regex}}] is not valid."
+    },
+    "FORM_VALUE_DELETE_FAILED_IS_REQUIRED": {
+      "title": "Values cannot be deleted",
+      "message": "Values [count: <strong class=\"highlight\">{{count}}</strong>] of attribute [<strong class=\"highlight\">{{attribute}}</strong>] cannot be deleted, attribute is defined as required. Change form attribute definition if values are needed to be removed."
     },
     "ACCEPTED": {
       "title": "Request added",

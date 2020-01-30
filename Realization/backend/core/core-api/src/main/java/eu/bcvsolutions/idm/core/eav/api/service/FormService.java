@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.InvalidFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.api.event.processor.FormInstanceProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -45,6 +46,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @see IdmFormAttribute}
  * @see FormableEntity
  * @see LookupService
+ * @see FormInstanceProcessor
  * 
  * @author Radek Tomiška
  *
@@ -307,6 +309,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form definition. Only given form attributes by the given values will be saved ("PATCH").
+	 * 'EAV_SAVE' event <strong>is</strong> published for value owner after values are saved.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
@@ -320,6 +323,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form definition. Only given form attributes by the given values will be saved ("PATCH").
+	 *  'EAV_SAVE' event <strong>is</strong> published for value owner after values are saved.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
@@ -333,6 +337,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form definition. Only given form attributes by the given values will be saved ("PATCH").
+	 *  'EAV_SAVE' event <strong>is</strong> published for value owner after values are saved.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param ownerId
@@ -352,6 +357,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form definition. Only given form attributes by the given values will be saved ("PATCH").
+	 * 'EAV_SAVE' event <strong>is</strong> published for value owner after values are saved.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
@@ -371,6 +377,7 @@ public interface FormService extends ScriptEnabled {
 	 * Saves form values to given owner and form definition. Only given form attributes by the given values will be saved ("PATCH").
 	 * Prevent to call this method programmatically - given event is not published, but processed - used in {@link FormInstanceSaveProcessor}.
 	 * Use {@link #publish(EntityEvent, BasePermission...)} method instead.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @see #publish(EntityEvent, BasePermission...)
 	 * @see #publish(EntityEvent, EntityEvent, BasePermission...)
@@ -383,6 +390,7 @@ public interface FormService extends ScriptEnabled {
 	/**
 	 * Publish event. Event must have not null content (instance of E).
 	 * Before publish do permission check (by given event content).
+	 * 'EAV_SAVE' event <strong>is</strong> published for value owner after values are saved.
 	 * 
 	 * @param event
 	 * @param permission permissions to evaluate (AND)
@@ -394,6 +402,7 @@ public interface FormService extends ScriptEnabled {
 	/**
 	 * Publish event. Event must have not null content (instance of E).
 	 * Before publish do permission check (by given event content).
+	 * 'EAV_SAVE' event <strong>is</strong> published for value owner after values are saved.
 	 * 
 	 * @param event
 	 * @param parentEvent event is based on parent event
@@ -405,6 +414,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @param owner
 	 * @param attribute
@@ -421,6 +431,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @param ownerId
 	 * @param ownerType
@@ -439,6 +450,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
@@ -459,6 +471,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param ownerId
@@ -481,6 +494,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only. Main form definition will be used.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param owner
@@ -499,6 +513,7 @@ public interface FormService extends ScriptEnabled {
 	
 	/**
 	 * Saves form values to given owner and form attribute - saves attribute values only. Main form definition will be used.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param ownerId
@@ -707,7 +722,19 @@ public interface FormService extends ScriptEnabled {
 	void deleteAttribute(IdmFormAttributeDto attribute, BasePermission... permission);
 	
 	/**
-	 * Deletes form values by given owner
+	 * Deletes given form value only. 
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
+	 * 
+	 * @param formValue value to delete
+	 * @param permission base permissions to evaluate (AND)
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 10.0.1
+	 */
+	void deleteValue(IdmFormValueDto formValue, BasePermission... permission);
+	
+	/**
+	 * Deletes form values by given owner.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @param owner values owner
 	 * @param permission base permissions to evaluate (AND)
@@ -716,7 +743,8 @@ public interface FormService extends ScriptEnabled {
 	void deleteValues(Identifiable owner, BasePermission... permission);
 	
 	/**
-	 * Deletes form values by given owner and form definition
+	 * Deletes form values by given owner and form definition.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @param owner values owner
 	 * @param formDefinition
@@ -726,7 +754,8 @@ public interface FormService extends ScriptEnabled {
 	void deleteValues(Identifiable owner, IdmFormDefinitionDto formDefinition, BasePermission... permission);
 	
 	/**
-	 * Deletes form values by given owner and form attribute
+	 * Deletes form values by given owner and form attribute.
+	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
 	 * @param owner
 	 * @param formAttribute
@@ -837,6 +866,14 @@ public interface FormService extends ScriptEnabled {
 	 * @return
 	 */
 	<O extends FormableEntity> FormValueService<O> getFormValueService(Class<? extends Identifiable> ownerType);
+	
+	/**
+	 * Returns all registered form value services.
+	 * 
+	 * @return list of installed / registered form value services.
+	 * @since 10.0.1
+	 */
+	List<FormValueService<?>> getAvailableFormValueServices();
 
 	/**
 	 * Validation for given form instance.

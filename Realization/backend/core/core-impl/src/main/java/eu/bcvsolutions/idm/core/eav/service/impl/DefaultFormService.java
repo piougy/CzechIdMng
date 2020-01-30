@@ -160,7 +160,7 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinitionDto getDefinition(Class<? extends Identifiable> ownerType, String code, BasePermission... permission) {
-		Assert.notNull(ownerType, "Owner type is required!");
+		Assert.notNull(ownerType, "Owner type is required.");
 		//
 		return getDefinition(getDefaultDefinitionType(ownerType), code, permission);
 	}
@@ -234,11 +234,11 @@ public class DefaultFormService implements FormService {
 			String definitionCode,
 			String attributeCode,
 			BasePermission... permission) {
-		Assert.notNull(ownerType, "Owner type is required!");
-		Assert.hasLength(attributeCode, "Form attribute code is required!");
+		Assert.notNull(ownerType, "Owner type is required.");
+		Assert.hasLength(attributeCode, "Form attribute code is required.");
 		//
 		IdmFormDefinitionDto definition = getDefinition(ownerType, definitionCode);
-		Assert.notNull(definition, "Definition is required!");
+		Assert.notNull(definition, "Definition is required.");
 		//
 		return formAttributeService.findAttribute(
 				getDefaultDefinitionType(ownerType), 
@@ -253,8 +253,8 @@ public class DefaultFormService implements FormService {
 			IdmFormDefinitionDto formDefinition,
 			String attributeCode,
 			BasePermission... permission) {
-		Assert.notNull(formDefinition, "Definition is required!");
-		Assert.hasLength(attributeCode, "Form attribute code is required!");
+		Assert.notNull(formDefinition, "Definition is required.");
+		Assert.hasLength(attributeCode, "Form attribute code is required.");
 		//
 		return formAttributeService.findAttribute(
 				formDefinition.getType(),
@@ -351,7 +351,7 @@ public class DefaultFormService implements FormService {
 	public IdmFormAttributeDto saveAttribute(IdmFormAttributeDto attribute, BasePermission... permission) {
 		Assert.notNull(attribute, "Form attribute type is required.");
 		Assert.notNull(attribute.getFormDefinition(),
-				String.format("Form definition for attribute [%s] is required!", attribute.getCode()));
+				String.format("Form definition for attribute [%s] is required.", attribute.getCode()));
 		//
 		return formAttributeService.save(attribute, permission);
 	}
@@ -409,7 +409,7 @@ public class DefaultFormService implements FormService {
 			List<IdmFormValueDto> newValues,
 			BasePermission... permission) {
 		FormableEntity ownerEntity = getOwnerEntity(owner);
-		Assert.notNull(ownerEntity, "Form values owner is required!");
+		Assert.notNull(ownerEntity, "Form values owner is required.");
 		formDefinition = checkDefaultDefinition(ownerEntity.getClass(), formDefinition);
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(ownerEntity, formDefinition, newValues);
 		//
@@ -442,7 +442,7 @@ public class DefaultFormService implements FormService {
 	public IdmFormInstanceDto saveFormInstance(EntityEvent<IdmFormInstanceDto> event) {
 		IdmFormInstanceDto formInstance = event.getContent();
 		FormableEntity ownerEntity = getOwnerEntity(formInstance.getOwnerId(), formInstance.getOwnerType());
-		Assert.notNull(ownerEntity, "Form values owner is required!");
+		Assert.notNull(ownerEntity, "Form values owner is required.");
 		IdmFormDefinitionDto formDefinition = checkDefaultDefinition(formInstance.getOwnerType(), formInstance.getFormDefinition());
 		//
 		FormValueService<FormableEntity> formValueService = getFormValueService(formInstance.getOwnerType());
@@ -481,9 +481,9 @@ public class DefaultFormService implements FormService {
 			IdmFormAttributeDto attribute,
 			List<Serializable> persistentValues,
 			BasePermission... permission) {
-		Assert.notNull(owner, "Form values owner is required!");
-		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.notNull(attribute, "Form attribute definition is required!");
+		Assert.notNull(owner, "Form values owner is required.");
+		Assert.notNull(owner.getId(), "Owner id is required.");
+		Assert.notNull(attribute, "Form attribute definition is required.");
 		//
 		FormableEntity ownerEntity = getOwnerEntity(owner);
 		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
@@ -755,9 +755,9 @@ public class DefaultFormService implements FormService {
 			String attributeCode,
 			List<Serializable> persistentValues,
 			BasePermission... permission) {
-		Assert.notNull(owner, "Form values owner is required!");
-		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.hasLength(attributeCode, "Form attribute code is required!");
+		Assert.notNull(owner, "Form values owner is required.");
+		Assert.notNull(owner.getId(), "Owner id is required.");
+		Assert.hasLength(attributeCode, "Form attribute code is required.");
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
 		//
 		return saveValues(owner, getAttribute(formDefinition, attributeCode), persistentValues, permission);
@@ -851,8 +851,8 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormInstanceDto getFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition, BasePermission... permission) {
-		Assert.notNull(owner, "Form values owner is required!");
-		Assert.notNull(owner.getId(), "Owner id is required!");
+		Assert.notNull(owner, "Form values owner is required.");
+		Assert.notNull(owner.getId(), "Owner id is required.");
 		//
 		BasePermission[] permissions = PermissionUtils.trimNull(permission);
 		FormableEntity ownerEntity = getOwnerEntity(owner);
@@ -902,9 +902,9 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormValueDto> getValues(Identifiable owner, IdmFormAttributeDto attribute, BasePermission... permission) {
-		Assert.notNull(owner, "Form values owner is required!");
-		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.notNull(attribute, "Form attribute definition is required!");
+		Assert.notNull(owner, "Form values owner is required.");
+		Assert.notNull(owner.getId(), "Owner id is required.");
+		Assert.notNull(attribute, "Form attribute definition is required.");
 		//
 		FormableEntity ownerEntity = getOwnerEntity(owner);
 		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
@@ -924,8 +924,8 @@ public class DefaultFormService implements FormService {
 			IdmFormDefinitionDto formDefinition,
 			String attributeCode,
 			BasePermission... permission) {
-		Assert.notNull(owner, "Form values owner is required!");
-		Assert.notNull(owner.getId(), "Owner id is required!");
+		Assert.notNull(owner, "Form values owner is required.");
+		Assert.notNull(owner.getId(), "Owner id is required.");
 		Assert.hasLength(attributeCode, "Attribute code is required");
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
 		//
@@ -984,6 +984,18 @@ public class DefaultFormService implements FormService {
 	public void deleteAttribute(IdmFormAttributeDto attribute, BasePermission... permission) {
 		formAttributeService.delete(attribute, permission);
 	}
+	
+	@Override
+	@Transactional
+	public void deleteValue(IdmFormValueDto formValue, BasePermission... permission) {
+		Assert.notNull(formValue, "Form value is required.");
+		Assert.notNull(formValue.getOwnerId(), "Owner id is required.");
+		Class<? extends FormableEntity> ownerType = formValue.getOwnerType();
+		Assert.notNull(ownerType, "Form value owner type is required.");
+		//
+		FormValueService<FormableEntity> formValueService = getFormValueService(ownerType);
+		formValueService.delete(formValue, permission);
+	}
 
 	@Override
 	@Transactional
@@ -994,8 +1006,8 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional
 	public void deleteValues(Identifiable owner, IdmFormDefinitionDto formDefinition, BasePermission... permission) {
-		Assert.notNull(owner, "Form values owner is required!");
-		Assert.notNull(owner.getId(), "Owner id is required!");
+		Assert.notNull(owner, "Form values owner is required.");
+		Assert.notNull(owner.getId(), "Owner id is required.");
 		FormableEntity ownerEntity = getOwnerEntity(owner);
 		//
 		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
@@ -1005,9 +1017,9 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional
 	public void deleteValues(Identifiable owner, IdmFormAttributeDto attribute, BasePermission... permission) {
-		Assert.notNull(owner, "Form values owner is required!");
-		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.notNull(attribute, "Form attribute definition is required!");
+		Assert.notNull(owner, "Form values owner is required.");
+		Assert.notNull(owner.getId(), "Owner id is required.");
+		Assert.notNull(attribute, "Form attribute definition is required.");
 		//
 		FormableEntity ownerEntity = getOwnerEntity(owner);
 		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
@@ -1016,9 +1028,9 @@ public class DefaultFormService implements FormService {
 
 	@Override
 	public String getConfidentialStorageKey(Identifiable owner, IdmFormAttributeDto attribute) {
-		Assert.notNull(owner, "Form values owner is required!");
-		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.notNull(attribute, "Form attribute is required!");
+		Assert.notNull(owner, "Form values owner is required.");
+		Assert.notNull(owner.getId(), "Owner id is required.");
+		Assert.notNull(attribute, "Form attribute is required.");
 		//
 		FormValueService<FormableEntity> formValueService = getFormValueService(owner);
 		String key = formValueService.getConfidentialStorageKey(attribute.getId());
@@ -1041,8 +1053,8 @@ public class DefaultFormService implements FormService {
 	@SuppressWarnings("unchecked")
 	public <O extends BaseDto> Page<O> findOwners(Class<? extends Identifiable> ownerType,
 			IdmFormAttributeDto attribute, Serializable persistentValue, Pageable pageable) {
-		Assert.notNull(ownerType, "Owner type is required!");
-		Assert.notNull(attribute, "Form attribute is required!");
+		Assert.notNull(ownerType, "Owner type is required.");
+		Assert.notNull(attribute, "Form attribute is required.");
 		if (attribute.isConfidential()) {
 			throw new UnsupportedOperationException(MessageFormat
 					.format("Find owners by confidential attributes [{0}] are not supported.", attribute.getCode()));
@@ -1126,6 +1138,11 @@ public class DefaultFormService implements FormService {
 	}
 	
 	@Override
+	public List<FormValueService<?>> getAvailableFormValueServices() {
+		return formValueServices.getPlugins();
+	}
+	
+	@Override
 	@SuppressWarnings({ "unchecked" })
 	public <O extends FormableEntity> FormValueService<O> getFormValueService(Class<? extends Identifiable> ownerType) {
 		FormValueService<O> formValueService = (FormValueService<O>) formValueServices.getPluginFor(lookupService.getEntityClass(ownerType));
@@ -1200,7 +1217,7 @@ public class DefaultFormService implements FormService {
 	 */
 	@SuppressWarnings("unchecked")
 	private <O extends FormableEntity> O getOwnerEntity(Identifiable owner) {
-		Assert.notNull(owner, "Form values owner instance is required!");
+		Assert.notNull(owner, "Form values owner instance is required.");
 		if (owner instanceof FormableEntity) {
 			return (O) owner;
 		}
@@ -1217,10 +1234,10 @@ public class DefaultFormService implements FormService {
 	 */
 	@SuppressWarnings("unchecked")
 	private <O extends FormableEntity> O getOwnerEntity(Serializable ownerId, Class<? extends Identifiable> ownerType) {
-		Assert.notNull(ownerId, "Form values owner id is required!");
-		Assert.notNull(ownerType, "Form values owner type is required!");
+		Assert.notNull(ownerId, "Form values owner id is required.");
+		Assert.notNull(ownerType, "Form values owner type is required.");
 		O owner = (O) lookupService.lookupEntity(ownerType, ownerId);
-		Assert.notNull(owner, "Form values owner is required!");
+		Assert.notNull(owner, "Form values owner is required.");
 		//
 		return owner;
 	}
@@ -1234,7 +1251,7 @@ public class DefaultFormService implements FormService {
 	@Override
 	public IdmFormDefinitionDto convertConfigurationToFormDefinition(
 			Class<? extends ConfigurationClass> configurationClass) {
-		Assert.notNull(configurationClass, "Class with the configuration is required!");
+		Assert.notNull(configurationClass, "Class with the configuration is required.");
 		try {
 			ConfigurationClass configurationClassInstance = configurationClass.getDeclaredConstructor().newInstance();
 			List<IdmFormAttributeDto> properties = new ArrayList<>();

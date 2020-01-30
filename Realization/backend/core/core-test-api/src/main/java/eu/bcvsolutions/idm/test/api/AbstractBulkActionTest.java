@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
@@ -69,7 +69,7 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 	 * @param name
 	 * @return
 	 */
-	protected IdmBulkActionDto findBulkAction(Class<? extends AbstractEntity> entity, String name) {
+	protected IdmBulkActionDto findBulkAction(Class<? extends BaseEntity> entity, String name) {
 		List<IdmBulkActionDto> actions = bulkActionManager.getAvailableActions(entity);
 		assertFalse(actions.isEmpty());
 		

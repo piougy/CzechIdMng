@@ -67,6 +67,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.exception.ChangeConfidentialException;
 import eu.bcvsolutions.idm.core.eav.api.exception.ChangePersistentTypeException;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
@@ -306,6 +307,21 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		Assert.assertTrue(ownerTypes.stream().anyMatch(o -> o.equals(formService.getDefaultDefinitionType(IdmRoleDto.class))));
 		//
 		Assert.assertFalse(ownerTypes.stream().anyMatch(o -> o.equals(IdmFormDefinition.class.getCanonicalName())));
+	}
+	
+	@Test
+	public void testGetAvailableFormValueServices() {
+		List<FormValueService<?>> installedServices = formService.getAvailableFormValueServices();
+		//
+		// core services all time
+		Assert.assertTrue(installedServices.stream().anyMatch(s -> s.getEntityClass().equals(IdmIdentityFormValue.class)));
+	}
+	
+	@Test
+	public void testGetFormValueService() {
+		FormValueService<?> service = formService.getFormValueService(IdmIdentityDto.class);
+		// isentity service
+		Assert.assertEquals(IdmIdentityFormValue.class, service.getEntityClass());
 	}
 
 	@Test
@@ -919,6 +935,37 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();
 		//
 		assertNull(m.get(attributeName));
+	}
+	
+	@Test
+	public void testDeleteValue() {
+		Identifiable owner = getHelper().createIdentity((GuardedString) null);
+		//
+		// create definition with attribute
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attribute.getCode());
+		attribute.setMultiple(true);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class.getCanonicalName(), getHelper().createName(), Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		//
+		// fill values
+		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
+		Map<String, List<IdmFormValueDto>> m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();
+		//
+		// check value and persistent type
+		Assert.assertEquals(2, m.get(attributeName).size());
+		Assert.assertTrue(m.get(attributeName).stream().anyMatch(v -> v.getValue().equals(FORM_VALUE_ONE)));
+		Assert.assertTrue(m.get(attributeName).stream().anyMatch(v -> v.getValue().equals(FORM_VALUE_TWO)));
+		//
+		// delete one value
+		formService.deleteValue(m.get(attributeName).stream().filter(v -> v.getValue().equals(FORM_VALUE_ONE)).findFirst().get());
+		m = formService.getFormInstance(owner, formDefinitionOne).toValueMap();
+		//
+		Assert.assertEquals(1, m.get(attributeName).size());
+		Assert.assertTrue(m.get(attributeName).stream().anyMatch(v -> v.getValue().equals(FORM_VALUE_TWO)));
 	}
 
 	@Test

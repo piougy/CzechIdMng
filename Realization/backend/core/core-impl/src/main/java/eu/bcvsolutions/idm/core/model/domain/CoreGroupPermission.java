@@ -555,6 +555,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	//
 	public static final String FORM_VALUE_READ = "FORMVALUE" + BasePermission.SEPARATOR + "READ";
 	public static final String FORM_VALUE_UPDATE = "FORMVALUE" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String FORM_VALUE_DELETE = "FORMVALUE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String CODE_LIST_ITEM_COUNT = "CODELISTITEM" + BasePermission.SEPARATOR + "COUNT";
 	public static final String CODE_LIST_ITEM_AUTOCOMPLETE = "CODELISTITEM" + BasePermission.SEPARATOR + "AUTOCOMPLETE";

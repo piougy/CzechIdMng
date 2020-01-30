@@ -309,8 +309,7 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 	 * @return
 	 */
 	private boolean isApprove() {
-		Boolean approve = this.getParameterConverter().toBoolean(getProperties(), APPROVE_CODE);
-		return approve != null ? approve.booleanValue() : true;
+		return this.getParameterConverter().toBoolean(getProperties(), APPROVE_CODE, true);
 	}
 
 	/**
@@ -319,8 +318,7 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 	 * @return
 	 */
 	private boolean isCheckSubdefinition() {
-		Boolean check = this.getParameterConverter().toBoolean(getProperties(),CHECK_SUBDEFINITION_CODE);
-		return check != null ? check.booleanValue() : true;
+		return this.getParameterConverter().toBoolean(getProperties(),CHECK_SUBDEFINITION_CODE, true);
 	}
 
 	/**

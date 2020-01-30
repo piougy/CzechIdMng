@@ -65,6 +65,7 @@ export class FormValueTable extends Advanced.AbstractTableContent {
         forceSearchParameters={ forceSearchParameters }
         showFilter={ showFilter }
         className={ className }
+        showRowSelection
         filter={
           <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
             <Basic.AbstractForm ref="filterForm">

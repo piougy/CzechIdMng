@@ -17,7 +17,11 @@ export default class FormValueService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.id}`; // TODO: attribute name + value?
+    return `${ entity.id }`; // TODO: attribute name + value?
+  }
+
+  supportsBulkAction() {
+    return true;
   }
 
   /**

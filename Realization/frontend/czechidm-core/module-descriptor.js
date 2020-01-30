@@ -1355,7 +1355,7 @@ module.exports = {
                   },
                   {
                     id: 'form-attribute-values',
-                    labelKey: 'content.form-values.title',
+                    labelKey: 'content.formAttributes.form-values.title',
                     order: 505,
                     path: '/forms/attribute/:entityId/values',
                     icon: '',

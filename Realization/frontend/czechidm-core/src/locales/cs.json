@@ -1866,6 +1866,10 @@
       },
       "detail": {
         "title": "Základní informace"
+      },
+      "form-values": {
+        "header": "Hodnoty atributu",
+        "title": "Hodnoty atributu"
       }
     },
     "form-values": {
@@ -5098,6 +5102,11 @@
         "label": "Odebrat",
         "help": "Odstraní vybrané pracovněprávní vztahy.",
         "icon": "fa:trash"
+      },
+      "core-form-value-delete-bulk-action": {
+        "label": "Odebrat hodnoty",
+        "help": "Odstraní vybrané hodnoty. Pro vlastníka hodnoty bude publikována událost pro přepočet automatických rolí, provisioning atd.",
+        "icon": "fa:trash"
       }
     },
     "authorization-evaluator": {
@@ -5737,6 +5746,10 @@
     "FORM_ATTRIBUTE_INVALID_REGEX": {
       "title": "Nevalidní regulární výraz",
       "message": "Regulární výraz [{{regex}}] není validní."
+    },
+    "FORM_VALUE_DELETE_FAILED_IS_REQUIRED": {
+      "title": "Hodnoty nelze smazat",
+      "message": "Hodnoty [počet: <strong class=\"highlight\">{{count}}</strong>] atributu [<strong class=\"highlight\">{{attribute}}</strong>] nelze smazat, atribut formuláře je definován jako povinný. Upravte definici atributu, pokud je třeba hodnoty smazat."
     },
     "ACCEPTED": {
       "title": "Požadavek přijat",

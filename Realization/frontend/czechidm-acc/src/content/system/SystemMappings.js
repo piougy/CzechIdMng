@@ -60,13 +60,6 @@ class SystemMappings extends Advanced.AbstractTableContent {
           forceSearchParameters={ forceSearchParameters }
           showRowSelection={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
           className="no-margin"
-          actions={
-            Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
-            ?
-            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-            :
-            null
-          }
           buttons={
             [
               <Basic.Button

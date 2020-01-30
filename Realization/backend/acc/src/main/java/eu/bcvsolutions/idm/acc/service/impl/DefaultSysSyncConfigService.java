@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  * 
  * @author svandav
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  */
 @Service
 public class DefaultSysSyncConfigService
@@ -187,6 +188,15 @@ public class DefaultSysSyncConfigService
 		Boolean differentialSync = filter.getDifferentialSync();
 		if(differentialSync != null) {
 			predicates.add(builder.equal(root.get(SysSyncConfig_.differentialSync), differentialSync));
+		}
+		// systemMappingId
+		UUID systemMappingId = filter.getSystemMappingId();
+		if (systemMappingId != null) {
+			predicates.add(
+					builder.equal(
+							root.get(SysSyncConfig_.systemMapping)
+								.get(SysSystemMapping_.id), 
+								systemMappingId));
 		}
 		//
 		return predicates;

@@ -343,7 +343,7 @@ public class DefaultAttachmentManager
 		// purge temporary attachments
 		IdmAttachmentFilter filter = new IdmAttachmentFilter();
 		filter.setOwnerType(TEMPORARY_ATTACHMENT_OWNER_TYPE);
-		filter.setCreatedBefore(ZonedDateTime.now().minus(Math.toIntExact(ttl), ChronoField.MILLI_OF_DAY.getBaseUnit()));
+		filter.setCreatedBefore(ZonedDateTime.now().minus(ttl, ChronoField.MILLI_OF_DAY.getBaseUnit()));
 		for (IdmAttachmentDto attachment : find(filter, null)) {
 			delete(attachment);
 			purgedFiles++;

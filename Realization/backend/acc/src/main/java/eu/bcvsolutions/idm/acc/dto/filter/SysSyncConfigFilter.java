@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  * 
  * @author Svanda
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  */
 public class SysSyncConfigFilter extends DataFilter {
 
@@ -20,6 +21,7 @@ public class SysSyncConfigFilter extends DataFilter {
 	public static final String PARAMETER_NAME = "name";
 	public static final String PARAMETER_INCLUDE_LAST_LOG = "includeLastLog";
 	public static final String PARAMETER_DIFFERENTIAL_SYNC = "differentialSync";
+	public static final String PARAMETER_SYSTEM_MAPPING_ID = "systemMappingId";
 	
 	public SysSyncConfigFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -63,6 +65,14 @@ public class SysSyncConfigFilter extends DataFilter {
 	
 	public void setDifferentialSync(Boolean differentialSync) {
 		data.set(PARAMETER_DIFFERENTIAL_SYNC, differentialSync);
+	}
+	
+	public UUID getSystemMappingId() {
+		return getParameterConverter().toUuid(data, PARAMETER_SYSTEM_MAPPING_ID);
+	}
+
+	public void setSystemMappingId(UUID systemMappingId) {
+		data.set(PARAMETER_SYSTEM_MAPPING_ID, systemMappingId);
 	}
 
 }

@@ -28,6 +28,10 @@ export default class SystemMappingService extends Services.AbstractService {
     return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('entityType');
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   /**
    * Validates system mappping
    *

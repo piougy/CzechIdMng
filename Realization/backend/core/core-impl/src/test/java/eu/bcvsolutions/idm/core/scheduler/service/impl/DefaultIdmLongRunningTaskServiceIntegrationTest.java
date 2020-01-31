@@ -255,20 +255,20 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 	@Transactional
 	public void datesFilterTest() {
 		// set tasks
-		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor("one");
+		LongRunningTaskExecutor<String> taskExecutor = new TestFilterLongRunningTaskExecutor("one");
 		assertNull(taskExecutor.getLongRunningTaskId());
 		manager.executeSync(taskExecutor);
 		IdmLongRunningTaskDto task1 = service.get(taskExecutor.getLongRunningTaskId());
 
 		getHelper().waitForResult(null, 1, 1); // created is filled automatically
 		
-		LongRunningTaskExecutor<String> taskExecutor2 = new TestSimpleLongRunningTaskExecutor("two");
+		LongRunningTaskExecutor<String> taskExecutor2 = new TestFilterLongRunningTaskExecutor("two");
 		assertNull(taskExecutor2.getLongRunningTaskId());
 		manager.executeSync(taskExecutor2);
 		IdmLongRunningTaskDto task2 = service.get(taskExecutor2.getLongRunningTaskId());
 		//
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
-		filter.setTaskType(TestSimpleLongRunningTaskExecutor.class.getCanonicalName());
+		filter.setTaskType(TestFilterLongRunningTaskExecutor.class.getCanonicalName());
 		//
 		filter.setFrom(task1.getCreated());
 		Page<IdmLongRunningTaskDto> result = service.find(filter, null);
@@ -340,6 +340,26 @@ public class DefaultIdmLongRunningTaskServiceIntegrationTest extends AbstractInt
 		private final String result;
 
 		public TestSimpleLongRunningTaskExecutor(String result) {
+			this.result = result;
+		}
+
+		@Override
+		public String getDescription() {
+			return result;
+		}
+
+		@Override
+		public String process() {
+			return result;
+		}
+
+	}
+	
+	private class TestFilterLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<String> {
+
+		private final String result;
+
+		public TestFilterLongRunningTaskExecutor(String result) {
 			this.result = result;
 		}
 

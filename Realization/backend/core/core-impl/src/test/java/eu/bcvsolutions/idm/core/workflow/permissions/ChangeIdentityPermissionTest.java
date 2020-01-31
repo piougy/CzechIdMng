@@ -134,6 +134,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		
+		getHelper().waitForResult(null, 10, 1);
 
 		loginAsAdmin(InitTestData.TEST_USER_1);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);

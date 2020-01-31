@@ -1986,6 +1986,11 @@
         "help": "Remove selected systems. <strong>Removed system must not contains any accounts and unresolved provisioning operations</strong>.",
         "icon": "fa:trash"
       },
+      "system-mapping-delete-bulk-action": {
+        "label": "Remove",
+        "help": "Remove selected mappings. <strong>Removed mapping must not be used in synchronization or provisioning</strong>.",
+        "icon": "fa:trash"
+      },
       "acc-identity-account-management-bulk-action": {
         "icon": "link",
         "label": "Recalculate accounts and provision",
@@ -2463,6 +2468,10 @@
     "SYSTEM_MAPPING_PASSWORD_EXITS_OVERRIDDEN": {
       "message": "Attribute is overridden in role attribute mapping id: [{{roleSystemAttributeId}}]",
       "title": "Attribute can't be set as password attribute."
+    },
+    "SYSTEM_MAPPING_DELETE_BULK_ACTION_MAPPING_IN_USE": {
+      "message": "Mapping <strong>{{mapping}}</strong> is used in <strong class=\"highlight\">{{count}}</strong> synchronization or provisioning settings!",
+      "title": ""
     },
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Password transformation for uid {{uid}} doesn't return GuardedString or null. Mapped attribute name {{mappedAttribute}}.",

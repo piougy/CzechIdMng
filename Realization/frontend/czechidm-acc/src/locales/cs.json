@@ -1988,6 +1988,11 @@
         "help": "Smaže vybrané systémy. <strong>Odebíraný systém nesmí obsahovat žádné účty ani nevyřešené provisioning operace</strong>.",
         "icon": "fa:trash"
       },
+      "system-mapping-delete-bulk-action": {
+        "label": "Odebrat",
+        "help": "Smaže vybraná mapování. <strong>Odebírané mapování nesmí být použito v synchronzaci nebo provisioningu</strong>.",
+        "icon": "fa:trash"
+      },
       "acc-identity-account-management-bulk-action": {
         "icon": "link",
         "label": "Přepočet účtů a provisioning",
@@ -2465,6 +2470,10 @@
     "SYSTEM_MAPPING_PASSWORD_EXITS_OVERRIDDEN": {
       "message": "Atribut je přetížen v atributu id: [{{roleSystemAttributeId}}]",
       "title": "Atribut nemůže být nastaven jako heslo."
+    },
+    "SYSTEM_MAPPING_DELETE_BULK_ACTION_MAPPING_IN_USE": {
+      "message": "Mapování <strong>{{mapping}}</strong> je použito v <strong class=\"highlight\">{{count}}</strong> nastavení synchronizace nebo provisioningu!",
+      "title": ""
     },
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Transformace hesla pro uid {{uid}} nevrací GuardedString nebo null. Název mapovaného atributu {{mappedAttribute}}.",

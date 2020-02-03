@@ -139,7 +139,7 @@ public class MavenManager {
 	    	BufferedReader processError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 	    	String ligne;
 	    	while ((ligne = processInput.readLine()) != null) {
-	    	    LOG.debug(ligne);
+	    	    LOG.info(ligne);
 	    	}
 	    	while ((ligne = processError.readLine()) != null) {
 	    	    LOG.error(ligne);

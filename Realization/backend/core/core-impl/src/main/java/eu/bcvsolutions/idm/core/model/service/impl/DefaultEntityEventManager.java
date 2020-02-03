@@ -985,6 +985,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	private void setEnabled(EntityEventProcessor<?> processor, boolean enabled) {
 		String enabledPropertyName = processor.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
+		//
 		configurationService.setBooleanValue(enabledPropertyName, enabled);
 	}
 	

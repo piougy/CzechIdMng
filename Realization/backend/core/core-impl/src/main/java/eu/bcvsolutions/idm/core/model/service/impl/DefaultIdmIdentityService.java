@@ -133,7 +133,9 @@ public class DefaultIdmIdentityService
 	@Override
 	protected IdmIdentity toEntity(IdmIdentityDto dto, IdmIdentity entity) {
 		IdmIdentity identity = super.toEntity(dto, entity);
-		if (identity != null && identity.getState() != null) {
+		if (identity != null 
+				&& identity.getState() != null 
+				&& identity.getState().isDisabled() != identity.isDisabled()) {
 			identity.setDisabled(identity.getState().isDisabled()); // redundant attribute for queries
 		}
 		return identity;

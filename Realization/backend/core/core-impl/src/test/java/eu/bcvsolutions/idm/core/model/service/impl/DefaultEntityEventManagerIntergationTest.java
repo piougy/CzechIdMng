@@ -373,6 +373,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			manager.disable(processor.getId());
 			//
 			processor = manager.get(EntityGenerateValuesProcessor.PROCESSOR_NAME);
+			//
 			Assert.assertTrue(processor.isDisabled());
 		} finally {
 			manager.enable(processor.getId());

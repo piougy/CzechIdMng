@@ -201,7 +201,7 @@ Example (from ``IdmConceptRoleRequestDto``):
 
 #### Logback configuration
 
-Configuration **file in test package ``logback-test.xml`` has to be removed**. New ``logback.xml`` with content has to be added:
+Configuration **file in test package ``logback-test.xml`` has to be changed**. New ``logback-test.xml`` content:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -227,6 +227,7 @@ Configuration **file in test package ``logback-test.xml`` has to be removed**. N
 		<appender-ref ref="CONSOLE" />
 	</root>
 
+  <logger name="eu.bcvsolutions" level="ERROR"/>
 
 </configuration>
 ```

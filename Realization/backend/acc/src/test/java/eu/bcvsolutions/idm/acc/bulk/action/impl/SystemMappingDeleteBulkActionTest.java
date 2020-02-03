@@ -50,7 +50,7 @@ public class SystemMappingDeleteBulkActionTest extends AbstractBulkActionTest {
 
 	@Before
 	public void login() {
-		IdmIdentityDto adminIdentity = this.createUserWithAuthorities(IdmBasePermission.DELETE, IdmBasePermission.READ);
+		IdmIdentityDto adminIdentity = this.createUserWithAuthorities(IdmBasePermission.UPDATE, IdmBasePermission.READ);
 		loginAsNoAdmin(adminIdentity.getUsername());
 	}
 

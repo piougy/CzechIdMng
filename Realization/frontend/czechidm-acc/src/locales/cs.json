@@ -1988,7 +1988,7 @@
         "help": "Smaže vybrané systémy. <strong>Odebíraný systém nesmí obsahovat žádné účty ani nevyřešené provisioning operace</strong>.",
         "icon": "fa:trash"
       },
-      "system-mapping-delete-bulk-action": {
+      "acc-system-mapping-delete-bulk-action": {
         "label": "Odebrat",
         "help": "Smaže vybraná mapování. <strong>Odebírané mapování nesmí být použito v synchronzaci nebo provisioningu</strong>.",
         "icon": "fa:trash"

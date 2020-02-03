@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
@@ -108,6 +110,22 @@ public class DefaultSysSystemMappingService
 			return repository.findAll(pageable);
 		}
 		return repository.find(filter, pageable);
+	}
+	
+	/**
+	 * FIXME: refactor repository usage.
+	 */
+	@Override
+	public Page<UUID> findIds(SysSystemMappingFilter filter, Pageable pageable, BasePermission... permission) {
+		Page<SysSystemMapping> findEntities = findEntities(filter, pageable, permission);
+		//
+		List<UUID> ids = findEntities
+				.getContent()
+				.stream()
+				.map(SysSystemMapping::getId)
+				.collect(Collectors.toList());
+		//
+		return new PageImpl<UUID>(ids, findEntities.getPageable(), findEntities.getTotalElements());
 	}
 
 	@Override

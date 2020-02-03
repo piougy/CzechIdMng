@@ -35,11 +35,11 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * @author Ondrej Husnik
  *
  */
-@Component("systemMappingDeleteBulkAction")
+@Component(SystemMappingDeleteBulkAction.NAME)
 @Description("Delete given system mapping")
 public class SystemMappingDeleteBulkAction extends AbstractRemoveBulkAction<SysSystemMappingDto, SysSystemMappingFilter> {
 
-	public static final String NAME = "system-mapping-delete-bulk-action";
+	public static final String NAME = "acc-system-mapping-delete-bulk-action";
 
 	@Autowired
 	private SysSystemMappingService mappingService;
@@ -53,7 +53,7 @@ public class SystemMappingDeleteBulkAction extends AbstractRemoveBulkAction<SysS
 
 	@Override
 	protected List<String> getAuthoritiesForEntity() {
-		return Lists.newArrayList(AccGroupPermission.SYSTEM_DELETE);
+		return Lists.newArrayList(AccGroupPermission.SYSTEM_UPDATE);
 	}
 
 	@Override

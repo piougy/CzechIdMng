@@ -1986,7 +1986,7 @@
         "help": "Remove selected systems. <strong>Removed system must not contains any accounts and unresolved provisioning operations</strong>.",
         "icon": "fa:trash"
       },
-      "system-mapping-delete-bulk-action": {
+      "acc-system-mapping-delete-bulk-action": {
         "label": "Remove",
         "help": "Remove selected mappings. <strong>Removed mapping must not be used in synchronization or provisioning</strong>.",
         "icon": "fa:trash"

@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -39,13 +37,12 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
     }
 
     @Override
-    public Page<IdmCacheDto> getAllAvailableCaches() {
+    public List<IdmCacheDto> getAllAvailableCaches() {
         Collection<String> cacheNames = springCacheManager.getCacheNames();
-        List<IdmCacheDto> caches = Optional.ofNullable(cacheNames).orElse(Collections.emptyList()).stream()
+        return Optional.ofNullable(cacheNames).orElse(Collections.emptyList()).stream()
                 .map(springCacheManager::getCache)
                 .map(this::toDto)
                 .collect(Collectors.toList());
-        return new PageImpl<>(caches);
     }
 
     @Override
@@ -60,8 +57,8 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
 
     @Override
     public void evictAllCaches() {
-        Optional.ofNullable(getAllAvailableCaches()).orElse(Page.empty())
-                .getContent().stream()
+    	getAllAvailableCaches()
+    			.stream()
                 .map(IdmCacheDto::getId)
                 .forEach(this::evictCache);
     }
@@ -104,12 +101,13 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
         final Object nativeCache = cache.getNativeCache();
         // TODO: Add support for other cache implementations
         if (nativeCache instanceof ConcurrentHashMap) {
-            final ConcurrentHashMap concurrentHashMap = (ConcurrentHashMap) nativeCache;
+            final ConcurrentHashMap<?, ?> concurrentHashMap = (ConcurrentHashMap<?, ?>) nativeCache;
             result.setSize(concurrentHashMap.size());
         }
         //
         result.setId(cache.getName());
         result.setName(cache.getName());
+        // TODO: result.setModule()
         //
         return result;
     }

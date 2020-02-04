@@ -1006,7 +1006,7 @@ module.exports = {
                 access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
               },
               {
-                id: 'cache',
+                id: 'caches',
                 labelKey: 'content.system.cache.title',
                 order: 50,
                 path: '/modules/caches',

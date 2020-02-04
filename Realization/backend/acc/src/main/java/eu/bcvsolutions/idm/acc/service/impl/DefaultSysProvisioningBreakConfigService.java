@@ -31,7 +31,6 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakItems;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig_;
-import eu.bcvsolutions.idm.acc.event.processor.provisioning.ProvisioningBreakProcessor;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBreakConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
@@ -47,9 +46,8 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
  * Default implementation for {@link SysProvisioningBreakConfigService}
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
  */
-
 @Service
 public class DefaultSysProvisioningBreakConfigService extends
 		AbstractReadWriteDtoService<SysProvisioningBreakConfigDto, SysProvisioningBreakConfig, SysProvisioningBreakConfigFilter>
@@ -62,7 +60,7 @@ public class DefaultSysProvisioningBreakConfigService extends
 	private final ProvisioningBreakConfiguration provisioningBreakConfiguration;
 	private final IdmCacheManager idmCacheManager;
 
-	private static final Map<UUID, SysProvisioningBreakItems> localCache= new ConcurrentHashMap();
+	private static final Map<UUID, SysProvisioningBreakItems> localCache= new ConcurrentHashMap<>();
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningBreakConfigService.class);
 

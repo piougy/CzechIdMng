@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.core.api.service;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmCacheDto;
+import java.util.List;
+
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.SimpleValueWrapper;
-import org.springframework.data.domain.Page;
+
+import eu.bcvsolutions.idm.core.api.dto.IdmCacheDto;
 
 /**
  * Provides useful methods for working with cache in CzechIdM. Note that this manager does not provide methods for
@@ -21,7 +23,7 @@ public interface IdmCacheManager {
      *
      * @return a list of {@link IdmCacheDto}
      */
-    Page<IdmCacheDto> getAllAvailableCaches();
+    List<IdmCacheDto> getAllAvailableCaches();
 
     /**
      * Evict cache with given name. If cache with given name does not exist, then this method does nothing.

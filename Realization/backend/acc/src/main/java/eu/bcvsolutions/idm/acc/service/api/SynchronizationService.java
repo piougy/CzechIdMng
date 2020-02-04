@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
@@ -32,7 +33,7 @@ public interface SynchronizationService {
 	String WF_VARIABLE_KEY_SYSTEM_ID = "systemId";
 	String WRAPPER_SYNC_ITEM = "wrapper_sync_item";
 	String RESULT_SYNC_ITEM = "result_sync_item";
-	String SYNC_EXECUTOR_CACHE_NAME = "acc:sync-executor-cache";
+	String SYNC_EXECUTOR_CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":sync-executor-cache";
 
 	/**
 	 * Cancels all previously ran synchronizations

@@ -37,7 +37,7 @@ class Caches extends Basic.AbstractContent {
   componentDidMount() {
     super.componentDidMount();
     //
-    this.context.store.dispatch(this.cacheManager.fetchAvailableCaches());
+    this.reload();
   }
 
   reload() {
@@ -91,7 +91,6 @@ class Caches extends Basic.AbstractContent {
   render() {
     const { caches, showLoading } = this.props;
     const { detail } = this.state;
-    console.log('caches ', caches);
 
     const _caches = [];
     if (caches) {

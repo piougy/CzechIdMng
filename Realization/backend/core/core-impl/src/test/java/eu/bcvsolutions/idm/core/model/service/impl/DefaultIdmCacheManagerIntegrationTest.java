@@ -1,13 +1,18 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 
+import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+
+/**
+ * Cache manager tests.
+ * 
+ * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
+ */
 public class DefaultIdmCacheManagerIntegrationTest extends AbstractIntegrationTest {
 
     public static final String CACHE_NAME_1 = "TEST_CACHE1";
@@ -18,9 +23,6 @@ public class DefaultIdmCacheManagerIntegrationTest extends AbstractIntegrationTe
 
     @Autowired
     private DefaultIdmCacheManager cacheManager;
-
-    @Autowired
-    CacheManager springCacheManager;
 
     @Test
     public void testCacheInsert() {
@@ -48,8 +50,8 @@ public class DefaultIdmCacheManagerIntegrationTest extends AbstractIntegrationTe
 
     @Test
     public void testCacheEvictAllFromOneCache() {
-        cacheManager.cacheValue(CACHE_NAME_3, "1", "val1");
-        cacheManager.cacheValue(CACHE_NAME_3, "2", "val2");
+        cacheManager.cacheValue(CACHE_NAME_2, "1", "val1");
+        cacheManager.cacheValue(CACHE_NAME_2, "2", "val2");
 
         Assert.assertEquals("val1", cacheManager.getValue(CACHE_NAME_2, "1").get());
         Assert.assertEquals("val2", cacheManager.getValue(CACHE_NAME_2, "2").get());
@@ -90,7 +92,7 @@ public class DefaultIdmCacheManagerIntegrationTest extends AbstractIntegrationTe
         Cache.ValueWrapper val = cacheManager.getValue(CACHE_NAME_5, "key");
 
         Assert.assertNull(val);
-        Assert.assertNull(cacheManager.getAllAvailableCaches().get()
+        Assert.assertNull(cacheManager.getAllAvailableCaches().stream()
                 .filter(c -> CACHE_NAME_5.equals(c.getId())).findFirst().orElse(null));
     }
 

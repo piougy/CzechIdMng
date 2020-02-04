@@ -80,6 +80,28 @@ public class SystemMappingDeleteBulkActionTest extends AbstractBulkActionTest {
 		// Contains no system mapping after deletion 
 		assertEquals(0, mapping.size());
 	}
+	
+	@Test
+	public void processBulkActionByFilter() {
+		SysSystemDto system = helper.createTestResourceSystem(true, getHelper().createName());
+
+		SysSystemMappingFilter filter = new SysSystemMappingFilter();
+		filter.setSystemId(system.getId());
+		List<SysSystemMappingDto> mapping = mappingService.find(filter, null).getContent();
+		
+		// Contains only one created system mapping
+		assertEquals(1, mapping.size());
+
+		IdmBulkActionDto bulkAction = findBulkAction(SysSystemMapping.class, SystemMappingDeleteBulkAction.NAME);
+		bulkAction.setTransformedFilter(filter);
+		bulkAction.setFilter(toMap(filter));
+		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
+		checkResultLrt(processAction, 1l, null, null);
+	
+		mapping = mappingService.find(filter, null).getContent();
+		// Contains no system mapping after deletion 
+		assertEquals(0, mapping.size());
+	}
 
 	@Test
 	public void prevalidationBulkActionByIds() {

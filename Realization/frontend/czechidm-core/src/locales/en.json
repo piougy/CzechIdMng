@@ -138,12 +138,13 @@
   },
   "action": {
     "delete": {
-      "action": "Remove",
-      "header": "Remove record",
-      "header_plural": "Remove records",
-      "message": "Do you want to remove selected record [<strong>{{record}}</strong>]?",
-      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to remove <strong>{{count}}</strong> selected records?",
-      "error": "An error occurred while removing [{{record}}].",
+      "action": "Delete",
+      "icon": "fa:trash",
+      "header": "Delete record",
+      "header_plural": "Delete records",
+      "message": "Do you want to delete selected record [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to delete <strong>{{count}}</strong> selected records?",
+      "error": "An error occurred while deleting [{{record}}].",
       "success": "Selected record [{{record}}] successfully deleted",
       "success_plural": "Selected records [{{records}}] were successfully deleted",
       "approve": "Record deletion [{{record}}] has to be approved, task successfully created",
@@ -4925,9 +4926,9 @@
         "icon": "fa:check-square-o"
       },
       "identity-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected users.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) users",
+        "help": "$t(action.delete.action) selected users.",
+        "icon": "$t(action.delete.icon)"
       },
       "identity-add-role-bulk-action": {
         "label": "Roles assignment",
@@ -4979,34 +4980,34 @@
         "icon": "fa:save"
       },
       "role-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected roles.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) roles",
+        "help": "$t(action.delete.action) selected roles.",
+        "icon": "$t(action.delete.icon)"
       },
       "configuration-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected configuration items.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) configuration items",
+        "help": "$t(action.delete.action) selected configuration items.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-entity-event-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected events.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) events",
+        "help": "$t(action.delete.action) selected events.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-entity-state-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected states.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) states",
+        "help": "$t(action.delete.action) selected states.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-code-list-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected code lists.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) code lists",
+        "help": "$t(action.delete.action) selected code lists.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-code-list-item-delete-bulk-action": {
-        "label": "Remove",
+        "label": "$t(action.delete.action) code list items",
         "help": "Remove selected code list items.",
-        "icon": "fa:trash"
+        "icon": "$t(action.delete.icon)"
       },
       "core-identity-role-by-identity-deduplication-bulk-action": {
         "label": "Role deduplication",
@@ -5047,14 +5048,14 @@
         }
       },
       "core-identity-contract-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected contracted positions.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) contracted positions",
+        "help": "$t(action.delete.action) selected contracted positions.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-form-value-delete-bulk-action": {
-        "label": "Remove values",
-        "help": "Remove selected values. Notify event will be published for value's owner (e.g. automatic roles or provisioning will be processed).",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) values",
+        "help": "$t(action.delete.action) selected values. Notify event will be published for value's owner (e.g. automatic roles or provisioning will be processed).",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {

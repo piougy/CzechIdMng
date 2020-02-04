@@ -629,9 +629,9 @@
       "removeFailture": "Žádné konfigurace nebyly odebrány.",
       "action": {
         "delete": {
-          "message_1": "Opravdu chcete odebrat vybraný záznam [<strong>{{record}}</strong>]?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>",
-          "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybrané záznamy?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>",
-          "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybraných záznamů?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>"
+          "message_1": "Opravdu chcete smazat vybraný záznam [<strong>{{record}}</strong>]?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>",
+          "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete smazat <strong>{{count}}</strong> vybrané záznamy?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>",
+          "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete smazat <strong>{{count}}</strong> vybraných záznamů?<br /><br /><i>Globální konfigurace budou ze seznamu smazaných odebrány.</i>"
         }
       }
     },
@@ -1984,14 +1984,14 @@
         "help": "Vytvoří duplikát systému <strong>včetně všech konfigurací</strong>. Nový systém bude neaktivní, stejně jako jeho nastavené synchronizace. "
       },
       "system-delete-bulk-action": {
-        "label": "Odebrat",
-        "help": "Smaže vybrané systémy. <strong>Odebíraný systém nesmí obsahovat žádné účty ani nevyřešené provisioning operace</strong>.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) systémy",
+        "help": "Smaže vybrané systémy. <strong>Systém nesmí obsahovat žádné účty ani nevyřešené provisioning operace</strong>.",
+        "icon": "$t(action.delete.icon)"
       },
       "acc-system-mapping-delete-bulk-action": {
-        "label": "Odebrat",
-        "help": "Smaže vybraná mapování. <strong>Odebírané mapování nesmí být použito v synchronzaci nebo provisioningu</strong>.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) mapování",
+        "help": "Smaže vybraná mapování. <strong>Mapování nesmí být použito v synchronzaci nebo provisioningu</strong>.",
+        "icon": "$t(action.delete.icon)"
       },
       "acc-identity-account-management-bulk-action": {
         "icon": "link",
@@ -2029,7 +2029,7 @@
     "long-running-task": {
       "acc-delete-provisioning-archive-long-running-task": {
         "label": "Smazat archivované operace pro provisioning",
-        "help": "Vymaže operace z archivu provisioningu starší, nežli zadaný počet dní.",
+        "help": "Smaže operace z archivu provisioningu starší, nežli zadaný počet dní.",
         "icon": "fa:trash",
         "attributes": {
           "numberofdays": {
@@ -2055,7 +2055,7 @@
       },
       "acc-delete-synchronization-log-long-running-task": {
         "label": "Smazat logy synchronizací",
-        "help": "Vymaže logy synchronizací starší, nežli zadaný počet dní.",
+        "help": "Smaže logy synchronizací starší, nežli zadaný počet dní.",
         "icon": "fa:trash",
         "attributes": {
           "numberofdays": {

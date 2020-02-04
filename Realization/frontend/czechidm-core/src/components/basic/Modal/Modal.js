@@ -102,9 +102,7 @@ class BasicModalHeader extends AbstractComponent {
         <div className="pull-left">
           <Icon type="fa" icon="refresh" showLoading rendered={ showLoading } />
           {
-            showLoading
-            ||
-            text
+            showLoading || text
             ?
             <h2>
               <Icon value={ icon } showLoading={ showLoading } style={{ marginRight: 5 }}/>

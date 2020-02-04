@@ -277,7 +277,8 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                     ref="operationType"
                     enum={SystemOperationTypeEnum}
                     label={this.i18n('acc:entity.SystemMapping.operationType')}
-                    required/>
+                    required
+                    clearable={ false }/>
                   <Basic.TextField
                     ref="name"
                     label={this.i18n('acc:entity.SystemMapping.name')}
@@ -288,14 +289,16 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                     forceSearchParameters={objectClassSearchParameters}
                     label={this.i18n('acc:entity.SystemMapping.objectClass')}
                     readOnly={!Utils.Entity.isNew(mapping)}
-                    required/>
+                    required
+                    clearable={ false }/>
                   <Basic.EnumSelectBox
                     ref="entityType"
                     enum={SystemEntityTypeEnum}
                     onChange={this._onChangeEntityType.bind(this)}
                     label={this.i18n('acc:entity.SystemMapping.entityType')}
                     readOnly={!Utils.Entity.isNew(mapping)}
-                    required/>
+                    required
+                    clearable={ false }/>
                   <Basic.SelectBox
                     ref="treeType"
                     label={this.i18n('acc:entity.SystemMapping.treeType')}

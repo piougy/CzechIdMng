@@ -4303,7 +4303,9 @@
     },
     "Cache": {
       "name": "Název",
-      "size": "Počet hodnot"
+      "description": "Popis",
+      "size": "Počet hodnot",
+      "module": "Modul"
     },
     "Module": {
       "id": "Id",
@@ -6421,6 +6423,14 @@
     },
     "record": {
       "notFound" : "Záznam nebyl nalezen nebo nemáte dostatečné oprávnění pro zobrazení záznamu."
+    }
+  },
+  "cache": {
+    "configuration-cache": {
+      "description": "Cache pro ukládání konfiguračních položek CzechIdM. Pokud je hodnota z cache smazána, tak ji IdM při dalším požadavku načte z databáze a poté opět do cache."
+    },
+    "default-groovy-script-service-script-cache": {
+      "description": "Cache pro ukládání Groovy scriptů. Smazání této cache způsobí to, že při dalším pokusu o spuštění scriptu, je tento script znovu zkompilován, uložen do cache a teprve poté spuštěn."
     }
   }
 }

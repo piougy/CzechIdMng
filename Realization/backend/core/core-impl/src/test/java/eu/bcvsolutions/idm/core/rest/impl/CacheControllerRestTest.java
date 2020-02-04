@@ -34,7 +34,7 @@ public class CacheControllerRestTest extends AbstractRestTest{
 	public static final String TEST_CACHE_NAME_5 = "TEST_CACHE_5";
 
 	@Autowired
-	CacheManager cacheManager;
+	private CacheManager cacheManager;
 
 	@Test
 	public void testFindAll() {

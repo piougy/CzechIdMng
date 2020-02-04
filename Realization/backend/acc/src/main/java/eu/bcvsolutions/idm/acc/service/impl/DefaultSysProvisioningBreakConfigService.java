@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -11,8 +13,6 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +22,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningBreakConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
@@ -30,12 +31,14 @@ import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakItems;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig_;
+import eu.bcvsolutions.idm.acc.event.processor.provisioning.ProvisioningBreakProcessor;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBreakConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -53,25 +56,29 @@ public class DefaultSysProvisioningBreakConfigService extends
 		implements SysProvisioningBreakConfigService {
 
 	private final Integer MAX_CONFIGS_FOR_SYSTEM = 3;
-	private final static String CACHE_NAME = "idm-provisioning-cache";
+	private final static String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":provisioning-cache";
 	
 	private final SysProvisioningBreakRecipientService breakRecipientService;
-	private final CacheManager cacheManager;
 	private final ProvisioningBreakConfiguration provisioningBreakConfiguration;
+	private final IdmCacheManager idmCacheManager;
+
+	private static final Map<UUID, SysProvisioningBreakItems> localCache= new ConcurrentHashMap();
+
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningBreakConfigService.class);
 
 	@Autowired
 	public DefaultSysProvisioningBreakConfigService(SysProvisioningBreakConfigRepository repository,
-			SysProvisioningBreakRecipientService breakRecipientService,
-			CacheManager cacheManager,
-			ProvisioningBreakConfiguration provisioningBreakConfiguration) {
+													SysProvisioningBreakRecipientService breakRecipientService,
+													ProvisioningBreakConfiguration provisioningBreakConfiguration,
+													IdmCacheManager idmCacheManager) {
 		super(repository);
 		//
 		Assert.notNull(breakRecipientService, "Service is required.");
-		Assert.notNull(cacheManager, "Manager is required.");
+		Assert.notNull(idmCacheManager, "Cache manager is required.");
 		Assert.notNull(provisioningBreakConfiguration, "Configuration is required.");
 		//
 		this.breakRecipientService = breakRecipientService;
-		this.cacheManager = cacheManager;
+		this.idmCacheManager = idmCacheManager;
 		this.provisioningBreakConfiguration = provisioningBreakConfiguration;
 	}
 	
@@ -132,24 +139,18 @@ public class DefaultSysProvisioningBreakConfigService extends
 	
 	@Override
 	public SysProvisioningBreakItems getCacheProcessedItems(UUID systemId) {
-		SimpleValueWrapper cachedValueWrapper = (SimpleValueWrapper) this.getCache().get(systemId);
-		if (cachedValueWrapper == null) {
-			return new SysProvisioningBreakItems();
-		}
-		SysProvisioningBreakItems cache = (SysProvisioningBreakItems) cachedValueWrapper.get();
-		if (cache == null) {
-			return new SysProvisioningBreakItems();
-		}
-		return cache;
+		Cache.ValueWrapper cachedValueWrapper = this.idmCacheManager.getValue(CACHE_NAME, systemId);
+		SysProvisioningBreakItems cache = cachedValueWrapper == null ? localCache.get(systemId) : (SysProvisioningBreakItems) cachedValueWrapper.get();
+		return cache == null ? new SysProvisioningBreakItems() : cache;
 	}
 
 	@Override
 	public void saveCacheProcessedItems(UUID systemId, SysProvisioningBreakItems cache) {
-		this.getCache().put(systemId, cache);
-	}
-
-	private Cache getCache() {
-		return this.cacheManager.getCache(CACHE_NAME);
+		if(!idmCacheManager.cacheValue(CACHE_NAME, systemId, cache)) {
+			// if item was not cached by default cache, we will fallback to an in-memory hashmap
+			LOG.warn("Cannot save provisioning brake info into cache. Using fallback in-memory map.");
+			localCache.put(systemId, cache);
+		}
 	}
 	
 	@Override
@@ -261,7 +262,7 @@ public class DefaultSysProvisioningBreakConfigService extends
 	/**
 	 * Methods for system and his provisioning break config add global configuration
 	 *
-	 * @param configs
+	 * @param configsOld
 	 * @param systemId
 	 * @return
 	 */

@@ -1009,7 +1009,7 @@ module.exports = {
                 id: 'cache',
                 labelKey: 'content.system.cache.title',
                 order: 50,
-                path: '/modules/cache',
+                path: '/modules/caches',
                 icon: '',
                 type: 'TAB',
                 access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN']}]

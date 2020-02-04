@@ -2529,5 +2529,13 @@
       "title": "Provisioning",
       "description": "Provisioning uživatelských účtů na koncové systémy"
     }
+  },
+  "cache": {
+    "sync-executor-cache": {
+      "description": "Slouží ke zrychlení synchronizace. Předchází opakovanému vytváření SynchronizationEntityExecutor objektů."
+    },
+    "provisioning-cache": {
+      "description": "Cache slouží pro ukládání provedených operací provisioningu. Toto značně urychluje vyhodnocování brzdy provisioningu, která se na základě obsahu této cache rozhodouje, zda operaci zablokuje, či nikoliv. Po vyprázdnění cache může dočasně dojít ke zpomalení provisioningu u těch systémů, které mají aktivovanou brzdu provisioningu."
+    }
   }
 }

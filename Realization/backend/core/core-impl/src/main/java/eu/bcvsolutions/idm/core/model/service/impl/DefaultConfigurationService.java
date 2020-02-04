@@ -18,9 +18,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
-import org.springframework.cache.CacheManager;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -29,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.comparator.CodeableComparator;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
@@ -36,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -64,14 +64,15 @@ public class DefaultConfigurationService
 		extends AbstractEventableDtoService<IdmConfigurationDto, IdmConfiguration, DataFilter> 
 		implements IdmConfigurationService, ConfigurationService {
 
+	protected static final String CACHE_NAME = CoreModuleDescriptor.MODULE_ID + ":configuration-cache";
+
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
-	private static final String CACHE_NAME = "idm-configuration";
 	//
 	private final IdmConfigurationRepository repository;
 	private final ConfidentialStorage confidentialStorage;
 	private final ConfigurableEnvironment env;
-	@Autowired(required = false)
-	private CacheManager cacheManager;
+	@Autowired
+	private IdmCacheManager cacheManager;
 	
 	@Autowired
 	public DefaultConfigurationService(
@@ -537,33 +538,15 @@ public class DefaultConfigurationService
 	}
 	
 	private void evictCache(String key) {
-		Cache cache = getCache();
-		if (cache == null) {
-			return;
-		}
-		cache.evict(key);
+		cacheManager.evictValue(CACHE_NAME, key);
 	}
 	
 	private ValueWrapper getCachedValue(String key) {
-		Cache cache = getCache();
-		if (cache == null) {
-			return null;
-		}
-		return cache.get(key);
+		return cacheManager.getValue(CACHE_NAME, key);
 	}
 	
 	private void setCachedValue(String key, String value) {
-		Cache cache = getCache();
-		if (cache == null) {
-			return;
-		}
-		cache.put(key, value);
+		cacheManager.cacheValue(CACHE_NAME, key, value);
 	}
-	
-	private Cache getCache() {
-		if (cacheManager == null) {
-			return null;
-		}
-		return cacheManager.getCache(CACHE_NAME);
-	}
+
 }

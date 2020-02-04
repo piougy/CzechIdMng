@@ -39,9 +39,11 @@ export default class CacheManager extends EntityManager {
       this.getService().getAvailableCaches()
         .then(json => {
           let caches = new Immutable.Map();
-          json._embedded[this.getCollectionType()].forEach(item => {
-            caches = caches.set(item.id, item);
-          });
+          if (json._embedded) {
+            json._embedded[this.getCollectionType()].forEach(item => {
+              caches = caches.set(item.id, item);
+            });
+          }
           dispatch(this.dataManager.receiveData(uiKey, caches));
         })
         .catch(error => {
@@ -78,7 +80,7 @@ export default class CacheManager extends EntityManager {
   }
 
 
-/**
+  /**
    * Evict all caches
    *
    * @param {func} cb
@@ -103,6 +105,6 @@ export default class CacheManager extends EntityManager {
 }
 
 
-CacheManager.UI_KEY_CACHES = 'cache';
+CacheManager.UI_KEY_CACHES = 'caches';
 CacheManager.CODE_MODULE_ID = 'core';
 CacheManager.APP_MODULE_ID = 'app';

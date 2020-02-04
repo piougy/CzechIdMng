@@ -4263,7 +4263,9 @@
     },
     "Cache": {
       "name": "Name",
-      "size": "Number of values"
+      "description": "Description",
+      "size": "Number of values",
+      "module": "Module"
     },
     "EntityEventProcessor": {
       "id": "ID",
@@ -6366,6 +6368,14 @@
     },
     "record": {
       "notFound" : "Record not found or insufficient permissions to read selected record."
+    }
+  },
+  "cache": {
+    "configuration-cache": {
+      "description": "Cache for storing CzechIdM's configuration properties. If the cache is evicted, then CzechIdM will load its value from database and cache it again."
+    },
+    "default-groovy-script-service-script-cache": {
+      "description": "This cache stores compiled Groovy scripts. Evicting this cache will result in recompiling every script, when calling it. Recompiled script is then stored in this cache."
     }
   }
 }

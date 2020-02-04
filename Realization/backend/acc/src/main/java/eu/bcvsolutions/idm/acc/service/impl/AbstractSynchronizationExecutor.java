@@ -26,9 +26,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +38,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
@@ -105,6 +104,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -148,7 +148,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(AbstractSynchronizationExecutor.class);
 
-	private static final String CACHE_NAME = "acc-sync-transformed-attribute";
+	protected final String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":sync-mapping-cache";
+
 	@Autowired
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
 	@Autowired
@@ -193,7 +194,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	@Lazy
 	private ProvisioningService provisioningService;
 	@Autowired(required = false)
-	private CacheManager cacheManager;
+	private IdmCacheManager idmCacheManager;
 	// Instance of LRT
 	protected AbstractSchedulableTaskExecutor<Boolean> longRunningTaskExecutor;
 
@@ -214,7 +215,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	@Override
 	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
 		// Clear cache
-		this.clearCache();
+		idmCacheManager.evictCache(CACHE_NAME);
 
 		// Validate and create basic context
 		SynchronizationContext context = this.validate(synchronizationConfigId);
@@ -305,7 +306,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
 			longRunningTaskExecutor.updateState();
 			// Clear cache
-			this.clearCache();
+			idmCacheManager.evictCache(CACHE_NAME);
 		}
 		return config;
 	}
@@ -500,7 +501,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Handle IC connector object
 	 *
-	 * @param tokenAttribute
 	 * @param itemContext
 	 * @return
 	 */
@@ -554,16 +554,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * Main method for synchronization item. This method is call form "custom
 	 * filter" and "connector sync" mode.
 	 *
-	 * @param uid
-	 * @param icObject
-	 * @param type
-	 * @param entityType
-	 * @param itemLog
-	 * @param config
-	 * @param system
-	 * @param mappedAttributes
-	 * @param log
-	 * @param actionsLog
+	 * @param itemContext
 	 * @return
 	 */
 	protected boolean startItemSynchronization(SynchronizationContext itemContext) {
@@ -633,7 +624,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * resolve missing accounts
 	 *
 	 * @param entityType
-	 * @param systemAccountsMap
+	 * @param allAccountsSet
 	 * @param config
 	 * @param system
 	 * @param log
@@ -1207,7 +1198,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Call provisioning for given account
 	 *
-	 * @param entity
+	 * @param dto
 	 * @param entityType
 	 * @param logItem
 	 */
@@ -1296,14 +1287,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Fill data from IC attributes to entity (EAV and confidential storage too)
 	 *
-	 * @param account
-	 * @param entityType
-	 * @param uid
-	 * @param icAttributes
-	 * @param mappedAttributes
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
+	 * @param context
 	 */
 	protected void doUpdateEntity(SynchronizationContext context) {
 
@@ -1642,7 +1626,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param mappedAttributes
 	 * @param uid
 	 * @param icAttributes
-	 * @param entity
+	 * @param dto
 	 * @param create           (is create or update entity situation)
 	 * @param context
 	 * @return
@@ -1744,7 +1728,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param mappedAttributes
 	 * @param uid
 	 * @param icAttributes
-	 * @param entity
+	 * @param dto
 	 * @param create           (is create or update entity situation)
 	 * @param context
 	 * @return
@@ -1784,7 +1768,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 *
 	 * @param uid
 	 * @param attribute
-	 * @param entity
+	 * @param dto
 	 * @param create    (create or update entity situation)
 	 * @return
 	 */
@@ -1821,37 +1805,23 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 
 		AttributeValueWrapperDto key = new AttributeValueWrapperDto(attribute, icAttributes);
-		ValueWrapper value = this.getCachedValue(key);
+		Object value = this.getCachedValue(key);
 		if (value != null) {
-			return value.get();
+			return value;
 		}
-		this.setCachedValue(key, systemAttributeMappingService.getValueByMappedAttribute(attribute, icAttributes));
-		return this.getCachedValue(key).get();
+		Object valueByMappedAttribute = systemAttributeMappingService.getValueByMappedAttribute(attribute, icAttributes);
+		this.setCachedValue(key, valueByMappedAttribute);
+		return valueByMappedAttribute;
 
 	}
 
-	protected void clearCache() {
-		Cache cache = getCache();
-		if (cache == null) {
-			return;
-		}
-		cache.clear();
-	}
-
-	protected ValueWrapper getCachedValue(AttributeValueWrapperDto key) {
-		Cache cache = getCache();
-		if (cache == null) {
-			return null;
-		}
-		return cache.get(key);
+	protected Object getCachedValue(AttributeValueWrapperDto key) {
+		ValueWrapper value = idmCacheManager.getValue(CACHE_NAME, key);
+		return value == null ? null : value.get();
 	}
 
 	protected void setCachedValue(AttributeValueWrapperDto key, Object value) {
-		Cache cache = getCache();
-		if (cache == null) {
-			return;
-		}
-		cache.put(key, value);
+		idmCacheManager.cacheValue(CACHE_NAME, key, value);
 	}
 
 	/**
@@ -1890,13 +1860,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}).count();
 
 		return countOfChangedValues == 0;
-	}
-
-	private Cache getCache() {
-		if (cacheManager == null) {
-			return null;
-		}
-		return cacheManager.getCache(CACHE_NAME);
 	}
 
 	private AccAccountDto findAccount(SynchronizationContext context) {
@@ -2043,17 +2006,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * then add the log to the synchronization log.
 	 *
 	 * @param wfDefinitionKey
-	 * @param uid
 	 * @param situation
 	 * @param action
-	 * @param icAttributes
 	 * @param dto
-	 * @param account
-	 * @param entityType
-	 * @param config
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
 	 */
 	private void startWorkflow(String wfDefinitionKey, SynchronizationSituationType situation,
 			SynchronizationActionType action, DTO dto, SynchronizationContext context) {
@@ -2191,10 +2146,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Find entity by account
 	 *
-	 * @param account
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
+	 * @param accountId
 	 * @return
 	 */
 	@Override
@@ -2241,13 +2193,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Create account and relation on him
 	 *
-	 * @param uid
 	 * @param callProvisioning
 	 * @param dto
-	 * @param systemEntity
-	 * @param entityType
-	 * @param system
-	 * @param logItem
+	 * @param context
 	 */
 	protected void doCreateLink(DTO dto, boolean callProvisioning, SynchronizationContext context) {
 		String uid = context.getUid();
@@ -2515,11 +2463,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * Update account UID from system. UID mapped attribute must exist and returned
 	 * value must be not null and must be String
 	 *
-	 * @param logItem
-	 * @param account
-	 * @param mappedAttributes
-	 * @param icAttributes
-	 * @param system
+	 * @param context
 	 */
 	private void updateAccountUid(SynchronizationContext context) {
 		Assert.notNull(context, "Context is required!");

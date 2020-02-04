@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { CacheManager, DataManager, SecurityManager } from '../../redux';
+import { CacheManager, DataManager } from '../../redux';
 import * as Utils from '../../utils';
 import ResultCodesModal from './ResultCodesModal';
 
@@ -14,7 +14,7 @@ import ResultCodesModal from './ResultCodesModal';
  *
  * @author Peter Štrunc
  */
-class Cache extends Basic.AbstractContent {
+class Caches extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -31,7 +31,7 @@ class Cache extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'cache';
+    return 'caches';
   }
 
   componentDidMount() {
@@ -41,8 +41,6 @@ class Cache extends Basic.AbstractContent {
   }
 
   reload() {
-    const { _searchParameters } = this.props;
-    //
     this.context.store.dispatch(this.cacheManager.fetchAvailableCaches());
   }
 
@@ -93,6 +91,7 @@ class Cache extends Basic.AbstractContent {
   render() {
     const { caches, showLoading } = this.props;
     const { detail } = this.state;
+    console.log('caches ', caches);
 
     const _caches = [];
     if (caches) {
@@ -100,7 +99,7 @@ class Cache extends Basic.AbstractContent {
         _caches.push(cache);
       });
     }
-    _caches.sort((one, two) => one.name > two.name);
+    _caches.sort((one, two) => (one.name > two.name ? 1 : -1));
 
     return (
       <div>
@@ -136,7 +135,32 @@ class Cache extends Basic.AbstractContent {
           noData={this.i18n('component.basic.Table.noData')}
           rowClass={({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }>
 
+          <Basic.Column
+            header={this.i18n('entity.Cache.module')}
+            className="text"
+            sort
+            cell={
+              ({rowIndex, data}) => {
+                const { name } = data[rowIndex];
+                const [module] = name.split(':');
+                return (
+                  module
+                );
+              }
+            }/>
           <Basic.Column property="name" header={this.i18n('entity.Cache.name')}/>
+          <Basic.Column
+            header={this.i18n('entity.Cache.description')}
+            className="text"
+            cell={
+              ({rowIndex, data}) => {
+                const { name } = data[rowIndex];
+                const [module, nameWithoutModule] = name.split(':');
+                return (
+                  this.i18n(`${module}:cache.${nameWithoutModule}.description`)
+                );
+              }
+            }/>
           <Basic.Column property="size" header={this.i18n('entity.Cache.size')}/>
           <Basic.Column
             header={this.i18n('label.action')}
@@ -154,20 +178,19 @@ class Cache extends Basic.AbstractContent {
                   </Basic.Button>
                 );
               }
-            }
-            rendered={SecurityManager.hasAuthority('APP_ADMIN')}/>
+            }/>
         </Basic.Table>
       </div>
     );
   }
 }
 
-Cache.propTypes = {
+Caches.propTypes = {
   userContext: PropTypes.object,
   caches: PropTypes.object,
   showLoading: PropTypes.bool
 };
-Cache.defaultProps = {
+Caches.defaultProps = {
   userContext: null,
   caches: null,
   showLoading: true
@@ -181,4 +204,4 @@ function select(state) {
   };
 }
 
-export default connect(select)(Cache);
+export default connect(select)(Caches);

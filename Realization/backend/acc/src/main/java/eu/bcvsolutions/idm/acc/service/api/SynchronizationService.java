@@ -32,7 +32,7 @@ public interface SynchronizationService {
 	String WF_VARIABLE_KEY_SYSTEM_ID = "systemId";
 	String WRAPPER_SYNC_ITEM = "wrapper_sync_item";
 	String RESULT_SYNC_ITEM = "result_sync_item";
-	String SYNC_EXECUTOR_CACHE_NAME = "sync-executor-cache";
+	String SYNC_EXECUTOR_CACHE_NAME = "acc:sync-executor-cache";
 
 	/**
 	 * Cancels all previously ran synchronizations

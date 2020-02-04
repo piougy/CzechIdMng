@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,15 +18,23 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 
 	private static final String TEST_ONE = "testOne";
-	private GroovyScriptService groovyScriptService;
 
-	@Before
-	public void init() {
-		groovyScriptService = new DefaultGroovyScriptService();
+	@Mock
+	IdmCacheManager cacheManager;
+
+	@InjectMocks
+	private DefaultGroovyScriptService groovyScriptService;
+
+	@After
+	public void resetInteractions(){
+		Mockito.reset(cacheManager);
 	}
 
 	@Test

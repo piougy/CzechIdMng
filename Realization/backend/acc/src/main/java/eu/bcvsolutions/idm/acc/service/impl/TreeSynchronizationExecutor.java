@@ -52,6 +52,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
@@ -89,11 +90,13 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	private SysSystemAttributeMappingService attributeHandlingService;
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	IdmCacheManager cacheManager;
 
 	@Override
 	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
 		// Clear cache
-		this.clearCache();
+		cacheManager.evictCache(CACHE_NAME);
 
 		// Validate and create basic context
 		SynchronizationContext context = this.validate(synchronizationConfigId);
@@ -158,7 +161,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
 			longRunningTaskExecutor.updateState();
 			// Clear cache
-			this.clearCache();
+			cacheManager.evictCache(CACHE_NAME);
 		}
 		return config;
 	}

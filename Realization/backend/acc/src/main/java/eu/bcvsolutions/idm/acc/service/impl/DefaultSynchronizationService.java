@@ -7,9 +7,7 @@ import java.util.UUID;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
-import org.springframework.cache.CacheManager;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -52,6 +50,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -87,7 +86,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	@Autowired
 	private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired
-	private CacheManager cacheManager;
+	private IdmCacheManager idmCacheManager;
 	@Autowired
 	private LongRunningTaskManager longRunningTaskManager;
 
@@ -153,7 +152,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			}
 		});
 		// Clear the executor cache
-		this.getCache().clear();
+		this.idmCacheManager.evictCache(SYNC_EXECUTOR_CACHE_NAME);
 	}
 
 	@Override
@@ -389,7 +388,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	@Override
 	public SynchronizationEntityExecutor getSyncExecutor(SystemEntityType entityType, UUID syncConfigId) {
-		ValueWrapper value = this.getCachedValue(syncConfigId);
+		ValueWrapper value = this.idmCacheManager.getValue(SYNC_EXECUTOR_CACHE_NAME, syncConfigId);
 		if (value != null) {
 			return (SynchronizationEntityExecutor) value.get();
 		}
@@ -402,31 +401,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		@SuppressWarnings("unchecked")
 		Class<SynchronizationEntityExecutor> targetClass = (Class<SynchronizationEntityExecutor>) AopUtils.getTargetClass(executor);
 		SynchronizationEntityExecutor prototypeExecutor = AutowireHelper.createBean(targetClass);
-		this.setCachedValue(syncConfigId, prototypeExecutor);
+		this.idmCacheManager.cacheValue(SYNC_EXECUTOR_CACHE_NAME, syncConfigId, prototypeExecutor);
 
-		return (SynchronizationEntityExecutor) this.getCachedValue(syncConfigId).get();
+		return prototypeExecutor;
 	}
 
-	private ValueWrapper getCachedValue(UUID authorityId) {
-		Cache cache = getCache();
-		if (cache == null) {
-			return null;
-		}
-		return cache.get(authorityId);
-	}
-
-	private void setCachedValue(UUID syncConfigId, SynchronizationEntityExecutor executor) {
-		Cache cache = getCache();
-		if (cache == null) {
-			return;
-		}
-		cache.put(syncConfigId, executor);
-	}
-
-	private Cache getCache() {
-		if (cacheManager == null) {
-			return null;
-		}
-		return cacheManager.getCache(SYNC_EXECUTOR_CACHE_NAME);
-	}
 }

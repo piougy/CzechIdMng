@@ -27,11 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class CacheControllerRestTest extends AbstractRestTest{
 
-	public static final String TEST_CACHE_NAME = "TEST_CACHE";
-	public static final String TEST_CACHE_NAME_2 = "TEST_CACHE_2";
-	public static final String TEST_CACHE_NAME_3 = "TEST_CACHE_3";
-	public static final String TEST_CACHE_NAME_4 = "TEST_CACHE_4";
-	public static final String TEST_CACHE_NAME_5 = "TEST_CACHE_5";
+	private static final String TEST_CACHE_NAME = "TEST_CACHE";
+	private static final String TEST_CACHE_NAME_2 = "TEST_CACHE_2";
+	private static final String TEST_CACHE_NAME_3 = "TEST_CACHE_3";
+	private static final String TEST_CACHE_NAME_4 = "TEST_CACHE_4";
+	private static final String TEST_CACHE_NAME_5 = "TEST_CACHE_5";
 
 	@Autowired
 	private CacheManager cacheManager;
@@ -75,6 +75,9 @@ public class CacheControllerRestTest extends AbstractRestTest{
 		Assert.assertEquals(0, testCacheAfterEvict.getSize());
 	}
 
+	/**
+	 * Not exist cache will be not registered in cache manager as empty cache
+	 */
 	@Test
 	public void testEvictNotExisting() {
 		Cache cache = cacheManager.getCache(TEST_CACHE_NAME_3);
@@ -92,7 +95,7 @@ public class CacheControllerRestTest extends AbstractRestTest{
 
 		final String notExistingCacheName = TEST_CACHE_NAME_3 + UUID.randomUUID();
 		final int resultCode = evict(notExistingCacheName);
-		Assert.assertEquals(404, resultCode);
+		Assert.assertEquals(204, resultCode);
 
 		List<IdmCacheDto> resultsAfterEvict = find();
 

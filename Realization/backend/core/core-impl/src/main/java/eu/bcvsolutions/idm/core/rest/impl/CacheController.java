@@ -48,7 +48,6 @@ public class CacheController {
 	protected static final String TAG = "Cache";
 	//
 	@Autowired private IdmCacheManager cacheManager;
-	//
 	@Autowired private PagedResourcesAssembler<IdmCacheDto> pagedResourcesAssembler;
 
 	/**

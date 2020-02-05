@@ -22,7 +22,7 @@ export default class DoubleFormAttributeRenderer extends TextFormAttributeRender
     const min = attribute.min || -Math.pow(10, 33);
     const max = attribute.max || Math.pow(10, 33);
     //
-    let validation = Joi.number().integer().min(min).max(max);
+    let validation = Joi.number().min(min).max(max);
     if (!this.isRequired()) {
       validation = validation.concat(Joi.number().allow(null));
     }

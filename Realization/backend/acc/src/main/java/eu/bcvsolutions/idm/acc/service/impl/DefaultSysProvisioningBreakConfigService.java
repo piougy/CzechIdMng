@@ -53,22 +53,22 @@ public class DefaultSysProvisioningBreakConfigService extends
 		AbstractReadWriteDtoService<SysProvisioningBreakConfigDto, SysProvisioningBreakConfig, SysProvisioningBreakConfigFilter>
 		implements SysProvisioningBreakConfigService {
 
-	private final Integer MAX_CONFIGS_FOR_SYSTEM = 3;
-	private final static String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":provisioning-cache";
-	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningBreakConfigService.class);
+	//
+	private static final Integer MAX_CONFIGS_FOR_SYSTEM = 3;
+	private static final String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":provisioning-cache";
+	private static final Map<UUID, SysProvisioningBreakItems> localCache = new ConcurrentHashMap<>();
+	//
 	private final SysProvisioningBreakRecipientService breakRecipientService;
 	private final ProvisioningBreakConfiguration provisioningBreakConfiguration;
 	private final IdmCacheManager idmCacheManager;
 
-	private static final Map<UUID, SysProvisioningBreakItems> localCache= new ConcurrentHashMap<>();
-
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningBreakConfigService.class);
-
 	@Autowired
-	public DefaultSysProvisioningBreakConfigService(SysProvisioningBreakConfigRepository repository,
-													SysProvisioningBreakRecipientService breakRecipientService,
-													ProvisioningBreakConfiguration provisioningBreakConfiguration,
-													IdmCacheManager idmCacheManager) {
+	public DefaultSysProvisioningBreakConfigService(
+			SysProvisioningBreakConfigRepository repository,
+			SysProvisioningBreakRecipientService breakRecipientService,
+			ProvisioningBreakConfiguration provisioningBreakConfiguration,
+			IdmCacheManager idmCacheManager) {
 		super(repository);
 		//
 		Assert.notNull(breakRecipientService, "Service is required.");
@@ -138,13 +138,23 @@ public class DefaultSysProvisioningBreakConfigService extends
 	@Override
 	public SysProvisioningBreakItems getCacheProcessedItems(UUID systemId) {
 		Cache.ValueWrapper cachedValueWrapper = this.idmCacheManager.getValue(CACHE_NAME, systemId);
-		SysProvisioningBreakItems cache = cachedValueWrapper == null ? localCache.get(systemId) : (SysProvisioningBreakItems) cachedValueWrapper.get();
+		SysProvisioningBreakItems cache;
+		if (cachedValueWrapper == null) {
+			// local cache is used => cache can be turned off
+			cache = localCache.get(systemId);
+		} else {
+			// cache is enabled
+			cache = (SysProvisioningBreakItems) cachedValueWrapper.get();
+			// we can clear local cache (prevent to grow memory)
+			localCache.remove(systemId);
+		}
+		//
 		return cache == null ? new SysProvisioningBreakItems() : cache;
 	}
 
 	@Override
 	public void saveCacheProcessedItems(UUID systemId, SysProvisioningBreakItems cache) {
-		if(!idmCacheManager.cacheValue(CACHE_NAME, systemId, cache)) {
+		if (!idmCacheManager.cacheValue(CACHE_NAME, systemId, cache)) {
 			// if item was not cached by default cache, we will fallback to an in-memory hashmap
 			LOG.warn("Cannot save provisioning brake info into cache. Using fallback in-memory map.");
 			localCache.put(systemId, cache);

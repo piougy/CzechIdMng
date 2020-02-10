@@ -2920,6 +2920,15 @@
             "placeholder": "Entity type"
           }
         }
+      },
+      "available-services": {
+        "header": "Available services",
+        "title": "Available services",
+        "filter": {
+          "text": {
+            "placeholder": "Service name (like)"
+          }
+        }
       }
     },
     "scheduler": {
@@ -4299,6 +4308,18 @@
       },
       "filterBuilderClass": {
         "label": "Filter type"
+      }
+    },
+    "AvailableServices": {
+      "methodName": {
+        "label": "Method name",
+        "title": "Method name."
+      },
+      "returnType": {
+        "label": "Return type"
+      },
+      "arguments": {
+        "label": "Method parameters"
       }
     },
     "LongRunningTask": {

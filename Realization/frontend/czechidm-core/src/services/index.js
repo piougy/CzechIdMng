@@ -80,6 +80,7 @@ import PasswordHistoryService from './PasswordHistoryService';
 import PasswordService from './PasswordService';
 import RequestIdentityRoleService from './RequestIdentityRoleService';
 import FilterBuilderService from './FilterBuilderService';
+import AvailableServiceService from './AvailableServiceService';
 
 const ServiceRoot = {
   RestApiService,
@@ -156,7 +157,8 @@ const ServiceRoot = {
   RoleFormAttributeService,
   PasswordHistoryService,
   PasswordService,
-  RequestIdentityRoleService
+  RequestIdentityRoleService,
+  AvailableServiceService
 };
 
 ServiceRoot.version = '9.4.0';

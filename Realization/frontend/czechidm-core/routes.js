@@ -597,6 +597,11 @@ module.exports = {
           access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
         },
         {
+          path: 'available-services',
+          component: require('./src/content/module/AvailableServices'),
+          access: [{type: 'IS_AUTHENTICATED'}]
+        },
+        {
           path: 'caches',
           component: require('./src/content/module/Caches'),
           access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN']}]

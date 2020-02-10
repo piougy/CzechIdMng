@@ -5,11 +5,13 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.AvailableServiceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.AvailableServiceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptAuthorityFilter;
 
 /**
  * Interface of service for script authority
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Husnik
  *
  */
 public interface IdmScriptAuthorityService extends ReadWriteDtoService<IdmScriptAuthorityDto, IdmScriptAuthorityFilter> {
@@ -28,6 +30,14 @@ public interface IdmScriptAuthorityService extends ReadWriteDtoService<IdmScript
 	 * @return
 	 */
 	List<AvailableServiceDto> findServices(String serviceName);
+	
+	/**
+	 * Finds all services meeting filter restriction 
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	List<AvailableServiceDto> findServices(AvailableServiceFilter filter);
 	
 	/**
 	 * Check if service is allowed for use in script;

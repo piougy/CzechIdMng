@@ -32,7 +32,7 @@ Access item properties:
 | DENY_ALL | Never visible | { 'type': 'DENY_ALL' } |
 | PERMIT_ALL | Visible always | { 'type': 'PERMIT_ALL' } |
 | NOT_AUTHENTICATED | Visible, when identity is not logged in | { 'type': 'NOT_AUTHENTICATED' } |
-| IS_AUTHENTICATED | Visible, when identity is not logged in | { 'type': 'IS_AUTHENTICATED' } |
+| IS_AUTHENTICATED | Visible, when identity is logged in | { 'type': 'IS_AUTHENTICATED' } |
 | HAS_ANY_AUTHORITY | Visible, when logged identity has at least on of given authorities |  { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } |
 | HAS_ALL_AUTHORITIES | Visible, when logged identity has all of given authorities | { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } |
 

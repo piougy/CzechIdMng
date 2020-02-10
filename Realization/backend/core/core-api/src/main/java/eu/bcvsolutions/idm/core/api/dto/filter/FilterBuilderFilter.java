@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
@@ -29,7 +30,7 @@ public class FilterBuilderFilter extends DataFilter {
     }
 
     public FilterBuilderFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
-        super(null, data, parameterConverter);
+        super(FilterBuilderDto.class , data, parameterConverter);
     }
 
     public String getName() {

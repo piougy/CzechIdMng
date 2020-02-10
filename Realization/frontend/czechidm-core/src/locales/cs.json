@@ -2973,6 +2973,15 @@
             "placeholder": "Typ entity"
           }
         }
+      },
+      "available-services": {
+        "header": "Dostupné služby",
+        "title": "Dostupné služby",
+        "filter": {
+          "text": {
+            "placeholder": "Název služby (like)"
+          }
+        }
       }
     },
     "scheduler": {
@@ -4351,6 +4360,18 @@
       },
       "filterBuilderClass": {
         "label": "Typ filtru"
+      }
+    },
+    "AvailableServices": {
+      "methodName": {
+        "label": "Jméno metody",
+        "title": "Jméno metody."
+      },
+      "returnType": {
+        "label": "Návratový typ"
+      },
+      "arguments": {
+        "label": "Parametry metody"
       }
     },
     "LongRunningTask": {

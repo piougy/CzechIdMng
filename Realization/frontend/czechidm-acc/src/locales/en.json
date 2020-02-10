@@ -1991,6 +1991,11 @@
         "help": "$t(action.delete.action) selected mappings. <strong>Mapping must not be used in synchronization or provisioning</strong>.",
         "icon": "$t(action.delete.icon)"
       },
+      "acc-system-mapping-duplicate-bulk-action": {
+        "icon": "fa:clone",
+        "label": "Duplicate the system mapping",
+        "help": "Creates copy of selected system mappings."
+      },
       "acc-identity-account-management-bulk-action": {
         "icon": "link",
         "label": "Recalculate accounts and provision",

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +26,12 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
@@ -52,6 +55,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * Default system entity handling
  * 
  * @author svandav
+ * @author Ondrej Husnik
  *
  */
 @Service
@@ -194,7 +198,7 @@ public class DefaultSysSystemMappingService
 	@Override
 	public SysSystemMappingDto clone(UUID id) {
 		SysSystemMappingDto original = this.get(id);
-		Assert.notNull(original, "Schema attribute must be found!");
+		Assert.notNull(original, "System mapping must be found!");
 
 		original.setId(null);
 		EntityUtils.clearAuditFields(original);
@@ -334,5 +338,62 @@ public class DefaultSysSystemMappingService
 		if (attributeMappingService == null)
 			attributeMappingService = applicationContext.getBean(SysSystemAttributeMappingService.class);
 		return attributeMappingService;
+	}
+	
+	
+	@Override
+	public SysSystemMappingDto duplicateMapping(UUID id, SysSchemaObjectClassDto schema,
+			Map<UUID, UUID> schemaAttributesIds, Map<UUID, UUID> mappedAttributesIds, boolean usedInSameSystem) {
+		Assert.notNull(id, "Id of duplication mapping, must be filled!");
+		Assert.notNull(schema, "Parent schema must be filled!");
+
+		SysSystemMappingDto clonedMapping = this.clone(id);
+		clonedMapping.setObjectClass(schema.getId());
+
+		if (usedInSameSystem) {
+			String newName = duplicateName(clonedMapping.getName());
+			clonedMapping.setName(newName);
+			clonedMapping.setOperationType(SystemOperationType.SYNCHRONIZATION);
+		}
+		SysSystemMappingDto mapping = this.save(clonedMapping);
+
+		// Clone mapped attributes
+		SysSystemAttributeMappingFilter attributesFilter = new SysSystemAttributeMappingFilter();
+		attributesFilter.setSystemMappingId(id);
+		attributeMappingService.find(attributesFilter, null).forEach(attribute -> {
+			UUID originalAttributeId = attribute.getId();
+			SysSystemAttributeMappingDto clonedAttribute = attributeMappingService.clone(originalAttributeId);
+			// Find cloned schema attribute in cache (by original Id)
+			SysSchemaAttributeDto clonedSchemaAttribute = attributeService
+					.get(schemaAttributesIds.get(clonedAttribute.getSchemaAttribute()));
+
+			clonedAttribute.setSystemMapping(mapping.getId());
+			clonedAttribute.setSchemaAttribute(clonedSchemaAttribute.getId());
+			clonedAttribute = attributeMappingService.save(clonedAttribute);
+			// Put original and new id to cache
+			mappedAttributesIds.put(originalAttributeId, clonedAttribute.getId());
+		});
+
+		return mapping;
+	}
+	
+	/**
+	 * 
+	 * @param name - name copy of which is to be created
+	 */
+	private String duplicateName(String name) {
+		String newNameBase = MessageFormat.format("{0}{1}", "Copy-of-", name);
+		String newName = newNameBase;
+		SysSystemMappingFilter filter = new SysSystemMappingFilter();
+		int i = 1;
+		do {
+			filter.setText(newName);
+			if (!this.find(filter, null).hasContent()) {
+				return newName;
+			} else {
+				newName = MessageFormat.format("{0}{1}", newNameBase, i);
+				i++;
+			}
+		} while (true);
 	}
 }

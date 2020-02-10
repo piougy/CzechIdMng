@@ -1993,6 +1993,11 @@
         "help": "Smaže vybraná mapování. <strong>Mapování nesmí být použito v synchronzaci nebo provisioningu</strong>.",
         "icon": "$t(action.delete.icon)"
       },
+      "acc-system-mapping-duplicate-bulk-action": {
+        "icon": "fa:clone",
+        "label": "Duplikovat mapování systému",
+        "help": "Vytvoří kopie vybraných mapování systému."
+      },
       "acc-identity-account-management-bulk-action": {
         "icon": "link",
         "label": "Přepočet účtů a provisioning",

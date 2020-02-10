@@ -111,6 +111,7 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	public Optional<OperationResult> processItem(IdmIdentityRoleDto identityRole) {
 		try {
 			removeAssignedRoles(new ArrayList<>(), identityRole);
+			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch (Exception ex) {
 			return Optional.of(new OperationResult
@@ -137,8 +138,13 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 			//
 			long assignedRoles = identityRoleService.find(filter, new PageRequest(0, 1)).getTotalElements();
 			if (assignedRoles != 0) {
-				LOG.debug("Remove role composition [{}] is not complete, some identity roles [{}] remains assigned to identities.", 
+				// some assigned role was created in the meantime
+				LOG.warn("Remove role composition [{}] is not complete, some identity roles [{}] remains assigned to identities.", 
 						roleCompositionId, assignedRoles);
+				ResultModel resultModel = new DefaultResultModel(CoreResultCode.ROLE_COMPOSITION_REMOVE_HAS_ASSIGNED_ROLES, ImmutableMap.of(
+						"roleCompositionId", roleCompositionId.toString(), 
+						"assignedRoles", String.valueOf(assignedRoles)));
+				saveResult(resultModel, OperationState.EXCEPTION, null);
 				return ended;
 			}
 			//
@@ -184,6 +190,11 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		List<String> propertyNames = super.getPropertyNames();
 		propertyNames.add(PARAMETER_ROLE_COMPOSITION_ID);
 		return propertyNames;
+	}
+	
+	@Override
+	public boolean supportsQueue() {
+		return false;
 	}
 	
 	private void removeAssignedRoles(List<UUID> processedIdentityRoles, IdmIdentityRoleDto identityRole) {

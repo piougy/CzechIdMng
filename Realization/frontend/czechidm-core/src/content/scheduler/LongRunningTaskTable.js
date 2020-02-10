@@ -6,7 +6,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import OperationStateEnum from '../../enums/OperationStateEnum';
-import { SecurityManager } from '../../redux';
+import { SecurityManager, ConfigurationManager } from '../../redux';
 
 /**
  * Table with long running tasks
@@ -125,7 +125,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, manager, showRowSelection } = this.props;
+    const { uiKey, manager, showRowSelection, showTransactionId } = this.props;
     const { filterOpened } = this.state;
     return (
       <div>
@@ -159,6 +159,11 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('filter.text.placeholder')}/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } rendered={ showTransactionId }>
+                    <Advanced.Filter.TextField
+                      ref="transactionId"
+                      placeholder={ this.i18n('filter.transactionId.placeholder') }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -298,7 +303,8 @@ LongRunningTaskTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false)
   };
 }
 

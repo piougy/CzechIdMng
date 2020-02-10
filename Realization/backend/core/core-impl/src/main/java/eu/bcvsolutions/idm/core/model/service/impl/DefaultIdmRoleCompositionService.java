@@ -98,18 +98,27 @@ public class DefaultIdmRoleCompositionService
 		return results;
 	}
 	
+	@Override
+	public void assignSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission) {
+		assignSubRoles(event, null, permission);
+	}
+	
 	/**
 	 * @Transactional is not needed - (asynchronous) events is thrown for every sub role anyway ...
 	 * Can be called repetitively for given identity role => checks or creates missing sub roles by composition.
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public void assignSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission) {
+	public void assignSubRoles(EntityEvent<IdmIdentityRoleDto> event, UUID roleCompositionId, BasePermission... permission) {
 		Assert.notNull(event);
 		IdmIdentityRoleDto identityRole = event.getContent();
 		Assert.notNull(identityRole.getId());
+		// find direct sub roles
+		IdmRoleCompositionFilter compositionFilter = new IdmRoleCompositionFilter();
+		compositionFilter.setSuperiorId(identityRole.getRole());
+		compositionFilter.setId(roleCompositionId);
 		//
-		List<IdmRoleCompositionDto> directSubRoles = findDirectSubRoles(identityRole.getRole());
+		List<IdmRoleCompositionDto> directSubRoles = find(compositionFilter, null, permission).getContent();
 		LOG.debug("Assign sub roles [{}] for identity role [{}], role [{}]",
 				directSubRoles.size(), identityRole.getId(), identityRole.getRole());
 		//

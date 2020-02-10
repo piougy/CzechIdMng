@@ -146,10 +146,12 @@ public class DefaultIdmEntityEventService
 	@Override
 	@Transactional
 	public void deleteAll() {
-		LOG.warn("Entity events were truncated by identity [{}].", securityService.getCurrentId());
+		LOG.warn("Entity events will be  truncated by identity [{}].", securityService.getCurrentId());
 		//
 		entityStateRepository.deleteByEventIsNotNull();
 		repository.deleteAll();
+		
+		LOG.warn("Entity events were truncated by identity [{}].", securityService.getCurrentId());
 	}
 	
 	@Override

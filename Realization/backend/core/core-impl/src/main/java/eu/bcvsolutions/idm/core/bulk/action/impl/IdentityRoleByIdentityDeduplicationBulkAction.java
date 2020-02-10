@@ -209,7 +209,7 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 		identityRoleFilter.setIdentityContractId(contract.getId());
 		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(identityRoleFilter, page,
 				PermissionUtils.toPermissions(getAuthoritiesForIdentityRole()).toArray(new BasePermission[] {})).getContent();
-
+		
 		// Get map of duplicity roles 
 		Map<UUID, List<IdmIdentityRoleDto>> duplictRoles = identityRoles
 				.stream() //
@@ -233,27 +233,27 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 		for (Entry<UUID, List<IdmIdentityRoleDto>> entry : duplictRoles.entrySet()) {
 			List<IdmIdentityRoleDto> duplicitIdentityRoles = entry.getValue();
 
-			List<IdmIdentityRoleDto> manuallyAddedRoles = duplicitIdentityRoles //
+			List<IdmIdentityRoleDto> rolesToCheck = duplicitIdentityRoles //
 					.stream() //
 					.filter(idenityRole -> { //
-						return idenityRole.getAutomaticRole() == null && idenityRole.getDirectRole() == null;
+						return idenityRole.getAutomaticRole() == null;
 					}) //
 					.collect(Collectors.toList());
 			// Copy of manually added roles is for prevent comparing with already removed role
-			List<IdmIdentityRoleDto> manuallyAddedRolesCopy = new ArrayList<>(manuallyAddedRoles);
+			List<IdmIdentityRoleDto> rolesToCheckCopy = new ArrayList<>(rolesToCheck);
 
-			if (manuallyAddedRoles.isEmpty()) {
+			if (rolesToCheck.isEmpty()) {
 				continue;
 			}
 
 			// Remove form duplicated manually added
-			duplicitIdentityRoles.removeAll(manuallyAddedRoles);
+			duplicitIdentityRoles.removeAll(rolesToCheck);
 			
-			for (IdmIdentityRoleDto manuallyAdded : manuallyAddedRoles) {
+			for (IdmIdentityRoleDto checkedRole : rolesToCheck) {
 				IdmIdentityRoleDto duplicit = null;
 				// Add identity form attributes with value into eavs
 				if (BooleanUtils.isFalse(skipSubdefinition)) {
-					manuallyAdded.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(manuallyAdded)));
+					checkedRole.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(checkedRole)));
 				}
 				
 				for (IdmIdentityRoleDto duplicitIdentityRole : duplicitIdentityRoles) {
@@ -261,7 +261,7 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 					if (BooleanUtils.isFalse(skipSubdefinition)) {
 						duplicitIdentityRole.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(duplicitIdentityRole)));
 					}
-					duplicit = identityRoleService.getDuplicated(manuallyAdded, duplicitIdentityRole, skipSubdefinition);
+					duplicit = identityRoleService.getDuplicated(checkedRole, duplicitIdentityRole, skipSubdefinition);
 
 					if (duplicit != null) {
 						break;
@@ -270,19 +270,19 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 
 				// If this role isn't duplicated check also manually added
 				if (duplicit == null) {
-					for (IdmIdentityRoleDto manuallyAddedSecond : manuallyAddedRolesCopy) {
+					for (IdmIdentityRoleDto checkedRoleSecond : rolesToCheckCopy) {
 
 						// Skip itself
-						if (manuallyAdded.getId().equals(manuallyAddedSecond.getId())) {
+						if (checkedRole.getId().equals(checkedRoleSecond.getId())) {
 							continue;
 						}
 
 						// Add identity form attributes with value into eavs
 						if (BooleanUtils.isFalse(skipSubdefinition)) {
-							manuallyAddedSecond.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(manuallyAddedSecond)));
+							checkedRoleSecond.setEavs(Lists.newArrayList(identityRoleService.getRoleAttributeValues(checkedRoleSecond)));
 						}
 
-						duplicit = identityRoleService.getDuplicated(manuallyAdded, manuallyAddedSecond, skipSubdefinition);
+						duplicit = identityRoleService.getDuplicated(checkedRole, checkedRoleSecond, skipSubdefinition);
 
 						if (duplicit != null) {
 							break;
@@ -292,13 +292,15 @@ public class IdentityRoleByIdentityDeduplicationBulkAction
 
 				// Finally role is duplicated
 				if (duplicit != null) {
-					manuallyAddedRolesCopy.remove(manuallyAdded);
-					duplicities.add(duplicit);
+					rolesToCheckCopy.remove(checkedRole);
+					// prevent to remove roles with the same created date
+					if (!duplicities.contains(duplicit)) {
+						duplicities.add(duplicit);
+					}
 				}
-					
 			}
-
 		}
+		
 		return duplicities;
 	}
 	

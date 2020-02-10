@@ -574,7 +574,7 @@ module.exports = {
     {
       path: 'modules',
       component: require('./src/content/module/ModuleRoutes'),
-      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ'] } ],
+      access: [ { type: 'IS_AUTHENTICATED' } ],
       childRoutes: [
         {
           path: 'fe-modules',

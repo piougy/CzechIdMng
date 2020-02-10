@@ -90,14 +90,14 @@ public class AvailableServiceControllerRestTest extends AbstractRestTest{
 			if (!Modifier.isPublic(method.getModifiers())) {
 				continue;
 			}
-			List<String> params = Arrays.asList(method.getParameters())
+			List<Class<?>> params = Arrays.asList(method.getParameters())
 			.stream()
-			.map((param) -> {return param.getType().getSimpleName();})
+			.map((param) -> {return param.getType();})
 			.collect(Collectors.toList());
 			
 			AvailableMethodDto methodDto = new AvailableMethodDto();
 			methodDto.setMethodName(method.getName());
-			methodDto.setReturnType(method.getReturnType().getSimpleName());
+			methodDto.setReturnType(method.getReturnType());
 			methodDto.setArguments(params);
 			methodDtos.add(methodDto);
 		}

@@ -1,6 +1,5 @@
 import React from 'react';
 import Helmet from 'react-helmet';
-import Immutable from 'immutable';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 //
@@ -127,73 +126,73 @@ class AvailableServices extends Advanced.AbstractTableContent {
           text={ this.i18n('component.basic.Table.noData') }
           style={{ margin: 15 }}
           rendered={ !showLoading && availableServices.length === 0 } />
-          {
-            showLoading || availableServices.length === 0
-            ||
-            <div>
-              {
-                [...availableServices.map((service) => (
-                  <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
-                    <Basic.ContentHeader title={service.packageName}>
-                      {service.id}
-                      <small style={{ marginLeft: 7, fontSize: '0.8em' }}>
-                        {' (' + service.module + ', ' +  service.serviceName + ')'}
-                      </small>
-                    </Basic.ContentHeader>
-                    <Basic.Table
-                      data={service.methods}
-                      showLoading={showLoading}
-                      noData={ this.i18n('component.basic.Table.noData') }
-                      rowClass={ ({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }>
-                      <Basic.Column
-                        property="methodName"
-                        header={ this.i18n('entity.AvailableServices.methodName.label') }
-                        width="25%"/>
-                      <Basic.Column
-                        property="returnType"
-                        width="33%"
-                        header={ this.i18n('entity.AvailableServices.returnType.label') }
-                        cell={
-                          ({rowIndex, data, property}) => {
+        {
+          showLoading || availableServices.length === 0
+          ||
+          <div>
+            {
+              [...availableServices.map((service) => (
+                <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
+                  <Basic.ContentHeader title={service.packageName}>
+                    {service.id}
+                    <small style={{ marginLeft: 7, fontSize: '0.8em' }}>
+                      {` (${ service.module }, ${ service.serviceName })`}
+                    </small>
+                  </Basic.ContentHeader>
+                  <Basic.Table
+                    data={service.methods}
+                    showLoading={showLoading}
+                    noData={ this.i18n('component.basic.Table.noData') }
+                    rowClass={ ({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }>
+                    <Basic.Column
+                      property="methodName"
+                      header={ this.i18n('entity.AvailableServices.methodName.label') }
+                      width="25%"/>
+                    <Basic.Column
+                      property="returnType"
+                      width="33%"
+                      header={ this.i18n('entity.AvailableServices.returnType.label') }
+                      cell={
+                        ({rowIndex, data, property}) => {
+                          return (
+                            <div title={data[rowIndex][property]}>
+                              {Utils.Ui.getSimpleJavaType(data[rowIndex][property])}
+                            </div>
+                          );
+                        }
+                      }
+                    />
+                    <Basic.Column
+                      property="arguments"
+                      header={ this.i18n('entity.AvailableServices.arguments.label') }
+                      cell={
+                        ({rowIndex, data, property}) => {
+                          if (data[rowIndex][property].length === 1) {
                             return (
-                              <div title={data[rowIndex][property]}>
-                                {Utils.Ui.getSimpleJavaType(data[rowIndex][property])}
+                              <div title={data[rowIndex][property][0]}>
+                                {Utils.Ui.getSimpleJavaType(data[rowIndex][property][0])}
                               </div>
                             );
                           }
+                          const arr = [];
+                          data[rowIndex][property].forEach((arg) => { arr.push(<li title={arg}>{Utils.Ui.getSimpleJavaType(arg)}</li>); });
+                          return (
+                            <div style={{marginLeft: 15}}>
+                              <ol>
+                                {arr}
+                              </ol>
+                            </div>
+                          );
                         }
-                      />
-                      <Basic.Column
-                        property="arguments"
-                        header={ this.i18n('entity.AvailableServices.arguments.label') }
-                        cell={
-                          ({rowIndex, data, property}) => {
-                            if (data[rowIndex][property].length === 1) {
-                              return (
-                                <div title={data[rowIndex][property][0]}>
-                                  {Utils.Ui.getSimpleJavaType(data[rowIndex][property][0])}
-                                </div>
-                              );
-                            }
-                            const arr = [];
-                            data[rowIndex][property].forEach((arg) => { arr.push(<li title={arg}>{Utils.Ui.getSimpleJavaType(arg)}</li>); });
-                            return (
-                              <div style={{marginLeft: 15}}>
-                                <ol>
-                                  {arr}
-                                </ol>
-                              </div>
-                            );
-                          }
-                        }
-                      />
-                    </Basic.Table>
-                  </div>
-                )).values()]
-              }
-              <Basic.Pagination total={ availableServices.length } />
-            </div>
-          }
+                      }
+                    />
+                  </Basic.Table>
+                </div>
+              )).values()]
+            }
+            <Basic.Pagination total={ availableServices.length } />
+          </div>
+        }
       </div>
     );
   }

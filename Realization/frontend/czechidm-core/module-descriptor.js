@@ -1017,7 +1017,7 @@ module.exports = {
               {
                 id: 'caches',
                 labelKey: 'content.system.cache.title',
-                order: 50,
+                order: 60,
                 path: '/modules/caches',
                 icon: '',
                 type: 'TAB',

@@ -11,8 +11,8 @@ import java.util.List;
 public class AvailableMethodDto {
 	
 	private String methodName;
-	private String returnType;
-	private List<String> arguments;
+	private Class<?> returnType;
+	private List<Class<?>> arguments;
 	
 	public String getMethodName() {
 		return methodName;
@@ -22,19 +22,19 @@ public class AvailableMethodDto {
 		this.methodName = methodName;
 	}
 	
-	public String getReturnType() {
+	public Class<?> getReturnType() {
 		return returnType;
 	}
 	
-	public void setReturnType(String returnType) {
+	public void setReturnType(Class<?> returnType) {
 		this.returnType = returnType;
 	}
 	
-	public List<String> getArguments() {
+	public List<Class<?>> getArguments() {
 		return arguments;
 	}
 	
-	public void setArguments(List<String> arguments) {
+	public void setArguments(List<Class<?>> arguments) {
 		this.arguments = arguments;
 	}
 	

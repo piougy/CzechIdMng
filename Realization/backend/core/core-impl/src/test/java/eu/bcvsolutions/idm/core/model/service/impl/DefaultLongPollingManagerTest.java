@@ -229,7 +229,9 @@ public class DefaultLongPollingManagerTest extends AbstractCoreWorkflowIntegrati
 		// Check must be called twice, because first detect the change and second remove
 		// ended deferred result (from some reason is not invoked method
 		// result.onCompleted)
+		getHelper().waitForResult(null, 1, 1);
 		longPollingManager.checkDeferredRequests(IdmIdentityDto.class);
+		getHelper().waitForResult(null, 1, 1);
 		longPollingManager.checkDeferredRequests(IdmIdentityDto.class);
 
 		suspendedRequests = defaultPollingManager.getSuspendedRequests();

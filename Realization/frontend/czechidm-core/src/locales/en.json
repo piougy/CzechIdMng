@@ -80,6 +80,8 @@
     "detail": "Detail",
     "download": "$t(label.download)",
     "edit": "Edit",
+    "evict": "Evict",
+    "evictAll": "Evict all",
     "filter": {
       "toogle": "Filter",
       "use": "Filter",
@@ -136,12 +138,13 @@
   },
   "action": {
     "delete": {
-      "action": "Remove",
-      "header": "Remove record",
-      "header_plural": "Remove records",
-      "message": "Do you want to remove selected record [<strong>{{record}}</strong>]?",
-      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to remove <strong>{{count}}</strong> selected records?",
-      "error": "An error occurred while removing [{{record}}].",
+      "action": "Delete",
+      "icon": "fa:trash",
+      "header": "Delete record",
+      "header_plural": "Delete records",
+      "message": "Do you want to delete selected record [<strong>{{record}}</strong>]?",
+      "message_plural": "Selected records: [<strong>{{records}}</strong>].<br /><br /> Do you want to delete <strong>{{count}}</strong> selected records?",
+      "error": "An error occurred while deleting [{{record}}].",
       "success": "Selected record [{{record}}] successfully deleted",
       "success_plural": "Selected records [{{records}}] were successfully deleted",
       "approve": "Record deletion [{{record}}] has to be approved, task successfully created",
@@ -174,6 +177,17 @@
       "success_0": "N/A",
       "success": "Selected record [{{record}}] were successfully deactivated",
       "success_plural": "Selected records [{{records}}] were successfully deactivated"
+    },
+    "evict": {
+      "action": "Evict",
+      "header": "Evict cache",
+      "message_0": "N/A",
+      "message": "Do you want to evict cache [{{record}}]?",
+      "message_plural": "Do you want to evict all caches?",
+      "success_0": "N/A",
+      "success": "Cache [{{record}}] was successfuly evicted.",
+      "success_plural": "All caches  were successfuly evicted.",
+      "error": "Cache does not exist"
     },
     "redeploy": {
       "action": "Recover from disk (redeploy)",
@@ -340,7 +354,10 @@
         "noResultsText": "No result",
         "searchPromptText": "Start typing ...",
         "searchingText": "Searching ...",
-        "results": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ..."
+        "results": "Shown <strong>{{count}}</strong> of <strong>{{total}}</strong> records ...",
+        "emptyOption": {
+          "label": "-- not selected --"
+        }
       },
       "Table" : {
         "Pagination" : {
@@ -1816,6 +1833,10 @@
       },
       "detail": {
         "title": "Basic information"
+      },
+      "form-values": {
+        "header": "Attribute's values",
+        "title": "Attribute's values"
       }
     },
     "form-values": {
@@ -2881,6 +2902,10 @@
             }
           }
         }
+      },
+      "cache": {
+        "header": "Cache",
+        "title": "Cache"
       },
       "entity-event-processors": {
         "header": "Processors",
@@ -4252,6 +4277,12 @@
       "buildNumber": "Revision",
       "buildTimestamp": "Build date"
     },
+    "Cache": {
+      "name": "Name",
+      "description": "Description",
+      "size": "Number of values",
+      "module": "Module"
+    },
     "EntityEventProcessor": {
       "id": "ID",
       "name": "Name",
@@ -4913,9 +4944,9 @@
         "icon": "fa:check-square-o"
       },
       "identity-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected users.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) users",
+        "help": "$t(action.delete.action) selected users.",
+        "icon": "$t(action.delete.icon)"
       },
       "identity-add-role-bulk-action": {
         "label": "Roles assignment",
@@ -4967,29 +4998,34 @@
         "icon": "fa:save"
       },
       "role-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected roles.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) roles",
+        "help": "$t(action.delete.action) selected roles.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "configuration-delete-bulk-action": {
+        "label": "$t(action.delete.action) configuration items",
+        "help": "$t(action.delete.action) selected configuration items.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-entity-event-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected events.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) events",
+        "help": "$t(action.delete.action) selected events.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-entity-state-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected states.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) states",
+        "help": "$t(action.delete.action) selected states.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-code-list-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected code lists.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) code lists",
+        "help": "$t(action.delete.action) selected code lists.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-code-list-item-delete-bulk-action": {
-        "label": "Remove",
+        "label": "$t(action.delete.action) code list items",
         "help": "Remove selected code list items.",
-        "icon": "fa:trash"
+        "icon": "$t(action.delete.icon)"
       },
       "core-identity-role-by-identity-deduplication-bulk-action": {
         "label": "Role deduplication",
@@ -5030,9 +5066,14 @@
         }
       },
       "core-identity-contract-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected contracted positions.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) contracted positions",
+        "help": "$t(action.delete.action) selected contracted positions.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-form-value-delete-bulk-action": {
+        "label": "$t(action.delete.action) values",
+        "help": "$t(action.delete.action) selected values. Notify event will be published for value's owner (e.g. automatic roles or provisioning will be processed).",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {
@@ -5672,6 +5713,10 @@
     "FORM_ATTRIBUTE_INVALID_REGEX": {
       "title": "Regular expression is not valid",
       "message": "Regular expression [{{regex}}] is not valid."
+    },
+    "FORM_VALUE_DELETE_FAILED_IS_REQUIRED": {
+      "title": "Values cannot be deleted",
+      "message": "Values [count: <strong class=\"highlight\">{{count}}</strong>] of attribute [<strong class=\"highlight\">{{attribute}}</strong>] cannot be deleted, attribute is defined as required. Change form attribute definition if values are needed to be removed."
     },
     "ACCEPTED": {
       "title": "Request added",
@@ -6339,6 +6384,14 @@
     },
     "record": {
       "notFound" : "Record not found or insufficient permissions to read selected record."
+    }
+  },
+  "cache": {
+    "configuration-cache": {
+      "description": "Cache for storing CzechIdM's configuration properties. If the cache is evicted, then CzechIdM will load its value from database and cache it again."
+    },
+    "default-groovy-script-service-script-cache": {
+      "description": "This cache stores compiled Groovy scripts. Evicting this cache will result in recompiling every script, when calling it. Recompiled script is then stored in this cache."
     }
   }
 }

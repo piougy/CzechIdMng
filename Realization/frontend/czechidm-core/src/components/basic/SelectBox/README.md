@@ -30,6 +30,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | loadMoreContent | bool | Load next options after reached end of list | true
 | optionComponent | func | Option decorator | OptionDecorator |
 | valueComponent | func | Value decorator | ValueDecorator |
+| emptyOptionLabel | string | Empty value label (text). Use ``false`` to hide emptyOption. | 'emptyOption.label' localization |
 
 
 ## Usage

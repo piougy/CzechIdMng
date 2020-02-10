@@ -1,7 +1,13 @@
 package eu.bcvsolutions.idm.tool;
 
+import java.io.Console;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -29,8 +35,10 @@ import eu.bcvsolutions.idm.tool.service.impl.ProjectManager;
  * - change product versions (BE + FE)
  * - release product version
  * 
+ * FIXME: use @SpringBootApplication - dependency hell, why?
  * FIXME: use spring application + context, cleanup construct managers internaly
  * FIXME: split mega if into command implementation => registrable commands.
+ * TODO: option vs. external configuration - wrap option usage.
  * 
  * @author Radek Tomiška
  *
@@ -39,16 +47,23 @@ import eu.bcvsolutions.idm.tool.service.impl.ProjectManager;
 public class ConsoleRunner implements CommandLineRunner {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ConsoleRunner.class);
+	// TODO: move to configuration api (@SpringBootApplication is needed)
+	private static final String PROPERTY_PASSWORD = "idm.sec.tool.password";
 	//
 	@Autowired private ProductReleaseManager productReleaseManager;
 	@Autowired private ModuleReleaseManager moduleReleaseManager;
 	@Autowired private ProjectManager projectManager;
+	// loaded external properties
+	private Properties properties = null;
 	
 	public static void main(String [] args) {
 		ConsoleRunner instance = new ConsoleRunner();
+		
+		
 		//
 		try {
 			instance.run(args);
+			// TODO: SpringApplication.run(ConsoleRunner.class, args); // https://github.com/spring-projects/spring-boot/issues/12456
 		} catch (ResultCodeException | IllegalArgumentException ex) {
 			// common exception without stack trace
 			LOG.error(ex.getLocalizedMessage());
@@ -169,7 +184,7 @@ public class ConsoleRunner implements CommandLineRunner {
 		Option optionUsername = Option.builder()
 	    		.required(false)
 	    		.longOpt("username")
-	    		.desc("Git credentials, if https repitory is used. When ssh repository is used, then passphrase for ssh key is needed only.")
+	    		.desc("Git username, if https repitory is used. When ssh repository is used, then passphrase for ssh key is needed only.")
 	    		.argName("git username")
 	            .hasArg()
 	    		.build();
@@ -182,7 +197,7 @@ public class ConsoleRunner implements CommandLineRunner {
 	    				+ "then token has to be given (see git documentation, how to generate authentication token for developers).\n"
 	    				+ "If ssh key is used, then put passphrase for ssh key (It loads the known hosts and private keys from their "
 	    				+ "default locations (identity, id_rsa and id_dsa) in the user’s .ssh directory.).")
-	    		.argName("git password / token / ssh passphrase ")
+	    		.argName("git password / token / ssh passphrase")
 	            .hasArg()
 	    		.build();
 		//
@@ -273,7 +288,7 @@ public class ConsoleRunner implements CommandLineRunner {
 			// parse arguments
 			CommandLineParser parser = new DefaultParser();
 			CommandLine commandLine = parser.parse(options, args, false);
-			//
+			// log given arguments (for bug report, without password value)
 			List<String> arguments = Arrays
 					.stream(commandLine.getOptions())
 					.map(option -> {
@@ -368,10 +383,36 @@ public class ConsoleRunner implements CommandLineRunner {
 				releaseManager.setUsername(username);
 				LOG.debug("Using git username [{}].", username);
 			}
+			//
+			GuardedString password = null;
 			if (commandLine.hasOption(optionPassword.getLongOpt())) {
-				releaseManager.setPassword(new GuardedString(commandLine.getOptionValue(optionPassword.getLongOpt())));
-				LOG.debug("Git password is given too.");
+				password = new GuardedString(commandLine.getOptionValue(optionPassword.getLongOpt()));
+				
+			} else {
+				// get password from file
+				String externalPassword = getProperty(PROPERTY_PASSWORD);
+				if (StringUtils.isNotEmpty(externalPassword)) {
+					password = new GuardedString(externalPassword);
+				} else if (commandLine.hasOption(optionRelease.getLongOpt()) 
+						|| commandLine.hasOption(optionReleaseAndPublish.getLongOpt())) {
+					// prompt when publish / release-publish command is used
+					// creates a console object
+					Console cnsl = System.console();
+			        if (cnsl != null) {
+			        	System.out.println(optionPassword.getDescription());
+						char[] pwd = cnsl.readPassword(String.format("%s: ", optionPassword.getArgName()));
+						if (pwd != null && pwd.length > 0) {
+							password = new GuardedString(new String(pwd));
+						}
+			        }
+				}
 			}
+			if (password != null) {
+				releaseManager.setPassword(password);
+				LOG.info(String.format("Password (%s) is given.", optionPassword.getArgName()));	
+			}
+			
+			//
 			if (commandLine.hasOption(optionForce.getLongOpt())) {
 				releaseManager.setForce(true);
 				LOG.debug("Force argument was given, count of files changed by release command will not be checked.");
@@ -456,7 +497,7 @@ public class ConsoleRunner implements CommandLineRunner {
 			}
 			//
 			LOG.info("Complete!");
-		} catch (ParseException ex) {
+		} catch (ParseException | IOException ex) {
 			LOG.error(ex.getLocalizedMessage());
 		}
 	}
@@ -480,6 +521,39 @@ public class ConsoleRunner implements CommandLineRunner {
 				:
 				String.format("\nRead more in documentation [https://github.com/bcvsolutions/CzechIdMng/blob/%s/Realization/backend/tool/README.md].", version)
 		);
+	}
+	
+	private Properties getProperties() throws IOException {
+		if (properties == null) {
+			File configFile = new File("application.properties");
+			if (configFile.exists()) {
+				try (InputStream input = new FileInputStream(configFile)) {
+					properties = new Properties();
+		            // load a properties file
+					properties.load(input);
+					//
+					LOG.info("Property file [application.properties] found. External configuration will be used.");
+		        }
+			}
+		}
+		//
+		return properties;
+	}
+	
+	private String getProperty(String propertyName) throws IOException {
+		Properties properties = getProperties();
+		if (properties == null) {
+			return null;
+		}
+		//
+		String propertyValue = properties.getProperty(propertyName);
+		if (!StringUtils.isEmpty(propertyValue)) {
+			LOG.info("Property [{}] from configuration file will be used.", propertyName);
+			//
+			return propertyValue;
+		}
+		//
+		return null;
 	}
 	
 	/**

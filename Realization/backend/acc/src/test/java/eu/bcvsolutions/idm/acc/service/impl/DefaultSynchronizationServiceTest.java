@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -80,6 +81,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Synchronization tests
  * 
  * @author Svanda
+ * @author Ondrej Husnik
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -228,6 +230,36 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		// Delete log
 		syncLogService.delete(log);
+	}
+	
+	@Test
+	public void doStartSyncA_TryFindSyncConfigByMappingId() {
+		SysSyncConfigFilter filterByName = new SysSyncConfigFilter();
+		filterByName.setName(SYNC_CONFIG_NAME);
+		List<AbstractSysSyncConfigDto> syncConfigsOrig = syncConfigService.find(filterByName, null).getContent();
+		
+		// Sync config with known name has to be found.
+		Assert.assertEquals(1, syncConfigsOrig.size());
+
+		AbstractSysSyncConfigDto syncConfigOrig = syncConfigsOrig.get(0);
+		SysSyncConfigFilter filterByMappingId = new SysSyncConfigFilter();
+		filterByMappingId.setSystemMappingId(syncConfigOrig.getSystemMapping());
+		List<AbstractSysSyncConfigDto> syncConfigsTested = syncConfigService.find(filterByMappingId, null).getContent();
+		
+		// Test that exists a sync config found by mapping id.
+		Assert.assertEquals(1, syncConfigsTested.size());
+
+		AbstractSysSyncConfigDto syncConfigTested = syncConfigsTested.get(0);
+		
+		// Test that both sync configs found by different filters are same.
+		Assert.assertTrue(syncConfigOrig.getName().equals(syncConfigTested.getName()));
+
+		UUID nonexistentUUID = new UUID(11111111, 2222222);
+		filterByMappingId.setSystemMappingId(nonexistentUUID);
+		List<AbstractSysSyncConfigDto> syncConfigsEmpty = syncConfigService.find(filterByMappingId, null).getContent();
+		
+		// Test that searching by nonexistent mapping id finds nothing.
+		Assert.assertEquals(0, syncConfigsEmpty.size());
 	}
 	
 	@Test

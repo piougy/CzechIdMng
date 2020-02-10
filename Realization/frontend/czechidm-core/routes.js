@@ -595,6 +595,11 @@ module.exports = {
           path: 'filter-builders',
           component: require('./src/content/module/FilterBuilders'),
           access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
+        },
+        {
+          path: 'caches',
+          component: require('./src/content/module/Caches'),
+          access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN']}]
         }
       ]
     },

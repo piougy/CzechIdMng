@@ -182,6 +182,8 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		//
 		// update description
 		longRunningTask.setTaskDescription(description.toString());
+		longRunningTask.setCount(this.count);
+		longRunningTask.setCounter(this.counter);
 		this.getLongRunningTaskService().save(longRunningTask);
 		//
 		return processEntities(entities);

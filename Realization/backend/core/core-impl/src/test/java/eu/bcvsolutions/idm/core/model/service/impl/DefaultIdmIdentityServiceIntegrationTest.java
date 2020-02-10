@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 import javax.validation.ConstraintViolationException;
 
-import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +67,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-@Transactional
 public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private ApplicationContext context;
@@ -90,6 +89,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 
 	@Test
+	@Transactional
 	public void testReferentialIntegrity() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		String username = identity.getUsername();
@@ -147,6 +147,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testReferentialRoleRequestIntegrity() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		String username = identity.getUsername();
@@ -185,6 +186,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	 * When identity is created, then default contract have to be created too.
 	 */
 	@Test
+	@Transactional
 	public void testCreateDefaultContract() {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		String username = "contract_test_" + System.currentTimeMillis();
@@ -209,6 +211,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	 * default contract haven't to be created.
 	 */
 	@Test
+	@Transactional
 	public void testSkipDefaultContract() {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		String username = "contract_test_" + System.currentTimeMillis();
@@ -227,6 +230,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(0, contracts.size());
 	}
 	
+	@Transactional
 	@Test(expected = ConstraintViolationException.class)
 	public void testIdentityJSR303Validations() {
 		IdmIdentityDto identity = new IdmIdentityDto();
@@ -238,6 +242,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testSaveIdentityWithoutLastname() {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		String username = "validation_test_" + System.currentTimeMillis();
@@ -248,6 +253,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testModifiedAfterUpdateIdentity() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		Assert.assertNull(identity.getModified());
@@ -258,6 +264,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testDisableAndEnableIdentity() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		Assert.assertFalse(identity.isDisabled());
@@ -277,6 +284,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testEnableIdentityByContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
@@ -295,6 +303,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testIdentityFutureContract() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto contract = getHelper().getPrimeContract(identity.getId());
@@ -311,6 +320,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testFindByRole() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto role = getHelper().createRole();
@@ -334,6 +344,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testFindValidByRole() {
 		IdmIdentityDto validIdentity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto role = getHelper().createRole();
@@ -383,6 +394,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testFindIdsWithPageRequest() {
 		// just for sure some two identity exists
 		getHelper().createIdentity((GuardedString) null);
@@ -404,6 +416,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testFindIdsWithSort() {
 		// just for sure some two identity exists
 		getHelper().createIdentity((GuardedString) null);
@@ -424,6 +437,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	// @Transactional TODO: Enable processor again throws OPtimistic lock exception on identity - why?
 	public void testEvaluateStateAgain() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		identity.setState(null);

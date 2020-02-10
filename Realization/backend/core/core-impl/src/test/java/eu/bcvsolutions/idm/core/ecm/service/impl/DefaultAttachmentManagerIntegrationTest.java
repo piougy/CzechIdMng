@@ -266,6 +266,18 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 	}
 	
 	@Test
+	public void testPurgeTempFilesLongTtl() {
+		long ttl = attachmentConfiguration.getTempTtl();
+		try {
+			// cleanup and disable
+			attachmentConfiguration.setTempTtl(2419200000L);
+			attachmentManager.purgeTemp();
+		} finally {
+			attachmentConfiguration.setTempTtl(ttl);
+		}
+	}
+	
+	@Test
 	public void testCreateAndPurgeTempAttachments() {
 		long ttl = attachmentConfiguration.getTempTtl();
 		try {

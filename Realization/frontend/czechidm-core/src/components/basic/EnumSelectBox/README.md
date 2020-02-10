@@ -20,6 +20,7 @@ All parameters form parent component ``AbstractFormComponent`` is supported.
 | useSymbol | bool | returns ``Symbol`` from selected enumeration option. Otherwise returns symbol's key only (string). | true |
 | useObject | bool | Return whole object (option)  | false |
 | clearable | bool   | Selected options can be cleared| true |
+| emptyOptionLabel | string | Empty value label (text). Use ``false`` to hide emptyOption. | 'emptyOption.label' localization |
 
 
 

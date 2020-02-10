@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
@@ -14,14 +13,18 @@ import org.codehaus.groovy.syntax.SyntaxException;
 import org.kohsuke.groovy.sandbox.GroovyInterceptor;
 import org.kohsuke.groovy.sandbox.SandboxTransformer;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.security.domain.GroovySandboxFilter;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import groovy.lang.Binding;
@@ -37,7 +40,10 @@ import groovy.lang.Script;
 @Service
 public class DefaultGroovyScriptService implements GroovyScriptService {
 
-	protected ScriptCache scriptCache = new ScriptCache();
+	public static final String CACHE_NAME = CoreModuleDescriptor.MODULE_ID + ":default-groovy-script-service-script-cache";
+
+	@Autowired
+	IdmCacheManager cacheManager;
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultGroovyScriptService.class);
@@ -71,7 +77,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			}
 			
 			// Get script and fill it with variables
-			Script scriptObj = scriptCache.getScript(script);
+			Script scriptObj = getScript(script);
 			
 			// Scripts aren't thread safe
 			synchronized(scriptObj) {
@@ -159,41 +165,27 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		}
 	}
 
-	/**
-	 * Caches scripts. If the source already exists, returns already built script. 
-	 * 
-	 * @author Filip Mestanek
-	 */
-	private static class ScriptCache {
-		
-		/**
-		 * Key is hash code of script body, value is built script
-		 */
-		private Map<String, Script> scripts = new ConcurrentHashMap<>();
-		
-		/**
-		 * Returns compiled script for this source.
-		 */
-		private Script getScript(String source) {
-			Script script = scripts.get(source);
-			
-			if (script == null) {
-				script = buildScript(source);
-				scripts.put(source, script);
-			}
-			
+	private Script getScript(String source) {
+		// TODO: consider hashing source in order to not waste so much space
+		Cache.ValueWrapper value = cacheManager.getValue(CACHE_NAME, source);
+
+		if (value == null || value.get() == null){
+			Script script = buildScript(source);
+			cacheManager.cacheValue(CACHE_NAME, source, script);
 			return script;
 		}
-		
-		private Script buildScript(String source) {
-			CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
-			compilerConfiguration.setVerbose(false);
-			compilerConfiguration.setDebug(false);
-			compilerConfiguration.addCompilationCustomizers(new SandboxTransformer());
-			//
-			GroovyShell shell = new GroovyShell(compilerConfiguration);
-			return shell.parse(source);
-		}
+
+		return (Script) value.get();
+	}
+
+	private Script buildScript(String source) {
+		CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
+		compilerConfiguration.setVerbose(false);
+		compilerConfiguration.setDebug(false);
+		compilerConfiguration.addCompilationCustomizers(new SandboxTransformer());
+		//
+		GroovyShell shell = new GroovyShell(compilerConfiguration);
+		return shell.parse(source);
 	}
 	
 }

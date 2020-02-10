@@ -672,6 +672,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         modalContent = (
           <Basic.Div>
             <Basic.Modal.Header
+              icon={ this.i18n(`${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.icon`, { defaultValue: '' }) }
               text={ this.i18n(`${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.label`) }/>
             <Basic.Modal.Body>
               <Basic.Alert
@@ -694,7 +695,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       //
       modalContent = (
         <form onSubmit={this.processBulkAction.bind(this, backendBulkAction)}>
-          <Basic.Modal.Header text={ this.i18n(`${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.label`) }/>
+          <Basic.Modal.Header
+            icon={ this.i18n(`${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.icon`, { defaultValue: '' }) }
+            text={ this.i18n(`${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.label`) }/>
           <Basic.Modal.Body>
             <Basic.AbstractForm ref="bulkActionForm" showLoading={bulkActionShowLoading}>
               <Basic.Alert
@@ -764,14 +767,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
 
     return (
-      <div>
-        <Basic.Modal
-          show={ showBulkActionDetail }
-          onHide={ this.showBulkActionDetail.bind(this) }
-          backdrop="static">
-          { modalContent }
-        </Basic.Modal>
-      </div>
+      <Basic.Modal
+        show={ showBulkActionDetail }
+        onHide={ this.showBulkActionDetail.bind(this) }
+        backdrop="static">
+        { modalContent }
+      </Basic.Modal>
     );
   }
 
@@ -979,7 +980,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   options={ selectedRows.length <= 0 ? _actionsWithoutSelection : _actionsWithSelection }
                   placeholder={ this.i18n('bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count }) }
                   rendered={ _actions.length > 0 && showRowSelection }
-                  searchable={ false }/>
+                  searchable={ false }
+                  emptyOptionLabel={ false }/>
               </Basic.Div>
               <Basic.Div className="pull-right">
                 { buttons }

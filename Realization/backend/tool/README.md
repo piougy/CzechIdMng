@@ -77,15 +77,30 @@ Additional / optional arguments can be combined with commands above:
 | --patch | | Next develop version will be patch, e.g. release 1.2.3 => develop 1.2.4-SNAPSHOT. | |
 | -r,--repository-location | path | Repository root folder - should contain all modules (<repository-location>/Realization/...). | Folder ``CzechIdMng`` in the same folder as ``idm-tool.jar`` will be used as default for product. Folder ``<module>`` in the same folder as ``idm-tool.jar`` will be used as default for module. |
 | --release-version | version | Usable with ``--release`` command. Release will be create under this version. | Stable semantic version will be used as default (=> current no snapshot version). |
-| --username | git username | Git credentials, if https repitory is used. When ssh repository is used, then passphrase for ssh key is needed only.| |
+| --username | git username | Git username, if https repitory is used. When ssh repository is used, then passphrase for ssh key is needed only.| |
 
 ## Tool external configuration
 
 ### Configuration file
 
-TODO: tool application properties
+External ``application.properties`` configuration can be used, placed in the same folder as executable ``idm-tool.jar`` with content:
 
-TODO: ssh pasprase versus git credentials from configuration file.
+```properties
+## CzechIdM tool external properties
+# password is supported only
+
+## Git password / token / ssh passphrase
+# If ssh repository is used / cloned, then passphrase for ssh key is needed only
+# If https repository is used / cloned, then git username and password is needed.
+# If two-factor authntication is enabled for <username>, then token has to be given (see git documentation, how to generate authentication token for developers).
+# If ssh key is used, then put passphrase for ssh key (It loads the known hosts and private keys from their
+# default locations (identity, id_rsa and id_dsa) in the user’s .ssh directory.).
+idm.sec.tool.password=xxxxx
+```
+
+When **password is set in property file, then no password is needed as tool argument** (prevent to have password in bash history).
+
+**Password is required for ``release-publish`` or ``--publish`` command. If password is not given as argument nor property file, then console prompt for enter password will be shown.**
 
 ### Logging
 
@@ -253,7 +268,9 @@ Build product only under current develop version in develop branch.
 java -jar idm-tool.jar --build
 ```
 
-Maven ``install`` command is used, artifact will be installed into the local maven repository (=> usable as dependency for other module).
+Maven ``install`` command is used under ``-Prelease`` profile, artifact will be installed into the local maven repository (=> usable as dependency for other module).
+
+**Build can be used before release for test purpose.** Target artefact will be the same a can be deployed to tomcat for test if needed.
 
 ### Release module
 
@@ -262,11 +279,7 @@ Available @since version 10.1.0.
 All commands above are available for standalone module too. The only difference is **added parameter** with **module identifier**:
 
 ```bash
-java -jar idm-tool.jar --module idm-rec --release --release-version 2.0.0 --develop-version 2.1.0-SNAPSHOT --username <git username> --password <git password or developer token>
-```
-then
-```bash
-java -jar idm-tool.jar --module idm-rec --publish --username <git username> --password <ssh public key passphrase or git password or developer token>
+java -jar idm-tool.jar --module idm-rec --release-publish --release-version 2.0.0 --develop-version 2.1.0-SNAPSHOT --username <git username> --password <git password or developer token>
 ```
 
 **Module identifier has to fit the folder name, where module sources are** (by default).  Use argument ``--repository-location`` otherwise.
@@ -321,7 +334,6 @@ Usable additional tool argument:
 
 ## Future development
 
-- add property file with git / ssh credentials (prevent to add then in bash).
 - add module dependency descriptor with compatible product version list (e.g. scim module 1.2.3 is compatible / tested with product 9.7.14, 10.0.0, 10.1.0)
 
 ## License

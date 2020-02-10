@@ -80,6 +80,8 @@
     "detail": "Detail",
     "download": "$t(label.download)",
     "edit": "Upravit",
+    "evict": "Vyprázdnit",
+    "evictAll": "Vyprázdnit vše",
     "filter": {
       "toogle": "Filtr ",
       "use": "Filtrovat",
@@ -136,14 +138,15 @@
   },
   "action": {
     "delete": {
-      "action": "Odebrat",
-      "header_1": "Odebrání záznamu",
-      "header_2": "Odebrání záznamů",
+      "action": "Smazat",
+      "icon": "fa:trash",
+      "header_1": "Smazání záznamu",
+      "header_2": "Smazání záznamů",
       "header_5": "$t(action.delete.header_2)",
-      "message_1": "Opravdu chcete odebrat vybraný záznam [<strong>{{record}}</strong>]?",
-      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybrané záznamy?",
-      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybraných záznamů?",
-      "error": "Při odebírání záznamu [{{record}}] nastala chyba",
+      "message_1": "Opravdu chcete smazat vybraný záznam [<strong>{{record}}</strong>]?",
+      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete smazat <strong>{{count}}</strong> vybrané záznamy?",
+      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete smazat <strong>{{count}}</strong> vybraných záznamů?",
+      "error": "Při mazání záznamu [{{record}}] nastala chyba",
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně smazán",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně smazány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně smazány",
@@ -185,6 +188,19 @@
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně deaktivován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
+    },
+    "evict": {
+      "action": "Vyprázdnit",
+      "header": "Vyprázdnit cache",
+      "message_0": "N/A",
+      "message_1": "Opravdu chcete vypázdnit cache [{{record}}]?",
+      "message_2": "Opravdu chcete vypázdnit všechny cache?",
+      "message_5": "Opravdu chcete vypázdnit všechny cache?",
+      "success_0": "N/A",
+      "success_1": "Cache [{{record}}] byla úspěšně vyprázdněna.",
+      "success_2": "Všechny cache byly úspěšně vyprázdněny.",
+      "success_5": "Všechny cache byly úspěšně vyprázdněny.",
+      "error": "Cache s daným názvem neexistuje"
     },
     "redeploy": {
       "action": "Obnovit z disku (redeploy)",
@@ -370,7 +386,10 @@
         "noResultsText": "Žádný výsledek",
         "searchPromptText": "Pro vyhledávání začněte psát ...",
         "searchingText": "Vyhledávání...",
-        "results": "Zobrazeno <strong>{{count}}</strong> z <strong>{{total}}</strong> nalezených záznamů ..."
+        "results": "Zobrazeno <strong>{{count}}</strong> z <strong>{{total}}</strong> nalezených záznamů ...",
+        "emptyOption": {
+          "label": "-- nevybráno --"
+        }
       },
       "Table" : {
         "Pagination" : {
@@ -1864,6 +1883,10 @@
       },
       "detail": {
         "title": "Základní informace"
+      },
+      "form-values": {
+        "header": "Hodnoty atributu",
+        "title": "Hodnoty atributu"
       }
     },
     "form-values": {
@@ -2932,6 +2955,10 @@
             }
           }
         }
+      },
+      "cache": {
+        "header": "Cache",
+        "title": "Cache"
       },
       "entity-event-processors": {
         "header": "Processory",
@@ -4290,6 +4317,12 @@
         "help": "Suffix bude automaticky doplněn na konec vygenerované části. Pro vynechání suffixu nechte pole prázdné."
       }
     },
+    "Cache": {
+      "name": "Název",
+      "description": "Popis",
+      "size": "Počet hodnot",
+      "module": "Modul"
+    },
     "Module": {
       "id": "Id",
       "name": "Název modulu",
@@ -4963,9 +4996,9 @@
         "icon": "fa:check-square-o"
       },
       "identity-delete-bulk-action": {
-        "label": "Odebrat",
-        "help": "Odstraní vybrané uživatele.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) uživatele",
+        "help": "Smaže vybrané uživatele.",
+        "icon": "$t(action.delete.icon)"
       },
       "identity-add-role-bulk-action": {
         "label": "Přidělení rolí",
@@ -5017,29 +5050,34 @@
         "icon": "fa:save"
       },
       "role-delete-bulk-action": {
-        "label": "Odebrat",
-        "help": "Odstraní vybrané role.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) role",
+        "help": "Smaže vybrané role.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "configuration-delete-bulk-action": {
+        "label": "$t(action.delete.action) konfigurace",
+        "help": "Smaže vybrané konfigurace",
+        "icon": "$t(action.delete.icon)"
       },
       "core-entity-event-delete-bulk-action": {
-        "label": "Odebrat",
-        "help": "Odstraní vybrané události.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) události",
+        "help": "Smaže vybrané události.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-entity-state-delete-bulk-action": {
-        "label": "Odebrat",
-        "help": "Odstraní vybrané stavy.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) stavy",
+        "help": "Smaže vybrané stavy.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-code-list-delete-bulk-action": {
-        "label": "Odebrat",
-        "help": "Odstraní vybrané číselníky.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) číselníky",
+        "help": "Smaže vybrané číselníky.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-code-list-item-delete-bulk-action": {
-        "label": "Odebrat",
-        "help": "Odstraní vybrané položky číselníku.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) položky číselníku",
+        "help": "Smaže vybrané položky číselníku.",
+        "icon": "$t(action.delete.icon)"
       },
       "core-identity-role-by-identity-deduplication-bulk-action": {
         "label": "Deduplikace rolí",
@@ -5080,9 +5118,14 @@
         }
       },
       "core-identity-contract-delete-bulk-action": {
-        "label": "Odebrat",
-        "help": "Odstraní vybrané pracovněprávní vztahy.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) pracovněprávní vztahy",
+        "help": "Smaže vybrané pracovněprávní vztahy.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-form-value-delete-bulk-action": {
+        "label": "$t(action.delete.action) hodnoty",
+        "help": "Smaže vybrané hodnoty. Pro vlastníka hodnoty bude publikována událost pro přepočet automatických rolí, provisioning atd.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {
@@ -5269,7 +5312,7 @@
       },
       "core-remove-old-logs-long-running-task": {
         "label": "Smazat logované události",
-        "help": "Vymaže logované události (uložené v databázi dle konfigurace logování) starší, nežli zadaný počet dní.",
+        "help": "Smaže logované události (uložené v databázi dle konfigurace logování) starší, nežli zadaný počet dní.",
         "icon": "fa:trash",
         "attributes": {
           "removerecordolderthan": {
@@ -5280,7 +5323,7 @@
       },
       "core-delete-executed-event-long-running-task": {
         "label": "Smazat zpracované události",
-        "help": "Vymaže úspěšně zpracované události (ve stavu 'EXECUTED') starší, nežli zadaný počet dní.",
+        "help": "Smaže úspěšně zpracované události (ve stavu 'EXECUTED') starší, nežli zadaný počet dní.",
         "icon": "fa:trash",
         "attributes": {
           "numberofdays": {
@@ -5291,7 +5334,7 @@
       },
       "core-delete-long-running-task": {
         "label": "Smazat dlouhotrvající úlohy",
-        "help": "Vymaže dlouhotrvající úlohy starší, nežli zadaný počet dní.",
+        "help": "Smaže dlouhotrvající úlohy starší, nežli zadaný počet dní.",
         "icon": "fa:trash",
         "attributes": {
           "numberofdays": {
@@ -5307,7 +5350,7 @@
       },
       "core-delete-notification-long-running-task": {
         "label": "Smazat notifikace",
-        "help": "Vymaže notifikace starší, nežli zadaný počet dní.",
+        "help": "Smaže notifikace starší, nežli zadaný počet dní.",
         "icon": "fa:trash",
         "attributes": {
           "numberofdays": {
@@ -5322,7 +5365,7 @@
       },
       "core-delete-workflow-historic-instance-long-running-task": {
         "label": "Smazat historické workflow procesy",
-        "help": "Vymaže historické workflow procesy, nežli zadaný počet dní dané definice workflow.",
+        "help": "Smaže historické workflow procesy, nežli zadaný počet dní dané definice workflow.",
         "icon": "fa:trash",
         "attributes": {
           "numberofdays": {
@@ -5722,6 +5765,10 @@
     "FORM_ATTRIBUTE_INVALID_REGEX": {
       "title": "Nevalidní regulární výraz",
       "message": "Regulární výraz [{{regex}}] není validní."
+    },
+    "FORM_VALUE_DELETE_FAILED_IS_REQUIRED": {
+      "title": "Hodnoty nelze smazat",
+      "message": "Hodnoty [počet: <strong class=\"highlight\">{{count}}</strong>] atributu [<strong class=\"highlight\">{{attribute}}</strong>] nelze smazat, atribut formuláře je definován jako povinný. Upravte definici atributu, pokud je třeba hodnoty smazat."
     },
     "ACCEPTED": {
       "title": "Požadavek přijat",
@@ -6392,6 +6439,14 @@
     },
     "record": {
       "notFound" : "Záznam nebyl nalezen nebo nemáte dostatečné oprávnění pro zobrazení záznamu."
+    }
+  },
+  "cache": {
+    "configuration-cache": {
+      "description": "Cache pro ukládání konfiguračních položek CzechIdM. Pokud je hodnota z cache smazána, tak ji IdM při dalším požadavku načte z databáze a poté opět do cache."
+    },
+    "default-groovy-script-service-script-cache": {
+      "description": "Cache pro ukládání Groovy scriptů. Smazání této cache způsobí to, že při dalším pokusu o spuštění scriptu, je tento script znovu zkompilován, uložen do cache a teprve poté spuštěn."
     }
   }
 }

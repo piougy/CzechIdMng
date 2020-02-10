@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -45,6 +46,7 @@ public class DefaultConfigurationServiceUnitTest extends AbstractUnitTest {
 	@Mock private IdmConfigurationRepository repository;
 	@Mock private ConfidentialStorage confidentialStorage;
 	@Mock private EntityEventManager entityEventManager;
+	@Mock private IdmCacheManager cacheManager;
 	//
 	@InjectMocks private DefaultConfigurationService service;
 	

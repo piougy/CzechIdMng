@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import java.util.List;
 import java.util.UUID;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,9 @@ import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -41,6 +45,7 @@ import io.swagger.annotations.AuthorizationScope;;
  * System entity mapping
  * 
  * @author svandav
+ * @author Ondrej Husnik
  *
  */
 @RestController
@@ -196,5 +201,75 @@ public class SysSystemMappingController extends AbstractReadWriteDtoController<S
 			@PathVariable @NotNull String backendId) {
 			service.validate(UUID.fromString(backendId));
 			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+	}
+	
+	/**
+	 * Get available bulk actions for system mapping
+	 *
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@ApiOperation(
+			value = "Get available bulk actions for system mapping", 
+			nickname = "availableBulkAction", 
+			tags = { SysSystemMappingController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
+				})
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return super.getAvailableBulkActions();
+	}
+	
+	/**
+	 * Process bulk action for system mapping
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@ApiOperation(
+			value = "Process bulk action for system mapping", 
+			nickname = "bulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { SysSystemMappingController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+				})
+	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.bulkAction(bulkAction);
+	}
+	
+	/**
+	 * Prevalidate bulk action for system mapping
+	 *
+	 * @param bulkAction
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@ApiOperation(
+			value = "Prevalidate bulk action for system mapping", 
+			nickname = "prevalidateBulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { SysSystemMappingController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+				})
+	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		return super.prevalidateBulkAction(bulkAction);
 	}
 }

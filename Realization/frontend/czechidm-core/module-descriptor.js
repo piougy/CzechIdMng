@@ -1004,6 +1004,15 @@ module.exports = {
                 icon: '',
                 type: 'TAB',
                 access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
+              },
+              {
+                id: 'caches',
+                labelKey: 'content.system.cache.title',
+                order: 50,
+                path: '/modules/caches',
+                icon: '',
+                type: 'TAB',
+                access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN']}]
               }
             ]
           },
@@ -1346,7 +1355,7 @@ module.exports = {
                   },
                   {
                     id: 'form-attribute-values',
-                    labelKey: 'content.form-values.title',
+                    labelKey: 'content.formAttributes.form-values.title',
                     order: 505,
                     path: '/forms/attribute/:entityId/values',
                     icon: '',

@@ -164,7 +164,7 @@
           "targetValue": "Target value"
         },
         "alert": {
-          "accountShouldBeDeleted": "The account is to be removed from the target system.",
+          "accountShouldBeDeleted": "The account is to be deleted from the target system.",
           "accountShouldBeCreated": "The account is to be created on the target system."
         },
         "beforeRequests": {

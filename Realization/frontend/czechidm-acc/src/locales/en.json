@@ -702,7 +702,10 @@
       "state": {
         "label": "State",
         "help": "System state",
-        "placeholder": "System is active or choose other state ..."
+        "placeholder": "System is active or choose other state ...",
+        "active": {
+          "label": "System is <strong>active</strong>"
+        }
       }
     },
     "ConnectorServer": {
@@ -1979,9 +1982,14 @@
         "help": "Creates copy of selected systems <strong>duplicate contains all configurations</strong>. New system (and his syncs) will be inactive. "
       },
       "system-delete-bulk-action": {
-        "label": "Remove",
-        "help": "Remove selected systems. <strong>Removed system must not contains any accounts and unresolved provisioning operations</strong>.",
-        "icon": "fa:trash"
+        "label": "$t(action.delete.action) systems",
+        "help": "$t(action.delete.action) selected systems. <strong>System must not contains any accounts and unresolved provisioning operations</strong>.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "acc-system-mapping-delete-bulk-action": {
+        "label": "$t(action.delete.action) mappings",
+        "help": "$t(action.delete.action) selected mappings. <strong>Mapping must not be used in synchronization or provisioning</strong>.",
+        "icon": "$t(action.delete.icon)"
       },
       "acc-identity-account-management-bulk-action": {
         "icon": "link",
@@ -2461,6 +2469,10 @@
       "message": "Attribute is overridden in role attribute mapping id: [{{roleSystemAttributeId}}]",
       "title": "Attribute can't be set as password attribute."
     },
+    "SYSTEM_MAPPING_DELETE_BULK_ACTION_MAPPING_IN_USE": {
+      "message": "Mapping <strong>{{mapping}}</strong> is used in <strong class=\"highlight\">{{count}}</strong> synchronization or provisioning settings!",
+      "title": ""
+    },
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Password transformation for uid {{uid}} doesn't return GuardedString or null. Mapped attribute name {{mappedAttribute}}.",
       "title": "Password transformation failed"
@@ -2514,6 +2526,14 @@
     "contract-guarantee-save": {
       "title": "Provisioning",
       "description": "Provisioning - identity accounts will be provisioned to target accounts."
+    }
+  },
+  "cache": {
+    "sync-executor-cache": {
+      "description": "Dramatically speeds up synchronization execution. It prevents reinstantiating of SynchronizationEntityExecutor objects."
+    },
+    "provisioning-cache": {
+      "description": "Stores executed provisioning operations. This drastically speeds up provisioning brake. Evicting this cach may temporarilly slow down provisioning execution for systems, which have provisioning brake enabled."
     }
   }
 }

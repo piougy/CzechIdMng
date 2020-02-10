@@ -75,7 +75,7 @@ public class ObserveLongRunningTaskEndProcessor
 		IdmScheduledTaskDto scheduledTask = DtoUtils.getEmbedded(longRunningTask, "scheduledTask", (IdmScheduledTaskDto) null);
 		if (scheduledTask == null) {
 			// not schedulable
-			return null;
+			return longRunningTask.getId().toString();
 		}
 		return scheduledTask.getQuartzTaskName();
 	}

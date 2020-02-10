@@ -254,7 +254,7 @@ public class IdmEntityEventControllerRestTest extends AbstractReadWriteDtoContro
 		event.setOwnerType(ownerType);
 		IdmEntityEventDto eventOne = entityEventService.save(event);
 		//
-		getHelper().waitForResult(null, 1, 1);
+		getHelper().waitForResult(null, 2, 1);
 		//
 		event = prepareDto();
 		event.setOwnerId(ownerTwo);

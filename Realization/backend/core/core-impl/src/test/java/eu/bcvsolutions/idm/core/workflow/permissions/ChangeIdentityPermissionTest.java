@@ -134,6 +134,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		loginAsAdmin(InitTestData.TEST_USER_1);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -182,6 +183,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleSkipTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
@@ -226,6 +228,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleDisapproveTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
@@ -265,6 +268,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleWithSubprocessTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -326,6 +330,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleApproveBySecurityTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
+		
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "true");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_HELPDESK_ENABLE, "false");
@@ -375,6 +381,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void approveIncompatibleRolesTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
@@ -506,6 +513,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void testTaskCount() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
@@ -787,6 +795,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void testGetTaskByAnotherUser() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		configurationService.setValue(APPROVE_BY_MANAGER_ENABLE, "false");
@@ -875,6 +884,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleWithSubprocessSecurityTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		loginAsAdmin(InitTestData.TEST_USER_2);
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -949,6 +959,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleWithSubprocessManagerTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -1011,6 +1022,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleWithSubprocessDisapproveTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		loginAsAdmin();
 		IdmIdentityDto test1 = identityService.getByUsername(InitTestData.TEST_USER_1);
@@ -1078,6 +1090,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void addSuperAdminRoleWithSubprocessRemoveTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		IdmIdentityDto test1 = getHelper().createIdentity("TestUser" + System.currentTimeMillis());
 		IdmIdentityDto test2 = identityService.getByUsername(InitTestData.TEST_USER_2);
@@ -1202,6 +1215,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void cancelWfOnRoleRequestDeleteTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		// We are logged as admin. By default is all approve tasks assigned to Admin.
 		// All this tasks will be skipped.
@@ -1251,6 +1265,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void cancelSubprocessOnContractDeleteTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		loginAsAdmin();
@@ -1324,6 +1339,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void cancelSubprocessOnRoleDeleteTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		configurationService.setValue(APPROVE_BY_SECURITY_ENABLE, "false");
 		loginAsAdmin();
@@ -1461,6 +1477,7 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	@Test
 	public void testFindCandidatesWithSubprocess() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		getHelper().waitForResult(null, 1, 1);
 
 		// approve only by help desk
 		configurationService.setValue(APPROVE_BY_USERMANAGER_ENABLE, "false");

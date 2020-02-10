@@ -75,7 +75,7 @@ Based on upgraded libraries we have to add and remove configuration properties (
 
 - ``spring.jpa.properties.hibernate.jdbc.time_zone=UTC`` - datetime will be persisted in UTC in database.
 - ``spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true`` - disable warning during the boot, when Hibernate tries to retrieve some meta information from the database.
-- ``spring.datasource.hikari.maximumPoolSize=25`` - enlarge pool size by default. This property should be revised for each project.
+- ``spring.datasource.hikari.maximumPoolSize=50`` - **enlarge pool size** by default. This property should be revised **for each project**. Size should be configured by task and event thread pool size - should be higher than sum of pool sizes.
 - ``spring.jpa.properties.hibernate.session_factory.interceptor=eu.bcvsolutions.idm.core.model.repository.listener.AuditableInterceptor`` - replaced deprecated Hiberante property.
 - ``spring.jpa.hibernate.use-new-id-generator-mappings=false`` - Spring boot 2 changed default to ``true``, but we are using ``IDENTITY`` identifier generators for mssql database.
 
@@ -201,7 +201,7 @@ Example (from ``IdmConceptRoleRequestDto``):
 
 #### Logback configuration
 
-Configuration **file in test package ``logback-test.xml`` has to be removed**. New ``logback.xml`` with content has to be added:
+Configuration **file in test package ``logback-test.xml`` has to be changed**. New ``logback-test.xml`` content:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -227,6 +227,7 @@ Configuration **file in test package ``logback-test.xml`` has to be removed**. N
 		<appender-ref ref="CONSOLE" />
 	</root>
 
+  <logger name="eu.bcvsolutions" level="ERROR"/>
 
 </configuration>
 ```

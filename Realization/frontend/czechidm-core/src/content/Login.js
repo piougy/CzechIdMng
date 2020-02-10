@@ -68,20 +68,20 @@ class Login extends Basic.AbstractContent {
     const { userContext } = this.props;
     //
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
-        <div>
-          <form onSubmit={this.handleSubmit.bind(this)}>
-            <Basic.Panel className="login-container" showLoading={userContext.showLoading}>
-              <Basic.PanelHeader text={this.i18n('header')}/>
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
+        <Basic.Div>
+          <form onSubmit={ this.handleSubmit.bind(this) }>
+            <Basic.Panel className="login-container" showLoading={ userContext.showLoading }>
+              <Basic.PanelHeader text={ this.i18n('header') }/>
               <Basic.PanelBody>
                 <Basic.AbstractForm ref="form" className="form-horizontal" style={{ padding: 0, backgroundColor: '#fff' }}>
                   <Basic.TextField
                     ref="username"
                     labelSpan="col-sm-5"
                     componentSpan="col-sm-7"
-                    label={this.i18n('username')}
-                    placeholder={this.i18n('username')}
+                    label={this.i18n('username') }
+                    placeholder={ this.i18n('username') }
                     required/>
                   <Basic.TextField
                     type="password"
@@ -89,20 +89,20 @@ class Login extends Basic.AbstractContent {
                     labelSpan="col-sm-5"
                     componentSpan="col-sm-7"
                     className="last"
-                    label={this.i18n('password')}
-                    placeholder={this.i18n('password')}
+                    label={ this.i18n('password') }
+                    placeholder={ this.i18n('password') }
                     required/>
                 </Basic.AbstractForm>
               </Basic.PanelBody>
               <Basic.PanelFooter>
                 <Basic.Button type="submit" level="success">
-                  {this.i18n('button.login')}
+                  { this.i18n('button.login') }
                 </Basic.Button>
               </Basic.PanelFooter>
             </Basic.Panel>
           </form>
-        </div>
-      </div>
+        </Basic.Div>
+      </Basic.Div>
     );
   }
 }

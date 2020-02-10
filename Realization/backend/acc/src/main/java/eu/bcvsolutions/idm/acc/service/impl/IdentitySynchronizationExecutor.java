@@ -164,7 +164,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			SysSyncItemLogDto logItem) {
 		addToItemLog(logItem,
 				MessageFormat.format(
-						"Call provisioning (process IdentityEventType.SAVE) for identity ({0}) with username ({1}).",
+						"Call provisioning (process IdentityEventType.SAVE) for identity [{0}] with username [{1}].",
 						entity.getId(), entity.getUsername()));
 		//
 		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, entity);
@@ -232,14 +232,14 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 					actionLogs);
 			return;
 		}
-		addToItemLog(logItem, MessageFormat.format("Identity-account relations to delete {0}", identityAccounts));
+		addToItemLog(logItem, MessageFormat.format("Identity-account relations to delete [{0}]", identityAccounts));
 
 		identityAccounts.stream().forEach(identityAccount -> {
 			// We will remove identity account, but without delete connected
 			// account
 			identityAccoutnService.delete(identityAccount, false);
 			addToItemLog(logItem, MessageFormat.format(
-					"Identity-account relation deleted (without calling the delete provisioning operation) (username: {0}, id: {1})",
+					"Identity-account relation deleted (without calling the delete provisioning operation) (username: [{0}], id: [{1}])",
 					identityAccount.getIdentity(), identityAccount.getId()));
 			UUID identityRole = identityAccount.getIdentityRole();
 
@@ -290,7 +290,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			contracts = identityContractService.find(contractFilter, null).getContent();
 			
 			this.addToItemLog(itemLog, (MessageFormat.format(
-					"Default role will be assigned to all valid or future valid contracts [number of found contracts {0}].", contracts.size())));
+					"Default role will be assigned to all valid or future valid contracts, number of found contracts [{0}].", contracts.size())));
 		} else {
 			// Default role will be assigned only to prime contract
 			IdmIdentityContractDto primeContract = identityContractService.getPrimeValidContract(entity.getId());
@@ -344,7 +344,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			// relation.
 			// Same IdentityAccount had to be created by assigned default role!
 			this.addToItemLog(itemLog, (MessageFormat.format(
-					"This identity-account (identity-role id: {2}) is new and duplicated, "
+					"This identity-account (identity-role id: [{2}]) is new and duplicated, "
 							+ "we do not want create duplicated relation! "
 							+ "We will reuse already persisted identity-account [{3}]. "
 							+ "Probable reason: Same identity-account had to be created by assigned default role!",
@@ -631,14 +631,14 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		if (entity != null) {
 			addToItemLog(logItem, MessageFormat.format(
 					"Identity [{0}] does not have any valid contract, account with uid [{1}] will be in protection {2}."
-					+ " Last expired contract: {3}",
+					+ " Last expired contract [{3}].",
 					entity.getCode(),
 					account.getUid(),
 					endOfProtectionString,
 					lastExpiredContract == null ? "does not exist" : lastExpiredContract.getPosition() + " (valid till " + lastExpiredContract.getValidTill() + ")"));
 		} else {
 			addToItemLog(logItem, MessageFormat.format(
-					"New identity for account with uid [{0}] will not have any valid contract, so the account will be in protection {1}.",
+					"New identity for account with uid [{0}] will not have any valid contract, so the account will be in protection [{1}].",
 					account.getUid(),
 					endOfProtectionString));
 		}

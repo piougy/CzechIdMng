@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
  * 
  * @author svandav
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  */
 public enum AccResultCode implements ResultCode {
 	// connector
@@ -142,7 +143,9 @@ public enum AccResultCode implements ResultCode {
 	ROLE_REQUEST_ALL_OPERATIONS_FAILED(HttpStatus.BAD_REQUEST, "All operations for the request [%s] failed!"),
 	ROLE_REQUEST_SOME_OPERATIONS_FAILED(HttpStatus.BAD_REQUEST, "Some operations for systems [%s] failed!"),
 	ROLE_REQUEST_OPERATION_FAILED(HttpStatus.BAD_REQUEST, "Operation for system [%s] failed!"),
-	ROLE_REQUEST_OPERATION_CANCELED(HttpStatus.NOT_MODIFIED, "Operation for system [%s] canceled!");
+	ROLE_REQUEST_OPERATION_CANCELED(HttpStatus.NOT_MODIFIED, "Operation for system [%s] canceled!"),
+	// System mapping
+	SYSTEM_MAPPING_DELETE_BULK_ACTION_MAPPING_IN_USE(HttpStatus.FOUND, "Mapping [%s] is used in [%s] synchronization or provisioning settings!");
 
 	private final HttpStatus status;
 	private final String message;

@@ -155,7 +155,9 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
                 enum={ProvisioningOperationTypeEnum}
                 helpBlock={this.i18n('acc:entity.ProvisioningBreakConfig.operationType.help')}
                 label={this.i18n('acc:entity.ProvisioningBreakConfig.operationType.label')}
-                required/>
+                required
+                useFirst
+                clearable={ false }/>
               <Basic.TextField
                 ref="period"
                 type="number"
@@ -211,10 +213,12 @@ class SystemProvisioningBreakConfigDetail extends Advanced.AbstractTableContent 
             </Basic.AbstractForm>
 
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link"
+              <Basic.Button
+                type="button"
+                level="link"
                 onClick={this.context.history.goBack}
                 showLoading={_showLoading}>
-                {this.i18n('button.back')}
+                { this.i18n('button.back') }
               </Basic.Button>
               <Basic.Button
                 onClick={this.save.bind(this)}

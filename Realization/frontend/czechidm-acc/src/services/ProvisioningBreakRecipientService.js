@@ -1,11 +1,11 @@
-import { Services } from 'czechidm-core';
-import { Domain } from 'czechidm-core';
+import { Services, Domain } from 'czechidm-core';
 
+/**
+ * Provisioning break notification recxipient.
+ *
+ * @author Ondřej Kopr
+ */
 export default class ProvisioningBreakRecipientService extends Services.AbstractService {
-
-  constructor() {
-    super();
-  }
 
   // dto
   supportsPatch() {
@@ -16,10 +16,15 @@ export default class ProvisioningBreakRecipientService extends Services.Abstract
     if (!entity) {
       return '';
     }
-    if (entity._embedded && entity._embedded.identity) {
-      return `${entity._embedded.identity.username}`;
+    if (entity._embedded) {
+      if (entity._embedded.identity) {
+        return `${ entity._embedded.identity.username }`;
+      }
+      if (entity._embedded.role) {
+        return `${ entity._embedded.role.name }`;
+      }
     }
-    return `${entity._embedded.role.name}`;
+    return 'recipient'; // #2038 empty recipient can be saved (old data)
   }
 
   getApiPath() {

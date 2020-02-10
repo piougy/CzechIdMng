@@ -738,7 +738,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 	@Transactional
 	public void initTreeData() {
 
-		entityManager.persist(this.createNode("1", null));
+		entityManager.persist(this.createNode("1", ""));
 		entityManager.persist(this.createNode("2", "2"));
 
 		entityManager.persist(this.createNode("11", "1"));

@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.EntityAccountDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
@@ -40,6 +41,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccTreeAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.EntityAccountFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccTreeAccountService;
 import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
@@ -54,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -616,9 +619,18 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 					roots.add(uid);
 				}
 			} else {
-				// Default search root strategy (if is parent null, then is node root)
+				// Default search root strategy: If parent is null or an empty string, then it is a root node.
+				// IdM is able to cope only with null parent of the root node. Therefore empty string value is changed to null.
 				Object parentValue = super.getValueByMappedAttribute(parentAttribute, account.getAttributes(), context);
 				if (parentValue == null) {
+					roots.add(uid);
+				} else if (StringUtils.isEmpty(parentValue)) {
+					SysSchemaAttributeDto schemaAttribute = DtoUtils.getEmbedded(parentAttribute,
+							SysSystemAttributeMapping_.schemaAttribute.getName(), SysSchemaAttributeDto.class);
+					IcAttribute attribute = account.getAttributeByName(schemaAttribute.getName());
+					if (attribute instanceof IcAttributeImpl) {
+						((IcAttributeImpl) attribute).setValues(null);
+					}
 					roots.add(uid);
 				}
 			}

@@ -59,7 +59,9 @@ public class SystemMappingDuplicateBulkAction extends AbstractBulkAction<SysSyst
 		Map<UUID, UUID> schemaAttributesCache = new HashMap<UUID, UUID>();
 		Map<UUID, UUID> mappedAttributesCache = new HashMap<UUID, UUID>();
 		UUID schemaId = dto.getObjectClass();
+		Assert.notNull(schemaId, "Schema Id cannot be null!");
 		SysSchemaObjectClassDto schemaDto = schemaService.get(schemaId);
+		Assert.notNull(schemaDto, "Schema cannot be null!");
 
 		// Put all schema attributes for given schema without cloning just copy 1-to-1
 		SysSchemaAttributeFilter schemaAttributesFilter = new SysSchemaAttributeFilter();

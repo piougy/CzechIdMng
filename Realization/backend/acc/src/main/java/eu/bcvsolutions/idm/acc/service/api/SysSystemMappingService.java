@@ -55,14 +55,16 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	List<SysSystemMappingDto> findByObjectClass(SysSchemaObjectClassDto objectClass, SystemOperationType operation, SystemEntityType entityType);
 
 	/**
-	 * Is enabled protection of account against delete
+	 * Is enabled protection of account against delete.
+	 * 
 	 * @param account
 	 * @return
 	 */
 	boolean isEnabledProtection(AccAccountDto account);
 
 	/**
-	 * Interval of protection against account delete
+	 * Interval of protection against account delete.
+	 * 
 	 * @param account
 	 * @return
 	 */
@@ -70,13 +72,15 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 
 	
 	/**
-	 * Validate, if system mapping has attribute as identificator
+	 * Validate, if system mapping has attribute as identifier.
+	 * 
 	 * @param systemMapingId
 	 */
 	void validate (UUID systemMapingId);
 
 	/**
 	 * Call script "Can be account created?" on the mapping.
+	 * 
 	 * @param uid
 	 * @param dto
 	 * @param script
@@ -87,6 +91,7 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 
 	/**
 	 * Find provisioning mapping on the given system and for entity type.
+	 * 
 	 * @param systemId
 	 * @param entityType
 	 * @return
@@ -95,6 +100,9 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	
 	/**
 	 * Duplication of mapping attributes.
+	 * 
+	 * @since 10.1.0
+	 * 
 	 * @param id
 	 * @param schema
 	 * @param schemaAttributesIds

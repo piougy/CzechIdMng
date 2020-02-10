@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -342,6 +343,7 @@ public class DefaultSysSystemMappingService
 	
 	
 	@Override
+	@Transactional
 	public SysSystemMappingDto duplicateMapping(UUID id, SysSchemaObjectClassDto schema,
 			Map<UUID, UUID> schemaAttributesIds, Map<UUID, UUID> mappedAttributesIds, boolean usedInSameSystem) {
 		Assert.notNull(id, "Id of duplication mapping, must be filled!");

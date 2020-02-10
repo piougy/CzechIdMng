@@ -10,9 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
@@ -21,18 +24,26 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * Expected usage is in cooperation with CronTaskTrigger, running
  * once a day after midnight.
  * 
+ * @author Radek Tomiška
+ * @since 7.3.0
  */
-@Service
+@Service(AccountProtectionExpirationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Removes accounts with expired protection.")
 public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
+	public static final String TASK_NAME = "acc-account-protection-expiration-long-running-task";
 	private static final Logger LOG = LoggerFactory.getLogger(AccountProtectionExpirationTaskExecutor.class);
 	private static final String PARAMETER_EXPIRATION = "expiration";
 	//
 	@Autowired private AccAccountService service;
 	//
 	private DateTime expiration;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	protected boolean start() {
@@ -47,7 +58,11 @@ public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulable
 		this.counter = 0L;
 		boolean canContinue = true;
 		while(canContinue) {
-			Page<AccAccountDto> expiredAccounts = service.findExpired(expiration, new PageRequest(0, 100));
+			Page<AccAccountDto> expiredAccounts = service
+					.findExpired(
+						expiration,
+						new PageRequest(0, 100, new Sort(Direction.ASC, AccAccount_.endOfProtection.getName())
+					));
 			// init count
 			if (count == null) {
 				count = expiredAccounts.getTotalElements();

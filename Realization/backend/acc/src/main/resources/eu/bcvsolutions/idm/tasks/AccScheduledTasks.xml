@@ -91,4 +91,26 @@
 			</trigger>
 		</triggers>		
 	</task>
+	
+	<task>
+		<description>Removes accounts with expired protection.</description>
+		<instanceId>idm-primary</instanceId>
+		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.AccountProtectionExpirationTaskExecutor</taskType>
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+		</parameters>
+		
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 40 2 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>		
+	</task>
+	
+	 
 </tasks>

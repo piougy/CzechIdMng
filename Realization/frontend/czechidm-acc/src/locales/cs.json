@@ -1570,6 +1570,11 @@
             "placeholder": "Vyberte nakonfigurovanou synchronizaci pro spuštění ..."
           }
         }
+      },
+      "acc-account-protection-expiration-long-running-task": {
+        "label": "Smazat účty s expirovaným ochranným intervalem",
+        "help": "Smazě účty s expirovaným ochranným intervalem. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu.",
+        "icon": "fa:trash"
       }
     }
   },

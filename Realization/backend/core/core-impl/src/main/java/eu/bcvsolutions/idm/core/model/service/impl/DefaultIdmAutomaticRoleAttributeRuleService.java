@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule_;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeRuleEvent;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeRuleEvent.AutomaticRoleAttributeRuleEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.role.AutomaticRoleAttributeRuleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRuleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -190,6 +191,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 	@Override
 	public void deleteRuleWithSkipCheckLastRule(IdmAutomaticRoleAttributeRuleDto dto) {
 		AutomaticRoleAttributeRuleEvent automaticRoleAttributeRuleEvent = new AutomaticRoleAttributeRuleEvent(AutomaticRoleAttributeRuleEventType.DELETE, dto);
+		automaticRoleAttributeRuleEvent.getProperties().put(AutomaticRoleAttributeRuleDeleteProcessor.SKIP_CHECK_LAST_RULE, Boolean.TRUE);
 		entityEventManager.process(automaticRoleAttributeRuleEvent);
 	}
 

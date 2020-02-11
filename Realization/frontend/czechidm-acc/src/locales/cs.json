@@ -200,7 +200,7 @@
           },
           "assignDefaultRoleToAll": {
             "label": "Přiřadit výchozí roli všem platným kontraktům",
-            "helpBlock": "Výchozí role nebude přiřazena na hlavní kontrakt, ale na všechny platné, či v budoucnu platní kontrakty dané identity."
+            "helpBlock": "Výchozí role nebude přiřazena na hlavní kontrakt, ale na všechny platné, či v budoucnu platné kontrakty dané identity."
           },
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",

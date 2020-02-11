@@ -153,7 +153,17 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
       event.preventDefault();
     }
     const detail = _.merge({}, this.state.detail);
-    detail.entity.type = value.value;
+    // clear identity and role after type was changed
+    if (detail && detail.entity) {
+      detail.entity.type = value.value;
+      detail.entity.identity = null;
+      detail.entity.role = null;
+      if (detail.entity_embedded) {
+        detail.entity._embedded.identity = null;
+        detail.entity._embedded.role = null;
+      }
+    }
+
     this.setState({
       detail
     });

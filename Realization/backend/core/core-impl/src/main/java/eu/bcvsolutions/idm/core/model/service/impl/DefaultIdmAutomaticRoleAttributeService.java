@@ -553,6 +553,9 @@ public class DefaultIdmAutomaticRoleAttributeService
 					.getSingularAttribute(rule.getAttributeName());
 			Path<Object> path = root.get(singularAttribute.getName());
 			//
+			// For contract is used direct query, because root for query is direct contract
+			// Also for contract rules is used last parameter negation, this parameter control which
+			// role will be added and wich roles will be removed.
 			return getPredicateWithComparsion(
 					path,
 					castToType(singularAttribute, rule.getValue(), rule.getComparison()),
@@ -562,23 +565,28 @@ public class DefaultIdmAutomaticRoleAttributeService
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
 			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
-			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType(), comparison);
+			// Cast given value to specific persistent type
+			// For is empty and is not empty comparison is returned null even if value exists
+			Object value = getFormValue(rule.getValue(), formAttributeDto.getPersistentType(), comparison);
 			//
+			// For contract form attribute was composed only one subquery
 			Subquery<IdmIdentityContractFormValue> subquery = query.subquery(IdmIdentityContractFormValue.class);
 			Root<IdmIdentityContractFormValue> subRoot = subquery.from(IdmIdentityContractFormValue.class);
 			subquery.select(subRoot);
 			//
 			Path<?> path = subRoot.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
 			//
+			// Is empty comparison has specific behavior because form value isn't empty, but value doesn't exist 
 			if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
 				subquery.where(
 						cb.or(
+							// Predicate for check if value exists
 							getPredicateForNullFormAttributeIdentityContract(root, query, cb, formAttributeDto, pass),
-						cb.and(
-							cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
-							cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-							getPredicateWithComparsion(path, null, cb, rule.getComparison(), null)
-							)
+							cb.and(
+								cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
+								cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
+								getPredicateWithComparsion(path, null, cb, rule.getComparison(), null)
+								)
 						));
 				if(pass) {
 					return cb.not(cb.exists(subquery));	
@@ -600,18 +608,22 @@ public class DefaultIdmAutomaticRoleAttributeService
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.IDENTITY_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
 			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
-			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType(), comparison);
+			// Cast given value to specific persistent type
+						// For is empty and is not empty comparison is returned null even if value exists
+			Object value = getFormValue(rule.getValue(), formAttributeDto.getPersistentType(), comparison);
 			//
+			// Rules for identity form values must contains two subquery identity -> identity eav
 			Subquery<IdmIdentity> subquery = query.subquery(IdmIdentity.class);
 			Root<IdmIdentity> subRoot = subquery.from(IdmIdentity.class);
 			subquery.select(subRoot);
-			
+			//
 			Subquery<IdmIdentityFormValue> subQueryIdentityEav = query.subquery(IdmIdentityFormValue.class);
 			Root<IdmIdentityFormValue> subRootIdentityEav = subQueryIdentityEav.from(IdmIdentityFormValue.class);
 			subQueryIdentityEav.select(subRootIdentityEav);
 			//
 			Path<?> path = subRootIdentityEav.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
 			//
+			// Is empty comparison has specific behavior because form value isn't empty, but value doesn't exist 
 			if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
 				subquery.where(
 					cb.and(
@@ -623,6 +635,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 										cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), subRoot),
 										cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
 										getPredicateWithComparsion(path, null, cb, rule.getComparison(), null)),
+										// Predicate for check if value exists
 										getPredicateForNullFormAttributeIdentity(subRoot, subquery, cb, formAttributeDto, pass)
 									)
 								)
@@ -1023,7 +1036,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @param comparison
 	 * @return
 	 */
-	private Object getEavValue(String value, PersistentType persistentType, AutomaticRoleAttributeRuleComparison comparison) {
+	private Object getFormValue(String value, PersistentType persistentType, AutomaticRoleAttributeRuleComparison comparison) {
 		// For comparison is empty and is not empty return null values
 		if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY || comparison == AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY) {
 			return null;

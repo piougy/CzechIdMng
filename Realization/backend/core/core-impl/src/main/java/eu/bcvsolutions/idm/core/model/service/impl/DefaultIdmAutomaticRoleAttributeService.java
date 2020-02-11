@@ -555,12 +555,14 @@ public class DefaultIdmAutomaticRoleAttributeService
 			//
 			return getPredicateWithComparsion(
 					path,
-					castToType(singularAttribute, rule.getValue()),
+					castToType(singularAttribute, rule.getValue(), rule.getComparison()),
 					cb,
 					rule.getComparison(),
-					!pass, false);
+					!pass);
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
+			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
+			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType(), comparison);
 			//
 			Subquery<IdmIdentityContractFormValue> subquery = query.subquery(IdmIdentityContractFormValue.class);
 			Root<IdmIdentityContractFormValue> subRoot = subquery.from(IdmIdentityContractFormValue.class);
@@ -568,31 +570,27 @@ public class DefaultIdmAutomaticRoleAttributeService
 			//
 			Path<?> path = subRoot.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
 			//
-			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
 			if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
 				subquery.where(
 						cb.or(
-						getPredicateForNullFormAttribute(root, query, cb, formAttributeDto),
+							getPredicateForNullFormAttributeIdentityContract(root, query, cb, formAttributeDto, pass),
 						cb.and(
 							cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
 							cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-							getPredicateWithComparsion(path, null, cb, rule.getComparison(), null, false)
+							getPredicateWithComparsion(path, null, cb, rule.getComparison(), null)
 							)
 						));
-
-				if (pass) {
-					return cb.not(cb.exists(subquery));
-				} else {
-					return cb.exists(subquery);
+				if(pass) {
+					return cb.not(cb.exists(subquery));	
 				}
+				return cb.exists(subquery);
 			}
-			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
 			//
 			subquery.where(
 					cb.and(
 						cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
 						cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-						getPredicateWithComparsion(path, value, cb, rule.getComparison(), null, false)
+						getPredicateWithComparsion(path, value, cb, rule.getComparison(), null)
 						)
 					);
 			//
@@ -601,6 +599,8 @@ public class DefaultIdmAutomaticRoleAttributeService
 			return existsInEav;
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.IDENTITY_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
+			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
+			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType(), comparison);
 			//
 			Subquery<IdmIdentity> subquery = query.subquery(IdmIdentity.class);
 			Root<IdmIdentity> subRoot = subquery.from(IdmIdentity.class);
@@ -612,34 +612,37 @@ public class DefaultIdmAutomaticRoleAttributeService
 			//
 			Path<?> path = subRootIdentityEav.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
 			//
-			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
 			if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
-				subQueryIdentityEav.where(
-						cb.or(
-						getPredicateForNullFormAttribute(root, query, cb, formAttributeDto),
-						cb.and(
-							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), root),
-							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-							getPredicateWithComparsion(path, null, cb, rule.getComparison(), null, false)
+				subquery.where(
+					cb.and(
+						cb.equal(root.get(IdmIdentityContract_.identity), subRoot),
+						cb.exists(
+							subQueryIdentityEav.where(
+								cb.or(
+									cb.and(
+										cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), subRoot),
+										cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
+										getPredicateWithComparsion(path, null, cb, rule.getComparison(), null)),
+										getPredicateForNullFormAttributeIdentity(subRoot, subquery, cb, formAttributeDto, pass)
+									)
+								)
 							)
-						));
-
-				if (pass) {
+						)
+					);
+				//
+				if(pass) {
 					return cb.not(cb.exists(subquery));
-				} else {
-					return cb.exists(subquery);
 				}
+				return cb.exists(subquery);
 			}
-			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
 			//
 			subQueryIdentityEav.where(
 					cb.and(
 							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), subRoot),
 							cb.equal(root.get(IdmIdentityContract_.identity), subRoot),
 							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-							getPredicateWithComparsion(path, value, cb, rule.getComparison(), null, false)
+							getPredicateWithComparsion(path, value, cb, rule.getComparison(), null)
 							));
-			//
 			Predicate existsInEav = getPredicateForConnection(subQueryIdentityEav, cb, pass, formAttributeDto.isMultiple());
 			//
 			subquery.where(
@@ -659,8 +662,8 @@ public class DefaultIdmAutomaticRoleAttributeService
 			Path<Object> path = subRoot.get(singularAttribute.getName());
 			//
 			subquery.where(cb.and(cb.equal(subRoot.get(IdmIdentity_.id), root.get(IdmIdentityContract_.identity).get(AbstractEntity_.id)), // correlation attr
-					getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
-							rule.getComparison(), null, false)));
+					getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue(), rule.getComparison()), cb,
+							rule.getComparison(), null)));
 			//
 			return getPredicateForConnection(subquery, cb, pass, false);
 		} else {
@@ -669,51 +672,38 @@ public class DefaultIdmAutomaticRoleAttributeService
 	}
 
 	/**
-	 * Method is used for compose predicate for empty rule.
-	 * TODO: Method has to many parameters, try find better solutions.
+	 * Create subquery for check null form values for identity root
 	 *
-	 * @param subquery
-	 * @param subRoot
-	 * @param rule
 	 * @param root
 	 * @param query
 	 * @param cb
+	 * @param formAttributeDto
 	 * @param pass
-	 * @param path
-	 * @param formAttributeDto
 	 * @return
 	 */
-	private Predicate getPredicateForEmpty(Subquery<IdmIdentityContractFormValue> subquery,
-			Root<IdmIdentityContractFormValue> subRoot, IdmAutomaticRoleAttributeRuleDto rule,
-			Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder cb,
-			boolean pass, Path<?> path, IdmFormAttributeDto formAttributeDto) {
-		subquery.where(
-				cb.or(
-				getPredicateForNullFormAttribute(root, query, cb, formAttributeDto),
-				cb.and(
-					cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
-					cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-					getPredicateWithComparsion(path, null, cb, rule.getComparison(), null, false)
-					)
+	private Predicate getPredicateForNullFormAttributeIdentity(Root<IdmIdentity> root, Subquery<IdmIdentity> query, CriteriaBuilder cb, IdmFormAttributeDto formAttributeDto, boolean pass) {
+		Subquery<IdmIdentityFormValue> subqueryNull = query.subquery(IdmIdentityFormValue.class);
+		Root<IdmIdentityFormValue> subRootNull = subqueryNull.from(IdmIdentityFormValue.class);
+		subqueryNull.select(subRootNull);
+		
+		subqueryNull.where(cb.and(
+				cb.equal(subRootNull.get(IdmIdentityFormValue_.owner), root),
+				cb.equal(subRootNull.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId())
 				));
-
-		if (pass) {
-			return cb.not(cb.exists(subquery));
-		} else {
-			return cb.exists(subquery);
-		}
+		return cb.exists(subqueryNull);
 	}
-	
+
 	/**
-	 * Get predicate for given 
+	 * Create subquery for check null form values for identity contract root
 	 *
 	 * @param root
 	 * @param query
 	 * @param cb
 	 * @param formAttributeDto
+	 * @param pass
 	 * @return
 	 */
-	private Predicate getPredicateForNullFormAttribute(Root<IdmIdentityContract> root, CriteriaQuery<?> query,CriteriaBuilder cb, IdmFormAttributeDto formAttributeDto) {
+	private Predicate getPredicateForNullFormAttributeIdentityContract(Root<IdmIdentityContract> root, CriteriaQuery<?> query,CriteriaBuilder cb, IdmFormAttributeDto formAttributeDto, boolean pass) {
 		Subquery<IdmIdentityContractFormValue> subqueryNull = query.subquery(IdmIdentityContractFormValue.class);
 		Root<IdmIdentityContractFormValue> subRootNull = subqueryNull.from(IdmIdentityContractFormValue.class);
 		subqueryNull.select(subRootNull);
@@ -722,8 +712,9 @@ public class DefaultIdmAutomaticRoleAttributeService
 				cb.equal(subRootNull.get(IdmIdentityContractFormValue_.owner), root),
 				cb.equal(subRootNull.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId())
 				));
-		return cb.not(root.in((subqueryNull)));
+		return cb.exists(subqueryNull);
 	}
+
 	/**
 	 * Method is used for connect {@link Subquery} with outer query.
 	 * In equal return exists otherwise return is null
@@ -758,7 +749,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @return
 	 */
 	private Predicate getPredicateWithComparsion(Path<?> path, Object value, CriteriaBuilder cb,
-			AutomaticRoleAttributeRuleComparison comparsion, Boolean negation, boolean multivalued) {
+			AutomaticRoleAttributeRuleComparison comparsion, Boolean negation) {
 		Assert.notNull(comparsion, "Comparison operator is required.");
 		Assert.notNull(path, "Path is required.");
 		Assert.notNull(cb, "Criteria builder is required.");
@@ -809,13 +800,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 					// for other type just classic negative compare
 					predicate = cb.equal(path, value);
 				}
-				//
-				if (multivalued) {
-					return predicate;
-				}
-				return cb.or(
-						predicate,
-						cb.isNotNull(path));
+				return predicate;
 			}
 			return cb.or(
 					cb.notEqual(path, value),
@@ -985,9 +970,14 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * 
 	 * @param singularAttribute
 	 * @param value
+	 * @param comparison
 	 * @return
 	 */
-	private Object castToType(SingularAttribute<?, ?> singularAttribute, String value) {
+	private Object castToType(SingularAttribute<?, ?> singularAttribute, String value, AutomaticRoleAttributeRuleComparison comparison) {
+		// For comparison empty or is not empty return null value
+		if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY || comparison == AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY) {
+			return null;
+		}
 		Class<?> javaType = singularAttribute.getJavaType();
 		LOG.debug("Value: [{}], will be cast to java type: [{}].", value, javaType.getName());
 		if (javaType.isPrimitive()) {
@@ -1030,9 +1020,14 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 *
 	 * @param value
 	 * @param persistentType
+	 * @param comparison
 	 * @return
 	 */
-	private Object getEavValue(String value, PersistentType persistentType) {
+	private Object getEavValue(String value, PersistentType persistentType, AutomaticRoleAttributeRuleComparison comparison) {
+		// For comparison is empty and is not empty return null values
+		if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY || comparison == AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY) {
+			return null;
+		}
 		Assert.notNull(value, "Value is required.");
 		switch (persistentType) {
 		case INT:

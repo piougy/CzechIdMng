@@ -5930,6 +5930,14 @@
       "title": "Role wasn't removed",
       "message": "Role [{{role}}] wasn't removed by automatic role [{{roleTreeNode}}] for identity [{{identity}}], Check role request agenda for reason."
     },
+    "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE": {
+      "title": "Invalid comparison and attribute type",
+      "message": "The selected comparison cannot be used only with a multivalued attribute."
+    },
+    "AUTOMATIC_ROLE_RULE_COMPARSION_IS_ONLY_FOR_NUMERIC_ATTRIBUTE": {
+      "title": "Invalid comparison and attribute type",
+      "message": "The selected comparison can be used only with a numeric type attribute."
+    },
     "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role is used by concurrent task",
       "message": "Automatic role [{{roleTreeNode}}] is used by concurrent task [{{taskId}}]."

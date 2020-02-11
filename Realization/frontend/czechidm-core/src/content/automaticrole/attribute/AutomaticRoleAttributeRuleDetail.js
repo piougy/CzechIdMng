@@ -277,7 +277,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       formAttribute: null, // instance of form attribute, is used for computed field input
       attributeName: null, // name of identity attribute
       hideValueField: false, // Flag for hide attribute value intput
-      incompatibleWithMultiple: true // Flag for check multivalued eavs and comparsion
+      incompatibleWithMultiple: false // Flag for check multivalued eavs and comparsion
     };
   }
 
@@ -307,7 +307,9 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   }
 
   isFormValid() {
-    return this.getForm().isFormValid() && this.getValue().isValid();
+    const { hideValueField } = this.state;
+    // If valued is hidden (state property: hideValueField) isn't required validate value component
+    return this.getForm().isFormValid() && (hideValueField || this.getValue().isValid());
   }
 
   getCompiledData() {
@@ -354,6 +356,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
    */
   _initForm(entity) {
     let attributeName = null;
+    let hideValueField = false;
     if (entity !== undefined) {
       let formAttribute = null;
       if (!entity.id) {
@@ -378,12 +381,17 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
           }
         }
       }
+      if (entity.comparison === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_EMPTY) ||
+        entity.comparison === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_NOT_EMPTY)) {
+        hideValueField = true;
+      }
       this.setState({
         typeForceSearchParameters: this._getForceSearchParametersForType(entity.type),
         type: entity.type,
         formAttribute,
         entity,
-        attributeName
+        attributeName,
+        hideValueField
       });
       this.refs.type.focus();
     }
@@ -551,7 +559,6 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     _formAttribute.multiple = false; // Multiple value cannot be added
     //
     // is neccessary transform value to array
-    console.log(4445, valueRequired);
     return (
       <FormValueComponent
         ref="value"
@@ -641,7 +648,6 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       attributeName
     } = this.state;
 
-    console.log(444, valueRequired);
     const incompatibleFinal = incompatibleWithMultiple && formAttribute && formAttribute.multiple;
 
     let data = this.state.entity;
@@ -659,6 +665,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
           <Basic.EnumSelectBox
             ref="type"
             required
+            clearable={ false }
             label={ this.i18n('entity.AutomaticRole.attribute.type.label') }
             helpBlock={ this.i18n('entity.AutomaticRole.attribute.type.help') }
             enum={ AutomaticRoleAttributeRuleTypeEnum }
@@ -699,7 +706,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
                 enum={ AutomaticRoleAttributeRuleComparisonEnum }/>
             </Basic.Col>
             { this._showIncompatibleWarning(incompatibleFinal, formAttribute) }
-            <Basic.Col lg={ 8 } style={{ display: hideValueField || incompatibleFinal ? '' : '' }}>
+            <Basic.Col lg={ 8 } style={{ display: hideValueField || incompatibleFinal ? 'none' : '' }}>
               { this._getValueField(type, valueRequired, formAttribute, attributeName) }
             </Basic.Col>
           </Basic.Row>

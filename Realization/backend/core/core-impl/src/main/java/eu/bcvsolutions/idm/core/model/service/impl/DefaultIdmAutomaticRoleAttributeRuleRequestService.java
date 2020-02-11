@@ -63,6 +63,9 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 	@Override
 	@Transactional
 	public IdmAutomaticRoleAttributeRuleRequestDto saveInternal(IdmAutomaticRoleAttributeRuleRequestDto dto) {
+		// Numeric attribute can be only EAV (for now, even external code is string)
+		boolean isAttributeNumeric = false;
+		AutomaticRoleAttributeRuleComparison comparison = dto.getComparison();
 		// now isn't possible do equals with string_value (clob), so it is necessary to
 		// use only short text
 		if ((AutomaticRoleAttributeRuleType.CONTRACT_EAV == dto.getType()
@@ -75,6 +78,22 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 			if (formAttribute.getPersistentType() == PersistentType.TEXT) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT);
 			}
+			if (formAttribute.isMultiple() && (comparison != AutomaticRoleAttributeRuleComparison.EQUALS &&
+					comparison != AutomaticRoleAttributeRuleComparison.IS_EMPTY &&
+					comparison != AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY)) {
+				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE, ImmutableMap.of(
+						"comparison", comparison.name()));
+			}
+			// Numeric value now can be only EAV
+			PersistentType formAttributePersistenType = formAttribute.getPersistentType();
+			isAttributeNumeric = formAttributePersistenType == PersistentType.INT || 
+					formAttributePersistenType == PersistentType.DOUBLE ||
+					formAttributePersistenType == PersistentType.LONG;
+		}
+		if ((comparison == AutomaticRoleAttributeRuleComparison.GREATER_THAN_OR_EQUAL ||
+				comparison == AutomaticRoleAttributeRuleComparison.LESS_THAN_OR_EQUAL) && !isAttributeNumeric) {
+			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_COMPARSION_IS_ONLY_FOR_NUMERIC_ATTRIBUTE, ImmutableMap.of(
+					"comparison", comparison.name()));
 		}
 		// check if is filled all necessary attribute
 		if ((dto.getType() == AutomaticRoleAttributeRuleType.CONTRACT
@@ -84,7 +103,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 					ImmutableMap.of("automaticRoleId", dto.getId(), "attribute",
 							IdmAutomaticRoleAttributeRule_.attributeName.getName()));
 		}
-		if (dto.getComparison() == AutomaticRoleAttributeRuleComparison.EQUALS && dto.getValue() == null) {
+		if (comparison == AutomaticRoleAttributeRuleComparison.EQUALS && dto.getValue() == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY,
 					ImmutableMap.of("attribute", IdmAutomaticRoleAttributeRule_.value.getName()));
 		}

@@ -15,9 +15,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeRuleEvent.AutomaticRoleAttributeRuleEventType;
 
 /**
- * Persist rule for automic role
+ * Persist rule for automatic role
  *
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 

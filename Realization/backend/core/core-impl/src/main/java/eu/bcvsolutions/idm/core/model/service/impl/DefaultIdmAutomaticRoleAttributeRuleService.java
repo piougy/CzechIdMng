@@ -34,7 +34,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule_;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeRuleEvent;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeRuleEvent.AutomaticRoleAttributeRuleEventType;
-import eu.bcvsolutions.idm.core.model.event.processor.role.AutomaticRoleAttributeRuleDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRuleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -42,7 +41,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 /**
  * Service for works with rules for automatic role by attribute
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 public class DefaultIdmAutomaticRoleAttributeRuleService extends
@@ -65,6 +64,9 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 	
 	@Override
 	public IdmAutomaticRoleAttributeRuleDto save(IdmAutomaticRoleAttributeRuleDto dto, BasePermission... permission) {
+		// Numeric attribute can be only EAV (for now, even external code is string)
+		boolean isAttributeNumeric = false;
+		AutomaticRoleAttributeRuleComparison comparison = dto.getComparison();
 		// now isn't possible do equals with string_value (clob), so it is necessary to use only short text
 		if ((AutomaticRoleAttributeRuleType.CONTRACT_EAV == dto.getType() || AutomaticRoleAttributeRuleType.IDENTITY_EAV == dto.getType()) && dto.getFormAttribute() != null) {
 			initFormAttributeService();
@@ -76,6 +78,22 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 			if (formAttribute.getPersistentType() == PersistentType.TEXT) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT);
 			}
+			if (formAttribute.isMultiple() && (comparison != AutomaticRoleAttributeRuleComparison.EQUALS &&
+					comparison != AutomaticRoleAttributeRuleComparison.IS_EMPTY &&
+					comparison != AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY)) {
+				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE, ImmutableMap.of(
+						"comparison", comparison.name()));
+			}
+			// Numeric value now can be only EAV
+			PersistentType formAttributePersistenType = formAttribute.getPersistentType();
+			isAttributeNumeric = formAttributePersistenType == PersistentType.INT || 
+					formAttributePersistenType == PersistentType.DOUBLE ||
+					formAttributePersistenType == PersistentType.LONG;
+		}
+		if ((comparison == AutomaticRoleAttributeRuleComparison.GREATER_THAN_OR_EQUAL ||
+				comparison == AutomaticRoleAttributeRuleComparison.LESS_THAN_OR_EQUAL) && !isAttributeNumeric) {
+			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_COMPARSION_IS_ONLY_FOR_NUMERIC_ATTRIBUTE, ImmutableMap.of(
+					"comparison", comparison.name()));
 		}
 		// check if is filled all necessary attribute
 		if ((dto.getType() == AutomaticRoleAttributeRuleType.CONTRACT || dto.getType() == AutomaticRoleAttributeRuleType.IDENTITY) && StringUtils.isEmpty(dto.getAttributeName())) {
@@ -88,7 +106,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 					"automaticRoleId", dto.getId(),
 					"attribute", IdmAutomaticRoleAttributeRule_.automaticRoleAttribute.getName()));
 		}
-		if (dto.getComparison() == AutomaticRoleAttributeRuleComparison.EQUALS && dto.getValue() == null) {
+		if (comparison == AutomaticRoleAttributeRuleComparison.EQUALS && dto.getValue() == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY, ImmutableMap.of(
 					"attribute", IdmAutomaticRoleAttributeRule_.value.getName()));
 		}

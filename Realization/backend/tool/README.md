@@ -79,6 +79,15 @@ Additional / optional arguments can be combined with commands above:
 | --release-version | version | Usable with ``--release`` command. Release will be create under this version. | Stable semantic version will be used as default (=> current no snapshot version). |
 | --username | git username | Git username, if https repitory is used. When ssh repository is used, then passphrase for ssh key is needed only.| |
 
+## Tool return codes
+
+| Value | Description  |
+| :---: | :--- |
+| 0 | everything successful |
+| 1 | unexpected exception |
+| 2 | wrong arguments given into command line |
+| 3 | command failed (build or release failed) |
+
 ## Tool external configuration
 
 ### Configuration file

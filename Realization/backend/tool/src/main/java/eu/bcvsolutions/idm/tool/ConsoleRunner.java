@@ -58,8 +58,6 @@ public class ConsoleRunner implements CommandLineRunner {
 	
 	public static void main(String [] args) {
 		ConsoleRunner instance = new ConsoleRunner();
-		
-		
 		//
 		try {
 			instance.run(args);
@@ -67,14 +65,19 @@ public class ConsoleRunner implements CommandLineRunner {
 		} catch (ResultCodeException | IllegalArgumentException ex) {
 			// common exception without stack trace
 			LOG.error(ex.getLocalizedMessage());
+			System.exit(3);
+		} catch (ParseException ex) {
+			LOG.error(ex.getLocalizedMessage());
+			System.exit(2);
 		} catch (Exception ex) {
 			// unexpected exception - whole stack trace
 			LOG.error("Failure", ex);
+			System.exit(1);
 		}
 	}
 	
 	@Override
-	public void run(String... args) {
+	public void run(String... args) throws ParseException, IOException {
 		//
 		// available commands
 		Option optionVersion = Option.builder("v")
@@ -284,7 +287,6 @@ public class ConsoleRunner implements CommandLineRunner {
         options.addOption(optionHotfix);
         options.addOption(optionClean);
 		//
-		try {
 			// parse arguments
 			CommandLineParser parser = new DefaultParser();
 			CommandLine commandLine = parser.parse(options, args, false);
@@ -497,9 +499,6 @@ public class ConsoleRunner implements CommandLineRunner {
 			}
 			//
 			LOG.info("Complete!");
-		} catch (ParseException | IOException ex) {
-			LOG.error(ex.getLocalizedMessage());
-		}
 	}
 	
 	protected ReleaseManager getReleaseManager(boolean releaseModule) {

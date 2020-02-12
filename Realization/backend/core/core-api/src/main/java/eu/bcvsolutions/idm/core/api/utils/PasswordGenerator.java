@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import org.identityconnectors.common.StringUtil;
 import org.springframework.util.Assert;
@@ -393,7 +394,7 @@ public class PasswordGenerator {
 	private String removeProhibited(String string, String prohibited) {
 		if (prohibited != null) {
 			 for (Character character : prohibited.toCharArray()) {
-				 string = string.replaceAll(character.toString(), "");
+				 string = string.replaceAll(Pattern.quote(character.toString()), "");
 			 }
 			 string = string.trim();
 		}

@@ -236,7 +236,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		policy.setLowerCharBase("a");
 		policy.setUpperCharBase("");
 		policy.setNumberBase("123");
-		policy.setProhibitedCharacters("asd2!@#%3$");
+		policy.setProhibitedCharacters("a+-^sd2!@#%3$");
 		
 		for (int index = 0; index < ATTEMPTS; index++) {
 			String password = passwordPolicyService.generatePassword(policy);
@@ -245,7 +245,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 			
 			assertTrue(StringUtils.countMatches(password, "1") == 2);
 			
-			assertTrue(StringUtils.containsNone(password, "asd2!@#%3$"));
+			assertTrue(StringUtils.containsNone(password, "a+-^sd2!@#%3$"));
 		}
 	}
 	
@@ -415,7 +415,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
 		policy.setMaxPasswordLength(5);
 		policy.setMinPasswordLength(1);
-		policy.setProhibitedCharacters("12abcDEF!@");
+		policy.setProhibitedCharacters("12abcDEF^-!@");
 		
 		IdmPasswordValidationDto password = new IdmPasswordValidationDto();
 		

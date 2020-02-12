@@ -200,7 +200,7 @@
           },
           "assignDefaultRoleToAll": {
             "label": "Přiřadit výchozí roli všem platným kontraktům",
-            "helpBlock": "Výchozí role nebude přiřazena na hlavní kontrakt, ale na všechny platné, či v budoucnu platní kontrakty dané identity."
+            "helpBlock": "Výchozí role nebude přiřazena na hlavní kontrakt, ale na všechny platné, či v budoucnu platné kontrakty dané identity."
           },
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",
@@ -2084,6 +2084,11 @@
             "placeholder": "Vyberte nakonfigurovanou synchronizaci pro spuštění ..."
           }
         }
+      },
+      "acc-account-protection-expiration-long-running-task": {
+        "label": "Smazat účty s expirovaným ochranným intervalem",
+        "help": "Smazě účty s expirovaným ochranným intervalem. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu.",
+        "icon": "fa:trash"
       }
     }
   },

@@ -99,6 +99,10 @@ All notable changes to this project will be documented in this file.
   - ``RemoveAutomaticRoleTaskExecutor#getRoleTreeNodeId()`` - @deprecated @since 7.6.0 - use ``AbstractAutomaticRoleTaskExecutor#getAutomaticRoleId(UUID)``.
 - Default database name configured for the all ``dev`` profiles was renamed to ``bcv_idm_10`` to prevent update (by flyway) old database on the background - **old database can be used for LTS version 9.7.x development**, so clone database is needed.
 
+## [9.7.15]
+
+- [#2042](https://redmine.czechidm.com/issues/2042) - LRT ``AccountProtectionExpirationTaskExecutor `` was scheduled by default.
+
 ## [9.7.12]
 
 - [#1917](https://redmine.czechidm.com/issues/1917) - **Base permissions for roles, which can be requested, is used in copy assigned roles feature**. Configure this permissions (``CANBEREQUESTED``) to identity roles, which can be copied. Previously configured permissions ``READ`` on identity role will be not sufficient to copy roles in role request detail. **New authorization policy evaluator ``IdentityRoleByRoleEvaluator`` can be configured to add this permission to identity roles by role definition.** If you want to enable copying all assigned roles (the same behavior as before), then add ``BasePermissionEvaluator`` with permission ``CANBEREQUESTED`` for all assigned roles (``IdmIdentityRole`` entity).

@@ -52,16 +52,28 @@ public interface IdmRoleCompositionService extends
 	 * @return
 	 */
 	List<IdmRoleCompositionDto> findAllSuperiorRoles(UUID subId, BasePermission... permission);	
+	
 	/**
 	 * Assign (create) identity roles for given direct identity role sub roles.
 	 * Sub roles will have the same metadata - contract, validFrom, validTill and direct identity role will be filled by given.
-	 * {@link IdentityRoleEvent} can be constructed the same way as 
 	 * 
 	 * @param directRoleEvent event is needed for skip already processed identity roles (prevent cycles)
 	 * @param permission permissions to evaluate (AND)
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	void assignSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission);
+	
+	/**
+	 * Assign (create) identity roles for given direct identity role sub roles.
+	 * Sub roles will have the same metadata - contract, validFrom, validTill and direct identity role will be filled by given.
+	 * 
+	 * @param directRoleEvent event is needed for skip already processed identity roles (prevent cycles)
+	 * @param roleCompositionId [optional] assign roles by this composition only. All configured compositions are processed otherwise.
+	 * @param permission permissions to evaluate (AND)
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 9.7.15
+	 */
+	void assignSubRoles(EntityEvent<IdmIdentityRoleDto> event, UUID roleCompositionId, BasePermission... permission);
 	
 	/**
 	 * Remove identity roles assigned (created) by given direct identity role sub roles.

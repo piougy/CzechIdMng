@@ -6207,6 +6207,10 @@
       "title": "Role is removed by concurrent task",
       "message": "Business role [{{roleCompositionId}}] is removed by concurrent task [{{taskId}}]."
     },
+    "ROLE_COMPOSITION_REMOVE_HAS_ASSIGNED_ROLES": {
+      "title": "Business role cannot be deleted",
+      "message": "Currenty deleted business role [{{roleCompositionId}}] was newly assigned to [{{assignedRoles}}] users. Cancel role assignment and delete business role again."
+    },
     "GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE": {
       "title": "Script for generated values returns an error state",
       "message": "Script [{{scriptCode}}] returned null, or wrong type of entity. Return value: [{{returnedValue}}]."

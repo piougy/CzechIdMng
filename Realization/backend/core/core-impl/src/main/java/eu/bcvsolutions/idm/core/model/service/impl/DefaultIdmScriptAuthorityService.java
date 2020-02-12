@@ -157,11 +157,11 @@ public class DefaultIdmScriptAuthorityService
 	}
 	
 	private List<AvailableMethodDto> getServiceMethods(Class<?> service) {	
-		List<AvailableMethodDto> methodDtos = new ArrayList<>();
 		List<Method> omittedMethods = Lists.newArrayList(Object.class.getMethods());
 		List<Method> methods = Lists.newArrayList(service.getMethods());
 		methods.removeAll(omittedMethods);// methods form Object class are not required
-
+		//
+		List<AvailableMethodDto> methodDtos = new ArrayList<>(methods.size());
 		for (Method method : methods) {
 			if (!Modifier.isPublic(method.getModifiers())) {
 				continue;
@@ -170,7 +170,8 @@ public class DefaultIdmScriptAuthorityService
 			dto.setMethodName(method.getName());
 			dto.setReturnType(method.getReturnType());
 			
-			List<Class<?>> params = Arrays.asList(method.getParameters())
+			List<Class<?>> params = Arrays
+					.asList(method.getParameters())
 					.stream()
 					.map((param) -> { return param.getType(); })
 					.collect(Collectors.toList());

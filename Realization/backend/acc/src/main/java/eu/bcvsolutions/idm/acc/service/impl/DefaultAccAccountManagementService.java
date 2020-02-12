@@ -478,6 +478,16 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 								identityAccountList, identityAccountsToDelete, identityRole, roleSystem);
 
 						if (existsIdentityAccount != null) {
+							
+							if(existsIdentityAccount.getRoleSystem() == null) {
+								// IdentityAccount already exist, but doesn't have relation on RoleSystem. This
+								// could happen if system mapping was deleted and recreated or if was role use
+								// as sync default role, but without mapping on this system.
+								
+								// We have to create missing relation, so we will set and save RoleSystem.
+								existsIdentityAccount.setRoleSystem(roleSystem.getId());
+								identityAccountService.save(existsIdentityAccount);
+							}
 							return;
 						}
 

@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.tool;
 
+import java.io.IOException;
+
+import org.apache.commons.cli.ParseException;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,14 +39,12 @@ public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
-	public void testHelp() {
-		Mockito.when(productReleaseManager.isSnapshotVersion(null)).thenReturn(true);	
-		//
+	public void testHelp() throws ParseException, IOException {
 		consoleRunner.run(new String []{ "-h" });
 	}
 	
 	@Test
-	public void testHelpWithSnapsotLink() {
+	public void testHelpWithSnapsotLink() throws ParseException, IOException {
 		consoleRunner.run(new String []{ "-h" });
 	}
 	
@@ -57,32 +58,32 @@ public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 		ConsoleRunner.main(new String []{ "-h", "-m", "mock" });
 	}
 	
-	@Test
-	public void testWrongArgs() {
+	@Test(expected = ParseException.class)
+	public void testWrongArgs() throws ParseException, IOException {
 		consoleRunner.run(new String []{});
 	}
 	
 	@Test(expected = ReleaseException.class)
-	public void testParseException() {
+	public void testParseException() throws ParseException, IOException {
 		Mockito.when(productReleaseManager.getCurrentVersion("branch")).thenThrow(ReleaseException.class);	
 		//
 		consoleRunner.run(new String []{ "--get-version", "--develop-branch", "branch" });
 	}
 	
 	@Test
-	public void testVersion() {
+	public void testVersion() throws ParseException, IOException {
 		consoleRunner.run(new String []{ "--version" });
 	}
 	
 	@Test
-	public void testRelease() {
+	public void testRelease() throws ParseException, IOException {
 		Mockito.when(productReleaseManager.release("1", "2")).thenReturn("2");	
 		//
 		consoleRunner.run(new String []{ "--release", "--release-version", "1", "--develop-version", "2" });
 	}
 	
 	@Test
-	public void testReleasePublish() {
+	public void testReleasePublish() throws ParseException, IOException {
 		consoleRunner.run(new String []{ "--release-publish" });
 		consoleRunner.run(new String []{ "--release-publish", "--major" });
 		consoleRunner.run(new String []{ "--release-publish", "--minor", "--release-version", "1" });
@@ -91,48 +92,48 @@ public class ConsoleRunnerUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
-	public void testBuildProject() {
+	public void testBuildProject() throws ParseException, IOException {
 		consoleRunner.run(new String []{ "--build", "-p" });
 	}
 	
 	@Test(expected = BuildException.class)
-	public void testProjectWithoutBuildCommand() {
+	public void testProjectWithoutBuildCommand() throws ParseException, IOException{
 		consoleRunner.run(new String []{ "-p", "--release" });
 	}
 	
 	@Test
-	public void testBuild() {
+	public void testBuild() throws ParseException, IOException {
 		Mockito.when(productReleaseManager.build()).thenReturn("2");	
 		//
 		consoleRunner.run(new String []{ "--build" });
 	}
 
 	@Test
-	public void testPublish() {
+	public void testPublish() throws ParseException, IOException {
 		consoleRunner.run(new String []{ "--publish" });
 	}
 	
 	@Test
-	public void testSetVersion() {
+	public void testSetVersion() throws ParseException, IOException {
 		Mockito.when(productReleaseManager.setVersion("2")).thenReturn("2");
 		//
 		consoleRunner.run(new String []{ "--set-version", "--develop-version", "2" });
 	}
 	
 	@Test
-	public void testGetVersion() {
+	public void testGetVersion() throws ParseException, IOException {
 		Mockito.when(productReleaseManager.getCurrentVersion("branch")).thenReturn("2");
 		//
 		consoleRunner.run(new String []{ "--get-version", "--develop-branch", "branch", "--master-branch", "none" });
 	}
 	
 	@Test
-	public void testRevertVersion() {
+	public void testRevertVersion() throws ParseException, IOException {
 		consoleRunner.run(new String []{ "--revert-version" });
 	}
 	
 	@Test
-	public void testSetOptionalParameters() {
+	public void testSetOptionalParameters() throws ParseException, IOException {
 		consoleRunner.run(new String []{
 				"--get-version", 
 				"-r", "./mock", 

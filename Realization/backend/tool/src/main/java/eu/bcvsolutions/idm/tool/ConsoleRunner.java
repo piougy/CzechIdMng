@@ -514,7 +514,7 @@ public class ConsoleRunner implements CommandLineRunner {
 				"java -jar idm-tool.jar", 
 				String.format("CzechIdm tool version [%s], arguments:\n", version), 
 				options,
-				productReleaseManager.isSnapshotVersion(version)
+				(StringUtils.isEmpty(version) || productReleaseManager.isSnapshotVersion(version))
 				?
 				"\nRead more in documentation [https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/backend/tool/README.md]."
 				:

@@ -48,7 +48,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * Delete form values.
  * 
  * @author Radek Tomiška
- * @since 10.0.1
+ * @since 10.1.0
  */
 @Component(FormValueDeleteBulkAction.NAME)
 @Description("Delete form values.")

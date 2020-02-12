@@ -728,7 +728,7 @@ public interface FormService extends ScriptEnabled {
 	 * @param formValue value to delete
 	 * @param permission base permissions to evaluate (AND)
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
-	 * @since 10.0.1
+	 * @since 10.1.0
 	 */
 	void deleteValue(IdmFormValueDto formValue, BasePermission... permission);
 	
@@ -871,7 +871,7 @@ public interface FormService extends ScriptEnabled {
 	 * Returns all registered form value services.
 	 * 
 	 * @return list of installed / registered form value services.
-	 * @since 10.0.1
+	 * @since 10.1.0
 	 */
 	List<FormValueService<?>> getAvailableFormValueServices();
 

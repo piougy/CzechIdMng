@@ -46,7 +46,7 @@ export default class BasicModal extends AbstractComponent {
     if (bsSize && SUPPORTED_SIZES.indexOf(bsSize) > -1) { // workaround for ugly Modal warning, when bsSize lack default
       others.bsSize = bsSize;
     }
-    // disabled enforceFocus - input in popover vanot be selected otherwise
+    // disabled enforceFocus - input in popover cannot be selected otherwise
     return (
       <Modal onEnter={this._onEnter.bind(this)} {...others} enforceFocus={ false }>
         {

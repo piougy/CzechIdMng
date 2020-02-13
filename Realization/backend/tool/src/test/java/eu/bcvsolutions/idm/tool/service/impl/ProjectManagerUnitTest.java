@@ -27,8 +27,13 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 public class ProjectManagerUnitTest extends AbstractUnitTest {
 
 	@Test
-	public void testBuild() {
-		createMockProjectStructure();
+	public void testBuildWithAtrefact() {
+		createMockProjectStructure(false);
+	}
+	
+	@Test
+	public void testBuildWithExtractedProduct() {
+		createMockProjectStructure(true);
 	}
 	
 	@BeforeClass
@@ -38,7 +43,7 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 	    Assume.assumeFalse(documentationOnly);
 	}
 	
-	private void createMockProjectStructure() {
+	private void createMockProjectStructure(boolean extracted) {
 		File targetFolder = new File("target");
 		Assert.assertTrue(targetFolder.exists());
 		//
@@ -100,8 +105,12 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 			manifestFolder.mkdirs();
 			File productManifest = new File(manifestFolder, "MANIFEST.MF");
 			createManifest(productManifest);
-			ZipUtils.compress(warFolder, new File(productFolder, "idm-1.0.0-SNAPSHOT.war").getPath());
-			FileUtils.forceDelete(warFolder);
+			if (extracted) {
+				FileUtils.moveDirectory(warFolder, new File(productFolder, "idm-1.0.0-SNAPSHOT"));
+			} else {
+				ZipUtils.compress(warFolder, new File(productFolder, "idm-1.0.0-SNAPSHOT.war").getPath());
+				FileUtils.forceDelete(warFolder);
+			}
 			//
 			// two mock modules - one with FE, two without
 			// one

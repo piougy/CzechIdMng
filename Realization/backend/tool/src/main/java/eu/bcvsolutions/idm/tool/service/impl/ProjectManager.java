@@ -70,17 +70,6 @@ public class ProjectManager {
 			File targetFolder = new File(rootFolder, "target");
 			File distFolder = new File(rootFolder, "dist");
 			//
-			// resolve product artefact
-			File productWar = null;
-			for (File file : productFolder.listFiles()) {
-				// TODO: find last version or configurable?
-				if (file.getName().endsWith(".war")) {
-					productWar = file;
-					break;
-				}
-			}
-			Assert.notNull(productWar, String.format("Product artefact (.war) not found in product folder [%s].", productFolder.getPath()));
-			LOG.info("Product artefact [{}] found.", productWar.getName());
 			LOG.info("Clean previous target and distribution ...");
 			if (clean) {
 				LOG.info("Previously installed / used frontend nodejs, npm and node_modules will be deleted ...");
@@ -117,13 +106,37 @@ public class ProjectManager {
 			} else {
 				distFolder.mkdirs();
 			}
+			
 			//
-			// extract war file
-			LOG.info("Product artefact [{}] will be extracted ...", productWar.getName());
+			// resolve product artefact
+			boolean productFound = false;
 			File extractedProductFolder = new File(targetFolder, "war");
-			File extractedFrontendFolder = new File(new File(targetFolder, "frontend"), "fe-sources"); // has to be lower - modules are linked automatically from parent folder
-			ZipUtils.extract(productWar, extractedProductFolder.getPath());
-			LOG.info("Product [{}] extracted into target folder [{}].", productWar, targetFolder);
+			for (File file : productFolder.listFiles()) {
+				// TODO: find last version or configurable?
+				// TODO: extracted product higher priority?
+				if (file.isDirectory()) {
+					// extracted product
+					FileUtils.copyDirectory(file, extractedProductFolder);
+					LOG.info("Extracted product folder [{}] found.", file.getPath());
+					//
+					productFound = true;
+					break;
+				}
+				if (file.getName().endsWith(".war")) {
+					// .war artefact
+					File productWar = file;
+					LOG.info("Product artefact [{}] found.", productWar.getName());
+					//
+					// extract war file
+					LOG.info("Product artefact [{}] will be extracted ...", productWar.getName());
+					ZipUtils.extract(productWar, extractedProductFolder.getPath());
+					LOG.info("Product [{}] extracted into target folder [{}].", productWar, targetFolder);
+					//
+					productFound = true;
+					break;
+				}
+			}
+			Assert.isTrue(productFound, String.format("Product artefact (.war) not found in product folder [%s].", productFolder.getPath()));
 			//
 			// check product version
 			String productVersion = getVersion(extractedProductFolder);
@@ -131,6 +144,7 @@ public class ProjectManager {
 			//
 			// add modules into BE libs
 			// extract FE sources - prepare for build
+			File extractedFrontendFolder = new File(new File(targetFolder, "frontend"), "fe-sources"); // has to be lower - modules are linked automatically from parent folder
 			File productFrontendFolder = new File(String.format("%s/fe-sources", extractedProductFolder.getPath()));
 			FileUtils.copyDirectory(productFrontendFolder, extractedFrontendFolder);
 			//

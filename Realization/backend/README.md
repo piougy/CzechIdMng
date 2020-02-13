@@ -22,6 +22,7 @@ Java application deployable to Tomcat 9 application server.
 
 ### Application modules [optional]
 * `acc` - Account management module
+* `vs` - Virtual systems
 * `rpt` - Report module
 * `example` - Example application module / skeleton
 * `tool` - various utilities for release product
@@ -50,7 +51,7 @@ Deploy `idm.war` package is the same as above.
 
 ### Setup jpa metamodel generation in Eclipse
 
-This setup has to be done for modules **core-api**, **core-impl** and other optional modules, which uses criteria api (e.g. **acc**).
+This setup has to be done for modules **core-api**, **core-impl** and other optional modules, which uses criteria api (e.g. **acc**, **vs**, **rpt**, **example**).
 
 * Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> check `Enable project specific settings` and fill **target/metamodel** as `Generated source directory`.
 * Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> `Factory path` -> check `Enable project specific settings` and add external jar `hibernate-jpamodelgen.jar` (version 5.x.x). Artefact could be found in local maven repository or downloaded from any public maven repository.
@@ -58,9 +59,9 @@ This setup has to be done for modules **core-api**, **core-impl** and other opti
 
 Note: If you don't set metamodel generation, you will see Java problems like `ExampleProduct_` cannot be resolved to a variable.
 
-### Ignore warnings in generated classes in Eclipse
+#### Ignore warnings in generated classes in Eclipse
 
-Go to `Project` -> `Properties` -> `Java Build Path` -> `Source` -> set `Ignore optional compile problems` to `Yes`.
+Go to `Project` -> `Properties` -> `Java Build Path` -> `Source` -> `<module>target/metamodel` -> set `Ignore optional compile problems` to `Yes`.
 
 [Other IDEs](https://docs.jboss.org/hibernate/jpamodelgen/1.0/reference/en-US/html_single/#d0e319)
 

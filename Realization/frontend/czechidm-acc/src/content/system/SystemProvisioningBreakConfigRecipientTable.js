@@ -83,6 +83,10 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
     const detail = _.merge({}, this.state.detail);
     const { provisioningBreakConfigId, uiKey, manager } = this.props;
     //
+    if (!this.refs.form.isFormValid()) {
+      return;
+    }
+    //
     detail.showLoading = true;
     this.setState({
       detail
@@ -149,7 +153,17 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
       event.preventDefault();
     }
     const detail = _.merge({}, this.state.detail);
-    detail.entity.type = value.value;
+    // clear identity and role after type was changed
+    if (detail && detail.entity) {
+      detail.entity.type = value.value;
+      detail.entity.identity = null;
+      detail.entity.role = null;
+      if (detail.entity_embedded) {
+        detail.entity._embedded.identity = null;
+        detail.entity._embedded.role = null;
+      }
+    }
+
     this.setState({
       detail
     });
@@ -226,8 +240,8 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Modal show={ detail.show } showLoading={ detail.showLoading } onHide={ this._closeModal.bind(this) }>
           <form onSubmit={ this.saveDetail.bind(this) }>
-            <Basic.Modal.Header text={this.i18n('acc:content.provisioningBreakConfigRecipient.new')} rendered={isNew} />
-            <Basic.Modal.Header text={this.i18n('acc:content.provisioningBreakConfigRecipient.edit')} rendered={!isNew} />
+            <Basic.Modal.Header text={ this.i18n('acc:content.provisioningBreakConfigRecipient.new') } rendered={ isNew } />
+            <Basic.Modal.Header text={ this.i18n('acc:content.provisioningBreakConfigRecipient.edit') } rendered={ !isNew } />
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" data={ detail.entity }>
                 <Basic.EnumSelectBox
@@ -244,15 +258,19 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
                 <Advanced.IdentitySelect
                   ref="identity"
                   label={ this.i18n('acc:entity.ProvisioningBreakConfigRecipient.identity') }
-                  hidden={ detail.entity.type === ROLE_TYPE }/>
+                  hidden={ detail.entity.type === ROLE_TYPE }
+                  required={ detail.entity.type === IDENTITY_TYPE }
+                  clearable={ false }/>
                 <Advanced.RoleSelect
                   ref="role"
                   label={ this.i18n('acc:entity.ProvisioningBreakConfigRecipient.role') }
-                  hidden={ detail.entity.type === IDENTITY_TYPE }/>
+                  hidden={ detail.entity.type === IDENTITY_TYPE }
+                  required={ detail.entity.type === ROLE_TYPE }
+                  clearable={ false }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>
-              <Basic.Button level="link" onClick={this._closeModal.bind(this)}>{this.i18n('button.cancel')}</Basic.Button>
+              <Basic.Button level="link" onClick={ this._closeModal.bind(this) }>{ this.i18n('button.cancel') }</Basic.Button>
               <Basic.Button
                 ref="yesButton"
                 level="success"
@@ -273,10 +291,10 @@ export class SystemProvisioningBreakConfigRecipientTable extends Advanced.Abstra
 
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={manager}
-          filterOpened={filterOpened}
-          forceSearchParameters={forceSearchParameters}
+          uiKey={ uiKey }
+          manager={ manager }
+          filterOpened={ filterOpened }
+          forceSearchParameters={ forceSearchParameters }
           showRowSelection={ Managers.SecurityManager.hasAuthority('SYSTEM_DELETE') && showRowSelection }
           className={ className }
           filter={

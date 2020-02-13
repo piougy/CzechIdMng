@@ -35,7 +35,6 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -88,6 +87,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  * Default target system configuration service
  *
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  *
  */
 @Service
@@ -511,8 +511,8 @@ public class DefaultSysSystemService
 				return mapping.getObjectClass().equals(originalSchemaId);
 			}).forEach(mapping -> {
 				final UUID originalMappingId = mapping.getId();
-				SysSystemMappingDto duplicatedMapping = this.duplicateMapping(originalMappingId, duplicatedSchema,
-						schemaAttributesCache, mappedAttributesCache);
+				SysSystemMappingDto duplicatedMapping = systemMappingService.duplicateMapping(originalMappingId,
+						duplicatedSchema, schemaAttributesCache, mappedAttributesCache, false);
 
 				// Duplicate sync configs
 				List<AbstractSysSyncConfigDto> syncConfigs = findSyncConfigs(id);
@@ -780,41 +780,6 @@ public class DefaultSysSystemService
 		return schema;
 	}
 
-	/**
-	 * Duplication of mapping attributes. Is not in attribute mapping service, because we need use IDs cache (Old vs New IDs)
-	 * @param id
-	 * @param schema
-	 * @param schemaAttributesIds
-	 * @param mappedAttributesIds
-	 * @return
-	 */
-	private SysSystemMappingDto duplicateMapping(UUID id, SysSchemaObjectClassDto schema, Map<UUID, UUID> schemaAttributesIds,
-			Map<UUID, UUID> mappedAttributesIds) {
-		Assert.notNull(id, "Id of duplication mapping, must be filled!");
-		Assert.notNull(schema, "Parent schema must be filled!");
-		SysSystemMappingDto clonedMapping = systemMappingService.clone(id);
-		clonedMapping.setObjectClass(schema.getId());
-		SysSystemMappingDto mapping = this.systemMappingService.save(clonedMapping);
-
-		// Clone mapped attributes
-		SysSystemAttributeMappingFilter attributesFilter = new SysSystemAttributeMappingFilter();
-		attributesFilter.setSystemMappingId(id);
-		systemAttributeMappingService.find(attributesFilter, null).forEach(attribute -> {
-			UUID originalAttributeId = attribute.getId();
-			SysSystemAttributeMappingDto clonedAttribute = systemAttributeMappingService.clone(originalAttributeId);
-			// Find cloned schema attribute in cache (by original Id)
-			SysSchemaAttributeDto clonedSchemaAttribute = attributeService
-					.get(schemaAttributesIds.get(clonedAttribute.getSchemaAttribute()));
-
-			clonedAttribute.setSystemMapping(mapping.getId());
-			clonedAttribute.setSchemaAttribute(clonedSchemaAttribute.getId());
-			clonedAttribute = systemAttributeMappingService.save(clonedAttribute);
-			// Put original and new id to cache
-			mappedAttributesIds.put(originalAttributeId, clonedAttribute.getId());
-		});
-
-		return mapping;
-	}
 
 	/**
 	 * Duplication of sync configuration. Is not in sync service, because we need use IDs cache (Old vs New IDs)

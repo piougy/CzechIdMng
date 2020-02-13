@@ -574,7 +574,7 @@ module.exports = {
     {
       path: 'modules',
       component: require('./src/content/module/ModuleRoutes'),
-      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ'] } ],
+      access: [ { type: 'IS_AUTHENTICATED' } ],
       childRoutes: [
         {
           path: 'fe-modules',
@@ -595,6 +595,11 @@ module.exports = {
           path: 'filter-builders',
           component: require('./src/content/module/FilterBuilders'),
           access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
+        },
+        {
+          path: 'available-services',
+          component: require('./src/content/module/AvailableServices'),
+          access: [{type: 'IS_AUTHENTICATED'}]
         },
         {
           path: 'caches',

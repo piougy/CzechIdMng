@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
@@ -369,6 +370,19 @@ public class DefaultIdmIdentityRoleService
 		if (isRoleAutomaticOrComposition(two)) {
 			if (automatic != null) {
 				// Automatic role is set from role ONE -> Both identity roles are automatic
+				if (one.getDirectRole() == null 
+						|| two.getDirectRole() == null
+						|| one.getRoleComposition() == null 
+						|| two.getRoleComposition() == null) {
+					// role was not created by business role definition
+					return null;
+				}
+				if (Objects.equal(one.getDirectRole(), two.getDirectRole())
+						&& Objects.equal(one.getRoleComposition(), two.getRoleComposition())) {
+					// #2034 compositon is duplicate
+					return getIdentityRoleForRemove(one, two);
+				}
+				// automatic roles or composition is not duplicate
 				return null;
 			}
 			automatic = two;
@@ -477,7 +491,7 @@ public class DefaultIdmIdentityRoleService
 	 */
 	private LocalDate getDateForValidTill(IdmIdentityRoleDto identityRole) {
 		LocalDate validTill = identityRole.getValidTill();
-		IdmIdentityContractDto identityContractDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRole_.identityContract, IdmIdentityContractDto.class, null);
+		IdmIdentityContractDto identityContractDto = DtoUtils.getEmbedded(identityRole, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT, IdmIdentityContractDto.class, null);
 		LocalDate validTillContract = identityContractDto.getValidTill();
 
 		if (validTill != null && validTillContract != null && validTillContract.isAfter(validTill)) {

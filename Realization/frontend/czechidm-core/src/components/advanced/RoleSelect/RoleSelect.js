@@ -466,7 +466,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       value,
       rendered,
       forceSearchParameters,
-      disableable
+      disableable,
+      clearable
     } = this.props;
     //
     const {
@@ -508,6 +509,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               validationErrors={ validationErrors }
               value={ value }
               optionComponent={ RoleOptionDecorator }
+              clearable={ clearable }
               valueComponent={ RoleValueDecorator }
               forceSearchParameters={ forceSearchParameters }
               niceLabel={(r) => {

@@ -84,7 +84,8 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 			identityRoleService
 				.find(filter, null)
 				.forEach(identityRole -> {
-					roleCompositionService.assignSubRoles(new IdentityRoleEvent(IdentityRoleEventType.NOTIFY, identityRole));
+					// currently processed role composition only
+					roleCompositionService.assignSubRoles(new IdentityRoleEvent(IdentityRoleEventType.NOTIFY, identityRole), roleCompositionId);
 				});
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch (Exception ex) {
@@ -119,5 +120,10 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		List<String> propertyNames = super.getPropertyNames();
 		propertyNames.add(PARAMETER_ROLE_COMPOSITION_ID);
 		return propertyNames;
+	}
+	
+	@Override
+	public boolean supportsQueue() {
+		return false;
 	}
 }

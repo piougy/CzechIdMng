@@ -369,7 +369,7 @@ public class DefaultIdmPasswordPolicyService
 			}
 			// check to prohibited characters
 			if (!Strings.isNullOrEmpty(passwordPolicy.getProhibitedCharacters())
-					&& !password.matches("[^" + passwordPolicy.getProhibitedCharacters() + "]*")) {
+					&& !password.matches("[^" + Pattern.quote(passwordPolicy.getProhibitedCharacters()) + "]*")) {
 				for (char character : passwordPolicy.getProhibitedCharacters().toCharArray()) {
 					if (password.indexOf(character) >= 0) {
 						prohibitedChar.add(character);

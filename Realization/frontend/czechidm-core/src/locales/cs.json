@@ -1561,7 +1561,7 @@
         },
         "role": {
           "label": "Role",
-          "placeholder": "Má přiřazenu roli"
+          "placeholder": "Má přiřazenu jednu z rolí"
         },
         "disabled": {
           "label": "Neaktivní",
@@ -2989,6 +2989,15 @@
             "placeholder": "Typ entity"
           }
         }
+      },
+      "available-services": {
+        "header": "Dostupné služby",
+        "title": "Dostupné služby",
+        "filter": {
+          "text": {
+            "placeholder": "Název služby (like)"
+          }
+        }
       }
     },
     "scheduler": {
@@ -4367,6 +4376,18 @@
       },
       "filterBuilderClass": {
         "label": "Typ filtru"
+      }
+    },
+    "AvailableServices": {
+      "methodName": {
+        "label": "Jméno metody",
+        "title": "Jméno metody."
+      },
+      "returnType": {
+        "label": "Návratový typ"
+      },
+      "arguments": {
+        "label": "Parametry metody"
       }
     },
     "LongRunningTask": {
@@ -6265,6 +6286,10 @@
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Business role je mazána jiným procesem",
       "message": "Business role [{{roleCompositionId}}] je mazána souběžnou úlohou [{{taskId}}]."
+    },
+    "ROLE_COMPOSITION_REMOVE_HAS_ASSIGNED_ROLES": {
+      "title": "Business roli nelze smazat",
+      "message": "Aktuálně mazaná business role [{{roleCompositionId}}] byla nově přidělena [{{assignedRoles}}] uživatelům. Přerušte přidělování rolí a smažte business roli znovu."
     },
     "GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE": {
       "title": "Skript pro generování vrací chybový stav",

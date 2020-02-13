@@ -200,7 +200,7 @@
           },
           "assignDefaultRoleToAll": {
             "label": "Přiřadit výchozí roli všem platným kontraktům",
-            "helpBlock": "Výchozí role nebude přiřazena na hlavní kontrakt, ale na všechny platné, či v budoucnu platní kontrakty dané identity."
+            "helpBlock": "Výchozí role nebude přiřazena na hlavní kontrakt, ale na všechny platné, či v budoucnu platné kontrakty dané identity."
           },
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",
@@ -1993,6 +1993,11 @@
         "help": "Smaže vybraná mapování. <strong>Mapování nesmí být použito v synchronzaci nebo provisioningu</strong>.",
         "icon": "$t(action.delete.icon)"
       },
+      "acc-system-mapping-duplicate-bulk-action": {
+        "icon": "fa:clone",
+        "label": "Duplikovat mapování systému",
+        "help": "Vytvoří kopie vybraných mapování systému."
+      },
       "acc-identity-account-management-bulk-action": {
         "icon": "link",
         "label": "Přepočet účtů a provisioning",
@@ -2079,6 +2084,11 @@
             "placeholder": "Vyberte nakonfigurovanou synchronizaci pro spuštění ..."
           }
         }
+      },
+      "acc-account-protection-expiration-long-running-task": {
+        "label": "Smazat účty s expirovaným ochranným intervalem",
+        "help": "Smazě účty s expirovaným ochranným intervalem. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu.",
+        "icon": "fa:trash"
       }
     }
   },

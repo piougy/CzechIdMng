@@ -1006,9 +1006,18 @@ module.exports = {
                 access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
               },
               {
+                id: 'available-services',
+                labelKey: 'content.system.available-services.title',
+                order: 50,
+                path: '/modules/available-services',
+                icon: '',
+                type: 'TAB',
+                access: [{type: 'IS_AUTHENTICATED'}]
+              },
+              {
                 id: 'caches',
                 labelKey: 'content.system.cache.title',
-                order: 50,
+                order: 60,
                 path: '/modules/caches',
                 icon: '',
                 type: 'TAB',

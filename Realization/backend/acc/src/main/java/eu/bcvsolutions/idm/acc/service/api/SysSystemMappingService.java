@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -18,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * System entity handling service
  * 
  * @author svandav
+ * @author Ondrej Husnik
  *
  */
 public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMappingDto, SysSystemMappingFilter>, CloneableService<SysSystemMappingDto> {
@@ -53,14 +55,16 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	List<SysSystemMappingDto> findByObjectClass(SysSchemaObjectClassDto objectClass, SystemOperationType operation, SystemEntityType entityType);
 
 	/**
-	 * Is enabled protection of account against delete
+	 * Is enabled protection of account against delete.
+	 * 
 	 * @param account
 	 * @return
 	 */
 	boolean isEnabledProtection(AccAccountDto account);
 
 	/**
-	 * Interval of protection against account delete
+	 * Interval of protection against account delete.
+	 * 
 	 * @param account
 	 * @return
 	 */
@@ -68,13 +72,15 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 
 	
 	/**
-	 * Validate, if system mapping has attribute as identificator
+	 * Validate, if system mapping has attribute as identifier.
+	 * 
 	 * @param systemMapingId
 	 */
 	void validate (UUID systemMapingId);
 
 	/**
 	 * Call script "Can be account created?" on the mapping.
+	 * 
 	 * @param uid
 	 * @param dto
 	 * @param script
@@ -85,10 +91,25 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 
 	/**
 	 * Find provisioning mapping on the given system and for entity type.
+	 * 
 	 * @param systemId
 	 * @param entityType
 	 * @return
 	 */
 	SysSystemMappingDto findProvisioningMapping(UUID systemId, SystemEntityType entityType);
-
+	
+	/**
+	 * Duplication of mapping attributes.
+	 * 
+	 * @since 10.1.0
+	 * 
+	 * @param id
+	 * @param schema
+	 * @param schemaAttributesIds
+	 * @param mappedAttributesIds
+	 * @param usedInSameSystem 
+	 * @return
+	 */
+	SysSystemMappingDto duplicateMapping(UUID id, SysSchemaObjectClassDto schema, Map<UUID, UUID> schemaAttributesIds,
+			Map<UUID, UUID> mappedAttributesIds, boolean usedInSameSystem);
 }

@@ -244,7 +244,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     ref="systemMapping"
                     manager={systemMappingManager}
                     label={this.i18n('acc:entity.SystemAttributeMapping.systemMapping')}
-                    readOnly={_isDisabled}
+                    readOnly
                     required/>
                   <Basic.SelectBox
                     ref="schemaAttribute"

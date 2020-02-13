@@ -1237,7 +1237,7 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(ownerId, "Form values owner id is required.");
 		Assert.notNull(ownerType, "Form values owner type is required.");
 		O owner = (O) lookupService.lookupEntity(ownerType, ownerId);
-		Assert.notNull(owner, "Form values owner is required.");
+		Assert.notNull(owner, String.format("Form values owner not found and is required. Owner type [%s], id [%s].", ownerType, ownerId));
 		//
 		return owner;
 	}

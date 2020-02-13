@@ -40,6 +40,6 @@ public interface SysProvisioningAttributeRepository extends AbstractEntityReposi
 	 * @return
 	 */
 	@Modifying
-	@Query("delete from #{#entityName} e where e.provisioningId not in (select id from SysProvisioningArchive) and e.provisioningId not in (select id from SysProvisioningOperation)")
+	@Query("delete from #{#entityName} e where not exists (select arch.id from SysProvisioningArchive arch where e.provisioningId = arch.id) and not exists (select oper.id from SysProvisioningOperation oper where e.provisioningId = oper.id)")
 	int cleanupAttributes();
 }

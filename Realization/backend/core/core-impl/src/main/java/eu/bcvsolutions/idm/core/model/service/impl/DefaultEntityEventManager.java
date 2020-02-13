@@ -649,8 +649,8 @@ public class DefaultEntityEventManager implements EntityEventManager {
 		// try to use persisted event content
 		// only if type and id is the same as owner can be used
 		if (entityEvent.getContent() != null 
-				&& getOwnerType(entityEvent.getContent().getClass()).equals(entityEvent.getOwnerType())
-				&& entityEvent.getContent().getId().equals(entityEvent.getOwnerId())) {
+				&& Objects.equal(getOwnerType(entityEvent.getContent().getClass()), entityEvent.getOwnerType())
+				&& Objects.equal(entityEvent.getContent().getId(), entityEvent.getOwnerId())) {
 			content = entityEvent.getContent();
 		}
 		if (content == null) {

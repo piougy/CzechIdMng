@@ -32,6 +32,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRuleReques
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule_;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRuleRequestRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -66,16 +68,18 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 		// Numeric attribute can be only EAV (for now, even external code is string)
 		boolean isAttributeNumeric = false;
 		AutomaticRoleAttributeRuleComparison comparison = dto.getComparison();
+		AutomaticRoleAttributeRuleType type = dto.getType();
 		// now isn't possible do equals with string_value (clob), so it is necessary to
 		// use only short text
-		if ((AutomaticRoleAttributeRuleType.CONTRACT_EAV == dto.getType()
-				|| AutomaticRoleAttributeRuleType.IDENTITY_EAV == dto.getType()) && dto.getFormAttribute() != null) {
+		if ((AutomaticRoleAttributeRuleType.CONTRACT_EAV == type
+				|| AutomaticRoleAttributeRuleType.IDENTITY_EAV == type) && dto.getFormAttribute() != null) {
 			IdmFormAttributeDto formAttribute = formAttributeService.get(dto.getFormAttribute());
 			if (formAttribute == null) {
 				throw new ResultCodeException(CoreResultCode.NOT_FOUND,
 						ImmutableMap.of("attribute", dto.getFormAttribute()));
 			}
-			if (formAttribute.getPersistentType() == PersistentType.TEXT) {
+			PersistentType formAttributePersistenType = formAttribute.getPersistentType();
+			if (formAttributePersistenType == PersistentType.TEXT) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT);
 			}
 			if (formAttribute.isMultiple() && (comparison != AutomaticRoleAttributeRuleComparison.EQUALS &&
@@ -84,8 +88,13 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE, ImmutableMap.of(
 						"comparison", comparison.name()));
 			}
+			if (formAttributePersistenType == PersistentType.BOOLEAN &&
+					(comparison != AutomaticRoleAttributeRuleComparison.EQUALS ||
+					comparison != AutomaticRoleAttributeRuleComparison.NOT_EQUALS)) {
+				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN, ImmutableMap.of(
+						"comparison", comparison.name()));
+			}
 			// Numeric value now can be only EAV
-			PersistentType formAttributePersistenType = formAttribute.getPersistentType();
 			isAttributeNumeric = formAttributePersistenType == PersistentType.INT || 
 					formAttributePersistenType == PersistentType.DOUBLE ||
 					formAttributePersistenType == PersistentType.LONG;
@@ -95,14 +104,37 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_COMPARSION_IS_ONLY_FOR_NUMERIC_ATTRIBUTE, ImmutableMap.of(
 					"comparison", comparison.name()));
 		}
+		//
+		String attributeName = dto.getAttributeName();
 		// check if is filled all necessary attribute
-		if ((dto.getType() == AutomaticRoleAttributeRuleType.CONTRACT
-				|| dto.getType() == AutomaticRoleAttributeRuleType.IDENTITY)
-				&& StringUtils.isEmpty(dto.getAttributeName())) {
+		if ((type == AutomaticRoleAttributeRuleType.CONTRACT
+				|| type == AutomaticRoleAttributeRuleType.IDENTITY)
+				&& StringUtils.isEmpty(attributeName)) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY,
 					ImmutableMap.of("automaticRoleId", dto.getId(), "attribute",
 							IdmAutomaticRoleAttributeRule_.attributeName.getName()));
 		}
+		//
+		boolean isEqualsOrNotEquals = comparison == AutomaticRoleAttributeRuleComparison.EQUALS || comparison == AutomaticRoleAttributeRuleComparison.NOT_EQUALS;
+		if (!isEqualsOrNotEquals) {
+			if (type == AutomaticRoleAttributeRuleType.CONTRACT) {
+				if (attributeName.equals(IdmIdentityContract_.main.getName())) {
+					throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN, ImmutableMap.of(
+							"comparison", comparison.name()));
+				}
+				if (attributeName.equals(IdmIdentityContract_.externe.getName())) {
+					throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN, ImmutableMap.of(
+							"comparison", comparison.name()));
+				}
+			}
+			if (type == AutomaticRoleAttributeRuleType.IDENTITY && !attributeName.equals(IdmIdentity_.disabled.getName())) {
+				if (attributeName.equals(IdmIdentity_.disabled.getName())) {
+					throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN, ImmutableMap.of(
+							"comparison", comparison.name()));
+				}
+			}
+		}
+		//
 		if (comparison == AutomaticRoleAttributeRuleComparison.EQUALS && dto.getValue() == null) {
 			throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY,
 					ImmutableMap.of("attribute", IdmAutomaticRoleAttributeRule_.value.getName()));

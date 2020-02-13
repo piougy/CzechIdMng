@@ -5990,6 +5990,10 @@
       "title": "Neplatný typ porovnání a atributu",
       "message": "Vybrané porovnání lze použít pouze s atributem číselného typu."
     },
+    "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN": {
+      "title": "Neplatný typ porovnání a atributu",
+      "message": "Vybrané porovnání nelze použít s atributem typu boolean."
+    },
     "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role je využívána jiným procesem",
       "message": "Automatická role [{{roleTreeNode}}] je mazána souběžnou úlohou [{{taskId}}]."

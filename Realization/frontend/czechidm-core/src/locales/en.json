@@ -5932,11 +5932,15 @@
     },
     "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE": {
       "title": "Invalid comparison and attribute type",
-      "message": "The selected comparison cannot be used only with a multivalued attribute."
+      "message": "The selected comparison cannot be used with a multivalued attribute."
     },
     "AUTOMATIC_ROLE_RULE_COMPARSION_IS_ONLY_FOR_NUMERIC_ATTRIBUTE": {
       "title": "Invalid comparison and attribute type",
       "message": "The selected comparison can be used only with a numeric type attribute."
+    },
+    "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN": {
+      "title": "Invalid comparison and attribute type",
+      "message": "The selected comparison cannot be used with a boolean type attribute."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role is used by concurrent task",

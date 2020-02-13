@@ -371,7 +371,15 @@ class SelectBox extends AbstractFormComponent {
                     isError = true;
                     renderedValues.push(item);
                     this.setState({
-                      error
+                      isLoading: true, // we are leave showloading on to be sure selectbox is opened and other record is selected or not
+                      error,
+                      showValidationError: true,
+                      validationResult: {
+                        status: 'error',
+                        class: 'has-error has-feedback',
+                        isValid: false,
+                        message: this.i18n('validationError.invalid.base')
+                      }
                     });
                   }
                 }));
@@ -449,7 +457,8 @@ class SelectBox extends AbstractFormComponent {
     }
 
     this.setState({
-      value
+      value,
+      error: null // clear previous error
     }, () => {
       this.validate();
     });
@@ -478,7 +487,7 @@ class SelectBox extends AbstractFormComponent {
       if (_niceLabel !== null && !_niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
         for (const field of this.props.searchInFields) {
           if (item[field] !== null && item[field].toLowerCase().indexOf(inputLower) >= 0) {
-            itemFullKey = itemFullKey + ' (' + item[field] + ')';
+            itemFullKey = `${ itemFullKey } (${ item[field] })`;
             continue;
           }
         }
@@ -541,12 +550,11 @@ class SelectBox extends AbstractFormComponent {
             <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
               <span>
                 {
-                  error
-                  ?
+                  !error
+                  ||
                   <FlashMessage message={ this.flashMessagesManager.convertFromError(error) } className="no-margin" />
-                  :
-                  this.getSelectComponent()
                 }
+                { this.getSelectComponent() }
                 {
                   feedback != null
                   ?

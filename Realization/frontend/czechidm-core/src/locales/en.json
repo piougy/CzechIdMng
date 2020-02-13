@@ -5541,7 +5541,7 @@
     },
     "NOT_FOUND": {
       "title": "Not found",
-      "message": "Record [{{entity}}] not found"
+      "message": "Record [{{entity}}] not found."
     },
     "MODULE_NOT_DISABLEABLE": {
       "title": "Module [{{module}}] cannot be disabled",

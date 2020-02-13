@@ -129,6 +129,58 @@ public class AccountProtectionSystemTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(createdAccount);
 		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
 	}
+	
+	@Test
+	public void forceIdentityDeleteAndRelinkOrphanAccountTest() {
+		IdmIdentityDto identity = helper.createIdentity();
+		SysSystemDto system = initSystem();
+		IdmRoleDto roleOne = roleService.getByCode(ROLE_ONE);
+
+		// Set system to protected mode
+		SysSystemMappingDto mapping = systemMappingService
+				.findBySystem(system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
+		mapping.setProtectionEnabled(Boolean.TRUE);
+		mapping.setProtectionInterval(null);
+		systemMappingService.save(mapping);
+
+		helper.createIdentityRole(identity, roleOne);
+
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+
+		Assert.assertNotNull(account);
+		Assert.assertFalse(account.isInProtection());
+		TestResource createdAccount = helper.findResource(account.getUid());
+		Assert.assertNotNull(createdAccount);
+		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
+
+		account = accountService.getAccount(identity.getUsername(), system.getId());
+		// Force delete of identity
+		identityService.delete(identity);
+		
+		Assert.assertNull(identityService.get(identity.getId()));
+		
+		// Orphan must exists
+		account = accountService.get(account.getId());
+		Assert.assertNotNull(account);
+		Assert.assertTrue(account.isInProtection());
+		Assert.assertNull(account.getEndOfProtection());
+		createdAccount = helper.findResource(account.getUid());
+		Assert.assertNotNull(createdAccount);
+		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
+		
+		// Create new identity with same username
+		identity = helper.createIdentity(identity.getUsername());
+		// Assign same role
+		helper.createIdentityRole(identity, roleOne);
+		
+		// Same account must exist (same ID), but now must be not in protected mode.
+		account = accountService.get(account.getId());
+		Assert.assertNotNull(account);
+		Assert.assertFalse(account.isInProtection());
+		createdAccount = helper.findResource(account.getUid());
+		Assert.assertNotNull(createdAccount);
+		Assert.assertEquals(identity.getFirstName(), createdAccount.getFirstname());
+	}
 
 	@Test
 	public void deleteAccountOnProtectionSystemTest() {

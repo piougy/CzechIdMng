@@ -66,8 +66,10 @@ public class IdentityAccountSaveProcessor extends CoreEventProcessor<AccIdentity
 			AccIdentityAccountDto protectedIdentityAccount = findProtectedIdentityAccount(account);
 			// First we save new identity-account
 			event.setContent(service.saveInternal(entity));
-			// Second we delete protected identity-account
-			service.delete(protectedIdentityAccount);
+			if (protectedIdentityAccount != null) {
+				// Second we delete protected identity-account
+				service.delete(protectedIdentityAccount);
+			}
 			// Next we set account to unprotected state
 			this.deactivateProtection(accountEntity);
 			accountEntity = accountService.save(accountEntity);

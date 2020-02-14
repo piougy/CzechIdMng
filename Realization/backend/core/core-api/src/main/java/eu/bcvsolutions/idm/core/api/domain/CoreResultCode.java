@@ -191,6 +191,9 @@ public enum CoreResultCode implements ResultCode {
 	AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Automatic role [%s] is removed in concurent task [%s]"),
 	AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Automatic role [%s] is added in concurent task [%s], wait for task is complete, after removal."),
 	AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY(HttpStatus.BAD_REQUEST, "Rule for automatic role hasn't filled necessary attribute: [%s]."),
+	AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE(HttpStatus.BAD_REQUEST, "Comparsion [%s] cannot be used with multiple form attribute."),
+	AUTOMATIC_ROLE_RULE_COMPARSION_IS_ONLY_FOR_NUMERIC_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Comparsion [%s] can be used only with numeric form attribute."),
+	AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN(HttpStatus.BAD_REQUEST, "Comparsion [%s] cannot be used with boolean types."),
 	AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT(HttpStatus.BAD_REQUEST, "Persistent type TEXT isn't allowed."),
 	AUTOMATIC_ROLE_PROCESS_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Automatic role [%s] was not process correctly, failed contracts add: [%s], failed contracts remove: [%s]."),
 	//

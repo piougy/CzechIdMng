@@ -28,6 +28,39 @@ export default class AutomaticRoleAttributeRuleComparisonEnum extends AbstractEn
       case this.EQUALS: {
         return 'success';
       }
+      case this.NOT_EQUALS: {
+        return 'warning';
+      }
+      case this.START_WITH: {
+        return 'success';
+      }
+      case this.NOT_START_WITH: {
+        return 'warning';
+      }
+      case this.END_WITH: {
+        return 'success';
+      }
+      case this.NOT_END_WITH: {
+        return 'warning';
+      }
+      case this.IS_EMPTY: {
+        return 'success';
+      }
+      case this.IS_NOT_EMPTY: {
+        return 'warning';
+      }
+      case this.CONTAINS: {
+        return 'success';
+      }
+      case this.NOT_CONTAINS: {
+        return 'warning';
+      }
+      case this.LESS_THAN_OR_EQUAL: {
+        return 'info';
+      }
+      case this.GREATER_THAN_OR_EQUAL: {
+        return 'info';
+      }
       default: {
         return 'default';
       }
@@ -36,3 +69,14 @@ export default class AutomaticRoleAttributeRuleComparisonEnum extends AbstractEn
 }
 
 AutomaticRoleAttributeRuleComparisonEnum.EQUALS = Symbol('EQUALS');
+AutomaticRoleAttributeRuleComparisonEnum.NOT_EQUALS = Symbol('NOT_EQUALS');
+AutomaticRoleAttributeRuleComparisonEnum.START_WITH = Symbol('START_WITH');
+AutomaticRoleAttributeRuleComparisonEnum.NOT_START_WITH = Symbol('NOT_START_WITH');
+AutomaticRoleAttributeRuleComparisonEnum.END_WITH = Symbol('END_WITH');
+AutomaticRoleAttributeRuleComparisonEnum.NOT_END_WITH = Symbol('NOT_END_WITH');
+AutomaticRoleAttributeRuleComparisonEnum.IS_EMPTY = Symbol('IS_EMPTY');
+AutomaticRoleAttributeRuleComparisonEnum.IS_NOT_EMPTY = Symbol('IS_NOT_EMPTY');
+AutomaticRoleAttributeRuleComparisonEnum.CONTAINS = Symbol('CONTAINS');
+AutomaticRoleAttributeRuleComparisonEnum.NOT_CONTAINS = Symbol('NOT_CONTAINS');
+AutomaticRoleAttributeRuleComparisonEnum.LESS_THAN_OR_EQUAL = Symbol('LESS_THAN_OR_EQUAL');
+AutomaticRoleAttributeRuleComparisonEnum.GREATER_THAN_OR_EQUAL = Symbol('GREATER_THAN_OR_EQUAL');

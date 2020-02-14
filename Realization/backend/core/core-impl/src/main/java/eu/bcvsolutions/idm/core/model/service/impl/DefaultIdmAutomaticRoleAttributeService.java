@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,6 +65,7 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
@@ -553,22 +552,46 @@ public class DefaultIdmAutomaticRoleAttributeService
 					.getSingularAttribute(rule.getAttributeName());
 			Path<Object> path = root.get(singularAttribute.getName());
 			//
+			// For contract is used direct query, because root for query is direct contract
+			// Also for contract rules is used last parameter negation, this parameter control which
+			// role will be added and wich roles will be removed.
 			return getPredicateWithComparsion(
 					path,
-					castToType(singularAttribute, rule.getValue()),
+					castToType(singularAttribute, rule.getValue(), rule.getComparison()),
 					cb,
 					rule.getComparison(),
 					!pass);
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.CONTRACT_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
+			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
+			// Cast given value to specific persistent type
+			// For is empty and is not empty comparison is returned null even if value exists
+			Object value = getFormValue(rule.getValue(), formAttributeDto, comparison);
 			//
-			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
-			//
+			// For contract form attribute was composed only one subquery
 			Subquery<IdmIdentityContractFormValue> subquery = query.subquery(IdmIdentityContractFormValue.class);
 			Root<IdmIdentityContractFormValue> subRoot = subquery.from(IdmIdentityContractFormValue.class);
 			subquery.select(subRoot);
 			//
 			Path<?> path = subRoot.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
+			//
+			// Is empty comparison has specific behavior because form value isn't empty, but value doesn't exist 
+			if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
+				subquery.where(
+						cb.or(
+							// Predicate for check if value exists
+							getPredicateForNullFormAttributeIdentityContract(root, query, cb, formAttributeDto),
+							cb.and(
+								cb.equal(subRoot.get(IdmIdentityContractFormValue_.owner), root),
+								cb.equal(subRoot.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
+								getPredicateWithComparsion(path, null, cb, rule.getComparison(), null)
+								)
+						));
+				if(pass) {
+					return cb.not(cb.exists(subquery));	
+				}
+				return cb.exists(subquery);
+			}
 			//
 			subquery.where(
 					cb.and(
@@ -578,23 +601,68 @@ public class DefaultIdmAutomaticRoleAttributeService
 						)
 					);
 			//
-			Predicate existsInEav = getPredicateForConnection(subquery, cb, pass);
+			Predicate existsInEav = getPredicateForConnection(subquery, cb, pass, formAttributeDto.isMultiple());
+			// For comparison with not is required also check null values
+			if (comparison == AutomaticRoleAttributeRuleComparison.NOT_CONTAINS ||
+					comparison == AutomaticRoleAttributeRuleComparison.NOT_END_WITH ||
+					comparison == AutomaticRoleAttributeRuleComparison.NOT_EQUALS ||
+					comparison == AutomaticRoleAttributeRuleComparison.NOT_START_WITH) {
+				if (pass) {
+					existsInEav = cb.or(
+							existsInEav,
+							cb.not(getPredicateForNullFormAttributeIdentityContract(root, query, cb, formAttributeDto)));
+				} else {
+					existsInEav = cb.and(
+							existsInEav,
+							getPredicateForNullFormAttributeIdentityContract(root, query, cb, formAttributeDto));
+				}
+			}
 			//
 			return existsInEav;
 		} else if (rule.getType() == AutomaticRoleAttributeRuleType.IDENTITY_EAV) {
 			IdmFormAttributeDto formAttributeDto = formAttributeService.get(rule.getFormAttribute());
+			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
+			// Cast given value to specific persistent type
+						// For is empty and is not empty comparison is returned null even if value exists
+			Object value = getFormValue(rule.getValue(), formAttributeDto, comparison);
 			//
-			Object value = getEavValue(rule.getValue(), formAttributeDto.getPersistentType());
-			//
+			// Rules for identity form values must contains two subquery identity -> identity eav
 			Subquery<IdmIdentity> subquery = query.subquery(IdmIdentity.class);
 			Root<IdmIdentity> subRoot = subquery.from(IdmIdentity.class);
 			subquery.select(subRoot);
-			
+			//
 			Subquery<IdmIdentityFormValue> subQueryIdentityEav = query.subquery(IdmIdentityFormValue.class);
 			Root<IdmIdentityFormValue> subRootIdentityEav = subQueryIdentityEav.from(IdmIdentityFormValue.class);
 			subQueryIdentityEav.select(subRootIdentityEav);
 			//
 			Path<?> path = subRootIdentityEav.get(getSingularAttributeForEav(formAttributeDto.getPersistentType()));
+			//
+			// Is empty comparison has specific behavior because form value isn't empty, but value doesn't exist 
+			if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
+				subquery.where(
+					cb.and(
+						cb.equal(root.get(IdmIdentityContract_.identity), subRoot),
+						cb.or(
+							cb.exists(
+								subQueryIdentityEav.where(
+									cb.and(
+										cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), subRoot),
+										cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
+										getPredicateWithComparsion(path, null, cb, rule.getComparison(), null))
+									)
+								),
+							// Predicate for check if value exists
+							getPredicateForNullFormAttributeIdentity(subRoot, subquery, cb, formAttributeDto)
+						)
+					)
+				);
+				//
+				if(pass) {
+					return cb.not(cb.exists(subquery));
+				}
+				return cb.exists(subquery);
+			}
+			//
 			subQueryIdentityEav.where(
 					cb.and(
 							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), subRoot),
@@ -602,8 +670,22 @@ public class DefaultIdmAutomaticRoleAttributeService
 							cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
 							getPredicateWithComparsion(path, value, cb, rule.getComparison(), null)
 							));
-			//
-			Predicate existsInEav = getPredicateForConnection(subQueryIdentityEav, cb, pass);
+			Predicate existsInEav = getPredicateForConnection(subQueryIdentityEav, cb, pass, formAttributeDto.isMultiple());
+			// For comparison with not is required also check null values
+			if (comparison == AutomaticRoleAttributeRuleComparison.NOT_CONTAINS ||
+					comparison == AutomaticRoleAttributeRuleComparison.NOT_END_WITH ||
+					comparison == AutomaticRoleAttributeRuleComparison.NOT_EQUALS ||
+					comparison == AutomaticRoleAttributeRuleComparison.NOT_START_WITH) {
+				if (pass) {
+					existsInEav = cb.or(
+							existsInEav,
+							cb.not(getPredicateForNullFormAttributeIdentity(subRoot, subquery, cb, formAttributeDto)));
+				} else {
+					existsInEav = cb.and(
+							existsInEav,
+							getPredicateForNullFormAttributeIdentity(subRoot, subquery, cb, formAttributeDto));
+				}
+			}
 			//
 			subquery.where(
 					cb.and(
@@ -622,15 +704,57 @@ public class DefaultIdmAutomaticRoleAttributeService
 			Path<Object> path = subRoot.get(singularAttribute.getName());
 			//
 			subquery.where(cb.and(cb.equal(subRoot.get(IdmIdentity_.id), root.get(IdmIdentityContract_.identity).get(AbstractEntity_.id)), // correlation attr
-					getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue()), cb,
+					getPredicateWithComparsion(path, castToType(singularAttribute, rule.getValue(), rule.getComparison()), cb,
 							rule.getComparison(), null)));
 			//
-			return getPredicateForConnection(subquery, cb, pass);
+			return getPredicateForConnection(subquery, cb, pass, false);
 		} else {
 			throw new UnsupportedOperationException("Type: " + rule.getType().name() + ", isn't supported for contract rules!");
 		}
 	}
-	
+
+	/**
+	 * Create subquery for check null form values for identity root
+	 *
+	 * @param root
+	 * @param query
+	 * @param cb
+	 * @param formAttributeDto
+	 * @return
+	 */
+	private Predicate getPredicateForNullFormAttributeIdentity(Root<IdmIdentity> root, Subquery<IdmIdentity> query, CriteriaBuilder cb, IdmFormAttributeDto formAttributeDto) {
+		Subquery<IdmIdentityFormValue> subqueryNull = query.subquery(IdmIdentityFormValue.class);
+		Root<IdmIdentityFormValue> subRootNull = subqueryNull.from(IdmIdentityFormValue.class);
+		subqueryNull.select(subRootNull);
+		
+		subqueryNull.where(cb.and(
+				cb.equal(subRootNull.get(IdmIdentityFormValue_.owner), root),
+				cb.equal(subRootNull.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId())
+				));
+		return cb.exists(subqueryNull);
+	}
+
+	/**
+	 * Create subquery for check null form values for identity contract root
+	 *
+	 * @param root
+	 * @param query
+	 * @param cb
+	 * @param formAttributeDto
+	 * @return
+	 */
+	private Predicate getPredicateForNullFormAttributeIdentityContract(Root<IdmIdentityContract> root, CriteriaQuery<?> query,CriteriaBuilder cb, IdmFormAttributeDto formAttributeDto) {
+		Subquery<IdmIdentityContractFormValue> subqueryNull = query.subquery(IdmIdentityContractFormValue.class);
+		Root<IdmIdentityContractFormValue> subRootNull = subqueryNull.from(IdmIdentityContractFormValue.class);
+		subqueryNull.select(subRootNull);
+		
+		subqueryNull.where(cb.and(
+				cb.equal(subRootNull.get(IdmIdentityContractFormValue_.owner), root),
+				cb.equal(subRootNull.get(IdmIdentityContractFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId())
+				));
+		return cb.exists(subqueryNull);
+	}
+
 	/**
 	 * Method is used for connect {@link Subquery} with outer query.
 	 * In equal return exists otherwise return is null
@@ -639,12 +763,16 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @param subQuery
 	 * @param cb
 	 * @param pass
+	 * @param multivalued
 	 * @return
 	 */
-	private Predicate getPredicateForConnection(Subquery<?> subQuery, CriteriaBuilder cb, boolean pass) {
+	private Predicate getPredicateForConnection(Subquery<?> subQuery, CriteriaBuilder cb, boolean pass, boolean multivalued) {
 		if (pass) {
 			return cb.exists(subQuery);
-		} else { 
+		} else {
+			if (multivalued) {
+				return cb.not(cb.exists(subQuery));
+			}
 			return cb.isNull(subQuery);
 		}
 	}
@@ -660,6 +788,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @param neq
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private Predicate getPredicateWithComparsion(Path<?> path, Object value, CriteriaBuilder cb,
 			AutomaticRoleAttributeRuleComparison comparsion, Boolean negation) {
 		Assert.notNull(comparsion, "Comparison operator is required.");
@@ -692,7 +821,152 @@ public class DefaultIdmAutomaticRoleAttributeService
 						cb.isNull(path));
 			}
 			return cb.equal(path, value);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.NOT_EQUALS) {
+			//
+			// is necessary explicit type to as String
+			path.as(String.class);
+			//
+			if (BooleanUtils.isTrue(negation)) {
+				Predicate predicate = null;
+				//
+				if (value instanceof Boolean) {
+					// for boolean must be specific equals (isTrue or isFalse, notEqual doesn't works)
+					Expression<Boolean> booleanAs = path.as(Boolean.class);
+					if (BooleanUtils.isTrue((Boolean) value)) {
+						predicate = cb.notEqual(booleanAs, cb.literal(Boolean.FALSE));
+					} else {
+						predicate = cb.notEqual(booleanAs, cb.literal(Boolean.TRUE));
+					}
+				} else {
+					// for other type just classic negative compare
+					predicate = cb.equal(path, value);
+				}
+				return predicate;
+			}
+			return cb.or(
+					cb.notEqual(path, value),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.START_WITH) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			likeExpression.append('%');
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.notLike(path.as(String.class), likeExpression.toString()),
+						cb.isNull(path)
+						);
+			}
+			return cb.like(path.as(String.class), likeExpression.toString());
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.NOT_START_WITH) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			likeExpression.append('%');
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.like(path.as(String.class), likeExpression.toString());
+			}
+			return cb.or(
+					cb.notLike(path.as(String.class), likeExpression.toString()),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.END_WITH) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append('%');
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.notLike(path.as(String.class), likeExpression.toString()),
+						cb.isNull(path)
+						);
+			}
+			return cb.like(path.as(String.class), likeExpression.toString());
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.NOT_END_WITH) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append('%');
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.like(path.as(String.class), likeExpression.toString());
+			}
+			return cb.or(
+					cb.notLike(path.as(String.class), likeExpression.toString()),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.IS_EMPTY) {
+			// For EAV is required also expression not exists with attribute
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.and(
+						cb.isNotNull(path),
+						cb.not(cb.equal(path.as(String.class), "")));
+			}
+
+			return cb.or(
+					cb.equal(path.as(String.class), ""),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY) {
+			// For EAV is required also expression not exists with attribute
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.equal(path.as(String.class), ""),
+						cb.isNull(path)
+						);
+			}
+
+			return cb.and(
+					cb.isNotNull(path),
+					cb.not(cb.equal(path.as(String.class), ""))
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.CONTAINS) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append('%');
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			likeExpression.append('%');
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.notLike(path.as(String.class), likeExpression.toString()),
+						cb.isNull(path)
+						);
+			}
+			return cb.like(path.as(String.class), likeExpression.toString());
+		}  else if (comparsion == AutomaticRoleAttributeRuleComparison.NOT_CONTAINS) {
+			StringBuilder likeExpression = new StringBuilder();
+			likeExpression.append('%');
+			likeExpression.append(String.valueOf(value)); // Beware with null values
+			likeExpression.append('%');
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.like(path.as(String.class), likeExpression.toString());
+			}
+			return cb.or(
+					cb.notLike(path.as(String.class), likeExpression.toString()),
+					cb.isNull(path)
+					);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.LESS_THAN_OR_EQUAL) {
+			BigDecimal valueAsNumber = new BigDecimal(String.valueOf(value));
+			// Beware there CAN'T be used path.as(Number.class). DB cast column again into numeric and then throw error
+			// path is already Number type by method getSingularAttributeForEav(
+			Path<Number> numberPath = (Path<Number>) path;
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.gt(numberPath, valueAsNumber),
+						cb.isNull(path)
+						);
+			}
+
+			return cb.le(numberPath, valueAsNumber);
+		} else if (comparsion == AutomaticRoleAttributeRuleComparison.GREATER_THAN_OR_EQUAL) {
+			BigDecimal valueAsNumber = new BigDecimal(String.valueOf(value));
+			// Beware there CAN'T be used path.as(Number.class). DB cast column again into numeric and then throw error
+			// path is already Number type by method getSingularAttributeForEav(
+			Path<Number> numberPath = (Path<Number>) path;
+			if (BooleanUtils.isTrue(negation)) {
+				return cb.or(
+						cb.lt(numberPath, valueAsNumber),
+						cb.isNull(path)
+						);
+			}
+			return cb.ge(numberPath, valueAsNumber);
 		}
+
 		throw new UnsupportedOperationException("Operation: " + comparsion.name() + ", isn't supported for identity rules.");
 	}
 	
@@ -739,9 +1013,14 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * 
 	 * @param singularAttribute
 	 * @param value
+	 * @param comparison
 	 * @return
 	 */
-	private Object castToType(SingularAttribute<?, ?> singularAttribute, String value) {
+	private Object castToType(SingularAttribute<?, ?> singularAttribute, String value, AutomaticRoleAttributeRuleComparison comparison) {
+		// For comparison empty or is not empty return null value
+		if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY || comparison == AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY) {
+			return null;
+		}
 		Class<?> javaType = singularAttribute.getJavaType();
 		LOG.debug("Value: [{}], will be cast to java type: [{}].", value, javaType.getName());
 		if (javaType.isPrimitive()) {
@@ -763,12 +1042,12 @@ public class DefaultIdmAutomaticRoleAttributeService
 				char ch = value.charAt(0);
 				return ch;
 			} else {
-				throw new UnsupportedOperationException("Primitive type :" + javaType.getName() + ", can't be cast!");
+				throw new UnsupportedOperationException(String.format("Primitive type [%s] can't be cast!", javaType.getName()));
 			}
 		}
 		// identity and contract specific enumeration
-		/* TODO: RT: works, but why? Only usable state is future contract or created maybe? Other options except valid one cannot have roles.
-		 * if (javaType.equals(ContractState.class)) {
+		/* TODO: RT: works, but we don't need this now. Only usable state is future contract or created maybe? Other options except valid one cannot have roles.
+		 * if (javaType.equals(IdentityState.class)) {
 		 *   return IdentityState.valueOf(value);
 		 * }
 		*/
@@ -784,34 +1063,21 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 *
 	 * @param value
 	 * @param persistentType
+	 * @param comparison
 	 * @return
 	 */
-	private Object getEavValue(String value, PersistentType persistentType) {
+	private Object getFormValue(String value, IdmFormAttributeDto attribute, AutomaticRoleAttributeRuleComparison comparison) {
+		// For comparison is empty and is not empty return null values
+		if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY || comparison == AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY) {
+			return null;
+		}
 		Assert.notNull(value, "Value is required.");
-		switch (persistentType) {
-		case INT:
-		case LONG:
-			return Long.valueOf(value);
-		case BOOLEAN:
-			return Boolean.valueOf(value);
-		case DATE:
-		case DATETIME:
-			return ZonedDateTime.parse(value);
-		case DOUBLE:
-			return new BigDecimal(value);
-		case BYTEARRAY: {
-			return value.getBytes(StandardCharsets.UTF_8);
-		}
-		case ATTACHMENT:
-		case UUID: {
-			return UUID.fromString(value);
-		}
-		case SHORTTEXT: {
-			return value;
-		}
-		default:
-			return value;
-		}
+		//
+		// FIXME: parameter converter
+		IdmFormValueDto formValue = new IdmFormValueDto(attribute);
+		formValue.setValue(value);
+		//
+		return formValue.getValue();
 	}
 
 	/**

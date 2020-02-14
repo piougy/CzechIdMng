@@ -220,6 +220,10 @@ public class DefaultIdmFormAttributeService
 		if (StringUtils.isNotEmpty(filter.getDefinitionName())) {
 			predicates.add(builder.equal(root.get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.name), filter.getDefinitionName()));
 		}
+		Boolean confidential = filter.getConfidential();
+		if (confidential != null) {
+			predicates.add(builder.equal(root.get(IdmFormAttribute_.confidential), confidential));
+		}
 		//
 		return predicates;
 	}

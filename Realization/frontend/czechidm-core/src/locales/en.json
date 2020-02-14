@@ -799,7 +799,22 @@
       "CONTRACT_EAV": "Extended attribute of contract"
     },
     "AutomaticRoleAttributeRuleComparisonEnum": {
-      "EQUALS": "Equals"
+      "EQUALS": "Equals",
+      "NOT_EQUALS": "Not Equals",
+      "START_WITH": "Start with",
+      "NOT_START_WITH": "Not start with",
+      "END_WITH": "End with",
+      "NOT_END_WITH": "Not end with",
+      "IS_EMPTY": "Is empty",
+      "IS_NOT_EMPTY": "Is not empty",
+      "CONTAINS": "Contains",
+      "NOT_CONTAINS": "Not contains",
+      "LESS_THAN_OR_EQUAL": "Less or equal than",
+      "GREATER_THAN_OR_EQUAL": "Greater or equal than",
+      "helpBlock": {
+        "LESS_THAN_OR_EQUAL": "This option can only be used with numeric types.",
+        "GREATER_THAN_OR_EQUAL": "This option can only be used with numeric types."
+      }
     },
     "IdentityAttributeEnum": {
       "USERNAME": "User name (String)",
@@ -1739,7 +1754,8 @@
         "attributeCantBeUsed": {
           "text": "Attribute [{{name}}] can't be used for create new rule",
           "confidential": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute is marked as confidential.",
-          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute has persistent type TEXT."
+          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), attribute has persistent type TEXT.",
+          "multivaluedCantBeUsed": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), with multivalued attribute can't be used this comparsion."
         }
       },
       "recalculate": {
@@ -5935,6 +5951,18 @@
       "title": "Role wasn't removed",
       "message": "Role [{{role}}] wasn't removed by automatic role [{{roleTreeNode}}] for identity [{{identity}}], Check role request agenda for reason."
     },
+    "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE": {
+      "title": "Invalid comparison and attribute type",
+      "message": "The selected comparison cannot be used with a multivalued attribute."
+    },
+    "AUTOMATIC_ROLE_RULE_COMPARSION_IS_ONLY_FOR_NUMERIC_ATTRIBUTE": {
+      "title": "Invalid comparison and attribute type",
+      "message": "The selected comparison can be used only with a numeric type attribute."
+    },
+    "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN": {
+      "title": "Invalid comparison and attribute type",
+      "message": "The selected comparison cannot be used with a boolean type attribute."
+    },
     "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role is used by concurrent task",
       "message": "Automatic role [{{roleTreeNode}}] is used by concurrent task [{{taskId}}]."
@@ -5961,7 +5989,7 @@
     },
     "FORM_VALUE_WRONG_TYPE": {
       "title": "Wrong format of attributes",
-      "message": "Value [{{value}}] of attribute [{{attr}}] must be type of [{{type}}] instead of [{{currentType}}]."
+      "message": "Value [{{value}}] of attribute [{{formAttribute}}] must be type of [{{persistentType}}] instead of [{{valueType}}]."
     },
     "GROOVY_SCRIPT_EXCEPTION": {
       "title": "Error in script",

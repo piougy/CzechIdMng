@@ -9,7 +9,9 @@ import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 
 /**
- * Form attribute definition filter
+ * Form attribute definition filter.
+ * 
+ * TODO: Data filter + rest test.
  * 
  * @author Radek Tomiška
  *
@@ -17,13 +19,13 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 public class IdmFormAttributeFilter extends DataFilter {
 
 	public static final String PARAMETER_FORM_DEFINITION_CODE = "definitionCode";
-	
-	private String code;
 	//
+	private String code;
 	private UUID definitionId;
 	private String definitionType;
 	private String definitionName;
 	private String definitionCode;
+	private Boolean confidential;
 	
 	public IdmFormAttributeFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -71,5 +73,19 @@ public class IdmFormAttributeFilter extends DataFilter {
 	
 	public String getDefinitionCode() {
 		return definitionCode;
+	}
+	
+	/**
+	 * @since 10.1.0
+	 */
+	public void setConfidential(Boolean confidential) {
+		this.confidential = confidential;
+	}
+	
+	/**
+	 * @since 10.1.0
+	 */
+	public Boolean getConfidential() {
+		return confidential;
 	}
 }

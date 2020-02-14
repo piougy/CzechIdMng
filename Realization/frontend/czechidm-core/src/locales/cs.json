@@ -832,7 +832,22 @@
       "CONTRACT_EAV": "Rozšířený atribut pracovního úvazku"
     },
     "AutomaticRoleAttributeRuleComparisonEnum": {
-      "EQUALS": "Rovná se"
+      "EQUALS": "Rovná se",
+      "NOT_EQUALS": "Nerovná se",
+      "START_WITH": "Začíná na",
+      "NOT_START_WITH": "Nezačíná na",
+      "END_WITH": "Končí na",
+      "NOT_END_WITH": "Nekončí na",
+      "IS_EMPTY": "Je prazdný",
+      "IS_NOT_EMPTY": "Není prazdný",
+      "CONTAINS": "Obsahuje",
+      "NOT_CONTAINS": "Neobsahuje",
+      "LESS_THAN_OR_EQUAL": "Menší nebo rovno než",
+      "GREATER_THAN_OR_EQUAL": "Větší nebo rovno než",
+      "helpBlock": {
+        "LESS_THAN_OR_EQUAL": "Tuto možnost lze použít pouze s číselnými typy.",
+        "GREATER_THAN_OR_EQUAL": "Tuto možnost lze použít pouze s číselnými typy."
+      }
     },
     "IdentityAttributeEnum": {
       "USERNAME": "Uživatelské jméno (String)",
@@ -1789,7 +1804,8 @@
         "attributeCantBeUsed": {
           "text": "Atribut [{{name}}] nemůže být použit pro vytvoření nového pravidla",
           "confidential": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je označen jako tajný.",
-          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je typu TEXT."
+          "persistentTypeText": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), atribut je typu TEXT.",
+          "multivaluedCantBeUsed": "$t(content.automaticRoles.attribute.attributeCantBeUsed.text), s vícehodnotovým atributem nelze použít toto porovnání."
         }
       },
       "recalculate": {
@@ -5987,6 +6003,18 @@
       "title": "Role nebyla smazána",
       "message": "Role [{{role}}] nebyla smazána automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
     },
+    "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE": {
+      "title": "Neplatný typ porovnání a atributu",
+      "message": "Vybrané porovnání nelze použít s vícehodnotovým atributem."
+    },
+    "AUTOMATIC_ROLE_RULE_COMPARSION_IS_ONLY_FOR_NUMERIC_ATTRIBUTE": {
+      "title": "Neplatný typ porovnání a atributu",
+      "message": "Vybrané porovnání lze použít pouze s atributem číselného typu."
+    },
+    "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN": {
+      "title": "Neplatný typ porovnání a atributu",
+      "message": "Vybrané porovnání nelze použít s atributem typu boolean."
+    },
     "AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role je využívána jiným procesem",
       "message": "Automatická role [{{roleTreeNode}}] je mazána souběžnou úlohou [{{taskId}}]."
@@ -6013,7 +6041,7 @@
     },
     "FORM_VALUE_WRONG_TYPE": {
       "title": "Špatný formát atributu",
-      "message": "Hodnota [{{value}}] atributu [{{attr}}] musí být typu [{{type}}] místo [{{currentType}}]."
+      "message": "Hodnota [{{value}}] atributu [{{formAttribute}}] musí být typu [{{persistentType}}] místo [{{valueType}}]."
     },
     "GROOVY_SCRIPT_EXCEPTION": {
       "title": "Chyba ve scriptu",

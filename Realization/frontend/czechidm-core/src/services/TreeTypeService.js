@@ -11,7 +11,6 @@ import SearchParameters from '../domain/SearchParameters';
  */
 class TreeTypeService extends AbstractService {
 
-  const
   getApiPath() {
     return '/tree-types';
   }
@@ -23,7 +22,7 @@ class TreeTypeService extends AbstractService {
     if (entity.name === entity.code) {
       return entity.name;
     }
-    return `${entity.name} (${entity.code})`;
+    return `${ entity.name } (${ entity.code })`;
   }
 
   supportsAuthorization() {

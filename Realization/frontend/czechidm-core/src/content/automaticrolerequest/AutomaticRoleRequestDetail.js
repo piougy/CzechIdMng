@@ -13,6 +13,7 @@ import { TreeNodeManager, RoleTreeNodeManager, RoleManager, AutomaticRoleRequest
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import AutomaticRoleRequestTypeEnum from '../../enums/AutomaticRoleRequestTypeEnum';
+import AutomaticRoleAttributeRuleComparisonEnum from '../../enums/AutomaticRoleAttributeRuleComparisonEnum';
 import SearchParameters from '../../domain/SearchParameters';
 import AutomaticRoleRuleTable from './AutomaticRoleRuleTable';
 import RecursionTypeEnum from '../../enums/RecursionTypeEnum';
@@ -359,10 +360,20 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
               property="value"
               face="text"
               header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.value.label')}
+              cell={
+                ({ rowIndex, data }) => {
+                  const value = data[rowIndex].value;
+                  if (!value || value === undefined || value === 'null') {
+                    return '';
+                  }
+                  return value;
+                }
+              }
               sort/>
             <Advanced.Column
               property="comparison"
-              face="text"
+              face="enum"
+              enumClass={ AutomaticRoleAttributeRuleComparisonEnum }
               header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.comparison')}
               sort/>
           </Advanced.Table>

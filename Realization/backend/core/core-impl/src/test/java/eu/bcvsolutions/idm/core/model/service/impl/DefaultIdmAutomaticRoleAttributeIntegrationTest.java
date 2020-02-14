@@ -931,7 +931,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	
 	@Test
 	public void testAutomaticRoleDateEav() {
-		ZonedDateTime testValue = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1514764800), ZoneId.systemDefault());
+		LocalDate testValue = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1514764800), ZoneId.systemDefault()).toLocalDate();
 		IdmIdentityDto identity = getHelper().createIdentity();
 		//
 		IdmFormAttributeDto createEavAttribute = getHelper().createEavAttribute("testingEav" + System.currentTimeMillis(), IdmIdentity.class, PersistentType.DATE);

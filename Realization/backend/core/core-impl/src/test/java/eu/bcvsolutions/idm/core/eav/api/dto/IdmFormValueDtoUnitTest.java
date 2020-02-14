@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.eav.api.dto;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -194,7 +196,7 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
-	public void uuidAsString() {
+	public void testUuidAsString() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.UUID);
 		UUID uuid = UUID.randomUUID();
@@ -205,7 +207,7 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
-	public void attachmentAsString() {
+	public void testAttachmentAsString() {
 		IdmFormValueDto formValue = new IdmFormValueDto();
 		formValue.setPersistentType(PersistentType.ATTACHMENT);
 		UUID uuid = UUID.randomUUID();
@@ -316,5 +318,18 @@ public class IdmFormValueDtoUnitTest extends AbstractUnitTest {
 		//
 		Assert.assertEquals(value, formValue.getValue());
 		Assert.assertEquals(value, formValue.getShortTextValue());
+	}
+	
+	@Test
+	public void testDoubleValueAsString() {
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(PersistentType.DOUBLE);
+		//
+		String value = "1234568.899";
+		//
+		formValue.setValue(value);
+		//
+		Assert.assertEquals(new BigDecimal(1234568.899d).setScale(3, RoundingMode.HALF_UP), formValue.getValue());
+		Assert.assertEquals(new BigDecimal(1234568.899d).setScale(3, RoundingMode.HALF_UP), formValue.getDoubleValue());
 	}
 }

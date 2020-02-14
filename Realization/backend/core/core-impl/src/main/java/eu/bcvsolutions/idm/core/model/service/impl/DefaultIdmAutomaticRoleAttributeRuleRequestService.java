@@ -69,6 +69,8 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 		boolean isAttributeNumeric = false;
 		AutomaticRoleAttributeRuleComparison comparison = dto.getComparison();
 		AutomaticRoleAttributeRuleType type = dto.getType();
+		// Boolean attribute is allowed only with equals and not equals comparison.
+		boolean isEqualsOrNotEquals = comparison == AutomaticRoleAttributeRuleComparison.EQUALS || comparison == AutomaticRoleAttributeRuleComparison.NOT_EQUALS;
 		// now isn't possible do equals with string_value (clob), so it is necessary to
 		// use only short text
 		if ((AutomaticRoleAttributeRuleType.CONTRACT_EAV == type
@@ -88,9 +90,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE, ImmutableMap.of(
 						"comparison", comparison.name()));
 			}
-			if (formAttributePersistenType == PersistentType.BOOLEAN &&
-					(comparison != AutomaticRoleAttributeRuleComparison.EQUALS ||
-					comparison != AutomaticRoleAttributeRuleComparison.NOT_EQUALS)) {
+			if (formAttributePersistenType == PersistentType.BOOLEAN && !isEqualsOrNotEquals) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN, ImmutableMap.of(
 						"comparison", comparison.name()));
 			}
@@ -115,7 +115,6 @@ public class DefaultIdmAutomaticRoleAttributeRuleRequestService extends
 							IdmAutomaticRoleAttributeRule_.attributeName.getName()));
 		}
 		//
-		boolean isEqualsOrNotEquals = comparison == AutomaticRoleAttributeRuleComparison.EQUALS || comparison == AutomaticRoleAttributeRuleComparison.NOT_EQUALS;
 		if (!isEqualsOrNotEquals) {
 			if (type == AutomaticRoleAttributeRuleType.CONTRACT) {
 				if (attributeName.equals(IdmIdentityContract_.main.getName())) {

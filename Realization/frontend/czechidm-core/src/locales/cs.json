@@ -1120,7 +1120,7 @@
       },
       "unsuccessfulAttempts": {
         "label": "Počet neúspěšných pokusů",
-        "help": "Aktuální počet neúspěšných pokůsu o přihlášení do IdM."
+        "help": "Aktuální počet neúspěšných pokusů o přihlášení do IdM."
       },
       "validFrom": {
         "label": "Platnost od",
@@ -1128,7 +1128,7 @@
       },
       "validTill": {
         "label": "Platnost do",
-        "help": "Platnost hesla do je počítáná z nastavení politiky hesel."
+        "help": "Platnost hesla do je počítána z nastavení politiky hesel."
       },
       "lastSuccessfulLogin": {
         "label": "Poslední úspěšné přihlášení",

@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,6 +65,7 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
@@ -788,6 +787,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @param neq
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private Predicate getPredicateWithComparsion(Path<?> path, Object value, CriteriaBuilder cb,
 			AutomaticRoleAttributeRuleComparison comparsion, Boolean negation) {
 		Assert.notNull(comparsion, "Comparison operator is required.");
@@ -1041,12 +1041,12 @@ public class DefaultIdmAutomaticRoleAttributeService
 				char ch = value.charAt(0);
 				return ch;
 			} else {
-				throw new UnsupportedOperationException("Primitive type :" + javaType.getName() + ", can't be cast!");
+				throw new UnsupportedOperationException(String.format("Primitive type [%s] can't be cast!", javaType.getName()));
 			}
 		}
 		// identity and contract specific enumeration
-		/* TODO: RT: works, but why? Only usable state is future contract or created maybe? Other options except valid one cannot have roles.
-		 * if (javaType.equals(ContractState.class)) {
+		/* TODO: RT: works, but we don't need this now. Only usable state is future contract or created maybe? Other options except valid one cannot have roles.
+		 * if (javaType.equals(IdentityState.class)) {
 		 *   return IdentityState.valueOf(value);
 		 * }
 		*/
@@ -1071,30 +1071,13 @@ public class DefaultIdmAutomaticRoleAttributeService
 			return null;
 		}
 		Assert.notNull(value, "Value is required.");
-		switch (persistentType) {
-		case INT:
-		case LONG:
-			return Long.valueOf(value);
-		case BOOLEAN:
-			return Boolean.valueOf(value);
-		case DATE:
-		case DATETIME:
-			return ZonedDateTime.parse(value);
-		case DOUBLE:
-			return new BigDecimal(value);
-		case BYTEARRAY: {
-			return value.getBytes(StandardCharsets.UTF_8);
-		}
-		case ATTACHMENT:
-		case UUID: {
-			return UUID.fromString(value);
-		}
-		case SHORTTEXT: {
-			return value;
-		}
-		default:
-			return value;
-		}
+		//
+		// FIXME: parameter converter
+		IdmFormValueDto formValue = new IdmFormValueDto();
+		formValue.setPersistentType(persistentType);
+		formValue.setValue(value);
+		//
+		return formValue.getValue();
 	}
 
 	/**

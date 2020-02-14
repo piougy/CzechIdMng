@@ -487,8 +487,9 @@ public class IdmFormValueDto extends AbstractDto implements Requestable {
 				} else if (value instanceof Number) {
 					setDoubleValue(BigDecimal.valueOf(((Number) value).doubleValue()));
 				} else if (value instanceof String) {
-					// TODO: parse, but how to solve separator by locale?
-					throw wrongType(value, null);
+					// parse, '.' separator will be used as default
+					// TODO: try to resolve separator automatically by locale
+					setDoubleValue(new BigDecimal((String) value));
 				} else {
 					throw wrongType(value, null);
 				}

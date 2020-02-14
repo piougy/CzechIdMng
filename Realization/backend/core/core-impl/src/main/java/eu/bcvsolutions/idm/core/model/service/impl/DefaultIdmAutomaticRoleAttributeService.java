@@ -602,7 +602,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 					);
 			//
 			Predicate existsInEav = getPredicateForConnection(subquery, cb, pass, formAttributeDto.isMultiple());
-			//
+			// For comparison with not is required also check null values
 			if (comparison == AutomaticRoleAttributeRuleComparison.NOT_CONTAINS ||
 					comparison == AutomaticRoleAttributeRuleComparison.NOT_END_WITH ||
 					comparison == AutomaticRoleAttributeRuleComparison.NOT_EQUALS ||
@@ -642,20 +642,20 @@ public class DefaultIdmAutomaticRoleAttributeService
 				subquery.where(
 					cb.and(
 						cb.equal(root.get(IdmIdentityContract_.identity), subRoot),
-						cb.exists(
-							subQueryIdentityEav.where(
-								cb.or(
+						cb.or(
+							cb.exists(
+								subQueryIdentityEav.where(
 									cb.and(
 										cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.owner), subRoot),
 										cb.equal(subRootIdentityEav.get(IdmIdentityFormValue_.formAttribute).get(AbstractFormValue_.id), formAttributeDto.getId()),
-										getPredicateWithComparsion(path, null, cb, rule.getComparison(), null)),
-									// Predicate for check if value exists
-									getPredicateForNullFormAttributeIdentity(subRoot, subquery, cb, formAttributeDto)
+										getPredicateWithComparsion(path, null, cb, rule.getComparison(), null))
 									)
-								)
-							)
+								),
+							// Predicate for check if value exists
+							getPredicateForNullFormAttributeIdentity(subRoot, subquery, cb, formAttributeDto)
 						)
-					);
+					)
+				);
 				//
 				if(pass) {
 					return cb.not(cb.exists(subquery));
@@ -671,6 +671,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 							getPredicateWithComparsion(path, value, cb, rule.getComparison(), null)
 							));
 			Predicate existsInEav = getPredicateForConnection(subQueryIdentityEav, cb, pass, formAttributeDto.isMultiple());
+			// For comparison with not is required also check null values
 			if (comparison == AutomaticRoleAttributeRuleComparison.NOT_CONTAINS ||
 					comparison == AutomaticRoleAttributeRuleComparison.NOT_END_WITH ||
 					comparison == AutomaticRoleAttributeRuleComparison.NOT_EQUALS ||

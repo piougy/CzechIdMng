@@ -3452,7 +3452,7 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		recalculateSync(automaticRole.getId());
 		checkIdentityRoles(identity, 1);
 
-		saveEavValue(contract, attribute, persistentType, Lists.newArrayList("     "));
+		saveEavValue(contract, attribute, persistentType, Lists.newArrayList("-"));
 		recalculateSync(automaticRole.getId());
 		checkIdentityRoles(identity, 1);
 		recalculateSync(automaticRole.getId());

@@ -126,7 +126,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 							"comparison", comparison.name()));
 				}
 			}
-			if (type == AutomaticRoleAttributeRuleType.IDENTITY && !attributeName.equals(IdmIdentity_.disabled.getName())) {
+			if (type == AutomaticRoleAttributeRuleType.IDENTITY && attributeName.equals(IdmIdentity_.disabled.getName())) {
 				if (attributeName.equals(IdmIdentity_.disabled.getName())) {
 					throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN, ImmutableMap.of(
 							"comparison", comparison.name()));

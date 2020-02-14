@@ -566,7 +566,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
 			// Cast given value to specific persistent type
 			// For is empty and is not empty comparison is returned null even if value exists
-			Object value = getFormValue(rule.getValue(), formAttributeDto.getPersistentType(), comparison);
+			Object value = getFormValue(rule.getValue(), formAttributeDto, comparison);
 			//
 			// For contract form attribute was composed only one subquery
 			Subquery<IdmIdentityContractFormValue> subquery = query.subquery(IdmIdentityContractFormValue.class);
@@ -624,7 +624,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 			AutomaticRoleAttributeRuleComparison comparison = rule.getComparison();
 			// Cast given value to specific persistent type
 						// For is empty and is not empty comparison is returned null even if value exists
-			Object value = getFormValue(rule.getValue(), formAttributeDto.getPersistentType(), comparison);
+			Object value = getFormValue(rule.getValue(), formAttributeDto, comparison);
 			//
 			// Rules for identity form values must contains two subquery identity -> identity eav
 			Subquery<IdmIdentity> subquery = query.subquery(IdmIdentity.class);
@@ -1065,7 +1065,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 	 * @param comparison
 	 * @return
 	 */
-	private Object getFormValue(String value, PersistentType persistentType, AutomaticRoleAttributeRuleComparison comparison) {
+	private Object getFormValue(String value, IdmFormAttributeDto attribute, AutomaticRoleAttributeRuleComparison comparison) {
 		// For comparison is empty and is not empty return null values
 		if (comparison == AutomaticRoleAttributeRuleComparison.IS_EMPTY || comparison == AutomaticRoleAttributeRuleComparison.IS_NOT_EMPTY) {
 			return null;
@@ -1073,8 +1073,7 @@ public class DefaultIdmAutomaticRoleAttributeService
 		Assert.notNull(value, "Value is required.");
 		//
 		// FIXME: parameter converter
-		IdmFormValueDto formValue = new IdmFormValueDto();
-		formValue.setPersistentType(persistentType);
+		IdmFormValueDto formValue = new IdmFormValueDto(attribute);
 		formValue.setValue(value);
 		//
 		return formValue.getValue();

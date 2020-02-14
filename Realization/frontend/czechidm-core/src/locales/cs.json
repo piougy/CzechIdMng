@@ -6041,7 +6041,7 @@
     },
     "FORM_VALUE_WRONG_TYPE": {
       "title": "Špatný formát atributu",
-      "message": "Hodnota [{{value}}] atributu [{{attr}}] musí být typu [{{type}}] místo [{{currentType}}]."
+      "message": "Hodnota [{{value}}] atributu [{{formAttribute}}] musí být typu [{{persistentType}}] místo [{{valueType}}]."
     },
     "GROOVY_SCRIPT_EXCEPTION": {
       "title": "Chyba ve scriptu",

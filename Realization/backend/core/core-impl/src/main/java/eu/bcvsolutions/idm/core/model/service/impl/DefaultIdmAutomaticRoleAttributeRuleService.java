@@ -10,6 +10,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -66,6 +67,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 	}
 	
 	@Override
+	@Transactional
 	public IdmAutomaticRoleAttributeRuleDto save(IdmAutomaticRoleAttributeRuleDto dto, BasePermission... permission) {
 		// Numeric attribute can be only EAV (for now, even external code is string)
 		boolean isAttributeNumeric = false;
@@ -150,6 +152,7 @@ public class DefaultIdmAutomaticRoleAttributeRuleService extends
 	}
 	
 	@Override
+	@Transactional
 	public void delete(IdmAutomaticRoleAttributeRuleDto dto, BasePermission... permission) {
 		entityEventManager.process(new AutomaticRoleAttributeRuleEvent(AutomaticRoleAttributeRuleEventType.DELETE, dto)).getContent();
 	}

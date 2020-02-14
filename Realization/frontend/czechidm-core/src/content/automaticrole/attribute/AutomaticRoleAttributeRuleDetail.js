@@ -366,7 +366,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
         entity.attributeName = attributeName;
       } else {
         if (entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY_EAV)
-         && entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV)) {
+          && entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV)) {
           if (entity.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
             entity.attributeName = IdentityAttributeEnum.getEnum(entity.attributeName);
             attributeName = IdentityAttributeEnum.findKeyBySymbol(entity.attributeName);
@@ -398,7 +398,7 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   }
 
   _getForceSearchParametersForType(type) {
-    let typeForceSearchParameters = this.formAttributeManager.getDefaultSearchParameters();
+    let typeForceSearchParameters = this.formAttributeManager.getDefaultSearchParameters().setFilter('confidential', false);
     if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY_EAV)) {
       typeForceSearchParameters = typeForceSearchParameters.setFilter(DEFINITION_TYPE_FILTER, IDENTITY_EAV_TYPE);
     } else if (type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV)) {

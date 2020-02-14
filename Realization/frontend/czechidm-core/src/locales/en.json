@@ -5989,7 +5989,7 @@
     },
     "FORM_VALUE_WRONG_TYPE": {
       "title": "Wrong format of attributes",
-      "message": "Value [{{value}}] of attribute [{{attr}}] must be type of [{{type}}] instead of [{{currentType}}]."
+      "message": "Value [{{value}}] of attribute [{{formAttribute}}] must be type of [{{persistentType}}] instead of [{{valueType}}]."
     },
     "GROOVY_SCRIPT_EXCEPTION": {
       "title": "Error in script",

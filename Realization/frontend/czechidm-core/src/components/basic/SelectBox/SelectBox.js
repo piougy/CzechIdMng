@@ -371,7 +371,7 @@ class SelectBox extends AbstractFormComponent {
                     isError = true;
                     renderedValues.push(item);
                     this.setState({
-                      isLoading: true, // we are leave showloading on to be sure selectbox is opened and other record is selected or not
+                      isLoading: false,
                       error,
                       showValidationError: true,
                       validationResult: {

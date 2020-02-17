@@ -5,17 +5,24 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
-import java.time.ZonedDateTime;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.quartz.Scheduler;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.TriggerBuilder;
+import org.quartz.utils.Key;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -37,6 +44,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.event.processor.LongRunningTaskExecuteDependentProcessor;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
+import eu.bcvsolutions.idm.core.scheduler.exception.SchedulerException;
 import eu.bcvsolutions.idm.core.scheduler.repository.IdmDependentTaskTriggerRepository;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleExpirationTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -56,6 +64,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	@Autowired private IdmScheduledTaskService scheduledTaskService;
 	@Autowired private IdmDependentTaskTriggerRepository dependentTaskTriggerRepository;
 	@Autowired private IdmIdentityService identityService;
+	@Autowired private Scheduler scheduler;
 	//
 	private DefaultSchedulerManager manager;
 	
@@ -412,6 +421,100 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		}
 	}
 	
+	@Test
+	public void testMisfireHandlingPolicy() {
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		identityOne = identityService.get(identityOne);
+		Assert.assertNotEquals(identityOne.getUsername(), identityOne.getLastName());
+		//
+		Task createTask = new Task();
+		//
+		createTask.setInstanceId(configurationService.getInstanceId());
+		createTask.setTaskType(TestUpdateIdentityTask.class);
+		createTask.setDescription("test");
+		createTask.getParameters().put(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY, identityOne.getUsername());
+		//
+		Task taskOne = manager.createTask(createTask);
+		Task task = manager.getTask(taskOne.getId());
+		
+		Function<String, Boolean> continueFunction = res -> {
+			return !manager.getTask(task.getId()).getTriggers().isEmpty();
+		};
+		//
+		// without misfire handling configuration
+		try {
+			scheduler.scheduleJob(
+					TriggerBuilder.newTrigger()
+						.withIdentity(Key.createUniqueName(task.getId()), task.getId())
+						.forJob(manager.getKey(task.getId()))
+						.startAt(DateUtils.addMinutes(new Date(), -100))
+				        .withSchedule(
+				        		SimpleScheduleBuilder
+				        			.simpleSchedule()
+				        			.withMisfireHandlingInstructionNextWithExistingCount()
+				            )
+				        .build());
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);
+		}
+		getHelper().waitForResult(continueFunction);
+		//
+		identityOne = identityService.get(identityOne);
+		Assert.assertNotEquals(identityOne.getUsername(), identityOne.getLastName());
+		//
+		// correct misfire handling configuration
+		try {
+			scheduler.scheduleJob(
+					TriggerBuilder.newTrigger()
+						.withIdentity(Key.createUniqueName(task.getId()), task.getId())
+						.forJob(manager.getKey(task.getId()))
+						.startAt(DateUtils.addMinutes(new Date(), -100))
+				        .withSchedule(
+				        		SimpleScheduleBuilder
+					        		.simpleSchedule()
+					        		.withMisfireHandlingInstructionFireNow()
+				            )
+				        .build());
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);
+		}
+		getHelper().waitForResult(continueFunction);
+		//
+		identityOne = identityService.get(identityOne);
+		Assert.assertEquals(identityOne.getUsername(), identityOne.getLastName());
+	}
+	
+	@Test
+	public void testMisfireHandlingSimpleTrigger() {
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		identityOne = identityService.get(identityOne);
+		Assert.assertNotEquals(identityOne.getUsername(), identityOne.getLastName());
+		//
+		Task createTask = new Task();
+		//
+		createTask.setInstanceId(configurationService.getInstanceId());
+		createTask.setTaskType(TestUpdateIdentityTask.class);
+		createTask.setDescription("test");
+		createTask.getParameters().put(ObserveLongRunningTaskEndProcessor.RESULT_PROPERTY, identityOne.getUsername());
+		//
+		Task taskOne = manager.createTask(createTask);
+		Task task = manager.getTask(taskOne.getId());
+		
+		Function<String, Boolean> continueFunction = res -> {
+			return !manager.getTask(task.getId()).getTriggers().isEmpty();
+		};
+		
+		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
+		trigger.setTaskId(task.getId());
+		trigger.setFireTime(ZonedDateTime.now().minusMinutes(100));
+		
+		manager.createTrigger(task.getId(), trigger);
+		//
+		getHelper().waitForResult(continueFunction);
+		//
+		identityOne = identityService.get(identityOne);
+		Assert.assertEquals(identityOne.getUsername(), identityOne.getLastName());
+	}
 	
 	private Task createTask(String result) {
 		Task task = new Task();

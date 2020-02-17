@@ -392,7 +392,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		try {
 			cronBuilder = CronScheduleBuilder
 					.cronSchedule(cronTaskTrigger.getCron())
-					.withMisfireHandlingInstructionDoNothing()
+					.withMisfireHandlingInstructionFireAndProceed() // prevent to skip job execution.
 					.inTimeZone(TimeZone.getDefault());
 		} catch(RuntimeException ex) {
 			throw new InvalidCronExpressionException(cronTaskTrigger.getCron(), ex);
@@ -420,7 +420,11 @@ public class DefaultSchedulerManager implements SchedulerManager {
 						.withIdentity(trigger.getId(), taskId)
 						.forJob(getKey(taskId))
 						.withDescription(trigger.getDescription())
-						.withSchedule(SimpleScheduleBuilder.simpleSchedule())
+						.withSchedule(
+								SimpleScheduleBuilder
+									.simpleSchedule()
+									.withMisfireHandlingInstructionFireNow()
+						)
 						.startAt(Date.from(((SimpleTaskTrigger) trigger).getFireTime().toInstant()))
 						.usingJobData(SchedulableTaskExecutor.PARAMETER_DRY_RUN, dryRun)
 						.build());
@@ -472,7 +476,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	 * @param taskId
 	 * @return
 	 */
-	private JobKey getKey(String taskId) {
+	protected JobKey getKey(String taskId) {
 		return new JobKey(taskId, DEFAULT_GROUP_NAME);
 	}
 }

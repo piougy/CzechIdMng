@@ -6,6 +6,7 @@ import * as Basic from '../../../components/basic';
 import { AutomaticRoleAttributeRuleManager, FormAttributeManager } from '../../../redux';
 import AutomaticRoleAttributeRuleTypeEnum from '../../../enums/AutomaticRoleAttributeRuleTypeEnum';
 import AutomaticRoleAttributeRuleComparisonEnum from '../../../enums/AutomaticRoleAttributeRuleComparisonEnum';
+import ContractStateEnum from '../../../enums/ContractStateEnum';
 import AbstractEnum from '../../../enums/AbstractEnum';
 /**
  * Constant for get eav attribute for identity contract
@@ -517,10 +518,16 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
     }
     // contracts attributes
     // contract has externe and main as boolean and valid attributes as date
-    if (ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.MAIN || ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.EXTERNE) {
+    if (ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.MAIN
+        || ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.EXTERNE) {
       return this._getDefaultBooleanSelectBox(value, valueRequired);
-    } else if (ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.VALID_FROM || ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.VALID_TILL) {
+    }
+    if (ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.VALID_FROM
+        || ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.VALID_TILL) {
       return this._getDefaultDateTimePicker(value, valueRequired);
+    }
+    if (ContractAttributeEnum.findSymbolByKey(attributeName) === ContractAttributeEnum.STATE) {
+      return this._getContractStateEnum(value, valueRequired);
     }
     return this._getDefaultTextField(value, valueRequired);
   }
@@ -615,6 +622,25 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
         value={ value }
         readOnly={ readOnly }
         required={ valueRequired }
+        label={ this.i18n('entity.AutomaticRole.attribute.value.label') }
+        helpBlock={ this.i18n('entity.AutomaticRole.attribute.value.help') }/>
+    );
+  }
+
+  /**
+   * Return simple text field for value input
+   */
+  _getContractStateEnum(value, valueRequired) {
+    const { readOnly } = this.props;
+    //
+    return (
+      <Basic.EnumSelectBox
+        ref="value"
+        value={ value }
+        readOnly={ readOnly }
+        required={ valueRequired }
+        enum={ ContractStateEnum }
+        useSymbol={ false }
         label={ this.i18n('entity.AutomaticRole.attribute.value.label') }
         helpBlock={ this.i18n('entity.AutomaticRole.attribute.value.help') }/>
     );

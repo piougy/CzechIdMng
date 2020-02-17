@@ -1435,7 +1435,7 @@
           "roleName" : "Název role"
         },
         "IdentityRoleConceptTable": {
-          "oldValue": "Původní hodnota {{oldValue}}",
+          "oldValue": "Původní hodnota [{{oldValue}}]",
           "oldValueNotExist": "Původní hodnota byla prázdná",
           "switchShowChangesOnly": "Zobrazit pouze změny",
           "systemState": "Stav na systému",

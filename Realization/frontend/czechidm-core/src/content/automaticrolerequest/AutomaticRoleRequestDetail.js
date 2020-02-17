@@ -9,11 +9,13 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import OperationStateEnum from '../../enums/OperationStateEnum';
-import { TreeNodeManager, RoleTreeNodeManager, RoleManager, AutomaticRoleRequestManager, AutomaticRoleAttributeRuleRequestManager, AutomaticRoleAttributeRuleManager, AutomaticRoleAttributeManager } from '../../redux';
+import { TreeNodeManager, RoleTreeNodeManager, RoleManager, AutomaticRoleRequestManager,
+  AutomaticRoleAttributeRuleRequestManager, AutomaticRoleAttributeRuleManager, AutomaticRoleAttributeManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import AutomaticRoleRequestTypeEnum from '../../enums/AutomaticRoleRequestTypeEnum';
 import AutomaticRoleAttributeRuleComparisonEnum from '../../enums/AutomaticRoleAttributeRuleComparisonEnum';
+import AutomaticRoleAttributeRuleTypeEnum from '../../enums/AutomaticRoleAttributeRuleTypeEnum';
 import SearchParameters from '../../domain/SearchParameters';
 import AutomaticRoleRuleTable from './AutomaticRoleRuleTable';
 import RecursionTypeEnum from '../../enums/RecursionTypeEnum';
@@ -50,17 +52,18 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   // @Deprecated - since V10 ... replaced by dynamic key in Route
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   const { _request } = nextProps;
-  //   const entityId = nextProps.entityId ? nextProps.entityId : nextProps.match.params.entityId;
-  //   const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.match.params.entityId;
-  //   if (entityId && entityId !== entityIdCurrent) {
-  //     this._initComponent(nextProps);
-  //   }
-  //   if (_request && _request !== this.props._request) {
-  //     this._initComponentCurrentRoles(nextProps);
-  //   }
-  // }
+  // Workaround - must be here because we counting with _request entity and this is not part of URL.
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const { _request } = nextProps;
+    const entityId = nextProps.entityId ? nextProps.entityId : nextProps.match.params.entityId;
+    const entityIdCurrent = this.props.entityId ? this.props.entityId : this.props.match.params.entityId;
+    if (entityId && entityId !== entityIdCurrent) {
+      this._initComponent(nextProps);
+    }
+    if (_request && _request !== this.props._request) {
+      this._initComponentCurrentRoles(nextProps);
+    }
+  }
 
   // Did mount only call initComponent method
   componentDidMount() {
@@ -80,7 +83,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
    */
   _initComponent(props) {
     const { entityId} = props;
-    const _entityId = entityId ? entityId : props.match.params.entityId;
+    const _entityId = entityId || props.match.params.entityId;
     if (this._getIsNew(props)) {
       const _automaticRoleId = props.location.query.automaticRoleId;
       this.setState({
@@ -109,7 +112,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     //
     if (this._getIsNew(props)) {
       const role = props.location.query.automaticRoleId;
-      let forceSearchParameters = automaticRoleAttributeRuleManager.getDefaultSearchParameters();
+      let forceSearchParameters = automaticRoleAttributeRuleManager.getDefaultSearchParameters().setSize(10000);
       if (role) {
         forceSearchParameters = forceSearchParameters.setFilter('automaticRoleAttributeId', role);
       }
@@ -117,7 +120,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
         this.context.store.dispatch(automaticRoleAttributeRuleManager.fetchEntities(forceSearchParameters, `${uiKeyRules}-${role}`));
       }
     } else if (_request) {
-      let forceSearchParameters = automaticRoleAttributeRuleManager.getDefaultSearchParameters();
+      let forceSearchParameters = automaticRoleAttributeRuleManager.getDefaultSearchParameters().setSize(10000);
       if (_request.automaticRole) {
         forceSearchParameters = forceSearchParameters.setFilter('automaticRoleAttributeId', _request.automaticRole);
       }
@@ -188,7 +191,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
   _reloadRuleRequests(_request) {
     let forceSearchParameters = automaticRoleAttributeRuleRequestManager.getDefaultSearchParameters();
     if (_request.id) {
-      forceSearchParameters = forceSearchParameters.setFilter('roleRequestId', _request.id);
+      forceSearchParameters = forceSearchParameters.setFilter('roleRequestId', _request.id).setSize(10000);
     } else {
       forceSearchParameters = forceSearchParameters.setFilter('roleRequestId', SearchParameters.BLANK_UUID);
     }
@@ -210,15 +213,15 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     }
 
     automaticRoleAttributeRuleRequestManager.getService().deleteById(concept.id)
-    .then(() => {
-      this._reloadRuleRequests(_request);
-      this.refs.table.reload();
-      this.setState({showLoadingButtonRemove: false});
-    })
-    .catch(error => {
-      this.addError(error);
-      this.setState({showLoadingButtonRemove: false});
-    });
+      .then(() => {
+        this._reloadRuleRequests(_request);
+        this.refs.table.reload();
+        this.setState({showLoadingButtonRemove: false});
+      })
+      .catch(error => {
+        this.addError(error);
+        this.setState({showLoadingButtonRemove: false});
+      });
   }
 
   _updateConcept(data, type) {
@@ -226,38 +229,39 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     let concept;
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.UPDATE)) {
       concept = {
-        'id': data.id,
-        'operation': type,
-        'request': _request.id,
-        'rule': data.rule,
-        'formAttribute': data.formAttribute,
-        'attributeName': data.attributeName,
-        'type': data.type,
-        'value': data.value,
-        'comparison': data.comparison
+        id: data.id,
+        operation: type,
+        request: _request.id,
+        rule: data.rule,
+        formAttribute: data.formAttribute,
+        attributeName: data.attributeName,
+        type: data.type,
+        value: data.value,
+        comparison: data.comparison
       };
     }
     if (type === ConceptRoleRequestOperationEnum.findKeyBySymbol(ConceptRoleRequestOperationEnum.ADD)) {
       concept = {
-        'id': data.id,
-        'operation': type,
-        'request': _request.id,
-        'rule': data.rule,
-        'formAttribute': data.formAttribute,
-        'attributeName': data.attributeName,
-        'type': data.type,
-        'value': data.value,
-        'comparison': data.comparison
+        id: data.id,
+        operation: type,
+        request: _request.id,
+        rule: data.rule,
+        formAttribute: data.formAttribute,
+        attributeName: data.attributeName,
+        type: data.type,
+        value: data.value,
+        comparison: data.comparison
       };
     }
-    this.context.store.dispatch(automaticRoleAttributeRuleRequestManager.updateEntity(concept, `${uiKeyAttributes}-detail`, (updatedEntity, error) => {
-      if (!error) {
-        this._reloadRuleRequests(_request);
-        this.refs.table.reload();
-      } else {
-        this.addError(error);
-      }
-    }));
+    this.context.store.dispatch(automaticRoleAttributeRuleRequestManager.updateEntity(concept, `${uiKeyAttributes}-detail`,
+      (updatedEntity, error) => {
+        if (!error) {
+          this._reloadRuleRequests(_request);
+          this.refs.table.reload();
+        } else {
+          this.addError(error);
+        }
+      }));
   }
 
   _createConcept(data, type) {
@@ -267,24 +271,24 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
       formAttribute = formAttribute.id;
     }
     const concept = {
-      'operation': type,
-      'request': _request.id,
+      operation: type,
+      request: _request.id,
       formAttribute,
-      'attributeName': data.attributeName,
-      'type': data.type,
-      'value': data.value,
-      'rule': data.rule,
-      'comparison': data.comparison
+      attributeName: data.attributeName,
+      type: data.type,
+      value: data.value,
+      rule: data.rule,
+      comparison: data.comparison
     };
 
     automaticRoleAttributeRuleRequestManager.getService().create(concept)
-    .then(() => {
-      this._reloadRuleRequests(_request);
-      this.refs.table.reload();
-    })
-    .catch(error => {
-      this.addError(error);
-    });
+      .then(() => {
+        this._reloadRuleRequests(_request);
+        this.refs.table.reload();
+      })
+      .catch(error => {
+        this.addError(error);
+      });
   }
 
   _startRequest(idRequest, event) {
@@ -301,7 +305,9 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
       });
       this.context.history.goBack();
       if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.DUPLICATED)) {
-        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated', { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}), level: 'warning'});
+        this.addMessage({ message: this.i18n('content.roleRequests.action.startRequest.duplicated',
+          { created: moment(json._embedded.duplicatedToRequest.created).format(this.i18n('format.datetime'))}),
+        level: 'warning'});
         return;
       }
       if (json.state === RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.EXCEPTION)) {
@@ -318,7 +324,6 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
         this.refs.table.reload();
       }
     });
-    return;
   }
 
   _renderRoleConceptChangesTable(request, forceSearchParameters, rendered) {
@@ -338,12 +343,18 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
             uiKey={uiKeyAttributes}
             manager={automaticRoleAttributeRuleRequestManager}
             forceSearchParameters={forceSearchParameters}
-            >
+          >
             <Advanced.Column
               property="operation"
               face="enum"
               enumClass={ConceptRoleRequestOperationEnum}
               header={this.i18n('entity.ConceptRoleRequest.operation')}
+              sort/>
+            <Advanced.Column
+              property="type"
+              face="enum"
+              enumClass={ AutomaticRoleAttributeRuleTypeEnum }
+              header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.type.label')}
               sort/>
             <Advanced.Column
               property="attributeName"
@@ -386,7 +397,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     return (
       <div>
         <Basic.LabelWrapper
-          rendered={(request && request.role) ? true : false}
+          rendered={!!((request && request.role))}
           readOnly
           ref="role"
           label={this.i18n('entity.AutomaticRoleRequest.role')}>
@@ -398,7 +409,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
         </Basic.LabelWrapper>
 
         <Basic.LabelWrapper
-          rendered={(request && request.creatorId) ? true : false}
+          rendered={!!((request && request.creatorId))}
           readOnly
           ref="implementer"
           label={this.i18n('entity.AutomaticRoleRequest.implementer')}>
@@ -411,7 +422,8 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     );
   }
 
-  _renderRoleConceptTable(request, rendered, isEditable, showLoading, _currentRoleRules, addedConcepts, changedConcepts, removedConcepts, showLoadingButtonRemove) {
+  _renderRoleConceptTable(request, rendered, isEditable, showLoading,
+    _currentRoleRules, addedConcepts, changedConcepts, removedConcepts, showLoadingButtonRemove) {
     if (!rendered) {
       return null;
     }
@@ -446,7 +458,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
             removeConceptFunc={this._removeConcept.bind(this)}
             createConceptFunc={this._createConcept.bind(this)}
             updateConceptFunc={this._updateConcept.bind(this)}
-            />
+          />
         </Basic.Panel>
       </div>
     );
@@ -500,7 +512,9 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
       _permissions,
       _roleRuleRequests} = this.props;
     //
-    const forceSearchParameters = new SearchParameters().setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID);
+    const forceSearchParameters = new SearchParameters()
+      .setFilter('roleRequestId', _request ? _request.id : SearchParameters.BLANK_UUID)
+      .setSize(10000);
     const isNew = this._getIsNew();
     const request = isNew ? this.state.request : _request;
     // We want show audit fields only for Admin, but not in concept state.
@@ -521,16 +535,17 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
       automaticRoleManager = automaticAttributeRoleManager;
     }
     if (this.state.showLoading || !request) {
-      return (<div>
-        <Basic.ContentHeader rendered={showRequestDetail}>
-          <Basic.Icon value="component:automatic-role"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.ContentHeader>
-        <Basic.PanelBody>
-          <Basic.Loading show isStatic />
-        </Basic.PanelBody>
-      </div>);
+      return (
+        <div>
+          <Basic.ContentHeader rendered={showRequestDetail}>
+            <Basic.Icon value="component:automatic-role"/>
+            {' '}
+            <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          </Basic.ContentHeader>
+          <Basic.PanelBody>
+            <Basic.Loading show isStatic />
+          </Basic.PanelBody>
+        </div>);
     }
 
     const addedConcepts = [];
@@ -577,20 +592,20 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
               </Basic.Row>
               <Basic.EnumSelectBox
                 ref="requestType"
-                readOnly = {request.automaticRole ? true : false}
+                readOnly={!!request.automaticRole}
                 onChange={this._onChangeRequestType.bind(this)}
                 required
                 enum={AutomaticRoleRequestTypeEnum}
                 label={this.i18n('entity.AutomaticRoleRequest.requestType')}/>
               <Basic.TextField
                 ref="name"
-                required={request.automaticRole ? false : true}
-                rendered={request.automaticRole ? false : true}
+                required={!request.automaticRole}
+                rendered={!request.automaticRole}
                 label={this.i18n('entity.AutomaticRoleRequest.name')}/>
               <Basic.SelectBox
                 ref="automaticRole"
                 readOnly
-                rendered={request.automaticRole ? true : false}
+                rendered={!!request.automaticRole}
                 manager={automaticRoleManager}
                 label={this.i18n('entity.AutomaticRoleRequest.automaticAttributeRole')}/>
               <Basic.EnumLabel
@@ -606,13 +621,13 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
                 manager={treeNodeManager}
                 label={this.i18n('entity.RoleTreeNode.treeNode')}
                 rendered={!isAttributeRequest}
-                required={!isAttributeRequest && (request.automaticRole ? false : true)}/>
+                required={!isAttributeRequest && (!request.automaticRole)}/>
               <Basic.EnumSelectBox
                 ref="recursionType"
                 enum={RecursionTypeEnum}
                 label={this.i18n('entity.RoleTreeNode.recursionType')}
                 rendered={!isAttributeRequest}
-                required={!isAttributeRequest && (request.automaticRole ? false : true)}/>
+                required={!isAttributeRequest && (!request.automaticRole)}/>
               <Basic.Checkbox
                 ref="executeImmediately"
                 hidden={!_adminMode}
@@ -626,7 +641,8 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
           </form>
           <div style={{ padding: '15px 15px 0 15px' }}>
             {
-              this._renderRoleConceptTable(request, showCurrentRules && isAttributeRequest && !isDeleteRequest, isEditable, showLoading, _currentRoleRules, addedConcepts, changedConcepts, removedConcepts, showLoadingButtonRemove)
+              this._renderRoleConceptTable(request, showCurrentRules && isAttributeRequest && !isDeleteRequest,
+                isEditable, showLoading, _currentRoleRules, addedConcepts, changedConcepts, removedConcepts, showLoadingButtonRemove)
             }
             {
               this._renderRoleConceptChangesTable(request, forceSearchParameters, isAttributeRequest && !isDeleteRequest)
@@ -634,7 +650,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
             <Basic.AbstractForm
               readOnly
               ref="form-wf"
-              rendered={request.wfProcessId ? true : false}
+              rendered={!!request.wfProcessId}
               data={request}
               showLoading={showLoading}>
               <Basic.LabelWrapper
@@ -736,7 +752,7 @@ function select(state, component) {
   }
   return {
     _request: entity,
-    _showLoading: entity ? false : true,
+    _showLoading: !entity,
     _currentRoleRules,
     _roleRuleRequests,
     _permissions: automaticRoleRequestManager.getPermissions(state, null, entity),

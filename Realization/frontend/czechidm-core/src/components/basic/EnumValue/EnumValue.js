@@ -13,7 +13,7 @@ import Icon from '../Icon/Icon';
 class EnumValue extends AbstractComponent {
 
   render() {
-    const { rendered, value, style, label, level } = this.props;
+    const { rendered, value, style, label, level, title } = this.props;
     const enumClass = this.props.enum;
     //
     if (!rendered || !value) {
@@ -40,7 +40,7 @@ class EnumValue extends AbstractComponent {
       const _level = level || enumClass.getLevel(value);
       if (_level) {
         content = (
-          <Label style={ style } level={ _level } text={ content }/>
+          <Label style={ style } title={ title } level={ _level } text={ content }/>
         );
       }
     }

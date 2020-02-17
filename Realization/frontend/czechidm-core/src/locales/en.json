@@ -1389,7 +1389,7 @@
         "roleName" : "Role name"
       },
       "IdentityRoleConceptTable": {
-        "oldValue": "Old value {{oldValue}}",
+        "oldValue": "Old value [{{oldValue}}]",
         "oldValueNotExist": "Old value was empty",
         "switchShowChangesOnly": "Show changes only",
         "systemState": "System state",

@@ -11,6 +11,7 @@ import * as Advanced from '../../components/advanced';
 import { RoleManager, AutomaticRoleAttributeRuleManager } from '../../redux';
 import AutomaticRoleAttributeRuleDetail from '../automaticrole/attribute/AutomaticRoleAttributeRuleDetail';
 import AutomaticRoleAttributeRuleComparisonEnum from '../../enums/AutomaticRoleAttributeRuleComparisonEnum';
+import AutomaticRoleAttributeRuleTypeEnum from '../../enums/AutomaticRoleAttributeRuleTypeEnum';
 
 /**
 * Table for keep automatic role rules concept. Input are all current assigned roles's rules
@@ -308,22 +309,44 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
   /**
    * Generate date cell for concept. If is entity changed, will use 'changed' property. In title show old value.
    */
-  _conceptDateCell({rowIndex, data, property}) {
-    const changedProperty = '_' + property + 'Changed';
+  _conceptCell({rowIndex, data, property}) {
+    const changedProperty = `_${property}Changed`;
     // Load old value and add to title
-    const format = this.i18n('format.date');
     const propertyOldValue = Basic.Cell.getPropertyValue(data[rowIndex], property);
-    const dataOldValue = propertyOldValue ? moment(propertyOldValue).format(format) : null;
-    const oldValueMessage = dataOldValue ? this.i18n('oldValue', {oldValue: dataOldValue}) : this.i18n('oldValueNotExist');
-    const changedPropertyExist = data[rowIndex].hasOwnProperty(changedProperty);
+    const oldValueMessage = propertyOldValue ?
+      this.i18n('content.task.IdentityRoleConceptTable.oldValue',
+        {oldValue: propertyOldValue}) : this.i18n('oldValueNotExist');
+    const propertyNewValue = Basic.Cell.getPropertyValue(data[rowIndex], changedProperty);
+    const changedPropertyExist = propertyNewValue && propertyOldValue !== propertyNewValue;
+    const finalProperty = changedPropertyExist ? changedProperty : property;
     return (
-      <Basic.DateCell
-        className={changedPropertyExist ? 'text-danger' : ''}
+      <Basic.Div
         property={changedPropertyExist ? changedProperty : property}
-        rowIndex={rowIndex}
-        data={data}
+        title={changedPropertyExist ? oldValueMessage : null}>
+        {data[rowIndex][finalProperty]}
+      </Basic.Div>
+    );
+  }
+
+  /**
+   * Generate date cell for concept. If is entity changed, will use 'changed' property. In title show old value.
+   */
+  _conceptEnumCell({rowIndex, data, property}, enumType) {
+    const changedProperty = `_${property}Changed`;
+    // Load old value and add to title
+    const propertyOldValue = Basic.Cell.getPropertyValue(data[rowIndex], property);
+    const oldValueMessage = propertyOldValue ?
+      this.i18n('content.task.IdentityRoleConceptTable.oldValue',
+        {oldValue: enumType.getNiceLabel(propertyOldValue)}) : this.i18n('oldValueNotExist');
+    const propertyNewValue = Basic.Cell.getPropertyValue(data[rowIndex], changedProperty);
+    const changedPropertyExist = propertyNewValue && propertyOldValue !== propertyNewValue;
+    const finalProperty = changedPropertyExist ? changedProperty : property;
+    return (
+      <Basic.EnumValue
+        value={data[rowIndex][finalProperty]}
         title={changedPropertyExist ? oldValueMessage : null}
-        format={format}/>
+        enum={ enumType }
+      />
     );
   }
 
@@ -452,15 +475,19 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
             }
             sort={false}/>
           <Basic.Column
+            header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.type.label')}
+            property="type"
+            face="enum"
+            cell={
+              ({ rowIndex, data, property}) => {
+                return this._conceptEnumCell({rowIndex, data, property}, AutomaticRoleAttributeRuleTypeEnum);
+              }
+            }/>
+          <Basic.Column
             property="attributeName"
             cell={
-              ({ rowIndex, data }) => {
-                const entity = data[rowIndex];
-                if (!entity) {
-                  return '';
-                }
-                const attributeName = entity.attributeName ? entity.attributeName : entity._embedded.formAttribute.code;
-                return attributeName;
+              ({ rowIndex, data, property}) => {
+                return this._conceptCell({rowIndex, data, property});
               }
             }
             header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.attributeName')}
@@ -486,12 +513,8 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
             header={this.i18n('entity.AutomaticRoleAttributeRuleRequest.value.label')}
             property="value"
             cell={
-              ({ rowIndex, data }) => {
-                const value = data[rowIndex].value;
-                if (!value || value === undefined || value === 'null') {
-                  return '';
-                }
-                return value;
+              ({ rowIndex, data, property}) => {
+                return this._conceptCell({rowIndex, data, property});
               }
             }/>
           <Basic.Column
@@ -499,14 +522,8 @@ export class AutomaticRoleRuleTable extends Basic.AbstractContent {
             property="comparison"
             face="enum"
             cell={
-              ({ rowIndex, data }) => {
-                const value = data[rowIndex].comparison;
-                if (!value) {
-                  return '';
-                }
-                return (
-                  <Basic.EnumValue value={ value } enum={ AutomaticRoleAttributeRuleComparisonEnum } />
-                );
+              ({ rowIndex, data, property}) => {
+                return this._conceptEnumCell({rowIndex, data, property}, AutomaticRoleAttributeRuleComparisonEnum);
               }
             }/>
           <Basic.Column

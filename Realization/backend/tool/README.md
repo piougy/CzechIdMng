@@ -10,11 +10,12 @@
 
 ## Requirements
 
-- Install `maven` - at least version `3.1` is required (Configure ``MAVEN_HOME`` environment property or use ``--maven-home`` IdM tool argument). If libraries for maven build are downloaded automatically, then maven repositories (e.g. https://repo1.maven.org/maven2/, https://nexus.bcvsolutions.eu/repository/maven-public-releases) has to be available. Libraries have to be prepared in local maven repository otherwise.
+- Install ``maven`` - at least version ``3.1`` is required (Configure ``MAVEN_HOME`` environment property or use ``--maven-home`` IdM tool argument). If libraries for maven build are downloaded automatically, then maven repositories (e.g. https://repo1.maven.org/maven2/, https://nexus.bcvsolutions.eu/repository/maven-public-releases) has to be available. Libraries have to be prepared in local maven repository otherwise.
 - Node and npm:
   - are downloaded, extracted and put into a node folder created in your installation directory (``target``) automatically (we are using [frontend-maven-plugin](https://github.com/eirslett/frontend-maven-plugin#frontend-maven-plugin)). Node repositories (e.g. https://nodejs.org/dist) has to be available. Node/npm will be "installed" locally to your project, it will not be installed globally on the whole system (and it will not interfere with any Node/npm installations already present).
   - or can be installed globally and used by ``--node-home`` IdM tool argument.
   - third party node modules are downloaded automatically from public node repository.
+- ``Java 1.8`` usage is required by conventions. Artefacts have to be built under ``Java 1.8`` version. Java 11 is supported @since version 10.0.0., but we decide to not use it - artefact will run on environment with ``Java 1.8`` version.
 
 ## How to get the tool
 

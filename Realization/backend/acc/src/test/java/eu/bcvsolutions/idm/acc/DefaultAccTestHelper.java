@@ -2,8 +2,6 @@ package eu.bcvsolutions.idm.acc;
 
 import static org.junit.Assert.assertEquals;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -12,8 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.sql.DataSource;
 
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
@@ -64,6 +60,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayMigrationStrategy;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -442,20 +439,11 @@ public class DefaultAccTestHelper extends eu.bcvsolutions.idm.test.api.DefaultTe
 			// reserved names
 			return columnName;
 		}
-		
-		Connection connection = JdbcUtils.openConnection(dataSource, 1);
 		//
-		try {
-            String dbName = JdbcUtils.getDatabaseMetaData(connection).getDatabaseProductName().toLowerCase();
-            
-            if (dbName.equals("postgresql")) {
-    			return columnName.toLowerCase();
-    		}
-        } catch (SQLException ex) {
-            throw new FlywaySqlException("Error while determining database product name", ex);
-        } finally {
-        	JdbcUtils.closeConnection(connection);
-        }
+        String dbName = getDatabaseName()	;
+        if (dbName.equals(IdmFlywayMigrationStrategy.POSTGRESQL_DBNAME)) {
+			return columnName.toLowerCase();
+		}
 		//
 		return columnName;
 	}

@@ -87,14 +87,19 @@ public class IdmEntityStateControllerRestTest extends AbstractReadWriteDtoContro
 		parameters.set("text", ownerOne.toString().substring(0, 6));
 		parameters.set("ownerType", ownerTypeOne);
 		results = find(parameters);
-		Assert.assertEquals(1, results.size());
-		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateOne.getId())));
 		//
-		parameters.set("text", "moCk-");
-		parameters.set("ownerType", ownerTypeTwo);
-		results = find(parameters);
-		Assert.assertEquals(1, results.size());
-		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateTwo.getId())));
+		if (!getHelper().isDatabaseMssql()) { // search by uuid as string is not supported for mssql
+			Assert.assertEquals(1, results.size());
+			Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateOne.getId())));
+			//
+			parameters.set("text", "moCk-");
+			parameters.set("ownerType", ownerTypeTwo);
+			results = find(parameters);
+			Assert.assertEquals(1, results.size());
+			Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(stateTwo.getId())));
+		} else {
+			Assert.assertEquals(0, results.size()); // not found on mssql
+		}
 	}
 
 	@Test

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 import java.util.function.Function;
 
+import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayMigrationStrategy;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleComparison;
 import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -903,5 +904,23 @@ public interface TestHelper {
 	 * @param automaticRoleId
 	 */
 	void recalculateAutomaticRoleByAttribute(UUID automaticRoleId);
-
+	
+	/**
+	 * Resolve dbName, which is used by {@Flyway} datasource.
+	 * 
+	 * @param flyway
+	 * @return
+	 * @since 10.1.0
+	 * @see IdmFlywayMigrationStrategy
+	 */
+	String getDatabaseName();
+	
+	/**
+	 * Underlying database is mssql. Usable 
+	 * 
+	 * @return true - underlying database is mssql.
+	 * @since 10.1.0
+	 * @see IdmFlywayMigrationStrategy
+	 */
+	boolean isDatabaseMssql();
 }

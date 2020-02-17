@@ -109,37 +109,45 @@ public class ProjectManager {
 			
 			//
 			// resolve product artefact
-			boolean productFound = false;
 			File extractedProductFolder = new File(targetFolder, "war");
-			for (File file : productFolder.listFiles()) {
-				// TODO: find last version or configurable?
-				// TODO: extracted product higher priority?
-				if (file.isDirectory()) {
-					// extracted product
-					FileUtils.copyDirectory(file, extractedProductFolder);
-					LOG.info("Extracted product folder [{}] found.", file.getPath());
-					//
-					productFound = true;
-					break;
-				}
-				if (file.getName().endsWith(".war")) {
-					// .war artefact
-					File productWar = file;
-					LOG.info("Product artefact [{}] found.", productWar.getName());
-					//
-					// extract war file
-					LOG.info("Product artefact [{}] will be extracted ...", productWar.getName());
-					ZipUtils.extract(productWar, extractedProductFolder.getPath());
-					LOG.info("Product [{}] extracted into target folder [{}].", productWar, targetFolder);
-					//
-					productFound = true;
-					break;
+			//
+			// check product version in product folder
+			String productVersion = getVersion(productFolder);
+			if (StringUtils.isNotEmpty(productVersion)) {
+				// extracted product
+				FileUtils.copyDirectory(productFolder, extractedProductFolder);
+				LOG.info("Extracted product [{}] found directly in product folder.", productFolder.getPath());
+			} else {			
+				for (File file : productFolder.listFiles()) {
+					// TODO: find last version or configurable?
+					// TODO: extracted product higher priority?
+					if (file.isDirectory()) {
+						productVersion = getVersion(file);
+						if (StringUtils.isNotEmpty(productVersion)) {
+							// extracted product => just copy in this case
+							FileUtils.copyDirectory(file, extractedProductFolder);
+							LOG.info("Extracted product folder [{}] found.", file.getPath());
+							//
+							break;
+						}
+					}
+					if (file.getName().endsWith(".war")) {
+						// .war artefact
+						File productWar = file;
+						LOG.info("Product artefact [{}] found.", productWar.getName());
+						//
+						// extract war file
+						LOG.info("Product artefact [{}] will be extracted ...", productWar.getName());
+						ZipUtils.extract(productWar, extractedProductFolder.getPath());
+						LOG.info("Product [{}] extracted into target folder [{}].", productWar, targetFolder);
+						//
+						productVersion = getVersion(extractedProductFolder);
+						break;
+					}
 				}
 			}
-			Assert.isTrue(productFound, String.format("Product artefact (.war) not found in product folder [%s].", productFolder.getPath()));
+			Assert.isTrue(StringUtils.isNotEmpty(productVersion), String.format("Product artefact not found in product folder [%s].", productFolder.getPath()));
 			//
-			// check product version
-			String productVersion = getVersion(extractedProductFolder);
 			LOG.info("Product version [{}] resolved.", productVersion);
 			//
 			// add modules into BE libs

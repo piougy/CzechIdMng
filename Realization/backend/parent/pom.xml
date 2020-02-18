@@ -122,6 +122,10 @@
 
 	<pluginRepositories>
 		<pluginRepository>
+			<id>maven-public</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
+		</pluginRepository>
+		<pluginRepository>
 			<id>jcenter-snapshots</id>
 			<name>jcenter</name>
 			<url>http://oss.jfrog.org/artifactory/oss-snapshot-local/</url>

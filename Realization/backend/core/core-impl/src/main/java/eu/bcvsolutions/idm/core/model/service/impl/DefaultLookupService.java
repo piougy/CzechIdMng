@@ -1,12 +1,16 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.persistence.metamodel.SingularAttribute;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -14,7 +18,9 @@ import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.lookup.CodeableDtoLookup;
@@ -25,10 +31,14 @@ import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
  * Provide entity services through whole application. 
  * Support for loading {@link BaseDto} and {@link BaseEntity} by identifier.
+ * 
+ * TODO: lookup by example
  * 
  * @author Radek Tomiška
  *
@@ -61,37 +71,84 @@ public class DefaultLookupService implements LookupService {
 	}
 	
 	@Override
-	public BaseEntity lookupEntity(Class<? extends Identifiable> identifiableType, Serializable entityId) {
-		EntityLookup<BaseEntity> lookup = getEntityLookup(identifiableType);
+	public <E extends BaseEntity> E lookupEntity(Class<? extends Identifiable> identifiableType, Serializable entityId) {
+		EntityLookup<E> lookup = getEntityLookup(identifiableType);
 		if (lookup == null) {
 			throw new IllegalArgumentException(String.format("Entity lookup for identifiable type [%s] is not supported", identifiableType));
 		}
-		BaseEntity entity = lookup.lookup(entityId);
+		E entity = lookup.lookup(entityId);
 		//
 		LOG.trace("Identifiable type [{}] with identifier [{}] found [{}]", identifiableType, entityId, entity != null);
+		//
 		return entity;
 		
 	}
 	
 	@Override
-	public BaseDto lookupDto(Class<? extends Identifiable> identifiableType, Serializable entityId) {
-		DtoLookup<BaseDto> lookup = getDtoLookup(identifiableType);
+	public <DTO extends BaseDto> DTO lookupDto(Class<? extends Identifiable> identifiableType, Serializable entityId) {
+		DtoLookup<DTO> lookup = getDtoLookup(identifiableType);
 		if (lookup == null) {
 			throw new IllegalArgumentException(String.format("Dto lookup for identifiable type [%s] is not supported", identifiableType));
 		}
-		BaseDto dto = lookup.lookup(entityId);
+		DTO dto = lookup.lookup(entityId);
 		//
 		LOG.trace("Identifiable type [{}] with identifier [{}] found [{}]", identifiableType, entityId, dto != null);
+		//
 		return dto;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public BaseDto lookupDto(String identifiableType, Serializable entityId) {
+	public <DTO extends BaseDto> DTO lookupDto(String identifiableType, Serializable entityId) {
 		try {
 			return lookupDto((Class<? extends Identifiable>) Class.forName(identifiableType), entityId);
 		} catch (ClassNotFoundException ex) {
 			throw new IllegalArgumentException(String.format("Dto lookup for identifiable type [%s] is not supported", identifiableType), ex);
+		}
+	}
+	
+	@Override
+	public <DTO extends BaseDto> DTO lookupEmbeddedDto(AbstractDto dto, SingularAttribute<?, ?> attribute) {
+		Assert.notNull(attribute, "Singular attribute is required to get DTO from embedded.");
+		//
+		return lookupEmbeddedDto(dto, attribute.getName());
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <DTO extends BaseDto> DTO lookupEmbeddedDto(AbstractDto dto, String attributeName) {
+		Assert.notNull(dto, "DTO is required.");
+		Assert.notNull(dto.getEmbedded(), "DTO does not have embedded DTO map initialized and is required.");
+		Assert.hasLength(attributeName, "Singular attribute is required to get embedded DTO.");
+		// 
+		// from embedded
+		DTO embeddedDto = DtoUtils.getEmbedded(dto, attributeName, (DTO) null);
+		if (embeddedDto != null) {
+			return embeddedDto;
+		}
+		//
+		// try to load by lookup
+		try {
+			// get target DTO type by embedded annotation - annotation is required
+			Field embeddableField = EntityUtils.getFirstFieldInClassHierarchy(dto.getClass(), attributeName);
+			if (!embeddableField.isAnnotationPresent(Embedded.class)) {
+				throw new IllegalArgumentException(String.format("Dto lookup for dto type [%s] attribute [%s] is not supported. Embedded annotion is missing.",
+						dto.getClass(), attributeName));
+			}
+			Embedded embedded = embeddableField.getAnnotation(Embedded.class);
+			//
+			// get DTO identifier ~ field value
+			PropertyDescriptor fieldDescriptor = EntityUtils.getFieldDescriptor(dto, attributeName);
+			Object fieldValue = fieldDescriptor.getReadMethod().invoke(dto);
+			if (!(fieldValue instanceof Serializable)) {
+				throw new IllegalArgumentException(String.format("Dto lookup for dto type [%s] attribute [%s] is not supported",
+						dto.getClass(), attributeName));
+			}
+			//
+			return (DTO) lookupDto(embedded.dtoClass(), (Serializable) fieldValue);
+		} catch (ReflectiveOperationException | IntrospectionException ex) {
+			throw new IllegalArgumentException(String.format("Dto lookup for dto type [%s] attribute [%s] is not supported",
+					dto.getClass(), attributeName), ex);
 		}
 	}
 	

@@ -27,7 +27,9 @@ import io.swagger.annotations.ApiModelProperty;
 public class IdmIdentityContractDto extends FormableDto implements ValidableEntity, ExternalIdentifiable {
 
 	private static final long serialVersionUID = 1L;
-
+	//
+	public static final String PROPERTY_IDENTITY = "identity";
+	//
 	@Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")
 	private String externalId;

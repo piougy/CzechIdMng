@@ -210,6 +210,38 @@ public class EntityUtils {
                 .orElseGet(() -> getFirstFieldInClassHierarchyInternal(sourceType.getSuperclass(), field));
     }
     
+    /**
+     * Find field property descriptor.
+     * 
+     * @param entity dto / entity / object
+     * @param propertyName field name
+     * @return field property descriptor
+     * @throws IntrospectionException
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException
+     * @since 10.2.0
+     */
+    public static PropertyDescriptor getFieldDescriptor(Object entity, String propertyName) 
+    		throws IntrospectionException, IllegalAccessException {
+    	Assert.notNull(entity, "Dto /  entity / ojec is required to find field property descriptor.");
+    	Assert.hasLength(propertyName, "Property name is requred.");
+    	Class<?> entityClass = entity.getClass();
+    	//
+		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
+				.asList(Introspector.getBeanInfo(entityClass).getPropertyDescriptors())
+				.stream()
+				.filter(propertyDescriptor -> {
+					return propertyName.equals(propertyDescriptor.getName());
+				})
+				.findFirst();
+		//
+		if (!propertyDescriptionOptional.isPresent()) {
+			throw new IllegalAccessException(String.format("Class [%s] field [%s] not found.", entityClass, propertyName));
+		}
+		return propertyDescriptionOptional.get();
+	}
+    
 	/**
 	 * Return object from entity for given property name
 	 * 
@@ -222,18 +254,9 @@ public class EntityUtils {
 	 * @throws InvocationTargetException
 	 */
 	public static Object getEntityValue(Object entity, String propertyName) 
-			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
-			 {
-		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
-				.asList(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors())
-				.stream().filter(propertyDescriptor -> {
-					return propertyName.equals(propertyDescriptor.getName());
-				}).findFirst();
-		if (!propertyDescriptionOptional.isPresent()) {
-			throw new IllegalAccessException("Field " + propertyName + " not found!");
-		}
-		PropertyDescriptor propertyDescriptor = propertyDescriptionOptional.get();
-
+			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		PropertyDescriptor propertyDescriptor = getFieldDescriptor(entity, propertyName);
+		//
 		return propertyDescriptor.getReadMethod().invoke(entity);
 	}
 	

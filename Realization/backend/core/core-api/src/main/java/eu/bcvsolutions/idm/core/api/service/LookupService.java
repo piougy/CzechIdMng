@@ -3,12 +3,16 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.io.Serializable;
 import java.util.UUID;
 
+import javax.persistence.metamodel.SingularAttribute;
+
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DtoLookup;
 import eu.bcvsolutions.idm.core.api.rest.lookup.EntityLookup;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Support for loading {@link BaseDto} and {@link BaseEntity} by identifier.
@@ -30,7 +34,7 @@ public interface LookupService extends ScriptEnabled {
 	 * @param entityId
 	 * @return {@link BaseEntity}
 	 */
-	BaseEntity lookupEntity(Class<? extends Identifiable> identifiableType, Serializable entityId);
+	<E extends BaseEntity> E lookupEntity(Class<? extends Identifiable> identifiableType, Serializable entityId);
 	
 	/**
 	 * Returns {@link BaseDto} by given identifier and type. 
@@ -41,7 +45,31 @@ public interface LookupService extends ScriptEnabled {
 	 * @return {@link BaseDto}
 	 * @throws IllegalArgumentException if service for load dto not found
 	 */
-	BaseDto lookupDto(Class<? extends Identifiable> identifiableType, Serializable entityId);
+	<DTO extends BaseDto> DTO lookupDto(Class<? extends Identifiable> identifiableType, Serializable entityId);
+	
+	/**
+	 * Returns embedded DTO from given dto. If DTO is not found in embedded, then DTO will be load by lookup.
+	 * 
+	 * @param <DTO> result dto type
+	 * @param dto source dto
+	 * @param attribute attribute to get
+	 * @return dto
+	 * @see DtoUtils#getEmbedded(AbstractDto, SingularAttribute)
+	 * @since 10.2.0
+	 */
+	<DTO extends BaseDto> DTO lookupEmbeddedDto(AbstractDto dto, SingularAttribute<?, ?> attribute);
+	
+	/**
+	 * Returns embedded DTO from given dto. If DTO is not found in embedded, then DTO will be load by lookup.
+	 * 
+	 * @param <DTO> result dto type
+	 * @param dto source dto
+	 * @param attributeName attribute to get
+	 * @return dto
+	 * @see DtoUtils#getEmbedded(AbstractDto, String)
+	 * @since 10.2.0
+	 */
+	<DTO extends BaseDto> DTO lookupEmbeddedDto(AbstractDto dto, String attributeName) ;
 	
 	/**
 	 * Returns {@link BaseDto} by given identifier and type. 
@@ -52,7 +80,7 @@ public interface LookupService extends ScriptEnabled {
 	 * @return {@link BaseDto}
 	 * @throws IllegalArgumentExceptionif service for load dto not found or identifiableType is not valid
 	 */
-	BaseDto lookupDto(String identifiableType, Serializable entityId);
+	<DTO extends BaseDto> DTO lookupDto(String identifiableType, Serializable entityId);
 	
 	/**
 	 * Returns {@link EntityLookup} for given identifiable class

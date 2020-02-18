@@ -153,6 +153,16 @@ public abstract class AbstractReadWriteDtoService<DTO extends BaseDto, E extends
 	}
 	
 	@Override
+	@Transactional
+	public void deleteAll(Iterable<DTO> dtos, BasePermission... permission) {
+		Assert.notNull(dtos, "DTO is required for save.");
+		//
+		dtos.forEach(entity -> {
+			delete(entity, permission);
+		});
+	}
+	
+	@Override
 	public DTO validateDto(DTO dto) {
 		return validate(dto);
 	}

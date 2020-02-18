@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [10.2.0]
+
+- New method ``ReadWriteDtoService#deleteAll(Iterable<DTO>, BasePermission)`` was added into service layer - shortcut to delete all dtos in one transaction.
+
+## [10.1.0]
+
+- [#1711](https://redmine.czechidm.com/issues/1711) - Warning about leading and trailing whitespaces filled in form inputs will be shown automatically.
+- [#1986](https://redmine.czechidm.com/issues/1986) - Bulk actions localization for remove entity were renamed from "remove" to "delete".
+- [#2023](https://redmine.czechidm.com/issues/2023) - New "empty" option was added to all clearable select boxes used in filters and forms.
+
 ## [10.0.0]
 
 - **All changes related to upgrade devstack dependencies can be found in [migration guide](./MIGRATION.md).**

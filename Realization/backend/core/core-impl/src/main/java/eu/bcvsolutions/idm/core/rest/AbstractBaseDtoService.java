@@ -138,6 +138,11 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 	public void deleteById(Serializable id, BasePermission... permission) {
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public void deleteAll(Iterable<DTO> dtos, BasePermission... permission) {
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public DTO saveInternal(DTO dto) {

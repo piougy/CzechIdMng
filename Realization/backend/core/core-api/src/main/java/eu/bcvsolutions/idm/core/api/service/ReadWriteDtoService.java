@@ -40,7 +40,9 @@ public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> 
 	Iterable<DTO> saveAll(Iterable<DTO> dtos, BasePermission... permission);
 	
 	/**
-	 * Deletes a given DTO. Event could be published instead persisting dto directly. Authorization policies are evaluated.
+	 * Deletes a given DTO. 
+	 * Event could be published instead deleting dto directly. 
+	 * Authorization policies are evaluated.
 	 * 
 	 * @param dto
 	 * @param permission permissions to evaluate
@@ -50,7 +52,9 @@ public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> 
 	void delete(DTO dto, BasePermission... permission);
 	
 	/**
-	 * Deletes DTO by given identifier.
+	 * Deletes DTO by given identifier. 
+	 * Event could be published instead deleting dto directly. 
+	 * Authorization policies are evaluated.
 	 * 
 	 * @param id
 	 * @param permission permissions to evaluate (AND)
@@ -58,6 +62,19 @@ public interface ReadWriteDtoService<DTO extends BaseDto, F extends BaseFilter> 
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	void deleteById(Serializable id, BasePermission... permission);
+	
+	/**
+	 * Deletes all DTOs in one transaction. 
+	 * Event could be published instead deleting dto directly. 
+	 * Authorization policies are evaluated.
+	 * 
+	 * @param dtos
+	 * @param permission
+	 * @throws IllegalArgumentException in case the given DTOs is {@literal null}.
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 10.2.0
+	 */
+	void deleteAll(Iterable<DTO> dtos, BasePermission... permission);
 	
 	/**
 	 * Persists a given DTO to repository.

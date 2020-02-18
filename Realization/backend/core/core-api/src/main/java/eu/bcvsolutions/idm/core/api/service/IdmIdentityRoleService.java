@@ -67,11 +67,22 @@ public interface IdmIdentityRoleService extends
 	/**
 	 * Returns all roles with date lower than given expiration date.
 	 * 
-	 * @param expirationDate
-	 * @param pageable
-	 * @return
+	 * @param expirationDate valid till < expirationDate
+	 * @param pageable add sort if needed
+	 * @return all expired roles 
+	 * @see #findDirectExpiredRoles(LocalDate, Pageable)
 	 */
 	Page<IdmIdentityRoleDto> findExpiredRoles(LocalDate expirationDate, Pageable pageable);
+	
+	/**
+	 * Returns all direct roles with date lower than given expiration date. Automatic roles are included, sub roles not.
+	 * 
+	 * @param expirationDate valid till < expirationDate
+	 * @param pageable add sort if needed
+	 * @return expired roles without sub roles
+	 * @since 10.2.0
+	 */
+	Page<IdmIdentityRoleDto> findDirectExpiredRoles(LocalDate expirationDate, Pageable pageable);
 	
 	/**
 	 * Find valid identity-roles in this moment. Includes check on contract validity. 

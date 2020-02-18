@@ -5465,6 +5465,16 @@
       "core-password-expired-long-running-task": {
         "label": "Vypršení platnosti hesla - notifikace a publikování eventy",
         "help": "Odešle notifikaci pro uživatele, kterým vypršelo heslo. Zároveň publikuje eventu PASSWORD_EXPIRED pro zablokování hesla."
+      },
+      "core-identity-role-expiration-long-running-task": {
+        "label": "Vypršení platnosti přiřazených rolí",
+        "help": "Zkontroluje a odebere neplané přiřazené role uživatelům.",
+        "icon": "fa:trash"
+      },
+      "core-identity-contract-expiration-long-running-task": {
+        "label": "Vypršení platnosti pracovně právních vztahů",
+        "help": "Zkontroluje a odebere uživatelům role, které jsou přiřazené na již neplatné pracovně právní vztahy.",
+        "icon": "fa:trash"
       }
     }
   },

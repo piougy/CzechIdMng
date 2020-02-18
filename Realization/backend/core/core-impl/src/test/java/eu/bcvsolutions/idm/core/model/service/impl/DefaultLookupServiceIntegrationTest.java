@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
+import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,9 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -17,7 +25,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Default lookup service test:
  * - get dto by uuid / code
  * - get entity by uuid / code
- * - deg default owner type / id
+ * - get default owner type / id
+ * - get embedded dto
  *
  * @author Radek Tomiška
  *
@@ -80,7 +89,7 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 	}
 
 	@Test
-	public void getOwnerId() {
+	public void testGetOwnerId() {
 		IdmIdentityDto dto = getHelper().createIdentity((GuardedString) null);
 		//
 		Assert.assertEquals(dto.getId(), lookupService.getOwnerId(dto));
@@ -88,7 +97,7 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 	}
 
 	@Test
-	public void getOwnerType() {
+	public void testGetOwnerType() {
 		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);
 		//
 		Assert.assertEquals(IdmIdentity.class.getCanonicalName(), lookupService.getOwnerType(IdmIdentity.class));
@@ -98,7 +107,7 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void getWrongOwnerType() {
+	public void testGetWrongOwnerType() {
 		lookupService.getOwnerType(ModuleDescriptorDto.class);
 	}
 
@@ -107,5 +116,125 @@ public class DefaultLookupServiceIntegrationTest extends AbstractIntegrationTest
 		IdmIdentityDto dto = getHelper().createIdentity((GuardedString) null);
 		//
 		lookupService.lookupDto("wrongType", dto.getId());
+	}
+	
+	@Test
+	public void testLookupEmbeddedPresent() {
+		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+		IdmIdentityContractDto contract = new IdmIdentityContractDto(UUID.randomUUID());
+		//
+		identityRole.setIdentityContractDto(contract);
+		//
+		IdmIdentityContractDto lookupContract = lookupService.lookupEmbeddedDto(identityRole, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT);
+		//
+		Assert.assertNotNull(lookupContract);
+		Assert.assertEquals(contract, lookupContract);
+	}
+	
+	@Test
+	public void testLookupEmbeddedNotPresent() {
+		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+		IdmIdentityContractDto contract = getHelper().getPrimeContract(getHelper().createIdentity((GuardedString) null));
+		//
+		identityRole.setIdentityContract(contract.getId());
+		//
+		IdmIdentityContractDto lookupContract = lookupService.lookupEmbeddedDto(identityRole, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT);
+		//
+		Assert.assertNotNull(lookupContract);
+		Assert.assertEquals(contract, lookupContract);
+	}
+	
+	@Test
+	public void testLookupEmbeddedNotExist() {
+		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+		//
+		identityRole.setIdentityContract(UUID.randomUUID());
+		//
+		IdmIdentityContractDto lookupContract = lookupService.lookupEmbeddedDto(identityRole, IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT);
+		//
+		Assert.assertNull(lookupContract);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testLookupEmbeddedNotEmbeddable() {
+		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
+		//
+		identityRole.setValidFrom(LocalDate.now());
+		//
+		lookupService.lookupEmbeddedDto(identityRole, IdmIdentityRole_.validTill);
+	}
+	
+	@SuppressWarnings("unused")
+	@Test(expected = IllegalArgumentException.class)
+	public void testLookupEmbeddedNotSerializable() {
+		AbstractDto mockDto = new AbstractDto() {
+
+			private static final long serialVersionUID = 1L;
+			
+			@Embedded(dtoClass = IdmIdentityRoleDto.class)
+			private GuardedString wrong = new GuardedString("mock");
+			
+			
+			public GuardedString getWrong() {
+				return wrong;
+			}
+			
+			public void setWrong(GuardedString wrong) {
+				this.wrong = wrong;
+			}
+		};
+		//
+		lookupService.lookupEmbeddedDto(mockDto, "wrong");
+	}
+	
+	@SuppressWarnings("unused")
+	@Test(expected = IllegalArgumentException.class)
+	public void testLookupEmbeddedReflectionFailed() {
+		AbstractDto mockDto = new AbstractDto() {
+
+			private static final long serialVersionUID = 1L;
+			
+			@Embedded(dtoClass = IdmIdentityRoleDto.class)
+			private IdmIdentityRoleDto wrong;
+			
+			
+			public IdmIdentityRoleDto getWrong() {
+				throw new UnsupportedOperationException("mock");
+			}
+			
+			public void setWrong(IdmIdentityRoleDto wrong) {
+				this.wrong = wrong;
+			}
+		};
+		//
+		lookupService.lookupEmbeddedDto(mockDto, "wrong");
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testLookupEntityLookupNotExist() {
+		AbstractDto mockDto = new AbstractDto() {
+			private static final long serialVersionUID = 1L;
+		};
+		//
+		Assert.assertNull(lookupService.lookupEntity(mockDto.getClass(), "wrong"));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testLookupDtoLookupNotExist() {
+		AbstractDto mockDto = new AbstractDto() {
+			private static final long serialVersionUID = 1L;
+		};
+		//
+		Assert.assertNull(lookupService.lookupDto(mockDto.getClass(), "wrong"));
+	}
+	
+	@Test
+	public void testLookupEntityNotExist() {
+		Assert.assertNull(lookupService.lookupEntity(IdmIdentityRoleDto.class, UUID.randomUUID()));
+	}
+	
+	@Test
+	public void testLookupDtoNotExist() {
+		Assert.assertNull(lookupService.lookupDto(IdmIdentityRoleDto.class, UUID.randomUUID()));
 	}
 }

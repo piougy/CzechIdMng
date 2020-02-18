@@ -33,13 +33,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
@@ -64,7 +62,6 @@ public class AddNewAutomaticRoleForPositionTaskExecutor extends AbstractSchedula
 	@Autowired private IdmContractPositionService contractPositionService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
-	@Autowired private LookupService lookupService;
 	@Autowired private IdmRoleRequestService roleRequestService;
 	//
 	private UUID roleTreeNodeId = null;
@@ -186,11 +183,7 @@ public class AddNewAutomaticRoleForPositionTaskExecutor extends AbstractSchedula
 	}
 	
 	private IdmIdentityDto getIdentity(IdmIdentityContractDto contract) {
-		IdmIdentityDto identity = DtoUtils.getEmbedded(contract, IdmIdentityContract_.identity, (IdmIdentityDto) null);
-		if (identity == null) {
-			identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, contract.getIdentity());
-		}
-		return identity;
+		return getLookupService().lookupEmbeddedDto(contract, IdmIdentityContractDto.PROPERTY_IDENTITY);
 	}
 	
 	@Override

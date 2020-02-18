@@ -156,7 +156,7 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 					continue;
 				}
 				if (identityRole.getAutomaticRole() != null) {
-					LOG.debug("Automatic role will be removed by role request"
+					LOG.debug("Automatic role will be removed by role expiration task"
 							+ " - automatic roles for invalid contracts are not evaluated.");
 				}
 				IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();

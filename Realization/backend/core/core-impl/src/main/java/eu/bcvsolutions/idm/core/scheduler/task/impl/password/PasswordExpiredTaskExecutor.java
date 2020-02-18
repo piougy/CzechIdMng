@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl.password;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
-import java.time.LocalDate;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmPasswordFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -40,7 +40,6 @@ public class PasswordExpiredTaskExecutor extends AbstractSchedulableStatefulExec
 	public static final String TASK_NAME = "core-password-expired-long-running-task";
 	//
 	@Autowired private IdmPasswordService passwordService;
-	@Autowired private LookupService lookupService;
 	@Autowired private EntityEventManager entityEventManager;
 	//
 	private LocalDate expiration;
@@ -76,7 +75,7 @@ public class PasswordExpiredTaskExecutor extends AbstractSchedulableStatefulExec
 					.build());
 		}
 		//
-		IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, dto.getIdentity());
+		IdmIdentityDto identity = getLookupService().lookupEmbeddedDto(dto, IdmPassword_.identity);
 		LOG.info("Publishing [{}] event to identity [{}], password expired in [{}]", 
 				IdentityEventType.PASSWORD_EXPIRED, identity.getUsername(), dto.getValidTill());
 		try {

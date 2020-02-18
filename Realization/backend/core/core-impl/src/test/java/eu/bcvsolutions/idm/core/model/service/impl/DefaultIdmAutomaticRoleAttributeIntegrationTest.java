@@ -2084,30 +2084,34 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	public void testRecalculationWithManyIdentities() {
 		String description = getHelper().createName();
 		List<IdmIdentityDto> identities = new ArrayList<IdmIdentityDto>();
+		try {
 		
-		for (int index = 0; index < 187; index++) {
-			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-			identity.setDescription(description);
-			identityService.save(identity);
-			identities.add(identity);
-		}
-		assertEquals(187, identities.size());
-
-		IdmRoleDto role = getHelper().createRole();
-		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
-		getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
-				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, description);
-
-		this.recalculateSync(automaticRole.getId());
-
-		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-		filter.setAutomaticRoleId(automaticRole.getId());
-		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
-		assertEquals(187, identityRoles.size());
-
-		for (IdmIdentityDto identity : identities) {
-			List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
-			assertEquals(1, allByIdentity.size());
+			for (int index = 0; index < 187; index++) {
+				IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+				identity.setDescription(description);
+				identityService.save(identity);
+				identities.add(identity);
+			}
+			assertEquals(187, identities.size());
+	
+			IdmRoleDto role = getHelper().createRole();
+			IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+			getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+					AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, description);
+	
+			this.recalculateSync(automaticRole.getId());
+	
+			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+			filter.setAutomaticRoleId(automaticRole.getId());
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
+			assertEquals(187, identityRoles.size());
+	
+			for (IdmIdentityDto identity : identities) {
+				List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
+				assertEquals(1, allByIdentity.size());
+			}
+		} finally {
+			identityService.deleteAll(identities);
 		}
 	}
 
@@ -2115,31 +2119,34 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	public void testRecalculationWithManyIdentitiesProcessAll() {
 		String description = getHelper().createName();
 		List<IdmIdentityDto> identities = new ArrayList<IdmIdentityDto>();
-		
-		for (int index = 0; index < 241; index++) {
-			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-			identity.setDescription(description);
-			identityService.save(identity);
-			identities.add(identity);
-		}
-		assertEquals(241, identities.size());
-
-		IdmRoleDto role = getHelper().createRole();
-		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
-		getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
-				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, description);
-
-		ProcessAllAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAllAutomaticRoleByAttributeTaskExecutor.class);
-		longRunningTaskManager.executeSync(automaticRoleTask);
-
-		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-		filter.setAutomaticRoleId(automaticRole.getId());
-		List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
-		assertEquals(241, identityRoles.size());
-
-		for (IdmIdentityDto identity : identities) {
-			List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
-			assertEquals(1, allByIdentity.size());
+		try {
+			for (int index = 0; index < 241; index++) {
+				IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+				identity.setDescription(description);
+				identityService.save(identity);
+				identities.add(identity);
+			}
+			assertEquals(241, identities.size());
+	
+			IdmRoleDto role = getHelper().createRole();
+			IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+			getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+					AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.description.getName(), null, description);
+	
+			ProcessAllAutomaticRoleByAttributeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAllAutomaticRoleByAttributeTaskExecutor.class);
+			longRunningTaskManager.executeSync(automaticRoleTask);
+	
+			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+			filter.setAutomaticRoleId(automaticRole.getId());
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, null).getContent();
+			assertEquals(241, identityRoles.size());
+	
+			for (IdmIdentityDto identity : identities) {
+				List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
+				assertEquals(1, allByIdentity.size());
+			}
+		} finally {
+			identityService.deleteAll(identities);
 		}
 	}
 

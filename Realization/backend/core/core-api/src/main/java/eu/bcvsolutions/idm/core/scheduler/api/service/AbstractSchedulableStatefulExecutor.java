@@ -63,7 +63,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	implements SchedulableStatefulExecutor<DTO, Boolean> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractSchedulableStatefulExecutor.class);
-	private static final int PAGE_SIZE = 100;
+	private static final int DEFAULT_PAGE_SIZE = 100;
 	private boolean continueOnException = false; 
 	private boolean requireNewTransaction = false;
 	//
@@ -192,7 +192,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		boolean dryRun = longRunningTaskService.get(this.getLongRunningTaskId()).isDryRun();
 		Pageable pageable = PageRequest.of(
 				0, 
-				PAGE_SIZE,
+				getPageSize(),
 				new Sort(Direction.ASC, BaseEntity.PROPERTY_ID)
 		);
 		//
@@ -368,4 +368,13 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	protected IdmProcessedTaskItemService getItemService() {
 		return itemService;
 	}	
+	
+	/**
+	 * LRT page size - search batch size.
+	 * 
+	 * @return {@value #PAGE_SIZE} by default.
+	 */
+	protected int getPageSize() {
+		return DEFAULT_PAGE_SIZE;
+	}
 }

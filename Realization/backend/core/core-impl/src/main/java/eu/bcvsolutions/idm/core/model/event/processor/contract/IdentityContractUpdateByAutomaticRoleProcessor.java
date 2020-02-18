@@ -75,7 +75,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 	public boolean conditional(EntityEvent<IdmIdentityContractDto> event) {
 		return super.conditional(event)
 				&& IdentityContractEventType.UPDATE.name().equals(event.getParentType())
-				&& event.getContent().isValidNowOrInFuture(); // invalid contracts cannot have roles (roles for disabled contracts are removed by different process)
+				&& event.getContent().isValidNowOrInFuture(); // invalid contracts cannot have roles (roles for disabled contracts are removed by different processor or LRT)
 	}
 
 	@Override
@@ -138,7 +138,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 				return previousAutomaticRoles.contains(a.getId());
 			});
 			//
-			for(UUID removedAutomaticRole : removedAutomaticRoles) {
+			for (UUID removedAutomaticRole : removedAutomaticRoles) {
 				Iterator<IdmIdentityRoleDto> iter = assignedRoles.iterator();
 				while (iter.hasNext()){
 					IdmIdentityRoleDto identityRole = iter.next();				

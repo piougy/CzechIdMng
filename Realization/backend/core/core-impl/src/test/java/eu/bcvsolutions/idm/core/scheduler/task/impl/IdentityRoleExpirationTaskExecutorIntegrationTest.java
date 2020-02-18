@@ -1,9 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
-import java.util.HashMap;
+import java.time.LocalDate;
 import java.util.List;
 
-import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired private IdentityRoleExpirationTaskExecutor expirationExecutor;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private LongRunningTaskManager lrtManager;
 	
@@ -35,10 +33,9 @@ public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractI
 	 */
 	@Test
 	public void testExpiredRole() {
-		
-		// If there were already some expired roles, remove them
-		expirationExecutor.init(new HashMap<>());
-		expirationExecutor.process();
+		IdentityRoleExpirationTaskExecutor lrt = new IdentityRoleExpirationTaskExecutor();
+		lrt.init(null);
+		lrtManager.executeSync(lrt);
 				
 		// Role
 		IdmRoleDto role = getHelper().createRole();
@@ -61,8 +58,9 @@ public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractI
 		Assert.assertEquals(1, roles.size());
 		Assert.assertTrue(LocalDate.now().isAfter(roles.get(0).getValidTill()));
 		
-		expirationExecutor.init(new HashMap<>());
-		expirationExecutor.process();
+		lrt = new IdentityRoleExpirationTaskExecutor();
+		lrt.init(null);
+		lrtManager.executeSync(lrt);
 		
 		roles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(0, roles.size());

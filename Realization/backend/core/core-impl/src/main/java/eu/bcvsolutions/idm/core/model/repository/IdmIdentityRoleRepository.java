@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
- * Identity roles
+ * Identity roles.
  * 
  * @author Radek Tomiška
  */
@@ -81,7 +81,27 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	@Deprecated
 	List<IdmIdentityRole> findAllByIdentityContract_IdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
 
+	/**
+	 * Returns all roles with date lower than given expiration date.
+	 * 
+	 * @param expirationDate valid till < expirationDate
+	 * @param pageable add sort if needed
+	 * @return all expired roles 
+	 * @see #findDirectExpiredRoles(LocalDate, Pageable)
+	 */
 	@Query(value = "select e from #{#entityName} e"
 			+ " where e.validTill is not null and e.validTill < :expirationDate")
 	Page<IdmIdentityRole> findExpiredRoles(@Param("expirationDate") LocalDate expirationDate, Pageable page);
+	
+	/**
+	 * Returns all direct roles with date lower than given expiration date. Automatic roles are included, sub roles not.
+	 * 
+	 * @param expirationDate valid till < expirationDate
+	 * @param pageable add sort if needed
+	 * @return expired roles without sub roles
+	 * @since 10.2.0
+	 */
+	@Query(value = "select e from #{#entityName} e"
+			+ " where e.directRole is null and e.validTill is not null and e.validTill < :expirationDate")
+	Page<IdmIdentityRole> findDirectExpiredRoles(@Param("expirationDate") LocalDate expirationDate, Pageable page);
 }

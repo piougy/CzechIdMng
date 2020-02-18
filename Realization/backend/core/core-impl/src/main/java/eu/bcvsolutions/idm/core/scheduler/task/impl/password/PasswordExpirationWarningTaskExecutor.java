@@ -27,9 +27,9 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
-import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword_;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
@@ -52,7 +52,6 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 	//
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private NotificationManager notificationManager;
-	@Autowired private LookupService lookupService;
 	@Autowired private ConfigurationService configurationService;
 	//
 	private LocalDate expiration;
@@ -88,7 +87,7 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 
 	@Override
 	public Optional<OperationResult> processItem(IdmPasswordDto dto) {
-		IdmIdentityDto identity = (IdmIdentityDto) lookupService.lookupDto(IdmIdentityDto.class, dto.getIdentity());
+		IdmIdentityDto identity = getLookupService().lookupEmbeddedDto(dto, IdmPassword_.identity);
 		LOG.info("Sending warning notification to identity [{}], password expires in [{}]",  identity.getUsername(), dto.getValidTill());
 		try {
 			DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(configurationService.getDateFormat());

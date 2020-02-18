@@ -382,4 +382,13 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 		return itemService;
 	}
 	
+	/**
+	 * Common lookup service.
+	 * 
+	 * @return
+	 * @since 10.2.0
+	 */
+	protected LookupService getLookupService() {
+		return lookupService;
+	}
 }

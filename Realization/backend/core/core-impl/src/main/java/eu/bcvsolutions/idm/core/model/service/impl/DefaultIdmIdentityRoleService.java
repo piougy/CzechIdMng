@@ -345,6 +345,13 @@ public class DefaultIdmIdentityRoleService
 		//
 		return toDtoPage(repository.findExpiredRoles(expirationDate, page));
 	}
+	
+	@Override
+	public Page<IdmIdentityRoleDto> findDirectExpiredRoles(LocalDate expirationDate, Pageable page) {
+		Assert.notNull(expirationDate, "Expiration date is required.");
+		//
+		return toDtoPage(repository.findDirectExpiredRoles(expirationDate, page));
+	}
 
 	@Override
 	public IdmIdentityRoleDto getDuplicated(IdmIdentityRoleDto one, IdmIdentityRoleDto two, Boolean skipSubdefinition) {

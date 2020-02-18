@@ -5413,6 +5413,16 @@
       "core-password-expired-long-running-task": {
         "label": "Password expired notification and event publishing",
         "help": "Send notification for user after password expired and publish PASSWORD_EXPIRED event."
+      },
+      "core-identity-role-expiration-long-running-task": {
+        "label": "Assigned roles expiration",
+        "help": "Task removes expired assigned roles from users.",
+        "icon": "fa:trash"
+      },
+      "core-identity-contract-expiration-long-running-task": {
+        "label": "Contracts expiration",
+        "help": "Task removes expired assigned roles from users, which are assigned to expired contract.",
+        "icon": "fa:trash"
       }
     }
   },

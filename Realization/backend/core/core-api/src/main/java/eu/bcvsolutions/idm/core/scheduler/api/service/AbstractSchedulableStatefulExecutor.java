@@ -373,6 +373,7 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 	 * LRT page size - search batch size.
 	 * 
 	 * @return {@value #PAGE_SIZE} by default.
+	 * @since 10.2.0
 	 */
 	protected int getPageSize() {
 		return DEFAULT_PAGE_SIZE;

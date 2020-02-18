@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
 
-import java.time.ZonedDateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
-import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
@@ -61,7 +60,7 @@ public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulable
 			Page<AccAccountDto> expiredAccounts = service
 					.findExpired(
 						expiration,
-						PageRequest.of(0, 100, new Sort(Direction.ASC, AccAccount_.endOfProtection.getName())
+						PageRequest.of(0, 100, new Sort(Direction.ASC, AccAccountDto.PROPERTY_END_OF_PROTECTION)
 					));
 			// init count
 			if (count == null) {

@@ -26,6 +26,8 @@ public class AccAccountDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
 
+	public static final String PROPERTY_END_OF_PROTECTION = "endOfProtection";
+
 	private String uid;
 	private AccountType accountType;
 	@Embedded(dtoClass = SysSystemDto.class)

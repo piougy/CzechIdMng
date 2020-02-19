@@ -73,6 +73,17 @@ public interface LongRunningTaskManager {
 	LongRunningFutureTask<?> processCreated(UUID longRunningTaskId);
 	
 	/**
+	 * Task can be executed repetitively without reschedule is needed.
+	 * When task is canceled (e.g. by server is restarted), then task can be executed again (~recovered).
+	 * 
+	 * @param id
+	 * @return
+	 * @throws 
+	 * @since 10.2.0
+	 */
+	LongRunningFutureTask<?> recover(UUID longRunningTaskId);
+	
+	/**
 	 * Returns long running task by id. Authorization policies are evaluated (if given).
 	 * 
 	 * @param longRunningTaskId

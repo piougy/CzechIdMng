@@ -136,4 +136,9 @@ public class DeleteExecutedEventTaskExecutor
 	public boolean requireNewTransaction() {
 		return true;
 	}
+    
+    @Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

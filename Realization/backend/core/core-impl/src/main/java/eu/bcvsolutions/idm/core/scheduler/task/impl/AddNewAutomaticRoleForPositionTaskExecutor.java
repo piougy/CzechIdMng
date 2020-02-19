@@ -211,4 +211,9 @@ public class AddNewAutomaticRoleForPositionTaskExecutor extends AbstractSchedula
 		//
 		return Lists.newArrayList(automaticRoleAttribute);
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

@@ -178,6 +178,7 @@ public class DefaultIdmLongRunningTaskService
 		task.setInstanceId(instanceId);
 		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 		task.setScheduledTask(scheduledTask.getId());
+		task.setRecoverable(taskExecutor.isRecoverable());
 		//
 		return this.save(task);
 	}

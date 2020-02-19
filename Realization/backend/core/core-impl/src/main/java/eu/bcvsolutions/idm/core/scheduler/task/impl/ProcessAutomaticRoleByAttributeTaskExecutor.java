@@ -168,4 +168,9 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 		//
 		return Lists.newArrayList(automaticRoleAttribute);
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

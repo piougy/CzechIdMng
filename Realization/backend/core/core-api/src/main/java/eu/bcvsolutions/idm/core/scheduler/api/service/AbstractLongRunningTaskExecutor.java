@@ -311,6 +311,11 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	}
 	
 	@Override
+	public boolean isRecoverable() {
+		return false;
+	}
+	
+	@Override
 	public UUID getLongRunningTaskId() {
 		return longRunningTaskId;
 	}

@@ -3054,7 +3054,7 @@
           "task-run": {
             "header": "Spustit úlohu ručně",
             "header_plural": "Spustit úlohy ručně",
-            "message": "Chcete vybranou úlohu[<strong>{{record}}</strong>] spustit ručně?",
+            "message": "Chcete spustit vybranou úlohu [<strong>{{record}}</strong>] ručně?",
             "message_plural": "Vybrané úlohy: [<strong>{{records}}</strong>].<br /><br /> Chcete spustit <strong>{{count}}</strong> vybraných úloh ručně?",
             "error": "Při ručním spouštění úlohy [{{record}}] nastala chyba.",
             "success": "Vybraná úloha [{{record}}] byla úspěšně spuštěna ručně",
@@ -3082,6 +3082,14 @@
       "all-tasks": {
         "header": "Všechny úlohy",
         "title": "Všechny úlohy",
+        "button": {
+          "run": "Spustit úlohu",
+          "recover": {
+            "title": "Spustit úlohu znovu",
+            "disabled": "Úlohu nelze spustit znovu"
+          },
+          "cancel": "Zrušit úlohu"
+        },
         "filter": {
           "text": {
             "label": "Typ / Popis",
@@ -3105,6 +3113,27 @@
             "button": "Spustit všechny vytvořené úlohy",
             "success": "Vytvořené úlohy budou spuštěny.",
             "selectedButton": "Spustit vybrané úlohy"
+          },
+          "task-run": {
+            "header": "Spustit úlohu",
+            "message": "Chcete spustit vybranou úlohu [<strong>{{record}}</strong>]?",
+            "error": "Při spouštění úlohy [{{record}}] nastala chyba.",
+            "success": "Vybraná úloha [{{record}}] byla úspěšně spuštěna."
+          },
+          "task-recover": {
+            "header": "Spustit úlohu znovu",
+            "message": "Chcete spustit vybranou úlohu [<strong>{{record}}</strong>] znovu?",
+            "warning": {
+              "base": "Nová úloha bude spuštěna se stejným nastavením jako tato úloha."
+            },
+            "error": "Při spouštění úlohy [{{record}}] nastala chyba.",
+            "success": "Vybraná úloha [{{record}}] byla úspěšně spuštěna."
+          },
+          "task-cancel": {
+            "header": "Zrušit úlohu",
+            "message": "Chcete zrušit vybranou úlohu [<strong>{{record}}</strong>] ?",
+            "error": "Při rušení úlohy [{{record}}] nastala chyba.",
+            "success": "Vybraná úloha [{{record}}] bude zrušena."
           }
         },
         "tabs": {
@@ -5613,9 +5642,13 @@
       "title": "Konfliktní kód",
       "message": "Záznam s tímto kódem již existuje."
     },
+    "ENTITY_NOT_FOUND": {
+      "title": "Nenalezeno",
+      "message": "Entita neexistuje."
+    },
     "IDENTITY_NOT_FOUND": {
       "title": "Nenalezeno",
-      "message": "Identita [{{identity}}] neexistuje"
+      "message": "Identita [{{identity}}] neexistuje."
     },
     "NOT_FOUND": {
       "title": "Nenalezeno",
@@ -5744,6 +5777,10 @@
     "LONG_RUNNING_TASK_DELETE_FAILED_IS_RUNNING": {
       "title": "Úloha již je spuštěna",
       "message": "Úloha již je spuštěna - nelze ji odebrat. Před odebráním počejte na dokončení úlohy nebo úlohu zrušte."
+    },
+    "LONG_RUNNING_TASK_NOT_RECOVERABLE": {
+      "title": "Úlohu nelze spustit",
+      "message": "Úlohu [{{taskType}}] nelze spustit znovu,tuto funkci úloha nepodporuje."
     },
     "FOREST_INDEX_DISABLED": {
       "title": "Index je vypnutý",

@@ -89,4 +89,9 @@ public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulable
 		properties.put(PARAMETER_EXPIRATION, expiration);
 		return properties;
 	}
+	
+	@Override
+	public boolean isRecoverable() {
+		return true;
+	}
 }

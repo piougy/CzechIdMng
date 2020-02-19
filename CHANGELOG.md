@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [10.2.0]
 
 - New method ``ReadWriteDtoService#deleteAll(Iterable<DTO>, BasePermission)`` was added into service layer - shortcut to delete all dtos in one transaction.
+- LRT ``CancelProvisioningQueueTaskExecutor`` is depreceted. LRT is not used, use bulk action ``ProvisioningOperationCancelBulkAction`` instead.
 
 ## [10.1.0]
 

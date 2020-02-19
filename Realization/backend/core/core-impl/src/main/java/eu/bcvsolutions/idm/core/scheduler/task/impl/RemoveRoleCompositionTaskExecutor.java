@@ -26,9 +26,11 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCompositionFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -66,7 +68,9 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		super.validate(task);
 		//
 		IdmRoleCompositionDto roleComposition = roleCompositionService.get(roleCompositionId);
-		Assert.notNull(roleComposition, "Role composition is required.");
+		if (roleComposition == null) {
+			throw new EntityNotFoundException(IdmRoleComposition.class, roleCompositionId);
+		}
 		//
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setTaskType(this.getClass().getCanonicalName());
@@ -196,6 +200,11 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	public boolean supportsQueue() {
 		return false;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 	
 	private void removeAssignedRoles(List<UUID> processedIdentityRoles, IdmIdentityRoleDto identityRole) {
 		IdmRoleCompositionFilter compositionFilter = new IdmRoleCompositionFilter();

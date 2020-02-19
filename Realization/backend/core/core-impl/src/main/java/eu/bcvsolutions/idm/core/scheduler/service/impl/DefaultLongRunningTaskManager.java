@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
@@ -40,9 +41,12 @@ import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
+import eu.bcvsolutions.idm.core.scheduler.api.exception.ConcurrentExecutionException;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
+import eu.bcvsolutions.idm.core.scheduler.exception.TaskNotRecoverableException;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
@@ -161,7 +165,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Transactional
 	public LongRunningFutureTask<?> processCreated(UUID longRunningTaskId) {
 		LOG.debug("Processing created task [{}] from long running task queue", longRunningTaskId);
+		//
 		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
+		if (task == null) {
+			throw new EntityNotFoundException(IdmLongRunningTask.class, longRunningTaskId);
+		}
 		// task cannot be started twice
 		if (task.isRunning() || OperationState.RUNNING == task.getResultState()) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", task.getId()));
@@ -169,6 +177,36 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		if (OperationState.CREATED != task.getResultState()) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
 		}
+		//
+		LongRunningTaskExecutor<?> taskExecutor = createTaskExecutor(task);
+		if (taskExecutor == null) {
+			return null;
+		}
+		return execute(taskExecutor);
+	}
+	
+	@Override
+	@Transactional
+	public LongRunningFutureTask<?> recover(UUID longRunningTaskId) {
+		LOG.info("Processing task [{}] again", longRunningTaskId);
+		//
+		IdmLongRunningTaskDto task = service.get(longRunningTaskId);
+		if (task == null) {
+			throw new EntityNotFoundException(IdmLongRunningTask.class, longRunningTaskId);
+		}
+		if (task.isRunning() || OperationState.RUNNING == task.getResultState()) {
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", task.getId()));
+		}
+		if (!task.isRecoverable()) {
+			throw new TaskNotRecoverableException(CoreResultCode.LONG_RUNNING_TASK_NOT_RECOVERABLE, task);
+		}
+		//
+		// clean previous state and create new LRT instance
+		DtoUtils.clearAuditFields(task);
+		task.setId(null);
+		task.clearState();
+		task.setResult(new OperationResult(OperationState.RUNNING)); // prevent to execute created task redundantly by asynchronous job
+		task = service.save(task); // persist new task
 		//
 		LongRunningTaskExecutor<?> taskExecutor = createTaskExecutor(task);
 		if (taskExecutor == null) {
@@ -194,7 +232,16 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
 		// persist LRT as running => prevent to scheduler process the created tasks
-		taskExecutor.validate(persistTask(taskExecutor, OperationState.RUNNING));
+		IdmLongRunningTaskDto persistTask = persistTask(taskExecutor, OperationState.RUNNING);
+		//
+		try {
+			taskExecutor.validate(persistTask(taskExecutor, OperationState.RUNNING));
+		} catch (ConcurrentExecutionException ex) {
+			// task can be executed later, e.g. after previous task ends
+			markTaskAsCreated(persistTask);
+			//
+			throw ex;
+		}
 		//
 		LongRunningFutureTask<V> longRunnigFutureTask = new LongRunningFutureTask<>(taskExecutor, new FutureTask<>(taskExecutor));
 		// execute - after original transaction is commited
@@ -420,6 +467,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task.setTaskProperties(taskExecutor.getProperties());
 			task.setTaskDescription(taskExecutor.getDescription());
 			task.setInstanceId(configurationService.getInstanceId());
+			task.setRecoverable(taskExecutor.isRecoverable());
 			task.setResult(new OperationResult.Builder(state).build());
 			// each LRT executed from the queue will have new transaction context
 			if (state == OperationState.CREATED) {

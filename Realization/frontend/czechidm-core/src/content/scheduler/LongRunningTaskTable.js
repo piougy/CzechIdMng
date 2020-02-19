@@ -55,9 +55,9 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
   /**
    * Shows LRT detail with given entity
    */
-   showDetail(entity) {
-     this.context.history.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
-   }
+  showDetail(entity) {
+    this.context.history.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
+  }
 
   /**
    * Bulk action - process selected created tasks
@@ -66,11 +66,9 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
    * @param  {arrayOf(string)} tasks tasks ids
    */
   onProcessCreated(bulkActionValue, tasks) {
-    let i;
-    const { manager } = this.props;
     // TODO - bulk action should be used - see #onDelete()
-    for ( i = 0; i < tasks.length; i++ ) {
-      this.context.store.dispatch(manager.processCreatedTask( tasks[i], 'task-queue-process-created', () => {
+    for (let i = 0; i < tasks.length; i++) {
+      this.context.store.dispatch(this.getManager().processCreatedTask(tasks[i], 'task-queue-process-created', () => {
         this.addMessage({ level: 'success', message: this.i18n('action.processCreated.success')});
       }));
     }
@@ -125,18 +123,80 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     });
   }
 
+  onRun(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs['confirm-task-run'].show(
+      this.i18n(`action.task-run.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-run.header`)
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().processCreatedTask(entity.id, 'task-queue-process-created', () => {
+        this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+        this.refs.table.reload();
+      }));
+    }, () => {
+      // Rejected
+    });
+  }
+
+  onRecover(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs['confirm-task-recover'].show(
+      this.i18n(`action.task-recover.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-recover.header`)
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().recover(entity, 'task-queue-process-created', () => {
+        this.addMessage({ message: this.i18n('action.task-recover.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+        this.refs.table.reload();
+      }));
+    }, () => {
+      // Rejected
+    });
+  }
+
+  /**
+   * FIXME: rename after #2066
+   */
+  onCancelTask(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs['confirm-task-cancel'].show(
+      this.i18n(`action.task-cancel.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-cancel.header`)
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().cancel(entity, 'task-queue-process-created', () => {
+        this.addMessage({
+          level: 'info',
+          message: this.i18n('action.task-cancel.success', { count: 1, record: this.getManager().getNiceLabel(entity) })
+        });
+        this.refs.table.reload();
+      }));
+    }, () => {
+      // Rejected
+    });
+  }
+
   render() {
-    const { uiKey, manager, showRowSelection, showTransactionId } = this.props;
+    const { showRowSelection, showTransactionId } = this.props;
     const { filterOpened } = this.state;
     return (
-      <div>
-        <Basic.Confirm ref="confirm-cancel" level="danger"/>
+      <Basic.Div>
+        <Basic.Confirm ref="confirm-cancel" level="warning"/>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Confirm ref="confirm-task-run" level="success"/>
+        <Basic.Confirm ref="confirm-task-recover" level="warning">
+          <Basic.Alert icon="warning-sign" level="warning" text={ this.i18n(`action.task-recover.warning.base`) } style={{ marginTop: 15 }}/>
+        </Basic.Confirm>
+        <Basic.Confirm ref="confirm-task-cancel" level="warning"/>
 
         <Advanced.Table
           ref="table"
-          uiKey={uiKey}
-          manager={manager}
+          uiKey={ this.getUiKey() }
+          manager={ this.getManager() }
           showRowSelection={ showRowSelection && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE', 'SCHEDULER_EXECUTE']) }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -286,8 +346,49 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
+          <Basic.Column
+            header={ this.i18n('label.action') }
+            className="action"
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                const isCreated = entity.resultState === 'CREATED';
+                const isRunning = entity.resultState === 'RUNNING';
+
+                //
+                return (
+                  <Basic.Div>
+                    <Basic.Button
+                      level="warning"
+                      className="btn-xs"
+                      title={ this.i18n('button.cancel') }
+                      titlePlacement="bottom"
+                      rendered={ entity.running && SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
+                      onClick={ this.onCancelTask.bind(this, entity) }
+                      icon="fa:cog fa-spin"/>
+                    <Basic.Button
+                      level="success"
+                      className="btn-xs"
+                      title={ this.i18n('button.run') }
+                      titlePlacement="bottom"
+                      rendered={ isCreated && !entity.running && !isRunning && SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
+                      onClick={ this.onRun.bind(this, entity) }
+                      icon="play"/>
+                    <Basic.Button
+                      level="warning"
+                      className="btn-xs"
+                      title={ !entity.recoverable ? this.i18n('button.recover.disabled') : this.i18n('button.recover.title') }
+                      titlePlacement="bottom"
+                      rendered={ !isCreated && !entity.running && !isRunning && SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
+                      disabled={ !entity.recoverable }
+                      onClick={ this.onRecover.bind(this, entity) }
+                      icon="play"/>
+                  </Basic.Div>
+                );
+              }
+            }/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

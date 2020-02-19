@@ -17,19 +17,25 @@ import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleValidRequestEvent.IdentityRoleValidRequestEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
+/**
+ * Create new account for roles that was newly valid.
+ * 
+ * @author Ondřej Kopr
+ *
+ */
 @Service
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
 @Description("Create new account for roles that was newly valid.")
 public class IdentityRoleValidRequestTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleValidRequestTaskExecutor.class);
+	
 	@Autowired
 	private IdmIdentityRoleValidRequestService validRequestService;
 	
 	@Autowired
 	private EntityEventManager entityEventManager;
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleValidRequestTaskExecutor.class);
 	
 	@Override
 	public Boolean process() {
@@ -59,5 +65,9 @@ public class IdentityRoleValidRequestTaskExecutor extends AbstractSchedulableTas
 		}
 		return Boolean.TRUE;
 	}
-
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

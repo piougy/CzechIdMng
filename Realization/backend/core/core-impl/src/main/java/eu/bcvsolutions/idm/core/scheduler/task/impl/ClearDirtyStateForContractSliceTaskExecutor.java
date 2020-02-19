@@ -168,6 +168,11 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 
 		return new OperationResult(OperationState.EXECUTED);
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 
 	/**
 	 * Process state for new or updated slices

@@ -103,6 +103,11 @@ public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableState
 	}
 	
 	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
+	
+	@Override
 	public Optional<OperationResult> processItem(IdmIdentityRoleDto identityRole) {
 		LOG.info("Remove expired assigned role [{}], valid till is less than [{}]",  identityRole.getId(), expiration);
 		//

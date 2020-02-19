@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeRuleService;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
@@ -96,10 +97,14 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	public void validate(IdmLongRunningTaskDto task) {
 		super.validate(task);
 		//
-		AbstractIdmAutomaticRoleDto automaticRole = roleTreeNodeService.get(getAutomaticRoleId());
+		UUID automaticRoleId = getAutomaticRoleId();
+		AbstractIdmAutomaticRoleDto automaticRole = roleTreeNodeService.get(automaticRoleId);
 		if (automaticRole == null) {
 			// get from automatic role attribute service
-			automaticRole = automaticRoleAttributeService.get(getAutomaticRoleId());
+			automaticRole = automaticRoleAttributeService.get(automaticRoleId);
+		}
+		if (automaticRole == null) {
+			throw new EntityNotFoundException(AbstractIdmAutomaticRoleDto.class, automaticRoleId);
 		}
 		//
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
@@ -356,4 +361,9 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		//
 		return Lists.newArrayList(automaticRoleAttributeByTree, automaticRoleAttributeByAttribute);
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

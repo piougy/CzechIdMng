@@ -87,6 +87,9 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 
 	@Column(name = "stateful", nullable = false)
 	private boolean stateful;
+	
+	@Column(name = "recoverable", nullable = false)
+	private boolean recoverable;
 
 	@Column(name = "dry_run", nullable = false)
 	private boolean dryRun;
@@ -216,4 +219,25 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 		this.dryRun = dryRun;
 	}
 
+	/**
+	 * Task can be executed repetitively without reschedule is needed.
+	 * When task is canceled (e.g. by server is restarted), then task can be executed again.
+	 * 
+	 * @return true - LRT can be executed again.
+	 * @since 10.2.0
+	 */
+	public boolean isRecoverable() {
+		return recoverable;
+	}
+	
+	/**
+	 * Task can be executed repetitively without reschedule is needed.
+	 * When task is canceled (e.g. by server is restarted), then task can be executed again.
+	 * 
+	 * @param recoverable  true - LRT can be executed again.
+	 * @since 10.2.0
+	 */
+	public void setRecoverable(boolean recoverable) {
+		this.recoverable = recoverable;
+	}
 }

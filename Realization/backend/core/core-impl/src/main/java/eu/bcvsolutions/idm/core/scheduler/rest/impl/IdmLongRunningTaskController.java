@@ -315,10 +315,9 @@ public class IdmLongRunningTaskController
 	}
 
 	/**
-	 * Cancels running job
+	 * Cancels running job.
 	 *
-	 * @param taskName name of task
-	 * @param triggerName name of trigger
+	 * @param backendId LRT's uuid identifier
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/cancel")
@@ -402,7 +401,7 @@ public class IdmLongRunningTaskController
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_EXECUTE + "')")
 	@ApiOperation(
 			value = "Process created LRT",
-			nickname = "oneProcessCreatedLongRunningTasks",
+			nickname = "processCreatedLongRunningTask",
 			tags={ IdmLongRunningTaskController.TAG },
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
@@ -415,8 +414,35 @@ public class IdmLongRunningTaskController
 					+ " This operation process prepared task by given identifier immediately.")
 	public ResponseEntity<?> processCheckedCreated(
 			@ApiParam(value = "LRT's uuid identifier.", required = true)
-			@PathVariable UUID backendId) {
+			@PathVariable UUID backendId) {	
 		longRunningTaskManager.processCreated(backendId);
+		//
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	/**
+	 * @since 10.2.0
+	 */
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/recover")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_EXECUTE + "')")
+	@ApiOperation(
+			value = "Process LRT again",
+			nickname = "recoverLongRunningTask",
+			tags={ IdmLongRunningTaskController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_EXECUTE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_EXECUTE, description = "") })
+			},
+			notes = "When LRT is executed and recoverable, then task can be executed again."
+					+ " Task will be executed with the same configuration."
+					+ " If task was executed by scheduled task, then scheduled task will be reused => already processed items will be not processed.")
+	public ResponseEntity<?> recover(
+			@ApiParam(value = "LRT's uuid identifier.", required = true)
+			@PathVariable UUID backendId) {
+		longRunningTaskManager.recover(backendId);
 		//
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

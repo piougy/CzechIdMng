@@ -99,4 +99,8 @@ public class SelectCurrentContractSliceTaskExecutor extends AbstractSchedulableT
 		return super.end(result, ex);
 	}
 
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

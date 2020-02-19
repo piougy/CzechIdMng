@@ -28,4 +28,9 @@ public class ModelMapperCheckerTaskExecutor extends AbstractSchedulableTaskExecu
 		//
 		return Boolean.TRUE;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

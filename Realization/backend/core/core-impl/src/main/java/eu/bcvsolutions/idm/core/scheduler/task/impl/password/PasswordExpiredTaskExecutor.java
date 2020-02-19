@@ -90,4 +90,9 @@ public class PasswordExpiredTaskExecutor extends AbstractSchedulableStatefulExec
 					.build());
 		}
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

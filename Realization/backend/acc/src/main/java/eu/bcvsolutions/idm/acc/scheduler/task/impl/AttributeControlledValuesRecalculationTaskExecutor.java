@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * 
  */
 @Service
+@DisallowConcurrentExecution
 @Description("Merge - attribute controlled values recalculation")
 public class AttributeControlledValuesRecalculationTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
@@ -146,4 +148,8 @@ public class AttributeControlledValuesRecalculationTaskExecutor extends Abstract
 		return Lists.newArrayList(systemAttribute, entityTypeAttribute, evictedAttribute);
 	}
 
+	@Override
+	public boolean isRecoverable() {
+		return true;
+	}
 }

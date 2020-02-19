@@ -79,6 +79,11 @@ public class IdentityContractExpirationTaskExecutor extends AbstractSchedulableS
 	public boolean requireNewTransaction() {
 		return true;
 	}
+	
+	@Override
+	public boolean isRecoverable() {
+		return true;
+	}
 
 	@Override
 	public Optional<OperationResult> processItem(IdmIdentityContractDto contract) {

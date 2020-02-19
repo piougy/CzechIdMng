@@ -37,7 +37,6 @@ public class Task implements BaseDto {
 	@JsonDeserialize(as = String.class)
 	private String id; // quartz job name
 	private String module;
-	
 	@NotEmpty
 	private String instanceId;
 	private Class<? extends SchedulableTaskExecutor<?>> taskType; // task executor class
@@ -49,6 +48,7 @@ public class Task implements BaseDto {
 	private Map<String, String> parameters;
 	private IdmFormDefinitionDto formDefinition;
 	private boolean supportsDryRun;
+	private boolean recoverable;
 
 	public Task() {
 	}
@@ -187,5 +187,27 @@ public class Task implements BaseDto {
 	 */
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+	
+	/**
+	 * Task can be executed repetitively without reschedule is needed.
+	 * When task is canceled (e.g. by server is restarted), then task can be executed again.
+	 * 
+	 * @return true - LRT can be executed again.
+	 * @since 10.2.0
+	 */
+	public boolean isRecoverable() {
+		return recoverable;
+	}
+	
+	/**
+	 * Task can be executed repetitively without reschedule is needed.
+	 * When task is canceled (e.g. by server is restarted), then task can be executed again.
+	 * 
+	 * @param recoverable  true - LRT can be executed again.
+	 * @since 10.2.0
+	 */
+	public void setRecoverable(boolean recoverable) {
+		this.recoverable = recoverable;
 	}
 }

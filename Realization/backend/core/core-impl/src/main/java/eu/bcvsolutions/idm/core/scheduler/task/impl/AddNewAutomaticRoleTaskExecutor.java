@@ -203,4 +203,9 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		//
 		return Lists.newArrayList(automaticRoleAttribute);
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

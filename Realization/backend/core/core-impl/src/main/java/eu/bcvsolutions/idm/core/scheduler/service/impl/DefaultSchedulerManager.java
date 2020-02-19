@@ -178,6 +178,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			if (!task.isDisabled()) {
 				task.setSupportsDryRun(taskExecutor.supportsDryRun());
 				task.setFormDefinition(taskExecutor.getFormDefinition());
+				task.setRecoverable(taskExecutor.isRecoverable());
 			} else {
 				LOG.warn("Task [{}] is disabled and cannot be executed, remove schedule for this task to hide this warning.",
 						task.getTaskType().getSimpleName());

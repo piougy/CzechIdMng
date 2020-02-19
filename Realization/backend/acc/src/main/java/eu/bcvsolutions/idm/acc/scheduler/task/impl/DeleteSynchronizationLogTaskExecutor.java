@@ -149,4 +149,9 @@ public class DeleteSynchronizationLogTaskExecutor
 	public boolean supportsQueue() {
 		return false;
 	}
+    
+    @Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

@@ -79,4 +79,9 @@ public class NotifyIdentityTaskExecutor extends AbstractSchedulableStatefulExecu
 		properties.put(PARAMETER_TEXT, text);
 		return properties;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

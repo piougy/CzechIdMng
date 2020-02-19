@@ -172,4 +172,9 @@ public class DeleteProvisioningArchiveTaskExecutor
 	public boolean supportsQueue() {
 		return false;
 	}
+    
+    @Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

@@ -136,4 +136,9 @@ public class PasswordExpirationWarningTaskExecutor extends AbstractSchedulableSt
 		//
 		return Lists.newArrayList(numberOfDaysAttribute);
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

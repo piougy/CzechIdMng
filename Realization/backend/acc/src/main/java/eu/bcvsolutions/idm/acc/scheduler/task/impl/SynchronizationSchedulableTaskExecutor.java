@@ -125,5 +125,9 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 		//
 		return Lists.newArrayList(synchronizationAttribute);
 	}
-
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

@@ -111,7 +111,6 @@ public interface LongRunningTaskExecutor<V> extends Callable<V>, Configurable {
 	 * @return
 	 */
 	Long increaseCounter();
-
 	
 	/**
 	 * Updates persisted task state (count, counter, etc.)
@@ -122,11 +121,20 @@ public interface LongRunningTaskExecutor<V> extends Callable<V>, Configurable {
 	boolean updateState();
 	
 	/**
-	 * Returns true, when task updates its state when runs => can be canceled, progress can be shown
+	 * Returns true, when task updates its state when runs => can be canceled, progress can be shown,
 	 * 
 	 * @return
 	 */
 	boolean isStateful();
+	
+	/**
+	 * Task can be executed repetitively without reschedule is needed.
+	 * When task is canceled (e.g. by server is restarted), then task can be executed again.
+	 * 
+	 * @return true - LRT can be executed again.
+	 * @since 10.2.0
+	 */
+	boolean isRecoverable();
 	
 	/**
 	 * Gets long running task log id

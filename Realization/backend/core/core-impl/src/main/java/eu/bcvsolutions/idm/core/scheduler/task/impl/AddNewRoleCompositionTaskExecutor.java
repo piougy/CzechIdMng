@@ -126,4 +126,9 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	public boolean supportsQueue() {
 		return false;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

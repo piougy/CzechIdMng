@@ -178,6 +178,7 @@ public enum CoreResultCode implements ResultCode {
 	LONG_RUNNING_TASK_INTERRUPT(HttpStatus.INTERNAL_SERVER_ERROR, "Task [%s] type [%s] on instance [%s] was interrupted."),
 	LONG_RUNNING_TASK_INIT_FAILED(HttpStatus.BAD_REQUEST, "Task [%s] type [%s] has invalid properties."),
 	LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD(HttpStatus.PARTIAL_CONTENT, "Task finished successfully, result can be download as separate attachment."),
+	LONG_RUNNING_TASK_NOT_RECOVERABLE(HttpStatus.INTERNAL_SERVER_ERROR, "Task [%s] type [%s] cannot run again, is not recoverable."),
 	//
 	PASSWORD_EXPIRATION_TASK_DAYS_BEFORE(HttpStatus.BAD_REQUEST, "'Days before' parameter is required and has to be number greater than zero, given [%s]."),
 	PASSWORD_EXPIRATION_TODAY_INFO(HttpStatus.NOT_MODIFIED, "Password is valid till today. Password expiration will be published next day."),

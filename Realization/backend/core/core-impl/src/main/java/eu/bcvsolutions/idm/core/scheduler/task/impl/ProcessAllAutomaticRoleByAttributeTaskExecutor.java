@@ -192,4 +192,9 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     		}
     	}
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

@@ -128,6 +128,32 @@ export default class LongRunningTaskManager extends EntityManager {
   }
 
   /**
+   * Run given task again.
+   *
+   * @param  {string}   taskId
+   * @param  {string}   uiKey
+   * @param  {Function} cb
+   * @return {action}
+   * @since 10.2.0
+   */
+  recover(taskId, uiKey, cb) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().recover(taskId)
+        .then(() => {
+          dispatch(this.dataManager.stopRequest(uiKey));
+          if (cb) {
+            cb();
+          }
+        })
+        .catch(error => {
+          // TODO: data uiKey
+          dispatch(this.dataManager.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  /**
    * Cancel entities - bulk action
    *
    * @param  {array[object]} entities - Entities to cancel

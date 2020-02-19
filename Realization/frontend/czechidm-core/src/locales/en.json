@@ -3029,6 +3029,14 @@
       "all-tasks": {
         "header": "All tasks",
         "title": "All tasks",
+        "button": {
+          "run": "Run task",
+          "recover": {
+            "title": "Run task again",
+            "disabled": "Task cannot be executed again"
+          },
+          "cancel": "Cancel task"
+        },
         "filter": {
           "text": {
             "label": "Type / Description",
@@ -3052,6 +3060,27 @@
             "button": "Run all created tasks",
             "success": "Created task will be executed.",
             "selectedButton": "Run selected tasks"
+          },
+          "task-run": {
+            "header": "Run task",
+            "message": "Do you want to run selected task [<strong>{{record}}</strong>]?",
+            "error": "An error occurred while running task [{{record}}].",
+            "success": "Selected task [{{record}}] successfully ran."
+          },
+          "task-recover": {
+            "header": "Run task again",
+            "message": "Do you want to run selected task [<strong>{{record}}</strong>] again?",
+            "warning": {
+              "base": "New task will be created and executed with the same configuration as this task."
+            },
+            "error": "An error occurred while running task [{{record}}].",
+            "success": "Selected task [{{record}}] successfully ran."
+          },
+          "task-cancel": {
+            "header": "Cancel task",
+            "message": "Do you want to cancel selected task [<strong>{{record}}</strong>]?",
+            "error": "An error occurred while canceling task [{{record}}].",
+            "success": "Selected task [{{record}}] will be canceled on background."
           }
         },
         "tabs": {
@@ -5561,9 +5590,13 @@
       "title": "Conflict with code",
       "message": "Record with given code already exists."
     },
+    "ENTITY_NOT_FOUND": {
+      "title": "Not found",
+      "message": "Entity not found."
+    },
     "IDENTITY_NOT_FOUND": {
       "title": "Not found",
-      "message": "Identity [{{identity}}] does not exist"
+      "message": "Identity [{{identity}}] does not exist."
     },
     "NOT_FOUND": {
       "title": "Not found",
@@ -5692,6 +5725,10 @@
     "LONG_RUNNING_TASK_DELETE_FAILED_IS_RUNNING": {
       "title": "Task is already running",
       "message": "Task is already running - can not be deleted. Wait for task completion or cancel task."
+    },
+    "LONG_RUNNING_TASK_NOT_RECOVERABLE": {
+      "title": "Task cannot be executed",
+      "message": "Task [{{taskType}}] cannot be executed again. Task does not support this feature."
     },
     "FOREST_INDEX_DISABLED": {
       "title": "Index is inactive",

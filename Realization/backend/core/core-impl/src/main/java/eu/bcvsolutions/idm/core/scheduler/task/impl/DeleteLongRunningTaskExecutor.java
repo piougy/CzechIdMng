@@ -146,4 +146,9 @@ public class DeleteLongRunningTaskExecutor
 	public boolean requireNewTransaction() {
 		return true;
 	}
+    
+    @Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

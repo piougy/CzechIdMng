@@ -107,6 +107,11 @@ public class TestTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIde
     }
     
     @Override
+    public boolean isRecoverable() {
+    	return true;
+    }
+    
+    @Override
     public String getDescription() {
     	if (description != null) {
     		return description;

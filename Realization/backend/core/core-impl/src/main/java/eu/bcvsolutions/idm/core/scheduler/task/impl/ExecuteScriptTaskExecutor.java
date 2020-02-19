@@ -80,4 +80,9 @@ public class ExecuteScriptTaskExecutor extends AbstractSchedulableTaskExecutor<B
 		parameters.add(PARAMETER_SCRIPT_CODE);
 		return parameters;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

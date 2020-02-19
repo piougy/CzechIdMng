@@ -363,7 +363,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     const showProperties = formInstance && taskType && taskType.formDefinition && taskType.formDefinition.formAttributes.length > 0;
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={ this.i18n('title') } />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Confirm ref="confirm-task-run" level="success"/>
@@ -534,7 +534,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
             className="action"
             cell={
               ({ rowIndex, data }) => (
-                <div>
+                <Basic.Div>
                   <Basic.Button
                     level="info"
                     onClick={ this.onDryRun.bind(this, data[rowIndex]) }
@@ -552,10 +552,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                     title={ this.i18n('button.run') }
                     titlePlacement="bottom"
                     style={{ marginLeft: 3 }}
-                    rendered={ !data[rowIndex].disabled && SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }>
-                    <Basic.Icon icon="play"/>
-                  </Basic.Button>
-                </div>
+                    rendered={ !data[rowIndex].disabled && SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
+                    icon="play"/>
+                </Basic.Div>
               )
             }/>
         </Advanced.Table>
@@ -689,7 +688,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

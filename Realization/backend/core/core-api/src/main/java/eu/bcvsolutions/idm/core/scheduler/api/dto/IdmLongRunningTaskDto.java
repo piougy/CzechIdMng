@@ -38,6 +38,7 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 	@Embedded(dtoClass = IdmScheduledTaskDto.class)
 	private UUID scheduledTask;
 	private boolean stateful;
+	private boolean recoverable;
 	private ZonedDateTime taskStarted;
 	private boolean dryRun;
 	@JsonProperty(access = Access.READ_ONLY)
@@ -196,5 +197,44 @@ public class IdmLongRunningTaskDto extends AbstractDto {
 
 	public void setWarningItemCount(Long warningItemCount) {
 		this.warningItemCount = warningItemCount;
+	}
+	
+	/**
+	 * Task can be executed repetitively without reschedule is needed.
+	 * When task is canceled (e.g. by server is restarted), then task can be executed again.
+	 * 
+	 * @return true - LRT can be executed again.
+	 * @since 10.2.0
+	 */
+	public boolean isRecoverable() {
+		return recoverable;
+	}
+	
+	/**
+	 * Task can be executed repetitively without reschedule is needed.
+	 * When task is canceled (e.g. by server is restarted), then task can be executed again.
+	 * 
+	 * @param recoverable  true - LRT can be executed again.
+	 * @since 10.2.0
+	 */
+	public void setRecoverable(boolean recoverable) {
+		this.recoverable = recoverable;
+	}
+	
+	/**
+	 * Clear fields persist run state.
+	 * 
+	 * @since 10.2.0
+	 */
+	public void clearState() {
+		setCount(null);
+		setCounter(null);
+		setWarningItemCount(null);
+		setSuccessItemCount(null);
+		setFailedItemCount(null);
+		setTaskStarted(null);
+		setResult(null);
+		setThreadId(0);
+		setThreadName(null);
 	}
 }

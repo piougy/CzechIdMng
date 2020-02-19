@@ -44,19 +44,19 @@ export default class LongRunningTaskService extends AbstractService {
    */
   cancel(task) {
     return RestApiService
-    .put(this.getApiPath() + `/${task.id}/cancel`)
-    .then(response => {
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .put(`${ this.getApiPath() }/${ task.id }/cancel`)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -67,19 +67,19 @@ export default class LongRunningTaskService extends AbstractService {
    */
   interrupt(task) {
     return RestApiService
-    .put(this.getApiPath() + `/${task.id}/interrupt`)
-    .then(response => {
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .put(`${ this.getApiPath() }/${ task.id }/interrupt`)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -89,41 +89,65 @@ export default class LongRunningTaskService extends AbstractService {
    */
   processCreated() {
     return RestApiService
-    .post(this.getApiPath() + `/action/process-created`)
-    .then(response => {
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .post(`${ this.getApiPath() }/action/process-created`)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
-   * Executes given prepared task from long running task queue
+   * Executes given prepared task from long running task queue.
    *
    * @param  {string} taskId
-   * @return {promise} ription]
+   * @return {promise}
    */
   processCreatedTask(taskId) {
     return RestApiService
-    .put(this.getApiPath() + `/${taskId}/process`)
-    .then(response => {
-      if (response.status === 204) {
-        return {};
-      }
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .put(`${ this.getApiPath() }/${ taskId }/process`)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Executes given task again.
+   *
+   * @param  {object} task
+   * @return {promise}
+   * @since 10.2.0
+   */
+  recover(task) {
+    return RestApiService
+      .put(`${ this.getApiPath() }/${ task.id }/recover`)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }

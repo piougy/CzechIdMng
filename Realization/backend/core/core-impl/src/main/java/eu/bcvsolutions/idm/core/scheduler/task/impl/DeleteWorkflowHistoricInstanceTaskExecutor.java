@@ -155,4 +155,9 @@ public class DeleteWorkflowHistoricInstanceTaskExecutor extends AbstractSchedula
 		//
 		return Lists.newArrayList(numberOfDaysAttribute, processDefinitionKeyAttribute);
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

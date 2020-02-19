@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
 import java.util.Optional;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
@@ -22,14 +23,16 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
- * LRT will cancel queue for provisioning
+ * LRT will cancel queue for provisioning.
  * 
  * @author Patrik Stloukal
  * @author Radek Tomiška
- *
+ * @deprecated @since 10.2.0 - not used from devstack. use {@link ProvisioningOperationCancelBulkAction}.
  */
+@Deprecated
 @Component
-@Description("Cancel operations in provisioning queue for given filter.")
+@DisallowConcurrentExecution
+@Description("Cancel all operations in provisioning queue.")
 public class CancelProvisioningQueueTaskExecutor
 		extends AbstractSchedulableStatefulExecutor<SysProvisioningOperationDto> {
 

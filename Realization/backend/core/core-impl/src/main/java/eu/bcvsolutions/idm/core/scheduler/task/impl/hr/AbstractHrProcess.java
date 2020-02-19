@@ -67,4 +67,9 @@ public abstract class AbstractHrProcess extends AbstractWorkflowStatefulExecutor
 	public String getWorkflowName() {
 		return workflowName;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

@@ -110,4 +110,9 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 	public Boolean getVirtual() {
 		return virtualSystem;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

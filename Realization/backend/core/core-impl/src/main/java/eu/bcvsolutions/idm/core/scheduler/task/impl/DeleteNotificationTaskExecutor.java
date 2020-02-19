@@ -155,4 +155,9 @@ public class DeleteNotificationTaskExecutor
 	public boolean requireNewTransaction() {
 		return true;
 	}
+    
+    @Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

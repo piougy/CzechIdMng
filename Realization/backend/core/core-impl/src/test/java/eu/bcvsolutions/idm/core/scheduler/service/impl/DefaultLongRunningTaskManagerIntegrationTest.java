@@ -26,6 +26,8 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -38,6 +40,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExe
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.exception.TaskNotRecoverableException;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -344,6 +347,75 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		Assert.assertNotEquals(ltrs.get(1).getTransactionId(), ltrs.get(2).getTransactionId());
 	}
 	
+	@Test
+	public void testRecoverableTask() {
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		//
+		try {
+			TestTaskExecutor executorOne = new TestTaskExecutor();
+			executorOne.setDescription(getHelper().createName());
+			executorOne.setCount(1L);
+			// first process
+			manager.execute(executorOne);
+			//
+			IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+			filter.setTaskType(TestTaskExecutor.class.getCanonicalName());
+			filter.setText(executorOne.getDescription());
+			filter.setOperationState(OperationState.EXECUTED);
+			List<IdmLongRunningTaskDto> ltrs = service.find(filter, null).getContent();
+			Assert.assertEquals(1, ltrs.size());
+			//
+			IdmLongRunningTaskDto task = ltrs.get(0);
+			manager.recover(task.getId());
+			//
+			ltrs = service.find(filter, null).getContent();
+			Assert.assertEquals(2, ltrs.size());
+		} finally {
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		}
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testRecoverableTaskIsRunningState() {
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
+		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		task.setInstanceId(configurationService.getInstanceId());
+		task.setTaskType(TestTaskExecutor.class.getCanonicalName());
+		task.setRunning(false);
+		task = service.save(task);
+		//
+		manager.recover(task.getId());
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testRecoverableTaskIsRunningFlag() {
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
+		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		task.setInstanceId(configurationService.getInstanceId());
+		task.setTaskType(TestTaskExecutor.class.getCanonicalName());
+		task.setRunning(true);
+		task = service.save(task);
+		//
+		manager.recover(task.getId());
+	}
+	
+	@Test(expected = TaskNotRecoverableException.class)
+	public void testNotRecoverableTask() {
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
+		task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
+		task.setInstanceId(configurationService.getInstanceId());
+		task.setTaskType(TestSimpleLongRunningTaskExecutor.class.getCanonicalName());
+		task.setRunning(false);
+		task = service.save(task);
+		//
+		manager.recover(task.getId());
+	}
+	
+	@Test(expected = EntityNotFoundException.class)
+	public void testRecoverableTaskNotExists() {
+		manager.recover(UUID.randomUUID());
+	}
+	
 	private class TestLogItemLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {
 		
 		private final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
@@ -405,6 +477,10 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 			return result;
 		}
 		
+		@Override
+		public boolean isRecoverable() {
+			return false;
+		}
 	}
 	
 	private class TestCountableLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<String> {

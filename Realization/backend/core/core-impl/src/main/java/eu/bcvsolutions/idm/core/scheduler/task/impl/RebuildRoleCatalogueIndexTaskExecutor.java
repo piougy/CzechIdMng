@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl;
 import java.util.List;
 import java.util.UUID;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  *
  */
 @Service
+@DisallowConcurrentExecution
 @Description("Rebuild role catalogue index")
 public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
@@ -117,4 +119,9 @@ public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTa
 		};
 		return canContinue;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

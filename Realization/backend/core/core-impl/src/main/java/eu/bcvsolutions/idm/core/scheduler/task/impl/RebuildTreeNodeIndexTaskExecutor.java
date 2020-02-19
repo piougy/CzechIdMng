@@ -157,4 +157,9 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 		parameters.add(PARAMETER_TREE_TYPE);
 		return parameters;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

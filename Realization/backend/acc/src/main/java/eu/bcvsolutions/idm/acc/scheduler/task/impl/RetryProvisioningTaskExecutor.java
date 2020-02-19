@@ -73,4 +73,9 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 		LOG.info("Retry provisioning executor ended for all next attempts old than [{}]", start);
 		return Boolean.TRUE;
 	}
+	
+	@Override
+    public boolean isRecoverable() {
+    	return true;
+    }
 }

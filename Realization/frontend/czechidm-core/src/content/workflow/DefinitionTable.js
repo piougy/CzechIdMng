@@ -59,7 +59,7 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
     return (
       <Advanced.Table
         ref="table"
-        uiKey={uiKey}
+        uiKey={ uiKey }
         manager={ this.getManager() }
         showLoading={showLoading}
         rowClass={ ({rowIndex, data}) => Utils.Ui.getDisabledRowClass(data[rowIndex]) }
@@ -88,7 +88,8 @@ export class DefinitionTable extends Advanced.AbstractTableContent {
             </Basic.AbstractForm>
           </Advanced.Filter>
         }
-        filterOpened={!filterOpened}
+        filterOpened={ !filterOpened }
+        showAuditLink={ false }
         _searchParameters={ this.getSearchParameters() }>
         <Advanced.Column
           header=""

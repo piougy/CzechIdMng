@@ -589,12 +589,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
   }
 
-  showAudit(entity, event) {
+  showAudit(entity, property, event) {
     if (event) {
       event.preventDefault();
     }
+    const propertyValue = property === 'entityId' ? entity.id : entity[property];
     // set search parameters in redux
-    const searchParameters = auditManager.getDefaultSearchParameters().setFilter('transactionId', entity.transactionId);
+    const searchParameters = auditManager.getDefaultSearchParameters().setFilter(property, propertyValue);
     // co conctete audit table
     this.context.store.dispatch(auditManager.requestEntities(searchParameters, 'audit-table'));
     // prevent to show loading, when transaction id is the same
@@ -603,7 +604,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (this.props.uiKey === 'audit-table') {
       // audit table reloads externally ()
     } else {
-      this.context.history.push(`/audit/entities?transactionId=${ entity.transactionId }`);
+      this.context.history.push(`/audit/entities?${ property }=${ propertyValue }`);
     }
   }
 
@@ -800,6 +801,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       showPageSize,
       showToolbar,
       showRefreshButton,
+      showAuditLink,
       condensed,
       header,
       forceSearchParameters,
@@ -1075,7 +1077,25 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                           header={ this.i18n('entity.id.help') }
                           value={ identifier }
                           uuidEnd={ uuidEnd }
-                          placement="left"/>
+                          placement="left"
+                          buttons={
+                            SecurityManager.hasAuthority('AUDIT_READ')
+                              && this.props.uiKey !== 'audit-table'
+                              && showAuditLink
+                            ?
+                            [
+                              <a
+                                href="#"
+                                onClick={ this.showAudit.bind(this, entity, 'entityId') }
+                                title={ this.i18n('button.entityId.title') }>
+                                <Basic.Icon icon="component:audit"/>
+                                {' '}
+                                { this.i18n('button.entityId.label') }
+                              </a>
+                            ]
+                            :
+                            null
+                          }/>
                       </Basic.Div>
                     );
                     if (_showTransactionId) {
@@ -1092,11 +1112,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                             placement="left"
                             buttons={
                               SecurityManager.hasAuthority('AUDIT_READ')
+                                && showAuditLink
                               ?
                               [
                                 <a
                                   href="#"
-                                  onClick={ this.showAudit.bind(this, entity) }
+                                  onClick={ this.showAudit.bind(this, entity, 'transactionId') }
                                   title={ this.i18n('button.transactionId.title') }>
                                   <Basic.Icon icon="component:audit"/>
                                   {' '}
@@ -1118,7 +1139,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               ref="pagination"
               showPageSize={ showPageSize }
               paginationHandler={ pagination ? this._handlePagination.bind(this) : null }
-              total={ pagination ? _total : _entities.length } { ...range } />
+              total={ pagination ? _total : _entities.length }
+              { ...range } />
           </Basic.Div>
         }
         { this._renderBulkActionDetail() }
@@ -1237,6 +1259,10 @@ AdvancedTable.propTypes = {
    */
   showRefreshButton: PropTypes.bool,
   /**
+   * Shows links to audit
+   */
+  showAuditLink: PropTypes.bool,
+  /**
    * Table css
    */
   className: PropTypes.string,
@@ -1291,6 +1317,7 @@ AdvancedTable.defaultProps = {
   showPageSize: true,
   showToolbar: true,
   showRefreshButton: true,
+  showAuditLink: true,
   uuidEnd: false,
   initialReload: true,
   hover: true

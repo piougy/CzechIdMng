@@ -23,19 +23,19 @@ class AuditDetailInfo extends Basic.AbstractContent {
     return type[type.length - 1];
   }
 
-  showAudit(entity, event) {
+  showAudit(entity, property, event) {
     if (event) {
       event.preventDefault();
     }
     const { auditManager } = this.props;
     // set search parameters in redux
-    const searchParameters = auditManager.getDefaultSearchParameters().setFilter('transactionId', entity.transactionId);
+    const searchParameters = auditManager.getDefaultSearchParameters().setFilter(property, entity[property]);
     // co conctete audit table
     this.context.store.dispatch(auditManager.requestEntities(searchParameters, 'audit-table'));
     // prevent to show loading, when transaction id is the same
     this.context.store.dispatch(dataManager.stopRequest('audit-table'));
     // redirect to audit of entities with prefiled search parameters
-    this.context.history.push(`/audit/entities?transactionId=${ entity.transactionId }`);
+    this.context.history.push(`/audit/entities?${ property }=${ entity[property] }`);
   }
 
   render() {
@@ -65,10 +65,20 @@ class AuditDetailInfo extends Basic.AbstractContent {
             forceSearchParameters={forceSearchParameters}
             manager={auditManager}/>
         }
-        <Basic.TextField
-          ref="entityId"
-          readOnly
-          label={this.i18n('revision.entityId')}/>
+        <Basic.LabelWrapper label={ this.i18n('revision.entityId') }>
+          <Basic.Div style={{ display: 'flex' }}>
+            <input
+              value={ auditDetail ? auditDetail.entityId : null }
+              className="form-control"
+              readOnly
+              style={{ flex: 1 }}/>
+            <Basic.Button
+              href="#"
+              onClick={ this.showAudit.bind(this, data, 'entityId') }
+              title={ this.i18n('component.advanced.Table.button.entityId.title') }
+              icon="component:audit"/>
+          </Basic.Div>
+        </Basic.LabelWrapper>
         <Basic.TextField
           ref="type"
           readOnly
@@ -95,7 +105,7 @@ class AuditDetailInfo extends Basic.AbstractContent {
               style={{ flex: 1 }}/>
             <Basic.Button
               href="#"
-              onClick={ this.showAudit.bind(this, data) }
+              onClick={ this.showAudit.bind(this, data, 'transactionId') }
               title={ this.i18n('component.advanced.Table.button.transactionId.title') }
               icon="component:audit"/>
           </Basic.Div>

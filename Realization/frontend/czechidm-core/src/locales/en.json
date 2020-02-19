@@ -466,6 +466,10 @@
           "transactionId" : {
             "label": "Show in audit",
             "title": "Show all audit records with given user transaction identifier."
+          },
+          "entityId" : {
+            "label": "Show in audit",
+            "title": "Show all audit records with given internal entity identifier."
           }
         },
         "noData": "$t(component.basic.Table.noData)",

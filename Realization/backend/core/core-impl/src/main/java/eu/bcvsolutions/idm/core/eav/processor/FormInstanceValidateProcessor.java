@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
  * @since 9.4.0
  */
 @Component(FormInstanceValidateProcessor.PROCESSOR_NAME)
-@Description("Persists entity event.")
+@Description("Validate form instance.")
 public class FormInstanceValidateProcessor 
 		extends CoreEventProcessor<IdmFormInstanceDto>
 		implements FormInstanceProcessor {

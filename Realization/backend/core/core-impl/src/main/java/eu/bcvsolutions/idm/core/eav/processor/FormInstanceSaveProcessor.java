@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
  * @since 9.2.0
  */
 @Component(FormInstanceSaveProcessor.PROCESSOR_NAME)
-@Description("Persists entity event.")
+@Description("Persists form instance and throw new EAV_SAVE event.")
 public class FormInstanceSaveProcessor 
 		extends CoreEventProcessor<IdmFormInstanceDto>
 		implements FormInstanceProcessor {

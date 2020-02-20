@@ -1041,6 +1041,7 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 		passwordPolicy.setMaxPasswordLength(2);
 		passwordPolicy.setLowerCharBase(DEFAULT_PASSWORD);
 		passwordPolicy.setMinLowerChar(2);
+		passwordPolicy.setProhibitedCharacters("ěščřžýáíéúůüöĚŠČŘŽÝÁÍÉŮÚÜÖ+-/\\|,<.>/?;:'\"\\|[{]}`~-_^(),?.:\"§!¨'ˇ´=¨");
 		return passwordPolicyService.save(passwordPolicy);
 	}
 }

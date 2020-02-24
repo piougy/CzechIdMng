@@ -79,7 +79,7 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 			return false;
 		}
 		if (event.getRootId() == null) {
-			// parent event not exists - skip
+			// parent event not exists - provisioning is needed.
 			return true;
 		}
 		// check parent event is role request and is running - we can skip provisioning. Provisioning occurs after role request is completely executed

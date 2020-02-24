@@ -334,7 +334,7 @@ public class DefaultIdmRoleCompositionService
 			event.getProperties().put(property, new HashSet<IdmIdentityRoleDto>());
 		}
 		
-		Set<IdmIdentityRoleDto> identityRoles = (Set<IdmIdentityRoleDto>)event.getProperties().get(property);
+		Set<IdmIdentityRoleDto> identityRoles = (Set<IdmIdentityRoleDto>) event.getProperties().get(property);
 		// If sub-event contains this property, then will be all identity-roles added to parent event
 		if (subEvent.getProperties().containsKey(property)) {
 			Set<IdmIdentityRoleDto> subIdentityRoles = (Set<IdmIdentityRoleDto>) subEvent.getProperties().get(property);

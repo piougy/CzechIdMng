@@ -17,9 +17,11 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -69,10 +71,30 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	 */
 	@Override
 	public boolean conditional(EntityEvent<IdmIdentityRoleDto> event) {
-		return super.conditional(event)
-				// Skip account management
-				&& (!this.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE, event.getProperties()))
-				&& (event.getRootId() == null || !entityEventManager.isRunnable(event.getRootId())) ;
+		if (!super.conditional(event)) {
+			return false;
+		}
+		if (this.getBooleanProperty(IdmAccountDto.SKIP_PROPAGATE, event.getProperties())) {
+			// Skip account management
+			return false;
+		}
+		if (event.getRootId() == null) {
+			// parent event not exists - skip
+			return true;
+		}
+		// check parent event is role request and is running - we can skip provisioning. Provisioning occurs after role request is completely executed
+		IdmEntityEventDto parentEvent = entityEventManager.getEvent(event.getRootId());
+		if (!entityEventManager.isRunnable(event.getRootId())) {
+			// parent event is already executed - provisioning is needed.
+			return true;
+		}
+		if (parentEvent.getOwnerType().equals(entityEventManager.getOwnerType(IdmRoleRequestDto.class)))  {
+			// role request is processed
+			// prevent to skip provisioning for other events (e.g. sub roles are processed).
+			return false;
+		}
+		// 
+		return true;
 	}
  
 	@Override

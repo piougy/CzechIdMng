@@ -424,7 +424,14 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	
 	@Override
 	public boolean isRunnable(UUID eventId) {
+		Assert.notNull(eventId, "Event identifier is required.");
 		IdmEntityEventDto event = getEvent(eventId);
+		//
+		return isRunnable(event);
+	}
+	
+	@Override
+	public boolean isRunnable(IdmEntityEventDto event) {
 		if (event == null) {
 			return false;
 		}

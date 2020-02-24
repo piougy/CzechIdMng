@@ -34,11 +34,12 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Execute role request
- * - one provisioning operation schould be ececuted
+ * - one provisioning operation should be executed
  * - prevent to drop and create target account, if one assigned role is deleted 
  * 
  * @author Radek Tomiška
@@ -161,6 +162,46 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 //			Assert.assertEquals(2, executedOperations.size());
 //			Assert.assertTrue(executedOperations.stream().anyMatch(o -> o.getOperationType() == ProvisioningEventType.CREATE));
 //			Assert.assertTrue(executedOperations.stream().anyMatch(o -> o.getOperationType() == ProvisioningEventType.UPDATE));
+		} finally {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+		}
+	}
+	
+	/**
+	 * Sub role composition assigning target system is created after role is assigned to identity asynchronously.
+	 */
+	@Test
+	public void testAssignSubRolesAfterCompositionIsCreatedAsync() {
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			// prepare role composition
+			IdmRoleDto superior = getHelper().createRole();
+			IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+			getHelper().createIdentityRole(identity, superior);
+			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+			Assert.assertEquals(1, assignedRoles.size());
+			//
+			IdmRoleDto subOne = getHelper().createRole();
+			IdmRoleDto subTwo = getHelper().createRole();
+			// assign system
+			SysSystemDto system = getHelper().createTestResourceSystem(true);
+			getHelper().createRoleSystem(subTwo, system);
+			// create composition at last
+			getHelper().createRoleComposition(superior, subOne);
+			getHelper().createRoleComposition(subOne, subTwo);
+			
+			IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
+			eventFilter.setSuperOwnerId(identity.getId());
+			getHelper().waitForResult(res -> {
+				return entityEventService.find(eventFilter, new PageRequest(0, 1)).getTotalElements() != 0;
+			}, 1000, 10);
+			//
+			// sub roles will be assigned
+			assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+			Assert.assertEquals(3, assignedRoles.size());
+			// and account created
+			AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+			Assert.assertNotNull(account);
 		} finally {
 			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
 		}

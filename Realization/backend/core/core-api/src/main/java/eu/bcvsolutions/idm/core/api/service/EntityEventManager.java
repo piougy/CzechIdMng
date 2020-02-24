@@ -237,11 +237,23 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * Returns true, when persisted event is runnable (created or running already). 
 	 * 
 	 * @see OperationState#isRunnable()
-	 * @param eventId
-	 * @return
+	 * @param eventId event identifier
+	 * @return true, when event is created or running
 	 * @since 9.1.0
+	 * @see OperationState#isRunnable()
 	 */
 	boolean isRunnable(UUID eventId);
+	
+	/**
+	 * Returns true, when persisted event is runnable (created or running already). 
+	 * 
+	 * @see OperationState#isRunnable()
+	 * @param eventId event identifier
+	 * @return true, when event is created or running
+	 * @since 9.7.16
+	 * @see OperationState#isRunnable()
+	 */
+	boolean isRunnable(IdmEntityEventDto event);
 	
 	/**
 	 * Resurrects given event from persisted state. Event can be processed.

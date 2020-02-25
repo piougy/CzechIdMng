@@ -327,7 +327,8 @@ class Table extends AbstractComponent {
       className,
       condensed,
       header,
-      noHeader
+      noHeader,
+      supportsPagination
     } = this.props;
     //
     if (!rendered) {
@@ -371,9 +372,9 @@ class Table extends AbstractComponent {
     }
     //
     return (
-      <div className={classNames(className, 'basic-table')}>
+      <div className={ classNames(className, 'basic-table') }>
         <Loading showLoading={ showLoading && data && data.length > 0 }>
-          <table className={ classNamesTable }>
+          <table className={ classNamesTable } style={ supportsPagination ? {} : { overflowX: 'auto' } }>
             {
               !header || noHeader
               ||

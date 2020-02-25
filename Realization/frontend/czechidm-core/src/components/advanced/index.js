@@ -59,7 +59,7 @@ import AbstractIdentityDashboardButton from './Button/AbstractIdentityDashboardB
 import RoleRequestInfo from './RoleRequestInfo/RoleRequestInfo';
 import PasswordInfo from './PasswordInfo/PasswordInfo';
 import AuditableInfo from './EntityInfo/AuditableInfo';
-import DetailHeader from './COntent/DetailHeader';
+import DetailHeader from './Content/DetailHeader';
 
 const Components = {
   Table,

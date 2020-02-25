@@ -13,7 +13,21 @@ import * as Basic from '../../basic';
 export default class NavigationItem extends Basic.AbstractContextComponent {
 
   render() {
-    const { id, className, to, icon, iconColor, active, title, titlePlacement, text, rendered, showLoading } = this.props;
+    const {
+      id,
+      className,
+      to,
+      icon,
+      iconColor,
+      active,
+      title,
+      titlePlacement,
+      text,
+      rendered,
+      showLoading,
+      onClick,
+      children
+    } = this.props;
     const itemClassNames = classnames(className, { active });
     const linkClassNames = classnames({ active });
     //
@@ -21,13 +35,15 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
       return null;
     }
 
-    if (!to) {
-      this.getLogger().error(`[Advanced.NavigationItem] item [${id}] in module descriptor has to be repaired. Target link is undefined and will be hidden.`);
+    if (!to && !onClick) {
+      this.getLogger().error(`[Advanced.NavigationItem] item [${ id }] in module descriptor
+         has to be repaired. Target link is undefined and will be hidden.`);
+      //
       return null;
     }
     // icon resolving
     let iconContent = null;
-    let _icon = ( icon === undefined || icon === null ? 'fa:circle-o' : icon );
+    let _icon = icon === undefined || icon === null ? 'fa:circle-o' : icon;
     if (showLoading) {
       _icon = 'refresh';
     }
@@ -38,15 +54,26 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
     }
     //
     return (
-      <li className={itemClassNames}>
-        <Basic.Tooltip id={`${id}-tooltip`} placement={titlePlacement} value={title}>
+      <li className={ itemClassNames }>
+        <Basic.Tooltip id={ `${ id }-tooltip` } placement={ titlePlacement } value={ title }>
           {
-            <Link to={to} className={linkClassNames}>
+            to
+            ?
+            <Link to={ to } className={ linkClassNames }>
               { iconContent }
               <span className="item-text">{ text }</span>
             </Link>
+            :
+            <a
+              href="#"
+              className={ linkClassNames }
+              onClick={ onClick }>
+              { iconContent }
+              <span className="item-text">{ text }</span>
+            </a>
           }
         </Basic.Tooltip>
+        { children }
       </li>
     );
   }
@@ -56,6 +83,11 @@ NavigationItem.propTypes = {
   ...Basic.AbstractComponent.propTypes,
   id: PropTypes.string,
   to: PropTypes.string,
+  /**
+   * OnClick callbalck - can be used instead route
+   * @since 10.2.0
+   */
+  onClick: PropTypes.func,
   title: PropTypes.string,
   icon: PropTypes.oneOfType([
     PropTypes.string,

@@ -6,31 +6,45 @@ import Icon from '../Icon/Icon';
 
 /**
  * Page header
+ *
+ * @author Radek Tomiška
  */
 class PageHeader extends AbstractComponent {
 
   render() {
-    const { rendered, showLoading, children, className, text, ...others } = this.props;
+    const {
+      rendered,
+      showLoading,
+      icon,
+      children,
+      className,
+      text,
+      ...others
+    } = this.props;
+    //
     if (!rendered) {
       return null;
     }
-
+    //
     const classNames = classnames(
       'page-header',
       className
     );
     return (
-      <div className={classNames} {...others}>
+      <div className={ classNames } { ...others }>
         <h1>
           {
             showLoading
             ?
             <Icon type="fa" icon="refresh" showLoading className="icon-loading"/>
             :
-            <span>
-              {text}
-              {children}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Icon value={ icon } style={{ marginRight: 7 }}/>
+              <div style={{ flex: 1 }}>
+                { text }
+                { children }
+              </div>
+            </div>
           }
         </h1>
       </div>

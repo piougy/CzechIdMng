@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import * as Basic from '../../basic';
 import { IdentityManager, DataManager, ConfigurationManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import AuditableInfo from '../EntityInfo/AuditableInfo';
 import ConfigLoader from '../../../utils/ConfigLoader';
 
 const manager = new IdentityManager();
@@ -124,7 +125,7 @@ export class IdentityInfo extends AbstractEntityInfo {
       );
     } else if (_imageUrl) {
       content = (
-        <img src={ _imageUrl } className="img-thumbnail" />
+        <img src={ _imageUrl } className="img-thumbnail" alt="profile" />
       );
     } else {
       content = (
@@ -161,6 +162,7 @@ export class IdentityInfo extends AbstractEntityInfo {
 
   _renderFull() {
     const { className, style } = this.props;
+    const { showAuditableInfo } = this.state;
     const _entity = this.getEntity();
     //
     const panelClassNames = classNames(
@@ -174,36 +176,48 @@ export class IdentityInfo extends AbstractEntityInfo {
     return (
       <Basic.Panel className={ panelClassNames } style={ style }>
         <Basic.PanelHeader>
-          <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
-          { this.getPopoverTitle(_entity) }
-          {
-            !this.isDisabled(_entity)
-            ||
-            <div className="pull-right">
-              <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
-            </div>
-          }
+          <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
+            <Basic.Div style={{ flex: 1 }}>
+              <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
+              { this.getPopoverTitle(_entity) }
+            </Basic.Div>
+            <Basic.Div>
+              {
+                !this.isDisabled(_entity)
+                ||
+                <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
+              }
+              { this._renderSystemInformationIcon() }
+            </Basic.Div>
+          </Basic.Div>
         </Basic.PanelHeader>
-        <div className="image-field-container">
-          <div className="image-col">
-            { this.renderImage(_entity) }
-          </div>
-          <div className="field-col">
-            <table className="table table-condensed">
-              <tbody>
-                { this.renderRow('fa:envelope', _entity.email) }
-                { this.renderRow('fa:phone', _entity.phone) }
-                { this.renderRow(null, (
-                  <Link to={ this.getLink() }>
-                    <Basic.Icon value="fa:angle-double-right"/>
-                    {' '}
-                    { this.i18n('link.profile.label') }
-                  </Link>
-                )) }
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {
+          showAuditableInfo
+          ?
+          <AuditableInfo entity={ _entity } face="content" showAuditLink={ false }/>
+          :
+          <Basic.Div className="image-field-container">
+            <Basic.Div className="image-col">
+              { this.renderImage(_entity) }
+            </Basic.Div>
+            <Basic.Div className="field-col">
+              <table className="table table-condensed">
+                <tbody>
+                  { this.renderRow('fa:envelope', _entity.email) }
+                  { this.renderRow('fa:phone', _entity.phone) }
+                  { this.renderRow(null, (
+                    <Link to={ this.getLink() }>
+                      <Basic.Icon value="fa:angle-double-right"/>
+                      {' '}
+                      { this.i18n('link.profile.label') }
+                    </Link>
+                  )) }
+                </tbody>
+              </table>
+            </Basic.Div>
+          </Basic.Div>
+        }
+
       </Basic.Panel>
     );
   }

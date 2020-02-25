@@ -46,7 +46,13 @@ class IdentityContractDetail extends Basic.AbstractContent {
    * TODO: prevent set state in did mount
    */
   _setSelectedEntity(entity) {
-    const treeType = entity._embedded && entity._embedded.workPosition && entity._embedded.workPosition._embedded ? entity._embedded.workPosition._embedded.treeType : null;
+    const treeType = (
+      entity._embedded && entity._embedded.workPosition && entity._embedded.workPosition._embedded
+      ?
+      entity._embedded.workPosition._embedded.treeType
+      :
+      null
+    );
     const entityFormData = _.merge({}, entity);
     //
     this.setState({
@@ -84,14 +90,24 @@ class IdentityContractDetail extends Basic.AbstractContent {
       if (entity.id === undefined) {
         this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
           if (!error) {
-            this.addMessage({ message: this.i18n('create.success', { position: this.getManager().getNiceLabel(createdEntity), username: this.identityManager.getNiceLabel(identity) }) });
+            this.addMessage({
+              message: this.i18n('create.success', {
+                position: this.getManager().getNiceLabel(createdEntity),
+                username: this.identityManager.getNiceLabel(identity)
+              })
+            });
           }
           this._afterSave(createdEntity, error, afterAction);
         }));
       } else {
         this.context.store.dispatch(this.getManager().updateEntity(entity, `${uiKey}-detail`, (patchedEntity, error) => {
           if (!error) {
-            this.addMessage({ message: this.i18n('edit.success', { position: this.getManager().getNiceLabel(patchedEntity), username: this.identityManager.getNiceLabel(identity) }) });
+            this.addMessage({
+              message: this.i18n('edit.success', {
+                position: this.getManager().getNiceLabel(patchedEntity),
+                username: this.identityManager.getNiceLabel(identity)
+              })
+            });
           }
           this._afterSave(patchedEntity, error, afterAction);
         }));
@@ -127,7 +143,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
     const { _showLoading, entityFormData } = this.state;
 
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
 
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
@@ -198,7 +214,9 @@ class IdentityContractDetail extends Basic.AbstractContent {
             </Basic.PanelBody>
 
             <Basic.PanelFooter>
-              <Basic.Button type="button" level="link" showLoading={_showLoading} onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.Button type="button" level="link" showLoading={_showLoading} onClick={this.context.history.goBack}>
+                { this.i18n('button.back') }
+              </Basic.Button>
 
               <Basic.SplitButton
                 level="success"
@@ -217,7 +235,7 @@ class IdentityContractDetail extends Basic.AbstractContent {
           {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
           <input type="submit" className="hidden"/>
         </form>
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -78,23 +78,28 @@ export default class IdentityManager extends FormableEntityManager {
           json._trimmed = true;
           dispatch(this.receiveEntity(identity.id, json));
         }).catch(error => {
-          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.identities.action.${bulkActionName}.error`, { username: this.getNiceLabel(identity) }) }, error));
+          dispatch(
+            this.flashMessagesManager.addErrorMessage({
+              title: this.i18n(`content.identities.action.${ bulkActionName }.error`, { username: this.getNiceLabel(identity) })
+            },
+            error)
+          );
           throw error;
         });
       }, Promise.resolve())
-      .catch(() => {
-        // nothing - message is propagated before
-        // catch is before then - we want execute nex then clausule
-      })
-      .then(() => {
-        if (successEntities.length > 0) {
-          dispatch(this.flashMessagesManager.addMessage({
-            level: successEntities.length === entities.length ? 'success' : 'info',
-            message: this.i18n(`content.identities.action.${bulkActionName}.success`, { usernames: this.getNiceLabels(successEntities).join(', ') })
-          }));
-        }
-        dispatch(this.stopBulkAction());
-      });
+        .catch(() => {
+          // nothing - message is propagated before
+          // catch is before then - we want execute nex then clausule
+        })
+        .then(() => {
+          if (successEntities.length > 0) {
+            dispatch(this.flashMessagesManager.addMessage({
+              level: successEntities.length === entities.length ? 'success' : 'info',
+              message: this.i18n(`content.identities.action.${bulkActionName}.success`, { usernames: this.getNiceLabels(successEntities).join(', ') })
+            }));
+          }
+          dispatch(this.stopBulkAction());
+        });
     };
   }
 
@@ -188,9 +193,9 @@ export default class IdentityManager extends FormableEntityManager {
   }
 
   /**
-   * Save logged identity profile metadata.
-   * Refresh logged user context profile.
+   * Save logged identity profile metadata only
    *
+   * @param  {string} identityId logged identity
    * @param  {Profile} profile metadata
    * @return {action}
    */
@@ -198,6 +203,7 @@ export default class IdentityManager extends FormableEntityManager {
     return (dispatch) => {
       this.getService().patchProfile(identityId, profile)
         .then((entity) => {
+          // lookout SecurityManager is not used (navigation or loacalization is already refreshed - profile is saved only)
           dispatch({
             type: RECEIVE_PROFILE,
             profile: entity
@@ -212,15 +218,50 @@ export default class IdentityManager extends FormableEntityManager {
   }
 
   /**
+   * Fetch identity Profile
+   * @param  {[type]} identityId [description]
+   * @return {[type]}            [description]
+   */
+  fetchProfile(identityId) {
+    const uiKey = this.resolveProfileUiKey(identityId);
+    return (dispatch, getState) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this
+        .getService()
+        .getProfile(identityId)
+        .then(json => {
+          let profile = json || {}; // profile is not saved yet
+          //
+          dispatch(this.profileManager.queueFetchPermissions(profile.id, null, () => {
+            dispatch(this.profileManager.receiveEntity(profile.id, json, null));
+            const previousProfile = DataManager.getData(getState(), uiKey);
+            if (previousProfile) {
+              profile = { ...previousProfile, ...profile }; // prevent to clear loaded profile image
+            }
+            dispatch(this.dataManager.receiveData(uiKey, profile)); // profile for identity
+          }));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  /**
    * Upload image to BE
    */
   uploadProfileImage(identityId, formData) {
     const uiKey = this.resolveProfileUiKey(identityId);
-    return (dispatch) => {
+    return (dispatch, getState) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().uploadProfileImage(identityId, formData)
         .then(() => {
-          dispatch(this.dataManager.receiveData(uiKey, { imageUrl: null })); // enforce reload
+          const previousProfile = DataManager.getData(getState(), uiKey);
+          let profile = { imageUrl: null };
+          if (previousProfile) {
+            profile = { ...previousProfile, ...profile }; // prevent to clear loaded profile image
+          }
+          dispatch(this.dataManager.receiveData(uiKey, profile)); // enforce reload
           dispatch(this.downloadProfileImage(identityId));
         })
         .catch(error => {
@@ -262,9 +303,13 @@ export default class IdentityManager extends FormableEntityManager {
             if (blob) {
               imageUrl = URL.createObjectURL(blob);
             }
-            dispatch(this.dataManager.receiveData(uiKey, {
-              imageUrl
-            }));
+            //
+            const previousProfile = DataManager.getData(getState(), uiKey);
+            let _profile = { imageUrl };
+            if (previousProfile) {
+              _profile = { ...previousProfile, ..._profile }; // prevent to clear loaded profile image
+            }
+            dispatch(this.dataManager.receiveData(uiKey, _profile));
           })
           .catch(error => {
             dispatch(this.receiveError(null, uiKey, error));
@@ -275,11 +320,16 @@ export default class IdentityManager extends FormableEntityManager {
 
   deleteProfileImage(identityId) {
     const uiKey = this.resolveProfileUiKey(identityId);
-    return (dispatch) => {
+    return (dispatch, getState) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().deleteProfileImage(identityId)
         .then(() => {
-          dispatch(this.dataManager.receiveData(uiKey, { imageUrl: false }));
+          const previousProfile = DataManager.getData(getState(), uiKey);
+          let profile = { imageUrl: false };
+          if (previousProfile) {
+            profile = { ...previousProfile, ...profile }; // prevent to clear loaded profile image
+          }
+          dispatch(this.dataManager.receiveData(uiKey, profile));
         })
         .catch(error => {
           dispatch(this.receiveError(null, uiKey, error));

@@ -1,7 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import equal from 'fast-deep-equal';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import PageHeader from '../PageHeader/PageHeader';
@@ -190,7 +188,12 @@ export default class AbstractContent extends AbstractContextComponent {
       originalManager.setRequestId(params.requestId);
       return originalManager;
     }
-    originalManager.setRequestsEnabled(ConfigurationManager.getPublicValueAsBoolean(this.context.store.getState(), originalManager.getEnabledPropertyKey()));
+    originalManager.setRequestsEnabled(
+      ConfigurationManager.getPublicValueAsBoolean(
+        this.context.store.getState(),
+        originalManager.getEnabledPropertyKey()
+      )
+    );
     originalManager.setRequestId(null);
     return originalManager;
   }
@@ -225,18 +228,19 @@ export default class AbstractContent extends AbstractContextComponent {
    */
   renderPageHeader(props = {}) {
     const navigationItem = this.getNavigationItem() || {};
+    const { icon, ...others } = props;
     //
     return (
-      <PageHeader {...props}>
+      <PageHeader
+        icon={ icon || navigationItem.icon }
+        { ...others }>
         <Helmet title={ props.title || this.i18n('title') } />
-        <Icon value={ props.icon || navigationItem.icon }/>
-        {' '}
-        <span dangerouslySetInnerHTML={{__html: props.header || this.i18n('header')}}/>
+        <span dangerouslySetInnerHTML={{ __html: props.header || this.i18n('header') }}/>
         {' '}
         {
           !props.showTitle
-        ||
-        <small>{ this.i18n('title', { escape: false }) }</small>
+          ||
+          <small>{ this.i18n('title', { escape: false }) }</small>
         }
       </PageHeader>
     );

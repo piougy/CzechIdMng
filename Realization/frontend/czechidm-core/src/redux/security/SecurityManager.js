@@ -108,8 +108,7 @@ export default class SecurityManager {
           username: json.username,
           tokenCIDMST: json.token,
           tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
-          authorities: json.authorities.map(authority => authority.authority),
-          profile
+          authorities: json.authorities.map(authority => authority.authority)
         };
         //
         // remove all messages (only logout could be fond in messages after logout)
@@ -117,31 +116,46 @@ export default class SecurityManager {
         //
         // init FE by saved profile on BE
         if (profile) {
-          // collapse navigation
-          dispatch({
-            type: Actions.COLLAPSE_NAVIGATION,
-            collapsed: profile.navigationCollapsed
-          });
-          //
-          // change locale by profile
-          if (profile.preferredLanguage) {
-            LocalizationService.changeLanguage(profile.preferredLanguage, (error) => {
-              if (error) {
-                // FIXME: locale is broken ... but en message will be better
-                dispatch(flashMessagesManager.addMessage({level: 'error', title: 'Nepodařilo se iniciovat lokalizaci', message: error }));
-              } else {
-                dispatch({
-                  type: Actions.I18N_READY,
-                  lng: profile.preferredLanguage
-                });
-              }
-            });
-          }
+          dispatch(this.setCurrentProfile(profile));
         }
         //
         // send userContext to state
         dispatch(this.receiveLogin(userContext, redirect));
       });
+  }
+
+  /**
+   * set logged identity profile
+   *
+   * @param {object} profile
+   */
+  setCurrentProfile(profile) {
+    return (dispatch) => {
+      dispatch({
+        type: RECEIVE_PROFILE,
+        profile
+      });
+      // collapse navigation
+      dispatch({
+        type: Actions.COLLAPSE_NAVIGATION,
+        collapsed: profile.navigationCollapsed
+      });
+      //
+      // change locale by profile
+      if (profile.preferredLanguage) {
+        LocalizationService.changeLanguage(profile.preferredLanguage, (error) => {
+          if (error) {
+            // FIXME: locale is broken ... but en message will be better
+            dispatch(flashMessagesManager.addMessage({level: 'error', title: 'Nepodařilo se iniciovat lokalizaci', message: error }));
+          } else {
+            dispatch({
+              type: Actions.I18N_READY,
+              lng: profile.preferredLanguage
+            });
+          }
+        });
+      }
+    };
   }
 
   /*

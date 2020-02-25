@@ -27,6 +27,10 @@ export default class BasicPopover extends AbstractContextComponent {
     }
   }
 
+  hide() {
+    this.refs.popover.hide();
+  }
+
   render() {
     const {
       id,
@@ -69,8 +73,8 @@ export default class BasicPopover extends AbstractContextComponent {
         placement={ placement }
         overlay={
           <Popover
-            id={_id}
-            className={classNames}
+            id={ _id }
+            className={ classNames }
             title={
               !title
               ?
@@ -80,9 +84,9 @@ export default class BasicPopover extends AbstractContextComponent {
                 {
                   !icon
                   ||
-                  <div className="basic-popover-icon"><Icon icon={icon}/></div>
+                  <div className="basic-popover-icon"><Icon icon={ icon }/></div>
                 }
-                <div className={icon ? 'basic-popover-title' : ''}>
+                <div className={ icon ? 'basic-popover-title' : '' }>
                   { title }
                 </div>
               </div>
@@ -95,10 +99,10 @@ export default class BasicPopover extends AbstractContextComponent {
               ( // @todo-upgrade-10 - I had to wrapp the value to the Redux provider and Router,
                 // because React-bootstrap Popover uses for generating value new instance of React.
                 // So Redux and Router wrapping doesn't work!
-              <Provider store={this.context.store}>
-                <IdmContext.Provider value={{store: this.context.store}}>
+              <Provider store={ this.context.store }>
+                <IdmContext.Provider value={{ store: this.context.store }}>
                   <Router>
-                    {_value}
+                    { _value }
                   </Router>
                 </IdmContext.Provider>
               </Provider>

@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Patrik Stloukal
  *
  */
+@SuppressWarnings("deprecation")
 public class CleanProvisioningQueueTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired

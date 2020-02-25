@@ -4,7 +4,7 @@ import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
 
-const MAX_UUID_LENGTH = 7;
+const MAX_UUID_LENGTH = 8;
 
 /**
  * Shows uuid - shorten by default - full view in popover for copy

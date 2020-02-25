@@ -36,9 +36,12 @@ class LongRunningTaskRoute extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('title')} />
 
-        <Basic.PageHeader showLoading={!entity && showLoading}>
+        <Advanced.DetailHeader
+          showLoading={ showLoading }
+          entity={ entity }
+          to="/scheduler/all-tasks">
           { entity ? Utils.Ui.getSimpleJavaType(entity.taskType) : null }<small> { this.i18n('detail.header') }</small>
-        </Basic.PageHeader>
+        </Advanced.DetailHeader>
 
         <Advanced.TabPanel parentId="scheduler-all-tasks" match={ this.props.match }>
           { this.getRoutes() }

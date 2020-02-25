@@ -472,9 +472,9 @@ class Configurations extends Advanced.AbstractTableContent {
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.TextArea
                   ref="area"
-                  label={this.i18n('addMore.configurationArea.header')}
+                  label={ this.i18n('addMore.configurationArea.header') }
                   required
-                  helpBlock={this.i18n('addMore.configurationArea.helpBlock')}
+                  helpBlock={ this.i18n('addMore.configurationArea.helpBlock') }
                 />
               </Basic.AbstractForm>
             </Basic.Modal.Body>
@@ -484,7 +484,7 @@ class Configurations extends Advanced.AbstractTableContent {
                 level="link"
                 onClick={ this.closeAddMore.bind(this) }
                 showLoading={ _showLoading }>
-                {this.i18n('button.close')}
+                { this.i18n('button.close') }
               </Basic.Button>
               <Basic.Button
                 type="submit"
@@ -493,7 +493,7 @@ class Configurations extends Advanced.AbstractTableContent {
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }
                 rendered={ manager.canSave() }>
-                {this.i18n('button.save')}
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>
@@ -506,9 +506,9 @@ class Configurations extends Advanced.AbstractTableContent {
         <Basic.Panel rendered={ showTables }>
           <Basic.Table
             header={ this.i18n('fromFile', { escape: false }) }
-            data={fileConfigurations}
-            showLoading={_fileConfigurationsShowLoading}
-            noData={this.i18n('component.basic.Table.noData')}>
+            data={ fileConfigurations }
+            showLoading={ _fileConfigurationsShowLoading }
+            noData={ this.i18n('component.basic.Table.noData') }>
             <Basic.Column
               property=""
               header=""

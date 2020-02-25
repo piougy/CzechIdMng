@@ -289,26 +289,22 @@ class SystemDetail extends Basic.AbstractContent {
                   options={[
                     {
                       value: 'readonly',
-                      niceLabel:
-                      this.i18n('acc:entity.System.readonly.label', { escape: false }),
+                      niceLabel: this.i18n('acc:entity.System.readonly.label', { escape: false }),
                       description: this.i18n('acc:entity.System.readonly.help', { escape: false })
                     },
                     {
                       value: 'readonlyDisabledProvisioning',
-                      niceLabel:
-                      this.i18n('acc:entity.System.readonlyDisabledProvisioning.label', { escape: false }),
+                      niceLabel: this.i18n('acc:entity.System.readonlyDisabledProvisioning.label', { escape: false }),
                       description: this.i18n('acc:entity.System.readonlyDisabledProvisioning.help', { escape: false })
                     },
                     {
                       value: 'disabled',
-                      niceLabel:
-                      this.i18n('acc:entity.System.disabled.label', { escape: false }),
+                      niceLabel: this.i18n('acc:entity.System.disabled.label', { escape: false }),
                       description: this.i18n('acc:entity.System.disabled.help', { escape: false })
                     },
                     {
                       value: 'disabledProvisioning',
-                      niceLabel:
-                      this.i18n('acc:entity.System.disabledProvisioning.label', { escape: false }),
+                      niceLabel: this.i18n('acc:entity.System.disabledProvisioning.label', { escape: false }),
                       description: this.i18n('acc:entity.System.disabledProvisioning.help', { escape: false })
                     },
                   ]}/>

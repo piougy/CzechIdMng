@@ -3,11 +3,18 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
+import Immutable from 'immutable';
 //
 import * as Basic from '../../basic';
+import * as Utils from '../../../utils';
+import ComponentService from '../../../services/ComponentService';
 import { LocalizationService } from '../../../services';
-import { ConfigurationManager } from '../../../redux/data';
-import { SecurityManager, IdentityManager } from '../../../redux';
+import {
+  ConfigurationManager,
+  SecurityManager,
+  IdentityManager,
+  DataManager
+} from '../../../redux';
 import {
   getNavigationItems,
   resolveNavigationParameters,
@@ -18,6 +25,7 @@ import {
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
 
+const componentService = new ComponentService();
 const identityManager = new IdentityManager();
 
 /**
@@ -27,9 +35,20 @@ const identityManager = new IdentityManager();
  */
 export class Navigation extends Basic.AbstractContent {
 
-  renderNavigationItems(section = 'main') {
+  constructor(props, context) {
+    super(props, context);
+    //
+    this.state = {
+      identityMenuShowLoading: false,
+      modals: new Immutable.Map({}) // opened modal windows
+    };
+  }
+
+  renderNavigationItems(section = 'main', dynamicOnly = true) {
     const { navigation, userContext, selectedNavigationItems } = this.props;
-    const items = getNavigationItems(navigation, null, section, userContext, null, true);
+    //
+    const items = getNavigationItems(navigation, null, section, userContext, null, dynamicOnly);
+    //
     return this._renderNavigationItems(items, userContext, selectedNavigationItems);
   }
 
@@ -71,6 +90,23 @@ export class Navigation extends Basic.AbstractContent {
   renderNavigationItem(item, userContext, activeItem, titlePlacement = 'bottom') {
     switch (item.type) {
       case 'DYNAMIC': {
+        const { modals} = this.state;
+        //
+        let ModalComponent = null;
+        let onClick = null;
+        if (item.modal) {
+          // resolve modal component
+          ModalComponent = componentService.getComponent(item.modal);
+          onClick = (event) => {
+            if (event) {
+              event.preventDefault();
+            }
+            this.setState({
+              modals: modals.set(item.modal, { show: true })
+            });
+          };
+        }
+        //
         return (
           <NavigationItem
             id={ `nav-item-${item.id}` }
@@ -81,7 +117,16 @@ export class Navigation extends Basic.AbstractContent {
             icon={ item.icon }
             iconColor={ item.iconColor }
             active={ activeItem === item.id }
-            text={ this._resolveNavigationItemText(item, userContext) }/>
+            text={ this._resolveNavigationItemText(item, userContext) }
+            onClick={ onClick }>
+            {
+              !ModalComponent
+              ||
+              <ModalComponent
+                show={ modals.has(item.modal) ? modals.get(item.modal).show : false }
+                onHide={ () => { this.setState({ modals: modals.set(item.modal, { show: false }) }); } }/>
+            }
+          </NavigationItem>
         );
       }
       case 'TAB': {
@@ -97,7 +142,7 @@ export class Navigation extends Basic.AbstractContent {
         );
       }
       default: {
-        this.getLogger().warn('[Advanced.Navigation] ' + item.type + ' type not implemeted for item id [' + item.id + ']');
+        this.getLogger().warn(`[Advanced.Navigation] - [${ item.type }] type not implemeted for item id [${ item.id }]`);
         return null;
       }
     }
@@ -136,7 +181,7 @@ export class Navigation extends Basic.AbstractContent {
 
   renderSidebarItems(parentId = null, level = 0) {
     const { navigation, navigationCollapsed, userContext, selectedNavigationItems } = this.props;
-    level = level + 1;
+    level += 1;
     const levelItems = getNavigationItems(navigation, parentId, 'main', userContext, null, true);
     if (!levelItems || levelItems.length === 0) {
       return null;
@@ -151,7 +196,12 @@ export class Navigation extends Basic.AbstractContent {
       //
       if (childrenItems.length === 1 && childrenItems[0].path === levelItem.path) {
         // if menu contains only one subitem, which leeds to the same path - sub menu is truncated
-        const item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right');
+        const item = this.renderNavigationItem(
+          levelItem,
+          userContext,
+          selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null,
+          'right'
+        );
         if (item) {
           items.push(item);
         }
@@ -190,7 +240,8 @@ export class Navigation extends Basic.AbstractContent {
             levelItem,
             userContext,
             selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null,
-            'right');
+            'right'
+          );
           if (item) {
             items.push(item);
           }
@@ -206,7 +257,7 @@ export class Navigation extends Basic.AbstractContent {
       items.push(
         <li key="navigation-collapse">
           <Basic.Tooltip
-            id={ `navigation-collapse-tooltip` }
+            id="navigation-collapse-tooltip"
             placement="right"
             value={ navigationCollapsed ? this.i18n('navigation.expand.label') : this.i18n('navigation.collapse.label') }>
             <a href="#" onClick={ this.toogleNavigationCollapse.bind(this, navigationCollapsed) }>
@@ -230,13 +281,16 @@ export class Navigation extends Basic.AbstractContent {
       'nav',
       { 'nav-second-level': level === 2 },
       { 'nav-third-level': level === 3 },
-      { 'hidden': (level > 3 || (navigationCollapsed && level > 1)) }, // only three levels are supported
-      { 'in': (selectedNavigationItems.length > level - 1 && selectedNavigationItems[level - 2]) === parentId },
-      { 'collapse': parentId && !this._isSelected(selectedNavigationItems, parentId) && (selectedNavigationItems.length > level - 1 && selectedNavigationItems[level - 2]) !== parentId }
+      { hidden: (level > 3 || (navigationCollapsed && level > 1)) }, // only three levels are supported
+      { in: (selectedNavigationItems.length > level - 1 && selectedNavigationItems[level - 2]) === parentId },
+      { collapse: parentId
+        && !this._isSelected(selectedNavigationItems, parentId)
+        && (selectedNavigationItems.length > level - 1
+        && selectedNavigationItems[level - 2]) !== parentId }
     );
     return (
       <ul
-        id={ level === 1 ? 'side-menu' : 'side-menu-' + level }
+        id={ level === 1 ? 'side-menu' : `side-menu-${ level }` }
         className={ classNames }>
         { items }
       </ul>
@@ -285,15 +339,15 @@ export class Navigation extends Basic.AbstractContent {
     if (environment) {
       const environmentClassName = classnames(
         'label',
-        {'label-success': environment === 'development'},
-        {'label-warning': environment !== 'development'},
-        {'hidden': environment === 'production'}
+        { 'label-success': environment === 'development' },
+        { 'label-warning': environment !== 'development' },
+        { hidden: environment === 'production'}
       );
       environmentLabel = (
-        <div className="navbar-text hidden-xs" title={this.i18n('environment.' + environment + '.title', { defaultValue: environment })}>
-          <span className={environmentClassName}>
-            <span className="hidden-sm">{this.i18n('environment.' + environment + '.label', { defaultValue: environment })}</span>
-            <span className="visible-sm-inline">{this.i18n('environment.' + environment + '.short', { defaultValue: environment })}</span>
+        <div className="navbar-text hidden-xs" title={ this.i18n(`environment.${ environment }.title`, { defaultValue: environment }) }>
+          <span className={ environmentClassName }>
+            <span className="hidden-sm">{ this.i18n(`environment.${ environment }.label`, { defaultValue: environment }) }</span>
+            <span className="visible-sm-inline">{ this.i18n(`environment.${ environment }.short`, { defaultValue: environment }) }</span>
           </span>
         </div>
       );
@@ -311,15 +365,17 @@ export class Navigation extends Basic.AbstractContent {
                   const lgnClassName = classnames(
                     'flag',
                     lng,
-                    { 'active': i18nReady === lng },
-                    { 'last': i === supportedLanguages.length - 1 }
+                    { active: i18nReady === lng },
+                    { last: i === supportedLanguages.length - 1 }
                   );
                   return (
                     <span
-                      key={`locale-${lng}`}
-                      className={lgnClassName}
-                      onClick={ this._i18nChange.bind(this, lng) }>
-                    </span>
+                      key={ `locale-${ lng }` }
+                      className={ lgnClassName }
+                      onClick={ this._i18nChange.bind(this, lng) }
+                      role="button"
+                      tabIndex={ 0 }
+                      onKeyPress={ null }/>
                   );
                 }).values()]
               }
@@ -328,17 +384,101 @@ export class Navigation extends Basic.AbstractContent {
         </div>
       );
     }
-
+    //
+    let identityMenu = null;
+    if (!userContext.isExpired && SecurityManager.isAuthenticated(userContext)) {
+      const { identityMenuShowLoading } = this.state;
+      // rename => move to modal component
+      const { _imageUrl, identity } = this.props;
+      //
+      const identityItems = this.renderNavigationItems('identity-menu', false);
+      //
+      identityMenu = (
+        <li>
+          <a
+            href="#"
+            className="dropdown-toggle"
+            data-toggle="dropdown"
+            role="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            onClick={ () => {
+              // load identity ... and icon
+              this.setState({
+                identityMenuShowLoading: true
+              }, () => {
+                this.context.store.dispatch(identityManager.downloadProfileImage(userContext.id));
+                this.context.store.dispatch(identityManager.fetchEntityIfNeeded(userContext.id, null, () => {
+                  this.setState({
+                    identityMenuShowLoading: false
+                  });
+                }));
+              });
+            }}>
+            <span>
+              <Basic.Icon value="user"/>
+              <Basic.ShortText value={ userContext.username } cutChar="" maxLength="30"/>
+              <span className="caret"/>
+            </span>
+          </a>
+          {
+            identityMenuShowLoading
+            ?
+            <ul className="dropdown-menu">
+              <li>
+                <Basic.Loading isStatic show />
+              </li>
+            </ul>
+            :
+            <ul className="dropdown-menu">
+              <li className="identity-image ">
+                <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Basic.Div>
+                    {
+                      _imageUrl
+                      ?
+                      <img src={ _imageUrl } alt="profile" className="img-thumbnail" style={{ height: 50, padding: 0 }} />
+                      :
+                      <Basic.Icon
+                        value="component:identity"
+                        identity={ identity }
+                        className="text-center img-thumbnail"
+                        style={{
+                          backgroundColor: Utils.Entity.isDisabled(identity) ? '#FCF8E3' : '#DFF0D8',
+                          width: 50,
+                          height: 50,
+                          fontSize: '20px',
+                          lineHeight: '35px'
+                        }}
+                        color="#FFFFFF" />
+                    }
+                  </Basic.Div>
+                  <Basic.Div style={{ flex: 1, paddingLeft: 7 }}>
+                    <Basic.Div>
+                      <Basic.ShortText value={ userContext.username } cutChar="" maxLength="40" style={{ fontSize: '1.1em', fontWeight: 'normal' }}/>
+                    </Basic.Div>
+                    <Basic.Div>
+                      { identityManager.getFullName(identity) }
+                    </Basic.Div>
+                  </Basic.Div>
+                </Basic.Div>
+              </li>
+              { identityItems }
+            </ul>
+          }
+        </li>
+      );
+    }
+    //
     const mainItems = this.renderNavigationItems('main');
     const systemItems = this.renderNavigationItems('system');
     const sidebarItems = this.renderSidebarItems();
-
     const sidebarClassName = classnames(
       'navbar-default',
       'sidebar',
       { collapsed: navigationCollapsed }
     );
-
+    //
     return (
       <div>
         <header>
@@ -346,9 +486,9 @@ export class Navigation extends Basic.AbstractContent {
             <div className="navbar-header">
               <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
                 <span className="sr-only">{ this.i18n('navigation.toogle') }</span>
-                <span className="icon-bar"></span>
-                <span className="icon-bar"></span>
-                <span className="icon-bar"></span>
+                <span className="icon-bar"/>
+                <span className="icon-bar"/>
+                <span className="icon-bar"/>
               </button>
               <Link to="/" title={ this.i18n('navigation.menu.home') } className="home">
                 {' '}
@@ -368,6 +508,11 @@ export class Navigation extends Basic.AbstractContent {
                 { environmentLabel }
                 { flags }
                 <ul className="nav navbar-nav">
+                  {
+                    userContext.isExpired
+                    ||
+                    identityMenu
+                  }
                   {
                     userContext.isExpired
                     ||
@@ -415,13 +560,19 @@ Navigation.defaultProps = {
 };
 
 function select(state) {
+  const identifier = state.security.userContext.username;
+  const profileUiKey = identityManager.resolveProfileUiKey(identifier);
+  const profile = DataManager.getData(state, profileUiKey);
+  //
   return {
     navigation: state.config.get('navigation'),
     navigationCollapsed: state.security.userContext.navigationCollapsed,
     selectedNavigationItems: state.config.get('selectedNavigationItems'),
     environment: ConfigurationManager.getEnvironmentStage(state),
     userContext: state.security.userContext,
-    i18nReady: state.config.get('i18nReady')
+    i18nReady: state.config.get('i18nReady'),
+    identity: identityManager.getEntity(state, identifier),
+    _imageUrl: profile ? profile.imageUrl : null,
   };
 }
 

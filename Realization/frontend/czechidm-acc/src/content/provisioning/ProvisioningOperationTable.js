@@ -438,7 +438,7 @@ ProvisioningOperationTable.defaultProps = {
 
 function select(state, component) {
   return {
-    showTransactionId: Managers.ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false),
+    showTransactionId: Managers.ConfigurationManager.showTransactionId(state),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
   };
 }

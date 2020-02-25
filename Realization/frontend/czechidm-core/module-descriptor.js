@@ -315,13 +315,6 @@ module.exports = {
         access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREETYPE_AUTOCOMPLETE', 'TREENODE_READ'] } ]
       },
       {
-        id: 'profile-system-separator',
-        type: 'SEPARATOR',
-        access: [ { type: 'DENY_ALL' } ], // RT: PoC only - design is ugly ...
-        labelKey: 'navigation.menu.separator.system',
-        order: 999
-      },
-      {
         id: 'roles-menu',
         type: 'DYNAMIC',
         labelKey: 'content.roles.header',
@@ -1416,14 +1409,6 @@ module.exports = {
         ]
       },
       {
-        id: 'identities-profile-system',
-        section: 'system',
-        labelKey: 'navigation.menu.userLabel',
-        icon: 'user',
-        order: 10,
-        path: '/identity/:loggedUsername/profile'
-      },
-      {
         id: 'messages',
         section: 'system',
         titleKey: 'navigation.menu.messages',
@@ -1447,7 +1432,47 @@ module.exports = {
         path: '/password/change',
         icon: false,
         access: [ { type: 'NOT_AUTHENTICATED' } ]
-      }
+      },
+      {
+        id: 'identity-menu-detail',
+        section: 'identity-menu',
+        labelKey: 'component.advanced.IdentityInfo.link.detail.label',
+        icon: 'fa:angle-double-right',
+        order: 10,
+        path: '/identity/:loggedUsername/profile',
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ],
+      },
+      {
+        id: 'identity-menu-password-change',
+        section: 'identity-menu',
+        labelKey: 'content.password.change.header',
+        icon: 'component:password',
+        order: 20,
+        path: '/identity/:loggedUsername/password/change',
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_PASSWORDCHANGE'] } ]
+      },
+      {
+        id: 'identity-menu-profile-setting',
+        section: 'identity-menu',
+        labelKey: 'content.identity.profile-setting.header',
+        icon: 'fa:cog',
+        modal: 'profile-modal',
+        order: 800
+      },
+      {
+        id: 'identity-menu-logout-separator',
+        section: 'identity-menu',
+        type: 'SEPARATOR',
+        order: 990
+      },
+      {
+        id: 'identity-menu-logout',
+        section: 'identity-menu',
+        labelKey: 'navigation.menu.logout',
+        icon: 'off',
+        order: 1000,
+        path: '/logout'
+      },
     ]
   }
 };

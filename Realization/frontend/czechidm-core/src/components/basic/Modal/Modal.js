@@ -24,8 +24,7 @@ export default class BasicModal extends AbstractComponent {
   /**
    * Fix modal backdrop size
    */
-  _onEnter(...args) {
-    const { onEnter } = this.props;
+  _onEnter(onEnter) {
     // find modal-backdrop
     if (typeof $ !== 'undefined') {
       $('.modal-backdrop').css({
@@ -34,12 +33,12 @@ export default class BasicModal extends AbstractComponent {
     }
     // original
     if (onEnter) {
-      onEnter(...args);
+      onEnter();
     }
   }
 
   render() {
-    const { rendered, bsSize, showLoading, ...others } = this.props;
+    const { rendered, bsSize, showLoading, onEnter, ...others } = this.props;
     if (!rendered) {
       return null;
     }
@@ -48,7 +47,7 @@ export default class BasicModal extends AbstractComponent {
     }
     // disabled enforceFocus - input in popover cannot be selected otherwise
     return (
-      <Modal onEnter={this._onEnter.bind(this)} {...others} enforceFocus={ false }>
+      <Modal onEnter={ this._onEnter.bind(this, onEnter) } { ...others } enforceFocus={ false }>
         {
           showLoading
           ?

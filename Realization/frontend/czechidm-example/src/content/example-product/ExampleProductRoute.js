@@ -25,11 +25,13 @@ class ExampleProductRoute extends Basic.AbstractContent {
 
     return (
       <Basic.Div>
-        <Basic.PageHeader showLoading={ !entity && showLoading }>
-          <Basic.Icon value="link"/>
-          {' '}
+        <Advanced.DetailHeader
+          showLoading={ showLoading }
+          icon="link"
+          entity={ entity }
+          to="/example/products">
           { this.i18n('example:content.example-product.detail.edit.header', { name: manager.getNiceLabel(entity), escape: false }) }
-        </Basic.PageHeader>
+        </Advanced.DetailHeader>
 
         <Advanced.TabPanel parentId="example-products" match={ this.props.match }>
           { this.getRoutes() }

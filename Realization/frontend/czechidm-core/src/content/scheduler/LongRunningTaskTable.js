@@ -406,7 +406,7 @@ LongRunningTaskTable.defaultProps = {
 function select(state, component) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false)
+    showTransactionId: ConfigurationManager.showTransactionId(state)
   };
 }
 

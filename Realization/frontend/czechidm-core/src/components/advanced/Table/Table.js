@@ -330,17 +330,26 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   /**
-   * Merge hard, default and user deffined search parameters
+   * Merge hard, default and user deffined search parameters.
    */
   _mergeSearchParameters(searchParameters, props = null) {
     const _props = props || this.props;
-    const { defaultSearchParameters, forceSearchParameters, manager } = _props;
+    const { defaultSearchParameters, forceSearchParameters, manager, defaultPageSize } = _props;
     //
     let _forceSearchParameters = null;
     if (forceSearchParameters) {
       _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination
     }
-    return manager.mergeSearchParameters(searchParameters || defaultSearchParameters || manager.getDefaultSearchParameters(), _forceSearchParameters);
+    let _searchParameters = manager.mergeSearchParameters(
+      searchParameters || defaultSearchParameters || manager.getDefaultSearchParameters(), _forceSearchParameters
+    );
+    // default page size by profile
+    // defaultPage size in not stored in redux
+    if ((!searchParameters || !searchParameters.getSize()) && defaultPageSize) {
+      _searchParameters = _searchParameters.setSize(defaultPageSize);
+    }
+    //
+    return _searchParameters;
   }
 
   fetchEntities(searchParameters, props = null) {
@@ -510,12 +519,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       // table prop => highest priority
       return showId;
     }
-    if (appShowId !== null && appShowId !== undefined) {
-      // app prop => highest priority
-      return appShowId;
-    }
-    // app prop by stage as default
-    return this.props._isDevelopment;
+    return appShowId;
   }
 
   _filterOpen(open) {
@@ -802,13 +806,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       showToolbar,
       showRefreshButton,
       showAuditLink,
+      showTransactionId,
       condensed,
       header,
       forceSearchParameters,
       className,
       uuidEnd,
-      showTransactionId,
-      hover
+      hover,
+      sizeOptions
     } = this.props;
     const {
       filterOpened,
@@ -1140,6 +1145,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               showPageSize={ showPageSize }
               paginationHandler={ pagination ? this._handlePagination.bind(this) : null }
               total={ pagination ? _total : _entities.length }
+              sizeOptions={ sizeOptions }
               { ...range } />
           </Basic.Div>
         }
@@ -1330,8 +1336,10 @@ const makeMapStateToProps = () => {
     const ui = state.data.ui[uiKey];
     const result = {
       i18nReady: state.config.get('i18nReady'),
-      appShowId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.id', null),
-      showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false)
+      appShowId: ConfigurationManager.showId(state),
+      showTransactionId: ConfigurationManager.showTransactionId(state),
+      defaultPageSize: ConfigurationManager.getDefaultPageSize(state),
+      sizeOptions: ConfigurationManager.getSizeOptions(state)
     };
     //
     if (!ui) {
@@ -1344,8 +1352,7 @@ const makeMapStateToProps = () => {
       _total: ui.total,
       _searchParameters: ui.searchParameters,
       _error: ui.error,
-      _backendBulkActions: component.manager.supportsBulkAction() ? DataManager.getData(state, component.manager.getUiKeyForBulkActions()) : null,
-      _isDevelopment: ConfigurationManager.getEnvironmentStage(state) === 'development'
+      _backendBulkActions: component.manager.supportsBulkAction() ? DataManager.getData(state, component.manager.getUiKeyForBulkActions()) : null
     };
   };
   return mapStateToProps;

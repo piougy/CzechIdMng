@@ -5,6 +5,7 @@ import Helmet from 'react-helmet';
 //
 import { AuditManager, DataManager } from '../../redux';
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import AuditDetailTable from './AuditDetailTable';
 import AuditDetailInfo from './AuditDetailInfo';
 
@@ -123,15 +124,14 @@ class AuditDetail extends Basic.AbstractContent {
 
     return (
       <Basic.Row>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={ this.i18n('title') } />
 
-        <Basic.PageHeader>
-          <Basic.Icon value="eye-open"/>
-          {' '}
-          {this.i18n('header')}
-          {' '}
-          <small>{this.i18n('detail')}</small>
-        </Basic.PageHeader>
+        <Advanced.DetailHeader
+          icon="eye-open">
+          { this.i18n('header') }
+          { ' ' }
+          <small>{ this.i18n('detail') }</small>
+        </Advanced.DetailHeader>
 
         <Basic.Panel>
           <Basic.PanelBody style={{ padding: '0 15px' }}>

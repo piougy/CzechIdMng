@@ -364,6 +364,15 @@ export default class EntityManager {
    * @param  {string} uiKey - ui key for loading indicator etc.
    */
   queueFetchPermissions(id, uiKey = null, cb = null) {
+    if (!id) {
+      if (cb) {
+        cb();
+      }
+      return {
+        type: EMPTY
+      };
+    }
+    //
     return (dispatchOuter, getStateOuter) => {
       if (getStateOuter().security.userContext.isExpired) {
         return dispatchOuter({

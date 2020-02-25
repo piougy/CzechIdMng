@@ -10,9 +10,10 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Dto for profile
+ * Dto for identity profile - setting.
  * 
  * @author Radek Tomiška
  *
@@ -28,8 +29,14 @@ public class IdmProfileDto extends AbstractDto  {
 	@Embedded(dtoClass = IdmAttachmentDto.class)
 	private UUID image;
 	@Size(max = DefaultFieldLengths.ENUMARATION)
+	@ApiModelProperty(notes = "This localization will be choosed right after log in.")
 	private String preferredLanguage;
+	@ApiModelProperty(notes = "Side menu will be collapsed, icons will be shown only.")
 	private boolean navigationCollapsed;
+	@ApiModelProperty(notes = "Tables will show given count of records by default, default application setting will be used otherwise.")
+	private boolean systemInformation;
+	@ApiModelProperty(notes = "Show internal entity identifiers, user transactions, logs and other system information.")
+	private Integer defaultPageSize;
 
 	public IdmProfileDto() {
 	}
@@ -68,5 +75,45 @@ public class IdmProfileDto extends AbstractDto  {
 	
 	public void setNavigationCollapsed(boolean navigationCollapsed) {
 		this.navigationCollapsed = navigationCollapsed;
+	}
+	
+	/**
+	 * Show internal system information like identifiers, detail logs etc.
+	 * 
+	 * @return if internal system information will be shown
+	 * @since 10.2.0 
+	 */
+	public boolean isSystemInformation() {
+		return systemInformation;
+	}
+	
+	/**
+	 * Show internal system information like identifiers, detail logs etc.
+	 * 
+	 * @param systemInformation if internal system information will be shown
+	 * @since 10.2.0
+	 */
+	public void setSystemInformation(boolean systemInformation) {
+		this.systemInformation = systemInformation;
+	}
+	
+	/**
+	 * Default page size used in tables.
+	 * 
+	 * @return default page size
+	 * @since 10.2.0
+	 */
+	public Integer getDefaultPageSize() {
+		return defaultPageSize;
+	}
+	
+	/**
+	 * Default page size used in tables.
+	 * 
+	 * @param defaultPageSize default page size
+	 * @since 10.2.0
+	 */
+	public void setDefaultPageSize(Integer defaultPageSize) {
+		this.defaultPageSize = defaultPageSize;
 	}
 }

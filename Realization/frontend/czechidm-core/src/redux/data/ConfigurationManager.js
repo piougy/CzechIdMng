@@ -7,7 +7,13 @@ import DataManager from './DataManager';
 import { Actions, Properties } from '../config/constants';
 
 export const EMPTY = 'VOID_ACTION'; // dispatch cannot return null
+export const DEFAULT_SIZE_OPTIONS = [10, 25, 50, 100];
 
+/**
+ * Application configuration.
+ *
+ * @author Radek Tomiška
+ */
 export default class ConfigurationManager extends EntityManager {
 
   constructor() {
@@ -177,7 +183,7 @@ export default class ConfigurationManager extends EntityManager {
    * Returns setting value as boolean. Return false, when setting is null,
    * or given value in third parameter defaultValue.
    *
-   * @param  {redux state} state
+   * @param  {redux} state
    * @param  {string} key
    * @param  {boolean} defautl value
    * @return {boolean}
@@ -204,7 +210,7 @@ export default class ConfigurationManager extends EntityManager {
   /**
    * Returns environment stage [development, production, test]
    *
-   * @param  {redux state} state
+   * @param  {redux} state
    * @return {string} stage [development, production, test]
    */
   static getEnvironmentStage(state) {
@@ -213,6 +219,97 @@ export default class ConfigurationManager extends EntityManager {
       return environment.toLowerCase();
     }
     return null;
+  }
+
+  /**
+   * Show internal system information.
+   *
+   * @param  {redux} state redux state
+   * @return {boolean}
+   */
+  static showSystemInformation(state) {
+    const userContext = state.security.userContext;
+    if (userContext && userContext.profile) {
+      return !!userContext.profile.systemInformation;
+    }
+    //
+    return false;
+  }
+
+  /**
+   * Show internal entity idednifier.
+   *
+   * @param  {redux} state redux state
+   * @return {boolean}
+   * @since 10.2.0
+   */
+  static showId(state) {
+    let show = ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.id', null);
+    if (show === null || show === undefined) {
+      // by app prop
+      show = ConfigurationManager.getEnvironmentStage(state) === 'development';
+    }
+    //
+    return show || ConfigurationManager.showSystemInformation(state);
+  }
+
+  /**
+   * Show user transaction identifier.
+   *
+   * @param  {redux} state redux state
+   * @return {boolean}
+   * @since 10.2.0
+   */
+  static showTransactionId(state) {
+    const show = ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false);
+    //
+    return show || ConfigurationManager.showSystemInformation(state);
+  }
+
+  /**
+   * Configured size options for table pagination.
+   *
+   * @param  {redux} state
+   * @return {array}
+   * @since 10.2.0
+   */
+  static getSizeOptions(state) {
+    const sizeOptionValue = ConfigurationManager.getPublicValue(state, 'idm.pub.app.show.sizeOptions');
+    //
+    if (!sizeOptionValue) {
+      return DEFAULT_SIZE_OPTIONS;
+    }
+    //
+    const sizeOptions = sizeOptionValue
+      .split(',')
+      .map(size => {
+        return parseInt(size.trim(), 10);
+      })
+      .filter(size => {
+        return size !== undefined && size !== null && !_.isNaN(size);
+      });
+    //
+    if (sizeOptions.length === 0) {
+      return DEFAULT_SIZE_OPTIONS;
+    }
+    //
+    return sizeOptions;
+  }
+
+  /**
+   * Show user transaction identifier.
+   *
+   * @param  {redux} state redux state
+   * @return {int} dafault page size
+   * @since 10.2.0
+   */
+  static getDefaultPageSize(state) {
+    const userContext = state.security.userContext;
+    if (userContext && userContext.profile) {
+      return userContext.profile.defaultPageSize;
+    }
+    //
+    return null; // TODO: config loaded default?
   }
 }
 

@@ -50,7 +50,13 @@ class ContractSliceDetail extends Basic.AbstractContent {
    * TODO: prevent set state in did mount
    */
   _setSelectedEntity(entity) {
-    const treeType = entity._embedded && entity._embedded.workPosition && entity._embedded.workPosition._embedded ? entity._embedded.workPosition._embedded.treeType : null;
+    const treeType = (
+      entity._embedded && entity._embedded.workPosition && entity._embedded.workPosition._embedded
+      ?
+      entity._embedded.workPosition._embedded.treeType
+      :
+      null
+    );
     const entityFormData = _.merge({}, entity);
     //
     this.setState({

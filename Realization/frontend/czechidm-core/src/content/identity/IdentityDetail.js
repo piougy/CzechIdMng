@@ -173,17 +173,17 @@ class IdentityDetail extends Basic.AbstractContent {
     const blockLoginDate = identity && identity.blockLoginDate ? moment(identity.blockLoginDate).format(this.i18n('format.datetime')) : null;
     //
     return (
-      <div className="identity-detail">
+      <Basic.Div className="identity-detail">
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Helmet title={ identity && identity.id === userContext.id ? this.i18n('title') : this.i18n('content.identity.profile.userDetail') } />
-        <form onSubmit={this.onSave.bind(this)}>
+        <form onSubmit={ this.onSave.bind(this) }>
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={ this.i18n('header') }/>
             <Basic.Alert
               ref="blockLoginDate"
               level="warning"
               rendered={ blockLoginDate !== null }
-              text={this.i18n('blockLoginDate', { date: blockLoginDate })} />
+              text={ this.i18n('blockLoginDate', { date: blockLoginDate }) } />
 
             <Basic.AbstractForm
               ref="form"
@@ -318,7 +318,7 @@ class IdentityDetail extends Basic.AbstractContent {
             </Basic.Button>
           </Basic.Modal.Footer>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

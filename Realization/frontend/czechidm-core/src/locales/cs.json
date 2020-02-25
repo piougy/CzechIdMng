@@ -461,6 +461,12 @@
           }
         }
       },
+      "AuditableInfo": {
+        "header": "Systémové informace",
+        "link": {
+          "title": "Zobrazit systémové informace"
+        }
+      },
       "EntitySelectBox": {
         "componentNotFound": "Komponenta pro select box typu [{{entityType}}] není zaregistrovaná. Opravte konfiguraci komponent.",
         "defaultHelpBlock": "Vyhledávání je realizováno v těchto atributech: {{searchInFields}}."
@@ -643,6 +649,9 @@
         "textCreator": "Vytvořit novou filtrovací hodnotu: [{{value}}]?",
         "noResultsText": "Vytvořte nové hodnoty pro filtrování",
         "searchPromptText": "Začněte psát pro vytvoření nových filtrovacích hodnot ..."
+      },
+      "CloseButton": {
+        "title": "Zavřít detail"
       }
     }
   },
@@ -2578,6 +2587,10 @@
           "title": "Pozice v organizační struktuře"
         }
       },
+      "profile-setting": {
+        "header": "Uživatelské nastavení",
+        "title": "Uživatelské nastavení"
+      },
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
@@ -3524,6 +3537,11 @@
       "title": "Naposledy upraveno"
     },
     "creator": "Vytvořil",
+    "modifier": {
+      "short": "Upravil",
+      "label": "Naposledy upravil",
+      "title": "Naposledy upravil uživatel"
+    },
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
     "code": {
@@ -3560,6 +3578,28 @@
       "disabledReadonly": {
         "label": "$t(label.disabled)",
         "help": "Neaktivní uživatel se nemůže přihlásit. Aktivita je řízena stavem uživatele."
+      }
+    },
+    "Profile": {
+      "_type": "Profil uživatele - nastavení",
+      "image": {
+        "label": "Profilová fotka"
+      },
+      "preferredLanguage": {
+        "label": "Vybraná lokalizace",
+        "help": "Tato lokalizace se po uložení nastaví. Tato lokalizace bude automaticky nastavena i po přihlášení do aplikace."
+      },
+      "navigationCollapsed": {
+        "label": "Zmenšené postranní menu",
+        "help": "Postranní menu aplikace bude zmenšené, budou zobrazeny pouze ikony."
+      },
+      "defaultPageSize": {
+        "label": "Výchozí počet záznamů na stránce",
+        "help": "Tabulky budou ve výchozím stavu zobrazovat zadaný počet záznamů. Pokud není nastaveno, bude se počet záznamů řídit nastavením aplikace. Po změně je nutný refresh (F5) aplikace (znovunačtení stavu tabulek)."
+      },
+      "systemInformation": {
+        "label": "Zobrazovat systémové informace",
+        "help": "Zobrazovat interní identifikátory entit, transkací, detailní logy a další systémové informace."
       }
     },
     "Password": {

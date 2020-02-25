@@ -1,5 +1,18 @@
 @import '../../variables.less';
 
+
+.flag {
+  text-decoration: none;
+  background-position: center center;
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 10px;
+  width: 20px;
+
+  &.cs { background-image: url('../images/flags/cs.gif'); }
+  &.en { background-image: url('../images/flags/en.gif'); }
+}
+
 header {
   // padding-top: 70px;
 
@@ -112,9 +125,6 @@ header {
         height: 20px;
         cursor: pointer;
 
-        &.cs { background-image: url('../images/flags/cs.gif'); }
-        &.en { background-image: url('../images/flags/en.gif'); }
-
         &.active {
           background-color: @idm-base-color;
           border-color: @idm-link-color;
@@ -128,6 +138,23 @@ header {
         &.last {
           margin-right: 0px;
         }
+      }
+    }
+  }
+
+  .dropdown-menu {
+
+    min-width: 300px;
+
+    li {
+      a {
+        padding: 7px 15px;
+      }
+
+      &.identity-image {
+        padding: 0px 15px 5px 15px;
+        border-bottom: 1px solid lighten(@idm-base-color, 15%);
+        margin-bottom: 5px;
       }
     }
   }

@@ -63,6 +63,7 @@ Single navigation item parameters:
 | order | number | Item order in merged navigation | 0 |
 | priority | number | Is used for overiding item in some module. Item with the same id and highest priority will be shown. | 0 |
 | path | string | Path for react router is used, when navigation item is active (onClick). | |
+| modal | string | Modal component identifier - modal will be shown instead redirect to given path above. | |
 | access | arrayOf(object) | See previous section. | [{ type: 'IS_AUTHENTICATED' }] |
 | items | string | sub navigation items. Only two levels are supported now.  | ||
 

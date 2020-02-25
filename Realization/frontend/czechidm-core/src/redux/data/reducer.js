@@ -78,7 +78,7 @@ const INITIAL_STATE = {
  *
  * @author Radek Tomiška
  */
-export function data(state = INITIAL_STATE, action) {
+export default function reduce(state = INITIAL_STATE, action) {
   const uiKey = action.uiKey;
   switch (action.type) {
     case REQUEST_ENTITIES: {
@@ -337,4 +337,12 @@ export function data(state = INITIAL_STATE, action) {
       return state;
     }
   }
+}
+
+
+/**
+ * Simple function wrapper to assing name to default export
+ */
+export function data(state, action) {
+  return reduce(state, action);
 }

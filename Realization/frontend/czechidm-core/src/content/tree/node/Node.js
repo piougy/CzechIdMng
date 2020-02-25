@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
@@ -9,6 +8,11 @@ import * as Advanced from '../../../components/advanced';
 
 const manager = new TreeNodeManager();
 
+/**
+ * Trre node detail
+ *
+ * @author Radek Tomiška
+ */
 class Node extends Basic.AbstractContent {
 
   componentDidMount() {
@@ -17,24 +21,22 @@ class Node extends Basic.AbstractContent {
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
   }
 
-  componentDidUpdate() {
-  }
-
   render() {
     const { entity, showLoading } = this.props;
 
     return (
-      <div>
-        <Helmet title={this.i18n('navigation.menu.profile')} />
-
-        <Basic.PageHeader showLoading={!entity && showLoading}>
-          {manager.getNiceLabel(entity)} <small> {this.i18n('content.tree.node.detail.header')}</small>
-        </Basic.PageHeader>
+      <Basic.Div>
+        <Advanced.DetailHeader
+          icon="apple"
+          entity={ entity }
+          showLoading={ !entity && showLoading }>
+          { manager.getNiceLabel(entity) } <small> { this.i18n('content.tree.node.detail.header') }</small>
+        </Advanced.DetailHeader>
 
         <Advanced.TabPanel parentId="tree-nodes" match={ this.props.match }>
-          {this.getRoutes()}
+          { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

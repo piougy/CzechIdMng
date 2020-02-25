@@ -429,6 +429,12 @@
           }
         }
       },
+      "AuditableInfo": {
+        "header": "System information",
+        "link": {
+          "title": "Show system information"
+        }
+      },
       "EntitySelectBox": {
         "componentNotFound": "Select box component for type [{{entityType}}] is not registered. Fix component descriptor.",
         "defaultHelpBlock": "Searching is done in the following attributes: {{searchInFields}}."
@@ -610,6 +616,9 @@
         "textCreator": "Create a new filtering option: [{{value}}]?",
         "noResultsText": "Create new values for filtering",
         "searchPromptText": "Start typing for create new options for filtering ..."
+      },
+      "CloseButton": {
+        "title": "Close detail"
       }
     }
   },
@@ -2525,6 +2534,10 @@
           "title": "Position in organizational structure"
         }
       },
+      "profile-setting": {
+        "header": "User setting",
+        "title": "User setting"
+      },
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
@@ -3471,6 +3484,11 @@
       "title": "Last changed"
     },
     "creator": "Creator",
+    "modifier": {
+      "short": "Modifier",
+      "label": "Last modifier",
+      "title": "Last modified by user"
+    },
     "validFrom": "Valid from",
     "validTill": "Valid till",
     "code": {
@@ -3507,6 +3525,28 @@
       "disabledReadonly": {
         "label": "$t(label.disabled)",
         "help": "$t(label.disabled) identity cannot log in. It's controlled by the state."
+      }
+    },
+    "Profile": {
+      "_type": "User profile - setting",
+      "image": {
+        "label": "Profile image"
+      },
+      "preferredLanguage": {
+        "label": "Prefered language",
+        "help": "This localization will be choosed after save and right after user log in."
+      },
+      "navigationCollapsed": {
+        "label": "Collapse side menu",
+        "help": "Side menu will be collapsed, icons will be shown only."
+      },
+      "defaultPageSize": {
+        "label": "Default page size",
+        "help": "Tables will show given count of records by default, default application setting will be used otherwise. Application refresh is needed (F5) after change (initialize tables state)."
+      },
+      "systemInformation": {
+        "label": "Show system information",
+        "help": "Show internal entity identifiers, user transactions, logs and other system information."
       }
     },
     "Password": {

@@ -28,14 +28,14 @@ export default class RoleCatalogues extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
-        {this.renderPageHeader()}
+      <Basic.Div>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
-          <RoleCatalogueTable uiKey="role_catalogue_table" roleCatalogueManager={this.roleCatalogueManager}/>
+          <RoleCatalogueTable uiKey="role_catalogue_table" roleCatalogueManager={ this.roleCatalogueManager }/>
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

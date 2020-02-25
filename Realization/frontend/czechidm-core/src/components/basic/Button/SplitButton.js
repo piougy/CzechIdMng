@@ -40,7 +40,7 @@ class BasicSplitButton extends AbstractComponent {
               :
               null
             }
-            {_showLoadingText}
+            { _showLoadingText }
           </span>
           :
           title
@@ -48,8 +48,8 @@ class BasicSplitButton extends AbstractComponent {
       </span>
     );
     return (
-      <SplitButton bsStyle={level} disabled={disabled || showLoading} title={_title} {...others}>
-        {this.props.children}
+      <SplitButton bsStyle={ level } disabled={ disabled || showLoading } title={ _title } { ...others }>
+        { this.props.children }
       </SplitButton>
     );
   }

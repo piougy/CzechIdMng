@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../components/basic';
-import { SecurityManager, DataManager, IdentityManager } from '../redux';
+import { IdentityManager } from '../redux';
 import ComponentService from '../services/ComponentService';
 import IdentityDashboard from './identity/IdentityDashboard';
 
@@ -26,19 +26,6 @@ class Dashboard extends Basic.AbstractContent {
     };
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    //
-    const { userContext } = this.props;
-    if (userContext) {
-      this.context.store.dispatch(
-        identityManager.fetchAuthorities(userContext.username, `identity-authorities-${ userContext.username }`, (entity, error) => {
-          this.handleError(error);
-        })
-      );
-    }
-  }
-
   getContentKey() {
     return 'content.dashboard';
   }
@@ -48,14 +35,12 @@ class Dashboard extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext, authorities, identity } = this.props;
-    const _authorities = authorities ? authorities.map(authority => authority.authority) : null;
-
+    const { userContext, identity } = this.props;
     this.props.match.params = { ...this.props.match.params, entityId: userContext.username };
     //
     return (
       <div>
-        <IdentityDashboard dashboard match={this.props.match}/>
+        <IdentityDashboard dashboard match={ this.props.match }/>
         <Basic.Div rendered={ !!identity }>
           {
             [...componentService.getComponentDefinitions(ComponentService.DASHBOARD_COMPONENT_TYPE).map(component => {
@@ -68,23 +53,6 @@ class Dashboard extends Basic.AbstractContent {
             }).values()]
           }
         </Basic.Div>
-
-        <div className="hidden">
-          <Basic.Alert level="info">
-            Super Admin:
-            {
-              SecurityManager.hasAuthority('APP_ADMIN', { authorities: _authorities, isAuthenticated: true })
-              ?
-              'yes'
-              :
-              'no'
-            }
-            (monitoring, event queue)
-            <br />
-            Loaded authorities:
-            { _authorities ? _authorities.join(', ') : '[N/A]' }
-          </Basic.Alert>
-        </div>
       </div>
     );
   }
@@ -102,7 +70,6 @@ function select(state) {
   //
   return {
     userContext,
-    authorities: userContext ? DataManager.getData(state, `identity-authorities-${ userContext.username }`) : null,
     identity: identityManager.getEntity(state, userContext.username),
   };
 }

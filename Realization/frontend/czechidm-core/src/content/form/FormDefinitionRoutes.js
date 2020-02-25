@@ -17,10 +17,6 @@ const manager = new FormDefinitionManager();
  */
 class FormDefinitionRoutes extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.formDefinitions';
   }
@@ -40,28 +36,31 @@ class FormDefinitionRoutes extends Basic.AbstractContent {
   _getIsNew() {
     const { query } = this.props.location;
     if (query) {
-      return query.new ? true : false;
+      return !!query.new;
     }
     return false;
   }
 
   render() {
-    const { entity } = this.props;
+    const { entity, showLoading } = this.props;
     return (
-      <div>
+      <Basic.Div>
         {
           this._getIsNew()
           ?
-          <Helmet title={this.i18n('create.title')} />
+          <Helmet title={ this.i18n('create.title') } />
           :
-          <Helmet title={this.i18n('edit.title')} />
+          <Helmet title={ this.i18n('edit.title') } />
         }
         {
-          (this._getIsNew() || !entity )
+          (this._getIsNew() || !entity)
           ||
-          <Basic.PageHeader>
-            <span>{entity.name} <small>{this.i18n('edit')}</small></span>
-          </Basic.PageHeader>
+          <Advanced.DetailHeader
+            entity={ entity }
+            showLoading={ showLoading }
+            to="/forms">
+            { manager.getNiceLabel(entity)} <small> { this.i18n('edit') }</small>
+          </Advanced.DetailHeader>
         }
         {
           this._getIsNew()
@@ -69,11 +68,11 @@ class FormDefinitionRoutes extends Basic.AbstractContent {
           <FormDefinitionDetail isNew match={ this.props.match } />
           :
           <Advanced.TabPanel position="left" parentId="forms" match={ this.props.match }>
-            {this.getRoutes()}
+            { this.getRoutes() }
           </Advanced.TabPanel>
         }
 
-      </div>
+      </Basic.Div>
     );
   }
 }

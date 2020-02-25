@@ -493,7 +493,7 @@ EntityEventTable.defaultProps = {
 
 function select(state, component) {
   return {
-    showTransactionId: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.transactionId', false),
+    showTransactionId: ConfigurationManager.showTransactionId(state),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     auditedEntities: auditManager.prepareOptionsFromAuditedEntitiesNames(auditManager.getAuditedEntitiesNames(state))
   };

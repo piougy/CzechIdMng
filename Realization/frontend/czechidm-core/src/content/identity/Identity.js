@@ -4,8 +4,8 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
-import { IdentityManager, DataManager } from '../../redux';
 import * as Advanced from '../../components/advanced';
+import { IdentityManager, DataManager } from '../../redux';
 import OrganizationPosition from './OrganizationPosition';
 
 const identityManager = new IdentityManager();
@@ -52,10 +52,12 @@ class IdentityContent extends Basic.AbstractContent {
     const { entityId } = match.params;
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={ this.i18n('navigation.menu.profile') } />
 
-        <Basic.PageHeader>
+        <Advanced.DetailHeader
+          entity={ identity }
+          to="/identities">
           {
             _imageUrl
             ?
@@ -66,17 +68,17 @@ class IdentityContent extends Basic.AbstractContent {
           { ' ' }
           { identityManager.getNiceLabel(identity) }
           <small>
-            {' '}
+            { ' ' }
             { this.i18n('content.identity.profile.userDetail') }
           </small>
-        </Basic.PageHeader>
+        </Advanced.DetailHeader>
 
         <OrganizationPosition identity={ entityId }/>
 
-        <Advanced.TabPanel position="left" parentId="identity-profile" match={match}>
-          {this.getRoutes()}
+        <Advanced.TabPanel position="left" parentId="identity-profile" match={ match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

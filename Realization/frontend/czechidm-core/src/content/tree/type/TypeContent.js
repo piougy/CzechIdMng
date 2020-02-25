@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
 import { TreeTypeManager } from '../../../redux';
 import TypeDetail from './TypeDetail';
@@ -12,7 +13,9 @@ import TypeConfiguration from './TypeConfiguration';
 const treeTypeManager = new TreeTypeManager();
 
 /**
- * Type detail content
+ * Type detail content.
+ *
+ * @author Radek Tomiška
  */
 class TypeContent extends Basic.AbstractContent {
 
@@ -25,6 +28,8 @@ class TypeContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entityId } = this.props.match.params;
     if (this._getIsNew()) {
       this.context.store.dispatch(treeTypeManager.receiveEntity(entityId, { }));
@@ -42,24 +47,22 @@ class TypeContent extends Basic.AbstractContent {
   render() {
     const { entity, showLoading } = this.props;
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-        {
-          !entity
-          ||
-          <Basic.PageHeader>
-            <Basic.Icon value="fa:server"/>
-            {' '}
-            {
-              this._getIsNew()
-              ?
-              this.i18n('create')
-              :
-              <span>{entity.name} <small>{this.i18n('edit')}</small></span>
-            }
-          </Basic.PageHeader>
-        }
+        <Advanced.DetailHeader
+          icon="fa:folder-open"
+          entity={ entity }
+          showLoading={ !entity && showLoading }
+          to="/tree/types">
+          {
+            this._getIsNew()
+            ?
+            this.i18n('create')
+            :
+            <span>{ treeTypeManager.getNiceLabel(entity) } <small>{ this.i18n('edit') }</small></span>
+          }
+        </Advanced.DetailHeader>
 
         {
           (!entity || Utils.Entity.isNew(entity))
@@ -76,7 +79,7 @@ class TypeContent extends Basic.AbstractContent {
           }
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

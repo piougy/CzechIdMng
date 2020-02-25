@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 - New method ``ReadWriteDtoService#deleteAll(Iterable<DTO>, BasePermission)`` was added into service layer - shortcut to delete all dtos in one transaction.
 - LRT ``CancelProvisioningQueueTaskExecutor`` is deprecated. LRT is not used, use bulk action ``ProvisioningOperationCancelBulkAction`` instead.
+- [#2068](https://redmine.czechidm.com/issues/2068) - New menu section for identity (``identity-menu``) was added into module descriptors. This menu is shown from top navigation under logged identity username - this menu is replacement for previously defined **item with id ``identities-profile-system``, which is not configurable in module descriptor (section ``system``) and cannot be disabled now.** Items in this menu is registerable as other items in module descriptor.
 
 ## [10.1.0]
 

@@ -126,6 +126,7 @@ export default class ComponentService {
     }
     return this.getComponentByEntityType(ComponentService.ICON_COMPONENT_TYPE, iconType);
   }
+
 }
 // reserved component types
 ComponentService.ENTITY_INFO_COMPONENT_TYPE = 'entity-info';
@@ -136,3 +137,4 @@ ComponentService.FORM_ATTRIBUTE_RENDERER = 'form-attribute-renderer';
 ComponentService.ENTITY_SELECT_BOX_COMPONENT_TYPE = 'entity-select-box';
 ComponentService.PASSWORD_CHANGE_COMPONENTS_TYPE = 'password-change-component';
 ComponentService.ICON_COMPONENT_TYPE = 'icon';
+ComponentService.MODAL_COMPONENT_TYPE = 'modal';

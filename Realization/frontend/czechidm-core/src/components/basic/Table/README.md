@@ -168,7 +168,9 @@ class Team extends AbstractContent {
             </Table>
           <Pagination
             paginationHandler={this._handlePagination.bind(this)}
-            total={total} page={searchParameters.getPage()} size={searchParameters.getSize()} />
+            total={total}
+            page={searchParameters.getPage()}
+            size={searchParameters.getSize()} />
         </Panel>
       </div>
     );

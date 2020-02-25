@@ -33,7 +33,7 @@ const INITIAL_STATE = {
  *
  * @author Radek Tomiška
  */
-export function security(state = INITIAL_STATE, action) {
+export default function reduce(state = INITIAL_STATE, action) {
   switch (action.type) {
     case REQUEST_LOGIN: {
       return _.merge({}, state, {
@@ -112,4 +112,11 @@ export function security(state = INITIAL_STATE, action) {
     default:
       return state;
   }
+}
+
+/**
+ * Simple function wrapper to assing name to default export
+ */
+export function security(state, action) {
+  return reduce(state, action);
 }

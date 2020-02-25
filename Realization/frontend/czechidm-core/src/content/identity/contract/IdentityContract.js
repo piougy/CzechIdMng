@@ -47,21 +47,25 @@ class IdentityContract extends Basic.AbstractContent {
     match.params = paramsResult;
 
     return (
-      <div>
-        <Basic.PageHeader showLoading={!entity && showLoading}>
-          {manager.getNiceLabel(entity)} <small> {this.i18n('content.identity-contract.detail.header')}</small>
-        </Basic.PageHeader>
+      <Basic.Div>
+        <Advanced.DetailHeader
+          icon="component:contract"
+          entity={ entity }
+          showLoading={ !entity && showLoading }
+          to={ entity ? `/identity/${ encodeURIComponent(entity.identity) }/contracts` : null }>
+          { manager.getNiceLabel(entity) } <small> { this.i18n('content.identity-contract.detail.header') }</small>
+        </Advanced.DetailHeader>
 
         <OrganizationPosition identity={ params.identityId }/>
         <Basic.Alert
-          rendered={!!(entity && entity.controlledBySlices)}
+          rendered={ !!(entity && entity.controlledBySlices) }
           level="info"
-          text={this.i18n('content.identity-contract.detail.alert.controlledBySlices')}/>
+          text={ this.i18n('content.identity-contract.detail.alert.controlledBySlices') }/>
 
-        <Advanced.TabPanel parentId="profile-contracts" match={match}>
-          {this.getRoutes()}
+        <Advanced.TabPanel parentId="profile-contracts" match={ match }>
+          { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

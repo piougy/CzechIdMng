@@ -13,12 +13,9 @@ const manager = new FormAttributeManager();
  * Form attribute detail -> detail with vertical menu
  *
  * @author Roman Kučera
+ * @author Radek Tomiška
  */
 class FormAttributeRoutes extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.formAttributes';
@@ -41,7 +38,7 @@ class FormAttributeRoutes extends Basic.AbstractContent {
   _getIsNew() {
     const { query } = this.props.location;
     if (query) {
-      return query.new ? true : false;
+      return !!query.new;
     }
     return false;
   }
@@ -52,22 +49,26 @@ class FormAttributeRoutes extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity } = this.props;
+    const { entity, showLoading } = this.props;
+    //
     return (
-      <div>
+      <Basic.Div>
         {
           this._getIsNew()
           ?
-          <Helmet title={this.i18n('create.title')} />
+          <Helmet title={ this.i18n('create.title') } />
           :
-          <Helmet title={this.i18n('edit.title')} />
+          <Helmet title={ this.i18n('edit.title') } />
         }
         {
           (this._getIsNew() || !entity)
           ||
-          <Basic.PageHeader>
-            <span>{entity.name} <small>{this.i18n('edit.title')}</small></span>
-          </Basic.PageHeader>
+          <Advanced.DetailHeader
+            entity={ entity }
+            showLoading={ showLoading }
+            to={ `/forms/${ entity ? entity.formDefinition : this._getFormDefinitionId() }/attributes` }>
+            { manager.getNiceLabel(entity)} <small> { this.i18n('edit.title') }</small>
+          </Advanced.DetailHeader>
         }
         {
           this._getIsNew()
@@ -75,11 +76,10 @@ class FormAttributeRoutes extends Basic.AbstractContent {
           <FormAttributeDetail isNew formDefinition={ this._getFormDefinitionId() } match={ this.props.match } />
           :
           <Advanced.TabPanel position="left" parentId="forms-attributes" match={ this.props.match }>
-            {this.getRoutes()}
+            { this.getRoutes() }
           </Advanced.TabPanel>
         }
-
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -57,17 +57,20 @@ class Role extends Basic.AbstractContent {
     }
     const isRequest = this.isRequest(this.props.match.params);
     return (
-      <div>
-        <Basic.PageHeader showLoading={!entity && showLoading}>
-          <Basic.Icon value="component:role"/>
-          {' '}
+      <Basic.Div>
+        <Advanced.DetailHeader
+          icon="component:role"
+          entity={ entity }
+          showLoading={ !entity && showLoading }
+          to="/roles">
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
-        </Basic.PageHeader>
-        <Basic.Row rendered={_requestsEnabled
+        </Advanced.DetailHeader>
+        <Basic.Row rendered={
+          _requestsEnabled
             && !isRequest
             && originalRoleManager.canSave(entity, _permissions)
             && SecurityManager.hasAuthority('REQUEST_CREATE')
-          }>
+        }>
           <Basic.Col lg={ 12 }>
             <Basic.Alert
               level="info"
@@ -78,9 +81,8 @@ class Role extends Basic.AbstractContent {
                 <Basic.Button
                   level="info"
                   onClick={ this._createRequestRole.bind(this) }
-                  titlePlacement="bottom">
-                  <Basic.Icon type="fa" icon="key"/>
-                  {' '}
+                  titlePlacement="bottom"
+                  icon="component:role-request">
                   { this.i18n('content.roles.button.createRequest.label') }
                 </Basic.Button>
               ]}/>
@@ -89,7 +91,7 @@ class Role extends Basic.AbstractContent {
         <Advanced.TabPanel parentId={this.isRequest(this.props.match.params) ? 'request-roles' : 'roles'} match={ this.props.match }>
           { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

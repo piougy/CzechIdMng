@@ -5,7 +5,9 @@ import { Link } from 'react-router-dom';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
+import { ConfigurationManager } from '../../../redux';
 import UuidInfo from '../UuidInfo/UuidInfo';
+import AuditableInfo from './AuditableInfo';
 
 /**
  * Entity info renderer - common methods.
@@ -18,7 +20,9 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     super(props, context);
     //
     this.state = {
-      error: null
+      error: null,
+      showAuditableInfo: false,
+      showSystemInformation: !context.store ? false : ConfigurationManager.showSystemInformation(context.store.getState())
     };
   }
 
@@ -150,6 +154,16 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     return true;
   }
 
+  onShowAuditableInfo(show, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    this.setState({
+      showAuditableInfo: show
+    });
+  }
+
   /**
    * Returns true, when disabled decorator has to be used
    *
@@ -218,6 +232,23 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     );
   }
 
+  _renderSystemInformationIcon() {
+    const { showSystemInformation, showAuditableInfo } = this.state;
+    //
+    return (
+      <Basic.Icon
+        value="fa:cog"
+        style={{
+          color: showAuditableInfo ? '#000' : '#ccc',
+          marginLeft: 10,
+          cursor: 'pointer'
+        }}
+        title={ this.i18n('component.advanced.AuditableInfo.link.title') }
+        onClick={ this.onShowAuditableInfo.bind(this, !showAuditableInfo) }
+        rendered={ showSystemInformation }/>
+    );
+  }
+
   /**
    * Renders nicelabel used in text and link face
    */
@@ -274,8 +305,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         className="abstract-entity-info-popover"
         onEnter={ this.onEnter.bind(this) }>
         {
-          <span
-            style={ style }>
+          <span style={ style }>
             { this._renderIcon(entity) }
             <span
               className="popover-link"
@@ -293,6 +323,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    */
   _renderFull(entity) {
     const { className, style } = this.props;
+    const { showAuditableInfo } = this.state;
     const _entity = entity || this.getEntity();
     //
     const panelClassNames = classNames(
@@ -305,26 +336,35 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     return (
       <Basic.Panel className={panelClassNames} style={style}>
         <Basic.PanelHeader>
-          <div className="pull-left">
-            <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
-            { this.getPopoverTitle(_entity) }
-          </div>
-          {
-            !this.isDisabled(_entity)
-            ||
-            <div className="pull-right">
-              <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
-            </div>
-          }
-          <div className="clearfix"/>
+          <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
+            <Basic.Div style={{ flex: 1 }}>
+              <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
+              { this.getPopoverTitle(_entity) }
+            </Basic.Div>
+            <Basic.Div>
+              {
+                !this.isDisabled(_entity)
+                ||
+                <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
+              }
+              { this._renderSystemInformationIcon() }
+            </Basic.Div>
+          </Basic.Div>
         </Basic.PanelHeader>
 
-        <Basic.Table
-          condensed
-          hover={ false }
-          noHeader
-          data={ this.getPopoverContent(_entity) }
-          children={ this.getTableChildren() } />
+        {
+          showAuditableInfo
+          ?
+          <AuditableInfo entity={ _entity } face="content" showAuditLink={ false }/>
+          :
+          <Basic.Table
+            condensed
+            hover={ false }
+            noHeader
+            data={ this.getPopoverContent(_entity) }>
+            { this.getTableChildren() }
+          </Basic.Table>
+        }
 
         {
           !this.showLink()

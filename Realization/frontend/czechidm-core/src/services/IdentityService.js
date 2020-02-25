@@ -278,6 +278,9 @@ class IdentityService extends FormableEntityService {
     return RestApiService
       .get(`${ this.getApiPath() }/${ encodeURIComponent(identityId) }/profile`, token)
       .then(response => {
+        if (response.status === 404 || response.status === 204) {
+          return null;
+        }
         return response.json();
       })
       .then(json => {

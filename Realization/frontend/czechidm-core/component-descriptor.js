@@ -565,6 +565,11 @@ module.exports = {
       component: require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
       labelKey: 'core:component.advanced.EavForm.faceType.WORKFLOW-DEFINITION-SELECT',
       manager: require('./src/redux').WorkflowProcessDefinitionManager
+    },
+    {
+      id: 'profile-modal',
+      type: 'modal',
+      component: require('./src/content/modals/Profile')
     }
   ]
 };

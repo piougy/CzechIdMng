@@ -10,11 +10,14 @@ const manager = new RoleCatalogueManager();
 /**
  * Role's catalogue tab panel
  *
- * @author Kučera
+ * @author Roman Kučera
+ * @author Radek Tomiška
  */
 class RoleCatalogue extends Basic.AbstractContent {
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entityId } = this.props.match.params;
     //
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
@@ -26,15 +29,19 @@ class RoleCatalogue extends Basic.AbstractContent {
     const { entity, showLoading } = this.props;
 
     return (
-      <div>
-        <Basic.PageHeader showLoading={!entity && showLoading}>
-          { manager.getNiceLabel(entity)} <small> {this.i18n('content.roleCatalogues.edit.header') }</small>
-        </Basic.PageHeader>
+      <Basic.Div>
+        <Advanced.DetailHeader
+          icon="fa:list-alt"
+          entity={ entity }
+          showLoading={ showLoading }
+          to="/role-catalogues">
+          { manager.getNiceLabel(entity)} <small> { this.i18n('content.roleCatalogues.edit.header') }</small>
+        </Advanced.DetailHeader>
 
         <Advanced.TabPanel parentId="role-catalogues" match={ this.props.match }>
           { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

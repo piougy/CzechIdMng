@@ -3,6 +3,7 @@ import i18next from 'i18next';
 import XHR from 'i18next-xhr-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Cache from 'i18next-localstorage-cache';
+//
 require('moment/locale/cs');
 // supported languages by default
 const SUPPORTED_LANGUAGES = ['cs', 'en'];
@@ -110,7 +111,7 @@ export default class LocalizationService {
           // expiration
           expirationTime: 24 * 60 * 60 * 1000
         }
-      }, (error)=> {
+      }, (error) => {
         cb(error);
       });
   }

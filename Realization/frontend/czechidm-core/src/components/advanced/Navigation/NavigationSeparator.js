@@ -12,8 +12,9 @@ export default class NavigationSeperator extends Basic.AbstractContextComponent 
 
   render() {
     const { text } = this.props;
+    //
     return (
-      <li className="nav-separator">
+      <li className="nav-separator divider" role="separator">
         { text }
       </li>
     );

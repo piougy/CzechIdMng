@@ -116,7 +116,7 @@ class CodeListDetail extends Basic.AbstractContent {
                 required/>
               <Basic.TextField
                 ref="name"
-                label={ this.i18n('entity.CodeList.name.label' )}
+                label={ this.i18n('entity.CodeList.name.label') }
                 max={ 255 }
                 required/>
               <Basic.TextArea

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
+import { SearchParameters } from '../../../domain';
 
 /**
  * Pagination for table etc. Supports:
@@ -18,7 +19,7 @@ class Pagination extends AbstractContextComponent {
     this.state = {
       currentPage: this.props.page,
       changePage: this.props.page + 1,
-      currentSize: this.props.size
+      currentSize: this.props.size || SearchParameters.getDefaultSize()
     };
   }
 
@@ -26,7 +27,7 @@ class Pagination extends AbstractContextComponent {
     this.setState({
       currentPage: nextProps.page,
       changePage: nextProps.page + 1,
-      currentSize: nextProps.size
+      currentSize: nextProps.size || SearchParameters.getDefaultSize()
     }, () => {
       if (nextProps.total && (nextProps.total <= (nextProps.page * nextProps.size))) {
         // index of bound - load last page
@@ -222,13 +223,13 @@ class Pagination extends AbstractContextComponent {
       return null;
     }
     return (
-      <form onSubmit={this._submitChangedPage.bind(this)}>
+      <form onSubmit={ this._submitChangedPage.bind(this) }>
         { this.i18n('component.basic.Table.Pagination.page.title') }
         <input
           type="text"
           className="form-control"
-          value={changePage}
-          onChange={this._changePage.bind(this)}/>
+          value={ changePage }
+          onChange={ this._changePage.bind(this) }/>
         { `${ this.i18n('component.basic.Table.Pagination.from')} ${ maxPage + 1 }` }
       </form>
     );
@@ -254,7 +255,7 @@ class Pagination extends AbstractContextComponent {
       }
     }
     const sizes = [...sizeOptions.map(availableSize => (
-      <option key={`size-${availableSize}`} value={availableSize}>{availableSize}</option>
+      <option key={ `size-${ availableSize }` } value={ availableSize }>{ availableSize }</option>
     )).values()];
     //
     return (
@@ -266,11 +267,11 @@ class Pagination extends AbstractContextComponent {
           totalRecords && paginationHandler && sizeOptions[0] < totalRecords && showPageSize
           ?
           <div>
-            {this.i18n('component.basic.Table.Pagination.size')}
+            { this.i18n('component.basic.Table.Pagination.size') }
             <select
-              value={currentSize}
-              onChange={this._changeSize.bind(this)}>
-              {sizes}
+              value={ currentSize }
+              onChange={ this._changeSize.bind(this) }>
+              { sizes }
             </select>
           </div>
           :
@@ -292,18 +293,18 @@ class Pagination extends AbstractContextComponent {
           ?
           <div className="row">
             <div className="col-sm-3 text-left">
-              {pages}
+              { pages }
             </div>
             <div className="col-sm-6">
-              {pagination}
+              { pagination }
             </div>
             <div className="col-sm-3">
-              {records}
+              { records }
             </div>
           </div>
           :
           <div>
-            {records}
+            { records }
           </div>
         }
       </div>
@@ -341,7 +342,7 @@ Pagination.propTypes = {
 Pagination.defaultProps = {
   total: null,
   page: 0,
-  size: 10,
+  size: SearchParameters.getDefaultSize(),
   paginationHandler: null,
   sizeOptions: [10, 25, 50, 100],
   showPageSize: true

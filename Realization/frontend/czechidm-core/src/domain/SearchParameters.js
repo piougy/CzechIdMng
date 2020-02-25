@@ -10,7 +10,7 @@ import ConfigLoader from '../utils/ConfigLoader';
  */
 export default class SearchParameters {
 
-  constructor(name = null, page = 0, size = SearchParameters.getDefaultSize()) {
+  constructor(name = null, page = 0, size = null) {
     this.name = name;
     this.page = page;
     this.size = size;
@@ -54,10 +54,10 @@ export default class SearchParameters {
   /**
    * Pageable size
    *
-   * @param {number} size = SearchParameters.DEFAULT_SIZE
+   * @param {number} size = null
    * @return {SearchParameters} new copy
    */
-  setSize(size = SearchParameters.getDefaultSize()) {
+  setSize(size = null) {
     const newState = this._clone();
     newState.size = size;
     return newState;
@@ -240,19 +240,19 @@ export default class SearchParameters {
   toUrl() {
     let url = '';
     if (this.name) { // if search name is setted - else default endpoint is used
-      url += `/search/${this.name}`;
+      url += `/search/${ this.name }`;
     }
-    url += `?size=${this.size}&page=${this.page}`;
+    url += `?size=${ this.size || SearchParameters.getDefaultSize() }&page=${ this.page }`;
     // pageable
     this.sorts.forEach((ascending, property) => {
-      url += `&sort=${property},` + (ascending ? 'asc' : 'desc');
+      url += `&sort=${ property },${ (ascending ? 'asc' : 'desc') }`;
     });
     // filterable
     this.filters.forEach((filter, property) => {
       if (filter !== null && filter !== undefined) {
         if (_.isArray(filter)) {
           filter.forEach(singleValue => {
-            url += `&${property}=${encodeURIComponent(singleValue)}`;
+            url += `&${ property }=${ encodeURIComponent(singleValue) }`;
           });
         } else if (_.isObject(filter)) {
           // expand nested properties
@@ -261,11 +261,11 @@ export default class SearchParameters {
               continue;
             }
             if (filter[nestedProperty] !== null && filter[nestedProperty] !== undefined) {
-              url += `&${nestedProperty}=${encodeURIComponent(filter[nestedProperty])}`;
+              url += `&${ nestedProperty }=${ encodeURIComponent(filter[nestedProperty]) }`;
             }
           }
         } else {
-          url += `&${property}=${encodeURIComponent(filter)}`;
+          url += `&${ property }=${ encodeURIComponent(filter) }`;
         }
       }
     });
@@ -355,8 +355,9 @@ export default class SearchParameters {
   }
 
   /**
-   * Returns configured page size or constant DEFAULT_SIZE
+   * Returns configured page size (by frontend configuration) or constant DEFAULT_SIZE
    *
+   * @deprecated use ConfigurationManager#getDefaultSize() instead - work with identity profile.
    * @return {int} default page size
    */
   static getDefaultSize() {
@@ -395,8 +396,7 @@ export default class SearchParameters {
           filters[field] = filledValues;
         } else {
           // if filterComponent does not useSymbol
-          let filledValues;
-          filledValues = filterValues[property];
+          const filledValues = filterValues[property];
           filters[field] = filledValues;
         }
       } else {
@@ -464,7 +464,7 @@ SearchParameters.DEFAULT_SIZE = 10;
  */
 SearchParameters.MAX_SIZE = 500;
 /**
- * Blank UUID. Can be use for sitiuations when we don't have ID for some entity, but we need use some "default" value.
+ * Blank UUID. Can be use for sitiuation when we don't have ID for some entity, but we need use some "default" value.
  * @type {String}
  */
 SearchParameters.BLANK_UUID = '00000000-0000-0000-0000-000000000000';

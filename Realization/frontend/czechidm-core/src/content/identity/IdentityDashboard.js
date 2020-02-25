@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { IdentityManager, DataManager, ConfigurationManager } from '../../redux';
 import ComponentService from '../../services/ComponentService';
@@ -149,25 +150,32 @@ class IdentityDashboard extends Basic.AbstractContent {
     return (
       <Basic.Div>
         <Basic.PageHeader>
-          {
-            _imageUrl
-            ?
-            <img src={ _imageUrl } alt="profile" className="img-circle img-thumbnail" style={{ height: 40, padding: 0 }} />
-            :
-            <Basic.Icon icon="component:identity" identity={ identity } />
-          }
-          {' '}
-          { identityManager.getNiceLabel(identity) }
-          <small>
-            {' '}
-            {
-              this.isDashboard()
-              ?
-              this.i18n('content.identity.dashboard.header')
-              :
-              this.i18n('navigation.menu.profile.label')
-            }
-          </small>
+          <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
+            <Basic.Div style={{ flex: 1 }}>
+              {
+                _imageUrl
+                ?
+                <img src={ _imageUrl } alt="profile" className="img-circle img-thumbnail" style={{ height: 40, padding: 0 }} />
+                :
+                <Basic.Icon icon="component:identity" identity={ identity } />
+              }
+              {' '}
+              { identityManager.getNiceLabel(identity) }
+              <small>
+                {' '}
+                {
+                  this.isDashboard()
+                  ?
+                  this.i18n('content.identity.dashboard.header')
+                  :
+                  this.i18n('navigation.menu.profile.label')
+                }
+              </small>
+            </Basic.Div>
+            <Basic.Div style={{ fontSize: '0.85em' }}>
+              <Advanced.AuditableInfo entity={ identity }/>
+            </Basic.Div>
+          </Basic.Div>
         </Basic.PageHeader>
 
         <OrganizationPosition identity={ identityIdentifier } showLink={ false }/>

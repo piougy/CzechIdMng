@@ -2,6 +2,7 @@ import Table from './Table/Table';
 import Column from './Table/Column';
 import ColumnLink from './Table/ColumnLink';
 import RefreshButton from './Table/RefreshButton';
+import CloseButton from './Button/CloseButton';
 import IdentityInfo from './IdentityInfo/IdentityInfo';
 import Navigation from './Navigation/Navigation';
 import TabPanel from './TabPanel/TabPanel';
@@ -57,12 +58,15 @@ import Icons from './Icon/Icons';
 import AbstractIdentityDashboardButton from './Button/AbstractIdentityDashboardButton';
 import RoleRequestInfo from './RoleRequestInfo/RoleRequestInfo';
 import PasswordInfo from './PasswordInfo/PasswordInfo';
+import AuditableInfo from './EntityInfo/AuditableInfo';
+import DetailHeader from './COntent/DetailHeader';
 
 const Components = {
   Table,
   Column,
   ColumnLink,
   RefreshButton,
+  CloseButton,
   IdentityInfo,
   Navigation,
   TabPanel,
@@ -119,7 +123,9 @@ const Components = {
   Icons,
   AbstractIdentityDashboardButton,
   RoleRequestInfo,
-  PasswordInfo
+  PasswordInfo,
+  AuditableInfo,
+  DetailHeader
 };
 
 Components.version = '9.4.0';

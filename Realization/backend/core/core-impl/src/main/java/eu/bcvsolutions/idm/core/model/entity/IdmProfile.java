@@ -57,6 +57,14 @@ public class IdmProfile extends AbstractEntity implements AttachableEntity {
 	@Audited
 	@Column(name = "navigation_collapsed", nullable = false)
 	private boolean navigationCollapsed;
+	
+	@Audited
+	@Column(name = "system_information", nullable = false)
+	private boolean systemInformation;
+	
+	@Audited
+	@Column(name = "default_page_size", nullable = true)
+	private Integer defaultPageSize;
 
 	public IdmProfile() {
 	}
@@ -95,5 +103,45 @@ public class IdmProfile extends AbstractEntity implements AttachableEntity {
 	
 	public void setNavigationCollapsed(boolean navigationCollapsed) {
 		this.navigationCollapsed = navigationCollapsed;
+	}
+	
+	/**
+	 * Show internal system information like identifiers, detail logs etc.
+	 * 
+	 * @return if internal system information will be shown
+	 * @since 10.2.0 
+	 */
+	public boolean isSystemInformation() {
+		return systemInformation;
+	}
+	
+	/**
+	 * Show internal system information like identifiers, detail logs etc.
+	 * 
+	 * @param systemInformation if internal system information will be shown
+	 * @since 10.2.0
+	 */
+	public void setSystemInformation(boolean systemInformation) {
+		this.systemInformation = systemInformation;
+	}
+	
+	/**
+	 * Default page size used in tables.
+	 * 
+	 * @return default page size
+	 * @since 10.2.0
+	 */
+	public Integer getDefaultPageSize() {
+		return defaultPageSize;
+	}
+	
+	/**
+	 * Default page size used in tables.
+	 * 
+	 * @param defaultPageSize default page size
+	 * @since 10.2.0
+	 */
+	public void setDefaultPageSize(Integer defaultPageSize) {
+		this.defaultPageSize = defaultPageSize;
 	}
 }

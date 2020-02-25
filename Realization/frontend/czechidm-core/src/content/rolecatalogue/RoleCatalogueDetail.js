@@ -30,6 +30,8 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entity } = this.props;
     if (entity !== undefined) {
       this.refs.form.setData(entity);
@@ -83,7 +85,7 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
     const { showLoading } = this.state;
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={ Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
 
         <form onSubmit={ this.save.bind(this) }>
@@ -152,7 +154,7 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-      </div>
+      </Basic.Div>
     );
   }
 }

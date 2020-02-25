@@ -17,10 +17,6 @@ const MOD_ADD = 'ADD';
 */
 export class AuditDetailTable extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   componentDidMount() {
   }
 
@@ -69,7 +65,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
         } else {
           const row = {
             key,
-            'value': revisionValues[key]
+            value: revisionValues[key]
           };
           transformData[index] = row;
 

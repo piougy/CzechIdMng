@@ -27,10 +27,15 @@ class TypeDetail extends Basic.AbstractContent {
     return 'content.tree.types';
   }
 
-  componentDidMount() {
-    const { entity } = this.props;
-    this.selectNavigationItem('tree-types');
+  getNavigationKey() {
+    return 'tree-types';
+  }
 
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    const { entity } = this.props;
+    //
     if (entity !== undefined) {
       const data = {
         ...entity,

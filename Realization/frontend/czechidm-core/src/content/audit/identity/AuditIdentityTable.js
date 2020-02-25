@@ -19,10 +19,6 @@ const auditManager = new AuditManager();
 */
 export class AuditIdentityTable extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.audit';
   }
@@ -83,7 +79,7 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
             </div>
             <div className="col-lg-4">
               <Advanced.Filter.TextField
-                ref="id"
+                ref="entityId"
                 placeholder={this.i18n('content.audit.identities.identityId')}/>
             </div>
           </Basic.Row>
@@ -126,7 +122,9 @@ export class AuditIdentityTable extends Advanced.AbstractTableContent {
 
   _getForceSearchParameters() {
     const { username, id } = this.props;
-    let forceSearchParameters = new SearchParameters('entity').setFilter('withVersion', true).setFilter('ownerType', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity'); // TODO: this isn't best way, hard writen class
+    let forceSearchParameters = new SearchParameters('entity')
+      .setFilter('withVersion', true)
+      .setFilter('ownerType', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity'); // TODO: this isn't best way, hard writen class
     if (username) {
       forceSearchParameters = forceSearchParameters.setFilter('ownerCode', username);
     }

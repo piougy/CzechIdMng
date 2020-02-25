@@ -15,10 +15,6 @@ const manager = new LongRunningTaskManager();
  */
 export default class AllTasks extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.scheduler.all-tasks';
   }
@@ -32,7 +28,7 @@ export default class AllTasks extends Basic.AbstractContent {
     return (
       <Basic.Div>
         <Helmet title={ this.i18n('title') } />
-        <LongRunningTaskTable manager={ manager } uiKey= {UIKEY }/>
+        <LongRunningTaskTable manager={ manager } uiKey={ UIKEY }/>
       </Basic.Div>
     );
   }

@@ -17,10 +17,6 @@ const manager = new CodeListManager();
  */
 class CodeListRoutes extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.code-lists';
   }
@@ -40,7 +36,7 @@ class CodeListRoutes extends Basic.AbstractContent {
   _getIsNew() {
     const { query } = this.props.location;
     if (query) {
-      return query.new ? true : false;
+      return !!query.new;
     }
     return false;
   }
@@ -56,13 +52,12 @@ class CodeListRoutes extends Basic.AbstractContent {
           :
           <Helmet title={this.i18n('edit.title')} />
         }
-        {
-          (this._getIsNew() || !entity )
-          ||
-          <Basic.PageHeader>
-            <span>{ manager.getNiceLabel(entity) } <small>{ this.i18n('edit.title') }</small></span>
-          </Basic.PageHeader>
-        }
+        <Advanced.DetailHeader
+          entity={ entity }
+          to="/code-lists"
+          rendered={ !this._getIsNew() && entity }>
+          <span>{ manager.getNiceLabel(entity) } <small>{ this.i18n('edit.title') }</small></span>
+        </Advanced.DetailHeader>
         {
           this._getIsNew()
           ?
@@ -72,7 +67,6 @@ class CodeListRoutes extends Basic.AbstractContent {
             { this.getRoutes() }
           </Advanced.TabPanel>
         }
-
       </div>
     );
   }

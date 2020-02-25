@@ -24,11 +24,13 @@ class System extends Basic.AbstractContent {
     //
     return (
       <Basic.Div>
-        <Basic.PageHeader showLoading={ !entity && showLoading }>
-          <Basic.Icon icon="component:system"/>
-          { ' ' }
+        <Advanced.DetailHeader
+          icon="component:system"
+          entity={ entity }
+          showLoading={ !entity && showLoading }
+          to={ entity.virtual === true ? '/vs/systems' : '/systems' }>
           { this.i18n('acc:content.system.detail.edit.header', { name: manager.getNiceLabel(entity), escape: false }) }
-        </Basic.PageHeader>
+        </Advanced.DetailHeader>
 
         <Advanced.TabPanel parentId="sys-systems" match={ this.props.match }>
           { this.getRoutes() }

@@ -52,7 +52,7 @@ class IdentityContract extends Basic.AbstractContent {
           icon="component:contract"
           entity={ entity }
           showLoading={ !entity && showLoading }
-          to={ entity ? `/identity/${ encodeURIComponent(entity.identity) }/contracts` : null }>
+          back={ entity ? `/identity/${ encodeURIComponent(entity.identity) }/contracts` : null }>
           { manager.getNiceLabel(entity) } <small> { this.i18n('content.identity-contract.detail.header') }</small>
         </Advanced.DetailHeader>
 

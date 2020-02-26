@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 //
@@ -194,8 +195,24 @@ class Profile extends Basic.AbstractContent {
   }
 
   render() {
-    const { show, onHide, showLoading, profile, _permissions, userContext, sizeOptions, _imageUrl, _imageLoading } = this.props;
+    const {
+      rendered,
+      show,
+      onHide,
+      showLoading,
+      profile,
+      _permissions,
+      userContext,
+      sizeOptions,
+      _imageUrl,
+      _imageLoading
+    } = this.props;
     const { showCropper, cropperSrc } = this.state;
+    //
+    if (!rendered) {
+      return null;
+    }
+    //
     const supportedLanguageOptions = this._supportedLanguageOptions();
     //
     return (
@@ -335,6 +352,22 @@ class Profile extends Basic.AbstractContent {
   }
 
 }
+
+Profile.propTypes = {
+  ...Basic.AbstractContent.propTypes,
+  /**
+   * Modal is shown.
+   */
+  show: PropTypes.bool,
+  /**
+   * onHide callback
+   */
+  onHide: PropTypes.func
+};
+
+Profile.defaultProps = {
+  ...Basic.AbstractContent.defaultProps
+};
 
 function select(state) {
   const identifier = state.security.userContext.username;

@@ -34,7 +34,7 @@ class RoleCatalogue extends Basic.AbstractContent {
           icon="fa:list-alt"
           entity={ entity }
           showLoading={ showLoading }
-          to="/role-catalogues">
+          back="/role-catalogues">
           { manager.getNiceLabel(entity)} <small> { this.i18n('content.roleCatalogues.edit.header') }</small>
         </Advanced.DetailHeader>
 

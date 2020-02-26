@@ -46,7 +46,7 @@ class ContractSlice extends Basic.AbstractContent {
           icon="component:contract-slice"
           entity={ entity }
           showLoading={ !entity && showLoading }
-          to={ entity ? `/identity/${ encodeURIComponent(identityId) }/contracts` : null }>
+          back={ entity ? `/identity/${ encodeURIComponent(identityId) }/contracts` : null }>
           { manager.getNiceLabel(entity) } <small> { this.i18n('content.contract-slice.detail.header') }</small>
         </Advanced.DetailHeader>
 

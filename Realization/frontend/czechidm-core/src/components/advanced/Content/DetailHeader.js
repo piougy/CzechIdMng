@@ -23,7 +23,7 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
       showLoading,
       icon,
       entity,
-      to,
+      back,
       children
     } = this.props;
     //
@@ -41,7 +41,7 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
           </Basic.Div>
           <Basic.Div style={{ fontSize: '0.85em' }}>
             <AuditableInfo entity={ entity }/>
-            <CloseButton to={ to } />
+            <CloseButton to={ back } />
           </Basic.Div>
         </Basic.Div>
       </Basic.PageHeader>
@@ -50,8 +50,19 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
 }
 
 DetailHeader.propTypes = {
-  // ...Basic.AbstractContextComponent.propTypes,
-  to: PropTypes.string
+  // ...Basic.AbstractContextComponent.propTypes, FIXME: showLoading in page header works, but test is broken, why?
+  /**
+   * Entity for show system information.
+   */
+  entity: PropTypes.object,
+  /**
+   * Header left icon
+   */
+  icon: PropTypes.string,
+  /**
+   * Close button path. Close button will not be shown, if empty.
+   */
+  back: PropTypes.string
 };
 
 DetailHeader.defaultProps = {

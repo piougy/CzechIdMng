@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -53,7 +54,15 @@ class PageHeader extends AbstractComponent {
 }
 
 PageHeader.propTypes = {
-  ...AbstractComponent.propTypes
+  ...AbstractComponent.propTypes,
+  /**
+   * Table Header
+   */
+  text: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  /**
+   * Header left icon
+   */
+  icon: PropTypes.string
 };
 
 PageHeader.defaultProps = {

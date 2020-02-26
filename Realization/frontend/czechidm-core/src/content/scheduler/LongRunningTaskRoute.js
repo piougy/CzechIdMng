@@ -39,7 +39,7 @@ class LongRunningTaskRoute extends Basic.AbstractContent {
         <Advanced.DetailHeader
           showLoading={ showLoading }
           entity={ entity }
-          to="/scheduler/all-tasks">
+          back="/scheduler/all-tasks">
           { entity ? Utils.Ui.getSimpleJavaType(entity.taskType) : null }<small> { this.i18n('detail.header') }</small>
         </Advanced.DetailHeader>
 

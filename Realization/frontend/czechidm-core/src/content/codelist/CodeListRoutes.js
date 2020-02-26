@@ -54,7 +54,7 @@ class CodeListRoutes extends Basic.AbstractContent {
         }
         <Advanced.DetailHeader
           entity={ entity }
-          to="/code-lists"
+          back="/code-lists"
           rendered={ !this._getIsNew() && entity }>
           <span>{ manager.getNiceLabel(entity) } <small>{ this.i18n('edit.title') }</small></span>
         </Advanced.DetailHeader>

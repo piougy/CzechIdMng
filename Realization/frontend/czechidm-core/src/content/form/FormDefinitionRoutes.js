@@ -58,7 +58,7 @@ class FormDefinitionRoutes extends Basic.AbstractContent {
           <Advanced.DetailHeader
             entity={ entity }
             showLoading={ showLoading }
-            to="/forms">
+            back="/forms">
             { manager.getNiceLabel(entity)} <small> { this.i18n('edit') }</small>
           </Advanced.DetailHeader>
         }

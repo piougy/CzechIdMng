@@ -29,7 +29,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
       .setFilter('ownership', true)
       .setFilter('supportChangePassword', true)
       .setFilter('identity', entityId);
-    this.context.store.dispatch(accountManager.fetchEntities(defaultSearchParameters, `${entityId}-accounts`));
+    this.context.store.dispatch(accountManager.fetchEntities(defaultSearchParameters, `${ entityId }-accounts`));
   }
 
   _getOptions() {
@@ -66,7 +66,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     const options = this._getOptions();
     //
     return (
-      <div>
+      <Basic.Div>
         {
           showLoading
           ?
@@ -79,7 +79,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
             requireOldPassword={ requireOldPassword }
             accountOptions={ options }/>
         }
-      </div>
+      </Basic.Div>
     );
   }
 

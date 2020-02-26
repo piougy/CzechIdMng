@@ -54,7 +54,7 @@ class TypeContent extends Basic.AbstractContent {
           icon="fa:folder-open"
           entity={ entity }
           showLoading={ !entity && showLoading }
-          to="/tree/types">
+          back="/tree/types">
           {
             this._getIsNew()
             ?

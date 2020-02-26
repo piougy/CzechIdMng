@@ -62,7 +62,7 @@ class Role extends Basic.AbstractContent {
           icon="component:role"
           entity={ entity }
           showLoading={ !entity && showLoading }
-          to="/roles">
+          back="/roles">
           { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
         </Advanced.DetailHeader>
         <Basic.Row rendered={

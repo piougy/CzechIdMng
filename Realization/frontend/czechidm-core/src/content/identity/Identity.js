@@ -57,7 +57,7 @@ class IdentityContent extends Basic.AbstractContent {
 
         <Advanced.DetailHeader
           entity={ identity }
-          to="/identities">
+          back="/identities">
           {
             _imageUrl
             ?

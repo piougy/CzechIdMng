@@ -33,17 +33,22 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDiffDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
+import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditEntityDto;
 import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.audit.entity.IdmAudit_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import io.swagger.annotations.Api;
@@ -332,7 +337,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 		if (!RevisionType.DEL.name().equals(dto.getModification())) {
 			UUID entityId = dto.getEntityId();
 			if (entityId == null || StringUtils.isEmpty(dto.getType())) {
-				return; // just form sure - IdmAudit entity doesn't specify it as required (but it should be)
+				return; // just for sure - IdmAudit entity doesn't specify it as required (but it should be)
 			}
 			try {
 				if (!loadedDtos.containsKey(entityId)) {
@@ -342,10 +347,8 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 			} catch (IllegalArgumentException ex) {
 				LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", dto.getType(), ex);
 			}
-
 		}
-
-		// For subowner, some entities doesn't support owner and subowner
+		// For subowner, some entities doesn't support owner and subowner.
 		if (dto.getSubOwnerId() != null) {
 			try {
 				UUID subOwnerId = UUID.fromString(dto.getSubOwnerId());
@@ -357,8 +360,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 				LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", dto.getSubOwnerType(), ex);
 			}
 		}
-
-		// For owner, some entities doesn't support owner and subowner
+		// For owner, some entities doesn't support owner and subowner.
 		if (dto.getOwnerId() != null) {
 			try {
 				UUID ownerId = UUID.fromString(dto.getOwnerId());
@@ -368,6 +370,20 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 				dto.getEmbedded().put(IdmAudit_.ownerId.getName(), loadedDtos.get(ownerId));
 			} catch (IllegalArgumentException ex) {
 				LOG.debug("Class [{}] not found on classpath (e.g. module was uninstalled)", dto.getSubOwnerType(), ex);
+			}
+		}
+		// Fill embedded contract for FE agenda (prevent to load contract for each row).
+		if ((dto instanceof IdmAuditEntityDto) && dto.getType().equals(IdmIdentityRole.class.getCanonicalName())) {
+			IdmAuditEntityDto auditEntity = (IdmAuditEntityDto) dto;
+			if (auditEntity.getEntity().containsKey(IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT)
+					&& !auditEntity.getEmbedded().containsKey(IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT)) {
+				UUID contractId = DtoUtils.toUuid(auditEntity.getEntity().get(IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT));
+				if (contractId != null) {
+					if (!loadedDtos.containsKey(contractId)) {
+						loadedDtos.put(contractId, getLookupService().lookupDto(IdmIdentityContractDto.class, contractId));
+					}
+					auditEntity.getEmbedded().put(IdmIdentityRoleDto.PROPERTY_IDENTITY_CONTRACT, loadedDtos.get(contractId));
+				}				
 			}
 		}
 	}

@@ -523,6 +523,8 @@ def applicantIdentity = identityService.getByUsername(applicantUsername);
 
 def implementerIdentity = identityService.get(implementerIdentifier);
 
+def url = getUrl(entityEvent.content);
+
 //send notification
 if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
   if(sendNotificationToImplementer || sendNotificationToApplicant){
@@ -535,6 +537,7 @@ if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
        .addParameter("removedRoles", removedRoles)
        .addParameter("identity", applicantIdentity)
        .addParameter("from", from)
+       .addParameter("url", url)
      .build(),
      applicantIdentity
     );
@@ -550,6 +553,7 @@ if(sendNotificationToApplicant){
      .addParameter("removedRoles", removedRoles)
      .addParameter("identity", applicantIdentity)
      .addParameter("from", from)
+     .addParameter("url", url)
    .build(),
    applicantIdentity
   );
@@ -564,10 +568,25 @@ if(sendNotificationToApplicant){
        .addParameter("removedRoles", removedRoles)
        .addParameter("identity", applicantIdentity)
        .addParameter("from", from)
+       .addParameter("url", url)
      .build(),
      implementerIdentity
     );
   }
+}
+
+
+def getUrl(request){
+	if (request == null) {
+		return null;
+	}
+	String origins = configurationService.getValue("idm.pub.security.allowed-origins");
+	//
+	if (origins != null &amp;&amp; !origins.isEmpty()) {
+		String origin = origins.trim().split(",")[0];
+		return origin+"/#/role-requests/"+request.getId()+"/detail";
+	}
+	return null;
 }
 </script>
     </scriptTask>

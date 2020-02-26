@@ -31,6 +31,18 @@ export default class FormAttributeManager extends EntityManager {
   }
 
   /**
+   * Extended nice label.
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showDefinition form definition label will be rendered.
+   * @return {string}
+   * @since 10.2.0
+   */
+  getNiceLabel(entity, showDefinition = false) {
+    return this.getService().getNiceLabel(entity, showDefinition);
+  }
+
+  /**
    * Returns form value component by form attribute's face and persistent type
    *
    * @param  {FormAttribute} attribute
@@ -97,6 +109,6 @@ export default class FormAttributeManager extends EntityManager {
     const definitionPrefix = FormDefinitionManager.getLocalizationPrefix(_formDefinition, false);
     const resolvedModule = formAttribute.module || _formDefinition.module; // attribute module has higher priority
     //
-    return `${withModule && resolvedModule ? resolvedModule + ':' : ''}${definitionPrefix}.attributes.${Utils.Ui.spinalCase(formAttribute.code)}`;
+    return `${ (withModule && resolvedModule) ? `${ resolvedModule }:` : '' }${ definitionPrefix }.attributes.${ Utils.Ui.spinalCase(formAttribute.code) }`;
   }
 }

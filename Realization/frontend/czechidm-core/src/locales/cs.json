@@ -3704,6 +3704,7 @@
       "service": "Jméno služby"
     },
     "FormDefinition" : {
+      "_type": "Definice formuláře",
       "type": "Typ",
       "code": "Kód",
       "name": "Název",

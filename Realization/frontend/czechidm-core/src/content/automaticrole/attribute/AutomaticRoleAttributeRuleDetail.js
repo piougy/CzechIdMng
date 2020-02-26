@@ -3,11 +3,12 @@ import React from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
-import { AutomaticRoleAttributeRuleManager, FormAttributeManager } from '../../../redux';
+import { AutomaticRoleAttributeRuleManager, FormAttributeManager, FormDefinitionManager } from '../../../redux';
 import AutomaticRoleAttributeRuleTypeEnum from '../../../enums/AutomaticRoleAttributeRuleTypeEnum';
 import AutomaticRoleAttributeRuleComparisonEnum from '../../../enums/AutomaticRoleAttributeRuleComparisonEnum';
 import ContractStateEnum from '../../../enums/ContractStateEnum';
 import AbstractEnum from '../../../enums/AbstractEnum';
+
 /**
  * Constant for get eav attribute for identity contract
  * @type {String}
@@ -18,8 +19,9 @@ const CONTRACT_EAV_TYPE = 'eu.bcvsolutions.idm.core.model.entity.IdmIdentityCont
  * @type {String}
  */
 const IDENTITY_EAV_TYPE = 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity';
-
 const DEFINITION_TYPE_FILTER = 'definitionType';
+
+const formDefinitionManager = new FormDefinitionManager();
 
 /**
  * Modified ContractAttributeEnum - singular properties
@@ -260,8 +262,30 @@ IdentityAttributeEnum.TITLE_AFTER = Symbol('TITLE_AFTER');
 IdentityAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
 
 /**
+ * Form attrribute select box.
+ *
+ * @author Radek Tomiška
+ * @since 10.2.0
+ */
+class AttributeOptionDecorator extends Basic.SelectBox.OptionDecorator {
+
+  renderDescription(entity) {
+    if (!entity || !entity._embedded || !entity._embedded.formDefinition) {
+      return null;
+    }
+    //
+    return (
+      <Basic.Div style={{ color: '#555', fontSize: '0.95em', fontStyle: 'italic' }}>
+        { `${ this.i18n('entity.FormDefinition._type') }: ${ formDefinitionManager.getNiceLabel(entity._embedded.formDefinition, false) }` }
+      </Basic.Div>
+    );
+  }
+}
+
+/**
  * Detail rules of automatic role attribute
  *
+ * @author Ondrej Kopr
  */
 export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractContent {
 
@@ -719,7 +743,9 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
             label={ this.i18n('entity.AutomaticRole.attribute.formAttribute') }
             hidden={ typeForceSearchParameters === null }
             required={ !(typeForceSearchParameters === null) }
-            manager={ this.formAttributeManager }/>
+            manager={ this.formAttributeManager }
+            niceLabel={ (attribute) => this.formAttributeManager.getNiceLabel(attribute, true) }
+            optionComponent={ AttributeOptionDecorator }/>
           <Basic.Row>
             <Basic.Col lg={ hideValueField ? 12 : 4 }>
               <Basic.EnumSelectBox

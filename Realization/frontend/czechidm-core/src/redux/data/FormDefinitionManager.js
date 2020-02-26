@@ -24,6 +24,18 @@ export default class FormDefinitionManager extends EntityManager {
   }
 
   /**
+   * Extended nice label.
+   *
+   * @param  {entity} entity
+   * @param  {boolean} showType show form definition type
+   * @return {string}
+   * @since 10.2.0
+   */
+  getNiceLabel(entity, showType = true) {
+    return this.getService().getNiceLabel(entity, showType);
+  }
+
+  /**
    * Return search paramaters for endpoind with information about form definition types.
    */
   getDefinitionTypesSearchParameters() {
@@ -34,15 +46,15 @@ export default class FormDefinitionManager extends EntityManager {
     return (dispatch) => {
       dispatch(this.requestEntities(null, uiKey));
       this.getService().getTypes()
-      .then(json => {
-        if (cb) {
-          cb(json, null);
-        }
-        dispatch(this.dataManager.receiveData(uiKey, json));
-      })
-      .catch(error => {
-        dispatch(this.receiveError({}, uiKey, error, cb));
-      });
+        .then(json => {
+          if (cb) {
+            cb(json, null);
+          }
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          dispatch(this.receiveError({}, uiKey, error, cb));
+        });
     };
   }
 

@@ -3,17 +3,32 @@ import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
+/**
+ * Form definitions.
+ *
+ * @author Radek Tomiška
+ */
 class FormDefinitionService extends AbstractService {
 
   getApiPath() {
     return '/form-definitions';
   }
 
-  getNiceLabel(entity) {
+  getNiceLabel(entity, showType = true) {
     if (!entity) {
       return '';
     }
-    return `${entity.name} (${entity.code}) - ${Utils.Ui.getSimpleJavaType(entity.type)}`;
+    let label = '';
+    if (entity.name === entity.code) {
+      label = entity.name;
+    } else {
+      label = `${ entity.name } (${ entity.code })`;
+    }
+    if (showType) {
+      label += ` - ${ Utils.Ui.getSimpleJavaType(entity.type) }`;
+    }
+    //
+    return label;
   }
 
   getGroupPermission() {
@@ -34,16 +49,16 @@ class FormDefinitionService extends AbstractService {
   }
 
   getTypes() {
-    return RestApiService.get(this.getApiPath() + `/search/types`)
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+    return RestApiService.get(`${ this.getApiPath() }/search/types`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }
 

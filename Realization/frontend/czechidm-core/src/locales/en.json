@@ -3651,6 +3651,7 @@
       "service": "Service name"
     },
     "FormDefinition" : {
+      "_type": "Form definition",
       "type": "Type",
       "code": "Code",
       "name": "Name",

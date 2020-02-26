@@ -28,7 +28,7 @@ class System extends Basic.AbstractContent {
           icon="component:system"
           entity={ entity }
           showLoading={ !entity && showLoading }
-          to={ entity.virtual === true ? '/vs/systems' : '/systems' }>
+          back={ (entity && entity.virtual === true) ? '/vs/systems' : '/systems' }>
           { this.i18n('acc:content.system.detail.edit.header', { name: manager.getNiceLabel(entity), escape: false }) }
         </Advanced.DetailHeader>
 

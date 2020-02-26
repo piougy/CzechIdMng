@@ -6355,11 +6355,11 @@
       "message": "Autentizační token nebyl nalezen!"
     },
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
-      "message": "Role <strong>{{role}}</strong> obsahuje  <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. <strong>Před smazáním musíte nejdříve odstranit všechny vazby na uživatele.</strong>",
+      "message": "Role <strong>{{role}}</strong> obsahuje <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele. <strong>Před smazáním musíte nejdříve odstranit všechny vazby na uživatele.</strong>",
       "title": ""
     },
     "ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY": {
-      "message": "Mazaná role musí být odstraněna z [{{conceptCount}}] konceptů žádostí.To může nějakou dobu trvat.",
+      "message": "Mazaná role musí být odstraněna z <strong class=\"highlight\">{{conceptCount}}</strong> konceptů žádostí. To může nějakou dobu trvat.",
       "title": ""
     },
     "ROLE_COMPOSITION_ASSIGN_ROLE_FAILED": {

@@ -6303,11 +6303,11 @@
       "message": "Authenticate token not found!"
     },
     "ROLE_DELETE_BULK_ACTION_NUMBER_OF_IDENTITIES": {
-      "message": "Role <strong>{{role}}</strong> contains  <strong class=\"highlight\">{{count}}</strong> user relationships. <strong>Remove user relationships before role deletion.</strong>",
+      "message": "Role <strong>{{role}}</strong> contains <strong class=\"highlight\">{{count}}</strong> user relationships. <strong>Remove user relationships before role deletion.</strong>",
       "title": ""
     },
     "ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY": {
-      "message": "Deleted role needs to be removed from [{{conceptCount}}] request concepts. It may take some time.",
+      "message": "Deleted role needs to be removed from <strong class=\"highlight\">{{conceptCount}}</strong> request concepts. It may take some time.",
       "title": ""
     },
     "ROLE_COMPOSITION_ASSIGN_ROLE_FAILED": {

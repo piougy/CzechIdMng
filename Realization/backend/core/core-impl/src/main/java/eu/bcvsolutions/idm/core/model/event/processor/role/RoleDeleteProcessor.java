@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
@@ -40,7 +39,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
@@ -63,7 +61,6 @@ public class RoleDeleteProcessor
 	@Autowired private IdmRoleService service;
 	@Autowired private IdmIdentityRoleRepository identityRoleRepository;
 	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
-	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
@@ -141,12 +138,8 @@ public class RoleDeleteProcessor
 				// Cancel concept and WF
 				concept = conceptRoleRequestService.cancel(concept);
 			}
-			IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
-			roleRequestService.addToLog(request, message);
 			conceptRoleRequestService.addToLog(concept, message);
 			concept.setRole(null);
-
-			roleRequestService.save(request);
 			conceptRoleRequestService.save(concept);
 		});
 		//

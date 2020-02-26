@@ -23,8 +23,10 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -34,6 +36,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
  * Delete given roles
  *
  * @author svandav
+ * @author Ondrej Husnik
  *
  */
 @Component(RoleDeleteBulkAction.NAME)
@@ -46,6 +49,8 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 	private IdmRoleService roleService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmConceptRoleRequestService conceptRoleRequestService;
 
 	@Override
 	public String getName() {
@@ -75,7 +80,21 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 						ImmutableMap.of("role", role.getCode(), "count", count)), count);
 			}
 		});
+		
+		long conceptsToModify = entities //
+				.stream() //
+				.map(roleId -> {
+					IdmConceptRoleRequestFilter roleRequestFilter = new IdmConceptRoleRequestFilter();
+					roleRequestFilter.setRoleId(roleId);
+					return conceptRoleRequestService.find(roleRequestFilter, null).getTotalElements();
+				}).reduce(0L, Long::sum);
 
+		ResultModel conceptCountResult = null;
+		if (conceptsToModify > 0) {
+			conceptCountResult = new DefaultResultModel(CoreResultCode.ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY,
+					ImmutableMap.of("conceptCount", conceptsToModify));
+		}
+		
 		// Sort by count
 		List<Entry<ResultModel, Long>> collect = models //
 				.entrySet() //
@@ -86,6 +105,10 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 		collect.forEach(entry -> {
 			result.addInfo(entry.getKey());
 		});
+		
+		if (conceptCountResult != null) {
+			result.addInfo(conceptCountResult);
+		}
 
 		return result;
 	}

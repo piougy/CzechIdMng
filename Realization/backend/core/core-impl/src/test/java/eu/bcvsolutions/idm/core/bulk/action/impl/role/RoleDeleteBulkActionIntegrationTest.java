@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,8 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -171,5 +175,28 @@ public class RoleDeleteBulkActionIntegrationTest extends AbstractBulkActionTest 
 			IdmRoleDto roleDto = roleService.get(id);
 			assertNotNull(roleDto);
 		}
+	}
+	
+	@Test
+	public void prevalidationManyConceptsToModify() {
+		IdmRoleDto role = getHelper().createRole();
+		assertNotNull(role);
+
+		IdmIdentityDto identity = getHelper().createIdentity();
+		getHelper().createRoleRequest(identity, role);
+
+		Set<UUID> roleIds = new HashSet<UUID>();
+		roleIds.add(role.getId());
+		IdmBulkActionDto bulkAction = this.findBulkAction(IdmRole.class, RoleDeleteBulkAction.NAME);
+		bulkAction.setIdentifiers(roleIds);
+		ResultModels resultModels = bulkActionManager.prevalidate(bulkAction);
+		List<ResultModel> infos = resultModels //
+				.getInfos() //
+				.stream() //
+				.filter(info -> {
+					return CoreResultCode.ROLE_DELETE_BULK_ACTION_CONCEPTS_TO_MODIFY.getCode()
+							.equals(info.getStatusEnum());
+				}).collect(Collectors.toList());
+		assertEquals(1, infos.size());
 	}
 }

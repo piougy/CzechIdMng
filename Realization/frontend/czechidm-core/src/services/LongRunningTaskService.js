@@ -20,6 +20,10 @@ export default class LongRunningTaskService extends AbstractService {
     return '/long-running-tasks';
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';

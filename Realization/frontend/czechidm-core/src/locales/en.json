@@ -5169,6 +5169,21 @@
         "label": "$t(action.delete.action) values",
         "help": "$t(action.delete.action) selected values. Notify event will be published for value's owner (e.g. automatic roles or provisioning will be processed).",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-long-running-task-delete-bulk-action": {
+        "label": "$t(action.delete.action) tasks",
+        "help": "$t(action.delete.action) selected tasks.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-long-running-task-run-bulk-action": {
+        "label": "Run tasks",
+        "help": "Run selected tasks. Newly created tasks will be executed only.",
+        "icon": "play"
+      },
+      "core-long-running-task-cancel-bulk-action": {
+        "label": "Cancel tasks",
+        "help": "Cancel selected tasks. Newly created or running tasks will be canceled only.",
+        "icon": "remove"
       }
     },
     "authorization-evaluator": {
@@ -5356,7 +5371,7 @@
       "core-remove-old-logs-long-running-task": {
         "label": "Delete logging events",
         "help": "Delete logging events (persisted in database by logger configuration) older than given number of days.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "removerecordolderthan": {
             "label": "Number of days",
@@ -5367,7 +5382,7 @@
       "core-delete-executed-event-long-running-task": {
         "label": "Delete executed entity events",
         "help": "Delete sucessfully executed entity events (in the state 'EXECUTED') older than given number of days.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Number of days",
@@ -5378,7 +5393,7 @@
       "core-delete-long-running-task": {
         "label": "Delete long running tasks",
         "help": "Delete long running tasks older than given number of days.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Number of days",
@@ -5394,7 +5409,7 @@
       "core-delete-notification-long-running-task": {
         "label": "Delete notifications",
         "help": "Delete notifications older than given number of days.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Number of days",
@@ -5409,7 +5424,7 @@
       "core-delete-workflow-historic-instance-long-running-task": {
         "label": "Delete historic workflow processes",
         "help": "Delete historic workflow processes older than given number of days and with the given workflow definition.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Number of days",
@@ -5491,12 +5506,12 @@
       "core-identity-role-expiration-long-running-task": {
         "label": "Assigned roles expiration",
         "help": "Task removes expired assigned roles from users.",
-        "icon": "fa:trash"
+        "icon": "$t(action.delete.icon)"
       },
       "core-identity-contract-expiration-long-running-task": {
         "label": "Contracts expiration",
         "help": "Task removes expired assigned roles from users, which are assigned to expired contract.",
-        "icon": "fa:trash"
+        "icon": "$t(action.delete.icon)"
       }
     }
   },

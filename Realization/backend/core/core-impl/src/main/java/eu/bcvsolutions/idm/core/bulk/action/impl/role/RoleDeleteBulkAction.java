@@ -87,7 +87,8 @@ public class RoleDeleteBulkAction extends AbstractRemoveBulkAction<IdmRoleDto, I
 					IdmConceptRoleRequestFilter roleRequestFilter = new IdmConceptRoleRequestFilter();
 					roleRequestFilter.setRoleId(roleId);
 					return conceptRoleRequestService.find(roleRequestFilter, null).getTotalElements();
-				}).reduce(0L, Long::sum);
+				})
+				.reduce(0L, Long::sum);
 
 		ResultModel conceptCountResult = null;
 		if (conceptsToModify > 0) {

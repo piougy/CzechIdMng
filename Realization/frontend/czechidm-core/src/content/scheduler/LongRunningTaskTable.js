@@ -60,21 +60,6 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
   }
 
   /**
-   * Bulk action - process selected created tasks
-   *
-   * @param  {string} bulkActionValue 'processCreated'
-   * @param  {arrayOf(string)} tasks tasks ids
-   */
-  onProcessCreated(bulkActionValue, tasks) {
-    // TODO - bulk action should be used - see #onDelete()
-    for (let i = 0; i < tasks.length; i++) {
-      this.context.store.dispatch(this.getManager().processCreatedTask(tasks[i], 'task-queue-process-created', () => {
-        this.addMessage({ level: 'success', message: this.i18n('action.processCreated.success')});
-      }));
-    }
-  }
-
-  /**
    * Close modal detail
    */
   closeDetail() {
@@ -95,32 +80,6 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     this.context.store.dispatch(manager.processCreated('task-queue-process-created', () => {
       this.addMessage({ level: 'success', message: this.i18n('action.processCreated.success') });
     }));
-  }
-
-  /**
-   * Bulk delete operation
-   */
-  onCancel(bulkActionValue, selectedRows) {
-    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      this.context.store.dispatch(this.getManager().cancelEntities(selectedEntities, this.getUiKey(), (entity, error) => {
-        if (entity && error) {
-          if (error.statusCode !== 202) {
-            this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
-          } else {
-            this.addError(error);
-          }
-        } else {
-          this.refs.table.reload();
-        }
-      }));
-    }, () => {
-      // nothing
-    });
   }
 
   onRun(entity, event) {
@@ -157,10 +116,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     });
   }
 
-  /**
-   * FIXME: rename after #2066
-   */
-  onCancelTask(entity, event) {
+  onCancel(entity, event) {
     if (event) {
       event.preventDefault();
     }
@@ -185,8 +141,6 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
     const { filterOpened } = this.state;
     return (
       <Basic.Div>
-        <Basic.Confirm ref="confirm-cancel" level="warning"/>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Basic.Confirm ref="confirm-task-run" level="success"/>
         <Basic.Confirm ref="confirm-task-recover" level="warning">
           <Basic.Alert icon="warning-sign" level="warning" text={ this.i18n(`action.task-recover.warning.base`) } style={{ marginTop: 15 }}/>
@@ -230,14 +184,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={filterOpened}
-          actions={
-            [
-              { value: 'processCreated', niceLabel: this.i18n('action.processCreated.selectedButton'), action: this.onProcessCreated.bind(this), rendered: SecurityManager.hasAuthority('SCHEDULER_EXECUTE') },
-              { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.onCancel.bind(this), rendered: SecurityManager.hasAuthority('SCHEDULER_UPDATE') },
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), rendered: SecurityManager.hasAuthority('LONGRUNNINGTASK_DELETE'), disabled: false }
-            ]
-          }
+          filterOpened={ filterOpened }
           buttons={
             [
               <Basic.Button
@@ -245,7 +192,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                 key="start-button"
                 type="submit"
                 className="btn-xs"
-                rendered={SecurityManager.hasAuthority('SCHEDULER_EXECUTE')}
+                rendered={ SecurityManager.hasAuthority('SCHEDULER_EXECUTE') }
                 onClick={ this.processCreated.bind(this) }>
                 <Basic.Icon icon="play"/>
                 {' '}
@@ -363,8 +310,8 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                       className="btn-xs"
                       title={ this.i18n('button.cancel') }
                       titlePlacement="bottom"
-                      rendered={ entity.running && SecurityManager.hasAnyAuthority(['SCHEDULER_EXECUTE']) }
-                      onClick={ this.onCancelTask.bind(this, entity) }
+                      rendered={ entity.running && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE']) }
+                      onClick={ this.onCancel.bind(this, entity) }
                       icon="fa:cog fa-spin"/>
                     <Basic.Button
                       level="success"

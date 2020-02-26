@@ -269,17 +269,17 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 					// check permission failed
 					createPermissionFailedLog(entity);
 				}
-				//
-				//
-				if (!updateState()) {
-					return new OperationResult.Builder(OperationState.CANCELED).build();
-				}
+			} catch (ResultCodeException ex) {
+				// log failed result and continue
+				LOG.error("Processing of entity [{}] failed.", entityId, ex);
+				this.logItemProcessed(entity, new OperationResult.Builder(OperationState.EXCEPTION).setException(ex).build());
 			} catch (Exception ex) {
 				// log failed result and continue
 				LOG.error("Processing of entity [{}] failed.", entityId, ex);
 				this.logItemProcessed(entity, new OperationResult.Builder(OperationState.EXCEPTION).setCause(ex).build());
+			} finally {
 				if (!updateState()) {
-					return new OperationResult.Builder(OperationState.CANCELED).setCause(ex).build();
+					return new OperationResult.Builder(OperationState.CANCELED).build();
 				}
 			}
 		}

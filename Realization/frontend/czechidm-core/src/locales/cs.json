@@ -5221,6 +5221,21 @@
         "label": "$t(action.delete.action) hodnoty",
         "help": "Smaže vybrané hodnoty. Pro vlastníka hodnoty bude publikována událost pro přepočet automatických rolí, provisioning atd.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-long-running-task-delete-bulk-action": {
+        "label": "$t(action.delete.action) úlohy",
+        "help": "Smaže vybrané úlohy.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-long-running-task-run-bulk-action": {
+        "label": "Spustit úlohy",
+        "help": "Spustit vybrané úlohy. Spustí se pouze nově vytvořené úlohy.",
+        "icon": "play"
+      },
+      "core-long-running-task-cancel-bulk-action": {
+        "label": "Zrušit úlohy",
+        "help": "Zrušit vybrané úlohy. Zrušit se pouze nově vytvořené či běžící úlohy.",
+        "icon": "remove"
       }
     },
     "authorization-evaluator": {
@@ -5408,7 +5423,7 @@
       "core-remove-old-logs-long-running-task": {
         "label": "Smazat logované události",
         "help": "Smaže logované události (uložené v databázi dle konfigurace logování) starší, nežli zadaný počet dní.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "removerecordolderthan": {
             "label": "Počet dní",
@@ -5419,7 +5434,7 @@
       "core-delete-executed-event-long-running-task": {
         "label": "Smazat zpracované události",
         "help": "Smaže úspěšně zpracované události (ve stavu 'EXECUTED') starší, nežli zadaný počet dní.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Počet dní",
@@ -5430,7 +5445,7 @@
       "core-delete-long-running-task": {
         "label": "Smazat dlouhotrvající úlohy",
         "help": "Smaže dlouhotrvající úlohy starší, nežli zadaný počet dní.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Počet dní",
@@ -5446,7 +5461,7 @@
       "core-delete-notification-long-running-task": {
         "label": "Smazat notifikace",
         "help": "Smaže notifikace starší, nežli zadaný počet dní.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Počet dní",
@@ -5461,7 +5476,7 @@
       "core-delete-workflow-historic-instance-long-running-task": {
         "label": "Smazat historické workflow procesy",
         "help": "Smaže historické workflow procesy, nežli zadaný počet dní dané definice workflow.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Počet dní",
@@ -5543,12 +5558,12 @@
       "core-identity-role-expiration-long-running-task": {
         "label": "Vypršení platnosti přiřazených rolí",
         "help": "Zkontroluje a odebere neplané přiřazené role uživatelům.",
-        "icon": "fa:trash"
+        "icon": "$t(action.delete.icon)"
       },
       "core-identity-contract-expiration-long-running-task": {
         "label": "Vypršení platnosti pracovně právních vztahů",
         "help": "Zkontroluje a odebere uživatelům role, které jsou přiřazené na již neplatné pracovně právní vztahy.",
-        "icon": "fa:trash"
+        "icon": "$t(action.delete.icon)"
       }
     }
   },

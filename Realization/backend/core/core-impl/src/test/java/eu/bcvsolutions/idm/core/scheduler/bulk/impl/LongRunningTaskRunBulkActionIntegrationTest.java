@@ -21,12 +21,12 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
- * Delete long running tasks.
+ * Cancel long running tasks.
  * 
  * @author Radek Tomiška
  *
  */
-public class LongRunningTaskDeleteBulkActionIntegrationTest extends AbstractBulkActionTest {
+public class LongRunningTaskRunBulkActionIntegrationTest extends AbstractBulkActionTest {
 
 	@Autowired private IdmLongRunningTaskService service;
 	
@@ -44,7 +44,7 @@ public class LongRunningTaskDeleteBulkActionIntegrationTest extends AbstractBulk
 	public void processBulkActionByIds() {
 		List<IdmLongRunningTaskDto> tasks = createTasks(5);
 		
-		IdmBulkActionDto bulkAction = findBulkAction(IdmLongRunningTask.class, LongRunningTaskDeleteBulkAction.NAME);
+		IdmBulkActionDto bulkAction = findBulkAction(IdmLongRunningTask.class, LongRunningTaskRunBulkAction.NAME);
 		
 		Set<UUID> ids = this.getIdFromList(tasks);
 		bulkAction.setIdentifiers(ids);
@@ -53,7 +53,8 @@ public class LongRunningTaskDeleteBulkActionIntegrationTest extends AbstractBulk
 		checkResultLrt(processAction, 5l, null, null);
 		
 		for (UUID id : ids) {
-			Assert.assertNull(service.get(id));
+			// mock test - try to execute => exception
+			Assert.assertEquals(OperationState.EXCEPTION, service.get(id).getResultState());
 		}
 	}
 	
@@ -67,15 +68,15 @@ public class LongRunningTaskDeleteBulkActionIntegrationTest extends AbstractBulk
 		List<IdmLongRunningTaskDto> checkEvents = service.find(filter, null).getContent();
 		Assert.assertEquals(1, checkEvents.size());
 
-		IdmBulkActionDto bulkAction = findBulkAction(IdmLongRunningTask.class, LongRunningTaskDeleteBulkAction.NAME);
+		IdmBulkActionDto bulkAction = findBulkAction(IdmLongRunningTask.class, LongRunningTaskRunBulkAction.NAME);
 		bulkAction.setTransformedFilter(filter);
 		bulkAction.setFilter(toMap(filter));
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, 1l, null, null);
 	
-		Assert.assertNull(service.get(tasks.get(2)));
-		Assert.assertNotNull(service.get(tasks.get(1)));
-		Assert.assertNotNull(service.get(tasks.get(3)));
+		Assert.assertEquals(OperationState.EXCEPTION, service.get(tasks.get(2)).getResultState());
+		Assert.assertEquals(OperationState.CREATED, service.get(tasks.get(1)).getResultState());
+		Assert.assertEquals(OperationState.CREATED, service.get(tasks.get(3)).getResultState());
 	}
 	
 	private List<IdmLongRunningTaskDto> createTasks(int count) {
@@ -85,7 +86,7 @@ public class LongRunningTaskDeleteBulkActionIntegrationTest extends AbstractBulk
 			IdmLongRunningTaskDto dto = new IdmLongRunningTaskDto();
 			dto.setTaskType("mock");
 			dto.setInstanceId("mock");
-			dto.setResult(new OperationResult(OperationState.BLOCKED));
+			dto.setResult(new OperationResult(OperationState.CREATED));
 			//
 			results.add(service.save(dto));
 		}

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -75,10 +76,11 @@ public class IdentityPasswordPreValidateDefinitionProcessor extends CoreEventPro
 			defaultPasswordPolicy = new IdmPasswordPolicyDto();
 		}
 		for (String account : passwordChangeDto.getAccounts()) {
-			SysSystemDto system = DtoUtils.getEmbedded(accountService.get(UUID.fromString(account)), AccAccount_.system);
+			AccAccountDto accountDto = accountService.get(UUID.fromString(account));
+			SysSystemDto system = accountDto != null ? DtoUtils.getEmbedded(accountDto, AccAccount_.system) : null;
 			IdmPasswordPolicyDto passwordPolicy;
 			//
-			if (system.getPasswordPolicyValidate() == null) {
+			if (system == null || system.getPasswordPolicyValidate() == null) {
 				passwordPolicy = defaultPasswordPolicy;
 			} else {
 				passwordPolicy = passwordPolicyService.get(system.getPasswordPolicyValidate());

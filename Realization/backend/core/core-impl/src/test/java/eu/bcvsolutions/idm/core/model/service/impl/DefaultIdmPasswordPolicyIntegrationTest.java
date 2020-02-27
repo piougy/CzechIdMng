@@ -358,6 +358,33 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 	}
 	
 	@Test
+	public void testMinCharacterCountExplicitlySetZero() {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_20");
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setMinPasswordLength(0);
+		policy.setMinNumber(0);
+		policy.setMinLowerChar(0);
+		policy.setMinSpecialChar(0);
+		policy.setMinUpperChar(0);
+
+		IdmPasswordValidationDto password = new IdmPasswordValidationDto();
+
+		try {
+			password.setPassword("asdfg12345###");
+			this.passwordPolicyService.validate(password, policy);
+
+			password.setPassword("");
+			this.passwordPolicyService.validate(password, policy);
+
+			password.setPassword("123456@#$%^&*ASDFGHJK");
+			this.passwordPolicyService.validate(password, policy);
+		} catch (Exception e) {
+			// nothing, success
+		}
+	}
+	
+	@Test
 	public void testValidateSpecialChar() {
 		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setName("test_13");

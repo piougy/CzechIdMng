@@ -28,18 +28,24 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(NotifyIdentityTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Publish notify event on identities")
 @ConditionalOnProperty(prefix = "idm.pub.app", name = "stage", havingValue = "development")
 public class NotifyIdentityTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityDto> {
 	
+	public static final String TASK_NAME = "core-notify-identity-long-running-task";
 	private static final String PARAMETER_TEXT = "text";
 	//
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private EntityEventManager entityEventManager;
 	//
 	private String text;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public void init(Map<String, Object> properties) {

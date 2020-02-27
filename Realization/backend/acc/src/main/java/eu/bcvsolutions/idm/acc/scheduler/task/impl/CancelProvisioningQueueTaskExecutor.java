@@ -30,18 +30,24 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @deprecated @since 10.2.0 - not used from devstack. use {@link ProvisioningOperationCancelBulkAction}.
  */
 @Deprecated
-@Component
+@Component(CancelProvisioningQueueTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Cancel all operations in provisioning queue.")
-public class CancelProvisioningQueueTaskExecutor
-		extends AbstractSchedulableStatefulExecutor<SysProvisioningOperationDto> {
+public class CancelProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulExecutor<SysProvisioningOperationDto> {
 
+	public static final String TASK_NAME = "acc-cancel-provisioning-queue-long-running-task";
+	//
 	@Autowired private SysProvisioningBatchService provisioningBatchService;
 	@Autowired private SysProvisioningOperationService provisioningOperationService;
 	@Autowired private ProvisioningExecutor provisioningExecutor;
 	//
 	private SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
 
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
+	
 	public SysProvisioningOperationFilter getFilter() {
 		return filter;
 	}

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -36,17 +36,18 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
- * Merge - attribute controlled values recalculation
+ * Merge - attribute controlled values recalculation.
  * 
  * @author Vít Švanda
  * 
  */
-@Service
+@Component(AttributeControlledValuesRecalculationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Merge - attribute controlled values recalculation")
+@Description("Merge - attribute controlled values recalculation.")
 public class AttributeControlledValuesRecalculationTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AttributeControlledValuesRecalculationTaskExecutor.class);
+	public static final String TASK_NAME = "acc-attribute-controlled-values-recalculation-long-running-task";
 	public static final String PARAMETER_SYSTEM_UUID = "system-uuid";
 	public static final String PARAMETER_ENTITY_TYPE = "entity-type";
 	public static final String PARAMETER_ONLY_EVICTED = "only-evicted";
@@ -59,6 +60,11 @@ public class AttributeControlledValuesRecalculationTaskExecutor extends Abstract
 	private UUID systemId;
 	private boolean onlyEvicted;
 	private SystemEntityType entityType;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 
 	@Override
 	public void init(Map<String, Object> properties) {

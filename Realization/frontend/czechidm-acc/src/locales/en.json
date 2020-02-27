@@ -2033,7 +2033,7 @@
       "acc-delete-provisioning-archive-long-running-task": {
         "label": "Delete archived provisioning operations",
         "help": "Delete provisioning operations in archive older than given number of days.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Number of days",
@@ -2059,7 +2059,7 @@
       "acc-delete-synchronization-log-long-running-task": {
         "label": "Delete synchronization logs",
         "help": "Delete synchronization logs older than given number of days.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Number of days",
@@ -2086,7 +2086,34 @@
       "acc-account-protection-expiration-long-running-task": {
         "label": "Removes accounts with expired protection interval",
         "help": "Removes accounts with expired protection interval. To really delete the IdM account (and thus the account on the end system), it will occur after the expiration of the protection interval.",
-        "icon": "fa:trash"
+        "icon": "$t(action.delete.icon)"
+      },
+      "acc-attribute-controlled-values-recalculation-long-running-task": {
+        "label": "Recalculate attribute controlled values for provisioning (merge)",
+        "help": "Recalculate controlled values for provisioning of attribute with merge values strategy configured.",
+        "icon": "component:scheduled-task"
+      },
+      "acc-cancel-provisioning-queue-long-running-task": {
+        "label": "Cancel provisioning queue (deprecated)",
+        "help": "Cancel all active provisioning operations in queue for all systems. This task is deprecated - bulk action can be used directly from active provisioning operations table.",
+        "icon": "component:scheduled-task"
+      },
+      "acc-provisioning-queue-long-running-task": {
+        "label": "Process provisioning operations in queue",
+        "help": "Process created active provisioning operations in queue. Active provisioning operation is created in queue, when target system is configured as asynchronous. If no asynchronous system exists, is not required to schedule this task.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "virtualsystem": {
+            "label": "Virtual systems",
+            "placeholder": "All systems ...",
+            "help": "Operations for virtual or other systems. Operation for all systems will be processed by default."
+          }
+        }
+      },
+      "acc-retry-provisioning-long-running-task": {
+        "label": "Retry provisioning periodically",
+        "help": "Retry failed operations in provisioning queue.",
+        "icon": "component:scheduled-task"
       }
     }
   },

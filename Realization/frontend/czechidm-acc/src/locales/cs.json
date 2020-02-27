@@ -2035,7 +2035,7 @@
       "acc-delete-provisioning-archive-long-running-task": {
         "label": "Smazat archivované operace pro provisioning",
         "help": "Smaže operace z archivu provisioningu starší, nežli zadaný počet dní.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Počet dní",
@@ -2061,7 +2061,7 @@
       "acc-delete-synchronization-log-long-running-task": {
         "label": "Smazat logy synchronizací",
         "help": "Smaže logy synchronizací starší, nežli zadaný počet dní.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Počet dní",
@@ -2088,7 +2088,34 @@
       "acc-account-protection-expiration-long-running-task": {
         "label": "Smazat účty s expirovaným ochranným intervalem",
         "help": "Smazě účty s expirovaným ochranným intervalem. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu.",
-        "icon": "fa:trash"
+        "icon": "$t(action.delete.icon)"
+      },
+      "acc-attribute-controlled-values-recalculation-long-running-task": {
+        "label": "Přepočítat kontolované atributy pro provisioning (merge)",
+        "help": "Přepočítá kontolované atributy s nastavenou strategií pro sloučení hodnot (merge) při provisioningu.",
+        "icon": "component:scheduled-task"
+      },
+      "acc-cancel-provisioning-queue-long-running-task": {
+        "label": "Zrušit frontu provisioningu (nepodporováno)",
+        "help": "Zrušit všechny aktivní operace ve frontě privisioningu. Tato uloha již není dále rozvíjená (podporovaná) - hromadná akce pro zrušení aktivních operecí je dostupná přímo z tabulky v agendě provisioningu.",
+        "icon": "component:scheduled-task"
+      },
+      "acc-provisioning-queue-long-running-task": {
+        "label": "Zpracovat frontu provisioningu",
+        "help": "Zpracovat vytvořené aktivní operace ve frontě provisioningu. Aktitní operace jsou ve frontě vytvořeny, pokud je systém nakonfigurován jako asynchronní. Pokud není nakonfigurován žádný asynchronní systém, není třeba plánovat tuto úlohu.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "virtualsystem": {
+            "label": "Virtuální systémy",
+            "placeholder": "Všechny systémy ...",
+            "help": "Budou zpracovávány operace od všech systémů, pokud není vybráno. Jinak se zpracují pouze virtální nebo ostatní systémy."
+          }
+        }
+      },
+      "acc-retry-provisioning-long-running-task": {
+        "label": "Opakovat provisioning operace (retry)",
+        "help": "Opakovat neprovedené operace uložené ve frontě provisioningu (retry mechanismus). Při selhání provisioning operace se pro ni automaticky naplánuje čas dalšího pokusu. Tato úloha spustí operace s naplánovaným časem dalšího pokusu.",
+        "icon": "component:scheduled-task"
       }
     }
   },

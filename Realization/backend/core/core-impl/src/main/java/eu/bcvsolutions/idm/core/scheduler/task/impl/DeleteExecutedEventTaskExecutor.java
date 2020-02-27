@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
@@ -32,11 +32,10 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.6.3
  */
-@Service(DeleteExecutedEventTaskExecutor.TASK_NAME)
+@Component(DeleteExecutedEventTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Delete executed events.")
-public class DeleteExecutedEventTaskExecutor
-		extends AbstractSchedulableStatefulExecutor<IdmEntityEventDto> {
+public class DeleteExecutedEventTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmEntityEventDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteExecutedEventTaskExecutor.class);
 	public static final String TASK_NAME = "core-delete-executed-event-long-running-task";

@@ -563,6 +563,8 @@
           "ROLE-SELECT": "Select role (SelectBox)",
           "FORM-DEFINITION-SELECT": "Select form definition (SelectBox)",
           "TREE-NODE-SELECT": "Select tree node (SelectBox)",
+          "TREE-TYPE-SELECT": "Select tree type (SelectBox)",
+          "SCRIPT-SELECT": "Select script (SelectBox)",
           "ROLE-CATALOGUE-SELECT": "Select folder in role catalogue (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
@@ -4428,7 +4430,7 @@
         "help": "Item count - failed"
       },
       "started": "Started",
-      "notstarted": "Not started yet!",
+      "notstarted": "Not started yet",
       "result": {
         "state": "State",
         "code": "Code"
@@ -5504,7 +5506,7 @@
         "help": "Send notification for user after password expired and publish PASSWORD_EXPIRED event."
       },
       "core-identity-role-expiration-long-running-task": {
-        "label": "Assigned roles expiration",
+        "label": "Assigned roles - expiration",
         "help": "Task removes expired assigned roles from users.",
         "icon": "$t(action.delete.icon)"
       },
@@ -5512,6 +5514,106 @@
         "label": "Contracts expiration",
         "help": "Task removes expired assigned roles from users, which are assigned to expired contract.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-hr-contract-exclusion-long-running-task": {
+        "label": "HR process - contract exclusion",
+        "help": "Task process excluded contracts. The processes is started for contracts that are both valid (meaning validFrom and validTill) and excluded.",
+        "icon": "component:scheduled-task"
+      },
+      "core-hr-enable-contract-long-running-task": {
+        "label": "HR process - enable contract",
+        "help": "Task process enabled contracts. The processes is started for contracts that are both valid (meaning validFrom and validTill) and enabled.",
+        "icon": "component:scheduled-task"
+      },
+      "core-hr-end-contract-long-running-task": {
+        "label": "HR process - end of contract",
+        "help": "Task process ended contracts. The processes is started for contracts that are not valid (meaning validFrom and validTill).",
+        "icon": "component:scheduled-task"
+      },
+      "core-add-new-role-composition-long-running-task": {
+        "label": "Recalculate business role",
+        "help": "Task for assign sub roles defined by this composition to identities having superior role.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "role-composition-id": {
+            "label": "Business role",
+            "help": "Added business role UUID identifier."
+          }
+        }
+      },
+      "core-clear-dirty-state-contract-slice-long-running-task": {
+        "label": "Clear dirty state for contract slices.",
+        "help": "During synchronization is set dirty flag for all processed slices. This task removes the flag.",
+        "icon": "component:scheduled-task"
+      },
+      "core-execute-script-long-running-task": {
+        "label": "Execute script",
+        "help": "Task for execute script by code.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "scriptcode": {
+            "label": "Script code",
+            "help": "Script to execute. Script code is required."
+          }
+        }
+      },
+      "core-change-confidential-storage-key-long-running-task": {
+        "label": "Change confidential storage key",
+        "help": "Change all crypted values in confidential storage to new. This task has to be executed, when confidential storage key in application configuration was changed.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "oldcryptkey": {
+            "label": "Old key",
+            "help": "Old key used for confidential storage."
+          }
+        }
+      },
+      "core-identity-role-valid-request-long-running-task": {
+        "label": "Assigned roles - start of validity",
+        "help": "Create new accounts for assigned roles, that is newly valid.",
+        "icon": "component:scheduled-task"
+      },
+      "core-model-mapper-checker-long-running-task": {
+        "label": "Model mapper checker",
+        "help": "Check model mapper is properly initialized to prevent dto mapping exceptions.",
+        "icon": "component:scheduled-task"
+      },
+      "core-notify-identity-long-running-task": {
+        "label": "Publish notify event for identities",
+        "help": "Publish notify event for identities.",
+        "icon": "component:scheduled-task"
+      },
+      "core-rebuild-role-catalogue-index-long-running-task": {
+        "label": "Rebuild role catalogue index",
+        "help": "Rebuild role catalogue forest index.",
+        "icon": "component:scheduled-task"
+      },
+      "core-rebuild-tree-node-index-long-running-task": {
+        "label": "Rebuild tree node index",
+        "help": "Rebuild tree node forest index.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "tree-type-code": {
+            "label": "Tree type",
+            "help": "Forest index will be rebuild for selected tree type."
+          }
+        }
+      },
+      "core-remove-role-composition-long-running-task": {
+        "label": "Delete business role",
+        "help": "Task for delete business role and all assigned sub roles defined by this composition to identities.",
+        "icon": "$t(action.delete.icon)",
+        "attributes": {
+          "role-composition-id": {
+            "label": "Business role",
+            "help": "Deleted business role UUID identifier."
+          }
+        }
+      },
+      "core-select-current-contract-slice-long-running-task": {
+        "label": "Recalculate current using slices as contract",
+        "help": "Find all slices which should be for actual date using as contract and copy their values to parent contracts.",
+        "icon": "component:scheduled-task"
       }
     }
   },

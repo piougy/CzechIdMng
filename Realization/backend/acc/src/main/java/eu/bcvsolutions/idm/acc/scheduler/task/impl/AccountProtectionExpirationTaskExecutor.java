@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  * @since 7.3.0
  */
-@Service(AccountProtectionExpirationTaskExecutor.TASK_NAME)
+@Component(AccountProtectionExpirationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Removes accounts with expired protection.")
 public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {

@@ -24,8 +24,29 @@ const formAttributeManager = new FormAttributeManager();
  */
 class SchedulerTaskOptionDecorator extends Basic.SelectBox.OptionDecorator {
 
-  getEntityIcon() {
-    return 'component:scheduled-task';
+  static _getIcon(supportedTasks, entity) {
+    //
+    let _task;
+    if (supportedTasks && supportedTasks.has(entity.taskType)) {
+      _task = supportedTasks.get(entity.taskType);
+    }
+    //
+    let icon = null;
+    if (_task && _task.formDefinition) {
+      icon = formAttributeManager.getLocalization(_task.formDefinition, null, 'icon', null);
+    }
+    //
+    if (!icon) {
+      // default
+      return 'component:scheduled-task';
+    }
+    return icon;
+  }
+
+  getEntityIcon(entity) {
+    const { supportedTasks } = this.props;
+    //
+    return SchedulerTaskOptionDecorator._getIcon(supportedTasks, entity);
   }
 
   getDescriptionMaxLength() {
@@ -54,32 +75,56 @@ class SchedulerTaskOptionDecorator extends Basic.SelectBox.OptionDecorator {
       } else if (_task && _task.formDefinition) { // task's form definition is available
         parameterNameLocalized = formAttributeManager.getLocalization(_task.formDefinition, { code: parameterName }, 'label', parameterName);
       }
+      let confidential = false;
+      if (_task && _task.formDefinition) {
+        const instance = new Domain.FormInstance(_task.formDefinition);
+        if (instance.getAttributes().has(parameterName)) {
+          const attribute = instance.getAttributes().get(parameterName);
+          if (attribute && !!attribute.confidential) {
+            confidential = true;
+          }
+        }
+      }
       parameterValues.push(
         <div>
-          { `${ parameterNameLocalized }: ${ Utils.Ui.toStringValue(entity.parameters[parameterName]) }` }
+          { `${ parameterNameLocalized }: ${ (!confidential) ? Utils.Ui.toStringValue(entity.parameters[parameterName]) : '*****' }` }
         </div>
       );
     });
     //
     return (
-      <div>
+      <Basic.Div>
         { super.renderDescription(entity) }
         {
           parameterValues.length === 0
           ||
-          <div style={{ color: '#555', fontSize: '0.95em' }}>
+          <Basic.Div style={{ color: '#555', fontSize: '0.95em' }}>
             { this.i18n('content.scheduler.schedule-tasks.action.task-edit.parameters') }
-            <div style={{ fontStyle: 'italic' }}>
+            <Basic.Div style={{ fontStyle: 'italic' }}>
               {
                 parameterValues
               }
-            </div>
-          </div>
+            </Basic.Div>
+          </Basic.Div>
         }
-      </div>
+      </Basic.Div>
     );
   }
+}
 
+/**
+ * Task icon in select box value.
+ *
+ * @author Radek Tomiška
+ * @since 10.2.0
+ */
+class SchedulerTaskValueDecorator extends Basic.SelectBox.ValueDecorator {
+
+  getEntityIcon(entity) {
+    const { supportedTasks } = this.props;
+    //
+    return SchedulerTaskOptionDecorator._getIcon(supportedTasks, entity);
+  }
 }
 
 /**
@@ -324,16 +369,28 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
 
   _toOption(task) {
     return {
-      niceLabel: task.formDefinition
-        ? formAttributeManager.getLocalization(task.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(task.taskType))
-        : Utils.Ui.getSimpleJavaType(task.taskType),
+      niceLabel:
+        task.formDefinition
+        ?
+        formAttributeManager.getLocalization(task.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(task.taskType))
+        :
+        Utils.Ui.getSimpleJavaType(task.taskType),
       value: task.taskType,
-      description: task.formDefinition
-        ? formAttributeManager.getLocalization(task.formDefinition, null, 'help', task.description)
-        : task.description,
+      description:
+        task.formDefinition
+        ?
+        formAttributeManager.getLocalization(task.formDefinition, null, 'help', task.description)
+        :
+        task.description,
       parameters: task.parameters,
       formDefinition: task.formDefinition,
-      disabled: task.disabled
+      disabled: task.disabled,
+      _icon:
+        task.formDefinition
+        ?
+        formAttributeManager.getLocalization(task.formDefinition, null, 'icon', 'component:scheduled-task')
+        :
+        'component:scheduled-task'
     };
   }
 
@@ -419,13 +476,16 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 }
                 const simpleTaskType = Utils.Ui.getSimpleJavaType(propertyValue);
                 let _label = simpleTaskType;
+                let _icon = 'component:scheduled-task';
                 if (_taskType && _taskType.formDefinition) {
-                  _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', simpleTaskType);
+                  _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', _label);
+                  _icon = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'icon', _icon);
                 }
                 if (_label !== simpleTaskType) {
                   // append simple taks type name as new line
                   _label = (
                     <span>
+                      <Basic.Icon value={ _icon } style={{ marginRight: 3 }}/>
                       { _label }
                       <small style={{ display: 'block' }}>
                         { `(${ simpleTaskType })` }
@@ -433,7 +493,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                     </span>
                   );
                 }
-
+                //
                 return (
                   <span title={propertyValue}>
                     { _label }
@@ -464,6 +524,13 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                     // not filled (false is needed to render)
                     return null;
                   }
+                  let attribute = null;
+                  if (_taskType && _taskType.formDefinition) {
+                    const instance = new Domain.FormInstance(_taskType.formDefinition);
+                    if (instance.getAttributes().has(parameterName)) {
+                      attribute = instance.getAttributes().get(parameterName);
+                    }
+                  }
                   return (
                     <div>
                       {
@@ -474,7 +541,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                         parameterName
                       }
                       {': '}
-                      { Utils.Ui.toStringValue(entity.parameters[parameterName]) }
+                      { (!attribute || !attribute.confidential) ? Utils.Ui.toStringValue(entity.parameters[parameterName]) : '*****' }
                     </div>
                   );
                 }).values()];
@@ -582,7 +649,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   required
                   searchable
                   readOnly={ !Utils.Entity.isNew(detail.entity) }
-                  helpBlock={ taskType ? taskType.description : null }/>
+                  helpBlock={ taskType ? taskType.description : null }
+                  clearable={ false }/>
                 <Basic.TextArea
                   ref="description"
                   placeholder={ taskType ? taskType.description : null }
@@ -666,7 +734,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   helpBlock={ this.i18n('entity.SchedulerTask.trigger.dependent.initiatorTaskId.help') }
                   hidden={ triggerType !== 'DEPENDENT' }
                   required={ triggerType === 'DEPENDENT' }
-                  optionComponent={ connect(() => { return { supportedTasks }; })(SchedulerTaskOptionDecorator) }/>
+                  optionComponent={ connect(() => { return { supportedTasks }; })(SchedulerTaskOptionDecorator) }
+                  valueComponent={ connect(() => { return { supportedTasks }; })(SchedulerTaskValueDecorator) }
+                  clearable={ false }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

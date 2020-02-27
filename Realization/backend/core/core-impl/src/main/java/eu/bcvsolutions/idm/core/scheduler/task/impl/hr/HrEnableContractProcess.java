@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
@@ -28,19 +28,26 @@ import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractE
  * @since 7.5.1
  *
  */
-@Service
+@Component(HrEnableContractProcess.TASK_NAME)
 @Description("HR process - enable active contract")
 @DisallowConcurrentExecution
 public class HrEnableContractProcess extends AbstractHrProcess {
 
+	public static final String TASK_NAME = "core-hr-enable-contract-long-running-task";
+	//
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdentityContractEnableProcessor identityContractEnableProcessor;
-
+	
 	public HrEnableContractProcess() {
 	}
 	
 	public HrEnableContractProcess(boolean skipAutomaticRoleRecalculation) {
 		super(skipAutomaticRoleRecalculation);
+	}
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
 	}
 	
 	/**

@@ -10,7 +10,7 @@ import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -30,12 +30,12 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
 /**
  * Delete historic workflow process instances
  * 
- * TODO: remove @DisallowConcurrentExecution and add sort to support multi LRT run
+ * TODO: remove @DisallowConcurrentExecution and add sort (or filer or limit) to support multi LRT run
  * 
  * @author Radek Tomiška
  * @since 9.7.12 
  */
-@Service(DeleteWorkflowHistoricInstanceTaskExecutor.TASK_NAME)
+@Component(DeleteWorkflowHistoricInstanceTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Delete historic workflow process instances.")
 public class DeleteWorkflowHistoricInstanceTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {

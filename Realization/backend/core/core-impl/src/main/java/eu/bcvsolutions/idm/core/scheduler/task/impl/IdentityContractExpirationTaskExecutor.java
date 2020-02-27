@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  *
  */
-@Service(IdentityContractExpirationTaskExecutor.TASK_NAME)
+@Component(IdentityContractExpirationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Remove roles by expired identity contracts (=> removes assigned roles).")
 public class IdentityContractExpirationTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityContractDto> {

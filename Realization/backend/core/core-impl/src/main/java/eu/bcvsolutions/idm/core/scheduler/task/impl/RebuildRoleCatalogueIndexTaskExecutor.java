@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
@@ -28,22 +28,28 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultForestIndexService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
- * Rebuild forest index for role catalogue
+ * Rebuild forest index for role catalogue.
  * 
  * @author Radek Tomiška
  *
  */
-@Service
+@Component(RebuildRoleCatalogueIndexTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Rebuild role catalogue index")
+@Description("Rebuild role catalogue forest index.")
 public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RebuildRoleCatalogueIndexTaskExecutor.class);
+	public static final String TASK_NAME = "core-rebuild-role-catalogue-index-long-running-task";
 	//
 	@Autowired private IdmRoleCatalogueRepository roleCatalogueRepository;
 	@Autowired private IdmRoleCatalogueService roleCatalogueService;
 	@Autowired private ForestIndexService<IdmForestIndexEntity, UUID> forestIndexService;
 	@Autowired private ConfigurationService configurationService;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public Boolean process() {

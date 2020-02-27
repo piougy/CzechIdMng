@@ -319,6 +319,24 @@ module.exports = {
       manager: require('./src/redux').TreeNodeManager
     },
     {
+      id: 'tree-type-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'UUID',
+      faceType: 'TREE-TYPE-SELECT',
+      component: require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.TREE-TYPE-SELECT',
+      manager: require('./src/redux').TreeTypeManager
+    },
+    {
+      id: 'script-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'UUID',
+      faceType: 'SCRIPT-SELECT',
+      component: require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.SCRIPT-SELECT',
+      manager: require('./src/redux').ScriptManager
+    },
+    {
       id: 'role-catalogue-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'UUID',

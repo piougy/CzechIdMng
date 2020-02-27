@@ -596,6 +596,8 @@
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
           "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
+          "TREE-TYPE-SELECT": "Výběr typu stromu (SelectBox)",
+          "SCRIPT-SELECT": "Výběr skriptu (SelectBox)",
           "ROLE-CATALOGUE-SELECT": "Výběr složky z katalogu rolí (SelectBox)",
           "BOOLEAN-SELECT": "$t(enums.PersistentTypeEnum.BOOLEAN) (SelectBox)",
           "ATTACHMENT": "$t(enums.PersistentTypeEnum.ATTACHMENT)",
@@ -4480,7 +4482,7 @@
         "help": "Počet položek s chybou"
       },
       "started": "Spuštěno",
-      "notstarted": "Úloha nebyla spuštěna!",
+      "notstarted": "Úloha ješte nebyla spuštěna",
       "result": {
         "state": "Stav",
         "code": "Kód"
@@ -5564,6 +5566,106 @@
         "label": "Vypršení platnosti pracovně právních vztahů",
         "help": "Zkontroluje a odebere uživatelům role, které jsou přiřazené na již neplatné pracovně právní vztahy.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-hr-contract-exclusion-long-running-task": {
+        "label": "HR proces - vynětí pracovně právního vztahu z evidenčního počtu",
+        "help": "Úloha zpracuje pracovně právní vztahy, které jsou vyňaty z evidenčního počtu (EXCLUDED).",
+        "icon": "component:scheduled-task"
+      },
+      "core-hr-enable-contract-long-running-task": {
+        "label": "HR proces - aktivace pracovně právního vztahu",
+        "help": "Úloha zpracuje pracovně právní vztahy, které jsou platné (aktivní).",
+        "icon": "component:scheduled-task"
+      },
+      "core-hr-end-contract-long-running-task": {
+        "label": "HR procss - ukončení pracovně právního vztahu",
+        "help": "Úloha zpracuje pracovně právní vztahy, které jsou ukončené (neaktivní).",
+        "icon": "component:scheduled-task"
+      },
+      "core-add-new-role-composition-long-running-task": {
+        "label": "Přepočítat business roli",
+        "help": "Úloha přepočítá přidělené role uživatelům dle definice business role.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "role-composition-id": {
+            "label": "Business role",
+            "help": "UUID Identifikátor business role (kompozice)."
+          }
+        }
+      },
+      "core-clear-dirty-state-contract-slice-long-running-task": {
+        "label": "Zpracovat označené nevalidní časové řezy (dirty state)",
+        "help": "V průběhu synchronizace se označí zpracovávané časové řezy (dirty flagem). Tato úloha zpracuje takto označené časové řezy. Spuštění úlohy by mělo být naplánováno až po dokončení synchronizace (například jako závislá úloha).",
+        "icon": "component:scheduled-task"
+      },
+      "core-execute-script-long-running-task": {
+        "label": "Spustit skript",
+        "help": "Úloha spustí zadaný skript.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "scriptcode": {
+            "label": "Skript",
+            "help": "Vyberte skript, který má být spuštěn."
+          }
+        }
+      },
+      "core-change-confidential-storage-key-long-running-task": {
+        "label": "Změnit klíč pro šifrované úložiště",
+        "help": "Změnit klíč pro všechny hodnoty uložená v šifrovaném úložišti. Úloha musí být spuštěna, pokud se klíč změní v konfiguraci aplikace.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "oldcryptkey": {
+            "label": "Původní klíč",
+            "help": "Původní použitý klíč. S tímto klíčem budou stávající hodnotz načteny z úložiště a znovuuloženy s použitím klíče nového (nový klíč je uveden v aktuální konfiguraci aplikace)."
+          }
+        }
+      },
+      "core-identity-role-valid-request-long-running-task": {
+        "label": "Začátek platnosti přiřazených rolí",
+        "help": "Pro nově platné přidělené role vytvoří účty na koncových systémech.",
+        "icon": "component:scheduled-task"
+      },
+      "core-model-mapper-checker-long-running-task": {
+        "label": "Kontrola model mapperu",
+        "help": "Zkontroluje správnou inicializaci mapování objektů v aplikaci (model mapper) po restartu serveru.",
+        "icon": "component:scheduled-task"
+      },
+      "core-notify-identity-long-running-task": {
+        "label": "Publikace 'NOTIFY' události pro uživatele",
+        "help": "Publikace 'NOTIFY' události pro uživatele vyvolá všechny asynchronní procesy, jako je přepočet automatických rolí, account management i provisioning.",
+        "icon": "component:scheduled-task"
+      },
+      "core-rebuild-role-catalogue-index-long-running-task": {
+        "label": "Přepočítat index pro katalog rolí",
+        "help": "Přepočítá index pro všechny složky v katalogu rolí (forest index). Index může být poškozen například při manuálních zásazích do databáze.",
+        "icon": "component:scheduled-task"
+      },
+      "core-rebuild-tree-node-index-long-running-task": {
+        "label": "Přepočítat index pro stromovou strukturu",
+        "help": "Přepočítá index pro prvky stromové struktury (forest index). Index může být poškozen například při manuálních zásazích do databáze.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "tree-type-code": {
+            "label": "Typ struktury",
+            "help": "Index bude přepočítán pro daný typ stromové struktury."
+          }
+        }
+      },
+      "core-remove-role-composition-long-running-task": {
+        "label": "Smazat business roli",
+        "help": "Úloha smaže definici business role a všechny role přiřazené uživatelům dle této definice.",
+        "icon": "$t(action.delete.icon)",
+        "attributes": {
+          "role-composition-id": {
+            "label": "Business role",
+            "help": "UUID identifikátor mazané business role."
+          }
+        }
+      },
+      "core-select-current-contract-slice-long-running-task": {
+        "label": "Přepočítat aktuální časové řezy pro pracovně právní vztahy",
+        "help": "Úloha najde všechny časové řezy, které mají být nastaveny jako aktuální. Hodnoty aktuálního časového řezu se propíší do propojeného pracovně právního vztahu.",
+        "icon": "component:scheduled-task"
       }
     }
   },

@@ -442,9 +442,11 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		assertEquals(1, identityRoleService.findAllByContract(contract.getId()).size());
 		//
 		deleteAutomaticRole(automaticRoleD);
+		automaticRoleD = null;
 		assertEquals(1, identityRoleService.findAllByContract(contract.getId()).size());
 		//
 		deleteAutomaticRole(automaticRoleA);
+		automaticRoleA = null;
 		assertTrue(identityRoleService.findAllByContract(contract.getId()).isEmpty());
 	}
 	

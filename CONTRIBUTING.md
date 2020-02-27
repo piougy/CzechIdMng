@@ -47,6 +47,7 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
   * Rest endpoints naming with snake-case lowercase in plural, e.g. `<server>/wf-identities`, `<server>/tasks`
 * Spring
   * use bean names, e.g. `@Service("identityService")`
+  * use ``@Component`` for registrable components (e.g. long running tasks, processors, reports), use ``@Service`` for services and managers
   * use `@Transaction` annotation for service methods
   * use interfaces
     * ``Configurable`` for configurations

@@ -19,12 +19,12 @@ Input variables:
 
 Configuration properties:
 - idm.sec.core.wf.approval.helpdesk.enabled: If is "false", then process will be not do approving by helpdesk
-- idm.sec.core.wf.approval.helpdesk.role: Role using for find candates (approve by Helpdesk department)
+- idm.sec.core.wf.approval.helpdesk.role: Role using for find candidates (approve by Helpdesk department)
 - idm.sec.core.wf.approval.manager.enabled: If is "false", then process will be not do approving by manager
 - idm.sec.core.wf.approval.usermanager.enabled: If is "false", then process will be not do approving by user manager
-- idm.sec.core.wf.approval.usermanager.role: Role using for find candates (approve by User manage department)
+- idm.sec.core.wf.approval.usermanager.role: Role using for find candidates (approve by User manage department)
 - idm.sec.core.wf.approval.security.enabled: If is "false", then process will be not do approving by security
-- idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)
+- idm.sec.core.wf.approval.security.role: Role using for find candidates (approve by Security department)
 - idm.sec.core.wf.approval.incompatibility.enabled=true (by default)
 - idm.sec.core.wf.approval.incompatibility.role=Incompatibility (default role for approval of role incompatibilities)</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
@@ -222,7 +222,7 @@ if(!skip){
     helpdesks.add(identityService.getByUsername("admin"));
   }
 
-  //Is current logged user = implemeneter user and is betwen helpdesks? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between helpdesks? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(helpdesks, implementerIdentifier);
   }else{
@@ -292,7 +292,7 @@ if(!skip){
     managers.add(identityService.getByUsername("admin"));
   }
 
-  //Is current logged user = implemeneter user and is betwen managers? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between managers? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(managers, implementerIdentifier);
   }else{
@@ -362,7 +362,7 @@ if(!skip){
   if(usermanagers.isEmpty()){
     usermanagers.add(identityService.getByUsername("admin"));
   }
-  //Is current logged user = implemeneter user and is betwen usermanagers? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between usermanagers? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(usermanagers, implementerIdentifier);
   }else{
@@ -458,7 +458,7 @@ if(!skip){
     securities.add(identityService.getByUsername("admin"));
   }
 
-  //Is current logged user = implemeneter user and is betwen securities? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between securities? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(securities, implementerIdentifier);
   }else{
@@ -940,7 +940,7 @@ if(!skip){
     approvers.add(identityService.getByUsername("admin"));
   }
 
-  //Is current logged user = implemeneter user and is betwen identities? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between identities? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(approvers, implementerIdentifier);
   }else{

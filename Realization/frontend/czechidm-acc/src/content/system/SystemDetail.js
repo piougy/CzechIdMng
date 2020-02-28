@@ -80,7 +80,7 @@ class SystemDetail extends Basic.AbstractContent {
           ...data,
           host: entity.connectorServer.host,
           port: entity.connectorServer.port,
-          useSs: entity.connectorServer.useSsl,
+          useSsl: entity.connectorServer.useSsl,
           password: entity.connectorServer.password,
           timeout: entity.connectorServer.timeout
         };

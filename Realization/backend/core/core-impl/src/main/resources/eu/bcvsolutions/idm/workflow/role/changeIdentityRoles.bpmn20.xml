@@ -580,13 +580,7 @@ def getUrl(request){
 	if (request == null) {
 		return null;
 	}
-	String origins = configurationService.getValue("idm.pub.security.allowed-origins");
-	//
-	if (origins != null &amp;&amp; !origins.isEmpty()) {
-		String origin = origins.trim().split(",")[0];
-		return origin+"/#/role-requests/"+request.getId()+"/detail";
-	}
-	return null;
+	return configurationService.getFrontendUrl("/role-requests/"+request.getId()+"/detail");
 }
 </script>
     </scriptTask>

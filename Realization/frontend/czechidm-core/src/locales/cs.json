@@ -4552,7 +4552,10 @@
       "implementer": "Žadatel",
       "state": "Stav v IdM",
       "states": "Stav v IdM / systémech",
-      "executeImmediately": "Provést bez schválení",
+      "executeImmediately": {
+        "label": "Provést bez schválení",
+        "help": "Schvalovací proces bude přeskočen (notifikace odesíláné přímo ze schvalovacího procesu nebudou odeslány)."
+      },
       "log": "Log",
       "description": {
         "label" : "Popis",

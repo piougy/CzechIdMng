@@ -4500,7 +4500,10 @@
       "implementer": "Applicant",
       "state": "State in IdM",
       "states": "State in IdM / systems",
-      "executeImmediately": "Without approval",
+      "executeImmediately": {
+        "label": "Without approval",
+        "help": "Approval workflow will be skipped (workflow notifications will not be send)."
+      },
       "log": "Log",
       "description": {
         "label" : "Description",

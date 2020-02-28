@@ -356,7 +356,8 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <Basic.Checkbox
                 ref="executeImmediately"
                 hidden={!hasAdminRights}
-                label={this.i18n('entity.RoleRequest.executeImmediately')}/>
+                label={ this.i18n('entity.RoleRequest.executeImmediately.label') }
+                helpBlock={ this.i18n('entity.RoleRequest.executeImmediately.help') }/>
               <Basic.LabelWrapper
                 rendered={ _adminMode && request.wfProcessId }
                 label={this.i18n('entity.RoleRequest.wfProcessId')}>

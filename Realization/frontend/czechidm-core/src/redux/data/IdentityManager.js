@@ -171,13 +171,13 @@ export default class IdentityManager extends FormableEntityManager {
    * @return {bool}
    */
   canChangePassword(passwordChangeType, permissions) {
+    if (SecurityManager.isAdmin()) {
+      // admin - highest priority
+      return true;
+    }
     if (!passwordChangeType || passwordChangeType === IdentityManager.PASSWORD_DISABLED) {
       // password cannot be changed by environment configuration
       return false;
-    }
-    if (SecurityManager.isAdmin()) {
-      // admin
-      return true;
     }
     return Utils.Permission.hasPermission(permissions, 'PASSWORDCHANGE');
   }

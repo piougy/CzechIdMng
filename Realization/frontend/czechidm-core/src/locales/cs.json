@@ -5562,7 +5562,7 @@
       },
       "core-identity-role-expiration-long-running-task": {
         "label": "Vypršení platnosti přiřazených rolí",
-        "help": "Zkontroluje a odebere neplané přiřazené role uživatelům.",
+        "help": "Zkontroluje a odebere neplatné přiřazené role uživatelům.",
         "icon": "$t(action.delete.icon)"
       },
       "core-identity-contract-expiration-long-running-task": {
@@ -5597,8 +5597,8 @@
         }
       },
       "core-clear-dirty-state-contract-slice-long-running-task": {
-        "label": "Zpracovat označené nevalidní časové řezy (dirty state)",
-        "help": "V průběhu synchronizace se označí zpracovávané časové řezy (dirty flagem). Tato úloha zpracuje takto označené časové řezy. Spuštění úlohy by mělo být naplánováno až po dokončení synchronizace (například jako závislá úloha).",
+        "label": "Zpracovat označené nevalidní časové řezy (příznak dirty)",
+        "help": "V průběhu synchronizace se označí zpracovávané časové řezy (příznak dirty). Tato úloha zpracuje takto označené časové řezy. Spuštění úlohy by mělo být naplánováno až po dokončení synchronizace (například jako závislá úloha).",
         "icon": "component:scheduled-task"
       },
       "core-execute-script-long-running-task": {
@@ -5614,18 +5614,18 @@
       },
       "core-change-confidential-storage-key-long-running-task": {
         "label": "Změnit klíč pro šifrované úložiště",
-        "help": "Změnit klíč pro všechny hodnoty uložená v šifrovaném úložišti. Úloha musí být spuštěna, pokud se klíč změní v konfiguraci aplikace.",
+        "help": "Změnit klíč pro všechny hodnoty uložené v šifrovaném úložišti. Úloha musí být spuštěna, pokud se klíč změní v konfiguraci aplikace.",
         "icon": "component:scheduled-task",
         "attributes": {
           "oldcryptkey": {
             "label": "Původní klíč",
-            "help": "Původní použitý klíč. S tímto klíčem budou stávající hodnotz načteny z úložiště a znovuuloženy s použitím klíče nového (nový klíč je uveden v aktuální konfiguraci aplikace)."
+            "help": "Původní použitý klíč. S tímto klíčem budou stávající hodnoty načteny z úložiště a znovuuloženy s použitím klíče nového (nový klíč je uveden v aktuální konfiguraci aplikace)."
           }
         }
       },
       "core-identity-role-valid-request-long-running-task": {
         "label": "Začátek platnosti přiřazených rolí",
-        "help": "Pro nově platné přidělené role vytvoří účty na koncových systémech.",
+        "help": "Pro nově přidělené platné role vytvoří účty na koncových systémech.",
         "icon": "component:scheduled-task"
       },
       "core-model-mapper-checker-long-running-task": {

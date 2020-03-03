@@ -102,20 +102,16 @@
 			<url>https://repo1.maven.org/maven2/</url>
 		</repository>
 		<repository>
+			<id>nexus</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-all/</url>
+		</repository>
+		<repository>
 			<id>nexus-public</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
 		</repository>
 		<repository>
-			<id>nexus-public-releases</id>
-			<url>https://nexus.bcvsolutions.eu/repository/maven-public-releases/</url>
-		</repository>
-		<repository>
 			<id>maven-snapshots</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
-		</repository>
-		<repository>
-			<id>jcenter-releases</id>
-			<url>http://jcenter.bintray.com</url>
 		</repository>
 	</repositories>
 

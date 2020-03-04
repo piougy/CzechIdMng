@@ -1,7 +1,7 @@
 import AbstractEnum from './AbstractEnum';
 
 /**
- * Trigger type - simple - cron
+ * Trigger type - simple, repeat, cron, dependent
  *
  * @author Radek Tomiška
  */
@@ -26,6 +26,10 @@ export default class TriggerTypeEnum extends AbstractEnum {
       case this.SIMPLE: {
         return 'success';
       }
+      // change success to primary or danger?
+      case this.REPEAT: {
+        return 'success';
+      }
       case this.CRON: {
         return 'info';
       }
@@ -33,7 +37,7 @@ export default class TriggerTypeEnum extends AbstractEnum {
         return 'warning';
       }
       default: {
-        // nothing
+        return null;
       }
     }
   }
@@ -51,6 +55,9 @@ export default class TriggerTypeEnum extends AbstractEnum {
       case this.SIMPLE: {
         return 'SimpleTaskTrigger';
       }
+      case this.REPEAT: {
+        return 'CronTaskTrigger';
+      }
       case this.CRON: {
         return 'CronTaskTrigger';
       }
@@ -65,5 +72,6 @@ export default class TriggerTypeEnum extends AbstractEnum {
 }
 
 TriggerTypeEnum.SIMPLE = Symbol('SIMPLE');
+TriggerTypeEnum.REPEAT = Symbol('REPEAT');
 TriggerTypeEnum.CRON = Symbol('CRON');
 TriggerTypeEnum.DEPENDENT = Symbol('DEPENDENT');

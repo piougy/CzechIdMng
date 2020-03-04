@@ -185,7 +185,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			}
 			// scheduled triggers - native
 			for (Trigger trigger : scheduler.getTriggersOfJob(jobKey)) {
-				TriggerState state = scheduler.getTriggerState(trigger.getKey());	
+				TriggerState state = scheduler.getTriggerState(trigger.getKey());
 				if (trigger instanceof CronTrigger) {
 					task.getTriggers().add(new CronTaskTrigger(task.getId(), (CronTrigger) trigger, TaskTriggerState.convert(state)));
 				} else if (trigger instanceof SimpleTrigger) {
@@ -375,10 +375,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		trigger.setTaskId(taskId);
 		//
 		// TODO use of visitor pattern may be good
-		if (trigger instanceof CronTaskTrigger) {
-			createTriggerInternal(taskId, (CronTaskTrigger) trigger, dryRun);
-		} else if (trigger instanceof SimpleTaskTrigger) {
+		if (trigger instanceof SimpleTaskTrigger) {
 			createTriggerInternal(taskId, (SimpleTaskTrigger) trigger, dryRun);
+		} else if (trigger instanceof CronTaskTrigger) {
+			createTriggerInternal(taskId, (CronTaskTrigger) trigger, dryRun);
 		} else if(trigger instanceof DependentTaskTrigger) {
 			createTriggerInternal(taskId, (DependentTaskTrigger) trigger);
 		} else {
@@ -400,6 +400,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		}
 		//
 		try {
+			ZonedDateTime executeDate = trigger.getExecuteDate(); // postpone first fire time
 			scheduler.scheduleJob(
 					TriggerBuilder.newTrigger()
 						.withIdentity(trigger.getId(), taskId)
@@ -407,7 +408,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 						.withDescription(cronTaskTrigger.getDescription())
 						.withSchedule(cronBuilder)
 						.usingJobData(SchedulableTaskExecutor.PARAMETER_DRY_RUN, dryRun)
-						.startNow()
+						.startAt(executeDate == null ? new Date() : Date.from(executeDate.toInstant()))
 						.build());
 		} catch (org.quartz.SchedulerException ex) {
 			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);

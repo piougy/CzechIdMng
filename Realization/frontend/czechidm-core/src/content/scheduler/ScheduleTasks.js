@@ -317,6 +317,12 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     }
     const formEntity = this.refs.triggerForm.getData();
     //
+    if (formEntity.type === 'REPEAT') {
+      formEntity.type = 'CRON';
+      formEntity.cron = this.refs.repeat.getCron();
+      formEntity.executeDate = this.refs.repeat.getExecuteDate();
+    }
+
     this.context.store.dispatch(this.getManager().createTrigger(formEntity, () => {
       this.addMessage({ message: this.i18n('action.trigger-create.success') });
       this.closeTriggerDetail();
@@ -324,11 +330,17 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     }));
   }
 
-
   onChangeTriggerType(triggerType) {
+    // If the repeat task is chosen, trigger init of cron expression preview
     this.setState({
       triggerType: triggerType.value
-    });
+    }, () => this.initCron());
+  }
+
+  initCron() {
+    if (this.state.triggerType === 'REPEAT') {
+      this.refs.repeat.generateCron();
+    }
   }
 
   /**
@@ -706,12 +718,22 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   enum={ TriggerTypeEnum }
                   label={ this.i18n('entity.SchedulerTask.trigger._type.label') }
                   required
-                  onChange={this.onChangeTriggerType.bind(this)}/>
+                  onChange={ this.onChangeTriggerType.bind(this) }
+                  clearable={ false }/>
                 <Basic.DateTimePicker
                   ref="fireTime"
                   label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
                   hidden={ triggerType !== 'SIMPLE' }
                   required={ triggerType === 'SIMPLE' }/>
+                <Advanced.CronGenerator
+                  ref="repeat"
+                  hidden={ triggerType !== 'REPEAT' }
+                  required={ triggerType === 'REPEAT' }/>
+                <Basic.DateTimePicker
+                  ref="executeDate"
+                  label={ this.i18n('entity.SchedulerTask.trigger.executeDate.label') }
+                  helpBlock={ this.i18n('entity.SchedulerTask.trigger.executeDate.help') }
+                  hidden={ triggerType !== 'CRON' }/>
                 <Basic.TextField
                   ref="cron"
                   label={ this.i18n('entity.SchedulerTask.trigger.cron.label') }

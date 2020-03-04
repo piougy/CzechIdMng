@@ -324,11 +324,11 @@ public class SchedulerController implements BaseController {
 						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_CREATE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_CREATE, description = "") })
-				},
+				},	
 			notes = "Create trigger by given quartz cron expression.")
 	public AbstractTaskTrigger createCronTrigger(
 			@ApiParam(value = "Task identifier.", required = true)
-			@PathVariable String taskId, 
+			@PathVariable String taskId,
 			@ApiParam(value = "Cron trigger definition.", required = true)
 			@Valid @RequestBody CronTaskTrigger trigger) {
 		return schedulerService.createTrigger(taskId, trigger);

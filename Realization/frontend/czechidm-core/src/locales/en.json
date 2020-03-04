@@ -768,8 +768,46 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
+      "REPEAT": "Repeated start",
       "CRON": "Cron",
       "DEPENDENT": "Other task"
+    },
+    "IntervalTypeEnum": {
+      "MINUTE": "minutes",
+      "HOUR": "hours",
+      "DAY": "day",
+      "WEEK": "week",
+      "MONTH": "month"
+    },
+    "WeekDayEnum": {
+      "MONDAY": "mon",
+      "TUESDAY": "tue",
+      "WEDNESDAY": "wed",
+      "THURSTDAY": "thu",
+      "FRIDAY": "fri",
+      "SATURDAY": "sat",
+      "SUNDAY": "sun"
+    },
+    "CronMinuteEnum": {
+      "ONE": "1",
+      "TWO": "2",
+      "THREE": "3",
+      "FIVE": "5",
+      "SIX": "6",
+      "TEN": "10",
+      "TWELVE": "12",
+      "FIFTEEN": "15",
+      "TWENTY": "20",
+      "THIRTY": "30"
+    },
+    "CronHourEnum": {
+      "ONE": "1",
+      "TWO": "2",
+      "THREE": "3",
+      "FOUR": "4",
+      "SIX": "6",
+      "EIGHT": "8",
+      "TWELVE": "12"
     },
     "RolePriorityEnum": {
       "NONE": "None (0)",
@@ -4474,6 +4512,21 @@
           "help": "Scheduled start type"
         },
         "fireTime": "Fire time",
+        "executeDate": {
+          "label": "Valid from",
+          "help": "First fire time will be related to given date."
+        },
+        "repeat": {
+          "repeatEvery": "Repeat every",
+          "at": "at",
+          "every_1": "on",
+          "every_2": "on",
+          "every_3": "on",
+          "monthly": "Monthly",
+          "day": "day",
+          "cronExpression": "Result cron expression:",
+          "warning": "Task will run only if current month contains requested day"
+        },
         "cron": {
           "label": "Cron expression",
           "help": "Quartz cron",

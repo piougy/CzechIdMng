@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
@@ -514,6 +515,23 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		//
 		identityOne = identityService.get(identityOne);
 		Assert.assertEquals(identityOne.getUsername(), identityOne.getLastName());
+	}
+	
+	@Test
+	public void testScheduleTaskWithExecuteDateInFuture() {
+		Task task = createTask(null);
+		Assert.assertTrue(manager.getTask(task.getId()).getTriggers().isEmpty());
+		//
+		ZonedDateTime future = ZonedDateTime.now().plusDays(1);
+		CronTaskTrigger trigger = new CronTaskTrigger();
+		trigger.setTaskId(task.getId());
+		trigger.setCron("0 0/5 * * * ?");
+		trigger.setExecuteDate(future);
+		//
+		AbstractTaskTrigger createdTrigger = manager.createTrigger(task.getId(), trigger);
+		createdTrigger = manager.getTask(task.getId()).getTriggers().get(0);
+		//
+		Assert.assertTrue(!future.isAfter(createdTrigger.getNextFireTime()));
 	}
 	
 	private Task createTask(String result) {

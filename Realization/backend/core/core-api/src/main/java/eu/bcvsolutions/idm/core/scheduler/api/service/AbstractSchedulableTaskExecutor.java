@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
@@ -42,14 +45,26 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 		if (this.isDisabled()) {
 			LOG.warn("Task [{}] is disabled and cannot be executed, remove schedule for this task to hide this warning.",
 					AutowireHelper.getTargetClass(this).getSimpleName());
+			//
 			return;
 		}
+		String executionDateProperty = context.getMergedJobDataMap().getString(EntityEvent.EVENT_PROPERTY_EXECUTE_DATE);
+		if (StringUtils.isNotBlank(executionDateProperty)) {			
+			ZonedDateTime executionDate = ZonedDateTime.parse(executionDateProperty);
+			// Is it safe to ask about now and count with delay after task execution?		
+			if (ZonedDateTime.now().isBefore(executionDate)) {
+				LOG.debug("Task [{}] first fire time will be executed after [{}].",
+						AutowireHelper.getTargetClass(this).getSimpleName(), executionDateProperty);
+				//
+				return;
+			}
+		}		
 		//
 		// run as system - called from scheduler internally
 		securityService.setSystemAuthentication();
 		//
 		// scheduled task is quartz reference to IdM entity
-		IdmScheduledTaskDto taskDto = getScheduledTask(context);
+		IdmScheduledTaskDto taskDto = getScheduledTask(context);  
 		//
 		// add task to queue only - quartz will start take care of the rest
 		createIdmLongRunningTask(context, taskDto);

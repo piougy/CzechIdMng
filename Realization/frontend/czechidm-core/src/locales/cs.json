@@ -801,8 +801,46 @@
     },
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
+      "REPEAT": "Opakované spuštění",
       "CRON": "Cron",
       "DEPENDENT": "Jiná úloha"
+    },
+    "IntervalTypeEnum": {
+      "MINUTE": "minut",
+      "HOUR": "hodin",
+      "DAY": "den",
+      "WEEK": "týden",
+      "MONTH": "měsíc"
+    },
+    "WeekDayEnum": {
+      "MONDAY": "po",
+      "TUESDAY": "út",
+      "WEDNESDAY": "st",
+      "THURSTDAY": "čt",
+      "FRIDAY": "pá",
+      "SATURDAY": "so",
+      "SUNDAY": "ne"
+    },
+    "CronMinuteEnum": {
+      "ONE": "1",
+      "TWO": "2",
+      "THREE": "3",
+      "FIVE": "5",
+      "SIX": "6",
+      "TEN": "10",
+      "TWELVE": "12",
+      "FIFTEEN": "15",
+      "TWENTY": "20",
+      "THIRTY": "30"
+    },
+    "CronHourEnum": {
+      "ONE": "1",
+      "TWO": "2",
+      "THREE": "3",
+      "FOUR": "4",
+      "SIX": "6",
+      "EIGHT": "8",
+      "TWELVE": "12"
     },
     "RolePriorityEnum": {
       "NONE": "Žádná (0)",
@@ -4526,6 +4564,21 @@
           "help": "Typ plánovaného spuštění"
         },
         "fireTime": "Datum spuštění",
+        "executeDate": {
+          "label": "Platné od",
+          "help": "Nastaví první spuštění úlohy dle zadaného data."
+        },
+        "repeat": {
+          "repeatEvery": "Opakovat jednou za",
+          "at": "v",
+          "every_1": "každé",
+          "every_2": "každou",
+          "every_3": "každý",
+          "monthly": "Měsíčně",
+          "day": "den",
+          "cronExpression": "Výsledný cron výraz:",
+          "warning": "Úloha se spustí pouze pokud daný měsíc obsahuje požadovaný den"
+        },
         "cron": {
           "label": "Cron výraz",
           "help": "Quartz cron",

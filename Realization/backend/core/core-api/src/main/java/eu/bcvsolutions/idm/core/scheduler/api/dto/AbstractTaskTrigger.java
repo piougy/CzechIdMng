@@ -43,7 +43,8 @@ public abstract class AbstractTaskTrigger implements BaseDto {
 	private ZonedDateTime nextFireTime;
 	private ZonedDateTime previousFireTime;
 	private TaskTriggerState state;
-	
+	private ZonedDateTime executeDate;
+
 	public AbstractTaskTrigger() {
 	}
 	
@@ -75,6 +76,19 @@ public abstract class AbstractTaskTrigger implements BaseDto {
 			this.previousFireTime = trigger.getPreviousFireTime().toInstant().atZone(ZoneId.systemDefault());
 		}
 		this.state = state;
+	}
+	
+	/**
+	 * Creates a new instance using trigger and state
+	 * 
+	 * @param trigger trigger
+	 * @param state state
+	 * @since 10.2.0
+	 */
+	public AbstractTaskTrigger(String taskId, Trigger trigger, TaskTriggerState state, ZonedDateTime executeDate) {
+		this(taskId, trigger, state);
+		//
+		this.executeDate = executeDate;
 	}
 	
 	@Override
@@ -125,5 +139,25 @@ public abstract class AbstractTaskTrigger implements BaseDto {
 	
 	public void setState(TaskTriggerState state) {
 		this.state = state;
+	}
+	
+	/**
+	 * Delayed first execute date.
+	 * 
+	 * @return delayed first execute date.
+	 * @since 10.2.0
+	 */
+	public ZonedDateTime getExecuteDate() {
+		return executeDate;
+	}
+
+	/**
+	 * Delayed first execute date.
+	 * 
+	 * @param executeDate
+	 * @since 10.2.0
+	 */
+	public void setExecuteDate(ZonedDateTime executeDate) {
+		this.executeDate = executeDate;
 	}
 }

@@ -60,6 +60,7 @@ import RoleRequestInfo from './RoleRequestInfo/RoleRequestInfo';
 import PasswordInfo from './PasswordInfo/PasswordInfo';
 import AuditableInfo from './EntityInfo/AuditableInfo';
 import DetailHeader from './Content/DetailHeader';
+import CronGenerator from './CronGenerator/CronGenerator';
 
 const Components = {
   Table,
@@ -125,7 +126,8 @@ const Components = {
   RoleRequestInfo,
   PasswordInfo,
   AuditableInfo,
-  DetailHeader
+  DetailHeader,
+  CronGenerator
 };
 
 Components.version = '9.4.0';

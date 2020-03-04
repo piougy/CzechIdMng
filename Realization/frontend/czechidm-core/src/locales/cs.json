@@ -5625,7 +5625,7 @@
       },
       "core-identity-role-valid-request-long-running-task": {
         "label": "Začátek platnosti přiřazených rolí",
-        "help": "Pro nově přidělené platné role vytvoří účty na koncových systémech.",
+        "help": "Pro nově platné přidělené role vytvoří účty na koncových systémech.",
         "icon": "component:scheduled-task"
       },
       "core-model-mapper-checker-long-running-task": {

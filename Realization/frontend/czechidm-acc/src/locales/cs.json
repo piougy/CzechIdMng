@@ -2108,7 +2108,7 @@
           "virtualsystem": {
             "label": "Virtuální systémy",
             "placeholder": "Všechny systémy ...",
-            "help": "[All systems...] - všechny systémy, [Yes] - jen virtuální, [No] - všechny kromě virtuálních."
+            "help": "[Všechny systémy ...] - všechny systémy, [Ano] - jen virtuální, [Ne] - všechny kromě virtuálních."
           }
         }
       },

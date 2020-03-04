@@ -5509,7 +5509,7 @@
         "help": "Send notification for user after password expired and publish PASSWORD_EXPIRED event."
       },
       "core-identity-role-expiration-long-running-task": {
-        "label": "Assigned roles expiration",
+        "label": "Assigned roles - expiration",
         "help": "Task removes expired assigned roles from users.",
         "icon": "$t(action.delete.icon)"
       },

@@ -2089,30 +2089,30 @@
         "icon": "$t(action.delete.icon)"
       },
       "acc-attribute-controlled-values-recalculation-long-running-task": {
-        "label": "Recalculate attribute controlled values for provisioning (merge)",
-        "help": "Recalculate controlled values for provisioning of attribute with merge values strategy configured.",
+        "label": "Recalculate values of controlled attributes for provisioning (merge)",
+        "help": "Recalculate values of controlled attributes with configured merge strategy for provisioning .",
         "icon": "component:scheduled-task"
       },
       "acc-cancel-provisioning-queue-long-running-task": {
         "label": "Cancel provisioning queue (deprecated)",
-        "help": "Cancel all active provisioning operations in queue for all systems. This task is deprecated - bulk action can be used directly from active provisioning operations table.",
+        "help": "Cancel all active provisioning operations in queue for all systems. This task is deprecated - bulk action can be used directly from active provisioning operation table.",
         "icon": "component:scheduled-task"
       },
       "acc-provisioning-queue-long-running-task": {
-        "label": "Process provisioning operations in queue",
-        "help": "Process created active provisioning operations in queue. Active provisioning operation is created in queue, when target system is configured as asynchronous. If no asynchronous system exists, is not required to schedule this task.",
+        "label": "Process queue of provisioning operations",
+        "help": "Process created active provisioning operations in queue. Active provisioning operation is added to queue, if target system is configured as asynchronous. If no asynchronous system exists, it is not required to schedule this task.",
         "icon": "component:scheduled-task",
         "attributes": {
           "virtualsystem": {
             "label": "Virtual systems",
             "placeholder": "All systems ...",
-            "help": "Operations for virtual or other systems. Operation for all systems will be processed by default."
+            "help": "[All systems...] - all systems, [Yes] - virtual only, [No] - all but virtual."
           }
         }
       },
       "acc-retry-provisioning-long-running-task": {
         "label": "Retry provisioning periodically",
-        "help": "Retry failed operations in provisioning queue.",
+        "help": "Retry failed operations in provisioning queue. Failed provisioning operations are automatically scheduled. This task runs such operations at scheduled time.",
         "icon": "component:scheduled-task"
       }
     }

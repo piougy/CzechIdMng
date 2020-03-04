@@ -41,7 +41,7 @@
       },
       "roleRequest": {
         "implementer": {
-            "label": "Žadatel, který vytvořil žádost o změnou rolí"
+            "label": "Žadatel, který vytvořil žádost o změnu rolí"
         }
       }
     }

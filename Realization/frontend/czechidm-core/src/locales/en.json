@@ -5509,7 +5509,7 @@
         "help": "Send notification for user after password expired and publish PASSWORD_EXPIRED event."
       },
       "core-identity-role-expiration-long-running-task": {
-        "label": "Assigned roles - expiration",
+        "label": "Assigned roles expiration",
         "help": "Task removes expired assigned roles from users.",
         "icon": "$t(action.delete.icon)"
       },
@@ -5520,22 +5520,22 @@
       },
       "core-hr-contract-exclusion-long-running-task": {
         "label": "HR process - contract exclusion",
-        "help": "Task process excluded contracts. The processes is started for contracts that are both valid (meaning validFrom and validTill) and excluded.",
+        "help": "Task proceses excluded contracts. It is started for contracts that are both valid (meant validFrom and validTill) and excluded.",
         "icon": "component:scheduled-task"
       },
       "core-hr-enable-contract-long-running-task": {
         "label": "HR process - enable contract",
-        "help": "Task process enabled contracts. The processes is started for contracts that are both valid (meaning validFrom and validTill) and enabled.",
+        "help": "Task processes enabled contracts. It is started for contracts that are both valid (meant validFrom and validTill) and enabled.",
         "icon": "component:scheduled-task"
       },
       "core-hr-end-contract-long-running-task": {
         "label": "HR process - end of contract",
-        "help": "Task process ended contracts. The processes is started for contracts that are not valid (meaning validFrom and validTill).",
+        "help": "Task processes ended contracts. It is started for contracts that are not valid (meant validFrom and validTill).",
         "icon": "component:scheduled-task"
       },
       "core-add-new-role-composition-long-running-task": {
         "label": "Recalculate business role",
-        "help": "Task for assign sub roles defined by this composition to identities having superior role.",
+        "help": "Task recalculates roles assigned to users according to the business role definition.",
         "icon": "component:scheduled-task",
         "attributes": {
           "role-composition-id": {
@@ -5545,13 +5545,13 @@
         }
       },
       "core-clear-dirty-state-contract-slice-long-running-task": {
-        "label": "Clear dirty state for contract slices.",
-        "help": "During synchronization is set dirty flag for all processed slices. This task removes the flag.",
+        "label": "Process contract slices marked as invalid (dirty flag).",
+        "help": "During synchronization the dirty flag is set for all processed slices. This task removes that flag.",
         "icon": "component:scheduled-task"
       },
       "core-execute-script-long-running-task": {
         "label": "Execute script",
-        "help": "Task for execute script by code.",
+        "help": "Task executing script code.",
         "icon": "component:scheduled-task",
         "attributes": {
           "scriptcode": {
@@ -5562,23 +5562,23 @@
       },
       "core-change-confidential-storage-key-long-running-task": {
         "label": "Change confidential storage key",
-        "help": "Change all crypted values in confidential storage to new. This task has to be executed, when confidential storage key in application configuration was changed.",
+        "help": "Change the key of all encrypted values in confidential storage for a new one. This task has to be executed, when confidential storage key in application configuration was changed.",
         "icon": "component:scheduled-task",
         "attributes": {
           "oldcryptkey": {
             "label": "Old key",
-            "help": "Old key used for confidential storage."
+            "help": "Old key used for confidential storage. Current values will be read by this key and stored using the new key."
           }
         }
       },
       "core-identity-role-valid-request-long-running-task": {
         "label": "Assigned roles - start of validity",
-        "help": "Create new accounts for assigned roles, that is newly valid.",
+        "help": "Creates accounts for new assigned valid roles in target system.",
         "icon": "component:scheduled-task"
       },
       "core-model-mapper-checker-long-running-task": {
         "label": "Model mapper checker",
-        "help": "Check model mapper is properly initialized to prevent dto mapping exceptions.",
+        "help": "Checks model mapper whether it is properly initialized to prevent from dto mapping exceptions.",
         "icon": "component:scheduled-task"
       },
       "core-notify-identity-long-running-task": {
@@ -5604,7 +5604,7 @@
       },
       "core-remove-role-composition-long-running-task": {
         "label": "Delete business role",
-        "help": "Task for delete business role and all assigned sub roles defined by this composition to identities.",
+        "help": "Task deletes business role and all sub-roles assigned to identities defined by this composition.",
         "icon": "$t(action.delete.icon)",
         "attributes": {
           "role-composition-id": {
@@ -5614,8 +5614,8 @@
         }
       },
       "core-select-current-contract-slice-long-running-task": {
-        "label": "Recalculate current using slices as contract",
-        "help": "Find all slices which should be for actual date using as contract and copy their values to parent contracts.",
+        "label": "Recalculate currently used contract time slices",
+        "help": "Task finds all contract time slices which are to be set as current. These slices are written through to the related contract.",
         "icon": "component:scheduled-task"
       }
     }

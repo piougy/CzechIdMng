@@ -277,11 +277,10 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 				// log failed result and continue
 				LOG.error("Processing of entity [{}] failed.", entityId, ex);
 				this.logItemProcessed(entity, new OperationResult.Builder(OperationState.EXCEPTION).setCause(ex).build());
-			} finally {
-				if (!updateState()) {
-					return new OperationResult.Builder(OperationState.CANCELED).build();
-				}
 			}
+			if (!updateState()) {
+				return new OperationResult.Builder(OperationState.CANCELED).build();
+			}			
 		}
 		return new OperationResult.Builder(OperationState.EXECUTED).build();
 	}

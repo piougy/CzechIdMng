@@ -69,7 +69,7 @@ Updated Flyway version requires **PostgresSQL database version >= 9.4** ([suppor
 
 ## Configuration properties
 
-Based on upgraded libraries we have to add, remove or configuration properties (mainly related to connection pool, hibernate and quartz).
+Based on upgraded libraries we have to add, remove or change configuration properties (mainly related to connection pool, hibernate and quartz).
 
 ### Added properties
 

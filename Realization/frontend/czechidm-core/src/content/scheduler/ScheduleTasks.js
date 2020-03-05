@@ -167,6 +167,23 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     this.context.store.dispatch(manager.fetchSupportedTasks());
+    if (this.refs.text) {
+      this.refs.text.focus();
+    }
+  }
+
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -443,6 +460,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           uiKey="schedule-task-table"
           manager={ manager }
           showRowSelection={ SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE']) }
+          showAuditLink={ false }
           buttons={
             [
               <Basic.Button
@@ -462,6 +480,23 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
             ]
           }
+          filter={
+            <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
+              <Basic.AbstractForm ref="filterForm">
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 8 }>
+                    <Advanced.Filter.TextField
+                      ref="text"
+                      placeholder={ this.i18n('filter.text.placeholder') }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
+                  </Basic.Col>
+                </Basic.Row>
+              </Basic.AbstractForm>
+            </Advanced.Filter>
+          }
+          filterOpened
           _searchParameters={ this.getSearchParameters() }
           uuidEnd>
           <Advanced.Column
@@ -544,7 +579,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                     }
                   }
                   return (
-                    <div>
+                    <Basic.Div>
                       {
                         _taskType
                         ?
@@ -554,7 +589,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                       }
                       {': '}
                       { (!attribute || !attribute.confidential) ? Utils.Ui.toStringValue(entity.parameters[parameterName]) : '*****' }
-                    </div>
+                    </Basic.Div>
                   );
                 }).values()];
               }
@@ -566,7 +601,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
               ({ data, rowIndex, property}) => {
                 const triggers = data[rowIndex][property];
                 return (
-                  <div>
+                  <Basic.Div>
                     {
                       triggers.map(trigger => {
                         if (!trigger.initiatorTaskId
@@ -575,7 +610,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                           return null;
                         }
                         return (
-                          <div>
+                          <Basic.Div>
                             {
                               trigger.initiatorTaskId
                               ?
@@ -591,7 +626,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                               rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE']) }>
                               <Basic.Icon value="remove" color="red"/>
                             </Basic.Button>
-                          </div>
+                          </Basic.Div>
                         );
                       })
                     }
@@ -604,7 +639,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                       {' '}
                       { this.i18n('button.add') }
                     </Basic.Button>
-                  </div>
+                  </Basic.Div>
                 );
               }
             }/>
@@ -673,13 +708,13 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.SchedulerTask.instanceId.label') }
                   helpBlock={ this.i18n('entity.SchedulerTask.instanceId.help') }
                   required/>
-                <div style={ showProperties ? {} : { display: 'none' }}>
+                <Basic.Div style={ showProperties ? {} : { display: 'none' }}>
                   <Basic.ContentHeader text={ this.i18n('action.task-edit.parameters') }/>
                   <Advanced.EavForm
                     ref="formInstance"
                     formInstance={ formInstance }
                     useDefaultValue={ Utils.Entity.isNew(detail.entity) }/>
-                </div>
+                </Basic.Div>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -807,7 +842,7 @@ function select(state) {
     supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
     showLoading: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
     showLoadingDetail: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_TASKS),
-    _searchParameters: Utils.Ui.getSearchParameters(state, SchedulerManager.UI_KEY_TASKS)
+    _searchParameters: Utils.Ui.getSearchParameters(state, 'schedule-task-table')
   };
 }
 

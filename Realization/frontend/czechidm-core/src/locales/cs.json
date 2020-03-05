@@ -3091,6 +3091,12 @@
           "run": "Spustit ručně",
           "dryRun": "Spustit zkušební běh"
         },
+        "filter": {
+          "text": {
+            "label": "Typ (třída) / Popis",
+            "placeholder": "Typ úlohy (třída) nebo popis úlohy"
+          }
+        },
         "action": {
           "trigger-delete": {
             "header": "Odebrat plánované spuštění",
@@ -3151,8 +3157,8 @@
         },
         "filter": {
           "text": {
-            "label": "Typ / Popis",
-            "placeholder": "Typ nebo popis úlohy"
+            "label": "Typ (třída) / Popis",
+            "placeholder": "Typ úlohy (třída) nebo popis úlohy"
           },
           "operationState": {
             "label": "Stav",
@@ -4508,7 +4514,7 @@
     },
     "LongRunningTask": {
       "taskId": "Id úlohy",
-      "taskType": "Typ úlohy",
+      "taskType": "Typ úlohy (třída)",
       "taskDescription": "Popis",
       "count": "Počet",
       "counter": "Zpracováno",

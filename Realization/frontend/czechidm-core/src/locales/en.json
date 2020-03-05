@@ -3038,6 +3038,12 @@
           "run": "Run manually",
           "dryRun": "Run as dryRun (demo process)"
         },
+        "filter": {
+          "text": {
+            "label": "Type (class) / Description",
+            "placeholder": "Task type (class) or description of task"
+          }
+        },
         "action": {
           "trigger-delete": {
             "header": "Remove scheduled run",
@@ -3098,8 +3104,8 @@
         },
         "filter": {
           "text": {
-            "label": "Type / Description",
-            "placeholder": "Type or description of task"
+            "label": "Type (class) / Description",
+            "placeholder": "Task type (class) or description of task"
           },
           "operationState": {
             "label": "State",
@@ -4456,7 +4462,7 @@
     },
     "LongRunningTask": {
       "taskId": "Task ID",
-      "taskType": "Task type",
+      "taskType": "Task type (class)",
       "taskDescription": "Description",
       "count": "Count",
       "counter": "Processed",

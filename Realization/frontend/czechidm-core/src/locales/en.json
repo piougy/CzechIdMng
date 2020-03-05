@@ -995,10 +995,12 @@
     "role-request": {
       "header": "Requests for change roles",
       "creator": {
-        "header": "Requests, which I created"
+        "header": "Requests, which I created",
+        "identity": "Requests, which user created"
       },
       "applicant": {
-        "header": "Requests for me"
+        "header": "Requests for me",
+        "identity": "Requests for user"
       }
     }
   },

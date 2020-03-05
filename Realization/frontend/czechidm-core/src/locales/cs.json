@@ -1028,10 +1028,12 @@
     "role-request": {
       "header": "Žádosti o změnu rolí",
       "creator": {
-        "header": "Mnou vytvořené žádosti"
+        "header": "Mnou vytvořené žádosti",
+        "identity": "Uživatelem vytvořené žádosti"
       },
       "applicant": {
-        "header": "Žádosti vytvořené pro mě"
+        "header": "Žádosti vytvořené pro mě",
+        "identity": "Žádosti vytvořené pro uživatele"
       }
     }
   },

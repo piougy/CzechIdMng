@@ -24,8 +24,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 @Component("provisioningBreakConfiguration")
 public class DefaultProvisioningBreakConfiguration extends AbstractConfiguration implements ProvisioningBreakConfiguration {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(DefaultProvisioningBreakConfiguration.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultProvisioningBreakConfiguration.class);
 	
 	@Autowired private LookupService lookupService;
 

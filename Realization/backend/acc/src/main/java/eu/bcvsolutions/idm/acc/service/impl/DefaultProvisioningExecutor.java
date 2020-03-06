@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -74,7 +73,6 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	private final SysSystemEntityService systemEntityService;
 	//
 	@Autowired private IdmRoleRequestService roleRequestService;
-	@Autowired private Executor executor;
 
 	@Autowired
 	public DefaultProvisioningExecutor(
@@ -177,22 +175,32 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			FutureTask<EventContext<SysProvisioningOperationDto>> futureTask = new FutureTask<EventContext<SysProvisioningOperationDto>>(new Callable<EventContext<SysProvisioningOperationDto>>() {
 
 				@Override
-				public EventContext<SysProvisioningOperationDto> call() throws Exception {
+				public EventContext<SysProvisioningOperationDto> call() {
 					return entityEventManager.process(event);
 				}
 				
 			});
-			executor.execute(futureTask);
+			// thread pool is not used here
+			Thread thread = new Thread(futureTask);
+	        thread.start();
+	        //
 			// global timeout by configuration
 			long timeout = provisioningConfiguration.getTimeout();
 			try {
+				// TODO: non blocking wait if possible (refactoring is needed + java 9 helps)
 				EventContext<SysProvisioningOperationDto> context = futureTask.get(
 						timeout, 
 						TimeUnit.MILLISECONDS
 				);
 				//
 				return context.getContent();
+			} catch (InterruptedException ex) {
+				futureTask.cancel(true);
+				// propagate exception to upper catch
+				throw ex;
 			} catch (TimeoutException ex) {
+				futureTask.cancel(true);
+				// put thread into queue and wait => timeout too => retry mecchanism will work
 				throw new ResultCodeException(
 						AccResultCode.PROVISIONING_TIMEOUT,
 						ImmutableMap.of(

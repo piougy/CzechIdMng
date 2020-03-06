@@ -279,13 +279,6 @@ export default class CronGenerator extends AbstractFormComponent {
     }
     return (
       <Basic.Div className="cron-generator">
-        <Basic.DateTimePicker
-          ref="executeDate"
-          label={ this.i18n('entity.SchedulerTask.trigger.executeDate.label') }
-          helpBlock={ this.i18n('entity.SchedulerTask.trigger.executeDate.help') }
-          value={ initExecuteDate }
-          onChange={ this.onExecuteDateChange.bind(this) }/>
-
         <Basic.LabelWrapper label={ this.i18n('repeatEvery') }>
           <div className="main-group">
             <Basic.EnumSelectBox
@@ -376,6 +369,13 @@ export default class CronGenerator extends AbstractFormComponent {
             )}
           </div>
         </Basic.LabelWrapper>
+
+        <Basic.DateTimePicker
+          ref="executeDate"
+          label={ this.i18n('entity.SchedulerTask.trigger.executeDate.label') }
+          helpBlock={ this.i18n('entity.SchedulerTask.trigger.executeDate.help') }
+          value={ initExecuteDate }
+          onChange={ this.onExecuteDateChange.bind(this) }/>
 
         {/* Warning for 29., 30., 31. days of month */}
         <Basic.Alert level="warning" icon="warning-sign" text={ this.i18n('warning') } rendered={ showMonthWarning }/>

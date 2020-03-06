@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.api.config.domain.AbstractConfiguration;
 @Component("provisioningConfiguration")
 public class DefaultProvisioningConfiguration extends AbstractConfiguration implements ProvisioningConfiguration {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultProvisioningConfiguration.class);
+	//
 	@Autowired private ProvisioningBreakConfiguration provisioningBreakConfiguration;
 	
 	@Override
@@ -33,6 +35,13 @@ public class DefaultProvisioningConfiguration extends AbstractConfiguration impl
 	
 	@Override
 	public long getTimeout() {
-		return getConfigurationService().getLongValue(PROPERTY_TIMEOUT, DEFAULT_TIMEOUT);
+		long timeout = getConfigurationService().getLongValue(PROPERTY_TIMEOUT, DEFAULT_TIMEOUT);
+		if (timeout <= 1000) {
+			LOG.warn("Configured provisioning timeout has to be greater than [1000]ms, given [{}]. Default timeout [{}] will be used, change your configuration property [{}].",
+					timeout, DEFAULT_TIMEOUT, PROPERTY_TIMEOUT);
+			return DEFAULT_TIMEOUT;
+		}
+		//
+		return timeout;
 	}
 }

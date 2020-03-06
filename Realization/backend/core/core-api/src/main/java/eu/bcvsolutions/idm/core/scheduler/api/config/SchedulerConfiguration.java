@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.api.config;
 
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+
 /**
  * Configuration for scheduler and asynchronous processing.
  * 
@@ -61,12 +64,12 @@ public interface SchedulerConfiguration {
 	String PROPERTY_TASK_EXECUTOR_MAX_POOL_SIZE = "scheduler.task.executor.maxPoolSize";
 	
 	/**
-	 * Waiting tasks to be processed. Uses {@code Integer.MAX_VALUE} as default. 
+	 * Waiting tasks to be processed. Uses 20 as default. 
 	 * {@link LinkedBlockingQueue} is used for queue => capacity is initialized dynamically.
-	 * {@link AbotrPolicy} is set for rejected tasks.	
+	 * {@link AbotrPolicy} is set for rejected tasks - reject exception has to be processed by a caller ({@link LongRunningTaskManager}).
 	 */
 	String PROPERTY_TASK_EXECUTOR_QUEUE_CAPACITY = "scheduler.task.executor.queueCapacity";
-	int DEFAULT_TASK_EXECUTOR_QUEUE_CAPACITY = Integer.MAX_VALUE;
+	int DEFAULT_TASK_EXECUTOR_QUEUE_CAPACITY = 20;
 	
 	/**
 	 * Thread priority for threads in event executor pool - 5 by default (normal).
@@ -89,7 +92,7 @@ public interface SchedulerConfiguration {
 	/**
 	 * Waiting events to be processed. Uses 1000 as default - prevent to prepare events repetitively and use additional threads till maxPoolSize.
 	 * {@link LinkedBlockingQueue} is used for queue => capacity is initialized dynamically.
-	 * {@link AbotrPolicy} is set for rejected tasks.
+	 * {@link AbotrPolicy} is set for rejected tasks - reject exception has to be processed by a caller ({@link EntityEventManager}).
 	 */
 	String PROPERTY_EVENT_EXECUTOR_QUEUE_CAPACITY = "scheduler.event.executor.queueCapacity";
 	int DEFAULT_EVENT_EXECUTOR_QUEUE_CAPACITY = 50;

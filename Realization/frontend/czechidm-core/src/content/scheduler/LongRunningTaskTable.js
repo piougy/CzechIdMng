@@ -105,7 +105,12 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
       this.i18n(`action.task-run.message`, { record: this.getManager().getNiceLabel(entity) }),
       this.i18n(`action.task-run.header`)
     ).then(() => {
-      this.context.store.dispatch(this.getManager().processCreatedTask(entity.id, 'task-queue-process-created', () => {
+      this.context.store.dispatch(this.getManager().processCreatedTask(entity.id, 'task-queue-process-created', (e, error) => {
+        console.log('ddd');
+        if (error) {
+          this.addError(error);
+          return;
+        }
         this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
         this.refs.table.reload();
       }));

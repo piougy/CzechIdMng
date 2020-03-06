@@ -764,11 +764,6 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   ref="repeat"
                   hidden={ triggerType !== 'REPEAT' }
                   required={ triggerType === 'REPEAT' }/>
-                <Basic.DateTimePicker
-                  ref="executeDate"
-                  label={ this.i18n('entity.SchedulerTask.trigger.executeDate.label') }
-                  helpBlock={ this.i18n('entity.SchedulerTask.trigger.executeDate.help') }
-                  hidden={ triggerType !== 'CRON' }/>
                 <Basic.TextField
                   ref="cron"
                   label={ this.i18n('entity.SchedulerTask.trigger.cron.label') }
@@ -783,6 +778,11 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   }
                   hidden={ triggerType !== 'CRON' }
                   required={ triggerType === 'CRON' }/>
+                <Basic.DateTimePicker
+                  ref="executeDate"
+                  label={ this.i18n('entity.SchedulerTask.trigger.executeDate.label') }
+                  helpBlock={ this.i18n('entity.SchedulerTask.trigger.executeDate.help') }
+                  hidden={ triggerType !== 'CRON' }/>
                 <Basic.SelectBox
                   ref="initiatorTaskId"
                   manager={ manager }

@@ -104,7 +104,7 @@ public interface ProvisioningConfiguration extends Configurable {
 	 * Global provisioning timeout in milis.
 	 * 
 	 * @return default provisioning timeout
-	 * @since 9.7.15
+	 * @since 10.2.0
 	 */
 	long getTimeout();
 }

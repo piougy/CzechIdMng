@@ -278,10 +278,12 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		} catch (RejectedExecutionException ex) {
 			// thread pool queue is full - wait for another try
 			UUID taskId = futureTask.getExecutor().getLongRunningTaskId();
-			LOG.info("Execute task [{}] asynchronously will be postponed, all threads are in use.", taskId);
+			LOG.warn("Execute task [{}] asynchronously will be postponed, all threads are in use.", taskId);
 			//
 			IdmLongRunningTaskDto task = service.get(taskId);
 			markTaskAsCreated(task);
+			//
+			// Throw exception here doesn't make sense here - is after transaction listener => exception is not propagated to caller. 
 		}
 	}
 

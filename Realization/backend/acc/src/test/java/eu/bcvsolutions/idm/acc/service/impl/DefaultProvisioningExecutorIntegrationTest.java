@@ -414,7 +414,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), readOnlyOperation.getResult().getModel().getStatusEnum());
 		SysSystemEntityDto systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);
 		provisioningExecutor.execute(updateProvisioningOperation(systemEntity, firstname + 2)); // 2 - update
+		//
 		getHelper().waitForResult(null, 1, 1); // FIXME: how to order operations created in the same milis?
+		//
 		provisioningExecutor.execute(updateProvisioningOperation(systemEntity, firstname + 3)); // 3 - update
 		//
 		systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, uid);

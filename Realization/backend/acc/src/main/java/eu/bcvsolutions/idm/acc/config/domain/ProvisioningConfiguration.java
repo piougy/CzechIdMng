@@ -28,6 +28,14 @@ public interface ProvisioningConfiguration extends Configurable {
 	String PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX
 			+ "acc.provisioning.allowedAutoMappingOnExistingAccount";
 	boolean DEFAULT_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT = true;
+	
+	/**
+	 * Default provisioning timeout in milis.
+	 * 3 minutes by default.
+	 */
+	String PROPERTY_TIMEOUT = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX
+			+ "acc.provisioning.timeout";
+	long DEFAULT_TIMEOUT = 180000;
 
 	@Override
 	default String getConfigurableType() {
@@ -45,6 +53,7 @@ public interface ProvisioningConfiguration extends Configurable {
 														// not make a sense here
 		properties.add(PROPERTY_SEND_PASSWORD_ATTRIBUTES_TOGETHER);
 		properties.add(PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT);
+		properties.add(PROPERTY_TIMEOUT);
 		return properties;
 	}
 
@@ -83,11 +92,19 @@ public interface ProvisioningConfiguration extends Configurable {
 	}
 	
 	/***
-	 * Seconds between next retry provisioning attempts
+	 * Seconds between next retry provisioning attempts.
 	 * 
 	 * @return
 	 */
 	default List<Integer> getRetrySequence() {
 		return Arrays.asList(120, 300, 1200, 7200, 43200); // TODO: configurable
 	}
+	
+	/**
+	 * Global provisioning timeout in milis.
+	 * 
+	 * @return default provisioning timeout
+	 * @since 9.7.15
+	 */
+	long getTimeout();
 }

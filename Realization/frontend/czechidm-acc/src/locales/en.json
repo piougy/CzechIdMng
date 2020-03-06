@@ -2158,6 +2158,10 @@
       "title": "Provisioning of account [{{name}}] executed",
       "message": "Provisioning of account [{{name}}] in system [{{system}}] successfully finished."
     },
+    "PROVISIONING_TIMEOUT": {
+      "title": "Provisioning of account [{{name}}] wasn't executed",
+      "message": "Provisioning of account [{{name}}] in system [{{system}}] failed. Provisioning timeout [{{timeout}}]ms exceeded. Check target system is available."
+    },
     "PROVISIONING_IS_IN_QUEUE": {
       "title": "Provisioning task for account [{{name}}] stored to queue",
       "message": "Account has some unfinished provisioning tasks in queue. New provisioning task for account [{{name}}] in system [{{system}}] was stored to queue."

@@ -30,4 +30,9 @@ public class DefaultProvisioningConfiguration extends AbstractConfiguration impl
 	public boolean isAllowedAutoMappingOnExistingAccount() {
 		return getConfigurationService().getBooleanValue(PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT, DEFAULT_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT);
 	}
+	
+	@Override
+	public long getTimeout() {
+		return getConfigurationService().getLongValue(PROPERTY_TIMEOUT, DEFAULT_TIMEOUT);
+	}
 }

@@ -1087,8 +1087,8 @@
     "ProvisioningArchive": {
       "_type": "Provisioning - archív",
       "modified": {
-        "short": "Archiváno",
-        "label": "Archiváno",
+        "short": "Archivováno",
+        "label": "Archivováno",
         "title": "Operace byla archivována (provedena, zrušena)",
         "help": "Operace byla archivována (provedena, zrušena)."
       }
@@ -2159,6 +2159,10 @@
     "PROVISIONING_SUCCEED": {
       "title": "Proběhl provisioning účtu [{{name}}]",
       "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
+    },
+    "PROVISIONING_TIMEOUT": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal. Překročen časový limit [{{timeout}}]ms pro kontaktování systému. Zkontrolujte, že koncový systém je dostupný."
     },
     "PROVISIONING_IS_IN_QUEUE": {
       "title": "Provisioning účtu [{{name}}] byl zařazen do fronty",

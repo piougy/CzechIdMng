@@ -912,6 +912,6 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	
 	@Override
 	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
-		return new SysSystemFilter(parameters);
+		return new SysSystemFilter(parameters, getParameterConverter());
 	}
 }

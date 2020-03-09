@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 
 /**
- * Controller tests
+ * Controller tests:
  * - CRUD
  * - filters
  * 
@@ -80,7 +80,7 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 		SysSystemDto systemOne = createDto(system);
 		system = prepareDto();
 		system.setVirtual(false);
-		system.setDescription(getHelper().createName());
+		system.setDescription(systemOne.getDescription());
 		SysSystemDto systemTwo = createDto(system);
 		//
 		SysSystemFilter filter = new SysSystemFilter();
@@ -91,10 +91,12 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 		Assert.assertTrue(results.stream().allMatch(r -> r.getId().equals(systemOne.getId())));
 		//
 		filter.setVirtual(Boolean.FALSE);
+		results = find(filter);
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().allMatch(r -> r.getId().equals(systemTwo.getId())));
 		//
 		filter.setVirtual(null);
+		results = find(filter);
 		Assert.assertEquals(2, results.size());
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(systemOne.getId())));
 		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(systemTwo.getId())));
@@ -108,7 +110,7 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 		SysSystemDto systemOne = createDto(system);
 		system = prepareDto();
 		system.setPasswordPolicyGenerate(createPasswordPolicy(IdmPasswordPolicyType.GENERATE));
-		system.setDescription(getHelper().createName());
+		system.setDescription(systemOne.getDescription());
 		createDto(system); // mock
 		//
 		SysSystemFilter filter = new SysSystemFilter();
@@ -127,7 +129,7 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 		SysSystemDto systemOne = createDto(system);
 		system = prepareDto();
 		system.setPasswordPolicyValidate(createPasswordPolicy(IdmPasswordPolicyType.VALIDATE));
-		system.setDescription(getHelper().createName());
+		system.setDescription(systemOne.getDescription());
 		createDto(system); // mock
 		//
 		SysSystemFilter filter = new SysSystemFilter();

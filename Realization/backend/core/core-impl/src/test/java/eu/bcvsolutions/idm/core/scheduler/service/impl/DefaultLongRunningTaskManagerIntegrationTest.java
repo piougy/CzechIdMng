@@ -22,13 +22,21 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDeleteBulkAction;
+import eu.bcvsolutions.idm.core.bulk.action.impl.contract.IdentityContractDeleteBulkAction;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
@@ -43,7 +51,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.exception.TaskNotRecoverableException;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
  * Long running tasks test
@@ -51,12 +59,13 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegrationTest {
+public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkActionTest {
 
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmLongRunningTaskService service;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private IdmProcessedTaskItemService itemService;
+	@Autowired private IdmIdentityService identityService;
 	//
 	private DefaultLongRunningTaskManager manager;
 	
@@ -414,6 +423,63 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	@Test(expected = EntityNotFoundException.class)
 	public void testRecoverableTaskNotExists() {
 		manager.recover(UUID.randomUUID());
+	}
+	
+	@Test
+	public void testExecutePersistedBulkAction() {
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		try {
+			getHelper().loginAdmin();
+			IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+			IdmIdentityDto identityOther = getHelper().createIdentity((GuardedString) null);
+			// filter setting
+			IdmIdentityFilter filter = new IdmIdentityFilter();
+			filter.setUsername(identityOne.getUsername());
+			// test before
+			List<IdmIdentityDto> identities = identityService.find(filter, null).getContent();
+			Assert.assertEquals(1, identities.size());
+			// prepare bulk action
+			IdmBulkActionDto bulkAction = findBulkAction(IdmIdentity.class, IdentityDeleteBulkAction.NAME);
+			bulkAction.setTransformedFilter(filter);
+			bulkAction.setFilter(toMap(filter));
+			// prepare and persist LRT
+			IdentityDeleteBulkAction identityDeleteBulkAction = new IdentityDeleteBulkAction();
+;			identityDeleteBulkAction.setAction(bulkAction);
+			IdmLongRunningTaskDto task = manager.persistTask(identityDeleteBulkAction, OperationState.CREATED);
+			manager.processCreated(task.getId());
+			//
+			identities = identityService.find(filter, null).getContent();
+			Assert.assertTrue(identities.isEmpty());
+			Assert.assertNull(identityService.get(identityOne));
+			Assert.assertNotNull(identityService.get(identityOther));
+		} finally {
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+			getHelper().logout();
+		}
+	}
+	
+	@Test
+	public void testExecutePersistedBulkActionWithWrongFilter() {
+		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		try {
+			// filter setting
+			IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+			filter.setIdentity(UUID.randomUUID());
+			// prepare bulk action
+			IdmBulkActionDto bulkAction = findBulkAction(IdmIdentityContract.class, IdentityContractDeleteBulkAction.NAME);
+			bulkAction.setTransformedFilter(filter);
+			bulkAction.setFilter(toMap(filter));
+			// prepare and persist LRT
+			IdentityContractDeleteBulkAction identityContractDeleteBulkAction = new IdentityContractDeleteBulkAction();
+			identityContractDeleteBulkAction.setAction(bulkAction);
+			IdmLongRunningTaskDto task = manager.persistTask(identityContractDeleteBulkAction, OperationState.CREATED);
+			manager.processCreated(task.getId());
+			//
+			task = manager.getLongRunningTask(task.getId());
+			Assert.assertEquals(OperationState.EXCEPTION, task.getResultState());
+		} finally {
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+		}
 	}
 	
 	private class TestLogItemLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<Boolean> {

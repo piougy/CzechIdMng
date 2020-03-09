@@ -7,48 +7,53 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter for systems
+ * Filter for systems.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
 public class SysSystemFilter extends DataFilter {
 	
-	private Boolean virtual;	
-	private UUID passwordPolicyValidationId;
-	private UUID passwordPolicyGenerationId;
+	public static final String PARAMETER_VIRTUAL = "virtual";
+	public static final String PARAMETER_PASSWORD_POLICY_VALIDATION_ID = "passwordPolicyValidationId";
+	public static final String PARAMETER_PASSWORD_POLICY_GENERATION_ID = "passwordPolicyGenerationId";
 	
 	public SysSystemFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
 	
 	public SysSystemFilter(MultiValueMap<String, Object> data) {
-		super(SysSystemDto.class, data);
+		this(data, null);
+	}
+	
+	public SysSystemFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(SysSystemDto.class, data, parameterConverter);
 	}
 
 	public UUID getPasswordPolicyValidationId() {
-		return passwordPolicyValidationId;
+		return getParameterConverter().toUuid(data, PARAMETER_PASSWORD_POLICY_VALIDATION_ID);
 	}
 
 	public void setPasswordPolicyValidationId(UUID passwordPolicyValidationId) {
-		this.passwordPolicyValidationId = passwordPolicyValidationId;
+		data.set(PARAMETER_PASSWORD_POLICY_VALIDATION_ID, passwordPolicyValidationId);
 	}
 
 	public UUID getPasswordPolicyGenerationId() {
-		return passwordPolicyGenerationId;
+		return getParameterConverter().toUuid(data, PARAMETER_PASSWORD_POLICY_GENERATION_ID);
 	}
 
 	public void setPasswordPolicyGenerationId(UUID passwordPolicyGenerationId) {
-		this.passwordPolicyGenerationId = passwordPolicyGenerationId;
+		data.set(PARAMETER_PASSWORD_POLICY_GENERATION_ID, passwordPolicyGenerationId);
 	}
 
 	public Boolean getVirtual() {
-		return virtual;
+		return getParameterConverter().toBoolean(data, PARAMETER_VIRTUAL);
 	}
 
 	public void setVirtual(Boolean virtual) {
-		this.virtual = virtual;
+		data.set(PARAMETER_VIRTUAL, virtual);
 	}
 }

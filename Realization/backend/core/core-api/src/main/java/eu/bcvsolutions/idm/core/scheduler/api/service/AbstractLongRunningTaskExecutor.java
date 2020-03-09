@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +62,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	private UUID longRunningTaskId;
 	protected Long count = null;
 	protected Long counter = null;
+	private final Map<String, Object> properties = new HashMap<>(); 
 	
 	@Override
 	public String getName() {
@@ -102,14 +102,21 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	 */
 	@Override
 	public List<String> getPropertyNames() {
-		// any parameter for now
-		return new ArrayList<>();
+		return properties
+				.keySet()
+				.stream()
+				.sorted()
+				.collect(Collectors.toList());
 	}
 	
 	@Override
 	public void init(Map<String, Object> properties) {
 		count = null;
 		counter = null;
+		//
+		if (properties != null) {
+			this.properties.putAll(properties);
+		}
 	}
 	
 	/**
@@ -117,7 +124,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	 */
 	@Override
 	public Map<String, Object> getProperties() {
-		return new HashMap<>();
+		// Immutable map will be better, but is too late ...
+		return properties;
 	}
 	
 	/**

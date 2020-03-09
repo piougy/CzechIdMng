@@ -1,15 +1,21 @@
 package eu.bcvsolutions.idm.core.api.bulk.action;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
@@ -22,9 +28,11 @@ import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -57,6 +65,8 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	private IdmIdentityService identityService;
 	@Autowired
 	private ConfigurationService configurationService;
+	@Autowired
+	private ObjectMapper mapper;
 	
 	@Override
 	public IdmBulkActionDto getAction() {
@@ -117,10 +127,17 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	
 	@Override
 	public Map<String, Object> getProperties() {
-		if (this.getAction() == null) {
-			return super.getProperties();
+		Map<String, Object> properties = super.getProperties();
+		IdmBulkActionDto configuredAction = this.getAction();
+		if (configuredAction == null) {
+			return properties;
 		}
-		return this.getAction().getProperties();
+		// Add action properties => has higher priority, than LRT properties.
+		properties.putAll(action.getProperties());
+		// Propagate properties to parent LRT properties => will be persisted, when thread pool is exhausted.
+		properties.put(IdmBulkAction.PARAMETER_BULK_ACTION, action);
+		//
+		return properties;
 	}
 	
 	@Override
@@ -167,8 +184,64 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public OperationResult process() {
 		IdmBulkActionDto action = this.getAction();
+		if (action == null) {
+			// try to load bulk action from LRT persisted properties
+			action = (IdmBulkActionDto) super.getProperties().get(PARAMETER_BULK_ACTION);
+			// transform filter is needed
+			if (action.getFilter() != null) {
+				MultiValueMap<String, Object> multivaluedMap = new LinkedMultiValueMap<>();
+				Map<String, Object> properties = action.getFilter();
+				//
+				for (Entry<String, Object> entry : properties.entrySet()) {
+					Object value = entry.getValue();
+					if(value instanceof List<?>) {
+						multivaluedMap.put(entry.getKey(), (List<Object>) value);
+					}else {
+						multivaluedMap.add(entry.getKey(), entry.getValue());
+					}
+				}
+				//
+				Class<F> filterClass = getService().getFilterClass();
+				F filter;
+				if (DataFilter.class.isAssignableFrom(filterClass)) {
+					// All filter properties has to be controlled by data filter (=> static fields only).
+					try {
+						// data vs field properties
+						MultiValueMap<String, Object> fieldProperties = new LinkedMultiValueMap<>();
+						fieldProperties.addAll(multivaluedMap);
+						//
+						for (Field declaredField : filterClass.getDeclaredFields()) {
+							// prevent to resurrect half of filter only - is insecure
+							// TODO: refactor all filters to pure DataFilter 
+							if (!Modifier.isStatic(declaredField.getModifiers())) {
+								throw new CoreException(
+										String.format(
+											"Declared filter [%s] has to fully support DataFilter, "
+												+ "refactor field [%s] to data usage before action can be executed asynchronously.",
+											filterClass.getCanonicalName(), 
+											declaredField.getName()
+										)
+								);
+							}
+						}						
+						filter = filterClass.getDeclaredConstructor(MultiValueMap.class).newInstance(multivaluedMap);
+					} catch (ReflectiveOperationException | IllegalArgumentException| SecurityException ex) {
+						throw new CoreException(
+								String.format(
+									"Declared filter [%s] has to support constructor with parameters.",
+									filterClass.getCanonicalName()
+								)
+						);
+					}
+				} else {
+					filter = mapper.convertValue(multivaluedMap, filterClass);
+				}
+				action.setTransformedFilter(filter);
+			}
+		}
 		Assert.notNull(action, "Bulk action is required.");
 		//
 		StringBuilder description = new StringBuilder();

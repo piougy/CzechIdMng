@@ -25,6 +25,7 @@ public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 		extends Plugin<Class<? extends BaseEntity>>, Ordered {
 
 	int DEFAULT_ORDER = 0;
+	String PARAMETER_BULK_ACTION = "core:bulkAction"; // Persisted bulk action dto.
 	
 	/**
 	 * Get list of form attributes

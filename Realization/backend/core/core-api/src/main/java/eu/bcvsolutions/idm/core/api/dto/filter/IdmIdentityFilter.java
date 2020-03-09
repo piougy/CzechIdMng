@@ -12,11 +12,10 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter for identities
+ * Filter for identities.
  * 
  * @author Radek Tomiška
  *
@@ -76,30 +75,29 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	 */
 	public static final String PARAMETER_EMAIL = "email";
 	/**
-	 * roles - OR.
+	 * role - multiple, OR.
 	 */
-	private List<UUID> roles;	
-	
+	public static final String PARAMETER_ROLE = "role";
 	/**
 	 * Identities for tree structure (by identity contract).
 	 */
-	private UUID treeNode;
+	public static final String PARAMETER_TREE_NODE = "treeNodeId";
 	/**
-	 * Identities for tree structure recursively down.
+	 * Identities for tree structure recursively down (true by default).
 	 */
-	private boolean recursively = true;
+	public static final String PARAMETER_RECURSIVELY = "recursively";
 	/**
 	 * Identities for tree structure (by identity contract).
 	 */
-	private UUID treeType;
+	public static final String PARAMETER_TREE_TYPE = "treeTypeId";
 	/**
 	 * Identity first name - exact match.
 	 */
-	private String firstName;
+	public static final String PARAMETER_FIRSTNAME = "firstName";
 	/**
 	 * Identity last name - exact match.
 	 */
-	private String lastName;
+	public static final String PARAMETER_LASTNAME = "lastName";
 	
 	public IdmIdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -114,7 +112,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public String getUsername() {
-		return (String) data.getFirst(PARAMETER_USERNAME);
+		return getParameterConverter().toString(data, PARAMETER_USERNAME);
 	}
 
 	public void setUsername(String username) {
@@ -122,7 +120,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public UUID getSubordinatesFor() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_FOR));
+		return getParameterConverter().toUuid(data, PARAMETER_SUBORDINATES_FOR);
 	}
 
 	public void setSubordinatesFor(UUID subordinatesFor) {
@@ -130,7 +128,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public UUID getSubordinatesByTreeType() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE));
+		return getParameterConverter().toUuid(data, PARAMETER_SUBORDINATES_BY_TREE_TYPE);
 	}
 
 	public void setSubordinatesByTreeType(UUID subordinatesByTreeType) {
@@ -142,7 +140,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public UUID getManagersFor() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_FOR));
+		return getParameterConverter().toUuid(data, PARAMETER_MANAGERS_FOR);
 	}
 	
 	public void setManagersByTreeType(UUID managersByTreeType) {
@@ -150,11 +148,11 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public UUID getManagersByTreeType() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_BY_TREE_TYPE));
+		return getParameterConverter().toUuid(data, PARAMETER_MANAGERS_BY_TREE_TYPE);
 	}
 	
 	public UUID getManagersByContract() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_BY_CONTRACT));
+		return getParameterConverter().toUuid(data, PARAMETER_MANAGERS_BY_CONTRACT);
 	}
 	
 	public void setManagersByContract(UUID managersByContract) {
@@ -162,14 +160,15 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public void setRoles(List<UUID> roles) {
-		this.roles = roles;
+		if (CollectionUtils.isEmpty(roles)) {
+    		data.remove(PARAMETER_ROLE);
+    	} else {
+    		data.put(PARAMETER_ROLE, new ArrayList<Object>(roles));
+    	}
 	}
 	
 	public List<UUID> getRoles() {
-		if (roles == null) {
-			roles = new ArrayList<>();
-		}
-		return roles;
+		return getParameterConverter().toUuids(data, PARAMETER_ROLE);
 	}
 
 	@Override
@@ -193,27 +192,27 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public UUID getTreeNode() {
-		return treeNode;
+		return getParameterConverter().toUuid(data, PARAMETER_TREE_NODE);
 	}
 	
 	public void setTreeNode(UUID treeNode) {
-		this.treeNode = treeNode;
+		data.set(PARAMETER_TREE_NODE, treeNode);
 	}
 	
 	public UUID getTreeType() {
-		return treeType;
+		return getParameterConverter().toUuid(data, PARAMETER_TREE_TYPE);
 	}
 	
 	public void setTreeType(UUID treeType) {
-		this.treeType = treeType;
+		data.set(PARAMETER_TREE_TYPE, treeType);
 	}
 	
 	public boolean isRecursively() {
-		return recursively;
+		return getParameterConverter().toBoolean(data, PARAMETER_RECURSIVELY, true);
 	}
 	
 	public void setRecursively(boolean recursively) {
-		this.recursively = recursively;
+		data.set(PARAMETER_RECURSIVELY, recursively);
 	}
 	
 	public boolean isIncludeGuarantees() {
@@ -233,19 +232,19 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public String getFirstName() {
-		return firstName;
+		return getParameterConverter().toString(data, PARAMETER_FIRSTNAME);
 	}
 
 	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+		data.set(PARAMETER_FIRSTNAME, firstName);
 	}
 
 	public String getLastName() {
-		return lastName;
+		return getParameterConverter().toString(data, PARAMETER_LASTNAME);
 	}
 
 	public void setLastName(String lastName) {
-		this.lastName = lastName;
+		data.set(PARAMETER_LASTNAME, lastName);
 	}
 	
 	public void setState(IdentityState state) {
@@ -253,11 +252,11 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public IdentityState getState() {
-		return (IdentityState) data.getFirst(PARAMETER_STATE);
+		return getParameterConverter().toEnum(data, PARAMETER_STATE, IdentityState.class);
 	}
 
 	public UUID getAutomaticRoleId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_AUTOMATIC_ROLE));
+		return getParameterConverter().toUuid(data, PARAMETER_AUTOMATIC_ROLE);
 	}
 
 	public void setAutomaticRoleId(UUID automaticRoleId) {
@@ -297,7 +296,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public UUID getGuaranteesForRole() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_GUARANTEES_FOR_ROLE));
+		return getParameterConverter().toUuid(data, PARAMETER_GUARANTEES_FOR_ROLE);
 	}
 	
 	public void setGuaranteesForRole(UUID guaranteesForRole) {

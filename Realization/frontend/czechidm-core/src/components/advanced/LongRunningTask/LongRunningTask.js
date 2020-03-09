@@ -223,6 +223,10 @@ class LongRunningTask extends Basic.AbstractContent {
                       // FIXME: transaction context info
                       return null;
                     }
+                    if (propertyName === 'core:bulkAction') {
+                      // FIXME: bulk action info + #2086
+                      return null;
+                    }
                     return `${ propertyName }: ${ Utils.Ui.toStringValue(_entity.taskProperties[propertyName]) }`;
                   })
                   .filter(v => v !== null)

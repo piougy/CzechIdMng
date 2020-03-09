@@ -12,7 +12,9 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 
 /**
- * Filter for entity state
+ * Filter for entity state.
+ * 
+ * TODO: refactor to pure DataFilter.
  * 
  * @author Radek Tomiška
  *

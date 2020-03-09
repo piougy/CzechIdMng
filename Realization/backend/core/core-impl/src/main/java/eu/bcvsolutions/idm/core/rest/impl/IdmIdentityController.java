@@ -1291,27 +1291,21 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	@Override
 	protected IdmIdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmIdentityFilter filter = new IdmIdentityFilter(parameters, getParameterConverter());
-		filter.setDisabled(getParameterConverter().toBoolean(parameters, IdmIdentityFilter.PARAMETER_DISABLED));
+		// to entity decorators
 		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
 		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
 		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
 		filter.setManagersByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeType.class));
-		filter.setTreeNode(getParameterConverter().toUuid(parameters, "treeNodeId"));
-		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
-		filter.setTreeType(getParameterConverter().toUuid(parameters, "treeTypeId"));
-		filter.setManagersByContract(getParameterConverter().toUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT));
-		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, "includeGuarantees", false));
-		// TODO: or / and in multivalues? OR is supported now
-		if (parameters.containsKey("role")) {
-			for(Object role : parameters.get("role")) {
+		// OR is supported now
+		if (parameters.containsKey(IdmIdentityFilter.PARAMETER_ROLE)) {
+			for (Object role : parameters.get(IdmIdentityFilter.PARAMETER_ROLE)) {
 				if (role != null) {
 					filter.getRoles().add(getParameterConverter().toEntityUuid((String) role, IdmRole.class));
 				}
 			}
 		}
-		filter.setFirstName(getParameterConverter().toString(parameters, "firstName"));
-		filter.setLastName(getParameterConverter().toString(parameters, "lastName"));
-		filter.setState(getParameterConverter().toEnum(parameters, IdmIdentityFilter.PARAMETER_STATE, IdentityState.class));
+		// different default than in filter ... i don't know why, but change is to dangerous
+		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, IdmIdentityFilter.PARAMETER_INCLUDE_GUARANTEES, false)); 
 		return filter;
 	}
 	

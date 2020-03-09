@@ -17,6 +17,8 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for {@link IdmIdentityDto} dtos.
+ * 
+ * TODO: refactor to pure DataFilter.
  *
  * @author Radek Tomiška
  */

@@ -106,7 +106,6 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
       this.i18n(`action.task-run.header`)
     ).then(() => {
       this.context.store.dispatch(this.getManager().processCreatedTask(entity.id, 'task-queue-process-created', (e, error) => {
-        console.log('ddd');
         if (error) {
           this.addError(error);
           return;
@@ -319,6 +318,10 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                   }
                   if (propertyName === 'core:transactionContext') {
                     // FIXME: transaction context info
+                    return null;
+                  }
+                  if (propertyName === 'core:bulkAction') {
+                    // FIXME: bulk action info + #2086
                     return null;
                   }
                   return (

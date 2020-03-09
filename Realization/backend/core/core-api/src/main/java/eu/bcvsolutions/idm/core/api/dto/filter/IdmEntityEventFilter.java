@@ -16,7 +16,9 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
- * Filter for entity events (changes)
+ * Filter for entity events (changes).
+ * 
+ * TODO: refactor to pure DataFilter.
  * 
  * @author Radek Tomiška
  *

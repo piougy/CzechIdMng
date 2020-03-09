@@ -14,13 +14,12 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter for roles
+ * Filter for roles.
  * 
- * Codeable filter parameter can be used
+ * Codeable filter parameter can be used.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
@@ -41,7 +40,7 @@ public class IdmRoleFilter
 	public static final String PARAMETER_BASE_CODE = "baseCode";
 	public static final String PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF = "identityRoleAttributeDefinition";
 	@Deprecated // unused since the start of project
-	private RoleType roleType;
+	public static final String PARAMETER_ROLE_TYPE = "roleType";
 	
 	public IdmRoleFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -57,17 +56,17 @@ public class IdmRoleFilter
 
 	@Deprecated
 	public RoleType getRoleType() {
-		return roleType;
+		return getParameterConverter().toEnum(data, PARAMETER_ROLE_TYPE, RoleType.class);
 	}
 
 	@Deprecated
 	public void setRoleType(RoleType roleType) {
-		this.roleType = roleType;
+		data.set(PARAMETER_ROLE_TYPE, roleType);
 	}
 	
 	@Override
 	public String getProperty() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
+		return getParameterConverter().toString(data, PARAMETER_CORRELATION_PROPERTY);
 	}
 
 	@Override
@@ -86,7 +85,7 @@ public class IdmRoleFilter
 	}
 
 	public UUID getRoleCatalogueId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_ROLE_CATALOGUE));
+		return getParameterConverter().toUuid(data, PARAMETER_ROLE_CATALOGUE);
 	}
 
 	public void setRoleCatalogueId(UUID roleCatalogueId) {
@@ -94,7 +93,7 @@ public class IdmRoleFilter
 	}
 
 	public UUID getAttributeFormDefinitionId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF));
+		return getParameterConverter().toUuid(data, PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF);
 	}
 
 	public void setAttributeFormDefinitionId(UUID id) {
@@ -112,7 +111,7 @@ public class IdmRoleFilter
 	}
 	
 	public String getEnvironment() {
-    	return (String) data.getFirst(PARAMETER_ENVIRONMENT);
+    	return getParameterConverter().toString(data, PARAMETER_ENVIRONMENT);
 	}
     
     public void setEnvironment(String environment) {
@@ -136,7 +135,7 @@ public class IdmRoleFilter
 	}
 	
 	public String getBaseCode() {
-		return (String) data.getFirst(PARAMETER_BASE_CODE);
+		return getParameterConverter().toString(data, PARAMETER_BASE_CODE);
 	}
 	
 	public void setBaseCode(String baseCode) {

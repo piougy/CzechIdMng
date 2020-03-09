@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,23 +97,41 @@ public abstract class AbstractFormableEntityExport<D extends FormableDto, F exte
 		List<String> toRemove = map.keySet().stream().filter(key -> key.startsWith("_")).collect(Collectors.toList());
 		toRemove.forEach(map::remove);
 		//
-		dto.getEavs().forEach(eav -> processEav(map, eav, dto.getEavs().size() > 1));
+		dto.getEavs().forEach(formInstance -> processFormInstance(map, formInstance, dto.getEavs().size() > 1));
 		return map;
 	}
 
-	private void processEav(Map<String, String> map, IdmFormInstanceDto eav, boolean prefixEavsWithDefinitionCode) {
-		Map<UUID, Map.Entry<String, String>> attrsByUuid = new HashMap<>();
-		eav.getFormDefinition().getFormAttributes().forEach(attr ->
-				attrsByUuid.put(attr.getId(), getEavEntry(eav, attr, prefixEavsWithDefinitionCode)));
+	private void processFormInstance(Map<String, String> resultMap, IdmFormInstanceDto formInstance, boolean prefixEavsWithDefinitionCode) {
+		Map<String, List<Serializable>> eavsWithValues = new HashMap<>();
 
-		eav.getValues().forEach(val -> attrsByUuid.get(val.getFormAttribute()).setValue(String.valueOf(val.getValue())));
+		// fill existing values
+		formInstance.getValues().forEach(val -> {
+			final String eavName = getEavName(formInstance.getMappedAttribute(val.getFormAttribute()), formInstance, prefixEavsWithDefinitionCode);
+			if (!eavsWithValues.containsKey(eavName)) {
+				eavsWithValues.put(eavName, new ArrayList<>());
+			}
+			eavsWithValues.get(eavName).add(val.getValue());
+		});
 
-		attrsByUuid.values().forEach(entry -> map.put(entry.getKey(),entry.getValue()));
+		//fill other attributes with empty values
+		formInstance.getFormDefinition().getFormAttributes().stream()
+				.map(attr -> getEavName(attr, formInstance, prefixEavsWithDefinitionCode))
+				.filter(attr -> !eavsWithValues.containsKey(attr))
+				.forEach(attr -> eavsWithValues.put(attr, new ArrayList<>()));
+
+		// transform values to result
+		eavsWithValues.keySet().forEach(attr -> {
+			List<Serializable> values = eavsWithValues.get(attr);
+			if (values.isEmpty()) {
+				resultMap.put(attr, "");
+			} else {
+				resultMap.put(attr, String.valueOf(values.size() > 1 ? values : values.get(0)));
+			}
+		});
 	}
 
-	private AbstractMap.SimpleEntry<String, String> getEavEntry(IdmFormInstanceDto eav, IdmFormAttributeDto attr, boolean prefixWithDefinitionCode) {
-		final String eavEntryName = prefixWithDefinitionCode ? eav.getFormDefinition().getCode()+ "_" +attr.getCode() : attr.getCode();
-		return new AbstractMap.SimpleEntry<>(eavEntryName ,"");
+	protected String getEavName(IdmFormAttributeDto mappedAttribute,IdmFormInstanceDto formInstance, boolean prefixEavsWithDefinitionCode) {
+		return prefixEavsWithDefinitionCode ? formInstance.getFormDefinition().getCode() + "_" + mappedAttribute.getCode() : mappedAttribute.getCode();
 	}
 
 	private JsonGenerator getJsonGenerator() throws IOException {

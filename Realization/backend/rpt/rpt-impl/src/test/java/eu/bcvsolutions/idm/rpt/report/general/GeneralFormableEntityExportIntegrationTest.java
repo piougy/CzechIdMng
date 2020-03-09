@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -67,6 +68,8 @@ public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrat
 	private ObjectMapper mapper;
 	@Autowired
 	ReportManager reportManager;
+	@Autowired
+	IdmFormAttributeService formAttributeService;
 
 	@Before
 	public void before() {
@@ -89,6 +92,12 @@ public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrat
 
 		IdmFormAttributeDto testAttrRpt = getHelper().createEavAttribute("testAttrRpt", IdmIdentity.class, PersistentType.SHORTTEXT);
 		getHelper().setEavValue(identityOne, testAttrRpt, IdmIdentity.class, "TESTVAL", PersistentType.SHORTTEXT);
+
+		IdmFormAttributeDto testAttrRptMulti = getHelper().createEavAttribute("testAttrRptMulti", IdmIdentity.class, PersistentType.SHORTTEXT);
+		testAttrRptMulti.setMultiple(true);
+		formAttributeService.save(testAttrRptMulti);
+		//
+		formService.saveValues(identityOne, testAttrRptMulti, Arrays.asList("B", "A"));
 		//
 		IdmBulkActionDto bulkAction = new IdmBulkActionDto();
 		bulkAction.setEntityClass(IdmIdentity.class.getCanonicalName());
@@ -124,6 +133,7 @@ public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrat
 		Assert.assertNotNull(parsed.get(identityOne.getId().toString()));
 		Assert.assertNotNull(parsed.get(identityDisabled.getId().toString()));
 		Assert.assertEquals("TESTVAL", parsed.get(identityOne.getId().toString()).get("testAttrRpt"));
+		Assert.assertEquals("[B, A]", parsed.get(identityOne.getId().toString()).get("testAttrRptMulti"));
 	}
 
 	private Map<String, Map<String, String>> sheetToMap(XSSFSheet sheet) {

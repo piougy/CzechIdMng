@@ -78,12 +78,15 @@ Based on upgraded libraries we have to add, remove or change configuration prope
 - ``spring.datasource.hikari.maximumPoolSize=50`` - **enlarge pool size** by default. This property should be revised **for each project**. Size should be configured by task and event thread pool size - should be higher than sum of pool sizes.
 - ``spring.jpa.properties.hibernate.session_factory.interceptor=eu.bcvsolutions.idm.core.model.repository.listener.AuditableInterceptor`` - replaced deprecated Hiberante property.
 - ``spring.jpa.hibernate.use-new-id-generator-mappings=false`` - Spring boot 2 changed default to ``true``, but we are using ``IDENTITY`` identifier generators for mssql database.
+- ``spring.servlet.multipart.max-file-size=100MB`` - Spring boot 2 changed property name for file upload size.
+- ``spring.servlet.multipart.max-request-size=100MB`` - Spring boot 2 changed property name for file upload size.
 
 
 ### Removed properties
 
 - ``spring.jpa.properties.jadira.usertype.autoRegisterUserTypes`` - we are using java time now, so configuration for Joda time is not needed.
 - ``spring.jpa.properties.hibernate.ejb.interceptor`` - replaced by new property above.
+- ``multipart.max-file-size=100Mb`` - replaced by new properties above.
 
 ### Changed properties
 

@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tomcat.util.http.fileupload.FileUploadBase.FileSizeLimitExceededException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +18,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
 import com.google.common.base.Throwables;
@@ -156,19 +156,19 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
+	/**
+	 * Upload file size exceeded.
+	 * 
+	 * @param ex handled  exception
+	 * @return error model
+	 * @since 10.2.0
+	 */
 	@ExceptionHandler(MultipartException.class)
-	ResponseEntity<ResultModels> handle(MultipartException ex) {
-		if (ex.getCause() != null 
-				&& ex.getCause().getCause() != null
-				&& ex.getCause().getCause() instanceof FileSizeLimitExceededException) {
-			FileSizeLimitExceededException sizeLimitException = (FileSizeLimitExceededException) ex.getCause().getCause();
-			ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.ATTACHMENT_SIZE_LIMIT_EXCEEDED, ex.getMessage(),
-					ImmutableMap.of("actualSize", String.valueOf(sizeLimitException.getActualSize())));
-			LOG.warn("[" + errorModel.getId() + "] ", ex);
-	        return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
-		}
-		//
-		return handle((Exception) ex);
+	ResponseEntity<ResultModels> handle(MaxUploadSizeExceededException ex) {
+		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.ATTACHMENT_SIZE_LIMIT_EXCEEDED, ex.getMessage(),
+				ImmutableMap.of("actualSize", String.valueOf(ex.getMaxUploadSize())));
+		LOG.warn("[" + errorModel.getId() + "] ", ex);
+        return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
 	/**

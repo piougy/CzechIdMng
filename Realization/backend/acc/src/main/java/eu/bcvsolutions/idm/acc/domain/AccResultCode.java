@@ -133,6 +133,7 @@ public enum AccResultCode implements ResultCode {
 	ROLE_SYSTEM_SUPPORTS_ONLY_IDENTITY(HttpStatus.BAD_REQUEST, "Account management by role supports 'Identity' type only (not [%s])!"),
 	ACCOUNT_CANNOT_BE_READ_FROM_TARGET(HttpStatus.BAD_REQUEST, "Account [%s] cannot be read on the target system [%s]!"),
 	ROLE_ACCOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "No role account found for account id [%s] !"),
+	FOREIGN_SYSTEM_MAPPING_ASSIGNED(HttpStatus.BAD_REQUEST, "Attempt to assign system mapping belonging to system [%s] to system [%s]!"),
 	// Role bulk operations
 	ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES(HttpStatus.OK, "Role [%s] has [%s] role-identities."),
 	ROLE_ACM_BULK_ACTION_NONE_IDENTITIES(HttpStatus.NOT_FOUND, "No role has any  role-identities."),

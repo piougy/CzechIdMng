@@ -22,6 +22,11 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.renderer.AbstractXlsxRenderer;
 import eu.bcvsolutions.idm.rpt.api.renderer.RendererRegistrar;
 
+/**
+ * Renderer for {@link AbstractFormableEntityExport} report.
+ *
+ * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
+ */
 @Component("formableEntityXlsxRenderer")
 @Description(AbstractXlsxRenderer.RENDERER_EXTENSION) // will be show as format for download
 public class FormableEntityXlsxRenderer extends AbstractXlsxRenderer implements RendererRegistrar {

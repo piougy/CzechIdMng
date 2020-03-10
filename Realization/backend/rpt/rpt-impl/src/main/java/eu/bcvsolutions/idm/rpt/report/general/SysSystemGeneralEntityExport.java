@@ -13,6 +13,11 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.rpt.RptModuleDescriptor;
 import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
 
+/**
+ * Implemetation of general entity report for {@link SysSystemDto}
+ *
+ * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
+ */
 @Component
 @Enabled(RptModuleDescriptor.MODULE_ID)
 public class SysSystemGeneralEntityExport extends AbstractFormableEntityExport<SysSystemDto, SysSystemFilter>{

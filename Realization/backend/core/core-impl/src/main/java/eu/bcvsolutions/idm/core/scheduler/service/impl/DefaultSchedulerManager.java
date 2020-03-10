@@ -33,6 +33,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -153,16 +154,19 @@ public class DefaultSchedulerManager implements SchedulerManager {
 						int compareAscValue = 0;
 						boolean asc = true;
 						// "naive" sort implementation
-						if (sort.getOrderFor(Task.PROPERTY_TASK_TYPE) != null) {
-							asc = sort.getOrderFor(Task.PROPERTY_TASK_TYPE).isAscending();
+						Order orderForTaskType = sort.getOrderFor(Task.PROPERTY_TASK_TYPE);
+						if (orderForTaskType != null) {
+							asc = orderForTaskType.isAscending();
 							compareAscValue = taskOne.getTaskType().getSimpleName().compareTo(taskTwo.getTaskType().getSimpleName());
 						}
-						if (sort.getOrderFor(Task.PROPERTY_DESCRIPTION) != null) {
-							asc = sort.getOrderFor(Task.PROPERTY_DESCRIPTION).isAscending();
+						Order orderForDescription = sort.getOrderFor(Task.PROPERTY_DESCRIPTION);
+						if (orderForDescription != null) {
+							asc = orderForDescription.isAscending();
 							compareAscValue = taskOne.getDescription().compareTo(taskTwo.getDescription());
 						}
-						if (sort.getOrderFor(Task.PROPERTY_INSTANCE_ID) != null) {
-							asc = sort.getOrderFor(Task.PROPERTY_INSTANCE_ID).isAscending();
+						Order orderForInstance = sort.getOrderFor(Task.PROPERTY_INSTANCE_ID);
+						if (orderForInstance != null) {
+							asc = orderForInstance.isAscending();
 							compareAscValue = taskOne.getInstanceId().compareTo(taskTwo.getInstanceId());
 						}
 						//

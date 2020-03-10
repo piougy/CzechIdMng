@@ -11,7 +11,6 @@ import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RoleType;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
@@ -27,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  */
 public class IdmRoleFilter 
 		extends DataFilter 
-		implements CorrelationFilter, ExternalIdentifiable {
+		implements CorrelationFilter, ExternalIdentifiableFilter {
 
 	/**
 	 * Parent role identifier - find sub roles by role composition
@@ -61,27 +60,7 @@ public class IdmRoleFilter
 
 	@Deprecated
 	public void setRoleType(RoleType roleType) {
-		data.set(PARAMETER_ROLE_TYPE, roleType);
-	}
-	
-	@Override
-	public String getProperty() {
-		return getParameterConverter().toString(data, PARAMETER_CORRELATION_PROPERTY);
-	}
-
-	@Override
-	public void setProperty(String property) {
-		data.set(PARAMETER_CORRELATION_PROPERTY, property);
-	}
-
-	@Override
-	public String getValue() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
-	}
-
-	@Override
-	public void setValue(String value) {
-		data.set(PARAMETER_CORRELATION_VALUE, value);
+		set(PARAMETER_ROLE_TYPE, roleType);
 	}
 
 	public UUID getRoleCatalogueId() {
@@ -89,7 +68,7 @@ public class IdmRoleFilter
 	}
 
 	public void setRoleCatalogueId(UUID roleCatalogueId) {
-		data.set(PARAMETER_ROLE_CATALOGUE, roleCatalogueId);
+		set(PARAMETER_ROLE_CATALOGUE, roleCatalogueId);
 	}
 
 	public UUID getAttributeFormDefinitionId() {
@@ -97,17 +76,7 @@ public class IdmRoleFilter
 	}
 
 	public void setAttributeFormDefinitionId(UUID id) {
-		data.set(PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF, id);
-	}
-	
-	@Override
-	public String getExternalId() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
-	}
-	
-	@Override
-	public void setExternalId(String externalId) {
-		data.set(PROPERTY_EXTERNAL_ID, externalId);
+		set(PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF, id);
 	}
 	
 	public String getEnvironment() {
@@ -139,7 +108,7 @@ public class IdmRoleFilter
 	}
 	
 	public void setBaseCode(String baseCode) {
-		data.set(PARAMETER_BASE_CODE, baseCode);
+		set(PARAMETER_BASE_CODE, baseCode);
 	}
 	
 	public UUID getGuaranteeId() {
@@ -147,7 +116,7 @@ public class IdmRoleFilter
 	}
 
 	public void setGuaranteeId(UUID guaranteeId) {
-		data.set(PARAMETER_GUARANTEE, guaranteeId);
+		set(PARAMETER_GUARANTEE, guaranteeId);
 	}
 	
 	/**
@@ -163,6 +132,6 @@ public class IdmRoleFilter
 	 * @param parent
 	 */
 	public void setParent(UUID parent) {
-		data.set(PARAMETER_PARENT, parent);
+		set(PARAMETER_PARENT, parent);
 	}
 }

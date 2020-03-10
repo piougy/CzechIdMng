@@ -406,16 +406,15 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 
 	@Override
 	protected IdmRoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmRoleRequestFilter filter = new IdmRoleRequestFilter(parameters);
+		IdmRoleRequestFilter filter = new IdmRoleRequestFilter(parameters, getParameterConverter());
+		//
 		filter.setApplicant(getParameterConverter().toString(parameters, "applicant"));
 		filter.setApplicantId(getParameterConverter().toUuid(parameters, "applicantId"));
-		filter.setCreatedFrom(getParameterConverter().toDateTime(parameters, "createdFrom"));
-		filter.setCreatedTill(getParameterConverter().toDateTime(parameters, "createdTill"));
 		//
 		if (filter.getApplicant() != null) {
 			try {
 				// Applicant can be UUID (Username vs UUID identification schizma)
-				// TODO: replace with parameterConverter#toEntityUuid ...
+				// TODO: replace with parameterConverter#toEntityUuid ... 
 				filter.setApplicantId(UUID.fromString(filter.getApplicant()));
 				filter.setApplicant(null);
 			} catch (IllegalArgumentException ex) {

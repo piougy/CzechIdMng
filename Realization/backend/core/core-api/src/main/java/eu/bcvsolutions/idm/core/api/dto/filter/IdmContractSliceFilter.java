@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
  *
  * @author svandav
  */
-public class IdmContractSliceFilter extends IdmIdentityContractFilter implements CorrelationFilter{
+public class IdmContractSliceFilter extends IdmIdentityContractFilter implements CorrelationFilter {
 	
 	private UUID excludeContract; // For choose the parent contract. I want to exclude itself contract.
 	private Boolean withoutParent; // Returns contract without filled the parent field.

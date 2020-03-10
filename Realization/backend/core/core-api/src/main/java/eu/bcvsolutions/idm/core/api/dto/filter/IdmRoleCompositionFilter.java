@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.RequestFilterPredicate;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -19,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  * @author Radek Tomiška
  * @since 9.0.0
  */
-public class IdmRoleCompositionFilter extends DataFilter implements ExternalIdentifiable {
+public class IdmRoleCompositionFilter extends DataFilter implements ExternalIdentifiableFilter {
 	/**
 	 * Superior role
 	 */
@@ -53,15 +52,5 @@ public class IdmRoleCompositionFilter extends DataFilter implements ExternalIden
 	
 	public void setSubId(UUID subId) {
 		data.set(PARAMETER_SUB_ID, subId);
-	}
-	
-	@Override
-	public String getExternalId() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
-	}
-	
-	@Override
-	public void setExternalId(String externalId) {
-		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 }

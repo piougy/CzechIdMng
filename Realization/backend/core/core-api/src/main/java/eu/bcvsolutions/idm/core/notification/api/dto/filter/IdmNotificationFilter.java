@@ -21,8 +21,8 @@ public class IdmNotificationFilter extends QuickFilter {
 	private String sender; // senders username
 	private String recipient; // recipients username
 	private NotificationState state;
-	private ZonedDateTime from;
-	private ZonedDateTime till;
+	private ZonedDateTime from;  // TODO: createdFrom alias => DataFilter is needed
+	private ZonedDateTime till;  // TODO: createdTill alias => DataFilter is needed
 	private Boolean sent;
 	private Class<? extends BaseEntity> notificationType;
 	private UUID parent;

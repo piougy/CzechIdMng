@@ -3,28 +3,23 @@ package eu.bcvsolutions.idm.core.api.dto.filter;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
-import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter for {@link IdmIdentityDto} dtos.
- * 
- * TODO: refactor to pure DataFilter.
+ * Filter for contracts.
  *
  * @author Radek Tomiška
  */
 public class IdmIdentityContractFilter
 		extends DataFilter
-		implements CorrelationFilter, ExternalIdentifiable {
+		implements CorrelationFilter, ExternalIdentifiableFilter {
 
 	public static final String PARAMETER_EXCLUDED = "excluded"; // true / false
 	/**
@@ -39,19 +34,19 @@ public class IdmIdentityContractFilter
 	 * Managers with contract guarantees included (manually assigned guarantees).
 	 */
 	public static final String PARAMETER_INCLUDE_GUARANTEES = IdmIdentityFilter.PARAMETER_INCLUDE_GUARANTEES;
-	//
-	private UUID identity;
-	private UUID workPosition;
-	private LocalDate validFrom;
-	private LocalDate validTill;
-	private Boolean externe;
-	private Boolean disabled;
-	private Boolean valid;
-	private Boolean main;
-	private Boolean validNowOrInFuture;
-	private ContractState state;
-	private String position;
-	private UUID roleId;
+	
+	public static final String PARAMETER_IDENTITY = "identity";
+	public static final String PARAMETER_WORK_POSITION = "workPosition";
+	public static final String PARAMETER_POSITION = "position";
+	public static final String PARAMETER_VALID_FROM = ValidableEntity.PROPERTY_VALID_FROM;  
+	public static final String PARAMETER_VALID_TILL = ValidableEntity.PROPERTY_VALID_TILL;
+	public static final String PARAMETER_EXTERNE = "externe";
+	public static final String PARAMETER_DISABLED = "disabled";
+	public static final String PARAMETER_VALID = "valid";
+	public static final String PARAMETER_VALID_NOW_OR_FUTURE = "validNowOrInFuture";
+	public static final String PARAMETER_MAIN = "main";
+	public static final String PARAMETER_STATE = "state";
+	public static final String PARAMETER_ROLE = "role";
 
 	public IdmIdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -62,7 +57,7 @@ public class IdmIdentityContractFilter
 	}
 	
 	public IdmIdentityContractFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
-		this(IdmIdentityContractDto.class, data, null);
+		this(IdmIdentityContractDto.class, data, parameterConverter);
 	}
 
 	public IdmIdentityContractFilter(Class<? extends BaseDto> dtoClass, MultiValueMap<String, Object> data) {
@@ -74,133 +69,99 @@ public class IdmIdentityContractFilter
 	}
 
 	public UUID getIdentity() {
-		return identity;
+		return getParameterConverter().toUuid(data, PARAMETER_IDENTITY);
 	}
 
 	public void setIdentity(UUID identity) {
-		this.identity = identity;
+		set(PARAMETER_IDENTITY, identity);
 	}
 
 	public LocalDate getValidFrom() {
-		return validFrom;
+		return getParameterConverter().toLocalDate(data, PARAMETER_VALID_FROM);
 	}
 
 	public void setValidFrom(LocalDate validFrom) {
-		this.validFrom = validFrom;
+		set(PARAMETER_VALID_FROM, validFrom);
 	}
 
 	public LocalDate getValidTill() {
-		return validTill;
+		return getParameterConverter().toLocalDate(data, PARAMETER_VALID_TILL);
 	}
 
 	public void setValidTill(LocalDate validTill) {
-		this.validTill = validTill;
+		set(PARAMETER_VALID_TILL, validTill);
 	}
 
 	public Boolean getExterne() {
-		return externe;
+		return getParameterConverter().toBoolean(data, PARAMETER_EXTERNE);
 	}
 
 	public void setExterne(Boolean externe) {
-		this.externe = externe;
+		set(PARAMETER_EXTERNE, externe);
 	}
 
 	public Boolean getDisabled() {
-		return disabled;
+		return getParameterConverter().toBoolean(data, PARAMETER_DISABLED);
 	}
 
 	public void setDisabled(Boolean disabled) {
-		this.disabled = disabled;
+		set(PARAMETER_DISABLED, disabled);
 	}
 
 	public Boolean getValid() {
-		return valid;
+		return getParameterConverter().toBoolean(data, PARAMETER_VALID);
 	}
 
 	public void setValid(Boolean valid) {
-		this.valid = valid;
+		set(PARAMETER_VALID, valid);
 	}
 
 	public Boolean getMain() {
-		return main;
+		return getParameterConverter().toBoolean(data, PARAMETER_MAIN);
 	}
 
 	public void setMain(Boolean main) {
-		this.main = main;
+		set(PARAMETER_MAIN, main);
 	}
 
 	public void setValidNowOrInFuture(Boolean validNowOrInFuture) {
-		this.validNowOrInFuture = validNowOrInFuture;
+		set(PARAMETER_VALID_NOW_OR_FUTURE, validNowOrInFuture);
 	}
 
 	public Boolean getValidNowOrInFuture() {
-		return validNowOrInFuture;
+		return getParameterConverter().toBoolean(data, PARAMETER_VALID_NOW_OR_FUTURE);
 	}
 
 	public void setState(ContractState state) {
-		this.state = state;
+		set(PARAMETER_STATE, state);
 	}
 
 	public ContractState getState() {
-		return state;
-	}
-	
-	@Override
-	public String getProperty() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
-	}
-
-	@Override
-	public void setProperty(String property) {
-		data.set(PARAMETER_CORRELATION_PROPERTY, property);
-	}
-
-	@Override
-	public String getValue() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
-	}
-
-	@Override
-	public void setValue(String value) {
-		data.set(PARAMETER_CORRELATION_VALUE, value);
-	}
-
-	@Override
-	public String getExternalId() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
-	}
-
-	@Override
-	public void setExternalId(String externalId) {
-		data.set(PROPERTY_EXTERNAL_ID, externalId);
+		return getParameterConverter().toEnum(data, PARAMETER_STATE, ContractState.class);
 	}
 	
 	public void setPosition(String position) {
-		this.position = position;
+		set(PARAMETER_POSITION, position);
 	}
 	
 	public String getPosition() {
-		return position;
+		return getParameterConverter().toString(data, PARAMETER_POSITION);
 	}
 	
 	public void setWorkPosition(UUID workPosition) {
-		this.workPosition = workPosition;
+		set(PARAMETER_WORK_POSITION, workPosition);
 	}
 	
 	public UUID getWorkPosition() {
-		return workPosition;
+		return getParameterConverter().toUuid(data, PARAMETER_WORK_POSITION);
 	}
 	
 	public Boolean getExcluded() {
-		Object first = data.getFirst(PARAMETER_EXCLUDED);
-    	if (first == null) {
-    		return null;
-    	}
-    	return BooleanUtils.toBoolean(first.toString());
+    	return getParameterConverter().toBoolean(data, PARAMETER_EXCLUDED);
 	}
 	
 	public void setExcluded(Boolean excluded) {
-		data.set(PARAMETER_EXCLUDED, excluded);
+		set(PARAMETER_EXCLUDED, excluded);
 	}
 	
 	/**
@@ -210,7 +171,7 @@ public class IdmIdentityContractFilter
 	 * @since 9.7.0
 	 */
 	public UUID getSubordinatesFor() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_FOR));
+		return getParameterConverter().toUuid(data, PARAMETER_SUBORDINATES_FOR);
 	}
 
 	/**
@@ -220,7 +181,7 @@ public class IdmIdentityContractFilter
 	 * @since 9.7.0
 	 */
 	public void setSubordinatesFor(UUID subordinatesFor) {
-		data.set(PARAMETER_SUBORDINATES_FOR, subordinatesFor);
+		set(PARAMETER_SUBORDINATES_FOR, subordinatesFor);
 	}
 	
 	/**
@@ -230,7 +191,7 @@ public class IdmIdentityContractFilter
 	 * @since 9.7.0
 	 */
 	public UUID getSubordinatesByTreeType() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE));
+		return getParameterConverter().toUuid(data, PARAMETER_SUBORDINATES_BY_TREE_TYPE);
 	}
 
 	/**
@@ -240,7 +201,7 @@ public class IdmIdentityContractFilter
 	 * @since 9.7.0
 	 */
 	public void setSubordinatesByTreeType(UUID subordinatesByTreeType) {
-		data.set(PARAMETER_SUBORDINATES_BY_TREE_TYPE, subordinatesByTreeType);
+		set(PARAMETER_SUBORDINATES_BY_TREE_TYPE, subordinatesByTreeType);
 	}
 	
 	/**
@@ -260,14 +221,26 @@ public class IdmIdentityContractFilter
 	 * @since 9.7.0
 	 */
 	public void setIncludeGuarantees(boolean includeGuarantees) {
-		data.set(PARAMETER_INCLUDE_GUARANTEES, includeGuarantees);
+		set(PARAMETER_INCLUDE_GUARANTEES, includeGuarantees);
 	}
 
+	/**
+	 * Role assigned to / by contract.
+	 * 
+	 * @return role identifier
+	 * @since 9.7.0
+	 */
 	public UUID getRoleId() {
-		return roleId;
+		return getParameterConverter().toUuid(data, PARAMETER_ROLE);
 	}
 
+	/**
+	 * Role assigned to / by contract.
+	 * 
+	 * @param roleId
+	 * @since 9.7.0
+	 */
 	public void setRoleId(UUID roleId) {
-		this.roleId = roleId;
+		set(PARAMETER_ROLE, roleId);
 	}
 }

@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
@@ -15,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  * @author Radek Tomiška
  * @since 9.1.0
  */
-public class IdmContractPositionFilter extends DataFilter implements ExternalIdentifiable {
+public class IdmContractPositionFilter extends DataFilter implements ExternalIdentifiableFilter {
 
 	public static final String PARAMETER_IDENTITY_CONTRACT_ID = "identityContractId";
 	public static final String PARAMETER_WORK_POSITION = "workPosition";
@@ -42,15 +41,5 @@ public class IdmContractPositionFilter extends DataFilter implements ExternalIde
 	
 	public void setWorkPosition(UUID workPosition) {
 		data.set(PARAMETER_WORK_POSITION, workPosition);
-	}
-	
-	@Override
-	public String getExternalId() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
-	}
-	
-	@Override
-	public void setExternalId(String externalId) {
-		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 }

@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 - [#2068](https://redmine.czechidm.com/issues/2068) - New menu section for identity (``identity-menu``) was added into module descriptors. This menu is shown from top navigation under logged identity username - this menu is replacement for previously defined **item with id ``identities-profile-system``, which is not configurable in module descriptor (section ``system``) and cannot be disabled now.** Items in this menu is registerable as other items in module descriptor.
 - [#1837](https://redmine.czechidm.com/issues/1837) - Long running task rejection policy is implemented. For this reason, default product task executor configuration was changed and this change should be done for projects (but is not required), where default configuration is not used -
 ``scheduler.task.executor.queueCapacity=50``. With previously configured ``Integer.MAX`` value was ``scheduler.task.executor.maxPoolSize`` configuration ignored => ``scheduler.task.executor.corePoolSize`` was used only.
-
+- [#2107](https://redmine.czechidm.com/issues/2107) - Default method implementation was added into filter interfaces ``CorrelationFilter``, ``FormableFilter``, ``ModifiedFromFilter``, ``ExternalIdentifiableFilter``, ``ModifiedFromFilter``, ``ModifiedTillFilter``, ``CreatedFromFilter``, ``CreatedTillFilter``. Filter interfaces reuse ``DataFilter`` functionality now. If you are using this interface in your custom module, check ``DataFilter`` superclass is used too. All auditable entities can be found by new filters (created and modified form / till - filters are registered automatically).
 
 ## [10.1.0]
 

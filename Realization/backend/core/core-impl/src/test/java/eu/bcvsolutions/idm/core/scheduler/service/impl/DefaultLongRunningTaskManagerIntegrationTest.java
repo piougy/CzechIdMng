@@ -25,7 +25,6 @@ import org.springframework.context.ApplicationContext;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
@@ -34,9 +33,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDeleteBulkAction;
-import eu.bcvsolutions.idm.core.bulk.action.impl.contract.IdentityContractDeleteBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
@@ -444,7 +441,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 			bulkAction.setFilter(toMap(filter));
 			// prepare and persist LRT
 			IdentityDeleteBulkAction identityDeleteBulkAction = new IdentityDeleteBulkAction();
-;			identityDeleteBulkAction.setAction(bulkAction);
+			identityDeleteBulkAction.setAction(bulkAction);
 			IdmLongRunningTaskDto task = manager.persistTask(identityDeleteBulkAction, OperationState.CREATED);
 			manager.processCreated(task.getId());
 			//
@@ -455,30 +452,6 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 		} finally {
 			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 			getHelper().logout();
-		}
-	}
-	
-	@Test
-	public void testExecutePersistedBulkActionWithWrongFilter() {
-		getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
-		try {
-			// filter setting
-			IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
-			filter.setIdentity(UUID.randomUUID());
-			// prepare bulk action
-			IdmBulkActionDto bulkAction = findBulkAction(IdmIdentityContract.class, IdentityContractDeleteBulkAction.NAME);
-			bulkAction.setTransformedFilter(filter);
-			bulkAction.setFilter(toMap(filter));
-			// prepare and persist LRT
-			IdentityContractDeleteBulkAction identityContractDeleteBulkAction = new IdentityContractDeleteBulkAction();
-			identityContractDeleteBulkAction.setAction(bulkAction);
-			IdmLongRunningTaskDto task = manager.persistTask(identityContractDeleteBulkAction, OperationState.CREATED);
-			manager.processCreated(task.getId());
-			//
-			task = manager.getLongRunningTask(task.getId());
-			Assert.assertEquals(OperationState.EXCEPTION, task.getResultState());
-		} finally {
-			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
 		}
 	}
 	

@@ -81,7 +81,7 @@ public class DeleteExecutedEventTaskExecutor extends AbstractSchedulableStateful
 	@Override
 	public Page<IdmEntityEventDto> getItemsToProcess(Pageable pageable) {
 		IdmEntityEventFilter filter = new IdmEntityEventFilter();
-		filter.getStates().add(OperationState.EXECUTED);
+		filter.setStates(Lists.newArrayList(OperationState.EXECUTED));
 		if (numberOfDays > 0) {
 			filter.setCreatedTill(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusDays(numberOfDays));
 		}

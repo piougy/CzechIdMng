@@ -18,14 +18,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -104,15 +100,11 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 	
 	@Override
 	protected IdmEntityEventFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmEntityEventFilter filter = new IdmEntityEventFilter(parameters);
-		filter.setCreatedFrom(getParameterConverter().toDateTime(parameters, "createdFrom"));
-		filter.setCreatedTill(getParameterConverter().toDateTime(parameters, "createdTill"));
-		filter.setOwnerType(getParameterConverter().toString(parameters, "ownerType"));
-		//
+		IdmEntityEventFilter filter = new IdmEntityEventFilter(parameters, getParameterConverter());
+		// owner decorator
 		String ownerId = getParameterConverter().toString(parameters, "ownerId");
 		UUID ownerUuid = null;
-		if (StringUtils.isNotEmpty(filter.getOwnerType()) 
-				&& StringUtils.isNotEmpty(ownerId)) {
+		if (StringUtils.isNotEmpty(filter.getOwnerType()) && StringUtils.isNotEmpty(ownerId)) {
 			// try to find entity owner by Codeable identifier
 			AbstractDto owner = manager.findOwner(filter.getOwnerType(), ownerId);
 			if (owner != null) {
@@ -123,20 +115,10 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 			}
 		}
 		if (ownerUuid == null) {
-			try {
-				ownerUuid = getParameterConverter().toUuid(parameters, "ownerId");
-			} catch (ClassCastException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
-			}
+			ownerUuid = getParameterConverter().toUuid(parameters, "ownerId");
 		}
 		filter.setOwnerId(ownerUuid);
-		filter.setRootId(getParameterConverter().toUuid(parameters, "rootId"));
-		filter.setParentId(getParameterConverter().toUuid(parameters, "parentId"));
-		filter.setPriority(getParameterConverter().toEnum(parameters, "priority", PriorityType.class));
-		filter.setResultCode(getParameterConverter().toString(parameters, "resultCode"));
-		filter.setStates(getParameterConverter().toEnums(parameters, "states", OperationState.class));
-		filter.setEventType(getParameterConverter().toString(parameters, "eventType"));
-		filter.setSuperOwnerId(getParameterConverter().toUuid(parameters, "superOwnerId"));
+		//
 		return filter;
 	}
 }

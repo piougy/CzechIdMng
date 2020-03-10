@@ -9,7 +9,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
-import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
@@ -20,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  * @author Radek Tomiška
  *
  */
-public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiable, ExternalCodeable {
+public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiableFilter, ExternalCodeable {
 	
 	/**
 	 * Identity by username.
@@ -116,7 +115,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public void setUsername(String username) {
-		data.set(PARAMETER_USERNAME, username);
+		set(PARAMETER_USERNAME, username);
 	}
 
 	public UUID getSubordinatesFor() {
@@ -124,7 +123,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public void setSubordinatesFor(UUID subordinatesFor) {
-		data.set(PARAMETER_SUBORDINATES_FOR, subordinatesFor);
+		set(PARAMETER_SUBORDINATES_FOR, subordinatesFor);
 	}
 
 	public UUID getSubordinatesByTreeType() {
@@ -132,11 +131,11 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public void setSubordinatesByTreeType(UUID subordinatesByTreeType) {
-		data.set(PARAMETER_SUBORDINATES_BY_TREE_TYPE, subordinatesByTreeType);
+		set(PARAMETER_SUBORDINATES_BY_TREE_TYPE, subordinatesByTreeType);
 	}
 	
 	public void setManagersFor(UUID managersFor) {
-		data.set(PARAMETER_MANAGERS_FOR, managersFor);
+		set(PARAMETER_MANAGERS_FOR, managersFor);
 	}
 	
 	public UUID getManagersFor() {
@@ -144,7 +143,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public void setManagersByTreeType(UUID managersByTreeType) {
-		data.set(PARAMETER_MANAGERS_BY_TREE_TYPE, managersByTreeType);
+		set(PARAMETER_MANAGERS_BY_TREE_TYPE, managersByTreeType);
 	}
 	
 	public UUID getManagersByTreeType() {
@@ -156,7 +155,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public void setManagersByContract(UUID managersByContract) {
-		data.set(PARAMETER_MANAGERS_BY_CONTRACT, managersByContract);
+		set(PARAMETER_MANAGERS_BY_CONTRACT, managersByContract);
 	}
 	
 	public void setRoles(List<UUID> roles) {
@@ -170,33 +169,13 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	public List<UUID> getRoles() {
 		return getParameterConverter().toUuids(data, PARAMETER_ROLE);
 	}
-
-	@Override
-	public String getProperty() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
-	}
-
-	@Override
-	public void setProperty(String property) {
-		data.set(PARAMETER_CORRELATION_PROPERTY, property);
-	}
-
-	@Override
-	public String getValue() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
-	}
-
-	@Override
-	public void setValue(String value) {
-		data.set(PARAMETER_CORRELATION_VALUE, value);
-	}
 	
 	public UUID getTreeNode() {
 		return getParameterConverter().toUuid(data, PARAMETER_TREE_NODE);
 	}
 	
 	public void setTreeNode(UUID treeNode) {
-		data.set(PARAMETER_TREE_NODE, treeNode);
+		set(PARAMETER_TREE_NODE, treeNode);
 	}
 	
 	public UUID getTreeType() {
@@ -204,7 +183,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public void setTreeType(UUID treeType) {
-		data.set(PARAMETER_TREE_TYPE, treeType);
+		set(PARAMETER_TREE_TYPE, treeType);
 	}
 	
 	public boolean isRecursively() {
@@ -212,7 +191,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public void setRecursively(boolean recursively) {
-		data.set(PARAMETER_RECURSIVELY, recursively);
+		set(PARAMETER_RECURSIVELY, recursively);
 	}
 	
 	public boolean isIncludeGuarantees() {
@@ -220,7 +199,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public void setIncludeGuarantees(boolean includeGuarantees) {
-		data.set(PARAMETER_INCLUDE_GUARANTEES, includeGuarantees);
+		set(PARAMETER_INCLUDE_GUARANTEES, includeGuarantees);
 	}
 
 	public Boolean getDisabled() {
@@ -228,7 +207,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public void setDisabled(Boolean disabled) {
-		data.set(PARAMETER_DISABLED, disabled);
+		set(PARAMETER_DISABLED, disabled);
 	}
 
 	public String getFirstName() {
@@ -236,7 +215,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public void setFirstName(String firstName) {
-		data.set(PARAMETER_FIRSTNAME, firstName);
+		set(PARAMETER_FIRSTNAME, firstName);
 	}
 
 	public String getLastName() {
@@ -244,11 +223,11 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public void setLastName(String lastName) {
-		data.set(PARAMETER_LASTNAME, lastName);
+		set(PARAMETER_LASTNAME, lastName);
 	}
 	
 	public void setState(IdentityState state) {
-		data.set(PARAMETER_STATE, state);
+		set(PARAMETER_STATE, state);
 	}
 	
 	public IdentityState getState() {
@@ -260,7 +239,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public void setAutomaticRoleId(UUID automaticRoleId) {
-		data.set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
+		set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
 	}
 	
 	public void setIdentifiers(List<String> identifiers) {
@@ -282,17 +261,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 
 	@Override
 	public void setExternalCode(String externalCode) {
-		data.set(PROPERTY_EXTERNAL_CODE, externalCode);
-	}
-	
-	@Override
-	public String getExternalId() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
-	}
-	
-	@Override
-	public void setExternalId(String externalId) {
-		data.set(PROPERTY_EXTERNAL_ID, externalId);
+		set(PROPERTY_EXTERNAL_CODE, externalCode);
 	}
 	
 	public UUID getGuaranteesForRole() {
@@ -300,7 +269,7 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public void setGuaranteesForRole(UUID guaranteesForRole) {
-		data.set(PARAMETER_GUARANTEES_FOR_ROLE, guaranteesForRole);
+		set(PARAMETER_GUARANTEES_FOR_ROLE, guaranteesForRole);
 	}
 	
 	/**
@@ -316,6 +285,6 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	 * @param email
 	 */
 	public void setEmail(String email) {
-		data.set(PARAMETER_EMAIL, email);
+		set(PARAMETER_EMAIL, email);
 	}
 }

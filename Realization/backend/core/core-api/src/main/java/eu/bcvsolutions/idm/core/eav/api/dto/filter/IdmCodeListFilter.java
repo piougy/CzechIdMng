@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.eav.api.dto.filter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.ExternalIdentifiableFilter;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmCodeListDto;
 
 /**
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmCodeListDto;
  * @author Radek Tomiška
  * @since 9.4.0
  */
-public class IdmCodeListFilter extends DataFilter implements ExternalIdentifiable {
+public class IdmCodeListFilter extends DataFilter implements ExternalIdentifiableFilter {
 
 	public static final String PARAMETER_CODE = "code"; // PARAMETER_CODEABLE_IDENTIFIER can be used too
 
@@ -31,15 +31,5 @@ public class IdmCodeListFilter extends DataFilter implements ExternalIdentifiabl
 
 	public void setCode(String code) {
 		data.set(PARAMETER_CODE, code);
-	}
-	
-	@Override
-	public String getExternalId() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
-	}
-	
-	@Override
-	public void setExternalId(String externalId) {
-		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 }

@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
 /**
- * Entity (or dto) with validity
+ * Entity (or dto) with validity.
  * 
  * @author Radek Tomiška 
  */

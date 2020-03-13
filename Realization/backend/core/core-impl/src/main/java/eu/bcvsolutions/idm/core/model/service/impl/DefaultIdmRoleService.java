@@ -76,7 +76,6 @@ public class DefaultIdmRoleService
 	@Autowired private RoleConfiguration roleConfiguration;
 	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
 	@Autowired @Lazy private IdmIdentityService identityService;
-	@Autowired @Lazy private FormService formService;
 	@Autowired private IdmRoleFormAttributeService roleFormAttributeService;
 	
 	@Autowired
@@ -131,7 +130,7 @@ public class DefaultIdmRoleService
 		if(identityRoleAttributeDefinition == null) {
 			return null;
 		}
-		IdmFormDefinitionDto definition = formService.getDefinition(identityRoleAttributeDefinition);
+		IdmFormDefinitionDto definition = this.getFormService().getDefinition(identityRoleAttributeDefinition);
 		List<IdmFormAttributeDto> allAttributes = definition.getFormAttributes();
 		// Find sub-definition for given role
 		IdmRoleFormAttributeFilter attributeFilter = new IdmRoleFormAttributeFilter();

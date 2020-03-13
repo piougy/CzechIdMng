@@ -1003,6 +1003,10 @@
       "HIGH": "Vysoká",
       "NORMAL": "Normální"
     },
+    "ExportImportEnum": {
+      "EXPORT": "Export",
+      "IMPORT": "Import"
+    },
     "DateFaceEnum": {
       "TODAY": "Dnes",
       "YESTERDAY": "Včera",
@@ -1102,7 +1106,8 @@
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)",
       "TOKEN": "Token",
       "GENERATEVALUE": "Generování hodnot",
-      "PASSWORD": "Uživatelská hesla"
+      "PASSWORD": "Uživatelská hesla",
+      "EXPORTIMPORT": "Export/Import"
     }
   },
   "content": {
@@ -2023,6 +2028,68 @@
       "edit": {
         "title": "Detail obsahu",
         "header": "Detail šifrované hodnoty"
+      }
+    },
+    "export-imports": {
+      "header": "Export/Import",
+      "title": "Export/Import",
+      "fileUploaded": "Importní dávka byla úspěšně nahrána.",
+      "link": {
+        "longRunningTask": {
+          "title": "Zobrazit dlouho trvající úlohy",
+          "deleted": {
+            "label": "Úloha smazána",
+            "title": "Úloha (LRT) byla smazána."
+          }
+        }
+      },
+      "actions": "Akce",
+      "action": {
+        "download": {
+          "title": "Stáhnout"
+        },
+        "dry-run": {
+          "title": "Spustit demo režim importu",
+          "header": "Spustit demo režim importu",
+          "message": "Chcete spustit vybránou dávku importu v demo režimu? Nebuou aplikovány žádné změny. Import bude spuštěn asynchronně na pozadí.",
+          "success": "Import byl úspěšně zahájen."
+        },
+        "execute": {
+          "title": "Spustit import",
+          "header": "Spustit import",
+          "message": "Chcete spustit vybránou dávku importu? Import bude spuštěn asynchronně na pozadí.",
+          "success": "Import byl úspěšně zahájen."
+        }
+      },
+      "filter": {
+        "text": {
+          "placeholder": "Název dávky"
+        },
+        "textLog": {
+          "placeholder": "Type entity"
+        },
+        "operationState": {
+          "placeholder": "Výsledek"
+        }
+      },
+      "dropzone": {
+        "infoText": "Přetáhněte importované dávky (ZIP) na tuto plochu a nebo na ní klikněte pro výběr souborů."
+      },
+      "detail": {
+        "header": "Detail dávky",
+        "tab": "Výsledek dávky"
+      },
+      "tableLogs": {
+        "name": "Všechny úpravy"
+      },
+      "treeLogs": {
+        "name": "Všechny úpravy (strom)"
+      },
+      "ImportDescriptor": {
+        "operation": "Operace",
+        "dto": "Entita",
+        "result": "Výsledek",
+        "type": "Typ"
       }
     },
     "scripts": {
@@ -3578,6 +3645,7 @@
       "help": "Interní identifikátor uživatelské transakce - entity byly uloženy v rámci této dávky (operace)."
     },
     "name": "Název",
+    "type": "Typ",
     "created": "Vytvořeno",
     "modified": {
       "short": "Upraveno",
@@ -3779,6 +3847,9 @@
         "label": "Název položky",
         "help": "Bude zobrazen na detailu formuláře."
       },
+      "formDefinition": {
+        "label": "Název definice"
+      },
       "seq": {
         "label": "Pořadí",
         "help": "Pořadí atributu na detailu formuláře."
@@ -3976,6 +4047,30 @@
       "duplicate": {
         "label": "Duplicitní role",
         "header": "Požadovaná role je duplicitní k roli:"
+      }
+    },
+    "ExportImport": {
+      "_type": "Export/Import dávky",
+      "name": {
+        "label": "Popis"
+      },
+      "executorName": {
+        "label": "Obsah dávky"
+      },
+      "type": {
+        "label": "Typ dávky"
+      },
+      "creator": {
+        "label": "$t(core:entity.creator)"
+      },
+      "created": {
+        "label": "$t(core:entity.created)"
+      },
+      "modified": {
+        "label": "Upraveno"
+      },
+      "result": {
+        "state": "Stav"
       }
     },
     "IdentityAccount": {
@@ -4891,6 +4986,7 @@
       }
     },
     "RoleFormAttribute": {
+      "_type": "Atribut role",
       "role": {
         "label": "Role"
       },
@@ -5214,6 +5310,30 @@
         "label": "$t(action.delete.action) role",
         "help": "Smaže vybrané role.",
         "icon": "$t(action.delete.icon)"
+      },
+      "role-export-bulk-action": {
+        "icon": "export",
+        "label": "Exportovat roli",
+        "title": "Role",
+        "help": "Vytvoří exportní dávku obsahující vybrané role. Výsledný export bude uložen v agendě <strong>Export/Import</strong>.",
+        "attributes": {
+          "name": {
+            "label": "Popis exportu",
+            "help": ""
+          }
+        }
+      },
+      "configuration-export-bulk-action": {
+        "icon": "export",
+        "label": "Exportovat konfiguraci",
+        "title": "Konfigurace",
+        "help": "Vytvoří exportní dávku obsahující konfigurační položky. Výsledný export bude uložen v agendě <strong>Export/Import</strong>.",
+        "attributes": {
+          "name": {
+            "label": "Popis exportu",
+            "help": ""
+          }
+        }
       },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) konfigurace",
@@ -6695,6 +6815,30 @@
     "LOGGER_LEVEL_NOT_FOUND": {
       "title": "Úroveň logování neexistuje",
       "message": "Zadaná úroveň logování neexistuje [{{level}}]. Dostupné úrovně jsou [TRACE, DEBUG, INFO, WARN, ERROR]."
+    },
+    "IMPORT_EXECUTED_AS_DRYRUN": {
+      "title": "Import byl proveden v demo režimu.",
+      "message": "Žádné změny nebyly provedeny!"
+    },
+    "IMPORT_CAN_EXECUTE_ONLY_ADMIN": {
+      "title": "Import může spustit pouze administrátor!",
+      "message": "Import nemůže být spuštěn, protože nemáte oprávnění administrátora!"
+    },
+    "IMPORT_DTO_SKIPPED": {
+      "title": "Importované DTO bylo přeskočeno.",
+      "message": "Vazba na tento objekt nebyla nalzena, tento typ je ovšem označen jako 'nepovinný', proto bylo importované DTO [{{dto}}] přeskočeno."
+    },
+    "IMPORT_ADVANCED_PARING_FAILED_NOT_FOUND": {
+      "title": "Objekt s kódem [{{code}}] nebyl nalezen!",
+      "message": "Pokročilé párování selhalo pro položku [{{field}}] v DTO [{{dto}}]. Objekt [{{notFoundDto}}] nebyl nalezen v cílovém IdM!"
+    },
+    "IMPORT_DTO_SKIPPED_DRY_RUN": {
+      "title": "Importované DTO bylo přeskočeno.",
+      "message": "Vazba na tento objekt nebyla nalzena, tento import byl ovšem spuštěn v demo režimu a proto bylo importované DTO [{{dto}}] přeskočeno."
+    },
+    "IMPORT_IS_ALREADY_RUNNING": {
+      "title": "Tento import je již spuštěn!",
+      "message": "Stejnou importní úlohu nelze spustit dvakrát!"
     }
   },
   "validationError": {

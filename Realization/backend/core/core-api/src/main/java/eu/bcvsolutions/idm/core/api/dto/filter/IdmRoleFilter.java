@@ -17,16 +17,16 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for roles.
- * 
+ *
  * Codeable filter parameter can be used.
- * 
+ *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  *
  */
-public class IdmRoleFilter 
-		extends DataFilter 
-		implements CorrelationFilter, ExternalIdentifiableFilter {
+public class IdmRoleFilter
+		extends DataFilter
+		implements CorrelationFilter, ExternalIdentifiableFilter, FormableFilter {
 
 	/**
 	 * Parent role identifier - find sub roles by role composition
@@ -40,15 +40,15 @@ public class IdmRoleFilter
 	public static final String PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF = "identityRoleAttributeDefinition";
 	@Deprecated // unused since the start of project
 	public static final String PARAMETER_ROLE_TYPE = "roleType";
-	
+
 	public IdmRoleFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
-	
+
 	public IdmRoleFilter(MultiValueMap<String, Object> data) {
 		this(data, null);
 	}
-	
+
 	public IdmRoleFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
 		super(IdmRoleDto.class, data, parameterConverter);
 	}
@@ -78,11 +78,11 @@ public class IdmRoleFilter
 	public void setAttributeFormDefinitionId(UUID id) {
 		set(PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF, id);
 	}
-	
+
 	public String getEnvironment() {
     	return getParameterConverter().toString(data, PARAMETER_ENVIRONMENT);
 	}
-    
+
     public void setEnvironment(String environment) {
     	if (StringUtils.isEmpty(environment)) {
     		data.remove(PARAMETER_ENVIRONMENT);
@@ -90,11 +90,11 @@ public class IdmRoleFilter
     		data.put(PARAMETER_ENVIRONMENT, Lists.newArrayList(environment));
     	}
 	}
-    
+
     public List<String> getEnvironments() {
 		return getParameterConverter().toStrings(data, PARAMETER_ENVIRONMENT);
 	}
-    
+
     public void setEnvironments(List<String> environments) {
     	if (CollectionUtils.isEmpty(environments)) {
     		data.remove(PARAMETER_ENVIRONMENT);
@@ -102,15 +102,15 @@ public class IdmRoleFilter
     		data.put(PARAMETER_ENVIRONMENT, new ArrayList<Object>(environments));
     	}
 	}
-	
+
 	public String getBaseCode() {
 		return getParameterConverter().toString(data, PARAMETER_BASE_CODE);
 	}
-	
+
 	public void setBaseCode(String baseCode) {
 		set(PARAMETER_BASE_CODE, baseCode);
 	}
-	
+
 	public UUID getGuaranteeId() {
 		return getParameterConverter().toUuid(data ,PARAMETER_GUARANTEE);
 	}
@@ -118,7 +118,7 @@ public class IdmRoleFilter
 	public void setGuaranteeId(UUID guaranteeId) {
 		set(PARAMETER_GUARANTEE, guaranteeId);
 	}
-	
+
 	/**
 	 * @since 9.4.0
 	 * @return
@@ -133,5 +133,21 @@ public class IdmRoleFilter
 	 */
 	public void setParent(UUID parent) {
 		set(PARAMETER_PARENT, parent);
+	}
+
+	/**
+	 * @since 10.2.0
+	 */
+	@Override
+	public Boolean getAddEavMetadata() {
+    	return getParameterConverter().toBoolean(data, PARAMETER_ADD_EAV_METADATA);
+	}
+
+	/**
+	 * @since 10.2.0
+	 */
+	@Override
+	public void setAddEavMetadata(Boolean value) {
+		data.set(PARAMETER_ADD_EAV_METADATA, value);
 	}
 }

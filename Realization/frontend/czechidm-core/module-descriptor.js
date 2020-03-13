@@ -377,6 +377,7 @@ module.exports = {
                 labelKey: 'content.role.incompatible-roles.header',
                 titleKey: 'content.role.incompatible-roles.title',
                 order: 125,
+                icon: 'fa:times-circle',
                 path: '/role/:entityId/incompatible-roles',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['INCOMPATIBLEROLE_READ'] } ]
               },
@@ -404,6 +405,7 @@ module.exports = {
                 labelKey: 'content.role.authorization-policies.label',
                 titleKey: 'content.role.authorization-policies.title',
                 order: 200,
+                icon: 'fa:shield-alt',
                 path: '/role/:entityId/authorization-policies',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
               },
@@ -520,6 +522,7 @@ module.exports = {
                 labelKey: 'content.role.incompatible-roles.header',
                 titleKey: 'content.role.incompatible-roles.title',
                 order: 125,
+                icon: 'fa:times-circle',
                 path: 'requests/:requestId/role/:entityId/incompatible-roles',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['INCOMPATIBLEROLE_READ'] } ]
               },
@@ -565,6 +568,7 @@ module.exports = {
                 labelKey: 'content.role.authorization-policies.label',
                 titleKey: 'content.role.authorization-policies.title',
                 order: 200,
+                icon: 'fa:shield-alt',
                 path: 'requests/:requestId/role/:entityId/authorization-policies',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
               },
@@ -941,7 +945,7 @@ module.exports = {
             authorities: [
               'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ', 'GENERATEVALUE_READ',
               'SCHEDULER_READ', 'FORMDEFINITION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ',
-              'CONFIDENTIALSTORAGEVALUE_READ', 'CODELIST_READ'
+              'CONFIDENTIALSTORAGEVALUE_READ', 'CODELIST_READ', 'EXPORTIMPORT_READ'
             ]
           }
         ],
@@ -1406,6 +1410,16 @@ module.exports = {
             path: '/confidential-storage',
             access: [ { type: 'DENY_ALL' } ],
           },
+          {
+            id: 'export-imports',
+            labelKey: 'content.export-imports.header',
+            titleKey: 'content.export-imports.title',
+            icon: 'export',
+            iconColor: '#000000',
+            order: 400,
+            path: '/export-imports',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['EXPORTIMPORT_READ'] } ],
+          }
         ]
       },
       {

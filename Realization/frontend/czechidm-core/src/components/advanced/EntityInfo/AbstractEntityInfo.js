@@ -205,7 +205,12 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
   getNiceLabel(entity) {
     const _entity = entity || this.getEntity();
     //
-    return this.getManager().getNiceLabel(_entity);
+    let value = this.getManager().getNiceLabel(_entity);
+    if (value.length > 60) {
+      value = `${value.substr(0, 60)}...`;
+    }
+
+    return value;
   }
 
   /**

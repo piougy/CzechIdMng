@@ -75,6 +75,7 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.czechidm.domain.IcConnectorConfigurationCzechIdMImpl;
+import eu.bcvsolutions.idm.ic.exception.IcRemoteServerException;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
@@ -540,6 +541,21 @@ public class DefaultSysSystemService
 		return originalSystem;
 	}
 
+	@Override
+	protected SysSystemDto internalExport(UUID id) {
+		SysSystemDto system = super.internalExport(id);
+		// Set as inactive system
+		system.setDisabled(true);
+
+		// Set remote connector server password to the null. We don't want update
+		// password on target IdM.
+		if (system.getConnectorServer() != null) {
+			system.getConnectorServer().setPassword(null);
+		}
+
+		return system;
+	}
+
 	private SysSchemaObjectClassDto convertIcObjectClassInfo(IcObjectClassInfo objectClass,
 			SysSchemaObjectClassDto sysObjectClass) {
 		if (objectClass == null) {
@@ -634,11 +650,23 @@ public class DefaultSysSystemService
 	 * @return
 	 */
 	private synchronized IdmFormDefinitionDto resolveConnectorFormDefinition(IdmFormDefinitionDto formDefinition, IcConnectorInstance connectorInstance) {
-		IcConnectorConfiguration conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
+		IcConnectorConfiguration conf = null;
+		try {
+			conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
+		}catch(IcRemoteServerException ex) {
+			if (formDefinition != null) {
+				LOG.info("Connector definition cannot be updated, because connector returns remote-server exception."
+						+ " Exists definition will be used.", ex);
+				
+				return formDefinition;
+			}
+			throw ex;
+		}
 		if (conf == null) {
 			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
 					connectorInstance.getConnectorKey().getFullName()));
 		}
+		
 		//
 		List<IcConfigurationProperty> properties = conf.getConfigurationProperties().getProperties();
 		List<IdmFormAttributeDto> formAttributes = new ArrayList<>(properties.size());
@@ -960,4 +988,5 @@ public class DefaultSysSystemService
 		//
 		return connectorInstance;
 	}
+	
 }

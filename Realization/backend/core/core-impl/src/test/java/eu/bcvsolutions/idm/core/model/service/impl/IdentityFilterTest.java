@@ -113,9 +113,9 @@ public class IdentityFilterTest extends AbstractIntegrationTest{
 	
 	@Test(expected = ResultCodeException.class)
 	public void testCorrelableFilterWrongType() {
-		// Only search by String is supported
+		// Only search by String or UUID is supported
 		IdmIdentityFilter filter = new IdmIdentityFilter();
-		filter.setProperty(IdmIdentity_.realmId.getName());
+		filter.setProperty(IdmIdentity_.disabled.getName());
 		filter.setValue(UUID.randomUUID().toString());
 		identityService.find(filter, null).getContent();
 	}

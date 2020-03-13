@@ -2,6 +2,7 @@ import AbstractRequestService from './AbstractRequestService';
 import SearchParameters from '../domain/SearchParameters';
 import RoleService from './RoleService';
 import RoleCatalogueService from './RoleCatalogueService';
+import {i18n} from './LocalizationService';
 
 const roleService = new RoleService();
 const roleCatalogueService = new RoleCatalogueService();
@@ -21,8 +22,8 @@ export default class RoleCatalogueRoleService extends AbstractRequestService {
   }
 
   getNiceLabel(entity) {
-    if (!entity || !entity._embedded) {
-      return '';
+    if (!entity || !entity._embedded || !entity._embedded.role || entity._embedded.roleCatalogue) {
+      return i18n('entity.RoleCatalogueRole._type');
     }
     let label = `${roleService.getNiceLabel(entity._embedded.role)}`;
     if (entity.roleCatalogue) {

@@ -105,6 +105,20 @@ module.exports = {
       manager: require('./src/redux').RoleManager
     },
     {
+      id: 'form-attribute-info',
+      type: 'entity-info',
+      entityType: ['formAttribute', 'IdmFormAttribute', 'IdmFormAttributeDto'],
+      component: require('./src/components/advanced/FormAttributeInfo/FormAttributeInfo').default,
+      manager: require('./src/redux').FormAttributeManager
+    },
+    {
+      id: 'form-definition-info',
+      type: 'entity-info',
+      entityType: ['formDefinition', 'IdmFormDefinition', 'IdmFormDefinitionDto'],
+      component: require('./src/components/advanced/FormDefinitionInfo/FormDefinitionInfo').default,
+      manager: require('./src/redux').FormDefinitionManager
+    },
+    {
       id: 'role-catalogue-info',
       type: 'entity-info',
       entityType: ['roleCatalogue', 'IdmRoleCatalogue', 'IdmRoleCatalogueDto', 'ROLE_CATALOGUE'],
@@ -159,6 +173,55 @@ module.exports = {
       entityType: ['contractSlice', 'contractSlice', 'IdmContractSlice', 'IdmContractSliceDto'],
       component: require('./src/components/advanced/ContractSliceInfo/ContractSliceInfo').default,
       manager: require('./src/redux').ContractSliceManager
+    },
+    {
+      id: 'authorization-policy-info',
+      type: 'entity-info',
+      entityType: ['IdmAuthorizationPolicy', 'IdmAuthorizationPolicyDto'],
+      component: require('./src/components/advanced/AuthorizationPolicyInfo/AuthorizationPolicyInfo').default,
+      manager: require('./src/redux').AuthorizationPolicyManager
+    },
+    {
+      id: 'role-composition-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleComposition', 'IdmRoleCompositionDto'],
+      component: require('./src/components/advanced/RoleCompositionInfo/RoleCompositionInfo').default,
+      manager: require('./src/redux').RoleCompositionManager
+    },
+    {
+      id: 'role-incompatible-info',
+      type: 'entity-info',
+      entityType: ['IdmIncompatibleRole', 'IdmIncompatibleRoleDto'],
+      component: require('./src/components/advanced/IncompatibleRoleInfo/IncompatibleRoleInfo').default,
+      manager: require('./src/redux').IncompatibleRoleManager
+    },
+    {
+      id: 'role-guarantee-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleGuarantee', 'IdmRoleGuaranteeDto'],
+      component: require('./src/components/advanced/RoleGuaranteeInfo/RoleGuaranteeInfo').default,
+      manager: require('./src/redux').RoleGuaranteeManager
+    },
+    {
+      id: 'role-guarantee-role-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleGuaranteeRole', 'IdmRoleGuaranteeRoleDto'],
+      component: require('./src/components/advanced/RoleGuaranteeRoleInfo/RoleGuaranteeRoleInfo').default,
+      manager: require('./src/redux').RoleGuaranteeRoleManager
+    },
+    {
+      id: 'role-catalogue-role-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleCatalogueRole', 'IdmRoleCatalogueRoleDto'],
+      component: require('./src/components/advanced/RoleCatalogueRoleInfo/RoleCatalogueRoleInfo').default,
+      manager: require('./src/redux').RoleCatalogueRoleManager
+    },
+    {
+      id: 'role-form-attribute-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleFormAttribute', 'IdmRoleFormAttributeDto'],
+      component: require('./src/components/advanced/RoleFormAttributeInfo/RoleFormAttributeInfo').default,
+      manager: require('./src/redux').RoleFormAttributeManager
     },
     {
       id: 'text-form-value',

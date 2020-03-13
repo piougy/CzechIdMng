@@ -758,6 +758,7 @@
       "attributes": "Atributy na koncovém systému"
     },
     "SchemaObjectClass": {
+      "_type": "Schéma systému",
       "auxiliary": "Pomocný objekt",
       "container": "Je kontejnerem",
       "objectClassName": "Název objektu",
@@ -780,6 +781,7 @@
       }
     },
     "SchemaAttribute": {
+      "_type": "Atribut schematu",
       "name": "Název atributu",
       "objectClass": "Atribut náleží objektu",
       "classType": "Datový typ",
@@ -793,6 +795,7 @@
       "multivalued": "Obsahuje více hodnot"
     },
     "SystemAttributeMapping": {
+      "_type": "Atribut mapování",
       "name": {
         "label": "Název",
         "help": "Uživatelsky definovaný identifikátor tohoto atributu."
@@ -898,6 +901,7 @@
       "role": "Přiřazen dle role"
     },
     "SynchronizationConfig": {
+      "_type": "Synchronizace",
       "enabled": "Povolena",
       "name": "Název",
       "description": "Popis",
@@ -1094,6 +1098,7 @@
       }
     },
     "ProvisioningBreakConfig": {
+      "_type": "Provisioning brzda",
       "operationType": {
         "label": "Typ blokované operace",
         "help": "Typ operace, pro kterou bude mít brzda vliv."
@@ -1128,6 +1133,7 @@
       "globalConfiguration": "Globální konfigurace"
     },
     "ProvisioningBreakConfigRecipient": {
+      "_type": "Provisioning brzda - příjemci",
       "role": "Příjemci s rolí",
       "identity": "Příjemce",
       "type": {
@@ -1982,6 +1988,18 @@
         "icon": "fa:clone",
         "label": "Duplikovat systém",
         "help": "Vytvoří duplikát systému <strong>včetně všech konfigurací</strong>. Nový systém bude neaktivní, stejně jako jeho nastavené synchronizace. "
+      },
+      "system-export-bulk-action": {
+        "icon": "export",
+        "label": "Exportovat systém",
+        "title": "Systémy",
+        "help": "Vytvoří exportní dávku obsahující vybrané systémy. Nový systém bude neaktivní, stejně jako jeho nastavené synchronizace. Výsledný export bude uložen v agendě <strong>Export/Import</strong>.",
+        "attributes": {
+          "name": {
+            "label": "Popis exportu",
+            "help": ""
+          }
+        }
       },
       "system-delete-bulk-action": {
         "label": "$t(action.delete.action) systémy",

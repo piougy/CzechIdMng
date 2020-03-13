@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.core.eav.api.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
@@ -138,4 +140,12 @@ public interface IdmFormDefinitionService extends
 	 * @since 9.7.0
 	 */
 	IdmFormDefinitionDto updateDefinition(IdmFormDefinitionDto definition);
+
+	/**
+	 * Export only definition without attributes.
+	 * 
+	 * @param id
+	 * @param batch
+	 */
+	void exportOnlyDefinition(UUID id, IdmExportImportDto batch);
 }

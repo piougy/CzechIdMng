@@ -9,7 +9,11 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
@@ -41,6 +45,30 @@ public class DefaultIdmRoleGuaranteeRoleService
 	@Override
 	public AuthorizableType getAuthorizableType() {
 		return new AuthorizableType(CoreGroupPermission.ROLEGUARANTEEROLE, getEntityClass());
+	}
+	
+	@Override
+	protected IdmRoleGuaranteeRoleDto internalExport(UUID id) {
+		IdmRoleGuaranteeRoleDto dto = this.get(id);
+
+		// Advanced pairing
+		// We cannot clear all embedded data, because we need to export DTO for
+		// connected guarantee.
+		BaseDto guaranteeDto = dto.getEmbedded().get(IdmRoleGuaranteeRole_.guaranteeRole.getName());
+		dto.getEmbedded().clear();
+		dto.getEmbedded().put(IdmRoleGuaranteeRole_.guaranteeRole.getName(), guaranteeDto);
+
+		return dto;
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Export batch must exist!");
+		super.export(id, batch);
+		
+		// Advanced pairing
+		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, this.getDtoClass());
+		descriptorDto.getAdvancedParingFields().add(IdmRoleGuaranteeRole_.guaranteeRole.getName());
 	}
 	
 	@Override

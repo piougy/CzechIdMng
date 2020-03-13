@@ -77,7 +77,9 @@ import PasswordHistoryManager from './PasswordHistoryManager';
 import PasswordManager from './PasswordManager';
 import RequestIdentityRoleManager from './RequestIdentityRoleManager';
 import LongPollingManager from './LongPollingManager';
+import ExportImportManager from './ExportImportManager';
 import AvailableServiceManager from './AvailableServiceManager';
+import ImportLogManager from './ImportLogManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -152,7 +154,9 @@ const ManagerRoot = {
   PasswordManager,
   RequestIdentityRoleManager,
   LongPollingManager,
-  AvailableServiceManager
+  ExportImportManager,
+  AvailableServiceManager,
+  ImportLogManager
 };
 
 ManagerRoot.version = '9.4.0';

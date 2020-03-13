@@ -61,6 +61,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -72,6 +73,8 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
@@ -113,6 +116,10 @@ public class DefaultSysSystemAttributeMappingService
 	private SysRoleSystemAttributeService roleSystemAttributeService;
 	@Autowired
 	private AttachmentManager attachmentManager;
+	@Autowired
+	private IdmFormDefinitionService formDefinitionService;
+	@Autowired
+	private IdmFormAttributeService formAttributeService;
 	
 
 	@Autowired
@@ -778,6 +785,32 @@ public class DefaultSysSystemAttributeMappingService
 		// Save results
 		attributeControlledValueService.setControlledValues(attributeMapping, controlledAttributeValues);
 		return controlledAttributeValues;
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		
+		// Export EAV definition connected to this attribute
+		SysSystemAttributeMappingDto attribute = get(id);
+		if (attribute!= null) {
+			SysSystemMappingDto mapping = DtoUtils.getEmbedded(attribute,
+					SysSystemAttributeMapping_.systemMapping.getName(), SysSystemMappingDto.class);
+	
+			Class<? extends Identifiable> entityType = mapping.getEntityType().getExtendedAttributeOwnerType();
+			if (entityType != null && attribute.isExtendedAttribute() && formService.isFormable(entityType)) {
+				IdmFormAttributeDto formAttribute = formService.getAttribute(entityType, attribute.getIdmPropertyName());
+				if (formAttribute != null) {
+					// EAV attribute definition was found for this mapped attribute.
+					// Export definition without attributes.
+					formDefinitionService.exportOnlyDefinition(formAttribute.getFormDefinition(), batch);
+					// Export given attribute (not all).
+					formAttributeService.export(formAttribute.getId(), batch);
+				}
+			}
+		}
+		
+		super.export(id, batch);
+		
 	}
 	
 	/**

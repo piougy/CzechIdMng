@@ -970,6 +970,10 @@
       "HIGH": "High",
       "NORMAL": "Normal"
     },
+    "ExportImportEnum": {
+      "EXPORT": "Export",
+      "IMPORT": "Import"
+    },
     "DateFaceEnum": {
       "TODAY": "Today",
       "YESTERDAY": "Yesterday",
@@ -1069,7 +1073,8 @@
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)",
       "TOKEN": "Token",
       "GENERATEVALUE": "Value generate",
-      "PASSWORD": "Users passwords"
+      "PASSWORD": "Users passwords",
+      "EXPORTIMPORT": "Export/Import"
     }
   },
   "content": {
@@ -1973,6 +1978,68 @@
       "edit": {
         "title": "Detail of storage",
         "header": "Detail encrypted value"
+      }
+    },
+    "export-imports": {
+      "header": "Export/Import",
+      "title": "Export/Import",
+      "fileUploaded": "Import batch successfully uploaded.",
+      "link": {
+        "longRunningTask": {
+          "title": "Show long running task",
+          "deleted": {
+            "label": "Task deleted",
+            "title": "Task (LRT) was deleted."
+          }
+        }
+      },
+      "actions": "Actions",
+      "action": {
+        "download": {
+          "title": "Download"
+        },
+        "dry-run": {
+          "title": "Execute import in demo mode",
+          "header": "Execute import in demo mode",
+          "message": "Starts the selected import batch in demo mode. No changes will be applied. Import will start asynchronously in the background.",
+          "success": "Demo import started successfully."
+        },
+        "execute": {
+          "title": "Execute import",
+          "header": "Execute import",
+          "message": "Starts the selected import batch. Import will start asynchronously in the background.",
+          "success": "Import started successfully."
+        }
+      },
+      "filter": {
+        "text": {
+          "placeholder": "Name of batch"
+        },
+        "textLog": {
+          "placeholder": "Type of entity"
+        },
+        "operationState": {
+          "placeholder": "Result"
+        }
+      },
+      "dropzone": {
+        "infoText": "Drag import batches (ZIP) here, or click to select files."
+      },
+      "detail": {
+        "header": "Batch detail",
+        "tab": "Batch result"
+      },
+      "treeLogs": {
+        "name": "All modifications (tree)"
+      },
+      "tableLogs": {
+        "name": "All modifications"
+      },
+      "ImportDescriptor": {
+        "operation": "Operation",
+        "dto": "Entity",
+        "result": "Result",
+        "type": "Type"
       }
     },
     "scripts": {
@@ -3525,6 +3592,7 @@
       "help": "User transaction identifier - entity was saved in this context (batch)."
     },
     "name": "Name",
+    "type": "Type",
     "created": "Created",
     "modified": {
       "short": "Changed",
@@ -3726,6 +3794,9 @@
         "label": "Name",
         "help": "Will be shown on form detail."
       },
+      "formDefinition": {
+        "label": "Definition name"
+      },
       "seq": {
         "label": "Order",
         "help": "Attribute order on form detail."
@@ -3923,6 +3994,30 @@
       "duplicate": {
         "label": "Requested role is duplicate",
         "header": "Requested role is duplicate with role:"
+      }
+    },
+    "ExportImport": {
+      "_type": "Export/Import batches",
+      "name": {
+        "label": "Description"
+      },
+      "executorName": {
+        "label": "Batch content"
+      },
+      "type": {
+        "label": "Batch type"
+      },
+      "creator": {
+        "label": "$t(core:entity.creator)"
+      },
+      "created": {
+        "label": "$t(core:entity.created)"
+      },
+      "modified": {
+        "label": "Modified"
+      },
+      "result": {
+        "state": "State"
       }
     },
     "IdentityAccount": {
@@ -4839,6 +4934,7 @@
       }
     },
     "RoleFormAttribute": {
+      "_type": "Role attribute",
       "role": {
         "label": "Role"
       },
@@ -5162,6 +5258,30 @@
         "label": "$t(action.delete.action) roles",
         "help": "$t(action.delete.action) selected roles.",
         "icon": "$t(action.delete.icon)"
+      },
+      "role-export-bulk-action": {
+        "icon": "export",
+        "label": "Export role",
+        "title": "Role",
+        "help": "Creates an export batch containing selected roles. The resulting export will be saved in the <strong>Export/Import</strong> agenda.",
+        "attributes": {
+          "name": {
+              "label": "Description of export",
+            "help": ""
+          }
+        }
+      },
+      "configuration-export-bulk-action": {
+        "icon": "export",
+        "label": "Export configuration",
+        "title": "Configurations",
+        "help": "Creates an export batch containing selected configuration items. The resulting export will be saved in the <strong>Export/Import</strong> agenda.",
+        "attributes": {
+          "name": {
+              "label": "Description of export",
+            "help": ""
+          }
+        }
       },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) configuration items",
@@ -6643,6 +6763,30 @@
     "LOGGER_LEVEL_NOT_FOUND": {
       "title": "Logger level does not exist",
       "message": "Given logger level [{{level}}] does not exist. Available logger levels [TRACE, DEBUG, INFO, WARN, ERROR]."
+    },
+    "IMPORT_EXECUTED_AS_DRYRUN": {
+      "title": "Import was executed in demo mode.",
+      "message": "No changes were made!"
+    },
+    "IMPORT_CAN_EXECUTE_ONLY_ADMIN": {
+      "title": "Only administrator can start import!",
+      "message": "Import cannot be started because you do not have administrator privileges!"
+    },
+    "IMPORT_DTO_SKIPPED": {
+      "title": "Imported DTO was skipped.",
+      "message": "The relation to this object was not found, but this type is marked as 'optional', so the imported DTO was skipped."
+    },
+    "IMPORT_ADVANCED_PARING_FAILED_NOT_FOUND": {
+      "title": "Object with code [{{code}}] was not found!",
+      "message": "Advanced pairing failed for [{{field}}] in DTO [{{dto}}]. Object [{{notFoundDto}}] not found in target IdM!"
+    },
+    "IMPORT_DTO_SKIPPED_DRY_RUN": {
+      "title": "Imported DTO was skipped.",
+      "message": "The relation to this object was not found, but this import is runing in demo mode, so the imported DTO was skipped."
+    },
+    "IMPORT_IS_ALREADY_RUNNING": {
+      "title": "This import is already running!",
+      "message": "The same import task cannot be run twice!"
     }
   },
   "validationError": {

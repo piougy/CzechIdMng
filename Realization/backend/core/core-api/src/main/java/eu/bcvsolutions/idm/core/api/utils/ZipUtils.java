@@ -21,19 +21,19 @@ import org.springframework.util.Assert;
 /**
  * Naive zip utility to extract / compress directory recursively.
  * Uses default zip compress level.
- * 
+ *
  * @author Radek Tomiška
  * @since 10.1.0
  */
 public class ZipUtils {
-	
+
 	private ZipUtils() {
 	}
-	
+
 	/**
 	 * Extract zip file.
-	 * 
-	 * @param source zip file 
+	 *
+	 * @param source zip file
 	 * @param destination destination directory
 	 * @throws IOException
 	 */
@@ -62,11 +62,11 @@ public class ZipUtils {
 		  zipFile.close();
 		}
 	}
-	
+
 	/**
 	 * Compress given source file or directory (recursively) to destination file on given path.
-	 * 
-	 * @param source file or folder. If folder is given, then children will be in destination zip file. 
+	 *
+	 * @param source file or folder. If folder is given, then children will be in destination zip file.
 	 * @param destinationFilePath zip file path
 	 * @throws IOException
 	 */
@@ -76,16 +76,28 @@ public class ZipUtils {
 	        Path pp = Paths.get(source.getPath());
 	        List<Path> children = Files
 	        		.walk(pp)
-	        		.filter(path -> !Files.isDirectory(path))
+	        		// .filter(path -> !Files.isDirectory(path))
 	        		.collect(Collectors.toList());
 	        for (Path path : children) {
-	        	ZipEntry zipEntry = new ZipEntry(pp.relativize(path).toString());
-	        	//
-            	zipStream.putNextEntry(zipEntry);
-            	Files.copy(path, zipStream);
-            	zipStream.closeEntry();
+	        	 /**
+	             * Just add only empty directories
+	             */
+	            if (Files.isDirectory(path)) {
+	                /**
+	                 * Add ZIP directory entry
+	                 */
+	            	if (path.toFile().list().length == 0) {
+	            		zipStream.putNextEntry(new ZipEntry(pp.relativize(path).toString() + "/"));
+	            		zipStream.closeEntry();
+	            	}
+	            } else {
+		        	ZipEntry zipEntry = new ZipEntry(pp.relativize(path).toString());
+		        	//
+	            	zipStream.putNextEntry(zipEntry);
+	            	Files.copy(path, zipStream);
+	            	zipStream.closeEntry();
+	            }
 	        }
 	    }
 	}
-
 }

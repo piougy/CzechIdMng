@@ -103,7 +103,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
       // this.getLogger().debug(`[Advanced.EntityInfo]: Entity info for type [${entityType}] is not supported.`);
     }
     return (
-      <div
+      <span
         style={ style }
         className={ classNames }>
         {
@@ -119,7 +119,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
           </span>
         }
         <UuidInfo value={ entityIdentifier }/>
-      </div>
+      </span>
     );
   }
 }

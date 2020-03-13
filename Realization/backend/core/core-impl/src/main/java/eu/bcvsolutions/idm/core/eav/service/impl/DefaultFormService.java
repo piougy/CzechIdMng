@@ -43,7 +43,9 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationClassProperty;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -1500,6 +1502,26 @@ public class DefaultFormService implements FormService {
 			return (FormableEntity) Class.forName(formDefinition.getType()).getDeclaredConstructor().newInstance();
 		} catch (ReflectiveOperationException ex) {
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("formDefinition", formDefinition.getType()), ex);
+		}
+	}
+	
+	@Override
+	public void export(IdmFormInstanceDto formInstanceDto, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Export batch must exist!");
+		Assert.notNull(formInstanceDto, "Instance of cannot be null for export!");
+		
+		// All confidential values will be removed from the export. We don't want change
+		// confidential value on a target IdM.
+		List<IdmFormValueDto> valuesWithoutConfidentila = formInstanceDto.getValues().stream()//
+				.filter(formValue -> !formValue.isConfidential())//
+				.collect(Collectors.toList());
+		formInstanceDto.setValues(valuesWithoutConfidentila);
+		
+		batch.getExportedDtos().add(formInstanceDto);
+		
+		ExportDescriptorDto exportDescriptorDto = new ExportDescriptorDto(formInstanceDto.getClass());
+		if (!batch.getExportOrder().contains(exportDescriptorDto)) {
+			batch.getExportOrder().add(exportDescriptorDto);
 		}
 	}
 }

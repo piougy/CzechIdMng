@@ -58,7 +58,7 @@ public enum CoreResultCode implements ResultCode {
 	ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external identifiable."),
 	ENTITY_TYPE_NOT_EXTERNAL_CODEABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external codeable."),
 	CORRELATION_PROPERTY_NOT_FOUND(HttpStatus.BAD_REQUEST, "Entity type [%s] does not contains the correlation property [%s]."),
-	CORRELATION_PROPERTY_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Entity type [%s] and property [%s] has wrong type. Only String is supported now."),
+	CORRELATION_PROPERTY_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Entity type [%s] and property [%s] has wrong type. Only String or UUID is supported now."),
 	// data
 	SEARCH_ERROR(HttpStatus.BAD_REQUEST, "Error during searching entities. Error: %s"),
 	UNMODIFIABLE_LOCKED(HttpStatus.CONFLICT, "This entity [%s] cannot be modified (is locked)!"),
@@ -324,7 +324,30 @@ public enum CoreResultCode implements ResultCode {
 	GENERATOR_SCRIPT_RETURN_NULL_OR_BAD_DTO_TYPE(HttpStatus.NOT_FOUND, "Script code [%s] return null or bad dto type. Returned value: [%s]."),
 	//
 	// Role form attribute
-	ROLE_FORM_ATTRIBUTE_CHANGE_DEF_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "Change of form definition for role [%s] is not allowed, because for this role exists some IdmRoleFormAttribute. First delete them.");
+	ROLE_FORM_ATTRIBUTE_CHANGE_DEF_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "Change of form definition for role [%s] is not allowed, because for this role exists some IdmRoleFormAttribute. First delete them."),
+	// Export
+	EXPORT_GENERATE_JSON_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "JSON generating from DTO [%s] failed!"),
+	EXPORT_BATCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Export batch [%s] ended with exception."),
+	// Import
+	IMPORT_ZIP_EXTRACTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Extraction of ZIP import failed!"),
+	EXPORT_ZIP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Export - Creation of a ZIP failed!"),
+	IMPORT_VALIDATION_FAILED_NO_MANIFEST(HttpStatus.BAD_REQUEST, "Import validation failed. Manifest [%s] was not found!"),
+	IMPORT_CONVERT_TO_DTO_FAILED(HttpStatus.BAD_REQUEST, "Convert file [%s] to DTO [%s] failed!"),
+	IMPORT_IS_ALREADY_RUNNING(HttpStatus.BAD_REQUEST, "Import for [%s] cannot be execute, because is already running!"),
+	EXPORT_IMPORT_FILTER_IS_NOT_DATAFILTER(HttpStatus.BAD_REQUEST, "Export/import filter for DTO [%s] must be DataFilter, but is [%s]!"),
+	EXPORT_IMPORT_FILTER_PARENT_FIELD_MUST_BE_UUID(HttpStatus.BAD_REQUEST, "Export/import parent field [%s] must be UUID and not null, but is [%s]!"),
+	EXPORT_IMPORT_REFLECTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Export/import reflection failed!"),
+	EXPORT_IMPORT_IO_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Export/import IO exception occurred!"),
+	IMPORT_FIELD_EMBEDDED_ANNOTATION_MISSING(HttpStatus.BAD_REQUEST, "Annotation embedded was not found for field [%s]!"),
+	IMPORT_FIELD_MUST_CONTAINS_UUID(HttpStatus.BAD_REQUEST, "Field must be UUID but is [%s]!"),
+	IMPORT_ADVANCED_PARING_FAILED_NOT_FOUND(HttpStatus.NOT_FOUND, "Advanced paring failed for field [%s] in DTO [%s]. No DTO [%s] was found on target IdM!"),
+	IMPORT_FAILED_ROOT_NOT_FOUND(HttpStatus.BAD_REQUEST, "No roots found for DTO type [%s]!"),
+	IMPORT_EXECUTED_AS_DRYRUN(HttpStatus.NOT_MODIFIED, "Import executed as dry-run!"),
+	IMPORT_CAN_EXECUTE_ONLY_ADMIN(HttpStatus.BAD_REQUEST, "Import can execute only super-admin!"),
+	IMPORT_DTO_SKIPPED(HttpStatus.NOT_MODIFIED, "Imported DTO [%s] was skipped. Relation on this DTO was not found and this DTO type is marked as optional."),
+	IMPORT_DTO_SKIPPED_DRY_RUN(HttpStatus.NOT_IMPLEMENTED, "Relation on this DTO was not found. Imported DTO [%s] was skipped, because is import executed as dry-run.");
+	
+	
 	
 	private final HttpStatus status;
 	private final String message;

@@ -757,6 +757,7 @@
       "attributes": "Attributes on the target system"
     },
     "SchemaObjectClass": {
+      "_type": "System schema",
       "auxiliary": "Auxiliary",
       "container": "Container",
       "objectClassName": "Object name",
@@ -779,6 +780,7 @@
       }
     },
     "SchemaAttribute": {
+      "_type": "Schema attribute",
       "name": "Name",
       "objectClass": "Attribute belongs to object",
       "classType": "Data type",
@@ -792,6 +794,7 @@
       "multivalued": "Multivalued"
     },
     "SystemAttributeMapping": {
+      "_type": "Mapping atribute",
       "name": {
         "label": "Name",
         "help": "User-defined name of the attribute"
@@ -897,6 +900,7 @@
       "role": "Assigned by role"
     },
     "SynchronizationConfig": {
+      "_type": "Sync",
       "enabled": "Allowed",
       "name": "Name",
       "description": "Description",
@@ -1093,6 +1097,7 @@
       }
     },
     "ProvisioningBreakConfig": {
+      "_type": "Provisioning brake",
       "operationType": {
         "label": "Type of blocked operation",
         "help": "The type of operation for which the brake will affect."
@@ -1127,6 +1132,7 @@
       "globalConfiguration": "Global configuration"
     },
     "ProvisioningBreakConfigRecipient": {
+      "_type": "Provisioning brake - recipients",
       "role": "Recipients with role",
       "identity": "Recipient",
       "type": {
@@ -1980,6 +1986,18 @@
         "icon": "fa:clone",
         "label": "Duplicate the system",
         "help": "Creates copy of selected systems <strong>duplicate contains all configurations</strong>. New system (and his syncs) will be inactive. "
+      },
+      "system-export-bulk-action": {
+        "icon": "export",
+        "label": "Export system",
+        "title": "Systems",
+        "help": "Creates an export batch containing selected systems. The new system will be inactive as well as its sync settings. The resulting export will be saved in the <strong>Export/Import</strong> agenda.",
+        "attributes": {
+          "name": {
+              "label": "Description of export",
+            "help": ""
+          }
+        }
       },
       "system-delete-bulk-action": {
         "label": "$t(action.delete.action) systems",

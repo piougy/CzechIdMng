@@ -77,6 +77,8 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	@JsonIgnore
 	@ApiModelProperty(readOnly = true)
 	private UUID realmId;
+	@JsonProperty(value = "_dtotype", access = Access.READ_ONLY)
+	private Class<? extends BaseDto> type = this.getClass();
 
 	public AbstractDto() {
 	}

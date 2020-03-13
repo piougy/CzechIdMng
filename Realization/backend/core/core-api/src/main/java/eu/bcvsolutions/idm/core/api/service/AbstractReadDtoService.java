@@ -23,6 +23,7 @@ import javax.persistence.criteria.Root;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -39,6 +40,8 @@ import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -49,6 +52,7 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
@@ -80,6 +84,9 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	private ApplicationContext context;
 	@Autowired
 	private EntityManager entityManager;
+	@Autowired
+	@Lazy
+	private ExportManager exportManager;
 	//
 	private final Class<E> entityClass;
 	private final Class<F> filterClass;
@@ -420,6 +427,39 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		//
 		return getPermissions(entity);
 	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Export batch must exist!");
+		
+		ExportDescriptorDto exportDescriptorDto = null;
+		// Workaround - I need to use BLANK UUID (UUID no exists in DB), because I have
+		// to ensure add all DTO types (in full deep) in correct order (even when no child entity
+		// exists (no schema, no sync ...)).
+		if (UUID.fromString(ExportManager.BLANK_UUID).equals(id)) {
+			exportDescriptorDto = new ExportDescriptorDto(this.getDtoClass());
+		} else {
+			DTO export = internalExport(id);
+			batch.getExportedDtos().add(export);			
+			exportDescriptorDto = new ExportDescriptorDto(export.getClass());
+		}
+		
+		if (!batch.getExportOrder().contains(exportDescriptorDto)) {
+			batch.getExportOrder().add(exportDescriptorDto);
+		}
+	}
+	
+	protected DTO internalExport(UUID id) {
+		DTO dto =  this.get(id);
+		if (dto != null) {
+			this.checkAccess(dto, IdmBasePermission.READ);
+		}
+		if (dto instanceof AbstractDto) {
+			// Clear embedded data
+			((AbstractDto) dto).getEmbedded().clear(); 
+		}
+		return dto;
+	}
 
 	protected Set<String> getPermissions(E entity) {
 		Assert.notNull(entity, "Entity is required get permissions.");
@@ -690,7 +730,8 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	    }
 	}
 
-
-
-
+	protected ExportManager getExportManager() {
+		return exportManager;
+	}
+	
 }

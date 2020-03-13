@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
@@ -894,4 +895,12 @@ public interface FormService extends ScriptEnabled {
 	 * @param target
 	 */
 	void mergeValues(IdmFormDefinitionDto definition, FormableDto source, FormableDto target);
+
+	/**
+	 * Export form instance DTO. Form instance will be added to the batch.
+	 * 
+	 * @param formInstanceDto
+	 * @param batch
+	 */
+	void export(IdmFormInstanceDto formInstanceDto, IdmExportImportDto batch);
 }

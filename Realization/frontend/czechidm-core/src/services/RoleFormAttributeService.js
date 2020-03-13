@@ -1,5 +1,6 @@
 import AbstractRequestService from './AbstractRequestService';
 import SearchParameters from '../domain/SearchParameters';
+import {i18n} from './LocalizationService';
 
 /**
  * Role form attribute (sub-definition)
@@ -16,12 +17,10 @@ export default class RoleFormAttributeService extends AbstractRequestService {
   }
 
   getNiceLabel(entity) {
-    if (!entity || !entity._embedded) {
-      return '';
+    if (!entity || !entity._embedded || !entity._embedded.formAttribute) {
+      return i18n('entity.RoleFormAttribute._type');
     }
-    if (entity.formAttribute && entity._embedded.formAttribute) {
-      return entity._embedded.formAttribute.code;
-    }
+    return entity._embedded.formAttribute.code;
   }
 
   supportsPatch() {

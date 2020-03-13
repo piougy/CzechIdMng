@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -17,7 +18,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * AbstractBaseDtoService uses in case when we don't have an Entity, but only DTO. For example in workflow services.
- * @author svandav
+ * 
+ * @author Vít Švanda
  *
  * @param <DTO>
  * @param <F>
@@ -161,6 +163,11 @@ public class AbstractBaseDtoService<DTO extends BaseDto, F extends BaseFilter> i
 
 	@Override
 	public DTO validateDto(DTO dto) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
 		throw new UnsupportedOperationException();
 	}
 }

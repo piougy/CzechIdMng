@@ -18,6 +18,56 @@ module.exports = {
       manager: require('./src/redux').SystemManager
     },
     {
+      id: 'schema-attribute-info',
+      type: 'entity-info',
+      entityType: ['schemaAttribute', 'SysSchemaAttribute', 'SysSchemaAttributeDto'],
+      component: require('./src/components/SchemaAttributeInfo/SchemaAttributeInfo').default,
+      manager: require('./src/redux').SchemaAttributeManager
+    },
+    {
+      id: 'schema-info',
+      type: 'entity-info',
+      entityType: ['schema', 'SysSchemaObjectClass', 'SysSchemaObjectClassDto'],
+      component: require('./src/components/SchemaInfo/SchemaInfo').default,
+      manager: require('./src/redux').SchemaObjectClassManager
+    },
+    {
+      id: 'attribute-mapping-info',
+      type: 'entity-info',
+      entityType: ['systemAttributeMapping', 'SysSystemAttributeMapping', 'SysSystemAttributeMappingDto'],
+      component: require('./src/components/SystemAttributeMappingInfo/SystemAttributeMappingInfo').default,
+      manager: require('./src/redux').SystemAttributeMappingManager
+    },
+    {
+      id: 'mapping-info',
+      type: 'entity-info',
+      entityType: ['systemMapping', 'SysSystemMapping', 'SysSystemMappingDto'],
+      component: require('./src/components/SystemMappingInfo/SystemMappingInfo').default,
+      manager: require('./src/redux').SystemMappingManager
+    },
+    {
+      id: 'sync-config-info',
+      type: 'entity-info',
+      entityType: ['SysSyncIdentityConfig', 'SysSyncIdentityConfigDto',
+        'SysSyncConfig', 'SysSyncConfigDto', 'SysSyncContractConfig', 'SysSyncContractConfigDto'],
+      component: require('./src/components/SyncConfigInfo/SyncConfigInfo').default,
+      manager: require('./src/redux').SynchronizationConfigManager
+    },
+    {
+      id: 'break-config-info',
+      type: 'entity-info',
+      entityType: ['provisioningBreakConfig', 'SysProvisioningBreakConfig', 'SysProvisioningBreakConfigDto'],
+      component: require('./src/components/BreakConfigInfo/BreakConfigInfo').default,
+      manager: require('./src/redux').ProvisioningBreakConfigManager
+    },
+    {
+      id: 'break-config-recipient-info',
+      type: 'entity-info',
+      entityType: ['provisioningBreakRecipient', 'SysProvisioningBreakRecipient', 'SysProvisioningBreakRecipientDto'],
+      component: require('./src/components/BreakConfigRecipientInfo/BreakConfigRecipientInfo').default,
+      manager: require('./src/redux').ProvisioningBreakRecipientManager
+    },
+    {
       id: 'system-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'UUID',

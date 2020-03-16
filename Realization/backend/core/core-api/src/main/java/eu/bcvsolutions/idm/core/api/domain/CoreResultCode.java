@@ -345,7 +345,8 @@ public enum CoreResultCode implements ResultCode {
 	IMPORT_EXECUTED_AS_DRYRUN(HttpStatus.NOT_MODIFIED, "Import executed as dry-run!"),
 	IMPORT_CAN_EXECUTE_ONLY_ADMIN(HttpStatus.BAD_REQUEST, "Import can execute only super-admin!"),
 	IMPORT_DTO_SKIPPED(HttpStatus.NOT_MODIFIED, "Imported DTO [%s] was skipped. Relation on this DTO was not found and this DTO type is marked as optional."),
-	IMPORT_DTO_SKIPPED_DRY_RUN(HttpStatus.NOT_IMPLEMENTED, "Relation on this DTO was not found. Imported DTO [%s] was skipped, because is import executed as dry-run.");
+	IMPORT_DTO_SKIPPED_DRY_RUN(HttpStatus.NOT_IMPLEMENTED, "Relation on this DTO was not found. Imported DTO [%s] was skipped, because is import executed as dry-run."),
+	IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL(HttpStatus.NOT_FOUND, "Advanced paring failed for field [%s] in DTO [%s]. No DTO [%s] was found on target IdM and import was skipped for it!");
 	
 	
 	

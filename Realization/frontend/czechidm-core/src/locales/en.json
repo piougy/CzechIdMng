@@ -6783,6 +6783,10 @@
       "title": "Object with code [{{code}}] was not found!",
       "message": "Advanced pairing failed for [{{field}}] in DTO [{{dto}}]. Object [{{notFoundDto}}] not found in target IdM!"
     },
+    "IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL": {
+      "title": "Object with code [{{code}}] was not found!",
+      "message": "Advanced pairing failed for [{{field}}] in DTO [{{dto}}]. Object [{{notFoundDto}}] not found in target IdM, but its import was skipped."
+    },
     "IMPORT_DTO_SKIPPED_DRY_RUN": {
       "title": "Imported DTO was skipped.",
       "message": "The relation to this object was not found, but this import is runing in demo mode, so the imported DTO was skipped."

@@ -78,8 +78,6 @@ public class DefaultSysSystemMappingService
 	@Autowired
 	@Lazy
 	private SysSchemaAttributeService attributeService;
-	@Autowired
-	private ExportManager exportManager;
 
 	@Autowired
 	public DefaultSysSystemMappingService(SysSystemMappingRepository repository, EntityEventManager entityEventManager,
@@ -226,7 +224,7 @@ public class DefaultSysSystemMappingService
 					this.getAttributeMappingService().export(systemAttributeMapping.getId(), batch);
 				});
 		// Set parent field -> set authoritative mode.
-		exportManager.setAuthoritativeMode(SysSystemAttributeMapping_.systemMapping.getName(), "systemId",
+		getExportManager().setAuthoritativeMode(SysSystemAttributeMapping_.systemMapping.getName(), "systemId",
 				SysSystemAttributeMappingDto.class, batch);
 	}
 

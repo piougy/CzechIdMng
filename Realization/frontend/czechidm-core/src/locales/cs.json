@@ -6835,6 +6835,10 @@
       "title": "Objekt s kódem [{{code}}] nebyl nalezen!",
       "message": "Pokročilé párování selhalo pro položku [{{field}}] v DTO [{{dto}}]. Objekt [{{notFoundDto}}] nebyl nalezen v cílovém IdM!"
     },
+    "IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL": {
+      "title": "Objekt s kódem [{{code}}] nebyl nalezen!",
+      "message": "Pokročilé párování selhalo pro položku [{{field}}] v DTO [{{dto}}]. Objekt [{{notFoundDto}}] nebyl nalezen v cílovém IdM a jeho import byl přeskočen."
+    },
     "IMPORT_DTO_SKIPPED_DRY_RUN": {
       "title": "Importované DTO bylo přeskočeno.",
       "message": "Vazba na tento objekt nebyla nalzena, tento import byl ovšem spuštěn v demo režimu a proto bylo importované DTO [{{dto}}] přeskočeno."

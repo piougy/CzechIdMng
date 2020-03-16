@@ -278,7 +278,19 @@ public class DefaultImportManager implements ImportManager {
 						importLogService.saveDistinct(dtoLog);
 
 						return;
+					} else if (ex.getError() != null && ex.getError().getError() != null
+							&& CoreResultCode.IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL.name()
+									.equals(ex.getError().getError().getStatusEnum())) {
+						// Not found DTO, but optional, we will mark as skipped.
+						IdmImportLogDto dtoLog = new IdmImportLogDto(context.getBatch(), originalDto,
+								RequestOperationType.ADD, parentDto.getId());
+						dtoLog.setResult(
+								new OperationResultDto.Builder(OperationState.CANCELED).setException(ex).build());
+						importLogService.saveDistinct(dtoLog);
+
+						return;
 					}
+					throw ex;
 				}
 
 				Class<? extends BaseDto> serviceDtoClass = dtoClass;
@@ -538,9 +550,18 @@ public class DefaultImportManager implements ImportManager {
 					EmbeddedDto embeddedDto = (EmbeddedDto) this.convertFileToDto(dtoPath.toFile(), EmbeddedDto.class,
 							context);
 					JsonNode batchFieldDtoAsString = embeddedDto.getEmbedded().get(advancedParingField);
-					Assert.notNull(batchFieldDtoAsString, MessageFormat.format(
-							"Embedded map must contains DTO for advaced paring field [{0}]", advancedParingField));
-
+					
+					if (batchFieldDtoAsString == null) {
+						if (descriptor.isOptional()) {
+							return null;
+						} else {
+							Assert.notNull(batchFieldDtoAsString,
+									MessageFormat.format(
+											"Embedded map must contains DTO for advaced paring field [{0}]",
+											advancedParingField));
+						}
+					}
+					
 					BaseDto batchFieldDto = null;
 					try {
 						batchFieldDto = this.convertStringToDto(batchFieldDtoAsString.toString(), dtoClassField,
@@ -564,10 +585,11 @@ public class DefaultImportManager implements ImportManager {
 								continue;
 							} else {
 								// No target DTO was found on target IdM.
-								// If is DTO set as optional, we will no throw a exception, but only return null
-								// (skip this DTO).
+								// If is DTO set as optional, we will only skip this DTO.
 								if (descriptor.isOptional()) {
-									return null;
+									throw new ResultCodeException(CoreResultCode.IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL,
+											ImmutableMap.of("field", advancedParingField, "dto", dto.toString(),
+													"notFoundDto", batchFieldDto.toString(), "code", code));
 								}
 								throw new ResultCodeException(CoreResultCode.IMPORT_ADVANCED_PARING_FAILED_NOT_FOUND,
 										ImmutableMap.of("field", advancedParingField, "dto", dto.toString(),
@@ -575,6 +597,13 @@ public class DefaultImportManager implements ImportManager {
 							}
 						}
 					}
+				}
+				
+				// No target DTO was found on target IdM.
+				// If is DTO set as optional, we will no throw a exception, but only return null
+				// (skip this DTO).
+				if (descriptor.isOptional()) {
+					return null;
 				}
 
 			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException

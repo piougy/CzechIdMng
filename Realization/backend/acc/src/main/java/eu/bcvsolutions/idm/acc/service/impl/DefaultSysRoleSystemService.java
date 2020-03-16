@@ -239,9 +239,13 @@ public class DefaultSysRoleSystemService
 		roleSystemAttributes.forEach(roleSystemAttribute -> {
 			roleSystemAttributeService.export(roleSystemAttribute.getId(), batch);
 		});
-		// Set parent field -> set authoritative mode.
+		// Set parent field -> set authoritative mode for override attributes.
 		this.getExportManager().setAuthoritativeMode(SysRoleSystemAttribute_.roleSystem.getName(), "systemId", SysRoleSystemAttributeDto.class,
 				batch);
+		// The override attribute is optional too.
+		ExportDescriptorDto descriptorAttributeDto = getExportManager().getDescriptor(batch, SysRoleSystemAttributeDto.class);
+		descriptorAttributeDto.setOptional(true);
+		descriptorAttributeDto.getAdvancedParingFields().add(SysRoleSystemAttribute_.roleSystem.getName());
 	}
 
 	@Override

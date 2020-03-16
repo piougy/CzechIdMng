@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -467,6 +468,18 @@ public class DefaultConfigurationService
 	@Transactional(readOnly = true)
 	public String getDateTimeSecondsFormat() {
 		return getValue(PROPERTY_APP_DATETIME_WITH_SECONDS_FORMAT, DEFAULT_APP_DATETIME_WITH_SECONDS_FORMAT);
+	}
+	
+	@Override
+	protected IdmConfigurationDto internalExport(UUID id) {
+
+		IdmConfigurationDto dto = super.internalExport(id);
+		// If configuration property is confidential, then set value to the null. We
+		// don't want modified value in target IdM.
+		if (dto != null && dto.isConfidential()) {
+			dto.setValue(null);
+		}
+		return dto;
 	}
 	
 	private static IdmConfigurationDto toConfigurationDto(String key, Object value) {

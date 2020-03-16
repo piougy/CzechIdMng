@@ -51,6 +51,7 @@ public class ConfigurationExportBulkAction extends AbstractExportBulkAction<IdmC
 		authorities.add(CoreGroupPermission.EXPORTIMPORT_CREATE);
 		authorities.add(CoreGroupPermission.EXPORTIMPORT_READ);
 		authorities.add(CoreGroupPermission.EXPORTIMPORT_UPDATE);
+		
 		return authorities;
 	}
 

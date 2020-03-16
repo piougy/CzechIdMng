@@ -2068,6 +2068,9 @@
         "textLog": {
           "placeholder": "Type entity"
         },
+        "operation": {
+          "placeholder": "Operace"
+        },
         "operationState": {
           "placeholder": "Výsledek"
         }

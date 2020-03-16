@@ -245,18 +245,19 @@ export class ExportImportDetail extends Advanced.AbstractTableContent {
                       <Basic.Col lg={ 3 }>
                         <Advanced.Filter.EnumSelectBox
                           ref="operation"
+                          placeholder={this.i18n('filter.operation.placeholder')}
                           enum={ ConceptRoleRequestOperationEnum }/>
+                      </Basic.Col>
+                      <Basic.Col lg={ 3 }>
+                        <Advanced.Filter.TextField
+                          ref="text"
+                          placeholder={this.i18n('filter.textLog.placeholder')}/>
                       </Basic.Col>
                       <Basic.Col lg={ 3 }>
                         <Advanced.Filter.EnumSelectBox
                           ref="operationState"
                           placeholder={this.i18n('filter.operationState.placeholder')}
                           enum={OperationStateEnum}/>
-                      </Basic.Col>
-                      <Basic.Col lg={ 3 }>
-                        <Advanced.Filter.TextField
-                          ref="text"
-                          placeholder={this.i18n('filter.textLog.placeholder')}/>
                       </Basic.Col>
                       <Basic.Col lg={ 3 } className="text-right">
                         <Advanced.Filter.FilterButtons cancelFilter={this.cancelLogFilter.bind(this)}/>

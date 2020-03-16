@@ -2018,6 +2018,9 @@
         "textLog": {
           "placeholder": "Type of entity"
         },
+        "operation": {
+          "placeholder": "Operation"
+        },
         "operationState": {
           "placeholder": "Result"
         }

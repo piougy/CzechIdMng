@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
@@ -36,7 +35,7 @@ public class IdmImportLogDto extends AbstractDto {
 	}
 
 	public IdmImportLogDto(IdmExportImportDto batch, BaseDto dto, RequestOperationType operation,
-			Serializable parentId) {
+			UUID parentId) {
 		super();
 
 		this.batch = batch.getId();
@@ -44,7 +43,7 @@ public class IdmImportLogDto extends AbstractDto {
 		this.dtoId = (UUID) dto.getId();
 		this.type = dto.getClass().getName();
 		this.operation = operation;
-		this.parentId = (UUID) parentId;
+		this.parentId = parentId;
 
 		// If DTO ID is same as parent ID, then it is root and parentId should be set to
 		// the null.

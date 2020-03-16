@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import eu.bcvsolutions.idm.core.api.domain.BaseDtoDeserializer;
 import eu.bcvsolutions.idm.core.api.domain.RequestOperationType;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
@@ -20,9 +17,7 @@ public class ImportDescriptorDto implements BaseDto {
 
 	private static final long serialVersionUID = 1L;
 
-	@JsonDeserialize(using = BaseDtoDeserializer.class)
 	private BaseDto dto;
-	@JsonDeserialize(as = UUID.class)
 	private UUID id;
 	private UUID superParentId;
 	private Class<? extends BaseDto> type;
@@ -33,14 +28,14 @@ public class ImportDescriptorDto implements BaseDto {
 		super();
 	}
 
-	public ImportDescriptorDto(BaseDto dto, RequestOperationType operation, Serializable superParentId) {
+	public ImportDescriptorDto(BaseDto dto, RequestOperationType operation, UUID superParentId) {
 		super();
 
 		this.dto = dto;
 		this.id = (UUID) dto.getId();
 		this.type = dto.getClass();
 		this.operation = operation;
-		this.superParentId = (UUID) superParentId;
+		this.superParentId = superParentId;
 	}
 
 	public BaseDto getDto() {

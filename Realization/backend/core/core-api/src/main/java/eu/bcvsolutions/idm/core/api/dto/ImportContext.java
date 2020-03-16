@@ -1,12 +1,10 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Maps;
 
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -18,17 +16,13 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExe
  * @author Vít Švanda
  *
  */
-public class ImportContext implements BaseDto {
-
-	private static final long serialVersionUID = 1L;
+public class ImportContext {
 
 	private Map<UUID, UUID> replacedIDs = Maps.newHashMap();
 	private Path tempDirectory;
 	private IdmExportImportDto manifest;
 	private List<ExportDescriptorDto> exportDescriptors;
 	private boolean dryRun;
-	@JsonDeserialize(as = UUID.class)
-	private Serializable id;
 	private IdmExportImportDto batch;
 	private AbstractLongRunningTaskExecutor<OperationResult> importTaskExecutor;
 
@@ -89,16 +83,6 @@ public class ImportContext implements BaseDto {
 
 	public AbstractLongRunningTaskExecutor<OperationResult> getImportLRT() {
 		return this.importTaskExecutor;
-	}
-	
-	@Override
-	public Serializable getId() {
-		return id;
-	}
-
-	@Override
-	public void setId(Serializable id) {
-		this.id = id;
 	}
 
 }

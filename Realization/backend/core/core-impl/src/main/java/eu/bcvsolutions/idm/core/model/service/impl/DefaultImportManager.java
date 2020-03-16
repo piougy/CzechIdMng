@@ -257,7 +257,7 @@ public class DefaultImportManager implements ImportManager {
 						// If DTO after advanced pairing is null, then was not found and is optional ->
 						// skip.
 						IdmImportLogDto dtoLog = new IdmImportLogDto(context.getBatch(), originalDto,
-								RequestOperationType.ADD, parentDto.getId());
+								RequestOperationType.ADD, (UUID) parentDto.getId());
 						ResultModel resultModel = new DefaultResultModel(CoreResultCode.IMPORT_DTO_SKIPPED,
 								ImmutableMap.of("dto", originalDto.toString()));
 						dtoLog.setResult(
@@ -272,7 +272,7 @@ public class DefaultImportManager implements ImportManager {
 									.equals(ex.getError().getError().getStatusEnum())) {
 						// Not found DTO we will mark as skipped in dry run mode.
 						IdmImportLogDto dtoLog = new IdmImportLogDto(context.getBatch(), originalDto,
-								RequestOperationType.ADD, parentDto.getId());
+								RequestOperationType.ADD, (UUID) parentDto.getId());
 						dtoLog.setResult(
 								new OperationResultDto.Builder(OperationState.EXCEPTION).setException(ex).build());
 						importLogService.saveDistinct(dtoLog);
@@ -283,7 +283,7 @@ public class DefaultImportManager implements ImportManager {
 									.equals(ex.getError().getError().getStatusEnum())) {
 						// Not found DTO, but optional, we will mark as skipped.
 						IdmImportLogDto dtoLog = new IdmImportLogDto(context.getBatch(), originalDto,
-								RequestOperationType.ADD, parentDto.getId());
+								RequestOperationType.ADD, (UUID) parentDto.getId());
 						dtoLog.setResult(
 								new OperationResultDto.Builder(OperationState.CANCELED).setException(ex).build());
 						importLogService.saveDistinct(dtoLog);
@@ -337,7 +337,7 @@ public class DefaultImportManager implements ImportManager {
 				if (currentDto != null) {
 					// DTO with same ID already exists -> update.
 					IdmImportLogDto dtoLog = new IdmImportLogDto(context.getBatch(), dto, RequestOperationType.UPDATE,
-							parentDto.getId());
+							(UUID) parentDto.getId());
 					if (!context.isDryRun()) {
 						dtoService.save(dto);
 						dtoLog.setResult(new OperationResultDto(OperationState.EXECUTED));
@@ -380,7 +380,7 @@ public class DefaultImportManager implements ImportManager {
 					dto.setId(currentDto.getId());
 					// Update current DTO by batch DTO.
 					IdmImportLogDto dtoLog = new IdmImportLogDto(context.getBatch(), dto, RequestOperationType.UPDATE,
-							parentDto.getId());
+							(UUID) parentDto.getId());
 					if (!context.isDryRun()) {
 						dtoService.save(dto);
 						dtoLog.setResult(new OperationResultDto(OperationState.EXECUTED));
@@ -392,7 +392,7 @@ public class DefaultImportManager implements ImportManager {
 					importLogService.saveDistinct(dtoLog);
 				} else {
 					IdmImportLogDto dtoLog = new IdmImportLogDto(context.getBatch(), dto, RequestOperationType.ADD,
-							parentDto.getId());
+							(UUID) parentDto.getId());
 					// No current DTO was found -> create.
 					if (!context.isDryRun()) {
 						dtoService.save(dto);
@@ -550,7 +550,7 @@ public class DefaultImportManager implements ImportManager {
 					EmbeddedDto embeddedDto = (EmbeddedDto) this.convertFileToDto(dtoPath.toFile(), EmbeddedDto.class,
 							context);
 					JsonNode batchFieldDtoAsString = embeddedDto.getEmbedded().get(advancedParingField);
-					
+
 					if (batchFieldDtoAsString == null) {
 						if (descriptor.isOptional()) {
 							return null;
@@ -561,7 +561,7 @@ public class DefaultImportManager implements ImportManager {
 											advancedParingField));
 						}
 					}
-					
+
 					BaseDto batchFieldDto = null;
 					try {
 						batchFieldDto = this.convertStringToDto(batchFieldDtoAsString.toString(), dtoClassField,
@@ -587,7 +587,8 @@ public class DefaultImportManager implements ImportManager {
 								// No target DTO was found on target IdM.
 								// If is DTO set as optional, we will only skip this DTO.
 								if (descriptor.isOptional()) {
-									throw new ResultCodeException(CoreResultCode.IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL,
+									throw new ResultCodeException(
+											CoreResultCode.IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL,
 											ImmutableMap.of("field", advancedParingField, "dto", dto.toString(),
 													"notFoundDto", batchFieldDto.toString(), "code", code));
 								}
@@ -598,7 +599,7 @@ public class DefaultImportManager implements ImportManager {
 						}
 					}
 				}
-				
+
 				// No target DTO was found on target IdM.
 				// If is DTO set as optional, we will no throw a exception, but only return null
 				// (skip this DTO).
@@ -949,7 +950,7 @@ public class DefaultImportManager implements ImportManager {
 	 */
 	@SuppressWarnings("unchecked")
 	private <DTO> DTO convertStringToDto(String dtoAsString, Class<? extends BaseDto> dtoClass, ImportContext context)
-			throws JsonParseException, JsonMappingException, IOException {
+			throws IOException {
 		String replacedDtoAsString = dtoAsString;
 		Map<UUID, UUID> replacedIDs = context.getReplacedIDs();
 

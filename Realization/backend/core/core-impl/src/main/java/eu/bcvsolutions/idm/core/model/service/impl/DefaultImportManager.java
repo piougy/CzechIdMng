@@ -512,6 +512,14 @@ public class DefaultImportManager implements ImportManager {
 		return null;
 	}
 
+	/**
+	 * Make advanced paring
+	 * 
+	 * @param dto
+	 * @param context
+	 * @param dtoClass
+	 * @return
+	 */
 	private BaseDto makeAdvancedPairing(BaseDto dto, ImportContext context, Class<? extends BaseDto> dtoClass) {
 		ExportDescriptorDto descriptor = this.getDescriptor(context, dtoClass);
 

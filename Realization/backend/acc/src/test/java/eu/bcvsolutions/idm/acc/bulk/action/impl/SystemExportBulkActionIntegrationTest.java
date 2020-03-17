@@ -40,12 +40,15 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ExportImportType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmExportImportFilter;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmExportImportService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
@@ -56,6 +59,8 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmExportImport;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ImportTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -494,7 +499,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		breakRecipient.setBreakConfig(originalBreak.getId());
 		breakRecipient = provisioningBreakRecipientService.save(breakRecipient);
 
-		// Make export, upload, delete system and import
+		// Make export, upload, delete system and import.
 		IdmExportImportDto importBatch = executeExportAndImport(system);
 
 		system = systemService.get(system.getId());
@@ -508,11 +513,28 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		Assert.assertNotNull(breakRecipient);
 		Assert.assertEquals(originalRecipient.getId(), breakRecipient.getIdentity());
 
-		// Delete original recipient and create new with same user name
+		// Delete original recipient.
 		identityService.delete(originalRecipient);
+		// Execute failed import (check advanced pairing -> will failed -> identity
+		// missing).
+		ImportTaskExecutor lrt = new ImportTaskExecutor(importBatch.getId(), false);
+		try {
+			importManager.internalExecuteImport(importBatch, false, lrt);
+			Assert.assertTrue(false);
+		} catch (ResultCodeException ex) {
+			if (ex.getError() != null && ex.getError().getError() != null
+					&& CoreResultCode.IMPORT_ADVANCED_PARING_FAILED_NOT_FOUND.name()
+							.equals(ex.getError().getError().getStatusEnum())) {
+				// I expect the exception here.				
+			}else {
+				Assert.assertTrue(false);
+			}
+		}
+
+		// Create recipient with same user name.
 		IdmIdentityDto newRecipient = getHelper().createIdentity(originalRecipient.getUsername());
 
-		// Execute import (check advanced pairing)
+		// Execute import (check advanced pairing).
 		importBatch = importManager.executeImport(importBatch, false);
 		Assert.assertNotNull(importBatch);
 		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());

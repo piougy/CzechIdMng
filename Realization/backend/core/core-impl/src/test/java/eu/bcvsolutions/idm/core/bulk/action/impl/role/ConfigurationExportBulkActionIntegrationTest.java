@@ -81,7 +81,7 @@ public class ConfigurationExportBulkActionIntegrationTest extends AbstractBulkAc
 
 		IdmConfigurationDto newConfiguration = configurationService.get(originalConfiguration.getId());
 		Assert.assertNotNull(newConfiguration);
-		Assert.assertEquals(originalConfiguration.getValue(), newConfiguration.getValue());
+		Assert.assertEquals(null, newConfiguration.getValue());
 	}
 
 	private IdmExportImportDto executeExportAndImport(IdmConfigurationDto configuration) {

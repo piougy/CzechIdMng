@@ -316,7 +316,7 @@ public class DefaultAttachmentManager
 			return path;
 		} catch (IOException ex) {
 			throw new ResultCodeException(CoreResultCode.ATTACHMENT_CREATE_TEMP_FILE_FAILED, ImmutableMap.of(
-					"extension", DEFAULT_TEMP_FILE_EXTENSION,
+					"extension", "",
 					"temp", attachmentConfiguration.getTempPath())
 					, ex);
 		}

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,13 +128,27 @@ public class DefaultImportManager implements ImportManager {
 		attachment.setOwnerType(AbstractExportBulkAction.OWNER_TYPE);
 
 		attachment = attachmentManager.saveAttachment(batch, attachment);
-		Path tempDirectory = extractZip(attachment);
 
-		IdmExportImportDto manifest = validate(tempDirectory);
-		batch.setName(manifest.getName());
-		batch.setExecutorName(manifest.getExecutorName());
-		batch.setData(attachment.getId());
-		batch = exportImportService.save(batch);
+		Path tempDirectory = null;
+		try {
+			tempDirectory = extractZip(attachment);
+
+			IdmExportImportDto manifest = validate(tempDirectory);
+			batch.setName(manifest.getName());
+			batch.setExecutorName(manifest.getExecutorName());
+			batch.setData(attachment.getId());
+			batch = exportImportService.save(batch);
+		} finally {
+			// Delete temp files.
+			try {
+				Files.walk(tempDirectory)//
+						.sorted(Comparator.reverseOrder())//
+						.map(Path::toFile)//
+						.forEach(File::delete);
+			} catch (IOException ex) {
+				throw new ResultCodeException(CoreResultCode.IMPORT_ZIP_EXTRACTION_FAILED, ex);
+			}
+		}
 
 		return batch;
 	}
@@ -181,34 +196,47 @@ public class DefaultImportManager implements ImportManager {
 				});
 
 		IdmAttachmentDto attachment = attachmentManager.get(batch.getData());
-		Path tempDirectory = extractZip(attachment);
-		// Load manifest - batch contains order of import
-		IdmExportImportDto manifest = validate(tempDirectory);
+		Path tempDirectory = null;
+		try {
+			tempDirectory = extractZip(attachment);
+			// Load manifest - batch contains order of import
+			IdmExportImportDto manifest = validate(tempDirectory);
 
-		ImportContext context = new ImportContext();
-		context.setTempDirectory(tempDirectory)//
-				.setManifest(manifest)//
-				.setExportDescriptors(manifest.getExportOrder())//
-				.setDryRun(dryRun)//
-				.setBatch(batch)//
-				.setImportLRT(importTaskExecutor);
+			ImportContext context = new ImportContext();
+			context.setTempDirectory(tempDirectory)//
+					.setManifest(manifest)//
+					.setExportDescriptors(manifest.getExportOrder())//
+					.setDryRun(dryRun)//
+					.setBatch(batch)//
+					.setImportLRT(importTaskExecutor);
 
-		// Set count of all files in the batch (minus manifest)
-		long countOfFiles = countOfFiles(tempDirectory);
-		context.getImportLRT().setCounter(0L);
-		context.getImportLRT().setCount(countOfFiles - 1);
+			// Set count of all files in the batch (minus manifest)
+			long countOfFiles = countOfFiles(tempDirectory);
+			context.getImportLRT().setCounter(0L);
+			context.getImportLRT().setCount(countOfFiles - 1);
 
-		// Import new and update exist DTOs.
-		manifest.getExportOrder().forEach(descriptor -> {
-			this.executeImportForType(descriptor, context);
-		});
+			// Import new and update exist DTOs.
+			manifest.getExportOrder().forEach(descriptor -> {
+				this.executeImportForType(descriptor, context);
+			});
 
-		// Delete redundant DTOs.
-		Lists.reverse(manifest.getExportOrder()).forEach(descriptor -> {
-			this.removeRedundant(descriptor, context);
-		});
+			// Delete redundant DTOs.
+			Lists.reverse(manifest.getExportOrder()).forEach(descriptor -> {
+				this.removeRedundant(descriptor, context);
+			});
 
-		return context;
+			return context;
+		} finally {
+			// Delete temp files.
+			try {
+				Files.walk(tempDirectory)//
+						.sorted(Comparator.reverseOrder())//
+						.map(Path::toFile)//
+						.forEach(File::delete);
+			} catch (IOException ex) {
+				throw new ResultCodeException(CoreResultCode.IMPORT_ZIP_EXTRACTION_FAILED, ex);
+			}
+		}
 	}
 
 	/**

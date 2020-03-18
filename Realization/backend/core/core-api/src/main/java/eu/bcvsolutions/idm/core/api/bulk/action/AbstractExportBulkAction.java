@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.logging.log4j.util.Strings;
@@ -100,13 +101,13 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 		Assert.notNull(batch, "Batch must exists!");
 		Path tempDirectory = batch.getTempDirectory();
 		if (tempDirectory != null) {
-			
+			Path zipPath = null;
 			try {
 				//  Export batch as "manifest" contains basic batch information.
 				exportManifest(tempDirectory);
 
 				File tempDirectoryFile = tempDirectory.toFile();
-				Path zipPath = Paths
+				zipPath = Paths
 						.get(MessageFormat.format("{0}.{1}", tempDirectory.toString(), ExportManager.EXTENSION_ZIP));
 
 				// Zip all results and save as attachment
@@ -125,9 +126,24 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 				
 			} catch (IOException e) {
 				result = new OperationResult.Builder(OperationState.EXCEPTION)
-					.setException(new ResultCodeException(CoreResultCode.EXPORT_ZIP_FAILED, e))
-					.build();
+						.setException(new ResultCodeException(CoreResultCode.EXPORT_ZIP_FAILED, e)).build();
 				return super.end(result, null);
+			} finally {
+				// Delete temp files.
+				try {
+					Files.walk(tempDirectory)//
+							.sorted(Comparator.reverseOrder())//
+							.map(Path::toFile)//
+							.forEach(File::delete);
+					
+					if (zipPath != null) {
+						zipPath.toFile().delete();
+					}
+				} catch (IOException e) {
+					result = new OperationResult.Builder(OperationState.EXCEPTION)
+							.setException(new ResultCodeException(CoreResultCode.EXPORT_ZIP_FAILED, e)).build();
+					return super.end(result, null);
+				}
 			}
 		}
 		

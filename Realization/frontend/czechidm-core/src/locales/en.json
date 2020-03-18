@@ -749,7 +749,10 @@
       "USERNAME": "User name",
       "LASTNAME": "Last name",
       "FIRSTNAME": "First Name",
-      "EMAIL": "E-mail"
+      "EMAIL": "E-mail",
+      "TITLESBEFORE": "Titles before",
+      "TITLESAFTER": "Titles after",
+      "PERSONALNUM": "Personal number"
     },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
@@ -1267,6 +1270,9 @@
         "passwordSimilarEmail": "Password cannot be similar to email: {{0}}",
         "passwordSimilarFirstName": "Password cannot be similar to first name: {{0}}",
         "passwordSimilarLastName": "Password cannot be similar to surname: {{0}}",
+        "passwordSimilarTitlesBefore": "Password cannot be similar to title: {{0}}",
+        "passwordSimilarTitlesAfter": "Password cannot be similar to title: {{0}}",
+        "passwordSimilarPersonalNum": "Password cannot be similar to personal number: {{0}}",
         "date": "Password can not be change now, try again: {{0}}",
         "advancedControlValidateType": "Enhanced control is available only for validate policies.",
         "specialCharacterBase":{
@@ -1281,6 +1287,9 @@
         "passwordSimilarEmailPreValidate": "email",
         "passwordSimilarFirstNamePreValidate": "first name",
         "passwordSimilarLastNamePreValidate": "surname",
+        "passwordSimilarTitlesBeforePreValidate": "title before name",
+        "passwordSimilarTitlesAfterPreValidate": "title after name",
+        "passwordSimilarPersonalNumPreValidate": "personal number",
         "passwordSimilarPreValidate": "Password cannot be similar to",
         "passwordHintPreValidate": "Hint for a ",
         "passwordHintPreValidatePwd": "new password",

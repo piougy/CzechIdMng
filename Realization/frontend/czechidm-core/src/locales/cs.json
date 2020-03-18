@@ -782,7 +782,10 @@
       "USERNAME": "Uživatelské jméno",
       "LASTNAME": "Jméno",
       "FIRSTNAME": "Příjmení",
-      "EMAIL": "Email"
+      "EMAIL": "Email",
+      "TITLESBEFORE": "Titul před",
+      "TITLESAFTER": "Titul za",
+      "PERSONALNUM": "Osobní číslo"
     },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
@@ -1300,6 +1303,9 @@
         "passwordSimilarEmail": "Heslo je příliš podobné emailu: {{0}}",
         "passwordSimilarFirstName": "Heslo je příliš podobné jménu: {{0}}",
         "passwordSimilarLastName": "Heslo je příliš podobné příjmení: {{0}}",
+        "passwordSimilarTitlesBefore": "Heslo je příliš podobné titulu: {{0}}",
+        "passwordSimilarTitlesAfter": "Heslo je příliš podobné titulu: {{0}}",
+        "passwordSimilarPersonalNum": "Heslo je příliš podobné osobnímu číslu: {{0}}",
         "date": "Heslo není možné nyní změnit, zkuste to znovu: {{0}}",
         "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politiku.",
         "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: {{0}}",
@@ -1307,6 +1313,9 @@
         "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu.",
         "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu.",
         "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení.",
+        "passwordSimilarTitlesBeforePreValidate": "Heslo nesmí být podobné titulu.",
+        "passwordSimilarTitlesAfterPreValidate": "Heslo nesmí být podobné titulu.",
+        "passwordSimilarPersonalNumPreValidate": "Heslo nesmí být podobné osobnímu číslu.",
         "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel.",
         "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
         "specialCharacterBase":{

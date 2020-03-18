@@ -12,5 +12,8 @@ public enum IdmPasswordPolicyIdentityAttributes {
 	USERNAME,
 	FIRSTNAME,
 	LASTNAME,
-	EMAIL;
+	EMAIL,
+	TITLESBEFORE,
+	TITLESAFTER,
+	PERSONALNUM;
 }

@@ -63,6 +63,16 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
     if (_request && _request !== this.props._request) {
       this._initComponentCurrentRoles(nextProps);
     }
+
+    // Prefill name of automatic role with role name
+    if (_request) {
+      const name = _request.name;
+      if (!name) {
+        if (_request._embedded && _request._embedded.role) {
+          _request.name = _request._embedded.role.name;
+        }
+      }
+    }
   }
 
   // Did mount only call initComponent method
@@ -158,7 +168,7 @@ class AutomaticRoleRequestDetail extends Advanced.AbstractTableContent {
   afterSave(entity, error) {
     this.setState({showLoading: false});
     if (!error) {
-      // this.addMessage({ message: this.i18n('save.success') });
+      this.addMessage({ message: this.i18n('save.success') });
       if (this._getIsNew()) {
         this.context.history.replace(`/automatic-role-requests/${entity.id}/detail`);
       }

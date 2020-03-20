@@ -24,10 +24,15 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
@@ -103,6 +108,8 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	private VsSystemService vsSystemService;
 	@Autowired
 	private IdmRoleRequestService roleRequestService;
+	@Autowired
+	private AccAccountService accAccountService;
 
 	@Autowired
 	public DefaultVsRequestService(VsRequestRepository repository, EntityEventManager entityEventManager,
@@ -258,6 +265,29 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			this.sendNotification(request, null);
 		}
 		return null;
+	}
+	
+	@Override
+	protected VsRequestDto toDto(VsRequest entity, VsRequestDto dto) {
+		dto = super.toDto(entity, dto);
+		if (dto != null && dto.getSystem() != null && dto.getUid() != null) {
+			AccAccountDto account = accAccountService.getAccount(dto.getUid(), dto.getSystem());
+			if (account != null) {
+				// Load and set target entity. For loading a target entity is using sync
+				// executor.
+				SystemEntityType entityType = account.getEntityType();
+				if (entityType != null && entityType.isSupportsSync()) {
+					SynchronizationEntityExecutor executor = accAccountService.getSyncExecutor(entityType);
+					AbstractDto targetEntity = executor.getDtoByAccount(null, account);
+					if (targetEntity != null) {
+						dto.setTargetEntity(targetEntity);
+						dto.setTargetEntityType(targetEntity.getClass().getName());
+					}
+				}
+			}
+		}
+
+		return dto;
 	}
 
 	@Override
@@ -648,7 +678,11 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				}
 			}
 		}
-
+		String targetEntityUrl = null;
+		if (identity != null) {
+			targetEntityUrl = configurationService.getFrontendUrl(MessageFormat.format("identity/{0}/profile", identity.getId()));
+		}
+		
 		// send create notification
 		notificationManager.send(VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_CREATED, new IdmMessageDto.Builder()
 				.setLevel(NotificationLevel.INFO)
@@ -659,12 +693,13 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 				.addParameter("identity", identity)//
 				.addParameter("url", getUrl(request))//
 				.addParameter("previousUrl", getUrl(previous))//
+				.addParameter("targetEntityUrl", targetEntityUrl)//
 				.addParameter("request", request)//
 				.addParameter("roleRequestCreator", roleRequestCreator)//
 				.addParameter("systemName", system.getName()).build(), implementers);
 
 	}
-
+	
 	/**
 	 * Construct URL to frontend for given request
 	 * 

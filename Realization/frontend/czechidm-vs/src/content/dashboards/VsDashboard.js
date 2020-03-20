@@ -34,7 +34,7 @@ class VsDashboard extends Basic.AbstractContent {
         <Basic.Panel>
           <VsRequestTable
             uiKey={ uiKey }
-            columns={['uid', 'systemId', 'operationType', 'created', 'creator', 'operations']}
+            columns={['targetEntity', 'systemId', 'operationType', 'created', 'creator', 'operations']}
             showFilter={false}
             forceSearchParameters={searchActive}
             showToolbar={false}

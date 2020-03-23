@@ -297,16 +297,16 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
             }
             sort={false}/>
           <Advanced.Column
+            header={this.i18n('vs:entity.VsRequest.uid.label')}
+            rendered={_.includes(columns, 'uid')}
+            cell={this._getUidCell.bind(this)}/>
+          <Advanced.Column
             property="targetEntity"
             rendered={ _.includes(columns, 'targetEntity') }
             header={ this.i18n('vs:content.vs-request.detail.accountOwner') }
             width="25%"
             cell={ this.renderTargetEntity.bind(this) }
           />
-          <Advanced.Column
-            header={this.i18n('vs:entity.VsRequest.uid.label')}
-            rendered={_.includes(columns, 'uid')}
-            cell={this._getUidCell.bind(this)}/>
           <Advanced.Column
             header={this.i18n('acc:entity.System.name')}
             rendered={_.includes(columns, 'systemId')}
@@ -425,7 +425,8 @@ VsRequestTable.defaultProps = {
     'creator',
     'operations',
     'roleRequestId',
-    'targetEntity'],
+    'targetEntity',
+    'uid'],
   filterOpened: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,

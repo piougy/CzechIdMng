@@ -15,11 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ExportImportType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -32,7 +36,9 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 
 /**
  * Abstract export bulk operation
@@ -40,7 +46,8 @@ import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
  * @author Vít Švanda
  *
  */
-public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extends BaseFilter> extends AbstractBulkAction<DTO, F> {
+public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extends BaseFilter>
+		extends AbstractBulkAction<DTO, F> {
 
 	@Autowired
 	private ExportManager exportManager;
@@ -61,7 +68,6 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 	public static final String OWNER_TYPE = "eu.bcvsolutions.idm.core.model.entity.IdmExportImport";
 	// Name of export batch
 	public static final String PROPERTY_NAME = "name";
-	
 
 	@Override
 	protected OperationResult processDto(DTO dto) {
@@ -70,7 +76,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 			Assert.notNull(dto.getId(), "Id of system is required!");
 			// Export DTO
 			this.exportDto(dto);
-			
+
 			// Create directory for all exported classes. Some can be empty, its OK, we need
 			// empty folder for authoritative mode (for delete others items on target IdM).
 			batch.getExportOrder().forEach(descriptor -> {
@@ -80,7 +86,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 			batch.getExportedDtos().forEach(extportDto -> {
 				exportManager.exportDTO(extportDto, batch);
 			});
-			
+
 			// Clear cache for next item
 			batch.getExportedDtos().clear();
 		} catch (Exception ex) {
@@ -93,7 +99,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 
 		return new OperationResult(OperationState.EXECUTED);
 	}
-	
+
 	protected abstract void exportDto(DTO dto);
 
 	@Override
@@ -103,7 +109,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 		if (tempDirectory != null) {
 			Path zipPath = null;
 			try {
-				//  Export batch as "manifest" contains basic batch information.
+				// Export batch as "manifest" contains basic batch information.
 				exportManifest(tempDirectory);
 
 				File tempDirectoryFile = tempDirectory.toFile();
@@ -113,7 +119,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 				// Zip all results and save as attachment
 				ZipUtils.compress(tempDirectoryFile, zipPath.toString());
 				InputStream inputStream = Files.newInputStream(zipPath);
-				
+
 				IdmAttachmentDto attachment = new IdmAttachmentDto();
 				attachment.setName(zipPath.toFile().getName());
 				attachment.setMimetype(ExportManager.APPLICATION_ZIP);
@@ -123,7 +129,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 				attachment = attachmentManager.saveAttachment(batch, attachment);
 				batch.setData(attachment.getId());
 				batch = exportImportSerivce.save(batch);
-				
+
 			} catch (IOException e) {
 				result = new OperationResult.Builder(OperationState.EXCEPTION)
 						.setException(new ResultCodeException(CoreResultCode.EXPORT_ZIP_FAILED, e)).build();
@@ -135,7 +141,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 							.sorted(Comparator.reverseOrder())//
 							.map(Path::toFile)//
 							.forEach(File::delete);
-					
+
 					if (zipPath != null) {
 						zipPath.toFile().delete();
 					}
@@ -146,16 +152,46 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 				}
 			}
 		}
-		
+
 		// If some item failed, then whole bulk action will be marked as failed.
 		if (itemException != null) {
 			result = itemException;
 		}
-		return super.end(result, ex);
+		result = super.end(result, ex);
+		// Adds attachment metadata to the operation result (for download attachment
+		// directly from bulk action modal dialog).
+		addAttachmentMetadata(result);
+		return result;
 	}
 
 	/**
-	 * Export batch as "manifest" contains basic batch information (name, creator ...)
+	 * Adds attachment metadata to the operation result (for download attachment
+	 * directly from bulk action modal dialog).
+	 * 
+	 * @param result
+	 */
+	private void addAttachmentMetadata(OperationResult result) {
+
+		IdmLongRunningTaskDto task = getLongRunningTaskService().get(getLongRunningTaskId());
+		OperationResult taskResult = task.getResult();
+
+		if (OperationState.EXECUTED == taskResult.getState()) {
+			ResultModel model = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD,
+					ImmutableMap.of(//
+							AttachableEntity.PARAMETER_DOWNLOAD_URL,
+							MessageFormat.format("export-imports/{0}/download", batch.getId()),
+							AttachableEntity.PARAMETER_OWNER_ID, batch.getId(), //
+							AttachableEntity.PARAMETER_OWNER_TYPE, batch.getClass().getName()//
+					));//
+
+			taskResult.setModel(model);
+			getLongRunningTaskService().save(task);
+		}
+	}
+
+	/**
+	 * Export batch as "manifest" contains basic batch information (name, creator
+	 * ...)
 	 * 
 	 * @param tempDirectory
 	 * @throws IOException
@@ -177,12 +213,12 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 		// Move main export batch (create "Manifest")
 		Files.move(source, target);
 	}
-	
+
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
 		List<IdmFormAttributeDto> formAttributes = super.getFormAttributes();
 		formAttributes.add(new IdmFormAttributeDto(PROPERTY_NAME, "Name", PersistentType.SHORTTEXT));
-		
+
 		return formAttributes;
 	}
 
@@ -201,7 +237,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 	protected IdmExportImportDto getBatch() {
 		return batch;
 	}
-	
+
 	protected FormService getFormService() {
 		return formService;
 	}
@@ -216,7 +252,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 			if (Strings.isNotEmpty(nameFromUser)) {
 				name = nameFromUser;
 			}
-			
+
 			batch = new IdmExportImportDto();
 			batch.setName(name);
 			batch.setType(ExportImportType.EXPORT);
@@ -226,5 +262,5 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 			batch = exportImportSerivce.save(batch);
 		}
 	}
-	
+
 }

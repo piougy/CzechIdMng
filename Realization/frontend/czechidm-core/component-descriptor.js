@@ -224,6 +224,13 @@ module.exports = {
       manager: require('./src/redux').RoleFormAttributeManager
     },
     {
+      id: 'export-import-info',
+      type: 'entity-info',
+      entityType: ['IdmExportImport', 'IdmExportImportDto'],
+      component: require('./src/components/advanced/ExportImportInfo/ExportImportInfo').default,
+      manager: require('./src/redux').ExportImportManager
+    },
+    {
       id: 'text-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'TEXT',

@@ -80,49 +80,6 @@ export class ExportImportDetail extends Advanced.AbstractTableContent {
     return Utils.Ui.getSimpleJavaType(name);
   }
 
-  renderButtons(entity, className = '') {
-    if (!entity.data) {
-      return null;
-    }
-    return (
-      <div>
-        <a
-          key="export-download-zip"
-          href={ this.getManager().getService().getDownloadUrl(entity.id) }
-          title={ this.i18n('action.download.title')}
-          className={ `btn btn-primary ${className}` }
-          style={{ color: 'white', marginLeft: 3 }}>
-          <Basic.Icon value="fa:download" />
-          {' '}
-        </a>
-        <Basic.Button
-          ref="import-dry-run"
-          type="button"
-          level="info"
-          rendered={ Managers.SecurityManager.hasAnyAuthority(['EXPORTIMPORT_UPDATE']) }
-          style={{ marginLeft: 3 }}
-          title={ this.i18n('action.dry-run.title') }
-          titlePlacement="bottom"
-          onClick={ this._execute.bind(this, entity, true) }
-          disabled={ entity.type !== 'IMPORT' }
-          className="btn-xs"
-          icon="fa:play"/>
-        <Basic.Button
-          ref="import-execute"
-          type="button"
-          level="success"
-          rendered={ Managers.SecurityManager.hasAnyAuthority(['EXPORTIMPORT_UPDATE']) }
-          style={{ marginLeft: 3 }}
-          title={ this.i18n('action.execute.title') }
-          titlePlacement="bottom"
-          onClick={ this._execute.bind(this, entity, false) }
-          disabled={ entity.type !== 'IMPORT' }
-          className="btn-xs"
-          icon="fa:play"/>
-      </div>
-    );
-  }
-
   render() {
     const {
       showLoading,
@@ -148,6 +105,7 @@ export class ExportImportDetail extends Advanced.AbstractTableContent {
             <Basic.Panel className="no-border">
               <Basic.AbstractForm
                 ref="form"
+                data={detail.entity}
                 readOnly={ !Utils.Entity.isNew(detail.entity) }
                 className="panel-body">
                 <Basic.EnumLabel

@@ -5,8 +5,7 @@ import { Link } from 'react-router-dom';
 import * as Basic from '../../basic';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
 import { AttachmentService } from '../../../services';
-
-const PARTIAL_CONTENT_STATUS = 206;
+import OperationResultDownloadButton from './OperationResultDownloadButton';
 
 /**
 * Operation result component - shows enum value and result code with flash message
@@ -110,36 +109,6 @@ export default class OperationResult extends Basic.AbstractContextComponent {
     );
   }
 
-  _getDownloadComponent(value) {
-    const { downloadLinkPrefix, downloadLinkSuffix } = this.props;
-    const model = value.model;
-
-    if (model && model.statusCode === PARTIAL_CONTENT_STATUS) {
-      const parameters = model.parameters;
-      let attachmentId = null;
-      // attachmentId must exists
-      if (parameters && parameters.attachmentId) {
-        attachmentId = parameters.attachmentId;
-      } else {
-        return null;
-      }
-
-      const downloadUrl = this.attachmentService.getDownloadUrl(attachmentId, downloadLinkPrefix, downloadLinkSuffix);
-      return (
-        <a
-          key={ `attachment-download-${attachmentId}` }
-          href={ downloadUrl }
-          title={ this.i18n('button.download')}
-          className="btn btn-xs btn-primary">
-          <Basic.Icon value="fa:download" />
-          {' '}
-          { this.i18n('button.download') }
-        </a>
-      );
-    }
-    return null;
-  }
-
   _showDetail(event) {
     if (event) {
       event.preventDefault();
@@ -155,21 +124,18 @@ export default class OperationResult extends Basic.AbstractContextComponent {
    * Renders full info card (with exception stacktrace etc.)
    */
   _renderFull() {
-    const { value, stateLabel, header } = this.props;
+    const { value, stateLabel, header, downloadLinkPrefix, downloadLinkSuffix } = this.props;
     const message = this.getFlashManager().convertFromResultModel(value.model);
-    const downloadComponent = this._getDownloadComponent(value);
     //
     return (
       <div>
         <Basic.ContentHeader text={ header === null ? this.i18n('result.header') : header }/>
 
         <div style={{ marginBottom: 15 }}>
-          { downloadComponent }
           <Basic.Div style={{ float: 'left' }}>
             <Basic.EnumValue
               level={ message ? message.level : null }
               value={value.state}
-              style={{ marginRight: downloadComponent ? 15 : 0 }}
               enum={ OperationStateEnum }
               label={ stateLabel }/>
           </Basic.Div>
@@ -182,6 +148,11 @@ export default class OperationResult extends Basic.AbstractContextComponent {
           }
           <Basic.Div className="clearfix"/>
           <Basic.FlashMessage message={ message } style={{ margin: '15px 0 0 0' }}/>
+          <OperationResultDownloadButton
+            style={{ marginTop: '15px' }}
+            downloadLinkPrefix={downloadLinkPrefix}
+            downloadLinkSuffix={downloadLinkSuffix}
+            operationResult={value}/>
         </div>
         {
           (!value || !value.stackTrace)
@@ -276,3 +247,5 @@ OperationResult.defaultProps = {
   downloadLinkPrefix: null,
   downloadLinkSuffix: null
 };
+
+OperationResult.PARTIAL_CONTENT_STATUS = 206;

@@ -45,6 +45,7 @@ import ValidationMessage from './ValidationMessage/ValidationMessage';
 import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
 import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
+import OperationResultDownloadButton from './OperationResult/OperationResultDownloadButton';
 import ImageDropzone from './ImageDropzone/ImageDropzone';
 import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
@@ -111,6 +112,7 @@ const Components = {
   DecisionButtons,
   DynamicTaskDetail,
   OperationResult,
+  OperationResultDownloadButton,
   ImageDropzone,
   WorkflowTaskInfo,
   TreeTypeInfo,

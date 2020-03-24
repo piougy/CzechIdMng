@@ -19,10 +19,6 @@ let roleManager = new RoleManager();
 */
 export class RoleCompositionTable extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.role.compositions';
   }
@@ -201,27 +197,27 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
               }
             }
             rendered={ subId !== null }/>
-            <Advanced.Column
-              property="sub"
-              sortProperty="sub.name"
-              face="text"
-              header={ this.i18n('entity.RoleComposition.sub.label') }
-              sort
-              cell={
-                ({ rowIndex, data }) => {
-                  const entity = data[rowIndex];
-                  //
-                  return (
-                    <Advanced.EntityInfo
-                      entityType="role"
-                      entityIdentifier={ entity.sub }
-                      entity={ entity._embedded.sub }
-                      face="popover"
-                      showIcon/>
-                  );
-                }
+          <Advanced.Column
+            property="sub"
+            sortProperty="sub.name"
+            face="text"
+            header={ this.i18n('entity.RoleComposition.sub.label') }
+            sort
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                //
+                return (
+                  <Advanced.EntityInfo
+                    entityType="role"
+                    entityIdentifier={ entity.sub }
+                    entity={ entity._embedded.sub }
+                    face="popover"
+                    showIcon/>
+                );
               }
-              rendered={ superiorId !== null }/>
+            }
+            rendered={ superiorId !== null }/>
         </Advanced.Table>
 
         <Basic.Modal
@@ -232,22 +228,27 @@ export class RoleCompositionTable extends Advanced.AbstractTableContent {
           keyboard={!_showLoading}>
 
           <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
-            <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('edit.header', { name: manager.getNiceLabel(detail.entity) }) } rendered={ !Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('create.header')}
+              rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('edit.header', { name: manager.getNiceLabel(detail.entity) }) }
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
                 showLoading={ _showLoading }
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
-
-                <Basic.SelectBox
+                <Advanced.RoleSelect
                   ref="superior"
                   manager={ roleManager }
                   label={ this.i18n('entity.RoleComposition.superior.label') }
                   helpBlock={ this.i18n('entity.RoleComposition.superior.help') }
                   readOnly={ !Utils.Entity.isNew(detail.entity) || superiorId !== null }
                   required/>
-                <Basic.SelectBox
+                <Advanced.RoleSelect
                   ref="sub"
                   manager={ roleManager }
                   label={ this.i18n('entity.RoleComposition.sub.label') }

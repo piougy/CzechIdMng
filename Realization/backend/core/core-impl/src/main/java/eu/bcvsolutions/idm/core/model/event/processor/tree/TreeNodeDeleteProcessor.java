@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor.tree;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.PageRequest;
@@ -9,7 +11,9 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
@@ -17,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
@@ -42,6 +47,7 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 	//
 	@Autowired private IdmContractSliceService contractSliceService;
 	@Autowired private IdmContractPositionService contractPositionService;
+	@Autowired private IdmAutomaticRoleRequestService roleRequestService;
 	
 	@Autowired
 	public TreeNodeDeleteProcessor(
@@ -92,6 +98,17 @@ public class TreeNodeDeleteProcessor extends CoreEventProcessor<IdmTreeNodeDto> 
 		if(roleTreeNodeService.find(filter, null).getTotalElements() > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_ROLE, 
 					ImmutableMap.of("treeNode", treeNode.getName()));
+		}
+		// check automatic role request
+		IdmAutomaticRoleRequestFilter roleRequestFilter = new IdmAutomaticRoleRequestFilter();
+		roleRequestFilter.setTreeNodeId(treeNode.getId());
+		List<IdmAutomaticRoleRequestDto> roleRequestDtos = roleRequestService.find(roleRequestFilter, null).getContent();
+		for (IdmAutomaticRoleRequestDto request : roleRequestDtos) {
+			if (!request.getState().isTerminatedState()) {
+				roleRequestService.cancel(request);
+			}
+			request.setTreeNode(null);
+			roleRequestService.save(request);
 		}
 		//		
 		service.deleteInternal(treeNode);

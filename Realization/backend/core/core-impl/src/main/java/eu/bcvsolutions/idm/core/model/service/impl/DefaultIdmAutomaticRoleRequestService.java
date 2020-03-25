@@ -62,6 +62,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleRequest_;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleRequestEvent.AutomaticRoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.RoleRequestApprovalProcessor;
@@ -476,6 +477,10 @@ public class DefaultIdmAutomaticRoleRequestService extends
 		List<RequestState> states = filter.getStates();
 		if (!states.isEmpty()) {
 			predicates.add(root.get(IdmAutomaticRoleRequest_.state).in(states));
+		}
+		// Tree node
+		if (filter.getTreeNodeId() != null) {
+			predicates.add(builder.equal(root.get(IdmAutomaticRoleRequest_.treeNode).get(IdmTreeNode_.id), filter.getTreeNodeId()));
 		}
 		return predicates;
 	}

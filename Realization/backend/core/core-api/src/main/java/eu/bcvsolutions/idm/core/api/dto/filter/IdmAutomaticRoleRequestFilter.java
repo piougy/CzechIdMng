@@ -23,6 +23,7 @@ public class IdmAutomaticRoleRequestFilter extends DataFilter {
 	private UUID automaticRoleId;
 	private AutomaticRoleRequestType requestType;
 	private String role; // role code
+	private UUID treeNodeId;
 
 	public IdmAutomaticRoleRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -73,6 +74,14 @@ public class IdmAutomaticRoleRequestFilter extends DataFilter {
 
 	public void setRole(String role) {
 		this.role = role;
+	}
+
+	public UUID getTreeNodeId() {
+		return treeNodeId;
+	}
+
+	public void setTreeNodeId(UUID treeNodeId) {
+		this.treeNodeId = treeNodeId;
 	}
 
 }

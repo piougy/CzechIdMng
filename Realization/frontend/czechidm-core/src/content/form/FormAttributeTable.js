@@ -57,9 +57,9 @@ class FormAttributeTable extends Advanced.AbstractTableContent {
     const { definitionId } = this.props;
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.history.push(`/forms/attribute/${uuidId}/detail?new=1&formDefinition=${definitionId}`);
+      this.context.history.push(`/form-definitions/attribute/${ uuidId }/detail?new=1&formDefinition=${ definitionId }`);
     } else {
-      this.context.history.push('/forms/attribute/' + entity.id + '/detail');
+      this.context.history.push(`/form-definitions/attribute/${ entity.id }/detail`);
     }
   }
 

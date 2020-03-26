@@ -6,15 +6,17 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter for tree node
+ * Filter for tree node.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
-public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiableFilter {
+public class IdmTreeNodeFilter 
+		extends DataFilter 
+		implements CorrelationFilter, ExternalIdentifiableFilter, DisableableFilter {
 
 	public static final String PARAMETER_CODE = "code"; // PARAMETER_CODEABLE_IDENTIFIER can be used too
 	/**
@@ -47,11 +49,15 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
     }
 
     public IdmTreeNodeFilter(MultiValueMap<String, Object> data) {
-        super(IdmTreeNodeDto.class, data);
+        this(data, null);
+    }
+    
+    public IdmTreeNodeFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+        super(IdmTreeNodeDto.class, data, parameterConverter);
     }
 
     public UUID getTreeTypeId() {
-        return DtoUtils.toUuid(data.getFirst(PARAMETER_TREE_TYPE_ID));
+        return getParameterConverter().toUuid(getData(), PARAMETER_TREE_TYPE_ID);
     }
 
     public void setTreeTypeId(UUID treeTypeId) {
@@ -59,7 +65,7 @@ public class IdmTreeNodeFilter extends DataFilter implements CorrelationFilter, 
     }
     
     public UUID getParent() {
-    	return getParameterConverter().toUuid(data, PARAMETER_PARENT);
+    	return getParameterConverter().toUuid(getData(), PARAMETER_PARENT);
 	}
 
 	public void setParent(UUID parent) {

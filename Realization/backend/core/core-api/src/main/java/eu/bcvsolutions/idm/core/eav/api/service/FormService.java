@@ -566,17 +566,6 @@ public interface FormService extends ScriptEnabled {
 	 * @throws IllegalArgumentException if main definition does not exist
 	 */
 	List<IdmFormValueDto> getValues(UUID ownerId, Class<? extends Identifiable> ownerType, BasePermission... permission);
-	
-	/**
-	 * Reads form values by given owner. Return values from main form definition.
-	 * 
-	 * @see {@link #getDefaultDefinitionType(Class)}
-	 * @param owner
-	 * @param permission base permissions to evaluate (AND)
-	 * @return
-	 * @throws IllegalArgumentException if main definition does not exist
-	 */
-	IdmFormInstanceDto getFormInstance(Identifiable owner, BasePermission... permission);
 
 	/**
 	 * Reads form values by given owner and form definition
@@ -615,6 +604,17 @@ public interface FormService extends ScriptEnabled {
 			IdmFormDefinitionDto formDefinition, BasePermission... permission);
 	
 	/**
+	 * Reads form values by given owner. Return values from main form definition.
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param owner
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 * @throws IllegalArgumentException if main definition does not exist
+	 */
+	IdmFormInstanceDto getFormInstance(Identifiable owner, BasePermission... permission);
+	
+	/**
 	 * Reads form values by given owner and form definition
 	 * 
 	 * @param owner
@@ -624,6 +624,16 @@ public interface FormService extends ScriptEnabled {
 	 * @throws IllegalArgumentException if form definition is not given and main definition does not exist
 	 */
 	IdmFormInstanceDto getFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition, BasePermission... permission);
+	
+	/**
+	 * Reads form values by given owner. Return values from all form definitions.
+	 * 
+	 * @param owner
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 * @since 10.2.0
+	 */
+	List<IdmFormInstanceDto> getFormInstances(Identifiable owner, BasePermission... permission);
 	
 	/**
 	 * Returns attribute values by attributeCode from given definition, or empty collection

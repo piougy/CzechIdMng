@@ -11,10 +11,6 @@ import CodeListTable from './CodeListTable';
  */
 export default class CodeLists extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.code-lists';
   }
@@ -25,12 +21,12 @@ export default class CodeLists extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader() }
         <Basic.Panel>
           <CodeListTable uiKey="code-list-table"/>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

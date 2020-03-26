@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  */
 public class IdmIdentityContractFilter
 		extends DataFilter
-		implements CorrelationFilter, ExternalIdentifiableFilter {
+		implements CorrelationFilter, ExternalIdentifiableFilter, DisableableFilter, FormableFilter {
 
 	public static final String PARAMETER_EXCLUDED = "excluded"; // true / false
 	/**
@@ -41,7 +41,6 @@ public class IdmIdentityContractFilter
 	public static final String PARAMETER_VALID_FROM = ValidableEntity.PROPERTY_VALID_FROM;  
 	public static final String PARAMETER_VALID_TILL = ValidableEntity.PROPERTY_VALID_TILL;
 	public static final String PARAMETER_EXTERNE = "externe";
-	public static final String PARAMETER_DISABLED = "disabled";
 	public static final String PARAMETER_VALID = "valid";
 	public static final String PARAMETER_VALID_NOW_OR_FUTURE = "validNowOrInFuture";
 	public static final String PARAMETER_MAIN = "main";
@@ -69,7 +68,7 @@ public class IdmIdentityContractFilter
 	}
 
 	public UUID getIdentity() {
-		return getParameterConverter().toUuid(data, PARAMETER_IDENTITY);
+		return getParameterConverter().toUuid(getData(), PARAMETER_IDENTITY);
 	}
 
 	public void setIdentity(UUID identity) {
@@ -98,14 +97,6 @@ public class IdmIdentityContractFilter
 
 	public void setExterne(Boolean externe) {
 		set(PARAMETER_EXTERNE, externe);
-	}
-
-	public Boolean getDisabled() {
-		return getParameterConverter().toBoolean(data, PARAMETER_DISABLED);
-	}
-
-	public void setDisabled(Boolean disabled) {
-		set(PARAMETER_DISABLED, disabled);
 	}
 
 	public Boolean getValid() {

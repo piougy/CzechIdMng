@@ -24,11 +24,9 @@ import eu.bcvsolutions.idm.core.api.repository.filter.BaseFilterBuilder;
  * @author Radek Tomiška
  * @since 10.2.0
  */
-@Component()
+@Component
 public class ModifiedTillFilterBuilder<E extends AbstractEntity> extends BaseFilterBuilder<E, DataFilter> {
 
-	
-	
 	@Override
 	public String getName() {
 		return ModifiedTillFilter.PARAMETER_MODIFIED_TILL;

@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
 /**
- * Filter for form-able entities
+ * Context (~filter) for form-able entities.
  *
  * @author svandav
  * @author Radek Tomiška

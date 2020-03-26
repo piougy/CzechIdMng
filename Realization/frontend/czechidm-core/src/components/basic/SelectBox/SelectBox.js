@@ -642,6 +642,7 @@ class SelectBox extends AbstractFormComponent {
         labelKey={fieldLabel}
         onBlurResetsInput={false}
         closeOnSelect={ !multiSelect }
+        onSelectResetsInput={ false }
         noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
         placeholder={this.getPlaceholder(placeholder)}
         searchingText={this.i18n('component.basic.SelectBox.searchingText')}

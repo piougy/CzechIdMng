@@ -4,6 +4,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.DisableableFilter;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.example.dto.ExampleProductDto;
 
 /**
@@ -12,7 +14,7 @@ import eu.bcvsolutions.idm.example.dto.ExampleProductDto;
  * @author Radek Tomiška
  *
  */
-public class ExampleProductFilter extends DataFilter {
+public class ExampleProductFilter extends DataFilter implements DisableableFilter {
 	
 	/**
 	 * Product name
@@ -24,14 +26,18 @@ public class ExampleProductFilter extends DataFilter {
 	}
 	
 	public ExampleProductFilter(MultiValueMap<String, Object> data) {
-		super(ExampleProductDto.class, data);
+		this(data, null);
+	}
+	
+	public ExampleProductFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(ExampleProductDto.class, data, parameterConverter);
 	}
 	
 	public String getName() {
-		return (String) data.getFirst(PARAMETER_NAME);
+		return getParameterConverter().toString(getData(), PARAMETER_NAME);
 	}
 
 	public void setName(String username) {
-		data.set(PARAMETER_NAME, username);
+		set(PARAMETER_NAME, username);
 	}
 }

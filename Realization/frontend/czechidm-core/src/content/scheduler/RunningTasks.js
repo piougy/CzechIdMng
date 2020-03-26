@@ -19,10 +19,6 @@ const manager = new LongRunningTaskManager();
  */
 class RunningTasks extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.scheduler.running-tasks';
   }
@@ -49,7 +45,11 @@ class RunningTasks extends Basic.AbstractContent {
   _fetchRunningTasks() {
     const { creatorId, uiKey } = this.props;
     //
-    const forceSearchParameters = new SearchParameters().setFilter('running', true).setFilter('stateful', true).setFilter('creatorId', creatorId).setSort('created', 'desc');
+    const forceSearchParameters = new SearchParameters()
+      .setFilter('running', true)
+      .setFilter('stateful', true)
+      .setFilter('creatorId', creatorId)
+      .setSort('created', 'desc');
     this.context.store.dispatch(this.getManager().fetchEntities(forceSearchParameters, uiKey));
   }
 

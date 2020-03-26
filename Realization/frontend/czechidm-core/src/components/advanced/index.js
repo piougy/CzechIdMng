@@ -35,6 +35,7 @@ import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTem
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
 import IdentitySelect from './IdentitySelect/IdentitySelect';
+import FormProjectionSelect from './FormProjectionSelect/FormProjectionSelect';
 import Recaptcha from './Recaptcha/Recaptcha';
 import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
 import SchedulerTaskInfo from './SchedulerTaskInfo/SchedulerTaskInfo';
@@ -102,6 +103,7 @@ const Components = {
   ScriptArea,
   RoleSelect,
   IdentitySelect,
+  FormProjectionSelect,
   Recaptcha,
   IdentitiesInfo,
   SchedulerTaskInfo,
@@ -132,5 +134,5 @@ const Components = {
   CronGenerator
 };
 
-Components.version = '9.4.0';
+Components.version = '10.2.0';
 module.exports = Components;

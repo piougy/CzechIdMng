@@ -40,7 +40,7 @@ function _linkFunction(to, rowIndex, data, event) {
     event.preventDefault();
   }
   if (to) {
-    to({ rowIndex, data });
+    to({ rowIndex, data, event });
   }
 }
 
@@ -60,7 +60,7 @@ function _linkFunction(to, rowIndex, data, event) {
  *
  * @author Radek Tomiška
  */
-const LinkCell = ({rowIndex, data, property, to, className, title, target, access, ...props}) => {
+const LinkCell = ({ rowIndex, data, property, to, className, title, target, access, ...props }) => {
   const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);
   const accessItems = (access && !Array.isArray(access)) ? [access] : access;
   // when is property and accessItems null, then return only default cell

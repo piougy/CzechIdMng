@@ -10,6 +10,7 @@ import AbstractService from './AbstractService';
 import FormableEntityService from './FormableEntityService';
 import AuthenticateService from './AuthenticateService';
 import IdentityService from './IdentityService';
+import IdentityProjectionService from './IdentityProjectionService';
 import WorkflowProcessDefinitionService from './WorkflowProcessDefinitionService';
 import TreeNodeService from './TreeNodeService';
 import TreeTypeService from './TreeTypeService';
@@ -42,6 +43,7 @@ import RoleRequestService from './RoleRequestService';
 import ConceptRoleRequestService from './ConceptRoleRequestService';
 import RoleTreeNodeService from './RoleTreeNodeService';
 import FormDefinitionService from './FormDefinitionService';
+import FormProjectionService from './FormProjectionService';
 import FormAttributeService from './FormAttributeService';
 import FormValueService from './FormValueService';
 import AuthorizationPolicyService from './AuthorizationPolicyService';
@@ -90,6 +92,7 @@ const ServiceRoot = {
   FormableEntityService,
   AuthenticateService,
   IdentityService,
+  IdentityProjectionService,
   WorkflowProcessDefinitionService,
   TreeNodeService,
   TreeTypeService,
@@ -123,6 +126,7 @@ const ServiceRoot = {
   ConceptRoleRequestService,
   RoleTreeNodeService,
   FormDefinitionService,
+  FormProjectionService,
   FormAttributeService,
   FormValueService,
   AuthorizationPolicyService,
@@ -165,5 +169,5 @@ const ServiceRoot = {
   ImportLogService
 };
 
-ServiceRoot.version = '9.4.0';
+ServiceRoot.version = '10.2.0';
 module.exports = ServiceRoot;

@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -49,9 +50,11 @@ import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDisableBulkAction;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -83,6 +86,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private IdmProfileService profileService;
+	@Autowired private IdmFormProjectionService formProjectionService;
 	
 	@Override
 	protected AbstractReadWriteDtoController<IdmIdentityDto, ?> getController() {
@@ -784,6 +788,24 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	}
 	
 	@Test
+	public void testFindByFormProjection() {
+		IdmIdentityDto identity = prepareDto();
+		identity.setFormProjection(createProjection().getId());
+		IdmIdentityDto createdDto = createDto(identity);
+		identity = prepareDto();
+		identity.setFormProjection(createProjection().getId());
+		createDto(identity); // other
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setFormProjection(createdDto.getFormProjection());
+		List<IdmIdentityDto> results = find(filter);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().allMatch(r -> r.getId().equals(createdDto.getId())));
+		
+	}
+	
+	@Test
 	public void testEnableNotFound() throws Exception {
 		getMockMvc().perform(patch(String.format("%s/enable", getDetailUrl(UUID.randomUUID())))
         		.with(authentication(getAdminAuthentication()))
@@ -820,5 +842,13 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		        .getContentAsString();
 		//
 		Assert.assertTrue(StringUtils.isEmpty(response));
+	}
+	
+	protected IdmFormProjectionDto createProjection() {
+		IdmFormProjectionDto dto = new IdmFormProjectionDto();
+		dto.setCode(getHelper().createName());
+		dto.setOwnerType(IdmIdentity.class.getCanonicalName());
+		//
+		return formProjectionService.save(dto);
 	}
 }

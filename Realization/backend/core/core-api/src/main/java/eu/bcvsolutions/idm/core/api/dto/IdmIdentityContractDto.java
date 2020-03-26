@@ -29,6 +29,7 @@ public class IdmIdentityContractDto extends FormableDto implements ValidableEnti
 	private static final long serialVersionUID = 1L;
 	//
 	public static final String PROPERTY_IDENTITY = "identity";
+	public static final String PROPERTY_WORK_POSITION = "workPosition";
 	//
 	@Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")

@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,8 +160,9 @@ public class DefaultIdmFormDefinitionService
 					));
 		}
 		//
-		if (StringUtils.isNotEmpty(filter.getType())) {
-			predicates.add(builder.equal(root.get(IdmFormDefinition_.type), filter.getType()));
+		List<String> types = filter.getTypes();
+		if (CollectionUtils.isNotEmpty(types)) {
+			predicates.add(root.get(IdmFormDefinition_.type).in(types));
 		}
 		//
 		if (StringUtils.isNotEmpty(filter.getCode())) {

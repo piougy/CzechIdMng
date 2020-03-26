@@ -586,7 +586,7 @@ public class DefaultFormService implements FormService {
 						}
 					}
 					results.add(newValue);
-					LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getCode(), newValue.getId(), ownerEntity);
+					LOG.trace("FormValue [{}:{}] for owner [{}] was created.", attribute.getCode(), newValue.getId(), ownerEntity);
 				}
 			} else {
 				//
@@ -628,15 +628,18 @@ public class DefaultFormService implements FormService {
 							}
 						}
 						results.add(previousValue);
-						LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getCode(), previousValue.getId(), ownerEntity);
+						LOG.trace("FormValue [{}:{}] for owner [{}] was updated.", attribute.getCode(), previousValue.getId(), ownerEntity);
 					} else {
 						formValueService.delete(previousValue, permission);
 						if (previousValue.getPersistentType() == PersistentType.ATTACHMENT) {
 							// delete attachment - permissions are evaluated before
 							attachmentManager.deleteAttachments(previousValue.getId(), attachmentManager.getOwnerType(formValueService.getEntityClass()));
 						}
-						LOG.trace("FormValue [{}:{}] for owner [{}] was deleted", attribute.getCode(), previousValue.getId(), ownerEntity);
+						LOG.trace("FormValue [{}:{}] for owner [{}] was deleted.", attribute.getCode(), previousValue.getId(), ownerEntity);
 					}
+				} else {
+					results.add(previousValue);
+					LOG.trace("FormValue [{}:{}] for owner [{}] was preserved unchanged.", attribute.getCode(), previousValue.getId(), ownerEntity);
 				}
 			}
 		}
@@ -899,6 +902,17 @@ public class DefaultFormService implements FormService {
 		}
 		//
 		return formInstance;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmFormInstanceDto> getFormInstances(Identifiable owner, BasePermission... permission) {
+		return getDefinitions(owner, !PermissionUtils.isEmpty(permission) ? IdmBasePermission.AUTOCOMPLETE : null)
+				.stream()
+				.map(definition -> {
+					return getFormInstance(owner, definition, permission);
+				})
+				.collect(Collectors.toList());
 	}
 
 	@Override

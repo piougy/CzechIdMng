@@ -1,3 +1,5 @@
+import _ from 'lodash';
+//
 import FormableEntityManager from './FormableEntityManager';
 import SecurityManager, { RECEIVE_PROFILE } from '../security/SecurityManager';
 import { IdentityService } from '../../services';
@@ -392,6 +394,27 @@ export default class IdentityManager extends FormableEntityManager {
           dispatch(this.receiveError(null, uiKey, error));
         });
     };
+  }
+
+  /**
+   * Detail link by configured projection or default.
+   *
+   * @param  {object} identity
+   * @return {string} url
+   * @since 10.2.0
+   */
+  getDetailLink(identity) {
+    if (!identity) {
+      return null;
+    }
+    //
+    if (identity._embedded && identity._embedded.formProjection) {
+      const route = Utils.Ui.getRouteUrl(identity._embedded.formProjection.route);
+      //
+      return `${ route }/${ encodeURIComponent(identity.username) }`;
+    }
+    // default
+    return `/identity/${ encodeURIComponent(identity.username) }/profile`;
   }
 }
 

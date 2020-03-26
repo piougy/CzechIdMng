@@ -55,9 +55,9 @@ export class FormDefinitionTable extends Advanced.AbstractTableContent {
   showDetail(entity) {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.history.push(`/forms/${uuidId}/detail?new=1`);
+      this.context.history.push(`/form-definitions/${ uuidId }/detail?new=1`);
     } else {
-      this.context.history.push('/forms/' + entity.id + '/detail');
+      this.context.history.push(`/form-definitions/${ entity.id }/detail`);
     }
   }
 

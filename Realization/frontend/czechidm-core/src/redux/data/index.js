@@ -9,6 +9,7 @@ import EntityManager from './EntityManager';
 import FormableEntityManager from './FormableEntityManager';
 import DataManager from './DataManager';
 import IdentityManager from './IdentityManager';
+import IdentityProjectionManager from './IdentityProjectionManager';
 import TreeNodeManager from './TreeNodeManager';
 import TreeTypeManager from './TreeTypeManager';
 import RoleManager from './RoleManager';
@@ -41,6 +42,7 @@ import RoleRequestManager from './RoleRequestManager';
 import ConceptRoleRequestManager from './ConceptRoleRequestManager';
 import RoleTreeNodeManager from './RoleTreeNodeManager';
 import FormDefinitionManager from './FormDefinitionManager';
+import FormProjectionManager from './FormProjectionManager';
 import FormAttributeManager from './FormAttributeManager';
 import FormValueManager from './FormValueManager';
 import AuthorizationPolicyManager from './AuthorizationPolicyManager';
@@ -86,6 +88,7 @@ const ManagerRoot = {
   FormableEntityManager,
   DataManager,
   IdentityManager,
+  IdentityProjectionManager,
   TreeNodeManager,
   TreeTypeManager,
   RoleManager,
@@ -118,6 +121,7 @@ const ManagerRoot = {
   ConceptRoleRequestManager,
   RoleTreeNodeManager,
   FormDefinitionManager,
+  FormProjectionManager,
   FormAttributeManager,
   FormValueManager,
   AuthorizationPolicyManager,
@@ -159,5 +163,5 @@ const ManagerRoot = {
   ImportLogManager
 };
 
-ManagerRoot.version = '9.4.0';
+ManagerRoot.version = '10.2.0';
 module.exports = ManagerRoot;

@@ -7,6 +7,7 @@ import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
@@ -27,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty.AccessMode;
 import joptsimple.internal.Strings;
 
 /**
@@ -42,43 +44,49 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	@JsonDeserialize(as = UUID.class)
 	@ApiModelProperty(required = true, notes = "Unique uuid identifier. Used as identifier in rest endpoints", dataType = "java.util.UUID")
 	private UUID id;
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private ZonedDateTime created;
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private ZonedDateTime modified;
 	@Size(max = DefaultFieldLengths.NAME)
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private String creator;
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private UUID creatorId;
 	@Size(max = DefaultFieldLengths.NAME)
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private String modifier;
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private UUID modifierId;
 	@Size(max = DefaultFieldLengths.NAME)
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private String originalCreator;
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private UUID originalCreatorId;
 	@Size(max = DefaultFieldLengths.NAME)
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private String originalModifier;
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private UUID originalModifierId;
-	@JsonProperty(value = "_trimmed", access = Access.READ_ONLY)
-	@ApiModelProperty(readOnly = true)
-	private boolean trimmed = false;
-	@JsonProperty(value = "_embedded", access = Access.READ_ONLY)
-	@ApiModelProperty(readOnly = true)
-	private Map<String, BaseDto> embedded;
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private UUID transactionId;
 	@JsonIgnore
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private UUID realmId;
+	//
+	@JsonProperty(value = "_trimmed", access = Access.READ_ONLY)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
+	private boolean trimmed = false;
+	@JsonProperty(value = "_embedded", access = Access.READ_ONLY)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
+	private Map<String, BaseDto> embedded;
 	@JsonProperty(value = "_dtotype", access = Access.READ_ONLY)
 	private Class<? extends BaseDto> type = this.getClass();
+	@JsonProperty(value = "_permissions", access = Access.READ_ONLY)
+	@ApiModelProperty(
+			accessMode = AccessMode.READ_ONLY,
+			notes = "What currently logged identity can do with given dto.")
+	private Set<String> permissions;
 
 	public AbstractDto() {
 	}
@@ -90,18 +98,8 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	public AbstractDto(Auditable auditable) {
 		Assert.notNull(auditable, "Auditable (dto or entity) is required");
 		//
+		DtoUtils.copyAuditFields(auditable, this);
 		this.id = auditable.getId();
-		this.created = auditable.getCreated();
-		this.modified = auditable.getModified();
-		this.creator = auditable.getCreator();
-		this.creatorId = auditable.getCreatorId();
-		this.modifier = auditable.getModifier();
-		this.modifierId = auditable.getModifierId();
-		this.originalCreator = auditable.getOriginalCreator();
-		this.originalCreatorId = auditable.getOriginalCreatorId();
-		this.originalModifier = auditable.getOriginalModifier();
-		this.originalModifierId = auditable.getOriginalModifierId();
-		this.transactionId = auditable.getTransactionId();
 		this.realmId = auditable.getRealmId();
 	}
 
@@ -219,25 +217,6 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 		this.originalModifierId = originalModifierId;
 	}
 	
-	public boolean isTrimmed() {
-		return trimmed;
-	}
-
-	public void setTrimmed(boolean trimmed) {
-		this.trimmed = trimmed;
-	}	
-
-	public Map<String, BaseDto> getEmbedded() {
-		if(embedded == null){
-			embedded = new HashMap<>();
-		}
-		return embedded;
-	}
-
-	public void setEmbedded(Map<String, BaseDto> embedded) {
-		this.embedded = embedded;
-	}
-
 	@Override
 	public UUID getTransactionId() {
 		return transactionId;
@@ -256,6 +235,46 @@ public abstract class AbstractDto implements BaseDto, Auditable {
 	@Override
 	public void setRealmId(UUID realmId) {
 		this.realmId = realmId;
+	}
+	
+	public boolean isTrimmed() {
+		return trimmed;
+	}
+
+	public void setTrimmed(boolean trimmed) {
+		this.trimmed = trimmed;
+	}	
+
+	public Map<String, BaseDto> getEmbedded() {
+		if(embedded == null){
+			embedded = new HashMap<>();
+		}
+		return embedded;
+	}
+
+	public void setEmbedded(Map<String, BaseDto> embedded) {
+		this.embedded = embedded;
+	}
+	
+	/**
+	 * What currently logged identity can do with given dto.
+	 * Returns {@code null} when permissions were not loaded.
+	 * 
+	 * @return
+	 * @since 10.2.0
+	 */
+	public Set<String> getPermissions() {
+		return permissions;
+	}
+	
+	/**
+	 * What currently logged identity can do with given dto.
+	 * 
+	 * @param permissions
+	 * @since 10.2.0
+	 */
+	public void setPermissions(Set<String> permissions) {
+		this.permissions = permissions;
 	}
 
 	@Override

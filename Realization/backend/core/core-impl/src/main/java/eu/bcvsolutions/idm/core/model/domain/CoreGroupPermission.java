@@ -37,7 +37,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdentityBasePermission.PASSWORDCHANGE,
 			IdentityBasePermission.CHANGEPERMISSION,
 			IdentityBasePermission.MANUALLYDISABLE,
-			IdentityBasePermission.MANUALLYENABLE),
+			IdentityBasePermission.MANUALLYENABLE,
+			IdentityBasePermission.CHANGEPROJECTION),
 	PROFILE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -213,6 +214,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.DELETE, 
 			IdmBasePermission.EXECUTE),
 	FORMDEFINITION(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
+	FORMPROJECTION(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
@@ -553,6 +562,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String FORM_DEFINITION_CREATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String FORM_DEFINITION_UPDATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String FORM_DEFINITION_DELETE = "FORMDEFINITION" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String FORM_PROJECTION_COUNT = "FORMPROJECTION" + BasePermission.SEPARATOR + "COUNT";
+	public static final String FORM_PROJECTION_AUTOCOMPLETE = "FORMPROJECTION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String FORM_PROJECTION_READ = "FORMPROJECTION" + BasePermission.SEPARATOR + "READ";
+	public static final String FORM_PROJECTION_CREATE = "FORMPROJECTION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String FORM_PROJECTION_UPDATE = "FORMPROJECTION" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String FORM_PROJECTION_DELETE = "FORMPROJECTION" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String FORM_ATTRIBUTE_COUNT = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String FORM_ATTRIBUTE_AUTOCOMPLETE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";

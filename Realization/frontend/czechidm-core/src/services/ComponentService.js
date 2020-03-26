@@ -138,3 +138,4 @@ ComponentService.ENTITY_SELECT_BOX_COMPONENT_TYPE = 'entity-select-box';
 ComponentService.PASSWORD_CHANGE_COMPONENTS_TYPE = 'password-change-component';
 ComponentService.ICON_COMPONENT_TYPE = 'icon';
 ComponentService.MODAL_COMPONENT_TYPE = 'modal';
+ComponentService.FORM_PROJECTION_COMPONENT_TYPE = 'form-projection';

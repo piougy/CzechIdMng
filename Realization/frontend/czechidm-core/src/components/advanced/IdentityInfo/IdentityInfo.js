@@ -1,16 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 //
 import * as Basic from '../../basic';
-import { IdentityManager, DataManager, ConfigurationManager } from '../../../redux';
+import { IdentityManager, DataManager, ConfigurationManager, FormProjectionManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import AuditableInfo from '../EntityInfo/AuditableInfo';
 import ConfigLoader from '../../../utils/ConfigLoader';
 
 const manager = new IdentityManager();
+const projectionManager = new FormProjectionManager();
 
 /**
  * Identity basic information (info card)
@@ -72,13 +72,32 @@ export class IdentityInfo extends AbstractEntityInfo {
    *
    * @return {string}
    */
-  getLink() {
-    const { skipDashboard } = this.props;
+  getLink(entity, skipDashboard = false) {
+    if (!entity) {
+      entity = this.getEntity();
+    }
     //
     if (!skipDashboard) {
-      return `/identity/${ encodeURIComponent(this.getEntityId()) }/dashboard`;
+      return `/identity/${ encodeURIComponent(this.getEntityId(entity)) }/dashboard`;
     }
-    return `/identity/${ encodeURIComponent(this.getEntityId()) }/profile`;
+    return manager.getDetailLink(entity);
+  }
+
+  /**
+   * Show identity detail by configured projection
+   *
+   * @param  {event} event
+   * @since 10.2.0
+   */
+  showDetail(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    const { skipDashboard } = this.props;
+    const ctrlKey = !event ? false : event.ctrlKey;
+    //
+    this.context.history.push(this.getLink(entity, skipDashboard || ctrlKey));
   }
 
   /**
@@ -205,12 +224,24 @@ export class IdentityInfo extends AbstractEntityInfo {
                 <tbody>
                   { this.renderRow('fa:envelope', _entity.email) }
                   { this.renderRow('fa:phone', _entity.phone) }
+                  {
+                    !_entity._embedded || !_entity._embedded.formProjection
+                    ||
+                    this.renderRow(
+                      projectionManager.getLocalization(_entity._embedded.formProjection, 'icon', 'fa:user'),
+                      (
+                        <span title={ this.i18n('entity.Identity.formProjection.label') }>
+                          { projectionManager.getLocalization(_entity._embedded.formProjection, 'label', _entity._embedded.formProjection.code) }
+                        </span>
+                      )
+                    )
+                  }
                   { this.renderRow(null, (
-                    <Link to={ this.getLink() }>
+                    <a href="#" onClick={ this.showDetail.bind(this, _entity) }>
                       <Basic.Icon value="fa:angle-double-right"/>
                       {' '}
                       { this.i18n('link.profile.label') }
-                    </Link>
+                    </a>
                   )) }
                 </tbody>
               </table>

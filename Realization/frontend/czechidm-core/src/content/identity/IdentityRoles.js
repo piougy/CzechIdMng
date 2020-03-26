@@ -287,7 +287,7 @@ class IdentityRoles extends Basic.AbstractContent {
 
   render() {
     const { entityId } = this.props.match.params;
-    const { _showLoadingContracts, _contracts, _permissions, _requestUi } = this.props;
+    const { _showLoadingContracts, _contracts, _permissions, _requestUi, columns, embedded } = this.props;
     const { activeKey } = this.state;
     //
     let force = new SearchParameters();
@@ -300,8 +300,11 @@ class IdentityRoles extends Basic.AbstractContent {
     return (
       <div style={{ paddingTop: 15 }}>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
-        <Helmet title={ this.i18n('title') } />
-
+        {
+          !!embedded
+          ||
+          <Helmet title={ this.i18n('title') } />
+        }
         {
           (_contracts.length > 0) || !this._canChangePermissions()
           ||
@@ -337,7 +340,7 @@ class IdentityRoles extends Basic.AbstractContent {
               showAddButton={ false }
               showRefreshButton={ false }
               match={ this.props.match }
-              columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['directRole']) }
+              columns={ _.difference(columns || IdentityRoleTable.defaultProps.columns, ['directRole']) }
               _permissions={ _permissions }
               fetchIncompatibleRoles={ false }
               fetchCodeLists={ false }/>
@@ -358,7 +361,7 @@ class IdentityRoles extends Basic.AbstractContent {
               showAddButton={ false }
               showRefreshButton={ false }
               match={ this.props.match }
-              columns={ _.difference(IdentityRoleTable.defaultProps.columns, ['automaticRole']) }
+              columns={ _.difference(columns || IdentityRoleTable.defaultProps.columns, ['automaticRole']) }
               fetchIncompatibleRoles={ false }
               fetchCodeLists={ false }/>
           </Basic.Tab>
@@ -505,4 +508,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(IdentityRoles);
+export default connect(select, null, null, { forwardRef: true })(IdentityRoles);

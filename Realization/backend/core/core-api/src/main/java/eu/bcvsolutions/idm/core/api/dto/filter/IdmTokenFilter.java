@@ -15,11 +15,12 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  * @author Radek Tomiška
  * @since 8.2.0
  */
-public class IdmTokenFilter extends DataFilter implements ExternalIdentifiableFilter {
+public class IdmTokenFilter 
+		extends DataFilter 
+		implements ExternalIdentifiableFilter, DisableableFilter {
 	
 	public static final String PARAMETER_OWNER_ID = "ownerId";
 	public static final String PARAMETER_OWNER_TYPE = "ownerType";
-	public static final String PARAMETER_DISABLED = "disabled";
 	public static final String PARAMETER_EXPIRATION_TILL = "expirationTill"; // expiration <= expirationTill
 	
 	public IdmTokenFilter() {
@@ -45,22 +46,6 @@ public class IdmTokenFilter extends DataFilter implements ExternalIdentifiableFi
     public String getOwnerType() {
     	return (String) data.getFirst(PARAMETER_OWNER_TYPE);
     }
-    
-    public Boolean getDisabled() {
-		// TODO: parameter converter
-		Object disabled = data.getFirst(PARAMETER_DISABLED);
-		if (disabled == null) {
-			return null;
-		}
-		if (disabled instanceof Boolean) {
-			return (Boolean) disabled;
-		}
-		return Boolean.valueOf(disabled.toString()) ;
-	}
-
-	public void setDisabled(Boolean disabled) {
-		data.set(PARAMETER_DISABLED, disabled);
-	}
 	
 	public ZonedDateTime getExpirationTill() {
 		return getParameterConverter().toDateTime(data, PARAMETER_EXPIRATION_TILL);

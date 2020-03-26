@@ -4,10 +4,14 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -16,6 +20,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.envers.Audited;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormProjection;
 
 /**
  * Identity
@@ -40,7 +47,8 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 @Table(name = "idm_identity", indexes = {
 		@Index(name = "ux_idm_identity_username", columnList = "username", unique = true),
 		@Index(name = "idx_idm_identity_external_code", columnList = "external_code"),
-		@Index(name = "idx_idm_identity_external_id", columnList = "external_id")})
+		@Index(name = "idx_idm_identity_external_id", columnList = "external_id"),
+		@Index(name = "idx_idm_identity_form_proj", columnList = "form_projection_id")})
 public class IdmIdentity 
 		extends AbstractEntity
 		implements Codeable, FormableEntity, Disableable, AuditSearchable, ExternalCodeable, ExternalIdentifiable {
@@ -119,6 +127,14 @@ public class IdmIdentity
 	@Enumerated(EnumType.STRING)
 	@Column(name = "state", nullable = false, length = 45)
 	private IdentityState state = IdentityState.CREATED; // @since 7.6.0
+	
+	@Audited
+	@NotFound(action = NotFoundAction.IGNORE)
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "form_projection_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmFormProjection formProjection; // @since 10.2.0
 
 	public IdmIdentity() {
 	}
@@ -275,5 +291,25 @@ public class IdmIdentity
 	@Override
 	public String getExternalId() {
 		return externalId;
+	}
+	
+	/**
+	 * Entity will be created / edited by form projection.
+	 * 
+	 * @return defined projection
+	 * @since 10.2.0
+	 */
+	public IdmFormProjection getFormProjection() {
+		return formProjection;
+	}
+	
+	/**
+	 * Entity will be created / edited by form projection.
+	 * 
+	 * @param formProjection projection
+	 * @since 10.2.0
+	 */
+	public void setFormProjection(IdmFormProjection formProjection) {
+		this.formProjection = formProjection;
 	}
 }

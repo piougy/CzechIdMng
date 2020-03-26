@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.eav.api.service;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmCodeListItemDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmCodeListItemFilter;
@@ -19,7 +20,8 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  */
 public interface IdmCodeListItemService extends 
 		EventableDtoService<IdmCodeListItemDto, IdmCodeListItemFilter>,
-		AuthorizableService<IdmCodeListItemDto> {
+		AuthorizableService<IdmCodeListItemDto>,
+		ScriptEnabled {
 	
 	/**
 	 * Load code list item by code list id and item's code.

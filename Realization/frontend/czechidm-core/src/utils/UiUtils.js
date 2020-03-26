@@ -441,6 +441,45 @@ export default class UiUtils {
     }
     return false;
   }
+
+  /**
+   * Get parameter value from url.
+   *
+   * @param  {object} location      url
+   * @param  {string} parameterName parameter
+   * @return {string}               value
+   * @since 10.2.0
+   */
+  static getUrlParameter(location, parameterName) {
+    if (!location || !parameterName) {
+      return null;
+    }
+    //
+    const { query } = location;
+    if (query) {
+      return query[parameterName];
+    }
+    return null;
+  }
+
+  /**
+   * Get route (url) starts with slash.
+   *
+   * @param  {string} route url
+   * @return {string} decorated url
+   * @since 10.2.0
+   */
+  static getRouteUrl(route) {
+    if (!route) {
+      return null;
+    }
+    //
+    if (!_.startsWith(route, '/')) {
+      return `/${ route }`;
+    }
+    //
+    return route;
+  }
 }
 
 UiUtils.MAX_VALUE_INTEGER = 2147483647;

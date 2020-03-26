@@ -426,6 +426,9 @@
           },
           "popover": {
             "title": "Show info card"
+          },
+          "projection": {
+            "label": "Show form by user type"
           }
         }
       },
@@ -880,8 +883,11 @@
       "DESCRIPTION": "Description (String)",
       "PHONE": "Phone (String)",
       "EMAIL": "Email (String)",
+      "STATE": "State (Enumeration)",
+      "PASSWORD": "Password (GuardedString)",
       "ASSIGNED_ROLES": "User assigned roles",
       "ASSIGNED_ROLES_FOR_SYSTEM": "User assigned roles (for this system)",
+      "FORM_PROJECTION": "User type (UUID)",
       "helpBlock": {
         "USERNAME": "",
         "EXTERNAL_CODE": "",
@@ -893,8 +899,11 @@
         "DESCRIPTION": "",
         "PHONE": "",
         "EMAIL": "",
+        "STATE": "",
+        "PASSWORD": "",
         "ASSIGNED_ROLES": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
-        "ASSIGNED_ROLES_FOR_SYSTEM": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles which <strong>assigned this system</strong> (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET)."
+        "ASSIGNED_ROLES_FOR_SYSTEM": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles which <strong>assigned this system</strong> (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
+        "FORM_PROJECTION": ""
       }
     },
     "ContractAttributeEnum": {
@@ -1022,7 +1031,8 @@
       "CHANGEPERMISSION": "Change roles",
       "MANUALLYDISABLE": "Deactivate user manually",
       "MANUALLYENABLE": "Activate user manually",
-      "CANBEREQUESTED": "Can be requested"
+      "CANBEREQUESTED": "Can be requested",
+      "CHANGEPROJECTION": "Change user type (projection)"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -1052,6 +1062,7 @@
       "TREETYPE": "Structure types",
       "SCRIPT": "Scripts",
       "FORMDEFINITION": "Forms - definitions",
+      "FORMPROJECTION": "Forms - projections",
       "FORMATTRIBUTE": "Forms - attributes",
       "FORMVALUE": "Forms - values",
       "CODELIST": "Code lists",
@@ -1187,6 +1198,7 @@
         "message": {
           "passwordChange": {
             "info": "This form can be used to change the password for your user identity",
+            "link": "Show form to change password",
             "required": "Required to change password CzechIdM",
             "idmNotEnabled": "Password change for CzechIdM is not allowed",
             "success": {
@@ -1589,6 +1601,9 @@
         "state": {
           "label": "State",
           "placeholder": "Identity state"
+        },
+        "formProjection": {
+          "placeholder": "$t(entity.Identity.formProjection.label)"
         }
       },
       "action": {
@@ -1613,6 +1628,11 @@
         },
         "remove": {
           "action": "Remove"
+        },
+        "add": {
+          "header": "Create user - choose form type",
+          "or": "or",
+          "default": "use default form"
         }
       }
     },
@@ -1867,6 +1887,45 @@
         "how-to": {
           "header": "How to",
           "message": "Form localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (in the <strong>eav</strong> section):"
+        }
+      }
+    },
+    "form-projections": {
+      "header": "Form projections",
+      "title": "Form projections",
+      "edit": {
+        "title": "Form projection detail"
+      },
+      "create": {
+        "title": "New form projection",
+        "header": "New form projection"
+      },
+      "filter": {
+        "text": {
+          "placeholder": "Code or owner type"
+        }
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "save": {
+        "success": "Form projection [{{code}}] successfully saved"
+      },
+      "identities": {
+        "label": "Users",
+        "header": "Users with projection",
+        "title": "Users with projection"
+      },
+      "localization": {
+        "header": "Localization",
+        "title": "Localization",
+        "check": {
+          "found": "Form projection localization exists. Localization found in localization file.",
+          "not-found": "Form projection localization doesn't exist. Define her by the example bellow in module localization files."
+        },
+        "how-to": {
+          "header": "How to",
+          "message": "Form projection localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (in the <strong>eav</strong> section):"
         }
       }
     },
@@ -2644,6 +2703,48 @@
         },
         "organizationPosition": {
           "title": "Position in organizational structure"
+        }
+      },
+      "projection": {
+        "create": {
+          "title": "$t(content.identity.create.title)",
+          "insufficientPermission": "Insufficient permissions to create identity with contract.<br /><strong>Create contract authority</strong> is missing. Contract is created together with created user."
+        },
+        "edit": {
+          "title": "$t(content.identity.profile.userDetail)",
+          "insufficientPermission": "Insufficient permissions to update identity with contract.<br /><strong>Update contract permission</strong> is missing."
+        },
+        "button": {
+          "close": {
+            "label": "Back to list of users"
+          }
+        },
+        "identity": {
+          "username": {
+            "label": "User login"
+          }
+        },
+        "contract": {
+          "validFrom": {
+            "label": "Valid from"
+          },
+          "validTill": {
+            "label": "Valid till"
+          },
+          "workPosition": {
+            "label": "Organizational positon"
+          }
+        },
+        "otherPosition": {
+          "workPosition": {
+            "label": "Other organizational positon"
+          }
+        },
+        "roles": {
+          "header": {
+            "new": "$t(content.identity.roles.directRoles.header)",
+            "edit": "$t(content.identity.roles.header)"
+          }
         }
       },
       "profile-setting": {
@@ -3644,6 +3745,10 @@
       "disabledReadonly": {
         "label": "$t(label.disabled)",
         "help": "$t(label.disabled) identity cannot log in. It's controlled by the state."
+      },
+      "formProjection": {
+        "label": "User type",
+        "help": "User type defines, which form will be used for user detail and editation."
       }
     },
     "Profile": {
@@ -3786,6 +3891,57 @@
       "module": {
         "label": "Module",
         "help": "Module is defined or used in given module. Module is used for example for resolving the localization. 'core' module is used as default."
+      }
+    },
+    "FormProjection" : {
+      "_type": "Form projection",
+      "code": {
+        "label": "Code",
+        "help": "Unique projection code. Code is used e.q. for resolving the localization."
+      },
+      "ownerType": {
+        "label": "Owner type"
+      },
+      "route": {
+        "label": "Frontend target",
+        "help": "Form (component) on frontend."
+      },
+      "description": {
+        "label": "Description"
+      },
+      "module": {
+        "label": "Module",
+        "help": "Module is defined or used in given module. Module is used for example for resolving the localization. 'core' module is used as default."
+      },
+      "disabled": {
+        "label": "$t(label.disabled)",
+        "help": "Projection will not be available for creating new user."
+      },
+      "formDefinitions": {
+        "label": "Form definitions",
+        "help": "Form definitions and attributes to show.",
+        "placeholder": "Select form definition ...",
+        "button": {
+          "add": {
+            "label": "Add form definition",
+            "title": "Add another form definition into form projection"
+          },
+          "remove": {
+            "title": "Remove form definition"
+          }
+        },
+        "attributes": {
+          "placeholder": "All attributes in selected form definition or select ..."
+        }
+      },
+      "basicFields": {
+        "label": "Basic attributes",
+        "help": "Basic user attributes to show. All basic user attributes.",
+        "placeholder": "All basic attributes or select ..."
+      },
+      "properties": {
+        "label": "Properties",
+        "help": "Additional projection properties."
       }
     },
     "FormAttribute" : {
@@ -5373,6 +5529,11 @@
         "label": "Cancel tasks",
         "help": "Cancel selected tasks. Newly created or running tasks will be canceled only.",
         "icon": "remove"
+      },
+      "core-form-projection-delete-bulk-action": {
+        "label": "$t(action.delete.action) projections",
+        "help": "$t(action.delete.action) selected projections. Users with deleted projection will be switched to default projection.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {
@@ -5400,6 +5561,29 @@
           "owner-read": {
             "label": "By permission to read user",
             "help": "Add permission to attributes of users, which can be read by the logged user (for example, when logged user can read identity, then he can update attributes)."
+          }
+        }
+      },
+      "core-identity-contract-form-value-evaluator": {
+        "help": "Permissions to contract form attribute values. By definition (main if not specified) and attrinute codes (all if not specified).",
+        "attributes": {
+          "form-definition": {
+            "label": "Form definition",
+            "help": "Select definition, which contains attributes. Main definition will be used as default.",
+            "placeholder": "Main definition for identities or select ..."
+          },
+          "attributes": {
+            "label": "Attributes",
+            "help": "Add permission to attributes. All attributes from selected form definition will be used as default.",
+            "placeholder": "All attributes or attribute codes (use comma as separator)"
+          },
+          "owner-update": {
+            "label": "By permission to update contract",
+            "help": "Add permission to attributes of users, which can be updated by the logged user (for example, when logged user can update contract, then he can update attributes too)."
+          },
+          "owner-read": {
+            "label": "By permission to read contract",
+            "help": "Add permission to attributes of contracts, which can be read by the logged user (for example, when logged user can read contract, then he can update attributes)."
           }
         }
       },
@@ -5801,6 +5985,20 @@
         "label": "Recalculate currently used contract time slices",
         "help": "Task finds all contract time slices which are to be set as current. These slices are written through to the related contract.",
         "icon": "component:scheduled-task"
+      }
+    },
+    "form-projection": {
+      "identity-externe": {
+        "label": "Externe user",
+        "help": "Create externe user",
+        "icon": "fa:walking",
+        "level": "primary"
+      },
+      "identity-internal": {
+        "label": "Internal employee",
+        "help": "Create internal user",
+        "icon": "fa:user",
+        "level": "success"
       }
     }
   },

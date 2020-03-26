@@ -27,7 +27,8 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  */
 public class DataFilter 
 		extends QuickFilter 
-		implements BaseDataFilter, ModifiedFromFilter, ModifiedTillFilter, CreatedFromFilter, CreatedTillFilter {
+		implements BaseDataFilter, ModifiedFromFilter, ModifiedTillFilter, 
+			CreatedFromFilter, CreatedTillFilter, PermissionContext {
 
 	/**
 	 * Dto uuid identifier

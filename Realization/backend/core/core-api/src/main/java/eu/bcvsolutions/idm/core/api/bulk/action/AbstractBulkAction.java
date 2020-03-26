@@ -233,7 +233,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 								String.format(
 									"Declared filter [%s] has to support constructor with parameters.",
 									filterClass.getCanonicalName()
-								)
+								), ex
 						);
 					}
 				} else {

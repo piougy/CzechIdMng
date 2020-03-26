@@ -40,7 +40,9 @@ export default class EavForm extends Basic.AbstractContextComponent {
       // we need to call validate method on all component (break is not needed)
       if (!formComponent.isValid()) {
         isAllValid = false;
+        return false;
       }
+      return true;
     });
     //
     return isAllValid;
@@ -85,6 +87,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
         return true;
       }
       filledFormValues = filledFormValues.concat(values);
+      return true;
     });
     return filledFormValues;
   }
@@ -120,7 +123,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
       readOnly,
       useDefaultValue,
       validationErrors,
-      formableManager
+      formableManager,
+      showAttributes
     } = this.props;
     //
     if (!rendered || !formInstance) {
@@ -142,6 +146,10 @@ export default class EavForm extends Basic.AbstractContextComponent {
       <span>
         {
           [...formInstance.getAttributes().map(attribute => {
+            if (showAttributes && showAttributes.size > 0 && !showAttributes.has(attribute.code) && !showAttributes.has(attribute.id)) {
+              return null;
+            }
+            //
             const component = attributeManager.getFormComponent(attribute);
             if (!component) {
               return (
@@ -202,7 +210,11 @@ EavForm.propTypes = {
   /**
    * List of InvalidFormAttributeDto
    */
-  validationErrors: PropTypes.arrayOf(PropTypes.object)
+  validationErrors: PropTypes.arrayOf(PropTypes.object),
+  /**
+   * Render given attributes only. Render all atributes otherwise.
+   */
+  showAttributes: PropTypes.arrayOf(PropTypes.string)
 };
 EavForm.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

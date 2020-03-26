@@ -24,7 +24,8 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
       icon,
       entity,
       back,
-      children
+      children,
+      buttons
     } = this.props;
     //
     if (!rendered) {
@@ -40,6 +41,7 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
             { children }
           </Basic.Div>
           <Basic.Div style={{ fontSize: '0.85em' }}>
+            { buttons }
             <AuditableInfo entity={ entity }/>
             <CloseButton to={ back } />
           </Basic.Div>
@@ -62,9 +64,14 @@ DetailHeader.propTypes = {
   /**
    * Close button path. Close button will not be shown, if empty.
    */
-  back: PropTypes.string
+  back: PropTypes.string,
+  /**
+   * Additional Buttons are shown before close detail button.
+   */
+  buttons: PropTypes.arrayOf(PropTypes.element),
 };
 
 DetailHeader.defaultProps = {
-  ...Basic.AbstractContextComponent.defaultProps
+  ...Basic.AbstractContextComponent.defaultProps,
+  buttons: []
 };

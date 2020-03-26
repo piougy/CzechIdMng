@@ -192,7 +192,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Advanced.Table
           ref="table"
           uiKey={ this.getUiKey() }
@@ -577,7 +577,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

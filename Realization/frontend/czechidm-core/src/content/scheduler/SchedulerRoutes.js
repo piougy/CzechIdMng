@@ -4,7 +4,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 
 /**
- * Scheduler agenda entry point
+ * Scheduler agenda entry point.
  *
  * @author Radek Tomiška
  */

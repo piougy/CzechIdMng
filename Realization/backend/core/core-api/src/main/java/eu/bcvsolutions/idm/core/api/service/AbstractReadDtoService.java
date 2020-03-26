@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.PermissionContext;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -191,11 +192,15 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Override
 	@Transactional(readOnly = true)
 	public DTO get(Serializable id, F context, BasePermission... permission) {
+		DTO dto;
+		//
 		if (supportsToDtoWithFilter()) {
-			return toDto(getEntity(id, permission), null, context);
+			dto = toDto(getEntity(id, permission), null, context);
 		} else {
-			return toDto(getEntity(id, permission));
+			dto = toDto(getEntity(id, permission));
 		}
+		//
+		return applyContext(dto, context, permission);
 	}
 
 	@Override
@@ -207,7 +212,14 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Override
 	@Transactional(readOnly = true)
 	public Page<DTO> find(final F filter, Pageable pageable, BasePermission... permission) {
-		return toDtoPage(findEntities(filter, pageable, permission), filter);
+		Page<DTO> results = toDtoPage(findEntities(filter, pageable, permission), filter);
+		//
+		results.getContent().forEach(dto -> {
+			// apply context on each loaded dto
+			applyContext(dto, filter, permission);
+		});
+		//
+		return results;
 	}
 
 	@Override
@@ -262,6 +274,43 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Transactional(readOnly = true)
 	public long count(final F filter, BasePermission... permission) {
 		return getRepository().count(toCriteria(filter, false, permission));
+	}
+	
+	@Override
+	public boolean isNew(DTO dto) {
+		Assert.notNull(dto, "DTO is required for check, if is new.");
+		//
+		return dto.getId() == null || !getRepository().existsById((UUID) dto.getId());
+	}
+
+
+	/**
+	 * Returns, what currently logged identity can do with given dto
+	 *
+	 * @param id
+	 * @return
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Set<String> getPermissions(Serializable id) {
+		E entity = getEntity(id);
+		Assert.notNull(entity, String.format("Entity [%s] not found", id));
+		//
+		return getPermissions(entity);
+	}
+
+	@Override
+	public Set<String> getPermissions(DTO dto) {
+		E entity = toEntity(dto); // TODO: read entity?
+		//
+		return getPermissions(entity);
+	}
+
+	@Override
+	public DTO checkAccess(DTO dto, BasePermission... permission) {
+		checkAccess(toEntity(dto, null), permission);
+		//
+		return dto;
 	}
 
 	/**
@@ -397,35 +446,32 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			}
 		};
 	}
-
-	@Override
-	public boolean isNew(DTO dto) {
-		Assert.notNull(dto, "DTO is required for check, if is new.");
-		//
-		return dto.getId() == null || !getRepository().existsById((UUID) dto.getId());
-	}
-
-
+	
 	/**
-	 * Returns, what currently logged identity can do with given dto
-	 *
-	 * @param id
-	 * @return
+	 * Apply context on given dto.
+	 * 
+	 * @param dto
+	 * @param context
+	 * @param permission
+	 * @since 10.2.0
 	 */
-	@Override
-	@Transactional(readOnly = true)
-	public Set<String> getPermissions(Serializable id) {
-		E entity = getEntity(id);
-		Assert.notNull(entity, String.format("Entity [%s] not found", id));
+	protected DTO applyContext(DTO dto, F context, BasePermission... permission) {
+		// DTO not supports permissions
+		if (!(dto instanceof AbstractDto)) {
+			return dto;
+		}
+		// context not support permissions
+		if (!(context instanceof PermissionContext)) {
+			return dto;
+		}
+		// load permissions is not needed
+		if (!((PermissionContext) context).getAddPermissions()) {
+			return dto;
+		}
+		// load permissions
+		((AbstractDto) dto).setPermissions(getPermissions(dto));
 		//
-		return getPermissions(entity);
-	}
-
-	@Override
-	public Set<String> getPermissions(DTO dto) {
-		E entity = toEntity(dto); // TODO: read entity?
-		//
-		return getPermissions(entity);
+		return dto;
 	}
 	
 	@Override
@@ -634,13 +680,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return modelMapper.map(dto, getEntityClass(dto));
 	}
 
-	@Override
-	public DTO checkAccess(DTO dto, BasePermission... permission) {
-		checkAccess(toEntity(dto, null), permission);
-		//
-		return dto;
-	}
-
 	/**
 	 * Evaluates authorization permission on given entity.
 	 *
@@ -733,5 +772,4 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected ExportManager getExportManager() {
 		return exportManager;
 	}
-	
 }

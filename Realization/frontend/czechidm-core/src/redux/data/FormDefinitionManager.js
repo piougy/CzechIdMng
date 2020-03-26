@@ -3,6 +3,11 @@ import { FormDefinitionService } from '../../services';
 import DataManager from './DataManager';
 import * as Utils from '../../utils';
 
+/**
+ * Eav form definitions.
+ *
+ * @author Radek Tomiška
+ */
 export default class FormDefinitionManager extends EntityManager {
 
   constructor() {
@@ -58,6 +63,14 @@ export default class FormDefinitionManager extends EntityManager {
     };
   }
 
+  /**
+   * Projection form definition property localization.
+   *
+   * @param  {object} formDefinition
+   * @param  {string} property
+   * @param  {string} [defaultValue=null]
+   * @return {string}
+   */
   getLocalization(formDefinition, property, defaultValue = null) {
     if (!formDefinition) {
       return defaultValue;
@@ -86,6 +99,6 @@ export default class FormDefinitionManager extends EntityManager {
     const formType = Utils.Ui.spinalCase(formDefinition.type);
     const formCode = Utils.Ui.spinalCase(formDefinition.code);
     //
-    return `${withModule && formDefinition.module ? formDefinition.module + ':' : ''}eav.${formType}.${formCode}`;
+    return `${withModule && formDefinition.module ? `${ formDefinition.module }:` : '' }eav.${ formType }.${ formCode }`;
   }
 }

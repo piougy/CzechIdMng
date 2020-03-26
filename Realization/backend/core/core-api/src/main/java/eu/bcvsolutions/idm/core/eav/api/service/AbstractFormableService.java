@@ -2,9 +2,8 @@ package eu.bcvsolutions.idm.core.eav.api.service;
 
 import java.util.List;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -87,35 +86,6 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 		//
 		return savedDto;
 	}
-	
-	@Override
-	public Page<DTO> find(F filter, Pageable pageable, BasePermission... permission) {
-		
-		Page<DTO> results = super.find(filter, pageable, permission);
-		
-		// If has filter sets field "Add EAV metadata" to True, then we will load the
-		// form instance for every result
-		if (filter instanceof FormableFilter && Boolean.TRUE.equals(((FormableFilter) filter).getAddEavMetadata())) {
-			results.getContent().forEach(result -> {
-				List<IdmFormInstanceDto> formInstances = this.getFormInstances(result);
-				if (formInstances != null) {
-					result.getEavs().clear();
-					result.getEavs().addAll(formInstances);
-				}
-			});
-		}
-		return results;
-	}
-	
-	/**
-	 * Returns form instances for given DTO
-	 * 
-	 * @param result
-	 * @return
-	 */
-	protected List<IdmFormInstanceDto> getFormInstances(DTO result) {
-		return null;
-	}
 
 	/**
 	 * Deletes a given entity with all extended attributes
@@ -129,6 +99,41 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 		formService.deleteValues(dto);
 		//
 		super.deleteInternal(dto);
+	}
+	
+	/**
+	 * Apply context on given dto. 
+	 * If has filter sets field "Add EAV metadata" to True, then we will load the form instance for every result.
+	 * 
+	 * @param dto
+	 * @param context
+	 * @param permission
+	 * @since 10.2.0
+	 */
+	@Override
+	protected DTO applyContext(DTO dto, F context, BasePermission... permission) {
+		dto = super.applyContext(dto, context, permission);
+		//
+		if (!(context instanceof FormableFilter)) {
+			return dto;
+		}
+		if (BooleanUtils.isNotTrue(((FormableFilter) context).getAddEavMetadata())) {
+			return dto;
+		}
+		// load all form instances
+		dto.setEavs(this.getFormInstances(dto, permission));
+		//
+		return dto;
+	}
+	
+	/**
+	 * Returns form instances for given DTO
+	 * 
+	 * @param dto
+	 * @return
+	 */
+	protected List<IdmFormInstanceDto> getFormInstances(DTO dto, BasePermission... permission) {
+		return formService.getFormInstances(dto, permission);
 	}
 	
 	/**

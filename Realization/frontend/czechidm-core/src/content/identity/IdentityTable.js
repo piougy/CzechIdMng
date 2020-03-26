@@ -8,11 +8,19 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { SearchParameters } from '../../domain';
-import { SecurityManager, ConfigurationManager, IdentityManager } from '../../redux';
+import {
+  SecurityManager,
+  ConfigurationManager,
+  IdentityManager,
+  FormProjectionManager,
+  IdentityProjectionManager
+} from '../../redux';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
 import ConfigLoader from '../../utils/ConfigLoader';
 //
 const manager = new IdentityManager(); // default manager
+const projectionManager = new FormProjectionManager();
+const identityProjectionManager = new IdentityProjectionManager();
 
 /**
  * Table of identities
@@ -24,7 +32,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filterOpened: props.filterOpened
+      filterOpened: props.filterOpened,
+      showAddModal: false
     };
   }
 
@@ -65,16 +74,63 @@ export class IdentityTable extends Advanced.AbstractTableContent {
   * Redirect to user form
   */
   showDetail(entity, event) {
-    const { skipDashboard } = this.props;
-    const shiftKey = !event || event.shiftKey;
+    if (event) {
+      event.preventDefault();
+    }
     //
-    if (entity.id === undefined) {
-      const uuidId = uuid.v1();
-      this.context.history.push(`/identity/new?id=${uuidId}`);
-    } else if (!skipDashboard && !shiftKey) {
+    const { skipDashboard, isDefaultFormProjection } = this.props;
+    const ctrlKey = !event || event.ctrlKey;
+    //
+    if (Utils.Entity.isNew(entity)) {
+      const searchParameters = new SearchParameters()
+        .setName(SearchParameters.NAME_AUTOCOMPLETE)
+        .setFilter('ownerType', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity')
+        .setFilter('disabled', 'false')
+        .setSort('code', 'asc')
+        .setSize(1000); // I don't believe more projections will be defined ... :-)
+      this.context.store.dispatch(projectionManager.fetchEntities(searchParameters, null, (json, error) => {
+        let projections = [];
+        if (error && error.statusCode !== 403) {
+          this.addError(error);
+          return;
+        }
+        if (!error) { // 403 is ignored => no projection
+          projections = json._embedded[projectionManager.getCollectionType()];
+        }
+        //
+        if (!projections || projections.length === 0) {
+          const newIdentity = {
+            id: uuid.v1(),
+            username: this.refs.text.getValue()
+          };
+          this.context.store.dispatch(this.getManager().receiveEntity(newIdentity.id, newIdentity));
+          this.context.history.push(`/identity/new?id=${ newIdentity.id }`);
+        } else if (!isDefaultFormProjection && projections.length === 1) {
+          const newIdentity = {
+            id: uuid.v1(),
+            username: this.refs.text.getValue(),
+            formProjection: projections[0].id
+          };
+          this.context.store.dispatch(identityProjectionManager.receiveEntity(newIdentity.id, {
+            id: newIdentity.id,
+            identity: newIdentity
+          }));
+          const route = Utils.Ui.getRouteUrl(projections[0].route);
+          this.context.history.push(`${ route }/${ newIdentity.id }?new=1&projection=${ encodeURIComponent(projections[0].id) }`);
+        } else {
+          this.setState({
+            projections,
+            showAddModal: true
+          });
+        }
+
+      }));
+    } else if (!skipDashboard && !ctrlKey) {
+      // dashboard
       this.context.history.push(`/identity/${ encodeURIComponent(entity.username) }/dashboard`);
     } else {
-      this.context.history.push(`/identity/${ encodeURIComponent(entity.username) }/profile`);
+      // detail by projection
+      this.context.history.push(manager.getDetailLink(entity));
     }
   }
 
@@ -106,6 +162,12 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     });
   }
 
+  closeAddModal() {
+    this.setState({
+      showAddModal: false
+    });
+  }
+
   render() {
     const {
       uiKey,
@@ -119,10 +181,11 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       rendered,
       treeType,
       className,
-      skipDashboard,
-      prohibitedActions
+      prohibitedActions,
+      showAddLoading,
+      isDefaultFormProjection
     } = this.props;
-    const { filterOpened } = this.state;
+    const { filterOpened, projections, showAddModal } = this.state;
     //
     if (!rendered) {
       return null;
@@ -139,11 +202,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     const treeNodeDisabled = _forceSearchParameters.getFilters().has('treeNodeId');
     //
     return (
-      <div>
-        <Basic.Confirm ref="confirm-deactivate" level="danger"/>
-        <Basic.Confirm ref="confirm-activate"/>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-
+      <Basic.Div>
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
@@ -194,7 +253,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
-                  <Basic.Col lg={ 6 }>
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.BooleanSelectBox
                       ref="disabled"
                       placeholder={ this.i18n('filter.disabled.placeholder') }
@@ -203,7 +262,13 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                         { value: 'false', niceLabel: this.i18n('label.enabled') }
                       ]}/>
                   </Basic.Col>
-                  <Basic.Col lg={ 6 }>
+                  <Basic.Col lg={ 4 }>
+                    <Advanced.Filter.FormProjectionSelect
+                      ref="formProjection"
+                      placeholder={ this.i18n('filter.formProjection.placeholder') }
+                      manager={ projectionManager }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="state"
                       placeholder={ this.i18n('filter.state.placeholder') }
@@ -230,11 +295,13 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             [
               <Basic.Button
                 level="success"
+                showLoading={ showAddLoading }
+                showLoadingIcon
                 key="add_button"
                 type="submit"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, {}) }
-                rendered={ showAddButton && SecurityManager.hasAuthority('IDENTITY_CREATE') }
+                rendered={ showAddButton && this.getManager().canSave() }
                 icon="fa:user-plus">
                 { this.i18n('content.identity.create.button.add') }
               </Basic.Button>
@@ -267,9 +334,10 @@ export class IdentityTable extends Advanced.AbstractTableContent {
               )
             }
             rendered={ _.includes(columns, 'entityInfo') }/>
-          <Advanced.Column property="_links.self.href" face="text" rendered={ false }/>
           <Advanced.ColumnLink
-            to={ `/identity/:username/${ !skipDashboard ? 'dashboard' : 'profile' }` }
+            to={ ({ rowIndex, data, event }) => {
+              this.showDetail(data[rowIndex], event);
+            }}
             property="username"
             width="20%"
             sort
@@ -283,7 +351,78 @@ export class IdentityTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="state" face="enum" enumClass={ IdentityStateEnum } sort width={ 100 } rendered={ _.includes(columns, 'state') }/>
           <Advanced.Column property="description" sort face="text" rendered={ _.includes(columns, 'description') } maxLength={ 30 }/>
         </Advanced.Table>
-      </div>
+
+        <Basic.Modal
+          show={ showAddModal }
+          onHide={ this.closeAddModal.bind(this) }
+          backdrop="static"
+          keyboard>
+          <Basic.Modal.Header
+            closeButton
+            icon="fa:user-plus"
+            text={ this.i18n('action.add.header') }/>
+          <Basic.Div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', margin: '25px 0' }}>
+            {
+              !projections
+              ||
+              projections.map(projection => (
+                <Basic.Button
+                  className="btn-lg"
+                  level={ projectionManager.getLocalization(projection, 'level', 'default') }
+                  title={ projectionManager.getLocalization(projection, 'help') }
+                  titlePlacement="bottom"
+                  style={{ minWidth: 240, height: 125, margin: 15 }}
+                  onClick={ (event) => {
+                    if (event) {
+                      event.preventDefault();
+                    }
+                    const newIdentity = {
+                      id: uuid.v1(),
+                      username: this.refs.text.getValue(),
+                      formProjection: projection.id
+                    };
+                    this.context.store.dispatch(identityProjectionManager.receiveEntity(newIdentity.id, {
+                      id: newIdentity.id,
+                      identity: newIdentity
+                    }));
+                    const route = Utils.Ui.getRouteUrl(projection.route);
+                    this.context.history.push(`${ route }/${ newIdentity.id }?new=1&projection=${ encodeURIComponent(projection.id) }`);
+                  }}>
+                  <Basic.Icon
+                    icon={ projectionManager.getLocalization(projection, 'icon', 'fa:user-plus') }
+                    style={{ display: 'block', marginBottom: 10 }}
+                    className="fa-2x"/>
+                  { projectionManager.getLocalization(projection, 'label', projection.code) }
+                </Basic.Button>
+              ))
+            }
+          </Basic.Div>
+          <Basic.Div style={{ margin: '0 75px' }} rendered={ isDefaultFormProjection }>
+            <Basic.Div className="text-divider">
+              <span>{ this.i18n('action.add.or') }</span>
+            </Basic.Div>
+            <Basic.Div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 25 }}>
+              <Basic.Button
+                level="link"
+                onClick={ (event) => {
+                  if (event) {
+                    event.preventDefault();
+                  }
+                  this.context.history.push(`/identity/new?id=${ uuid.v1() }`);
+                }}>
+                { this.i18n('action.add.default') }
+              </Basic.Button>
+            </Basic.Div>
+          </Basic.Div>
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={ this.closeAddModal.bind(this) }>
+              { this.i18n('button.close') }
+            </Basic.Button>
+          </Basic.Modal.Footer>
+        </Basic.Modal>
+      </Basic.Div>
     );
   }
 }
@@ -360,7 +499,9 @@ function select(state, component) {
       state,
       'idm.pub.core.identity.dashboard.skip',
       ConfigLoader.getConfig('identity.dashboard.skip', false)
-    )
+    ),
+    isDefaultFormProjection: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.formProjection.default.enabled', true),
+    showAddLoading: projectionManager.isShowLoading(state)
   };
 }
 

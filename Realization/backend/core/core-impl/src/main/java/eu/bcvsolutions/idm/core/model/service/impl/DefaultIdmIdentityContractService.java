@@ -13,6 +13,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -134,9 +136,6 @@ public class DefaultIdmIdentityContractService
 		}
 		if (filter.getExterne() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.externe), filter.getExterne()));
-		}
-		if (filter.getDisabled() != null) {
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.disabled), filter.getDisabled()));
 		}
 		if (filter.getMain() != null) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.main), filter.getMain()));
@@ -268,9 +267,15 @@ public class DefaultIdmIdentityContractService
 		if (contracts.isEmpty()) {
 			return null;
 		}
-		Collections.sort(contracts, new PrimeIdentityContractComparator(treeConfiguration.getDefaultType()));
-		// return contract with the highest priority
-		return toDto(contracts.get(contracts.size() - 1));
+		List<IdmIdentityContractDto> contractDtos = toDtos(contracts, true);
+		sortByPrimeContract(contractDtos);
+		// return contract with the highest priority + not trimmed
+		IdmIdentityContractDto primeContractDto = contractDtos.get(0);
+		return toDto(contracts
+				.stream()
+				.filter(c -> c.getId().equals(primeContractDto.getId()))
+				.findFirst()
+				.get());
 	}
 	
 	@Override
@@ -283,9 +288,15 @@ public class DefaultIdmIdentityContractService
 		if (contracts.isEmpty()) {
 			return null;
 		}
-		Collections.sort(contracts, new PrimeIdentityContractComparator(treeConfiguration.getDefaultType()));
-		// return contract with the highest priority
-		return toDto(contracts.get(contracts.size() - 1));
+		List<IdmIdentityContractDto> contractDtos = toDtos(contracts, true);
+		sortByPrimeContract(contractDtos);
+		// return contract with the highest priority + not trimmed
+		IdmIdentityContractDto primeContractDto = contractDtos.get(0);
+		return toDto(contracts
+				.stream()
+				.filter(c -> c.getId().equals(primeContractDto.getId()))
+				.findFirst()
+				.get());
 	}
 
 	@Override
@@ -308,6 +319,17 @@ public class DefaultIdmIdentityContractService
 		return contracts.isEmpty() ? null : toDto(contracts.get(0));
 	}
 	
+	@Override
+	public void sortByPrimeContract(List<IdmIdentityContractDto> contracts) {
+		if (CollectionUtils.isEmpty(contracts)) {
+			return;
+		}
+		//
+		Collections.sort(contracts, new PrimeIdentityContractComparator(treeConfiguration.getDefaultType()));
+		// lookout - reversed comparator doesn't work.
+		Collections.reverse(contracts);
+	}
+	
 	/**
 	 * Returns contracts sorted by priority:
 	 * - 1. main
@@ -320,7 +342,7 @@ public class DefaultIdmIdentityContractService
 	 * @author Radek Tomiška
 	 *
 	 */
-	private static class PrimeIdentityContractComparator implements Comparator<IdmIdentityContract> {
+	private static class PrimeIdentityContractComparator implements Comparator<IdmIdentityContractDto> {
 
 		private final IdmTreeTypeDto defaultTreeType;
 		
@@ -329,7 +351,7 @@ public class DefaultIdmIdentityContractService
 		}
 		
 		@Override
-		public int compare(IdmIdentityContract o1, IdmIdentityContract o2) {
+		public int compare(IdmIdentityContractDto o1, IdmIdentityContractDto o2) {
 			CompareToBuilder builder = new CompareToBuilder();
 			// main
 			builder.append(o1.isMain(), o2.isMain());
@@ -339,8 +361,19 @@ public class DefaultIdmIdentityContractService
 			builder.append(o1.isValid(), o2.isValid());
 			// with default tree position
 			if (defaultTreeType != null) {
-				builder.append(o1.getWorkPosition() != null && o1.getWorkPosition().getTreeType().getId().equals(defaultTreeType.getId()), 
-						o2.getWorkPosition() != null && o2.getWorkPosition().getTreeType().getId().equals(defaultTreeType.getId()));
+				UUID treeType1 = null;
+				if (o1.getWorkPosition() != null) {
+					IdmTreeNodeDto node = DtoUtils.getEmbedded(o1, IdmIdentityContractDto.PROPERTY_WORK_POSITION);
+					treeType1 = node.getTreeType();
+				}
+				UUID treeType2 = null;
+				if (o2.getWorkPosition() != null) {
+					IdmTreeNodeDto node = DtoUtils.getEmbedded(o2, IdmIdentityContractDto.PROPERTY_WORK_POSITION);
+					treeType2 = node.getTreeType();
+				}
+				
+				builder.append(treeType1 != null && treeType1.equals(defaultTreeType.getId()), 
+						treeType2 != null && treeType2.equals(defaultTreeType.getId()));
 			}			
 			// with any tree position
 			builder.append(o1.getWorkPosition() != null, o2.getWorkPosition() != null);

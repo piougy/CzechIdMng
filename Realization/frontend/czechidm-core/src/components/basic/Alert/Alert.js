@@ -39,7 +39,7 @@ class Alert extends AbstractComponent {
     }
     const classNames = classnames(
       'alert',
-      'alert-' + (level === 'error' ? 'danger' : level),
+      `alert-${ (level === 'error' ? 'danger' : level) }`,
       { 'alert-dismissible': (onClose !== null) },
       { 'text-center': showLoading },
       className
@@ -57,18 +57,25 @@ class Alert extends AbstractComponent {
         {
           !onClose
           ||
-          <Button ref="close" type="button" className="close" aria-label="Close" onClick={this._onClose.bind(this)}><span aria-hidden="true">&times;</span></Button>
+          <Button
+            ref="close"
+            type="button"
+            className="close"
+            aria-label="Close"
+            onClick={ this._onClose.bind(this) }>
+            <span aria-hidden="true">&times;</span>
+          </Button>
         }
         {
           !icon
           ||
-          <div className="alert-icon"><Icon icon={icon}/></div>
+          <div className="alert-icon"><Icon icon={ icon }/></div>
         }
-        <div className={icon ? 'alert-desc' : ''}>
+        <div className={ icon ? 'alert-desc' : '' }>
           {
             !title
             ||
-            <div className="alert-title">{title}</div>
+            <div className="alert-title">{ title }</div>
           }
           {showHtmlText ? <span dangerouslySetInnerHTML={{ __html: text}}/> : text}
           {children}
@@ -76,7 +83,7 @@ class Alert extends AbstractComponent {
             (!buttons || buttons.length === 0)
             ||
             <div className="buttons">
-              {buttons}
+              { buttons }
             </div>
           }
         </div>

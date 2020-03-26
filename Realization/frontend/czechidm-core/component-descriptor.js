@@ -494,6 +494,15 @@ module.exports = {
       manager: require('./src/redux').RoleCatalogueManager
     },
     {
+      id: 'form-projection-select-box',
+      type: 'entity-select-box',
+      priority: 0,
+      localizationKey: 'entity.FormProjection',
+      entityType: ['formProjection'],
+      searchInFields: ['code', 'ownerType'],
+      manager: require('./src/redux').FormProjectionManager
+    },
+    {
       id: 'basic-password-change',
       type: 'password-change-component',
       component: require('./src/components/advanced/PasswordChangeComponent/PasswordChangeComponent'),
@@ -658,6 +667,12 @@ module.exports = {
       id: 'profile-modal',
       type: 'modal',
       component: require('./src/content/modals/Profile')
+    },
+    {
+      id: 'identity-projection',
+      type: 'form-projection',
+      ownerType: 'IdmIdentity',
+      route: '/form/identity-projection'
     }
   ]
 };

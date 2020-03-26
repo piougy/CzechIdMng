@@ -16,10 +16,6 @@ const manager = new LongRunningTaskManager();
  */
 class LongRunningTaskContent extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   componentDidMount() {
     const { entityId } = this.props.match.params;
     this.selectNavigationItem('long-running-task-detail');

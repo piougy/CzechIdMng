@@ -32,7 +32,7 @@ public abstract class PermissionUtils {
 	 * @return
 	 */
 	public static BasePermission[] trimNull(BasePermission... permissions) {
-		if(ObjectUtils.isEmpty(permissions)) {
+		if (ObjectUtils.isEmpty(permissions)) {
 			return null;
 		}
 		return Lists.newArrayList(permissions)
@@ -131,5 +131,17 @@ public abstract class PermissionUtils {
 				.stream()
 				.map(BasePermission::getName)
 				.collect(Collectors.toSet());
+	}
+	
+	/**
+	 * Returns true, when permissions is empty, with {@code null} permission is ignored. 
+	 * 
+	 * @param permissions
+	 * @return true - empty or {@code null} or contains {@code null} permissions only.
+	 * @see #trimNull(BasePermission...)
+	 * @since 10.2.0
+	 */
+	public static boolean isEmpty(BasePermission... permissions) {
+		return ObjectUtils.isEmpty(trimNull(permissions));
 	}
 }

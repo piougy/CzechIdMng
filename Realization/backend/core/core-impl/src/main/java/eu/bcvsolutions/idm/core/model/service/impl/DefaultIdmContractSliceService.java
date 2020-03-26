@@ -92,9 +92,6 @@ public class DefaultIdmContractSliceService
 		if (filter.getExterne() != null) {
 			predicates.add(builder.equal(root.get(IdmContractSlice_.externe), filter.getExterne()));
 		}
-		if (filter.getDisabled() != null) {
-			predicates.add(builder.equal(root.get(IdmContractSlice_.disabled), filter.getDisabled()));
-		}
 		if (filter.getMain() != null) {
 			predicates.add(builder.equal(root.get(IdmContractSlice_.main), filter.getMain()));
 		}

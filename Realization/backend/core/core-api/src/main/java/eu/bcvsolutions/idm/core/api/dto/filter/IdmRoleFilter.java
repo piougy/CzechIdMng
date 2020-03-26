@@ -24,9 +24,9 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  * @author Radek Tomiška
  *
  */
-public class IdmRoleFilter
-		extends DataFilter
-		implements CorrelationFilter, ExternalIdentifiableFilter, FormableFilter {
+public class IdmRoleFilter 
+		extends DataFilter 
+		implements CorrelationFilter, ExternalIdentifiableFilter, DisableableFilter, FormableFilter {
 
 	/**
 	 * Parent role identifier - find sub roles by role composition

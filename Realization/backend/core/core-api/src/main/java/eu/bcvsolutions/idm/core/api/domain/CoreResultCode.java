@@ -57,6 +57,7 @@ public enum CoreResultCode implements ResultCode {
 	DUPLICATE_EXTERNAL_CODE(HttpStatus.CONFLICT, "Entity type [%s] with external code [%s] already exist (id: [%s])."),
 	ENTITY_TYPE_NOT_EXTERNAL_IDENTIFIABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external identifiable."),
 	ENTITY_TYPE_NOT_EXTERNAL_CODEABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not external codeable."),
+	ENTITY_TYPE_NOT_DISABLEABLE(HttpStatus.BAD_REQUEST, "Entity type [%s] is not disableable."),
 	CORRELATION_PROPERTY_NOT_FOUND(HttpStatus.BAD_REQUEST, "Entity type [%s] does not contains the correlation property [%s]."),
 	CORRELATION_PROPERTY_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Entity type [%s] and property [%s] has wrong type. Only String or UUID is supported now."),
 	// data

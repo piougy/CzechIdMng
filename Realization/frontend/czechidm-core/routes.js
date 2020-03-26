@@ -130,6 +130,11 @@ module.exports = {
       ]
     },
     {
+      path: 'form/identity-projection/:entityId',
+      component: require('./src/content/identity/projection/IdentityProjection'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]
+    },
+    {
       path: 'identity/:entityId/revision/:revID',
       component: require('./src/content/identity/AuditDetail'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
@@ -763,11 +768,23 @@ module.exports = {
     },
     {
       path: 'forms',
-      component: require('./src/content/form/FormDefinitions'),
-      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ]
+      component: require('./src/content/form/FormRoutes'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ', 'FORMPROJECTION_READ'] } ],
+      childRoutes: [
+        {
+          path: 'form-definitions',
+          component: require('./src/content/form/FormDefinitions'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ]
+        },
+        {
+          path: 'form-projections',
+          component: require('./src/content/form/FormProjections'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
+        }
+      ]
     },
     {
-      path: 'forms/',
+      path: 'form-definitions/',
       component: require('./src/content/form/FormDefinitionRoutes'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ],
       childRoutes: [
@@ -794,7 +811,7 @@ module.exports = {
       ]
     },
     {
-      path: 'forms/attribute/',
+      path: 'form-definitions/attribute/',
       component: require('./src/content/form/FormAttributeRoutes'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMATTRIBUTE_READ'] } ],
       childRoutes: [
@@ -807,6 +824,28 @@ module.exports = {
           path: ':entityId/values',
           component: require('./src/content/form/FormAttributeValues'),
           access: [{ type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] }]
+        }
+      ]
+    },
+    {
+      path: 'form-projections/',
+      component: require('./src/content/form/FormProjectionRoutes'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId/detail',
+          component: require('./src/content/form/FormProjectionDetail'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
+        },
+        {
+          path: ':entityId/identities',
+          component: require('./src/content/form/FormProjectionIdentities'),
+          access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['FORMPROJECTION_READ', 'IDENTITY_READ'] } ]
+        },
+        {
+          path: ':entityId/localization',
+          component: require('./src/content/form/FormProjectionLocalization'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
         }
       ]
     },

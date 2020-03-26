@@ -119,7 +119,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       rendered,
       treeType,
       className,
-      skipDashboard
+      skipDashboard,
+      prohibitedActions
     } = this.props;
     const { filterOpened } = this.state;
     //
@@ -146,6 +147,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
+          prohibitedActions={prohibitedActions}
           manager={ identityManager }
           showRowSelection={ showRowSelection }
           filter={

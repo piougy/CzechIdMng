@@ -297,8 +297,10 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
             }
             sort={false}/>
           <Advanced.Column
+            property="uid"
             header={this.i18n('vs:entity.VsRequest.uid.label')}
             rendered={_.includes(columns, 'uid')}
+            sort
             cell={this._getUidCell.bind(this)}/>
           <Advanced.Column
             property="targetEntity"

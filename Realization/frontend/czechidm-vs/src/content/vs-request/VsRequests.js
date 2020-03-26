@@ -59,7 +59,8 @@ export default class VsRequests extends Basic.AbstractContent {
           <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
             <VsRequestTable
               uiKey="vs-request-table-archive"
-              columns={['targetEntity',
+              columns={['uid',
+                'targetEntity',
                 'systemId',
                 'operationType',
                 'executeImmediately',

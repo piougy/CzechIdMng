@@ -108,6 +108,8 @@ public class DefaultImportManager implements ImportManager {
 	private FormService formService;
 	@Autowired
 	private SecurityService securityService;
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultImportManager.class);
 
 	@Override
 	@Transactional
@@ -115,6 +117,7 @@ public class DefaultImportManager implements ImportManager {
 		Assert.notNull(name, "Name cannot be null!");
 		Assert.notNull(fileName, "File name cannot be null!");
 		Assert.notNull(inputStream, "Input stream cannot be null!");
+		LOG.info("Upload of a import [{}] starts ...", name);
 
 		IdmExportImportDto batch = new IdmExportImportDto();
 		batch.setName(name);
@@ -146,7 +149,8 @@ public class DefaultImportManager implements ImportManager {
 						.map(Path::toFile)//
 						.forEach(File::delete);
 			} catch (IOException ex) {
-				throw new ResultCodeException(CoreResultCode.IMPORT_ZIP_EXTRACTION_FAILED, ex);
+				// Only log a error.
+				LOG.error(ex.getLocalizedMessage(), ex);
 			}
 		}
 
@@ -155,9 +159,10 @@ public class DefaultImportManager implements ImportManager {
 
 	@Override
 	@Transactional
-	public IdmExportImportDto executeImport(IdmExportImportDto importBatch, boolean dryRun) {
+	public IdmExportImportDto executeImport(IdmExportImportDto importBatch, boolean dryRun) {		
 		Assert.notNull(importBatch, "Batch cannot be null!");
 		Assert.notNull(importBatch.getId(), "Id of batch cannot be null!");
+		LOG.info("Import [{}, dry-run: {}] starts ...", importBatch.toString(), dryRun);
 
 		if (!dryRun && !securityService.isAdmin()) {
 			// Only super-admin can execute import!
@@ -185,7 +190,8 @@ public class DefaultImportManager implements ImportManager {
 			AbstractLongRunningTaskExecutor<OperationResult> importTaskExecutor) {
 		Assert.notNull(batch, "Batch cannot be null!");
 		Assert.notNull(batch.getId(), "Batch ID cannot be null!");
-
+		LOG.info("Internal import [{}, dry-run: {}] starts ...", batch.toString(), dryRun);
+		
 		// Delete all logs for this batch.
 		IdmImportLogFilter logFilter = new IdmImportLogFilter();
 		logFilter.setBatchId(batch.getId());
@@ -234,8 +240,10 @@ public class DefaultImportManager implements ImportManager {
 						.map(Path::toFile)//
 						.forEach(File::delete);
 			} catch (IOException ex) {
-				throw new ResultCodeException(CoreResultCode.IMPORT_ZIP_EXTRACTION_FAILED, ex);
+				// Only log a error.
+				LOG.error(ex.getLocalizedMessage(), ex);
 			}
+			LOG.info("Internal import [{}, dry-run: {}] ended", batch.toString(), dryRun);
 		}
 	}
 

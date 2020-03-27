@@ -68,6 +68,8 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 	public static final String OWNER_TYPE = "eu.bcvsolutions.idm.core.model.entity.IdmExportImport";
 	// Name of export batch
 	public static final String PROPERTY_NAME = "name";
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractExportBulkAction.class);
 
 	@Override
 	protected OperationResult processDto(DTO dto) {
@@ -146,9 +148,8 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 						zipPath.toFile().delete();
 					}
 				} catch (IOException e) {
-					result = new OperationResult.Builder(OperationState.EXCEPTION)
-							.setException(new ResultCodeException(CoreResultCode.EXPORT_ZIP_FAILED, e)).build();
-					return super.end(result, null);
+					// Only log a error.
+					LOG.error(ex.getLocalizedMessage(), ex);
 				}
 			}
 		}

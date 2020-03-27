@@ -346,7 +346,8 @@ public class DefaultAttachmentManager
 		    if (files != null) {
 		    	for (File f : files) {
 		    		try {
-			    		if (f.getName().endsWith("." + DEFAULT_TEMP_FILE_EXTENSION) && f.lastModified() < purgeTime) {
+			    		// if (f.getName().endsWith("." + DEFAULT_TEMP_FILE_EXTENSION) && f.lastModified() < purgeTime) {
+		    			if (!f.isDirectory() && f.lastModified() < purgeTime) {
 			    			f.delete();
 			    			purgedFiles++;
 			    		}

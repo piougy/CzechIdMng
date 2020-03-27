@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -81,7 +80,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Ondrej Kopr
  *
  */
-@FixMethodOrder
 public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired

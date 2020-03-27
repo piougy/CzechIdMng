@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -37,6 +38,7 @@ import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 @Description("After success provisioning send notification to identity with new generate password.")
 public class ProvisioningSendNotificationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningSendNotificationProcessor.class);
 	public static final String PROCESSOR_NAME = "provisioning-send-notification-processor";
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
@@ -95,10 +97,30 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 
 					break;
 				}
-				
 			}
 		}
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	@Override
+	public boolean supports(EntityEvent<?> entityEvent) {
+		if (!super.supports(entityEvent)) {
+			return false;
+		}
+		SysProvisioningOperationDto provisioningOperation = (SysProvisioningOperationDto) entityEvent.getContent();
+		if (provisioningOperation == null) {
+			return false;
+		} 
+		// Notification can be send only if provisioning operation ended successfully!
+		if (OperationState.EXECUTED != provisioningOperation.getResultState()) {
+			LOG.warn(
+					"Notification with password wasn't send, because provisioning result wasn't in the EXECUTED state [{}]!",
+					provisioningOperation.getResultState());
+
+			return false;
+		}
+
+		return true;
 	}
 	
 	@Override

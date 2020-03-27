@@ -1,6 +1,10 @@
 package eu.bcvsolutions.idm.core.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -57,6 +61,30 @@ public class PasswordGeneratorTest {
 			String generateRandom = generator.generateRandom(policy);
 			assertEquals(16, generateRandom.length());
 			assertEquals("----------------", generateRandom);
+		}
+	}
+	
+	@Test
+	public void testGeneratedPasswordsNotSame() {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setMinPasswordLength(16);
+		policy.setMaxPasswordLength(16);
+		policy.setMinLowerChar(0);
+		policy.setMinUpperChar(0);
+		policy.setMinSpecialChar(1);
+		policy.setMinNumber(0);
+		policy.setSpecialCharBase("-");
+		policy.setProhibitedCharacters("!@#$%&");
+
+		List<String> passwords = new ArrayList<String>();
+		for (int i = 0; i < 10; i++) {
+			passwords.add(generator.generateRandom(policy));
+		}
+
+		for (int i = 0; i < passwords.size(); i++) {
+			for (int j = i + 1; j < passwords.size(); j++) {
+				assertTrue(!passwords.get(i).equals(passwords.get(j))); // mustn't be equal
+			}
 		}
 	}
 }

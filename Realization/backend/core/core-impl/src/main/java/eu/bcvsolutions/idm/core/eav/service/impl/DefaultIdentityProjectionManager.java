@@ -165,7 +165,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		//
 		EntityEvent<IdmIdentityDto> identityEvent = new IdentityEvent(eventType, identity);
 		// disable default contract creation
-		identityEvent.getProperties().put(IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, true);
+		identityEvent.getProperties().put(IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, Boolean.TRUE);
 		// publish
 		return identityService.publish(identityEvent, event, permission).getContent();
 	}
@@ -203,7 +203,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 	protected List<IdmIdentityContractDto> saveOtherContracts(EntityEvent<IdmIdentityProjectionDto> event, BasePermission... permission) {
 		IdmIdentityProjectionDto dto = event.getContent();
 		IdmIdentityProjectionDto previousProjection = event.getOriginalSource();
-		List<IdmIdentityContractDto> savedContracts = Lists.newArrayList();
+		List<IdmIdentityContractDto> savedContracts = new ArrayList<>(dto.getOtherContracts().size());
 		//
 		for (IdmIdentityContractDto contract : dto.getOtherContracts()) {			
 			IdentityContractEventType contractEventType = IdentityContractEventType.CREATE;
@@ -244,7 +244,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 			BasePermission... permission) {
 		IdmIdentityProjectionDto dto = event.getContent();
 		IdmIdentityProjectionDto previousProjection = event.getOriginalSource();
-		List<IdmContractPositionDto> savedPositions = Lists.newArrayList();
+		List<IdmContractPositionDto> savedPositions = new ArrayList<>(dto.getOtherPositions().size());
 		IdmIdentityContractDto contract = dto.getContract();
 		//
 		for (IdmContractPositionDto otherPosition : dto.getOtherPositions()) {
@@ -291,7 +291,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		IdmIdentityDto identity = dto.getIdentity();
 		//
 		if (previousProjection == null) {
-			List<IdmConceptRoleRequestDto> concepts = new ArrayList<>();
+			List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(dto.getIdentityRoles().size());
 			//
 			for (IdmIdentityRoleDto assignedRole : dto.getIdentityRoles()) {
 				// create new identity role

@@ -31,7 +31,7 @@ export class FormDefinitionInfo extends AbstractEntityInfo {
    * @return {string}
    */
   getLink() {
-    return `/forms/${encodeURIComponent(this.getEntityId())}/detail`;
+    return `/form-definitions/${encodeURIComponent(this.getEntityId())}/detail`;
   }
 
   /**

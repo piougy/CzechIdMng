@@ -366,7 +366,7 @@ module.exports = {
       persistentType: 'UUID',
       faceType: 'ROLE-CAN-BE-REQUESTED-SELECT',
       component: require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
-      labelKey: 'core:component.advanced.EavForm.faceType.ROLE-SELECT',
+      labelKey: 'core:component.advanced.EavForm.faceType.CAN-BE-REQUESTED-ROLE-SELECT',
       manager: require('./src/redux').RoleManager,
       searchName: 'can-be-requested'
     },

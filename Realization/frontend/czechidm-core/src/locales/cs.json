@@ -597,6 +597,7 @@
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Výběr identit (SelectBox)",
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
+          "CAN-BE-REQUESTED-ROLE-SELECT": "Výběr rolí dostupných pro žádost (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
           "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
           "TREE-TYPE-SELECT": "Výběr typu stromu (SelectBox)",

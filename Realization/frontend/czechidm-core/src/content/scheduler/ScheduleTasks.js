@@ -597,6 +597,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           <Basic.Column
             property="triggers"
             header={ this.i18n('entity.SchedulerTask.triggers') }
+            width={ 200 }
             cell={
               ({ data, rowIndex, property}) => {
                 const triggers = data[rowIndex][property];
@@ -616,7 +617,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                               ?
                               <Advanced.SchedulerTaskInfo entityIdentifier={ trigger.initiatorTaskId } face="popover"/>
                               :
-                              <Advanced.DateValue value={trigger.nextFireTime} showTime />
+                              <Advanced.DateValue value={trigger.nextFireTime} title={trigger.cron ? `Cron: ${trigger.cron}` : null} showTime />
                             }
                             {' '}
                             <Basic.Button

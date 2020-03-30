@@ -4,7 +4,7 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.Recoverable;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  *
  */
 public interface IdmNotificationTemplateService extends 
-		ReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplateFilter>,
+		EventableDtoService<IdmNotificationTemplateDto, IdmNotificationTemplateFilter>,
 		Recoverable<IdmNotificationTemplateDto>,
 		CodeableService<IdmNotificationTemplateDto> {
 

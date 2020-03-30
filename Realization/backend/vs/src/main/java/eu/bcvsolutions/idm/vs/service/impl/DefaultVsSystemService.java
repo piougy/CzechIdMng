@@ -524,7 +524,7 @@ public class DefaultVsSystemService implements VsSystemService {
 				attributeMapping.setEntityAttribute(false);
 				attributeMapping.setStrategyType(AttributeMappingStrategyType.MERGE);
 				attributeMapping.setExtendedAttribute(false);
-				attributeMapping.setName("'Rights' - multivalued merge attribute. ");
+				attributeMapping.setName("'Rights' - multivalued merge attribute.");
 				attributeMapping.setSchemaAttribute(schemaAttr.getId());
 				attributeMapping.setSystemMapping(systemMapping.getId());
 				systemAttributeMappingService.save(attributeMapping);

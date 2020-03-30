@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
@@ -66,7 +68,13 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -111,6 +119,10 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 	private ProvisioningExecutor provisioningExecutor;
 	@Autowired
 	private SysProvisioningArchiveService provisioningArchiveService;
+	@Autowired
+	private IdmNotificationLogService notificationLogService;
+	@Autowired
+	private FormService formService;
 
 	@Before
 	public void init() {
@@ -377,6 +389,72 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 		entityOnSystem = helper.findResource(account.getUid());
 		assertNotNull(entityOnSystem);
 		assertEquals(newPassword2, entityOnSystem.getPassword());
+	}
+	
+	@Test
+	public void testSendPasswordNotificationGreenLine() {
+
+		SysSystemDto system = initSystem();
+		IdmRoleDto role = initRole(system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+		Assert.assertNotNull(account);
+		Assert.assertFalse(account.isInProtection());
+
+		TestResource entityOnSystem = helper.findResource(account.getUid());
+		assertNotNull(entityOnSystem);
+		assertEquals(DEFAULT_PASSWORD, entityOnSystem.getPassword());
+
+		// Check for send password notification
+		IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
+		notificationFilter.setTopic(AccModuleDescriptor.TOPIC_NEW_PASSWORD);
+		notificationFilter.setRecipient(identity.getUsername());
+
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(notificationFilter, null)//
+				.getContent()//
+				.stream().filter(notification -> "email".equals(notification.getType()))//
+				.collect(Collectors.toList());
+		assertEquals(1, notifications.size());
+	}
+	
+	@Test
+	public void testSendPasswordNotificationProvisioningFailed() {
+
+		SysSystemDto system = initSystem();
+		IdmRoleDto role = initRole(system);
+
+		IdmIdentityDto identity = helper.createIdentity();
+		
+		// Break the system (change the password column to not exists) - we need make a exception.
+		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+		IdmFormAttributeDto formAttribute = savedFormDefinition.getMappedAttributeByCode("passwordColumn");
+		formService.saveValues(system, formAttribute, Lists.newArrayList("not-exist-column-password"));
+
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role);
+		checkIdentityAccount(identity, identityRole, 1);
+
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+		Assert.assertNotNull(account);
+		Assert.assertFalse(account.isInProtection());
+
+		TestResource entityOnSystem = helper.findResource(account.getUid());
+		assertNull(entityOnSystem);
+
+		// Check for send password notification
+		IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
+		notificationFilter.setTopic(AccModuleDescriptor.TOPIC_NEW_PASSWORD);
+		notificationFilter.setRecipient(identity.getUsername());
+
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(notificationFilter, null)//
+				.getContent()//
+				.stream().filter(notification -> "email".equals(notification.getType()))//
+				.collect(Collectors.toList());
+		assertEquals(0, notifications.size());
 	}
 
 	@Test

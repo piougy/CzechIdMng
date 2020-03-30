@@ -215,6 +215,8 @@ public enum CoreResultCode implements ResultCode {
 	NOTIFICATION_SENDER_IMPLEMENTATION_NOT_FOUND(HttpStatus.CONFLICT, "Sender implementation [%s] for type [%s] not found. Repair configuration property [%s]."),
 	NOTIFICATION_NOT_SENT(HttpStatus.CONFLICT, "Notification was not sent. Notification configuration for topic [%s] not found or is disabled."),
 	NOTIFICATION_CONFIGURATION_RECIPIENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "Recipients are empty. Recipients are required for for notification configuration with topic [%s] with redirect enabled."),
+	NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_CONFIGURATION(HttpStatus.CONFLICT, "Notification template [%s] cannot be deleted, it is used in [%s] notification configuration(s)."),
+	NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_NOTIFICATION(HttpStatus.CONFLICT, "Notification template [%s] cannot be deleted, it is used in [%s] notification(s)."),
 	//
 	// scripts
 	SCRIPT_MORE_CODE_FOUND(HttpStatus.CONFLICT, "More scripts in resource found for code: [%s]."),

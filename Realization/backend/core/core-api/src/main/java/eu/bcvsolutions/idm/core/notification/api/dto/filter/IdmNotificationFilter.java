@@ -27,6 +27,7 @@ public class IdmNotificationFilter extends QuickFilter {
 	private Class<? extends BaseEntity> notificationType;
 	private UUID parent;
 	private String topic;
+	private UUID templateId;
 
 	public String getSender() {
 		return sender;
@@ -111,4 +112,26 @@ public class IdmNotificationFilter extends QuickFilter {
 	public void setTopic(String topic) {
 		this.topic = topic;
 	}
+
+	/**
+	 * Notification templateId
+	 * 
+	 * @return templateId
+	 * @since 10.2.0
+	 */
+	public UUID getTemplateId() {
+		return templateId;
+	}
+
+	/**
+	 * Notification templateId
+	 * 
+	 * @param templateId
+	 * @since 10.2.0
+	 */
+	public void setTemplateId(UUID templateId) {
+		this.templateId = templateId;
+	}
+	
+	
 }

@@ -6353,6 +6353,14 @@
       "title": "Konfigurace nemůže být uložena",
       "message": "Vyplnění příjemců je povinné pro přesměrované notifikace s tématem [{{topic}}]."
     },
+    "NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_CONFIGURATION": {
+      "title": "Šablona nemůže být smazána.",
+      "message": "Šablona notifikací [{{template}}] musí být nejprve odstraněna z [{{usage}}] konfigurací notifikace."
+    },
+    "NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_NOTIFICATION": {
+      "title": "Šablona nemůže být smazána.",
+      "message": "Šablona notifikací [{{template}}] musí být nejprve odstraněna z [{{usage}}] notifikací."
+    },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
       "title": "Definice formuláře nelze smazat",
       "message": "Definice [{{name}}] nelze smazat, protože je označená jako systémová."

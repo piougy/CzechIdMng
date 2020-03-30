@@ -6298,6 +6298,14 @@
       "title": "Configuration can not be saved",
       "message": "Recipients are required for redirected notifications with topic [{{topic}}]."
     },
+    "NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_CONFIGURATION": {
+      "title": "Template cannot be deleted.",
+      "message": "Notification template [{{template}}] has to be removed from [{{usage}}] notification configuration(s) first."
+    },
+    "NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_NOTIFICATION": {
+      "title": "Template cannot be deleted.",
+      "message": "Notification template [{{template}}] has to be removed from [{{usage}}] notification(s) first."
+    },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
       "title": "Form definition can not be deleted",
       "message": "Definition [{{name}}] it can't be deleted, because is flagged as system."

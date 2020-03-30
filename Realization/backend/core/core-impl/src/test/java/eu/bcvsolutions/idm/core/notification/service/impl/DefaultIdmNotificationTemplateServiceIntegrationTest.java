@@ -15,6 +15,8 @@ import javax.validation.ConstraintViolationException;
 
 import org.apache.commons.io.FileUtils;
 import java.time.ZonedDateTime;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,8 +29,16 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationTemplateFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -39,6 +49,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * 
  * @author Ondřej Kopr
  * @author Radek Tomiška
+ * @author Ondrej Husnik
  *
  */
 public class DefaultIdmNotificationTemplateServiceIntegrationTest extends AbstractIntegrationTest {
@@ -49,6 +60,9 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 	//
 	@Autowired private ApplicationContext context;
 	@Autowired private ConfigurationService configurationService;
+	@Autowired private IdmNotificationConfigurationService notificationConfigService;
+	@Autowired private EmailNotificationSender emailSenderService;
+	@Autowired private IdmEmailLogService emailLogService;
 	//
 	private DefaultIdmNotificationTemplateService notificationTemplateService;
 	
@@ -265,6 +279,61 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 		template.setBodyHtml(getHelper().createName());
 		// throw error subject can't be null
 		template = notificationTemplateService.save(template);
+	}
+	
+	
+	@Test
+	public void templateReferentialIntegrityTest() {
+		IdmNotificationTemplateDto template = new IdmNotificationTemplateDto();
+		template.setCode(getHelper().createName());
+		template.setName(getHelper().createName());
+		template.setSubject(getHelper().createName());
+		template = notificationTemplateService.save(template);
+
+		// Template Dto successfully saved
+		IdmNotificationTemplateFilter templateFilter = new IdmNotificationTemplateFilter();
+		templateFilter.setText(template.getCode());
+		assertEquals(1, notificationTemplateService.find(templateFilter, null).getContent().size());
+
+		// Prevent from template deleting if used in notification configuration
+		NotificationConfigurationDto notificationCfgDto = new NotificationConfigurationDto(getHelper().createName(),
+				NotificationLevel.INFO, getHelper().createName(), getHelper().createName(), template.getId());
+		notificationCfgDto = notificationConfigService.save(notificationCfgDto);
+		try {
+			notificationTemplateService.delete(template);
+			fail("Template deleted although used in a notification configuration.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		notificationConfigService.delete(notificationCfgDto);
+
+		// Found proper notification according to the used template
+		IdmMessageDto message = new IdmMessageDto.Builder().setTemplate(template).build();
+		List<IdmEmailLogDto> emailLogDtos = emailSenderService.send(getHelper().createName(), message);
+		assertEquals(1, emailLogDtos.size());
+
+		IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
+		notificationFilter.setTemplateId(template.getId());
+		List<IdmEmailLogDto> foundNotificationDtos = emailLogService.find(notificationFilter, null).getContent();
+		assertEquals(1, foundNotificationDtos.size());
+		assertEquals(emailLogDtos.get(0).getId(), foundNotificationDtos.get(0).getId());
+
+		// Prevent from template deleting if used in notification
+		try {
+			notificationTemplateService.delete(template);
+			fail("Template deleted although used in a notification.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		emailLogService.delete(emailLogDtos.get(0));
+
+		// Template Dto successfully deleted
+		notificationTemplateService.delete(template);
+		assertEquals(0, notificationTemplateService.find(templateFilter, null).getContent().size());
 	}
 
 	@Test

@@ -419,7 +419,10 @@
       "IdentityInfo": {
         "link": {
           "detail": {
-            "label": "Show full detail"
+            "label": "Show full detail",
+            "default": {
+              "label": "Show default full detail"
+            }
           },
           "profile": {
             "label": "Show profile"

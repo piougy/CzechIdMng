@@ -451,7 +451,10 @@
       "IdentityInfo": {
         "link": {
           "detail": {
-            "label": "Přejít na plný detail"
+            "label": "Přejít na plný detail",
+            "default": {
+              "label": "Přejít na výchozí plný detail"
+            }
           },
           "profile": {
             "label": "Přejít na profil"

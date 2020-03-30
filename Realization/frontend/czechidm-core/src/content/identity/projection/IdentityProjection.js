@@ -10,6 +10,7 @@ import Helmet from 'react-helmet';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
+import * as Domain from '../../../domain';
 import {
   IdentityManager,
   IdentityContractManager,
@@ -490,7 +491,7 @@ class IdentityProjection extends Basic.AbstractContent {
                 <Basic.Icon
                   value="fa:angle-double-right"
                   style={{ marginRight: 5, cursor: 'pointer' }}
-                  title={ this.i18n('component.advanced.IdentityInfo.link.detail.label') }
+                  title={ this.i18n('component.advanced.IdentityInfo.link.detail.default.label') }
                   onClick={ () => this.context.history.push(`/identity/${ encodeURIComponent(identityProjection.username) }/profile`) }
                   rendered={ !isNew }/>
               ]}>
@@ -703,7 +704,7 @@ class IdentityProjection extends Basic.AbstractContent {
 
                     <Basic.Row>
                       <Basic.Col
-                        lg={ isNew && SecurityManager.hasAuthority('IDENTITYROLE_READ') ? 6 : 12 }
+                        lg={ isNew && SecurityManager.hasAllAuthorities(['IDENTITYROLE_READ', 'IDENTITY_CHANGEPERMISSION'], userContext) ? 6 : 12 }
                         rendered={ this._isRendered(formProjection, 'password') }>
                         <Basic.ContentHeader
                           icon="component:password"
@@ -754,7 +755,7 @@ class IdentityProjection extends Basic.AbstractContent {
 
                       <Basic.Col
                         lg={ isNew && this._isRendered(formProjection, 'password') ? 6 : 12 }
-                        rendered={ SecurityManager.hasAuthority('IDENTITYROLE_READ') }>
+                        rendered={ SecurityManager.hasAllAuthorities(['IDENTITYROLE_READ', 'IDENTITY_CHANGEPERMISSION'], userContext) }>
                         <Basic.ContentHeader icon="component:identity-roles" text={ this.i18n('roles.header.new') } rendered={ isNew }/>
                         <Basic.ContentHeader
                           icon="component:roles"
@@ -766,6 +767,7 @@ class IdentityProjection extends Basic.AbstractContent {
                           ?
                           <Advanced.RoleSelect
                             ref="role"
+                            forceSearchParameters={ new Domain.SearchParameters().setName('can-be-requested') }
                             label={ null }
                             placeholder={ this.i18n('entity.Role._type') }
                             header={ this.i18n('roles.header') }

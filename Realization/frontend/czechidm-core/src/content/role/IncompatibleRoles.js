@@ -13,10 +13,6 @@ import IncompatibleRoleTable from './IncompatibleRoleTable';
  */
 export default class IncompatibleRoles extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.role.incompatible-roles';
   }
@@ -30,10 +26,9 @@ export default class IncompatibleRoles extends Basic.AbstractContent {
     const forceSubSearchParameters = new SearchParameters().setFilter('superiorId', this.props.match.params.entityId);
     //
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div>
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
-        <Basic.ContentHeader text={ this.i18n('sub.header') } style={{ marginBottom: 0 }}/>
         <IncompatibleRoleTable
           uiKey="incompatible-role-sub-table"
           forceSearchParameters={ forceSubSearchParameters }
@@ -47,7 +42,7 @@ export default class IncompatibleRoles extends Basic.AbstractContent {
           className="no-margin"
           match={ this.props.match }
           readOnly/>
-      </div>
+      </Basic.Div>
     );
   }
 }

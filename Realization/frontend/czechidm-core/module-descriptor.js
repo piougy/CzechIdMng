@@ -1501,7 +1501,7 @@ module.exports = {
       {
         id: 'identity-menu-detail',
         section: 'identity-menu',
-        labelKey: 'component.advanced.IdentityInfo.link.detail.label',
+        labelKey: 'component.advanced.IdentityInfo.link.detail.default.label',
         icon: 'fa:angle-double-right',
         order: 10,
         path: '/identity/:loggedUsername/profile',

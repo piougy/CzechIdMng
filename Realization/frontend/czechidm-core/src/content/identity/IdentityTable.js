@@ -225,14 +225,14 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       label={ null }
                       placeholder={ this.i18n('filter.role.placeholder') }
                       header={ this.i18n('filter.role.placeholder') }
-                      rendered={ !roleDisabled }
+                      rendered={ !roleDisabled && SecurityManager.hasAuthority('ROLE_AUTOCOMPLETE') }
                       multiSelect/>
                   </Basic.Col>
                   <Basic.Col lg={ 3 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
-                <Basic.Row rendered={ SecurityManager.hasAllAuthorities(['TREETYPE_AUTOCOMPLETE', 'TREENODE_AUTOCOMPLETE'])}>
+                <Basic.Row rendered={ SecurityManager.hasAllAuthorities(['TREETYPE_AUTOCOMPLETE', 'TREENODE_AUTOCOMPLETE']) }>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.TreeNodeSelect
                       ref="treeNodeId"
@@ -500,7 +500,7 @@ function select(state, component) {
       'idm.pub.core.identity.dashboard.skip',
       ConfigLoader.getConfig('identity.dashboard.skip', false)
     ),
-    isDefaultFormProjection: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.formProjection.default.enabled', true),
+    isDefaultFormProjection: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.identity.formProjection.default', true),
     showAddLoading: projectionManager.isShowLoading(state)
   };
 }

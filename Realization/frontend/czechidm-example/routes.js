@@ -30,6 +30,11 @@ module.exports = {
       path: 'example/product/:entityId/new',
       component: require('./src/content/example-product/ExampleProductContent'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['EXAMPLEPRODUCT_CREATE'] } ]
+    },
+    {
+      path: 'example/form/identity-projection/:entityId',
+      component: require('./src/content/identity/projection/ExampleIdentityProjection'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]
     }
   ]
 };

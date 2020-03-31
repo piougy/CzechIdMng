@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
  * Only for system entity = IDENTITY. System must has mapped attribute __PASSWORD__
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Vít Švanda
  */
 @Component
 @Description("After success provisioning send notification to identity with new generate password.")
@@ -103,11 +103,11 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	}
 	
 	@Override
-	public boolean supports(EntityEvent<?> entityEvent) {
-		if (!super.supports(entityEvent)) {
+	public boolean conditional(EntityEvent<SysProvisioningOperationDto> event) {
+		if (!super.conditional(event)) {
 			return false;
 		}
-		SysProvisioningOperationDto provisioningOperation = (SysProvisioningOperationDto) entityEvent.getContent();
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		if (provisioningOperation == null) {
 			return false;
 		} 

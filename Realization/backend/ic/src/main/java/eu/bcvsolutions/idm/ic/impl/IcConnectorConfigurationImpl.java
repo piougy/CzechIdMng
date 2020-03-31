@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.ic.impl;
 
+import java.util.Map;
+
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
@@ -34,6 +36,8 @@ public class IcConnectorConfigurationImpl implements IcConnectorConfiguration {
 	 * 
 	 */
 	private int producerBufferSize = 100;
+
+	private Map<String, Object> operationOptions;
 
 	/**
 	 * @return the configurationProperties
@@ -97,6 +101,18 @@ public class IcConnectorConfigurationImpl implements IcConnectorConfiguration {
 	 */
 	public void setProducerBufferSize(int producerBufferSize) {
 		this.producerBufferSize = producerBufferSize;
+	}
+
+	/**
+	 * @return Operation options for this system
+	 */
+	@Override
+	public Map<String, Object> getSystemOperationOptions() {
+		return operationOptions;
+	}
+
+	public void setOperationOptions(Map<String, Object> operationOptions) {
+		this.operationOptions = operationOptions;
 	}
 
 	// /**

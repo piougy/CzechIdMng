@@ -254,6 +254,10 @@
       "connector": {
         "header": "Nastavení konektoru",
         "poolingConfiguration": "Pooling nastavení",
+        "operationOptionsConfiguration": {
+          "tab": "Další volby konektoru",
+          "attributes": "Spravovat atributy"
+        },
         "title": "Konfigurace",
         "button": {
           "showBasicInfo": "Přejít na základní údaje",

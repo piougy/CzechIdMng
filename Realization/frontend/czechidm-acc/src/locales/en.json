@@ -254,6 +254,10 @@
       "connector": {
         "header": "Connector configuration",
         "poolingConfiguration": "Pooling configuration",
+        "operationOptionsConfiguration": {
+          "tab": "Additional connector configuration",
+          "attributes": "Manage attributes"
+        },
         "title": "Configuration",
         "button": {
           "showBasicInfo": "Show basic information",

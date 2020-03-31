@@ -50,7 +50,7 @@ export default class RestApiService {
    * @return {promise}
    */
   static action(method, path, json, token = null) {
-    const fetchConfig = this._getFetchConfig(method ? method : 'put', json, token);
+    const fetchConfig = this._getFetchConfig(method || 'put', json, token);
     return fetch(this.getUrl(path), fetchConfig).then(this.processHeaders);
   }
 
@@ -80,7 +80,7 @@ export default class RestApiService {
     if (path.lastIndexOf('http', 0) === 0 || path.lastIndexOf(ConfigLoader.getServerUrl(), 0) === 0) {
       return path;
     }
-    return `${ConfigLoader.getServerUrl()}${path}`;
+    return `${ ConfigLoader.getServerUrl() }${ path }`;
   }
 
   static _getFetchConfig(methodType, body, token = null) {

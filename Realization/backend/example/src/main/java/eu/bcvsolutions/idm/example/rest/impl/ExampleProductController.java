@@ -269,6 +269,6 @@ public class ExampleProductController extends AbstractReadWriteDtoController<Exa
 	
 	@Override
 	protected ExampleProductFilter toFilter(MultiValueMap<String, Object> parameters) {
-		return new ExampleProductFilter(parameters);
+		return new ExampleProductFilter(parameters, getParameterConverter());
 	}
 }

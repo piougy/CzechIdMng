@@ -18,7 +18,8 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.repository.filter.BaseFilterBuilder;
 
 /**
- * Modified from filter
+ * Modified from filter (auditable.modified or uditable.created  >= modifiedFrom).
+ * Created date is used as fallback, if modified is {@code null} => creation is the last modification.
  * 
  * @author Vít Švanda
  */
@@ -41,7 +42,11 @@ public class ModifiedFromableFilter<E extends AbstractEntity> extends BaseFilter
 
 		return builder.or(
 				builder.greaterThanOrEqualTo(root.get(AbstractEntity_.modified), modifiedFrom),
-				builder.greaterThanOrEqualTo(root.get(AbstractEntity_.created), modifiedFrom));
+				builder.and(
+						builder.isNull(root.get(AbstractEntity_.modified)), // modified is null => creation is last modification
+						builder.greaterThanOrEqualTo(root.get(AbstractEntity_.created), modifiedFrom)
+				)
+		);
 	}
 
 	@Override

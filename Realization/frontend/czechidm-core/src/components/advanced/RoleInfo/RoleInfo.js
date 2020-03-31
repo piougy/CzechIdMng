@@ -80,10 +80,19 @@ export class RoleInfo extends AbstractEntityInfo {
   }
 
   _renderIcon() {
-    return null;
+    const {showTree} = this.props;
+    if (showTree) {
+      return null;
+    }
+    return super._renderIcon();
   }
 
   _renderPopover() {
+    const {showTree} = this.props;
+
+    if (!showTree) {
+      return super._renderPopover();
+    }
     if (!SecurityManager.hasAuthority('ROLE_AUTOCOMPLETE')) {
       return super._renderPopover();
     }
@@ -109,7 +118,7 @@ export class RoleInfo extends AbstractEntityInfo {
             <span style={{ whiteSpace: 'normal', maxWidth: 300, display: 'inline-block' }}>{ super._renderPopover(node) }</span>
           );
         }}
-        />
+      />
     );
   }
 
@@ -178,6 +187,7 @@ RoleInfo.propTypes = {
 RoleInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
   entity: null,
+  showTree: true,
   face: 'link',
   _showLoading: true,
 };

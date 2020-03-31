@@ -273,29 +273,29 @@ class Create extends Basic.AbstractContent {
                       <Basic.TextField ref="lastName" label={ this.i18n('content.identity.profile.lastName') } max={ 255 }/>
                       <Basic.TextField ref="externalCode" label={ this.i18n('content.identity.profile.externalCode') } max={ 255 }/>
                       <Basic.Row>
-                        <div className="col-lg-6">
+                        <Basic.Col lg={ 6 }>
                           <Basic.TextField ref="titleBefore" label={ this.i18n('entity.Identity.titleBefore') } max={ 100 } />
-                        </div>
-                        <div className="col-lg-6">
+                        </Basic.Col>
+                        <Basic.Col lg={ 6 }>
                           <Basic.TextField ref="titleAfter" label={ this.i18n('entity.Identity.titleAfter') } max={ 100 }/>
-                        </div>
+                        </Basic.Col>
                       </Basic.Row>
 
                       <Basic.Row>
-                        <div className="col-lg-6">
+                        <Basic.Col lg={ 6 }>
                           <Basic.TextField
                             ref="email"
                             label={ this.i18n('content.identity.profile.email.label') }
                             placeholder={ this.i18n('content.identity.profile.email.placeholder') }
                             validation={ Joi.string().email() }/>
-                        </div>
-                        <div className="col-lg-6">
+                        </Basic.Col>
+                        <Basic.Col lg={ 6 }>
                           <Basic.TextField
                             ref="phone"
                             label={ this.i18n('content.identity.profile.phone.label') }
                             placeholder={ this.i18n('content.identity.profile.phone.placeholder') }
                             max={ 30 } />
-                        </div>
+                        </Basic.Col>
                       </Basic.Row>
                       {/* TODO: support creating disabled identities? */}
                       <Basic.Checkbox ref="disabled" label={ this.i18n('entity.Identity.disabled') } rendered={ false }/>

@@ -1,6 +1,7 @@
 import AbstractRequestService from './AbstractRequestService';
 import SearchParameters from '../domain/SearchParameters';
 import RoleService from './RoleService';
+import {i18n} from './LocalizationService';
 
 const roleService = new RoleService();
 
@@ -20,8 +21,8 @@ export default class IncompatibleRoleService extends AbstractRequestService {
   }
 
   getNiceLabel(entity) {
-    if (!entity || !entity._embedded) {
-      return '';
+    if (!entity || !entity._embedded || !entity._embedded.superior || entity._embedded.sub) {
+      return i18n('entity.IncompatibleRole._type');
     }
     let label = `${roleService.getNiceLabel(entity._embedded.superior)}`;
     label += ` - ${roleService.getNiceLabel(entity._embedded.sub)}`;

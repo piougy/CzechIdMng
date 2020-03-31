@@ -18,8 +18,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
 import com.google.common.collect.Lists;
 
@@ -60,6 +64,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
+import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -92,7 +98,36 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	private IdmLongRunningTaskService longRunningTaskService;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private IdmEmailLogRepository emailLogRepository;
+	@Autowired
+	private IdmNotificationLogRepository notificationRepository;
 
+	/**
+	 * Delete all identities for improve performance of this test. In some cases
+	 * taken this test more then 40m (because previous tests created and not deleted
+	 * many identities).
+	 * 
+	 * This delete all identities instead first 20 (we don't want delete demo and
+	 * test data)!
+	 */
+	@Before
+	public void purgeData() {
+		// First delete notification ... because here is integrity problem!
+		emailLogRepository.deleteAll();
+		notificationRepository.deleteAll();
+
+		List<IdmIdentityDto> identities = identityService
+				.find(PageRequest.of(0, Integer.MAX_VALUE, new Sort(Direction.ASC, IdmIdentity_.created.getName())))
+				.getContent();
+		// This delete all identities instead first 20 (we don't want delete demo and
+		// test data)!
+		for (int i = 20; i < identities.size(); i++) {
+			IdmIdentityDto dto = identities.get(i);
+			identityService.delete(dto);
+		}
+	}
+	
 	@After
 	public void logout() {
 		automaticRoleAttributeService.find(null).forEach(autoRole -> {

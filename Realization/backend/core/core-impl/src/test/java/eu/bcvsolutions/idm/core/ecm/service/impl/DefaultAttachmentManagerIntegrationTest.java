@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.ecm.api.config.AttachmentConfiguration;
@@ -314,7 +315,10 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 	private int countTempFiles() {
 		File temp = new File(attachmentConfiguration.getTempPath());
 		//
-		return temp.listFiles().length;
+		return Long.valueOf(Lists.newArrayList(temp.listFiles()).stream()//
+				.filter(file -> file.isFile())//
+				.count())//
+				.intValue();
 	}
 	
 	private IdmAttachmentDto createDto(UUID ownerId) {

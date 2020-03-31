@@ -158,6 +158,7 @@
         "header": "Request for implementation",
         "title": "$t(vs:content.vs-request.detail.header)",
         "requestAttributes": "Attributes in this request",
+        "accountOwner": "Owner of the account",
         "wishAttributes": "Target state on the system",
         "label": {
           "oldValue": "Previous value",

@@ -758,6 +758,7 @@
       "attributes": "Atributy na koncovém systému"
     },
     "SchemaObjectClass": {
+      "_type": "Schéma systému",
       "auxiliary": "Pomocný objekt",
       "container": "Je kontejnerem",
       "objectClassName": "Název objektu",
@@ -780,6 +781,7 @@
       }
     },
     "SchemaAttribute": {
+      "_type": "Atribut schematu",
       "name": "Název atributu",
       "objectClass": "Atribut náleží objektu",
       "classType": "Datový typ",
@@ -793,6 +795,7 @@
       "multivalued": "Obsahuje více hodnot"
     },
     "SystemAttributeMapping": {
+      "_type": "Atribut mapování",
       "name": {
         "label": "Název",
         "help": "Uživatelsky definovaný identifikátor tohoto atributu."
@@ -898,6 +901,7 @@
       "role": "Přiřazen dle role"
     },
     "SynchronizationConfig": {
+      "_type": "Synchronizace",
       "enabled": "Povolena",
       "name": "Název",
       "description": "Popis",
@@ -1087,13 +1091,14 @@
     "ProvisioningArchive": {
       "_type": "Provisioning - archív",
       "modified": {
-        "short": "Archiváno",
-        "label": "Archiváno",
+        "short": "Archivováno",
+        "label": "Archivováno",
         "title": "Operace byla archivována (provedena, zrušena)",
         "help": "Operace byla archivována (provedena, zrušena)."
       }
     },
     "ProvisioningBreakConfig": {
+      "_type": "Provisioning brzda",
       "operationType": {
         "label": "Typ blokované operace",
         "help": "Typ operace, pro kterou bude mít brzda vliv."
@@ -1128,6 +1133,7 @@
       "globalConfiguration": "Globální konfigurace"
     },
     "ProvisioningBreakConfigRecipient": {
+      "_type": "Provisioning brzda - příjemci",
       "role": "Příjemci s rolí",
       "identity": "Příjemce",
       "type": {
@@ -1983,6 +1989,18 @@
         "label": "Duplikovat systém",
         "help": "Vytvoří duplikát systému <strong>včetně všech konfigurací</strong>. Nový systém bude neaktivní, stejně jako jeho nastavené synchronizace. "
       },
+      "system-export-bulk-action": {
+        "icon": "export",
+        "label": "Exportovat systém",
+        "title": "Systémy",
+        "help": "Vytvoří exportní dávku obsahující vybrané systémy. Nový systém bude neaktivní, stejně jako jeho nastavené synchronizace. Výsledný export bude uložen v agendě <strong>Export/Import</strong>.",
+        "attributes": {
+          "name": {
+            "label": "Popis exportu",
+            "help": ""
+          }
+        }
+      },
       "system-delete-bulk-action": {
         "label": "$t(action.delete.action) systémy",
         "help": "Smaže vybrané systémy. <strong>Systém nesmí obsahovat žádné účty ani nevyřešené provisioning operace</strong>.",
@@ -2159,6 +2177,10 @@
     "PROVISIONING_SUCCEED": {
       "title": "Proběhl provisioning účtu [{{name}}]",
       "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
+    },
+    "PROVISIONING_TIMEOUT": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal. Překročen časový limit [{{timeout}}]ms pro kontaktování systému. Zkontrolujte, že koncový systém je dostupný."
     },
     "PROVISIONING_IS_IN_QUEUE": {
       "title": "Provisioning účtu [{{name}}] byl zařazen do fronty",

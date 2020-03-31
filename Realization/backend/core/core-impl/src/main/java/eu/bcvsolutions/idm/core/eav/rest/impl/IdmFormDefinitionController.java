@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.eav.rest.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -57,11 +58,15 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -455,6 +460,35 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	}
 	
 	/**
+	 * Secure form attributes by configured authorization policies.
+	 * 
+	 * @param formDefinition
+	 * @since 10.2.0
+	 */
+	public void secureAttributes(IdmFormInstanceDto formInstance) {
+		FormValueService<FormableEntity> formValueService = formService.getFormValueService(IdmIdentity.class);
+		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
+		List<IdmFormAttributeDto> attributes = formDefinition.getFormAttributes();
+		Set<UUID> removeAttributes = new HashSet<>(attributes.size());
+		attributes.forEach(attribute -> {
+			Set<String> valuePermissions = formValueService.getPermissions(new IdmFormValueDto(attribute));
+			if (!PermissionUtils.hasPermission(valuePermissions, IdmBasePermission.READ)) {
+				removeAttributes.add(attribute.getId());
+			} else if (!PermissionUtils.hasPermission(valuePermissions, IdmBasePermission.UPDATE)) {
+				if (formInstance.getOwnerId() == null) {
+					// new owner - remove readonly fields
+					removeAttributes.add(attribute.getId());
+				} else {
+					formDefinition.getMappedAttribute(attribute.getId()).setReadonly(true);
+				}
+			}
+		});	
+		removeAttributes.forEach(attributeId -> {
+			formDefinition.removeFormAttribute(attributeId);
+		});
+	}
+	
+	/**
 	 * Returns owner's form values
 	 * 
 	 * @param owner
@@ -629,5 +663,10 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 		} catch (IOException e) {
 			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
 		}
+	}
+	
+	@Override
+	protected IdmFormDefinitionFilter toFilter(MultiValueMap<String, Object> parameters) {
+		return new IdmFormDefinitionFilter(parameters, getParameterConverter());
 	}
 }

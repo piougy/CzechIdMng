@@ -59,6 +59,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
       showLink,
       showEntityType,
       showIcon,
+      showDefaultEntityInfo,
       ...other
     } = this.props;
     // standard rendered - we dont propagate rendered to underliyng component
@@ -102,8 +103,11 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
     if (this.getLogger()) {
       // this.getLogger().debug(`[Advanced.EntityInfo]: Entity info for type [${entityType}] is not supported.`);
     }
+    if (!showDefaultEntityInfo) {
+      return null;
+    }
     return (
-      <div
+      <span
         style={ style }
         className={ classNames }>
         {
@@ -119,7 +123,7 @@ export default class EntityInfo extends Basic.AbstractContextComponent {
           </span>
         }
         <UuidInfo value={ entityIdentifier }/>
-      </div>
+      </span>
     );
   }
 }
@@ -156,5 +160,6 @@ EntityInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   face: 'full',
   showLink: true,
-  showEntityType: true
+  showEntityType: true,
+  showDefaultEntityInfo: true
 };

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
 import java.lang.reflect.Field;
+import java.util.UUID;
 
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -36,27 +37,38 @@ public class CorrelableFilter<E extends AbstractEntity> extends BaseFilterBuilde
 
 	@Override
 	public Predicate getPredicate(Root<E> root, AbstractQuery<?> query, CriteriaBuilder builder, DataFilter filter) {
+		
+		String property = (String) filter.getData().getFirst(CorrelationFilter.PARAMETER_CORRELATION_PROPERTY);
+		String valueAsString = (String) filter.getData().getFirst(CorrelationFilter.PARAMETER_CORRELATION_VALUE);
 
-		if (!(filter instanceof CorrelationFilter)
-				|| Strings.isNullOrEmpty(((CorrelationFilter) filter).getProperty())) {
+		if (Strings.isNullOrEmpty(property)) {
 			return null;
 		}
-
-		CorrelationFilter correlationFilter = (CorrelationFilter) filter;
+		
+		if (Strings.isNullOrEmpty(valueAsString)) {
+			return null;
+		}
+		
+		Field field = null;
 		try {
 			// Check if the property exists in the entity
-			Field field = EntityUtils.getFirstFieldInClassHierarchy(root.getJavaType(), correlationFilter.getProperty());
-			// Only search by String is supported now
-			if (String.class != field.getType()) {
+			field = EntityUtils.getFirstFieldInClassHierarchy(root.getJavaType(), property);
+			// Only search by String or UUID is supported now
+			if (String.class != field.getType() && UUID.class != field.getType()) {
 				throw new CorrelationPropertyUnsupportedTypeException(root.getJavaType().getCanonicalName(),
-						correlationFilter.getProperty());
+						property);
 			}
+			
 		} catch (NoSuchFieldException e) {
 			throw new CorrelationPropertyNotExistsException(root.getJavaType().getCanonicalName(),
-					correlationFilter.getProperty(), e);
+					property, e);
+		}
+		
+		if (UUID.class == field.getType()) {
+			return builder.equal(root.get(property), UUID.fromString(valueAsString));
 		}
 
-		return builder.equal(root.get(correlationFilter.getProperty()), correlationFilter.getValue());
+		return builder.equal(root.get(property), valueAsString);
 	}
 
 	@Override

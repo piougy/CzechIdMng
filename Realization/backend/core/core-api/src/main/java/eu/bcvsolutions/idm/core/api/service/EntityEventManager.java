@@ -166,9 +166,9 @@ public interface EntityEventManager extends ScriptEnabled {
 	 * @since 8.0.0
 	 */
 	void changedEntity(
-				Class<? extends Identifiable> ownerType, 
-				UUID ownerId, 
-				EntityEvent<? extends Identifiable> originalEvent);
+			Class<? extends Identifiable> ownerType, 
+			UUID ownerId, 
+			EntityEvent<? extends Identifiable> originalEvent);
 	
 	/**
 	 * Owner type has to be entity class - dto instance can be given.

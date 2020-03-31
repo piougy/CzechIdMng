@@ -71,7 +71,7 @@ class NotificationDetail extends Basic.AbstractContent {
         textMessage: entity.textMessage,
         htmlMessage: entity.htmlMessage,
         level: entity.level,
-        template: entity.template ? entity.template.id : null
+        template: entity.template ? {id: entity.template} : null
       }
     };
 
@@ -98,7 +98,8 @@ class NotificationDetail extends Basic.AbstractContent {
         ...this.refs.form.getData(),
         subject: template.subject,
         textMessage: template.bodyText,
-        htmlMessage: template.bodyHtml
+        htmlMessage: template.bodyHtml,
+        template
       };
       this.refs.form.setData(data);
     }

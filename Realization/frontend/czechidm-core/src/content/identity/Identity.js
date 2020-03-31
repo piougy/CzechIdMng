@@ -50,6 +50,10 @@ class IdentityContent extends Basic.AbstractContent {
   render() {
     const { identity, _imageUrl, match } = this.props;
     const { entityId } = match.params;
+    let formProjectionRoute = null;
+    if (identity && identity._embedded && identity._embedded.formProjection) {
+      formProjectionRoute = identityManager.getDetailLink(identity);
+    }
     //
     return (
       <Basic.Div>
@@ -57,7 +61,15 @@ class IdentityContent extends Basic.AbstractContent {
 
         <Advanced.DetailHeader
           entity={ identity }
-          back="/identities">
+          back="/identities"
+          buttons={[
+            <Basic.Icon
+              value="fa:angle-double-left"
+              style={{ marginRight: 5, cursor: 'pointer' }}
+              title={ this.i18n('component.advanced.IdentityInfo.link.projection.label') }
+              onClick={ () => this.context.history.push(formProjectionRoute) }
+              rendered={ formProjectionRoute !== null }/>
+          ]}>
           {
             _imageUrl
             ?

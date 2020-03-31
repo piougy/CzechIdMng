@@ -419,13 +419,19 @@
       "IdentityInfo": {
         "link": {
           "detail": {
-            "label": "Show full detail"
+            "label": "Show full detail",
+            "default": {
+              "label": "Show default full detail"
+            }
           },
           "profile": {
             "label": "Show profile"
           },
           "popover": {
             "title": "Show info card"
+          },
+          "projection": {
+            "label": "Show form by user type"
           }
         }
       },
@@ -561,6 +567,7 @@
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Select identity (SelectBox)",
           "ROLE-SELECT": "Select role (SelectBox)",
+          "CAN-BE-REQUESTED-ROLE-SELECT": "Select role available for request (SelectBox)",
           "FORM-DEFINITION-SELECT": "Select form definition (SelectBox)",
           "TREE-NODE-SELECT": "Select tree node (SelectBox)",
           "TREE-TYPE-SELECT": "Select tree type (SelectBox)",
@@ -880,8 +887,11 @@
       "DESCRIPTION": "Description (String)",
       "PHONE": "Phone (String)",
       "EMAIL": "Email (String)",
+      "STATE": "State (Enumeration)",
+      "PASSWORD": "Password (GuardedString)",
       "ASSIGNED_ROLES": "User assigned roles",
       "ASSIGNED_ROLES_FOR_SYSTEM": "User assigned roles (for this system)",
+      "FORM_PROJECTION": "User type (UUID)",
       "helpBlock": {
         "USERNAME": "",
         "EXTERNAL_CODE": "",
@@ -893,8 +903,11 @@
         "DESCRIPTION": "",
         "PHONE": "",
         "EMAIL": "",
+        "STATE": "",
+        "PASSWORD": "",
         "ASSIGNED_ROLES": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
-        "ASSIGNED_ROLES_FOR_SYSTEM": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles which <strong>assigned this system</strong> (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET)."
+        "ASSIGNED_ROLES_FOR_SYSTEM": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles which <strong>assigned this system</strong> (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
+        "FORM_PROJECTION": ""
       }
     },
     "ContractAttributeEnum": {
@@ -970,6 +983,10 @@
       "HIGH": "High",
       "NORMAL": "Normal"
     },
+    "ExportImportEnum": {
+      "EXPORT": "Export",
+      "IMPORT": "Import"
+    },
     "DateFaceEnum": {
       "TODAY": "Today",
       "YESTERDAY": "Yesterday",
@@ -995,10 +1012,12 @@
     "role-request": {
       "header": "Requests for change roles",
       "creator": {
-        "header": "Requests, which I created"
+        "header": "Requests, which I created",
+        "identity": "Requests, which user created"
       },
       "applicant": {
-        "header": "Requests for me"
+        "header": "Requests for me",
+        "identity": "Requests for user"
       }
     }
   },
@@ -1016,7 +1035,8 @@
       "CHANGEPERMISSION": "Change roles",
       "MANUALLYDISABLE": "Deactivate user manually",
       "MANUALLYENABLE": "Activate user manually",
-      "CANBEREQUESTED": "Can be requested"
+      "CANBEREQUESTED": "Can be requested",
+      "CHANGEPROJECTION": "Change user type (projection)"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -1046,6 +1066,7 @@
       "TREETYPE": "Structure types",
       "SCRIPT": "Scripts",
       "FORMDEFINITION": "Forms - definitions",
+      "FORMPROJECTION": "Forms - projections",
       "FORMATTRIBUTE": "Forms - attributes",
       "FORMVALUE": "Forms - values",
       "CODELIST": "Code lists",
@@ -1067,7 +1088,8 @@
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Requests for automatic roles (rules of the attributes)",
       "TOKEN": "Token",
       "GENERATEVALUE": "Value generate",
-      "PASSWORD": "Users passwords"
+      "PASSWORD": "Users passwords",
+      "EXPORTIMPORT": "Export/Import"
     }
   },
   "content": {
@@ -1180,6 +1202,7 @@
         "message": {
           "passwordChange": {
             "info": "This form can be used to change the password for your user identity",
+            "link": "Show form to change password",
             "required": "Required to change password CzechIdM",
             "idmNotEnabled": "Password change for CzechIdM is not allowed",
             "success": {
@@ -1582,6 +1605,9 @@
         "state": {
           "label": "State",
           "placeholder": "Identity state"
+        },
+        "formProjection": {
+          "placeholder": "$t(entity.Identity.formProjection.label)"
         }
       },
       "action": {
@@ -1606,6 +1632,11 @@
         },
         "remove": {
           "action": "Remove"
+        },
+        "add": {
+          "header": "Create user - choose form type",
+          "or": "or",
+          "default": "use default form"
         }
       }
     },
@@ -1863,6 +1894,45 @@
         }
       }
     },
+    "form-projections": {
+      "header": "Form projections",
+      "title": "Form projections",
+      "edit": {
+        "title": "Form projection detail"
+      },
+      "create": {
+        "title": "New form projection",
+        "header": "New form projection"
+      },
+      "filter": {
+        "text": {
+          "placeholder": "Code or owner type"
+        }
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "save": {
+        "success": "Form projection [{{code}}] successfully saved"
+      },
+      "identities": {
+        "label": "Users",
+        "header": "Users with projection",
+        "title": "Users with projection"
+      },
+      "localization": {
+        "header": "Localization",
+        "title": "Localization",
+        "check": {
+          "found": "Form projection localization exists. Localization found in localization file.",
+          "not-found": "Form projection localization doesn't exist. Define her by the example bellow in module localization files."
+        },
+        "how-to": {
+          "header": "How to",
+          "message": "Form projection localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (in the <strong>eav</strong> section):"
+        }
+      }
+    },
     "formAttributes": {
       "header": "Form attributes",
       "title": "Form attributes",
@@ -1971,6 +2041,71 @@
       "edit": {
         "title": "Detail of storage",
         "header": "Detail encrypted value"
+      }
+    },
+    "export-imports": {
+      "header": "Export/Import",
+      "title": "Export/Import",
+      "fileUploaded": "Import batch successfully uploaded.",
+      "link": {
+        "longRunningTask": {
+          "title": "Show long running task",
+          "deleted": {
+            "label": "Task deleted",
+            "title": "Task (LRT) was deleted."
+          }
+        }
+      },
+      "actions": "Actions",
+      "action": {
+        "download": {
+          "title": "Download"
+        },
+        "dry-run": {
+          "title": "Execute import in demo mode",
+          "header": "Execute import in demo mode",
+          "message": "Starts the selected import batch in demo mode. No changes will be applied. Import will start asynchronously in the background.",
+          "success": "Demo import started successfully."
+        },
+        "execute": {
+          "title": "Execute import",
+          "header": "Execute import",
+          "message": "Starts the selected import batch. Import will start asynchronously in the background.",
+          "success": "Import started successfully."
+        }
+      },
+      "filter": {
+        "text": {
+          "placeholder": "Name of batch"
+        },
+        "textLog": {
+          "placeholder": "Type of entity"
+        },
+        "operation": {
+          "placeholder": "Operation"
+        },
+        "operationState": {
+          "placeholder": "Result"
+        }
+      },
+      "dropzone": {
+        "infoText": "Drag import batches (ZIP) here, or click to select files."
+      },
+      "detail": {
+        "header": "Batch detail",
+        "tab": "Batch result"
+      },
+      "treeLogs": {
+        "name": "All modifications (tree)"
+      },
+      "tableLogs": {
+        "name": "All modifications"
+      },
+      "ImportDescriptor": {
+        "operation": "Operation",
+        "dto": "Entity",
+        "result": "Result",
+        "type": "Type"
       }
     },
     "scripts": {
@@ -2574,6 +2709,48 @@
           "title": "Position in organizational structure"
         }
       },
+      "projection": {
+        "create": {
+          "title": "$t(content.identity.create.title)",
+          "insufficientPermission": "Insufficient permissions to create identity with contract.<br /><strong>Create contract authority</strong> is missing. Contract is created together with created user."
+        },
+        "edit": {
+          "title": "$t(content.identity.profile.userDetail)",
+          "insufficientPermission": "Insufficient permissions to update identity with contract.<br /><strong>Update contract permission</strong> is missing."
+        },
+        "button": {
+          "close": {
+            "label": "Back to list of users"
+          }
+        },
+        "identity": {
+          "username": {
+            "label": "User login"
+          }
+        },
+        "contract": {
+          "validFrom": {
+            "label": "Valid from"
+          },
+          "validTill": {
+            "label": "Valid till"
+          },
+          "workPosition": {
+            "label": "Organizational positon"
+          }
+        },
+        "otherPosition": {
+          "workPosition": {
+            "label": "Other organizational positon"
+          }
+        },
+        "roles": {
+          "header": {
+            "new": "$t(content.identity.roles.directRoles.header)",
+            "edit": "$t(content.identity.roles.header)"
+          }
+        }
+      },
       "profile-setting": {
         "header": "User setting",
         "title": "User setting"
@@ -3036,6 +3213,12 @@
           "run": "Run manually",
           "dryRun": "Run as dryRun (demo process)"
         },
+        "filter": {
+          "text": {
+            "label": "Type (class) / Description",
+            "placeholder": "Task type (class) or description of task"
+          }
+        },
         "action": {
           "trigger-delete": {
             "header": "Remove scheduled run",
@@ -3096,8 +3279,8 @@
         },
         "filter": {
           "text": {
-            "label": "Type / Description",
-            "placeholder": "Type or description of task"
+            "label": "Type (class) / Description",
+            "placeholder": "Task type (class) or description of task"
           },
           "operationState": {
             "label": "State",
@@ -3517,6 +3700,7 @@
       "help": "User transaction identifier - entity was saved in this context (batch)."
     },
     "name": "Name",
+    "type": "Type",
     "created": "Created",
     "modified": {
       "short": "Changed",
@@ -3565,6 +3749,10 @@
       "disabledReadonly": {
         "label": "$t(label.disabled)",
         "help": "$t(label.disabled) identity cannot log in. It's controlled by the state."
+      },
+      "formProjection": {
+        "label": "User type",
+        "help": "User type defines, which form will be used for user detail and editation."
       }
     },
     "Profile": {
@@ -3709,6 +3897,57 @@
         "help": "Module is defined or used in given module. Module is used for example for resolving the localization. 'core' module is used as default."
       }
     },
+    "FormProjection" : {
+      "_type": "Form projection",
+      "code": {
+        "label": "Code",
+        "help": "Unique projection code. Code is used e.q. for resolving the localization."
+      },
+      "ownerType": {
+        "label": "Owner type"
+      },
+      "route": {
+        "label": "Frontend target",
+        "help": "Form (component) on frontend."
+      },
+      "description": {
+        "label": "Description"
+      },
+      "module": {
+        "label": "Module",
+        "help": "Module is defined or used in given module. Module is used for example for resolving the localization. 'core' module is used as default."
+      },
+      "disabled": {
+        "label": "$t(label.disabled)",
+        "help": "Projection will not be available for creating new user."
+      },
+      "formDefinitions": {
+        "label": "Form definitions",
+        "help": "Form definitions and attributes to show.",
+        "placeholder": "Select form definition ...",
+        "button": {
+          "add": {
+            "label": "Add form definition",
+            "title": "Add another form definition into form projection"
+          },
+          "remove": {
+            "title": "Remove form definition"
+          }
+        },
+        "attributes": {
+          "placeholder": "All attributes in selected form definition or select ..."
+        }
+      },
+      "basicFields": {
+        "label": "Basic attributes",
+        "help": "Basic user attributes to show. All basic user attributes.",
+        "placeholder": "All basic attributes or select ..."
+      },
+      "properties": {
+        "label": "Properties",
+        "help": "Additional projection properties."
+      }
+    },
     "FormAttribute" : {
       "code": {
         "label": "Code",
@@ -3717,6 +3956,9 @@
       "name": {
         "label": "Name",
         "help": "Will be shown on form detail."
+      },
+      "formDefinition": {
+        "label": "Definition name"
       },
       "seq": {
         "label": "Order",
@@ -3915,6 +4157,30 @@
       "duplicate": {
         "label": "Requested role is duplicate",
         "header": "Requested role is duplicate with role:"
+      }
+    },
+    "ExportImport": {
+      "_type": "Export/Import batches",
+      "name": {
+        "label": "Description"
+      },
+      "executorName": {
+        "label": "Batch content"
+      },
+      "type": {
+        "label": "Batch type"
+      },
+      "creator": {
+        "label": "$t(core:entity.creator)"
+      },
+      "created": {
+        "label": "$t(core:entity.created)"
+      },
+      "modified": {
+        "label": "Modified"
+      },
+      "result": {
+        "state": "State"
       }
     },
     "IdentityAccount": {
@@ -4454,7 +4720,7 @@
     },
     "LongRunningTask": {
       "taskId": "Task ID",
-      "taskType": "Task type",
+      "taskType": "Task type (class)",
       "taskDescription": "Description",
       "count": "Count",
       "counter": "Processed",
@@ -4831,6 +5097,7 @@
       }
     },
     "RoleFormAttribute": {
+      "_type": "Role attribute",
       "role": {
         "label": "Role"
       },
@@ -5155,6 +5422,30 @@
         "help": "$t(action.delete.action) selected roles.",
         "icon": "$t(action.delete.icon)"
       },
+      "role-export-bulk-action": {
+        "icon": "export",
+        "label": "Export role",
+        "title": "Role",
+        "help": "Creates an export batch containing selected roles. The resulting export will be saved in the <strong>Export/Import</strong> agenda.",
+        "attributes": {
+          "name": {
+              "label": "Description of export",
+            "help": ""
+          }
+        }
+      },
+      "configuration-export-bulk-action": {
+        "icon": "export",
+        "label": "Export configuration",
+        "title": "Configurations",
+        "help": "Creates an export batch containing selected configuration items. The resulting export will be saved in the <strong>Export/Import</strong> agenda.",
+        "attributes": {
+          "name": {
+              "label": "Description of export",
+            "help": ""
+          }
+        }
+      },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) configuration items",
         "help": "$t(action.delete.action) selected configuration items.",
@@ -5242,6 +5533,11 @@
         "label": "Cancel tasks",
         "help": "Cancel selected tasks. Newly created or running tasks will be canceled only.",
         "icon": "remove"
+      },
+      "core-form-projection-delete-bulk-action": {
+        "label": "$t(action.delete.action) projections",
+        "help": "$t(action.delete.action) selected projections. Users with deleted projection will be switched to default projection.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {
@@ -5269,6 +5565,29 @@
           "owner-read": {
             "label": "By permission to read user",
             "help": "Add permission to attributes of users, which can be read by the logged user (for example, when logged user can read identity, then he can update attributes)."
+          }
+        }
+      },
+      "core-identity-contract-form-value-evaluator": {
+        "help": "Permissions to contract form attribute values. By definition (main if not specified) and attrinute codes (all if not specified).",
+        "attributes": {
+          "form-definition": {
+            "label": "Form definition",
+            "help": "Select definition, which contains attributes. Main definition will be used as default.",
+            "placeholder": "Main definition for identities or select ..."
+          },
+          "attributes": {
+            "label": "Attributes",
+            "help": "Add permission to attributes. All attributes from selected form definition will be used as default.",
+            "placeholder": "All attributes or attribute codes (use comma as separator)"
+          },
+          "owner-update": {
+            "label": "By permission to update contract",
+            "help": "Add permission to attributes of users, which can be updated by the logged user (for example, when logged user can update contract, then he can update attributes too)."
+          },
+          "owner-read": {
+            "label": "By permission to read contract",
+            "help": "Add permission to attributes of contracts, which can be read by the logged user (for example, when logged user can read contract, then he can update attributes)."
           }
         }
       },
@@ -5671,6 +5990,20 @@
         "help": "Task finds all contract time slices which are to be set as current. These slices are written through to the related contract.",
         "icon": "component:scheduled-task"
       }
+    },
+    "form-projection": {
+      "identity-externe": {
+        "label": "Externe user",
+        "help": "Create externe user",
+        "icon": "fa:walking",
+        "level": "primary"
+      },
+      "identity-internal": {
+        "label": "Internal employee",
+        "help": "Create internal user",
+        "icon": "fa:user",
+        "level": "success"
+      }
     }
   },
   "error": {
@@ -5967,6 +6300,14 @@
     "NOTIFICATION_CONFIGURATION_RECIPIENT_NOT_FOUND": {
       "title": "Configuration can not be saved",
       "message": "Recipients are required for redirected notifications with topic [{{topic}}]."
+    },
+    "NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_CONFIGURATION": {
+      "title": "Template cannot be deleted.",
+      "message": "Notification template [{{template}}] has to be removed from [{{usage}}] notification configuration(s) first."
+    },
+    "NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_NOTIFICATION": {
+      "title": "Template cannot be deleted.",
+      "message": "Notification template [{{template}}] has to be removed from [{{usage}}] notification(s) first."
     },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
       "title": "Form definition can not be deleted",
@@ -6635,6 +6976,34 @@
     "LOGGER_LEVEL_NOT_FOUND": {
       "title": "Logger level does not exist",
       "message": "Given logger level [{{level}}] does not exist. Available logger levels [TRACE, DEBUG, INFO, WARN, ERROR]."
+    },
+    "IMPORT_EXECUTED_AS_DRYRUN": {
+      "title": "Import was executed in demo mode.",
+      "message": "No changes were made!"
+    },
+    "IMPORT_CAN_EXECUTE_ONLY_ADMIN": {
+      "title": "Only administrator can start import!",
+      "message": "Import cannot be started because you do not have administrator privileges!"
+    },
+    "IMPORT_DTO_SKIPPED": {
+      "title": "Imported DTO was skipped.",
+      "message": "The relation to this object was not found, but this type is marked as 'optional', so the imported DTO was skipped."
+    },
+    "IMPORT_ADVANCED_PARING_FAILED_NOT_FOUND": {
+      "title": "Object with code [{{code}}] was not found!",
+      "message": "Advanced pairing failed for [{{field}}] in DTO [{{dto}}]. Object [{{notFoundDto}}] not found in target IdM!"
+    },
+    "IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL": {
+      "title": "Object with code [{{code}}] was not found!",
+      "message": "Advanced pairing failed for [{{field}}] in DTO [{{dto}}]. Object [{{notFoundDto}}] not found in target IdM, but its import was skipped."
+    },
+    "IMPORT_DTO_SKIPPED_DRY_RUN": {
+      "title": "Imported DTO was skipped.",
+      "message": "The relation to this object was not found, but this import is runing in demo mode, so the imported DTO was skipped."
+    },
+    "IMPORT_IS_ALREADY_RUNNING": {
+      "title": "This import is already running!",
+      "message": "The same import task cannot be run twice!"
     }
   },
   "validationError": {

@@ -43,12 +43,16 @@ import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
@@ -201,6 +205,47 @@ public class DefaultSysRoleSystemService
 							.isPresent();
 
 				}).collect(Collectors.toList());
+	}
+	
+	@Override
+	protected SysRoleSystemDto internalExport(UUID id) {
+		 SysRoleSystemDto roleSystemDto = this.get(id);
+		 
+		 // We cannot clear all embedded data, because we need to export DTO for connected role.
+		 BaseDto roleDto = roleSystemDto.getEmbedded().get(SysRoleSystem_.role.getName());
+		 roleSystemDto.getEmbedded().clear();
+		 roleSystemDto.getEmbedded().put(SysRoleSystem_.role.getName(), roleDto);
+		 
+		 return roleSystemDto;
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Export batch must exist!");
+		// Export role-system
+		super.export(id, batch);
+
+		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, this.getDtoClass());
+		descriptorDto.setOptional(true);
+		descriptorDto.getAdvancedParingFields().add(SysRoleSystem_.role.getName());
+		
+		// Export role systems
+		SysRoleSystemAttributeFilter roleSystemAttributeFilter = new SysRoleSystemAttributeFilter();
+		roleSystemAttributeFilter.setRoleSystemId(id);
+		List<SysRoleSystemAttributeDto> roleSystemAttributes = roleSystemAttributeService.find(roleSystemAttributeFilter, null).getContent();
+		if (roleSystemAttributes.isEmpty()) {
+			roleSystemAttributeService.export(UUID.fromString(ExportManager.BLANK_UUID), batch);
+		}
+		roleSystemAttributes.forEach(roleSystemAttribute -> {
+			roleSystemAttributeService.export(roleSystemAttribute.getId(), batch);
+		});
+		// Set parent field -> set authoritative mode for override attributes.
+		this.getExportManager().setAuthoritativeMode(SysRoleSystemAttribute_.roleSystem.getName(), "systemId", SysRoleSystemAttributeDto.class,
+				batch);
+		// The override attribute is optional too.
+		ExportDescriptorDto descriptorAttributeDto = getExportManager().getDescriptor(batch, SysRoleSystemAttributeDto.class);
+		descriptorAttributeDto.setOptional(true);
+		descriptorAttributeDto.getAdvancedParingFields().add(SysRoleSystemAttribute_.roleSystem.getName());
 	}
 
 	@Override

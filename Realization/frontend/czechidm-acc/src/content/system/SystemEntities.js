@@ -66,8 +66,10 @@ class SystemEntitiesContent extends Advanced.AbstractTableContent {
   afterSave(entity, error) {
     if (!error) {
       this.addMessage({ message: this.i18n('save.success', { name: entity.uid }) });
+      super.afterSave();
+    } else {
+      this.addError(error);
     }
-    super.afterSave();
   }
 
   render() {

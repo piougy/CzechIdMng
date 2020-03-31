@@ -4,7 +4,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 
 /**
- * Scheduler agenda entry point
+ * Scheduler agenda entry point.
  *
  * @author Radek Tomiška
  */
@@ -16,13 +16,13 @@ export default class SchedulerRoutes extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader({ icon: 'component:scheduled-tasks'}) }
 
         <Advanced.TabPanel position="top" parentId="scheduler" match={ this.props.match }>
           { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

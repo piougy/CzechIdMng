@@ -372,14 +372,20 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
+		
 		IdmIdentityContractDto dto = getDto(backendId);
 		if (dto == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			// empty form instance with filled form definition
+			IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+			formInstance.setFormDefinition(formDefinition);
+			formDefinitionController.secureAttributes(formInstance);
+			//
+			return new Resource<>(formInstance);
 		}
 		//
 		checkAccess(dto, IdmBasePermission.READ);
 		//
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
 		IdmFormInstanceDto formInstance = formService.getFormInstance(dto, formDefinition);
 		//
 		// If is contract controlled by slice, then we make all
@@ -547,9 +553,14 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 	@Override
 	protected IdmIdentityContractFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter(parameters, getParameterConverter());
-		filter.setText(getParameterConverter().toString(parameters, "text"));
+		// to entity decorator
 		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentityDto.class));
-		filter.setWorkPosition(getParameterConverter().toEntityUuid(parameters, "workPosition", IdmTreeNodeDto.class));
+		
+		
+		
+		
+		
+		filter.setWorkPosition(getParameterConverter().toEntityUuid(parameters, "workPosition", IdmTreeNodeDto.class));		
 		filter.setValid(getParameterConverter().toBoolean(parameters, "valid"));
 		filter.setExterne(getParameterConverter().toBoolean(parameters, "externe"));
 		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));

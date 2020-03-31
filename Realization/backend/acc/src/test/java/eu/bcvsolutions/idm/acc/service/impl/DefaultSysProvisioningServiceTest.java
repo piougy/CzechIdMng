@@ -598,6 +598,47 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void doIdentityProvisioningStrategyCreateNotReturnByDefault() {
+		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
+
+		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		AccIdentityAccountDto accountIdentityOne = identityAccountService.find(filter, null).getContent().get(0);
+
+		// Default email strategy is CREATE, we check value
+		TestResource resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
+		Assert.assertEquals(EMAIL_ONE, resourceAccoutn.getEmail());
+
+		SysSystemAttributeMappingFilter filterSchemaAttr = new SysSystemAttributeMappingFilter();
+		filterSchemaAttr.setIdmPropertyName("email");
+		filterSchemaAttr.setSystemId(accountService.get(accountIdentityOne.getAccount()).getSystem());
+		SysSystemAttributeMappingDto attributeHandling = systemAttributeMappingService.find(filterSchemaAttr, null)
+				.getContent().get(0);
+
+		attributeHandling.setEntityAttribute(true);
+		attributeHandling.setStrategyType(AttributeMappingStrategyType.CREATE);
+		attributeHandling.setTransformToResourceScript("return \"" + EMAIL_TWO + "\";");
+		
+		// Set schema attribute as returnByDefault = false.
+		UUID schemaAttributeId = attributeHandling.getSchemaAttribute();
+		SysSchemaAttributeDto schemaAttributeDto = schemaAttributeService.get(schemaAttributeId);
+		schemaAttributeDto.setReturnedByDefault(false);
+		schemaAttributeDto = schemaAttributeService.save(schemaAttributeDto);
+		
+		systemAttributeMappingService.save(attributeHandling);
+
+		// Do provisioning
+		provisioningService.doProvisioning(identity);
+		// Email strategy is CREATE ... email in account must not have new value 
+		resourceAccoutn = entityManager.find(TestResource.class, accountService.get(accountIdentityOne.getAccount()).getUid());
+		Assert.assertNotEquals(EMAIL_TWO, resourceAccoutn.getEmail());
+		
+		// Set back schema attribute as returnByDefault = true.
+		schemaAttributeDto.setReturnedByDefault(true);
+		schemaAttributeDto = schemaAttributeService.save(schemaAttributeDto);
+	}
+	
+	@Test
 	public void doIdentityProvisioningStrategyIfNull() {
 		IdmIdentityDto identity = idmIdentityService.getByUsername(IDENTITY_USERNAME);
 

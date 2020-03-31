@@ -5,9 +5,9 @@ import java.util.UUID;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
+import eu.bcvsolutions.idm.core.api.domain.Inheritable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import io.swagger.annotations.ApiModelProperty;
@@ -35,6 +36,7 @@ import io.swagger.annotations.ApiModelProperty;
 	@JsonSubTypes.Type(value = SysSyncIdentityConfigDto.class)
 })
 @Relation(collectionRelation = "synchronizationConfigs")
+@Inheritable(dtoService = SysSyncConfigDto.class)
 public abstract class AbstractSysSyncConfigDto extends AbstractDto {
 
 	private static final long serialVersionUID = 7425419787855747415L;

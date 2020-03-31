@@ -1,13 +1,13 @@
 package eu.bcvsolutions.idm.vs.dto.filter;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import java.time.ZonedDateTime;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.ExternalIdentifiableFilter;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
@@ -18,19 +18,19 @@ import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
  * @author Svanda
  *
  */
-public class VsRequestFilter extends DataFilter implements ExternalIdentifiable {
+public class VsRequestFilter extends DataFilter implements ExternalIdentifiableFilter {
 
 	private String uid;
 	private UUID systemId;
 	private String connectorKey;
 	private VsOperationType operationType;
 	private VsRequestState state;
-	private ZonedDateTime createdAfter;
-	private ZonedDateTime createdBefore;
+	private ZonedDateTime createdAfter; // TODO: createdFrom alias
+	private ZonedDateTime createdBefore; // TODO: createdTill alias
 	private Boolean onlyArchived;
 	private UUID roleRequestId;
-	private ZonedDateTime modifiedAfter;
-	private ZonedDateTime modifiedBefore;
+	private ZonedDateTime modifiedAfter; // TODO: modifiedFrom alias
+	private ZonedDateTime modifiedBefore; // TODO: modifiedTill alias
 	
 	public VsRequestFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -126,21 +126,5 @@ public class VsRequestFilter extends DataFilter implements ExternalIdentifiable 
 
 	public void setRoleRequestId(UUID roleRequestId) {
 		this.roleRequestId = roleRequestId;
-	}
-	
-	/**
-	 * @since 9.7.9
-	 */
-	@Override
-	public String getExternalId() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
-	}
-	
-	/**
-	 * @since 9.7.9
-	 */
-	@Override
-	public void setExternalId(String externalId) {
-		data.set(PROPERTY_EXTERNAL_ID, externalId);
 	}
 }

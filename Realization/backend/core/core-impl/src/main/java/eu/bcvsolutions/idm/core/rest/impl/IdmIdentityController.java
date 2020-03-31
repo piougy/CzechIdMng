@@ -63,6 +63,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
@@ -86,6 +87,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -96,8 +98,6 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.WorkPositionDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.CheckLongPollingResult;
 import eu.bcvsolutions.idm.core.model.service.api.LongPollingManager;
 import eu.bcvsolutions.idm.core.rest.DeferredResultWrapper;
@@ -739,25 +739,33 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, required = false) String definitionCode) {
-		IdmIdentityDto entity = getDto(backendId);
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		//
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
 				IdmIdentity.class, 
 				definitionCode, 
 				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.AUTOCOMPLETE : null);
 		//
+		IdmIdentityDto dto = getDto(backendId);
+		if (dto == null) {		
+			// empty form instance with filled form definition
+			IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
+			formInstance.setFormDefinition(formDefinition);
+			// secure attributes
+			if (identityConfiguration.isFormAttributesSecured()) {
+				formDefinitionController.secureAttributes(formInstance);
+			}
+			//
+			return new Resource<>(formInstance);
+		}
+		//
 		Resource<IdmFormInstanceDto> formValues = formDefinitionController.getFormValues(
-				entity,
+				dto,
 				formDefinition,
 				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.READ : null);	
 		//
 		if (!identityConfiguration.isFormAttributesSecured()) {
 			// we need to iterate through attributes and make them read only, if identity cannot be updated
 			try {
-				checkAccess(entity, IdmBasePermission.UPDATE);
+				checkAccess(dto, IdmBasePermission.UPDATE);
 			} catch (ForbiddenEntityException ex) {
 				formValues.getContent().getFormDefinition().getFormAttributes().forEach(formAttribute -> {
 					formAttribute.setReadonly(true);
@@ -1291,27 +1299,22 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	@Override
 	protected IdmIdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmIdentityFilter filter = new IdmIdentityFilter(parameters, getParameterConverter());
-		filter.setDisabled(getParameterConverter().toBoolean(parameters, IdmIdentityFilter.PARAMETER_DISABLED));
-		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentity.class));
-		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeType.class));
-		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentity.class));
-		filter.setManagersByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeType.class));
-		filter.setTreeNode(getParameterConverter().toUuid(parameters, "treeNodeId"));
-		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
-		filter.setTreeType(getParameterConverter().toUuid(parameters, "treeTypeId"));
-		filter.setManagersByContract(getParameterConverter().toUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT));
-		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, "includeGuarantees", false));
-		// TODO: or / and in multivalues? OR is supported now
-		if (parameters.containsKey("role")) {
-			for(Object role : parameters.get("role")) {
+		// to entity decorators
+		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentityDto.class));
+		filter.setSubordinatesByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_SUBORDINATES_BY_TREE_TYPE, IdmTreeTypeDto.class));
+		filter.setManagersFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_FOR, IdmIdentityDto.class));
+		filter.setManagersByTreeType(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_MANAGERS_BY_TREE_TYPE, IdmTreeTypeDto.class));
+		filter.setFormProjection(getParameterConverter().toEntityUuid(parameters, IdmIdentityFilter.PARAMETER_FORM_PROJECTION, IdmFormProjectionDto.class));
+		// OR is supported now
+		if (parameters.containsKey(IdmIdentityFilter.PARAMETER_ROLE)) {
+			for (Object role : parameters.get(IdmIdentityFilter.PARAMETER_ROLE)) {
 				if (role != null) {
-					filter.getRoles().add(getParameterConverter().toEntityUuid((String) role, IdmRole.class));
+					filter.getRoles().add(getParameterConverter().toEntityUuid((String) role, IdmRoleDto.class));
 				}
 			}
 		}
-		filter.setFirstName(getParameterConverter().toString(parameters, "firstName"));
-		filter.setLastName(getParameterConverter().toString(parameters, "lastName"));
-		filter.setState(getParameterConverter().toEnum(parameters, IdmIdentityFilter.PARAMETER_STATE, IdentityState.class));
+		// different default than in filter ... i don't know why, but change is to dangerous
+		filter.setIncludeGuarantees(getParameterConverter().toBoolean(parameters, IdmIdentityFilter.PARAMETER_INCLUDE_GUARANTEES, false)); 
 		return filter;
 	}
 	

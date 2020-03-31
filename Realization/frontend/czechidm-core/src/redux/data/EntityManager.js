@@ -1285,6 +1285,9 @@ export default class EntityManager {
     if (!this.supportsAuthorization() || !entity) {
       return SecurityManager.hasAuthority(`${this.getGroupPermission()}_READ`);
     }
+    if (!permissions && entity._permissions) {
+      permissions = entity._permissions;
+    }
     return Utils.Permission.hasPermission(permissions, 'READ') && SecurityManager.hasAuthority(`${this.getGroupPermission()}_READ`);
   }
 
@@ -1304,7 +1307,11 @@ export default class EntityManager {
     if (Utils.Entity.isNew(entity)) {
       return SecurityManager.hasAuthority(`${this.getGroupPermission()}_CREATE`);
     }
-    return (!this.supportsAuthorization() || Utils.Permission.hasPermission(permissions, 'UPDATE')) && SecurityManager.hasAuthority(`${this.getGroupPermission()}_UPDATE`);
+    if (!permissions && entity._permissions) {
+      permissions = entity._permissions;
+    }
+    return (!this.supportsAuthorization() || Utils.Permission.hasPermission(permissions, 'UPDATE'))
+      && SecurityManager.hasAuthority(`${this.getGroupPermission()}_UPDATE`);
   }
 
   /**
@@ -1320,6 +1327,9 @@ export default class EntityManager {
     }
     if (!this.supportsAuthorization() || !entity) {
       return SecurityManager.hasAuthority(`${this.getGroupPermission()}_DELETE`);
+    }
+    if (!permissions && entity._permissions) {
+      permissions = entity._permissions;
     }
     return Utils.Permission.hasPermission(permissions, 'DELETE') && SecurityManager.hasAuthority(`${this.getGroupPermission()}_DELETE`);
   }
@@ -1338,7 +1348,11 @@ export default class EntityManager {
     if (Utils.Entity.isNew(entity)) {
       return SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
     }
-    return (!this.supportsAuthorization() || Utils.Permission.hasPermission(permissions, 'EXECUTE')) && SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
+    if (!permissions && entity._permissions) {
+      permissions = entity._permissions;
+    }
+    return (!this.supportsAuthorization() || Utils.Permission.hasPermission(permissions, 'EXECUTE'))
+      && SecurityManager.hasAuthority(`${this.getGroupPermission()}_EXECUTE`);
   }
 
   /**

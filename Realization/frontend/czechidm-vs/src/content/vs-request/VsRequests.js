@@ -49,23 +49,33 @@ export default class VsRequests extends Basic.AbstractContent {
         <Basic.PageHeader>
           <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
         </Basic.PageHeader>
-          <Basic.Tabs activeKey={activeKey} onSelect={this._onChangeSelectTabs.bind(this)}>
-            <Basic.Tab eventKey={1} title={this.i18n('tabs.active.label')}>
-              <VsRequestTable
-                uiKey="vs-request-table"
-                forceSearchParameters={searchActive}
-                filterOpened />
-            </Basic.Tab>
-            <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
-              <VsRequestTable
-                uiKey="vs-request-table-archive"
-                columns={['uid', 'systemId', 'operationType', 'executeImmediately', 'created', 'creator', 'roleRequestId', 'modifier', 'modified', 'state']}
-                showRowSelection={false}
-                forceSearchParameters={searchArchive}
-                defaultSearchParameters={searchArchiveDefault}
-                filterOpened />
-            </Basic.Tab>
-          </Basic.Tabs>
+        <Basic.Tabs activeKey={activeKey} onSelect={this._onChangeSelectTabs.bind(this)}>
+          <Basic.Tab eventKey={1} title={this.i18n('tabs.active.label')}>
+            <VsRequestTable
+              uiKey="vs-request-table"
+              forceSearchParameters={searchActive}
+              filterOpened />
+          </Basic.Tab>
+          <Basic.Tab eventKey={2} title={this.i18n('tabs.archive.label')}>
+            <VsRequestTable
+              uiKey="vs-request-table-archive"
+              columns={['uid',
+                'targetEntity',
+                'systemId',
+                'operationType',
+                'executeImmediately',
+                'created',
+                'creator',
+                'roleRequestId',
+                'modifier',
+                'modified',
+                'state']}
+              showRowSelection={false}
+              forceSearchParameters={searchArchive}
+              defaultSearchParameters={searchArchiveDefault}
+              filterOpened />
+          </Basic.Tab>
+        </Basic.Tabs>
       </div>
     );
   }

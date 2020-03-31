@@ -912,11 +912,6 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	
 	@Override
 	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SysSystemFilter filter = new SysSystemFilter(parameters);
-		//
-		filter.setPasswordPolicyValidationId(getParameterConverter().toUuid(parameters, "passwordPolicyValidationId"));
-		filter.setPasswordPolicyGenerationId(getParameterConverter().toUuid(parameters, "passwordPolicyGenerationId"));
-		filter.setVirtual(getParameterConverter().toBoolean(parameters, "virtual"));
-		return filter;
+		return new SysSystemFilter(parameters, getParameterConverter());
 	}
 }

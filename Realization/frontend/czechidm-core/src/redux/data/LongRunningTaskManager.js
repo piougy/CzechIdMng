@@ -190,7 +190,9 @@ export default class LongRunningTaskManager extends EntityManager {
           } else {
             if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
               if (!cb) { // if no callback given, we need show error
-                dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.cancel.error`, { record: this.getNiceLabel(entity) }) }, error));
+                dispatch(this.flashMessagesManager.addErrorMessage({
+                  title: this.i18n(`action.cancel.error`, { record: this.getNiceLabel(entity) })
+                }, error));
               } else { // otherwise caller has to show eror etc. himself
                 cb(entity, error, null);
               }
@@ -199,29 +201,37 @@ export default class LongRunningTaskManager extends EntityManager {
           }
         });
       }, Promise.resolve())
-      .catch((error) => {
-        // nothing - message is propagated before
-        // catch is before then - we want execute next then clausule
-        return error;
-      })
-      .then((error) => {
-        if (successEntities.length > 0) {
-          dispatch(this.flashMessagesManager.addMessage({
-            level: 'success',
-            message: this.i18n(`action.cancel.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
-          }));
-        }
-        if (approveEntities.length > 0) {
-          dispatch(this.flashMessagesManager.addMessage({
-            level: 'info',
-            message: this.i18n(`action.cancel.accepted`, { count: approveEntities.length, records: this.getNiceLabels(approveEntities).join(', '), record: this.getNiceLabel(approveEntities[0]) })
-          }));
-        }
-        dispatch(this.stopBulkAction());
-        if (cb) {
-          cb(null, error, successEntities);
-        }
-      });
+        .catch((error) => {
+          // nothing - message is propagated before
+          // catch is before then - we want execute next then clausule
+          return error;
+        })
+        .then((error) => {
+          if (successEntities.length > 0) {
+            dispatch(this.flashMessagesManager.addMessage({
+              level: 'success',
+              message: this.i18n(`action.cancel.success`, {
+                count: successEntities.length,
+                records: this.getNiceLabels(successEntities).join(', '),
+                record: this.getNiceLabel(successEntities[0])
+              })
+            }));
+          }
+          if (approveEntities.length > 0) {
+            dispatch(this.flashMessagesManager.addMessage({
+              level: 'info',
+              message: this.i18n(`action.cancel.accepted`, {
+                count: approveEntities.length,
+                records: this.getNiceLabels(approveEntities).join(', '),
+                record: this.getNiceLabel(approveEntities[0])
+              })
+            }));
+          }
+          dispatch(this.stopBulkAction());
+          if (cb) {
+            cb(null, error, successEntities);
+          }
+        });
     };
   }
 }

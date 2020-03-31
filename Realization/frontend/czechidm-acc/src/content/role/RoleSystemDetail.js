@@ -201,8 +201,8 @@ class RoleSystemDetail extends Advanced.AbstractTableContent {
       .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
       .setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
     let linkMenu = this._isSystemMenu()
-      ? `/system/${roleSystem.system}/roles/${roleSystem ? roleSystem.id : ''}/attributes`
-      : `/role/${roleSystem.role}/systems/${roleSystem ? roleSystem.id : ''}/attributes`;
+      ? `system/${roleSystem.system}/roles/${roleSystem ? roleSystem.id : ''}/attributes`
+      : `role/${roleSystem.role}/systems/${roleSystem ? roleSystem.id : ''}/attributes`;
     linkMenu = this.addRequestPrefix(linkMenu, this.props.match.params);
     //
     return (

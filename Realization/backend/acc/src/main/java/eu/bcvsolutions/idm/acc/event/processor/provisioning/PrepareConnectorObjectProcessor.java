@@ -413,137 +413,150 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			for (Entry<ProvisioningAttributeDto, Object> entry : fullAccountObject.entrySet()) {
 
 				ProvisioningAttributeDto provisioningAttribute = entry.getKey();
-				Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes //
-						.stream() //
-						.filter(schemaAttribute -> { //
-							return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
-						}) //
-						.findFirst();
-
-				if (!schemaAttributeOptional.isPresent()) {
-					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND,
-							ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
-				}
-
-				SysSchemaAttributeDto schemaAttribute = schemaAttributeOptional.get();
-				if (schemaAttribute.isUpdateable()) {
-					if (schemaAttribute.isReturnedByDefault()) {
-						Object idmValue = fullAccountObject.get(provisioningAttribute);
-						IcAttribute attribute = existsConnectorObject.getAttributeByName(schemaAttribute.getName());
-						Object connectorValue = attribute != null
-								? (attribute.isMultiValue() ? attribute.getValues() : attribute.getValue())
-								: null;
-						if (connectorValue != null && !(connectorValue instanceof List)) {
-							connectorValue = Lists.newArrayList(connectorValue);
-						}
-
-						if (AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()) {
-							// We do update, attributes with create strategy will be skipped
-							continue;
-						}
-
-						if (provisioningAttribute.isSendOnlyIfNotNull()) {
-							if (this.isValueEmpty(idmValue)) {
-								// Skip this attribute (marked with flag sendOnlyIfNotNull), because idm value
-								// is null
-								continue;
-							}
-						}
-
-						if (AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
-
-							boolean existSetAttribute = fullAccountObject //
-									.keySet() //
-									.stream() //
-									.filter(provisioningAttributeKey -> { //
-										return provisioningAttributeKey.getSchemaAttributeName()
-												.equals(schemaAttribute.getName())
-												&& AttributeMappingStrategyType.SET == provisioningAttributeKey
-														.getStrategyType();
-									}) //
-									.findFirst() //
-									.isPresent();
-
-							boolean existMergeAttribute = fullAccountObject //
-									.keySet() //
-									.stream() //
-									.filter(provisioningAttributeKey -> { //
-										return provisioningAttributeKey.getSchemaAttributeName()
-												.equals(schemaAttribute.getName())
-												&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey
-														.getStrategyType();
-									}) //
-									.findFirst() //
-									.isPresent();
-
-							boolean existAuthMergeAttribute = fullAccountObject //
-									.keySet() //
-									.stream() //
-									.filter(provisioningAttributeKey -> { //
-										return provisioningAttributeKey.getSchemaAttributeName()
-												.equals(schemaAttribute.getName())
-												&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey
-														.getStrategyType();
-									}) //
-									.findFirst() //
-									.isPresent();
-
-							if (AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
-								List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
-								//
-								Optional<IcAttribute> icAttributeOptional = icAttributes.stream().filter(ica -> {
-									return schemaAttribute.getName().equals(ica.getName());
-								}).findFirst();
-								IcAttribute icAttribute = null;
-								if (icAttributeOptional.isPresent()) {
-									icAttribute = icAttributeOptional.get();
-								}
-								// We need do transform from resource first
-								Object transformedConnectorValue = this.transformValueFromResource(
-										provisioningAttribute.getTransformValueFromResourceScript(), schemaAttribute,
-										icAttribute, icAttributes, system);
-
-								if (transformedConnectorValue != null || existSetAttribute || existAuthMergeAttribute
-										|| existMergeAttribute) {
-									// Skip this attribute (with Write if null strategy), because connector value is
-									// not null
-									// or exists same attribute with SET/MERGE/AUTH_MERGE strategy (this strategies
-									// has higher priority)
-									continue;
-								}
-							}
-
-						}
-						Object resultValue = idmValue;
-						if (AttributeMappingStrategyType.MERGE == provisioningAttribute.getStrategyType()) {
-							resultValue = resolveMergeValues(provisioningAttribute, idmValue,
-									connectorValue, provisioningOperation);
-						}
-
-						// Update attribute on resource by given mapping
-						// attribute and mapped value in entity
-						IcAttribute updatedAttribute = updateAttribute(systemEntityUid, resultValue, schemaAttribute,
-								existsConnectorObject, system, provisioningAttribute);
-						if (updatedAttribute != null) {
-							updateConnectorObject.getAttributes().add(updatedAttribute);
-						}
-					} else {
-						// create attribute without target system read - password etc.
-						// filled values only
-						if (fullAccountObject.get(provisioningAttribute) != null) {
-							IcAttribute createdAttribute = createAttribute(schemaAttribute,
-									fullAccountObject.get(provisioningAttribute));
-							if (createdAttribute != null) {
-								updateConnectorObject.getAttributes().add(createdAttribute);
-							}
-						}
-					}
-				}
+				//  Resolve update for given attribute
+				processUpdateByAttribute(provisioningAttribute, provisioningOperation, existsConnectorObject, system,
+						systemEntityUid, updateConnectorObject, fullAccountObject, schemaAttributes);
 			}
 		}
 		//
 		provisioningOperation.getProvisioningContext().setConnectorObject(updateConnectorObject);
 		provisioningOperation.setOperationType(ProvisioningEventType.UPDATE);
+	}
+
+	/**
+	 * Resolve update for given attribute
+	 * 
+	 * @param provisioningAttribute
+	 * @param provisioningOperation
+	 * @param existsConnectorObject
+	 * @param system
+	 * @param systemEntityUid
+	 * @param updateConnectorObject
+	 * @param fullAccountObject
+	 * @param schemaAttributes
+	 */
+	private void processUpdateByAttribute(ProvisioningAttributeDto provisioningAttribute,
+			SysProvisioningOperationDto provisioningOperation, IcConnectorObject existsConnectorObject,
+			SysSystemDto system, String systemEntityUid, IcConnectorObject updateConnectorObject,
+			Map<ProvisioningAttributeDto, Object> fullAccountObject, List<SysSchemaAttributeDto> schemaAttributes) {
+		Optional<SysSchemaAttributeDto> schemaAttributeOptional = schemaAttributes //
+				.stream() //
+				.filter(schemaAttribute -> { //
+					return provisioningAttribute.getSchemaAttributeName().equals(schemaAttribute.getName());
+				}) //
+				.findFirst();
+
+		if (!schemaAttributeOptional.isPresent()) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND,
+					ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
+		}
+
+		SysSchemaAttributeDto schemaAttribute = schemaAttributeOptional.get();
+		if (schemaAttribute.isUpdateable()) {
+			Object idmValue = fullAccountObject.get(provisioningAttribute);
+			IcAttribute attribute = existsConnectorObject.getAttributeByName(schemaAttribute.getName());
+			Object connectorValue = attribute != null
+					? (attribute.isMultiValue() ? attribute.getValues() : attribute.getValue())
+					: null;
+			if (connectorValue != null && !(connectorValue instanceof List)) {
+				connectorValue = Lists.newArrayList(connectorValue);
+			}
+
+			if (AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()) {
+				return;
+			}
+
+			if (provisioningAttribute.isSendOnlyIfNotNull()) {
+				if (this.isValueEmpty(idmValue)) {
+					return;
+				}
+			}
+			if (schemaAttribute.isReturnedByDefault()) {
+				if (AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
+
+					boolean existSetAttribute = fullAccountObject //
+							.keySet() //
+							.stream() //
+							.filter(provisioningAttributeKey -> { //
+								return provisioningAttributeKey.getSchemaAttributeName()
+										.equals(schemaAttribute.getName())
+										&& AttributeMappingStrategyType.SET == provisioningAttributeKey
+												.getStrategyType();
+							}) //
+							.findFirst() //
+							.isPresent();
+
+					boolean existMergeAttribute = fullAccountObject //
+							.keySet() //
+							.stream() //
+							.filter(provisioningAttributeKey -> { //
+								return provisioningAttributeKey.getSchemaAttributeName()
+										.equals(schemaAttribute.getName())
+										&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey
+												.getStrategyType();
+							}) //
+							.findFirst() //
+							.isPresent();
+
+					boolean existAuthMergeAttribute = fullAccountObject //
+							.keySet() //
+							.stream() //
+							.filter(provisioningAttributeKey -> { //
+								return provisioningAttributeKey.getSchemaAttributeName()
+										.equals(schemaAttribute.getName())
+										&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey
+												.getStrategyType();
+							}) //
+							.findFirst() //
+							.isPresent();
+
+					if (AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()) {
+						List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
+						//
+						Optional<IcAttribute> icAttributeOptional = icAttributes.stream().filter(ica -> {
+							return schemaAttribute.getName().equals(ica.getName());
+						}).findFirst();
+						IcAttribute icAttribute = null;
+						if (icAttributeOptional.isPresent()) {
+							icAttribute = icAttributeOptional.get();
+						}
+						// We need do transform from resource first
+						Object transformedConnectorValue = this.transformValueFromResource(
+								provisioningAttribute.getTransformValueFromResourceScript(), schemaAttribute,
+								icAttribute, icAttributes, system);
+
+						if (transformedConnectorValue != null || existSetAttribute || existAuthMergeAttribute
+								|| existMergeAttribute) {
+							return;
+						}
+					}
+
+				}
+				Object resultValue = idmValue;
+				if (AttributeMappingStrategyType.MERGE == provisioningAttribute.getStrategyType()) {
+					resultValue = resolveMergeValues(provisioningAttribute, idmValue, connectorValue,
+							provisioningOperation);
+				}
+
+				// Update attribute on resource by given mapping
+				// attribute and mapped value in entity
+				IcAttribute updatedAttribute = updateAttribute(systemEntityUid, resultValue, schemaAttribute,
+						existsConnectorObject, system, provisioningAttribute);
+				if (updatedAttribute != null) {
+					updateConnectorObject.getAttributes().add(updatedAttribute);
+				}
+			} else {
+				// create attribute without target system read - password etc.
+				// filled values only
+				if (fullAccountObject.get(provisioningAttribute) != null) {
+					IcAttribute createdAttribute = createAttribute(schemaAttribute,
+							fullAccountObject.get(provisioningAttribute));
+					if (createdAttribute != null) {
+						updateConnectorObject.getAttributes().add(createdAttribute);
+					}
+				}
+			}
+		}
 	}
 
 	/**

@@ -50,7 +50,7 @@ class EnumSelectBox extends SelectBox {
       if (options) {
         option = this.getOptions().find(o => { return o.value === value; });
       }
-      super.setValue(option ? option : this.normalizeValue(value));
+      super.setValue(option || this.normalizeValue(value));
     } else {
       super.setValue(value);
     }
@@ -80,7 +80,7 @@ class EnumSelectBox extends SelectBox {
       }
     }
     // add empty option at start
-    if (_props.clearable && results.length > 0) {
+    if (_props.clearable && results.length > 0 && !_props.multiSelect) {
       const emptyOption = this.getEmptyOption(_props.emptyOptionLabel);
       if (emptyOption) {
         results.unshift(emptyOption);
@@ -136,6 +136,11 @@ class EnumSelectBox extends SelectBox {
         }
       }
     }
+    if (_.isObject(sym) && sym.value) {
+      return sym.value;
+    }
+    //
+    return sym;
   }
 
   _findNiceLabel(value) {
@@ -212,20 +217,23 @@ class EnumSelectBox extends SelectBox {
           }
         }
         return valueArray;
-      } else if (_.isSymbol(value)) {
+      }
+      if (_.isSymbol(value)) {
         // value is symbol
         // value is string any selectBox
         if (this.useSymbol === null) {
           this.useSymbol = true;
         }
         return this.itemRenderer(value, this._findKeyBySymbol(value));
-      } else if (typeof value === 'string') {
+      }
+      if (typeof value === 'string') {
         // value is string any selectBox
         if (this.useSymbol === null) {
           this.useSymbol = false;
         }
         return this.itemRenderer({ value });
-      } else if (value instanceof Array && this.props.multiSelect === true && typeof value[0] === 'string') {
+      }
+      if (value instanceof Array && this.props.multiSelect === true && typeof value[0] === 'string') {
         // value is string array ... any multiselect
         if (this.useSymbol === null) {
           this.useSymbol = false;
@@ -239,7 +247,8 @@ class EnumSelectBox extends SelectBox {
           }
         }
         return valueArray;
-      } else if (value instanceof Array && this.props.multiSelect === true && typeof value[0] === 'object') {
+      }
+      if (value instanceof Array && this.props.multiSelect === true && typeof value[0] === 'object') {
         const valueArray = [];
         for (const item of value) {
           valueArray.push(this.itemRenderer(item, this._findKeyBySymbol(item)));
@@ -296,10 +305,8 @@ class EnumSelectBox extends SelectBox {
       if (!_.isSymbol(value)) {
         convertedValue = this.props.enum.findSymbolByKey(value);
       }
-    } else {
-      if (_.isSymbol(value)) {
-        convertedValue = this.props.enum.findKeyBySymbol(value);
-      }
+    } else if (_.isSymbol(value)) {
+      convertedValue = this.props.enum.findKeyBySymbol(value);
     }
     this.getLogger().trace('[Basic.EnumSelectBox] converted value:', convertedValue);
     return convertedValue;
@@ -343,6 +350,8 @@ class EnumSelectBox extends SelectBox {
           clearable={ clearable }
           ignoreAccents={ false }
           multi={ multiSelect }
+          closeOnSelect={ !multiSelect }
+          onSelectResetsInput={ false }
           valueKey={ SelectBox.ITEM_VALUE }
           labelKey={ fieldLabel }
           noResultsText={ this.i18n('component.basic.SelectBox.noResultsText') }

@@ -451,13 +451,19 @@
       "IdentityInfo": {
         "link": {
           "detail": {
-            "label": "Přejít na plný detail"
+            "label": "Přejít na plný detail",
+            "default": {
+              "label": "Přejít na výchozí plný detail"
+            }
           },
           "profile": {
             "label": "Přejít na profil"
           },
           "popover": {
             "title": "Zobrazit vizitku"
+          },
+          "projection": {
+            "label": "Přejít na formulář dle typu uživatele"
           }
         }
       },
@@ -594,6 +600,7 @@
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Výběr identit (SelectBox)",
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
+          "CAN-BE-REQUESTED-ROLE-SELECT": "Výběr rolí dostupných pro žádost (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
           "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
           "TREE-TYPE-SELECT": "Výběr typu stromu (SelectBox)",
@@ -913,8 +920,11 @@
       "DESCRIPTION": "Poznámka (String)",
       "PHONE": "Telefon (String)",
       "EMAIL": "Email (String)",
+      "STATE": "Stav (Enumerace)",
+      "PASSWORD": "Heslo (GuardedString)",
       "ASSIGNED_ROLES": "Přiřazené role uživatele",
       "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento systém)",
+      "FORM_PROJECTION": "Typ uživatele (UUID)",
       "helpBlock": {
         "USERNAME": "",
         "EXTERNAL_CODE": "",
@@ -926,8 +936,11 @@
         "DESCRIPTION": "",
         "PHONE": "",
         "EMAIL": "",
+        "STATE": "",
+        "PASSWORD": "",
         "ASSIGNED_ROLES": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
-        "ASSIGNED_ROLES_FOR_SYSTEM": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele, které přiřazují <strong>tento systém</strong> (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET)."
+        "ASSIGNED_ROLES_FOR_SYSTEM": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele, které přiřazují <strong>tento systém</strong> (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
+        "FORM_PROJECTION": ""
       }
     },
     "ContractAttributeEnum": {
@@ -1003,6 +1016,10 @@
       "HIGH": "Vysoká",
       "NORMAL": "Normální"
     },
+    "ExportImportEnum": {
+      "EXPORT": "Export",
+      "IMPORT": "Import"
+    },
     "DateFaceEnum": {
       "TODAY": "Dnes",
       "YESTERDAY": "Včera",
@@ -1028,10 +1045,12 @@
     "role-request": {
       "header": "Žádosti o změnu rolí",
       "creator": {
-        "header": "Mnou vytvořené žádosti"
+        "header": "Mnou vytvořené žádosti",
+        "identity": "Uživatelem vytvořené žádosti"
       },
       "applicant": {
-        "header": "Žádosti vytvořené pro mě"
+        "header": "Žádosti vytvořené pro mě",
+        "identity": "Žádosti vytvořené pro uživatele"
       }
     }
   },
@@ -1049,7 +1068,8 @@
       "CHANGEPERMISSION": "Změna rolí",
       "MANUALLYDISABLE": "Manuální deaktivace uživatele",
       "MANUALLYENABLE": "Manuální aktivace uživatele",
-      "CANBEREQUESTED": "O roli lze žádat"
+      "CANBEREQUESTED": "O roli lze žádat",
+      "CHANGEPROJECTION": "Změna typu uživatele (projekce)"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -1079,6 +1099,7 @@
       "TREETYPE": "Typy struktur",
       "SCRIPT": "Pravidla",
       "FORMDEFINITION": "Formuláře - definice",
+      "FORMPROJECTION": "Formuláře - projekce",
       "FORMATTRIBUTE": "Formuláře - atributy",
       "FORMVALUE": "Formuláře - hodnoty",
       "CODELIST": "Číselníky",
@@ -1100,7 +1121,8 @@
       "AUTOMATICROLEATTRIBUTERULEREQUEST": "Žádosti o automatické role (pravidla atributů)",
       "TOKEN": "Token",
       "GENERATEVALUE": "Generování hodnot",
-      "PASSWORD": "Uživatelská hesla"
+      "PASSWORD": "Uživatelská hesla",
+      "EXPORTIMPORT": "Export/Import"
     }
   },
   "content": {
@@ -1213,6 +1235,7 @@
         "message": {
           "passwordChange": {
             "info": "Tento formulář lze použít pro změnu hesla Vaší uživatelské identity",
+            "link" : "Přejít na detail pro změnu hesla",
             "required": "Vyžadována změna hesla pro CzechIdM",
             "idmNotEnabled": "Změna hesla pro CzechIdM není povolena",
             "success": {
@@ -1444,146 +1467,146 @@
         }
       }
     },
-    "task":{
-        "instances": {
-          "header": "Nevyřešené úkoly",
-          "title": "Nevyřešené úkoly"
-        },
-        "instance": {
-          "header": "Detail úkolu",
-          "title": "Detail úkolu",
-          "name": "Název aktivity",
-          "description": "Název úkolu",
-          "createdDate": "Úkol vytvořen",
-          "applicantFullName": "Jméno žadatele",
-          "applicant": "Žádost pro",
-          "implementerIdentifier": "Žadatel",
-          "successComplete": "Úkol {{name}} byl úspěšně vyřízen.",
-          "completeTaskConfirmTitle": "Potvrzení dokončení úkolu",
-          "completeTaskConfirmDetail": "Opravdu chcete tento úkol dokončit?",
-          "role": {
-            "currentRoles": "Aktuálně přiřazené role",
-            "conceptIdentityRoles": "Role žadatele"
-          }
-        },
-        "DefaultTaskDetail": {
-          "applicant": "Žádost pro",
-          "implementerIdentifier": "Žadatel",
-          "createdDate": "Datum vytvoření žádosti",
-          "approvers": "Schvalovatelé tohoto úkolu",
-          "note": "$t(entity.ApprovalTask.note)",
-          "taskState": "$t(entity.ApprovalTask.taskState)",
-          "approve": "Schválit",
-          "disapprove": "Zamítnout",
-          "messages": {
-            "approved":"Úkol byl úspěšně schválen",
-            "disapproved": "Úkol byl úspěšně zamítnut",
-            "confirmTaskApproveTitle": "Potvrzení schválení úkolu",
-            "confirmTaskApprove": "Opravdu chcete tento úkol schválit?",
-            "confirmTaskDisapprove": "Opravdu chcete tento úkol zamítnout?",
-            "confirmTaskDisapproveTitle": "Potvrzení zamítnutí úkolu"
-          }
-        },
-        "RoleApprovalTaskDetail": {
-          "roleName" : "Název role"
-        },
-        "IdentityRoleConceptTable": {
-          "oldValue": "Původní hodnota [{{oldValue}}]",
-          "oldValueNotExist": "Původní hodnota byla prázdná",
-          "switchShowChangesOnly": "Zobrazit pouze změny",
-          "systemState": "Stav na systému",
-          "create": {
-            "header": "Přidat role",
-            "headerByIdentity": "Přidat role podle uživatele"
-          },
-          "edit": {
-            "header": "Upravit roli"
-          },
-          "selectRoleCatalogue": {
-            "header": "Výběr rolí ze složek katalogu"
-          },
-          "duplicate": {
-            "button": {
-              "remove": {
-                "label": "Odebrat duplicitní roli"
-              }
-            }
-          },
-          "action": {
-            "deleteAdded": {
-              "header": "Odebrání role",
-              "message": "Opravdu chcete odebrat tuto novou roli?"
-            },
-            "deleteChanged": {
-              "header": "Odstranění úprav",
-              "message": "Opravdu chcete zrušit úpravy nad touto rolí?"
-            },
-            "deleteRemoved": {
-              "header": "Odstranění úprav",
-              "message": "Opravdu chcete zrušit úpravy nad touto rolí?"
-            }
-          },
-          "identityRoleAttributes": {
-            "header": "Atributy role"
-          },
-          "addByIdentity": {
-            "header": "Přidat podle uživatele",
-            "source": {
-              "header": "Zdrojový uživatel"
-            },
-            "target": {
-              "header": "Cílový uživatel"
-            },
-            "selectUser": {
-              "label": "Výběr uživatele",
-              "help": "Výběr uživatele, od kterého budou kopírované role."
-            },
-            "copyRoleParameters": {
-              "label": "Kopírovat včetně parametrů rolí",
-              "help": "Po zaškrtnutí budou zkopírovany vyplněné hodnoty parametrů rolí."
-            },
-            "selectIdentityContract": {
-              "label": "Konkrakt zdrojového uživatele",
-              "help": "Výběr úvazku od uživatele. Výběr úvazku filtruje uživatelovy role.",
-              "placeholder": "Vyberte úvazek"
-            },
-            "targetIdentityContract": {
-              "label": "Kontrakt cílového uživatele"
-            },
-            "environment": {
-              "help": "Filtruje role uživatele dle zvoleného prostředí."
-            },
-            "roleSelectionHeader": "Výběr rolí",
-            "roleSelect": "Výběr rolí uživatele {{username}}",
-            "selectedIdentityRoles": "Vybrané role",
-            "noIdentity": "Vyberte prosím zdrojového uživatele",
-            "noIdentityRoles": "Neexistují žádné přiřazené role",
-            "noSelectedIdentityRoles": "Žádné nově přiřazené role",
-            "buttons": {
-              "addAllIdentityRoles": "Přidat všechny role",
-              "addSelectedIdentityRoles": "Přidat pouze vybrané role",
-              "removeSelectedIdentityRoles": "Odebrat vybrané role",
-              "removeAllIdentityRoles": "Odebrat všechny role"
-            },
-            "showOnlyDirectRoles": {
-              "label": "Zobrazit <strong>bez sub rolí</strong>, které jsou přidělovány na základě business rolí",
-              "help": "Po zaškrtnutí zobrazí pouze napřímo přiřazené role."
-            },
-            "legend": {
-              "header":"Legenda",
-              "role-types": {
-                "role": "Napřímo přidělená aplikační role.",
-                "business-role": "Napřímo přidělená business role. Přidělením této role budou přiděleny i role definované touto business rolí (sub role).",
-                "automatic-role": "Role přidělená systémem dle nastavení automatických rolí (podle struktury či atributu).",
-                "sub-role": "Role přidělená na základě přidělení business role, která tuto roli obsahuje (sub role).",
-                "disabled": "Roli lze vybrat pouze pokud o ni lze žádat."
-              }
-            }
-          },
-          "alert": {
-            "invalidConcept": "Požadavek je nevalidní. Pro více informací přejděte na detail."
-          }
+    "task": {
+      "instances": {
+        "header": "Nevyřešené úkoly",
+        "title": "Nevyřešené úkoly"
+      },
+      "instance": {
+        "header": "Detail úkolu",
+        "title": "Detail úkolu",
+        "name": "Název aktivity",
+        "description": "Název úkolu",
+        "createdDate": "Úkol vytvořen",
+        "applicantFullName": "Jméno žadatele",
+        "applicant": "Žádost pro",
+        "implementerIdentifier": "Žadatel",
+        "successComplete": "Úkol {{name}} byl úspěšně vyřízen.",
+        "completeTaskConfirmTitle": "Potvrzení dokončení úkolu",
+        "completeTaskConfirmDetail": "Opravdu chcete tento úkol dokončit?",
+        "role": {
+          "currentRoles": "Aktuálně přiřazené role",
+          "conceptIdentityRoles": "Role žadatele"
         }
+      },
+      "DefaultTaskDetail": {
+        "applicant": "Žádost pro",
+        "implementerIdentifier": "Žadatel",
+        "createdDate": "Datum vytvoření žádosti",
+        "approvers": "Schvalovatelé tohoto úkolu",
+        "note": "$t(entity.ApprovalTask.note)",
+        "taskState": "$t(entity.ApprovalTask.taskState)",
+        "approve": "Schválit",
+        "disapprove": "Zamítnout",
+        "messages": {
+          "approved":"Úkol byl úspěšně schválen",
+          "disapproved": "Úkol byl úspěšně zamítnut",
+          "confirmTaskApproveTitle": "Potvrzení schválení úkolu",
+          "confirmTaskApprove": "Opravdu chcete tento úkol schválit?",
+          "confirmTaskDisapprove": "Opravdu chcete tento úkol zamítnout?",
+          "confirmTaskDisapproveTitle": "Potvrzení zamítnutí úkolu"
+        }
+      },
+      "RoleApprovalTaskDetail": {
+        "roleName" : "Název role"
+      },
+      "IdentityRoleConceptTable": {
+        "oldValue": "Původní hodnota [{{oldValue}}]",
+        "oldValueNotExist": "Původní hodnota byla prázdná",
+        "switchShowChangesOnly": "Zobrazit pouze změny",
+        "systemState": "Stav na systému",
+        "create": {
+          "header": "Přidat role",
+          "headerByIdentity": "Přidat role podle uživatele"
+        },
+        "edit": {
+          "header": "Upravit roli"
+        },
+        "selectRoleCatalogue": {
+          "header": "Výběr rolí ze složek katalogu"
+        },
+        "duplicate": {
+          "button": {
+            "remove": {
+              "label": "Odebrat duplicitní roli"
+            }
+          }
+        },
+        "action": {
+          "deleteAdded": {
+            "header": "Odebrání role",
+            "message": "Opravdu chcete odebrat tuto novou roli?"
+          },
+          "deleteChanged": {
+            "header": "Odstranění úprav",
+            "message": "Opravdu chcete zrušit úpravy nad touto rolí?"
+          },
+          "deleteRemoved": {
+            "header": "Odstranění úprav",
+            "message": "Opravdu chcete zrušit úpravy nad touto rolí?"
+          }
+        },
+        "identityRoleAttributes": {
+          "header": "Atributy role"
+        },
+        "addByIdentity": {
+          "header": "Přidat podle uživatele",
+          "source": {
+            "header": "Zdrojový uživatel"
+          },
+          "target": {
+            "header": "Cílový uživatel"
+          },
+          "selectUser": {
+            "label": "Výběr uživatele",
+            "help": "Výběr uživatele, od kterého budou kopírované role."
+          },
+          "copyRoleParameters": {
+            "label": "Kopírovat včetně parametrů rolí",
+            "help": "Po zaškrtnutí budou zkopírovany vyplněné hodnoty parametrů rolí."
+          },
+          "selectIdentityContract": {
+            "label": "Konkrakt zdrojového uživatele",
+            "help": "Výběr úvazku od uživatele. Výběr úvazku filtruje uživatelovy role.",
+            "placeholder": "Vyberte úvazek"
+          },
+          "targetIdentityContract": {
+            "label": "Kontrakt cílového uživatele"
+          },
+          "environment": {
+            "help": "Filtruje role uživatele dle zvoleného prostředí."
+          },
+          "roleSelectionHeader": "Výběr rolí",
+          "roleSelect": "Výběr rolí uživatele {{username}}",
+          "selectedIdentityRoles": "Vybrané role",
+          "noIdentity": "Vyberte prosím zdrojového uživatele",
+          "noIdentityRoles": "Neexistují žádné přiřazené role",
+          "noSelectedIdentityRoles": "Žádné nově přiřazené role",
+          "buttons": {
+            "addAllIdentityRoles": "Přidat všechny role",
+            "addSelectedIdentityRoles": "Přidat pouze vybrané role",
+            "removeSelectedIdentityRoles": "Odebrat vybrané role",
+            "removeAllIdentityRoles": "Odebrat všechny role"
+          },
+          "showOnlyDirectRoles": {
+            "label": "Zobrazit <strong>bez sub rolí</strong>, které jsou přidělovány na základě business rolí",
+            "help": "Po zaškrtnutí zobrazí pouze napřímo přiřazené role."
+          },
+          "legend": {
+            "header":"Legenda",
+            "role-types": {
+              "role": "Napřímo přidělená aplikační role.",
+              "business-role": "Napřímo přidělená business role. Přidělením této role budou přiděleny i role definované touto business rolí (sub role).",
+              "automatic-role": "Role přidělená systémem dle nastavení automatických rolí (podle struktury či atributu).",
+              "sub-role": "Role přidělená na základě přidělení business role, která tuto roli obsahuje (sub role).",
+              "disabled": "Roli lze vybrat pouze pokud o ni lze žádat."
+            }
+          }
+        },
+        "alert": {
+          "invalidConcept": "Požadavek je nevalidní. Pro více informací přejděte na detail."
+        }
+      }
     },
     "tasks": {
       "all": {
@@ -1628,6 +1651,9 @@
         "state": {
           "label": "Stav",
           "placeholder": "Stav uživatele"
+        },
+        "formProjection": {
+          "placeholder": "$t(entity.Identity.formProjection.label)"
         }
       },
       "action": {
@@ -1656,6 +1682,11 @@
         },
         "remove": {
           "action": "Odebrat"
+        },
+        "add": {
+          "header": "Vytvořit uživatele - vyberte typ formuláře",
+          "or": "nebo",
+          "default": "použít výchozí formulář"
         }
       }
     },
@@ -1913,6 +1944,45 @@
         }
       }
     },
+    "form-projections": {
+      "header": "Projekce formuláře",
+      "title": "Projekce formulářů",
+      "edit": {
+        "title": "Detail projekce formuláře"
+      },
+      "create": {
+        "title": "Nová projekce formuláře",
+        "header": "Nová projekce formuláře"
+      },
+      "filter": {
+        "text": {
+          "placeholder": "Kód či typ vlastníka"
+        }
+      },
+      "detail": {
+        "title": "Základní informace"
+      },
+      "save": {
+        "success": "Projekce [{{code}}] byla úspěšně uložena"
+      },
+      "identities": {
+        "label": "Uživatelé",
+        "header": "Uživatelé s vybranou projekcí",
+        "title": "Uživatelé s vybranou projekcí"
+      },
+      "localization": {
+        "header": "Lokalizace",
+        "title": "Lokalizace",
+        "check": {
+          "found": "Lokalizace projekce existuje. Lokalizace nalezena v lokalizačním souboru.",
+          "not-found": "Lokalizace projekce neexistuje, definovat ji můžete dle příkladu níže v lokalizačních souborech."
+        },
+        "how-to": {
+          "header": "How to",
+          "message": "Lokalizaci pro projekci je možné definovat v modulu <strong class=\"highlight\">{{name}}</strong> (v sekci <strong>eav</strong>):"
+        }
+      }
+    },
     "formAttributes": {
       "header": "Atributy formuláře",
       "title": "Atributy formuláře",
@@ -2021,6 +2091,71 @@
       "edit": {
         "title": "Detail obsahu",
         "header": "Detail šifrované hodnoty"
+      }
+    },
+    "export-imports": {
+      "header": "Export/Import",
+      "title": "Export/Import",
+      "fileUploaded": "Importní dávka byla úspěšně nahrána.",
+      "link": {
+        "longRunningTask": {
+          "title": "Zobrazit dlouho trvající úlohy",
+          "deleted": {
+            "label": "Úloha smazána",
+            "title": "Úloha (LRT) byla smazána."
+          }
+        }
+      },
+      "actions": "Akce",
+      "action": {
+        "download": {
+          "title": "Stáhnout"
+        },
+        "dry-run": {
+          "title": "Spustit demo režim importu",
+          "header": "Spustit demo režim importu",
+          "message": "Chcete spustit vybránou dávku importu v demo režimu? Nebuou aplikovány žádné změny. Import bude spuštěn asynchronně na pozadí.",
+          "success": "Import byl úspěšně zahájen."
+        },
+        "execute": {
+          "title": "Spustit import",
+          "header": "Spustit import",
+          "message": "Chcete spustit vybránou dávku importu? Import bude spuštěn asynchronně na pozadí.",
+          "success": "Import byl úspěšně zahájen."
+        }
+      },
+      "filter": {
+        "text": {
+          "placeholder": "Název dávky"
+        },
+        "textLog": {
+          "placeholder": "Type entity"
+        },
+        "operation": {
+          "placeholder": "Operace"
+        },
+        "operationState": {
+          "placeholder": "Výsledek"
+        }
+      },
+      "dropzone": {
+        "infoText": "Přetáhněte importované dávky (ZIP) na tuto plochu a nebo na ní klikněte pro výběr souborů."
+      },
+      "detail": {
+        "header": "Detail dávky",
+        "tab": "Výsledek dávky"
+      },
+      "tableLogs": {
+        "name": "Všechny úpravy"
+      },
+      "treeLogs": {
+        "name": "Všechny úpravy (strom)"
+      },
+      "ImportDescriptor": {
+        "operation": "Operace",
+        "dto": "Entita",
+        "result": "Výsledek",
+        "type": "Typ"
       }
     },
     "scripts": {
@@ -2627,6 +2762,48 @@
           "title": "Pozice v organizační struktuře"
         }
       },
+      "projection": {
+        "create": {
+          "title": "$t(content.identity.create.title)",
+          "insufficientPermission": "Nemáte dostatečné oprávnění pro vytvoření nového uživatele s pracovně právním vztahem.<br />Chybí <strong>oprávnění pro vytvoření pracovně právního vztahu</strong>, který je vytvářen spolu s uživatelem."
+        },
+        "edit": {
+          "title": "$t(content.identity.profile.userDetail)",
+          "insufficientPermission": "Nemáte dostatečné oprávnění pro upravení uživatele s pracovně právním vztahem.<br />Chybí <strong>oprávnění pro úpravu pracovně právního vztahu</strong>."
+        },
+        "button": {
+          "close": {
+            "label": "Zpět na seznam uživatelů"
+          }
+        },
+        "identity": {
+          "username": {
+            "label": "Login uživatele"
+          }
+        },
+        "contract": {
+          "validFrom": {
+            "label": "Datum nástupu"
+          },
+          "validTill": {
+            "label": "Datum odchodu"
+          },
+          "workPosition": {
+            "label": "Organizační zařazení"
+          }
+        },
+        "otherPosition": {
+          "workPosition": {
+            "label": "Další organizační zařazení"
+          }
+        },
+        "roles": {
+          "header": {
+            "new": "$t(content.identity.roles.directRoles.header)",
+            "edit": "$t(content.identity.roles.header)"
+          }
+        }
+      },
       "profile-setting": {
         "header": "Uživatelské nastavení",
         "title": "Uživatelské nastavení"
@@ -3089,6 +3266,12 @@
           "run": "Spustit ručně",
           "dryRun": "Spustit zkušební běh"
         },
+        "filter": {
+          "text": {
+            "label": "Typ (třída) / Popis",
+            "placeholder": "Typ úlohy (třída) nebo popis úlohy"
+          }
+        },
         "action": {
           "trigger-delete": {
             "header": "Odebrat plánované spuštění",
@@ -3149,8 +3332,8 @@
         },
         "filter": {
           "text": {
-            "label": "Typ / Popis",
-            "placeholder": "Typ nebo popis úlohy"
+            "label": "Typ (třída) / Popis",
+            "placeholder": "Typ úlohy (třída) nebo popis úlohy"
           },
           "operationState": {
             "label": "Stav",
@@ -3570,6 +3753,7 @@
       "help": "Interní identifikátor uživatelské transakce - entity byly uloženy v rámci této dávky (operace)."
     },
     "name": "Název",
+    "type": "Typ",
     "created": "Vytvořeno",
     "modified": {
       "short": "Upraveno",
@@ -3618,6 +3802,10 @@
       "disabledReadonly": {
         "label": "$t(label.disabled)",
         "help": "Neaktivní uživatel se nemůže přihlásit. Aktivita je řízena stavem uživatele."
+      },
+      "formProjection": {
+        "label": "Typ uživatele",
+        "help": "Typu uživatele definuje formulř, který bude použit po jeho detail a editaci."
       }
     },
     "Profile": {
@@ -3762,6 +3950,57 @@
         "help": "Definice formuláře je učena nebo pochází z daného modulu. Modul je použit například pro definici lokalizace. Pokud není zadáno, je použit 'core' modul."
       }
     },
+    "FormProjection" : {
+      "_type": "Projekce formuláře",
+      "code": {
+        "label": "Kód",
+        "help": "Unikátní kód projekce. Kód je použit například i pro definici lokalizace."
+      },
+      "ownerType": {
+        "label": "Typ vlastníka"
+      },
+      "route": {
+        "label": "Cíl na frontendu",
+        "help": "Formulář (komponenta) na frontendu."
+      },
+      "description": {
+        "label": "Popis"
+      },
+      "module": {
+        "label": "Modul",
+        "help": "Projekce formuláře je učena nebo pochází z daného modulu. Modul je použit například pro definici lokalizace. Pokud není zadáno, je použit 'core' modul."
+      },
+      "disabled": {
+        "label": "$t(label.disabled)",
+        "help": "Projekce nebude nabízena pro vytvoření nového uživatele."
+      },
+      "formDefinitions": {
+        "label": "Definice formulářů",
+        "help": "Definice formulářů a atributů, které budou zobrazeny.",
+        "placeholder": "Vyberte definici formuláře ...",
+        "button": {
+          "add": {
+            "label": "Přidat definici",
+            "title": "Přidat další definici formuláře do projekce formuláře"
+          },
+          "remove": {
+            "title": "Odebrat definici"
+          }
+        },
+        "attributes": {
+          "placeholder": "Všechny attributy v dané definici nebo vyberte ..."
+        }
+      },
+      "basicFields": {
+        "label": "Základní atributy",
+        "help": "Základní atributy uživatele, které budou zobrazeny. Všechny atributy budou zobrazeny, pokud není zadáno.",
+        "placeholder": "Všechny základní atributy nebo vyberte ..."
+      },
+      "properties": {
+        "label": "Nastavení",
+        "help": "Další konfigurační položky."
+      }
+    },
     "FormAttribute" : {
       "code": {
         "label": "Kód",
@@ -3770,6 +4009,9 @@
       "name": {
         "label": "Název položky",
         "help": "Bude zobrazen na detailu formuláře."
+      },
+      "formDefinition": {
+        "label": "Název definice"
       },
       "seq": {
         "label": "Pořadí",
@@ -3968,6 +4210,30 @@
       "duplicate": {
         "label": "Duplicitní role",
         "header": "Požadovaná role je duplicitní k roli:"
+      }
+    },
+    "ExportImport": {
+      "_type": "Export/Import dávky",
+      "name": {
+        "label": "Popis"
+      },
+      "executorName": {
+        "label": "Obsah dávky"
+      },
+      "type": {
+        "label": "Typ dávky"
+      },
+      "creator": {
+        "label": "$t(core:entity.creator)"
+      },
+      "created": {
+        "label": "$t(core:entity.created)"
+      },
+      "modified": {
+        "label": "Upraveno"
+      },
+      "result": {
+        "state": "Stav"
       }
     },
     "IdentityAccount": {
@@ -4506,7 +4772,7 @@
     },
     "LongRunningTask": {
       "taskId": "Id úlohy",
-      "taskType": "Typ úlohy",
+      "taskType": "Typ úlohy (třída)",
       "taskDescription": "Popis",
       "count": "Počet",
       "counter": "Zpracováno",
@@ -4883,6 +5149,7 @@
       }
     },
     "RoleFormAttribute": {
+      "_type": "Atribut role",
       "role": {
         "label": "Role"
       },
@@ -5207,6 +5474,30 @@
         "help": "Smaže vybrané role.",
         "icon": "$t(action.delete.icon)"
       },
+      "role-export-bulk-action": {
+        "icon": "export",
+        "label": "Exportovat roli",
+        "title": "Role",
+        "help": "Vytvoří exportní dávku obsahující vybrané role. Výsledný export bude uložen v agendě <strong>Export/Import</strong>.",
+        "attributes": {
+          "name": {
+            "label": "Popis exportu",
+            "help": ""
+          }
+        }
+      },
+      "configuration-export-bulk-action": {
+        "icon": "export",
+        "label": "Exportovat konfiguraci",
+        "title": "Konfigurace",
+        "help": "Vytvoří exportní dávku obsahující konfigurační položky. Výsledný export bude uložen v agendě <strong>Export/Import</strong>.",
+        "attributes": {
+          "name": {
+            "label": "Popis exportu",
+            "help": ""
+          }
+        }
+      },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) konfigurace",
         "help": "Smaže vybrané konfigurace",
@@ -5294,6 +5585,11 @@
         "label": "Zrušit úlohy",
         "help": "Zrušit vybrané úlohy. Zrušit se pouze nově vytvořené či běžící úlohy.",
         "icon": "remove"
+      },
+      "core-form-projection-delete-bulk-action": {
+        "label": "$t(action.delete.action) projekce",
+        "help": "Smaže vybrané projekce. Uživatelé s mazanou projekcí budou přepnuty na výchozí projekci.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {
@@ -5321,6 +5617,29 @@
           "owner-read": {
             "label": "Dle oprávnění číst uživatele",
             "help": "Nastaví oprávnění pro atributy uživatelů, které aktuálně přihlášený uživatel může číst (například pokud může číst uživatele, může editovat vyjmenované atributy)."
+          }
+        }
+      },
+      "core-identity-contract-form-value-evaluator": {
+        "help": "Oprávnění pro hodnoty rozšiřujících atributů kontraktu (eav). Oprávnění je možné přidat pouze pro vybranou definici (hlavní je použita jako výchozí) a vybrané atributy (všechny atributy jsou použity jako výchozí).",
+        "attributes": {
+          "form-definition": {
+            "label": "Definice formuláře",
+            "help": "Vyberte definici, která obsahuje atributy, kterým bude nastaveno oprávnění. Hlavní definice bude použita jako výchozí.",
+            "placeholder": "Hlavní definice pro identity nebo vyberte ..."
+          },
+          "attributes": {
+            "label": "Atributy definice",
+            "help": "Atributy, kterým bude nastaveno oprávnění. Pokud ponecháte atributy prázdné, bude oprávnění nastaveno pro všechny atributy dané definice.",
+            "placeholder": "Všechny atributy dané definice nebo zadejte kódy atributů oddělené čárkou"
+          },
+          "owner-update": {
+            "label": "Dle oprávnění editovatovat kontrakt",
+            "help": "Nastaví oprávnění pro atributy kontraktů, které aktuálně přihlášený uživatel může editovat (například pokud může editovat kontrakt, může editovat i vyjmenované atributy)."
+          },
+          "owner-read": {
+            "label": "Dle oprávnění číst uživatele",
+            "help": "Nastaví oprávnění pro atributy kontraktů, které aktuálně přihlášený uživatel může číst (například pokud může číst kontrakt, může editovat vyjmenované atributy)."
           }
         }
       },
@@ -5723,6 +6042,20 @@
         "help": "Úloha najde všechny časové řezy, které mají být nastaveny jako aktuální. Hodnoty aktuálního časového řezu se propíší do propojeného pracovně právního vztahu.",
         "icon": "component:scheduled-task"
       }
+    },
+    "form-projection": {
+      "identity-externe": {
+        "label": "Externí uživatel",
+        "help": "Vytvořit externího uživatele",
+        "icon": "fa:walking",
+        "level": "primary"
+      },
+      "identity-internal": {
+        "label": "Interní zaměstnanec",
+        "help": "Vytvořit interního uživatele",
+        "icon": "fa:user",
+        "level": "success"
+      }
     }
   },
   "error": {
@@ -6019,6 +6352,14 @@
     "NOTIFICATION_CONFIGURATION_RECIPIENT_NOT_FOUND": {
       "title": "Konfigurace nemůže být uložena",
       "message": "Vyplnění příjemců je povinné pro přesměrované notifikace s tématem [{{topic}}]."
+    },
+    "NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_CONFIGURATION": {
+      "title": "Šablona nemůže být smazána.",
+      "message": "Šablona notifikací [{{template}}] musí být nejprve odstraněna z [{{usage}}] konfigurací notifikace."
+    },
+    "NOTIFICATION_TEMPLATE_DELETE_FAILED_USED_NOTIFICATION": {
+      "title": "Šablona nemůže být smazána.",
+      "message": "Šablona notifikací [{{template}}] musí být nejprve odstraněna z [{{usage}}] notifikací."
     },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
       "title": "Definice formuláře nelze smazat",
@@ -6687,6 +7028,34 @@
     "LOGGER_LEVEL_NOT_FOUND": {
       "title": "Úroveň logování neexistuje",
       "message": "Zadaná úroveň logování neexistuje [{{level}}]. Dostupné úrovně jsou [TRACE, DEBUG, INFO, WARN, ERROR]."
+    },
+    "IMPORT_EXECUTED_AS_DRYRUN": {
+      "title": "Import byl proveden v demo režimu.",
+      "message": "Žádné změny nebyly provedeny!"
+    },
+    "IMPORT_CAN_EXECUTE_ONLY_ADMIN": {
+      "title": "Import může spustit pouze administrátor!",
+      "message": "Import nemůže být spuštěn, protože nemáte oprávnění administrátora!"
+    },
+    "IMPORT_DTO_SKIPPED": {
+      "title": "Importované DTO bylo přeskočeno.",
+      "message": "Vazba na tento objekt nebyla nalzena, tento typ je ovšem označen jako 'nepovinný', proto bylo importované DTO [{{dto}}] přeskočeno."
+    },
+    "IMPORT_ADVANCED_PARING_FAILED_NOT_FOUND": {
+      "title": "Objekt s kódem [{{code}}] nebyl nalezen!",
+      "message": "Pokročilé párování selhalo pro položku [{{field}}] v DTO [{{dto}}]. Objekt [{{notFoundDto}}] nebyl nalezen v cílovém IdM!"
+    },
+    "IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL": {
+      "title": "Objekt s kódem [{{code}}] nebyl nalezen!",
+      "message": "Pokročilé párování selhalo pro položku [{{field}}] v DTO [{{dto}}]. Objekt [{{notFoundDto}}] nebyl nalezen v cílovém IdM a jeho import byl přeskočen."
+    },
+    "IMPORT_DTO_SKIPPED_DRY_RUN": {
+      "title": "Importované DTO bylo přeskočeno.",
+      "message": "Vazba na tento objekt nebyla nalzena, tento import byl ovšem spuštěn v demo režimu a proto bylo importované DTO [{{dto}}] přeskočeno."
+    },
+    "IMPORT_IS_ALREADY_RUNNING": {
+      "title": "Tento import je již spuštěn!",
+      "message": "Stejnou importní úlohu nelze spustit dvakrát!"
     }
   },
   "validationError": {

@@ -43,12 +43,12 @@ export default class VsRequestManager extends Managers.EntityManager {
     return (dispatch) => {
       dispatch(this.requestEntity(entityId, uiKey));
       this.getService().realize(entityId, reason)
-      .then(json => {
-        dispatch(this.receiveEntity(entityId, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(entityId, uiKey, error, cb));
-      });
+        .then(json => {
+          dispatch(this.receiveEntity(entityId, json, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(entityId, uiKey, error, cb));
+        });
     };
   }
 
@@ -62,15 +62,17 @@ export default class VsRequestManager extends Managers.EntityManager {
     const dispatch = detail.context.store.dispatch;
     const selectedEntities = this.getEntitiesByIds(detail.context.store.getState(), ids);
     detail.refs[`confirm-realize`].show(
-      detail.i18n(`vs:content.vs-requests.action.realize.message`, { count: selectedEntities.length, record: this.getNiceLabel(selectedEntities[0]), records: this.getNiceLabels(selectedEntities).join(', ') }),
-      detail.i18n(`vs:content.vs-requests.action.realize.header`, { count: selectedEntities.length, records: this.getNiceLabels(selectedEntities).join(', ') })
+      detail.i18n(`vs:content.vs-requests.action.realize.message`,
+        { count: selectedEntities.length, record: this.getNiceLabel(selectedEntities[0]), records: this.getNiceLabels(selectedEntities).join(', ') }),
+      detail.i18n(`vs:content.vs-requests.action.realize.header`,
+        { count: selectedEntities.length, records: this.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
       const cb = (realizedEntity, newError) => {
         if (!newError) {
           detail.setState({
             showLoading: false
           });
-          
+
           if (detail.refs.table) {
             detail.refs.table.reload();
           }
@@ -166,21 +168,21 @@ export default class VsRequestManager extends Managers.EntityManager {
             dispatch(this.receiveError(entityId, uiKey, error, cb));
           });
       }, Promise.resolve())
-      .catch((error) => {
+        .catch((error) => {
         // nothing - message is propagated before
         // catch is before then - we want execute next then clausule
-        return error;
-      })
-      .then(() => {
-        if (ids.length !== 1) {
-          dispatch(this.stopBulkAction());
-        } else {
-          detail.addMessage({ message: detail.i18n('vs:content.vs-requests.action.cancel.success', {
-            count: 1,
-            record: this.getNiceLabel(this.getEntity(detail.context.store.getState(), ids[0])) } )
-          });
-        }
-      });
+          return error;
+        })
+        .then(() => {
+          if (ids.length !== 1) {
+            dispatch(this.stopBulkAction());
+          } else {
+            detail.addMessage({ message: detail.i18n('vs:content.vs-requests.action.cancel.success', {
+              count: 1,
+              record: this.getNiceLabel(this.getEntity(detail.context.store.getState(), ids[0])) })
+            });
+          }
+        });
     }, () => {
       // Rejected
     });

@@ -102,7 +102,16 @@ public class FormableConfiguration {
 	@Bean
 	public AbstractFormValueService<IdmIdentityContract, IdmIdentityContractFormValue> identityContractFormValueService(
 			AbstractFormValueRepository<IdmIdentityContract, IdmIdentityContractFormValue> repository) {
-		return new AbstractFormValueService<IdmIdentityContract, IdmIdentityContractFormValue>(repository) {};
+		return new AbstractFormValueService<IdmIdentityContract, IdmIdentityContractFormValue>(repository) {
+			
+			/**
+			 * Contract form values supports authorization policies
+			 */
+			@Override
+			public AuthorizableType getAuthorizableType() {
+				return new AuthorizableType(CoreGroupPermission.FORMVALUE, getEntityClass());
+			}
+		};
 	}
 	
 	/**

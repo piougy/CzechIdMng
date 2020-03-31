@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
@@ -11,8 +12,10 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  * @author svandav
  *
  */
-public class AttributeValueWrapperDto {
+public class AttributeValueWrapperDto implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	//
 	AttributeMapping attribute;
 	List<IcAttribute> icAttributes;
 

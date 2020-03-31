@@ -71,6 +71,10 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                           // FIXME: transaction context info
                           return null;
                         }
+                        if (propertyName === 'core:bulkAction') {
+                          // FIXME: bulk action info + #2086
+                          return null;
+                        }
                         return (
                           <div>{ propertyName }: { Utils.Ui.toStringValue(entity.taskProperties[propertyName]) }</div>
                         );

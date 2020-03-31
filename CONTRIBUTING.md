@@ -61,7 +61,9 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
   * Spring bean names, component names, services, entities etc. should start with module identifier prefix.
   * Registrable bean names (e.g. ``AuthorizationEvaluator``, ``FilterBuilder``, ``IdmAuthenticationFilter`` ...) should start with module prefix ``core-sso-authentication-filter``. This name could be used as bean name in Spring context.
   * Use interfaces and classes from `idm-core-api` module dependency. If some API is missing (its only in `idm-core-impl`), contact us. Only exception is entity + jpa metamodel usage.
-  * Rest endpoints should start with module identifier prefix e.g. <server>/api/v1/crt/certificates
+  * Rest endpoints should start with module identifier prefix e.g. <server>/api/v1/crt/certificates.
+  * When backend bulk actions are supported, then ``DataFilter`` (with data usage only) has to be used in underlying service (enable bulk action serialization and deserialization from database).
+
 
 ### IDE
 * [Eclipse](https://wiki.czechidm.com/7.3/dev/quickstart/ide/eclipse)

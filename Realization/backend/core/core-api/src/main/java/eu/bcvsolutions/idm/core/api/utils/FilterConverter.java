@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.util.MultiValueMap;
 
@@ -52,6 +53,20 @@ public class FilterConverter extends ParameterConverter {
 		try {
 			return mapper.convertValue(parameters, filterClass);
 		} catch (IllegalArgumentException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws ResultCodeException with bad filter code, if given uuid is not valid.
+	 */
+	@Override
+	public UUID toUuid(Map<String, Object> parameters, String parameterName) {
+		try {
+			return super.toUuid(parameters, parameterName);
+		} catch (ClassCastException ex) {
 			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
 		}
 	}

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
+import Div from '../Div/Div';
 import Icon from '../Icon/Icon';
 import HelpIcon from '../HelpIcon/HelpIcon';
 import Loading from '../Loading/Loading';
@@ -25,11 +26,11 @@ export class Panel extends AbstractComponent {
       className
     );
     return (
-      <div className={classNames} style={style}>
+      <Div className={classNames} style={style}>
         <Loading showLoading={showLoading}>
           {this.props.children}
         </Loading>
-      </div>
+      </Div>
     );
   }
 }
@@ -48,6 +49,12 @@ Panel.defaultProps = {
 
 export class PanelHeader extends AbstractComponent {
 
+  toogleCollapse(event) {
+    if (event) {
+      event.preventDefault();
+    }
+  }
+
   render() {
     const { className, rendered, showLoading, text, help, children, style, buttons } = this.props;
     if (rendered === null || rendered === undefined || rendered === '' || rendered === false) {
@@ -59,38 +66,34 @@ export class PanelHeader extends AbstractComponent {
     );
 
     return (
-      <div className={classNames} style={style}>
-        <div className={ help || buttons ? 'pull-left' : null}>
+      <Div className={ classNames } style={{ display: 'flex', alignItems: 'center', ...style }}>
+        <Div style={{ flex: 1 }}>
           <Icon type="fa" icon="refresh" showLoading rendered={ showLoading }/>
           {
             showLoading
             ||
             text
             ?
-            <h2>{text}</h2>
+            <h2>{ text }</h2>
             :
             null
           }
           {children}
-        </div>
+        </Div>
         {
           !buttons
           ||
-          <div className="pull-right">
+          <Div>
             { buttons }
-          </div>
+          </Div>
         }
-        {
-          help
-          ?
-          <div className="pull-right">
-            <HelpIcon content={ help }/>
-          </div>
-          :
-          null
-        }
-        <div className="clearfix" />
-      </div>
+        <Icon
+          icon="fa:angle-double-up"
+          style={ help ? { marginRight: 5 } : null }
+          onClick={ (event) => this.toogleCollapse(event) }
+          rendered={ false }/>
+        <HelpIcon content={ help }/>
+      </Div>
     );
   }
 }
@@ -126,8 +129,8 @@ export class PanelBody extends AbstractComponent {
     );
 
     return (
-      <div className={classNames} style={style}>
-        <Loading showLoading={showLoading}>
+      <div className={ classNames } style={ style }>
+        <Loading showLoading={ showLoading }>
           {this.props.children}
         </Loading>
       </div>
@@ -156,11 +159,11 @@ export class PanelFooter extends AbstractComponent {
     );
 
     return (
-      <div className={classNames} style={style}>
-        <Loading className="simple" showLoading={showLoading} showAnimation={false}>
+      <Div className={ classNames } style={ style }>
+        <Loading className="simple" showLoading={ showLoading } showAnimation={ false }>
           {this.props.children}
         </Loading>
-      </div>
+      </Div>
     );
   }
 }

@@ -7,7 +7,13 @@ import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { IdentityManager, DataManager, ProfileManager } from '../../redux';
+import * as Utils from '../../utils';
+import {
+  IdentityManager,
+  DataManager,
+  ProfileManager,
+  SecurityManager
+} from '../../redux';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
 
 const identityManager = new IdentityManager();
@@ -265,6 +271,13 @@ class IdentityDetail extends Basic.AbstractContent {
                 label={ this.i18n('entity.Identity.state.label') }
                 helpBlock={ <span>{ this.i18n('entity.Identity.state.help') }</span> }
                 readOnly/>
+              <Advanced.FormProjectionSelect
+                ref="formProjection"
+                label={ this.i18n('entity.Identity.formProjection.label') }
+                helpBlock={ this.i18n('entity.Identity.formProjection.help') }
+                readOnly={ !Utils.Permission.hasPermission(_permissions, 'CHANGEPROJECTION') }
+                rendered={ SecurityManager.hasAllAuthorities(['FORMPROJECTION_AUTOCOMPLETE'], userContext) }
+                showIcon/>
               <Basic.Checkbox
                 ref="disabled"
                 label={this.i18n('entity.Identity.disabledReadonly.label')}

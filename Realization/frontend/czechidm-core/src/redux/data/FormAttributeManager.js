@@ -5,7 +5,7 @@ import FormDefinitionManager from './FormDefinitionManager';
 import * as Utils from '../../utils';
 
 /**
- * Eav form attributes
+ * Eav form attributes.
  *
  * @author Ondřej Kopr
  * @author Radek Tomiška

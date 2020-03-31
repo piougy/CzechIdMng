@@ -23,7 +23,7 @@ class RoleRequestDashboard extends Basic.AbstractContent {
   }
 
   render() {
-    const { identity, _totalCreator, _totalApplicant } = this.props;
+    const { identity, userContext, _totalCreator, _totalApplicant } = this.props;
     //
     if (!identity || !SecurityManager.hasAuthority('ROLEREQUEST_READ')) {
       return null;
@@ -32,9 +32,10 @@ class RoleRequestDashboard extends Basic.AbstractContent {
     const columns = _.difference(RoleRequestTable.defaultProps.columns, ['modified', 'executeImmediately', 'startRequest', 'createNew']);
     const creatorForceSearch = new Domain.SearchParameters().setFilter('creator', identity.id).setFilter('states', ['IN_PROGRESS', 'APPROVED']);
     const applicantForceSearch = new Domain.SearchParameters().setFilter('applicant', identity.id).setFilter('states', ['IN_PROGRESS', 'APPROVED']);
+    const isLoggedIdentity = userContext.id === identity.id;
     //
     return (
-      <div className={ !_totalCreator && !_totalApplicant ? 'hidden' : '' }>
+      <Basic.Div className={ !_totalCreator && !_totalApplicant ? 'hidden' : '' }>
         <Basic.ContentHeader
           icon="component:role-requests"
           text={ this.i18n('header') }/>
@@ -46,7 +47,7 @@ class RoleRequestDashboard extends Basic.AbstractContent {
                 uiKey={ uiKeyCreator }
                 manager={ manager }
                 showFilter={ false }
-                header={ this.i18n('creator.header') }
+                header={ isLoggedIdentity ? this.i18n('creator.header') : this.i18n('creator.identity') }
                 forceSearchParameters={ creatorForceSearch }
                 createNewRequestFunc={ null }
                 startRequestFunc={ null }
@@ -60,7 +61,7 @@ class RoleRequestDashboard extends Basic.AbstractContent {
                 uiKey={ uiKeyApplicant }
                 manager={ manager }
                 showFilter={ false }
-                header={ this.i18n('applicant.header') }
+                header={ isLoggedIdentity ? this.i18n('applicant.header') : this.i18n('applicant.identity') }
                 forceSearchParameters={ applicantForceSearch }
                 createNewRequestFunc={ null }
                 startRequestFunc={ null }
@@ -68,7 +69,7 @@ class RoleRequestDashboard extends Basic.AbstractContent {
             </Basic.Panel>
           </Basic.Col>
         </Basic.Row>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -78,6 +79,7 @@ function select(state) {
   const uiApplicant = state.data.ui[uiKeyApplicant];
   //
   return {
+    userContext: state.security.userContext,
     _totalCreator: !uiCreator ? null : uiCreator.total,
     _totalApplicant: !uiApplicant ? null : uiApplicant.total,
     i18nReady: state.config.get('i18nReady')

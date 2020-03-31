@@ -105,7 +105,11 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
       this.i18n(`action.task-run.message`, { record: this.getManager().getNiceLabel(entity) }),
       this.i18n(`action.task-run.header`)
     ).then(() => {
-      this.context.store.dispatch(this.getManager().processCreatedTask(entity.id, 'task-queue-process-created', () => {
+      this.context.store.dispatch(this.getManager().processCreatedTask(entity.id, 'task-queue-process-created', (e, error) => {
+        if (error) {
+          this.addError(error);
+          return;
+        }
         this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
         this.refs.table.reload();
       }));
@@ -314,6 +318,10 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                   }
                   if (propertyName === 'core:transactionContext') {
                     // FIXME: transaction context info
+                    return null;
+                  }
+                  if (propertyName === 'core:bulkAction') {
+                    // FIXME: bulk action info + #2086
                     return null;
                   }
                   return (

@@ -70,12 +70,6 @@ public class DefaultIdmEntityStateService
 		if (filter.getEventId() != null) {
 			predicates.add(builder.equal(root.get(IdmEntityState_.event).get(IdmEntityEvent_.id), filter.getEventId()));
 		}
-		if (filter.getCreatedFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmEntityState_.created), filter.getCreatedFrom()));
-		}
-		if (filter.getCreatedTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(IdmEntityState_.created), filter.getCreatedTill()));
-		}
 		String resultCode = filter.getResultCode();
 		if (StringUtils.isNotEmpty(resultCode)) {
 			predicates.add(builder.equal(root.get(IdmEntityState_.result).get(OperationResult_.code), resultCode));

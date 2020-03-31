@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Calendar;
@@ -300,6 +303,20 @@ public class DefaultAttachmentManager
 		} catch (IOException ex) {
 			throw new ResultCodeException(CoreResultCode.ATTACHMENT_CREATE_TEMP_FILE_FAILED, ImmutableMap.of(
 					"extension", DEFAULT_TEMP_FILE_EXTENSION,
+					"temp", attachmentConfiguration.getTempPath())
+					, ex);
+		}
+	}
+	
+	@Override
+	public Path createTempDirectory(String prefix) {
+		try {			
+			Path basePath = Paths.get(getTempPath());
+			Path path = Files.createTempDirectory(basePath, prefix);
+			return path;
+		} catch (IOException ex) {
+			throw new ResultCodeException(CoreResultCode.ATTACHMENT_CREATE_TEMP_FILE_FAILED, ImmutableMap.of(
+					"extension", "",
 					"temp", attachmentConfiguration.getTempPath())
 					, ex);
 		}

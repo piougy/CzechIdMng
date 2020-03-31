@@ -164,7 +164,7 @@ class VsRequestDetail extends Basic.AbstractContent {
     if (entity.multiValue) {
       const listResult = [];
       for (const item of entity.value) {
-        listResult.push(item.value + ' ');
+        listResult.push(`${item.value} `);
       }
       return listResult;
     }
@@ -195,7 +195,7 @@ class VsRequestDetail extends Basic.AbstractContent {
             style={item.change === 'REMOVED' ? {textDecoration: 'line-through'} : null}
             text={value}/>);
         } else {
-          listResult.push(value ? (item.value + ' ') : '');
+          listResult.push(value ? (`${item.value} `) : '');
         }
         listResult.push(' ');
       }
@@ -211,9 +211,9 @@ class VsRequestDetail extends Basic.AbstractContent {
         title={entity.value.change ? this.i18n(`attribute.diff.${entity.value.change}`) : null}
         level={VsValueChangeType.getLevel(entity.value.change)}
         style={entity.value.change === 'REMOVED' ? {textDecoration: 'line-through'} : null}
-        text={value !== null ? value + '' : '' }/>);
+        text={value !== null ? `${value} ` : '' }/>);
     }
-    return value !== null ? value + '' : '';
+    return value !== null ? `${value} ` : '';
   }
 
   render() {
@@ -277,7 +277,10 @@ class VsRequestDetail extends Basic.AbstractContent {
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   <VsRequestInfo entityIdentifier={entity ? entity.id : null} entity={entity} face="full" showLink={false}/>
-                  <Basic.LabelWrapper readOnly ref="implementers" label={this.i18n('vs:entity.VsRequest.implementers.label') + ':'}>
+                  <Basic.LabelWrapper
+                    ref="implementers"
+                    readOnly
+                    label={`${this.i18n('vs:entity.VsRequest.implementers.label')}:`}>
                     {this._getImplementers(entity)}
                   </Basic.LabelWrapper>
                 </Basic.Col>
@@ -293,7 +296,9 @@ class VsRequestDetail extends Basic.AbstractContent {
               </Basic.Row>
               <Basic.Row>
                 <Basic.Col lg={ 12 }>
-                  <Basic.LabelWrapper readOnly label={this.i18n('wishAttributes') + ':'}>
+                  <Basic.LabelWrapper
+                    readOnly
+                    label={`${this.i18n('wishAttributes')}:`}>
                     <Basic.Alert
                       level="warning"
                       icon="trash"
@@ -308,6 +313,7 @@ class VsRequestDetail extends Basic.AbstractContent {
                       text={this.i18n('alert.accountShouldBeCreated')}/>
                     <Basic.Table
                       data={wishData}
+                      style={{display: 'block', overflowX: 'auto'}}
                       rendered={!isDeleteOperation}
                       noData={this.i18n('component.basic.Table.noData')}
                       rowClass={({rowIndex, data}) => { return (data[rowIndex].changed) ? 'warning' : ''; }}
@@ -331,7 +337,7 @@ class VsRequestDetail extends Basic.AbstractContent {
                   <Basic.LabelWrapper
                     readOnly
                     ref="vs-request-table-before"
-                    label={this.i18n('beforeRequests.label') + ':'}>
+                    label={`${this.i18n('beforeRequests.label')}:`}>
                     <VsRequestTable
                       uiKey="vs-request-table-before"
                       columns={['state', 'operationType', 'created', 'uid']}
@@ -345,7 +351,7 @@ class VsRequestDetail extends Basic.AbstractContent {
                   </Basic.LabelWrapper>
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
-                  <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={this.i18n('afterRequests.label') + ':'}>
+                  <Basic.LabelWrapper readOnly ref="vs-request-table-after" label={`${this.i18n('afterRequests.label')}:`}>
                     <VsRequestTable
                       uiKey="vs-request-table-after"
                       columns={['state', 'operationType', 'created', 'uid']}

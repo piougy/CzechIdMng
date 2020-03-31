@@ -570,14 +570,13 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	 */
 	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entity = this.getEntityByAccount(account.getId());
-		if (entity == null) {
-			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
+		IdmContractSliceDto dto =  this.getDtoByAccount(null, account);
+		if (dto == null) {
+			addToItemLog(logItem,  MessageFormat.format("Warning! - Entity for account [{0}] was not found!", account.getUid()));
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
-		IdmContractSliceDto dto = getService().get(entity);
 		String entityIdentification = dto.getId().toString();
 		if (dto instanceof Codeable) {
 			entityIdentification = ((Codeable) dto).getCode();

@@ -322,10 +322,12 @@ public class EntityUtils {
 	}
 	
 	/**
-	 * Sets target audit fields by given source
+	 * Sets target audit fields by given source. 
+	 * Id and realm id is not copied.
 	 * 
 	 * @param auditableSource entity or dto
 	 * @param auditableTarget entity or dto
+	 * @see #setAuditable(Auditable, Auditable)
 	 */
 	public static void copyAuditFields(Auditable source, Auditable target) {
 		Asserts.notNull(target, "Entity must be not null!");

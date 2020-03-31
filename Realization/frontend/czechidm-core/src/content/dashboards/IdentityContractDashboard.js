@@ -28,7 +28,7 @@ class IdentityContractDashboard extends Basic.AbstractContent {
     const columns = _.difference(ContractTable.defaultProps.columns, ['guarantee']);
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.ContentHeader
           icon="component:contracts"
           text={ this.i18n('content.identity.identityContracts.header') }
@@ -53,7 +53,7 @@ class IdentityContractDashboard extends Basic.AbstractContent {
             forceSearchParameters={ forceSearchParameters }
             showAddButton={ false }/>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

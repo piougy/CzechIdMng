@@ -19,16 +19,18 @@ import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Contextable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Disableable;
+import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Dto for identity
+ * Dto for identity.
  * 
  * @author Radek Tomiška
  *
@@ -38,6 +40,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class IdmIdentityDto extends FormableDto implements Disableable, Codeable, ExternalCodeable, ExternalIdentifiable, Contextable {
 
 	private static final long serialVersionUID = 1L;
+	//
 	@Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(required = true, notes = "Unique identity username. Could be used as identifier in rest endpoints")
 	private String username;	
@@ -75,6 +78,9 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 	private transient ZonedDateTime blockLoginDate = null;
 	@JsonIgnore
 	private Map<String, Object> context = null;
+	@ApiModelProperty(notes = "Projection - entity will be created / edited by given form.")
+	@Embedded(dtoClass = IdmFormProjectionDto.class)
+	private UUID formProjection;
 
 	public IdmIdentityDto() {
 	}
@@ -244,6 +250,26 @@ public class IdmIdentityDto extends FormableDto implements Disableable, Codeable
 	@JsonIgnore
 	public void setContext(Map<String, Object> context) {
 		this.context = context;
+	}
+	
+	/**
+	 * Entity will be created / edited by form projection.
+	 * 
+	 * @return defined projection
+	 * @since 10.2.0
+	 */
+	public UUID getFormProjection() {
+		return formProjection;
+	}
+	
+	/**
+	 * Entity will be created / edited by form projection.
+	 * 
+	 * @param formProjection projection
+	 * @since 10.2.0
+	 */
+	public void setFormProjection(UUID formProjection) {
+		this.formProjection = formProjection;
 	}
 
 }

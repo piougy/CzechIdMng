@@ -17,6 +17,7 @@ import FilterTreeNodeSelect from './FilterTreeNodeSelect';
 import FilterRoleCatalogueSelect from './FilterRoleCatalogueSelect';
 import FilterRoleSelect from './FilterRoleSelect';
 import FilterIdentitySelect from './FilterIdentitySelect';
+import FilterFormProjectionSelect from './FilterFormProjectionSelect';
 
 /**
  * Filter mainly for advanced table.
@@ -115,3 +116,4 @@ Filter.TreeNodeSelect = FilterTreeNodeSelect;
 Filter.RoleCatalogueSelect = FilterRoleCatalogueSelect;
 Filter.RoleSelect = FilterRoleSelect;
 Filter.IdentitySelect = FilterIdentitySelect;
+Filter.FormProjectionSelect = FilterFormProjectionSelect;

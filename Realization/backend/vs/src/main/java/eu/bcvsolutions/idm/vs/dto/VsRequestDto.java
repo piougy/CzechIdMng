@@ -10,12 +10,15 @@ import javax.validation.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -64,6 +67,10 @@ public class VsRequestDto extends AbstractDto implements ExternalIdentifiable {
     @Size(max = DefaultFieldLengths.NAME)
 	@ApiModelProperty(notes = "Unique external identifier.")
 	private String externalId;
+	@JsonProperty(access = Access.READ_ONLY)
+	private BaseDto targetEntity;
+	@JsonProperty(access = Access.READ_ONLY)
+	private String targetEntityType;
 
 	public String getUid() {
 		return uid;
@@ -168,7 +175,23 @@ public class VsRequestDto extends AbstractDto implements ExternalIdentifiable {
 	public void setRoleRequestId(UUID roleRequestId) {
 		this.roleRequestId = roleRequestId;
 	}
-	
+
+	public BaseDto getTargetEntity() {
+		return targetEntity;
+	}
+
+	public void setTargetEntity(BaseDto targetEntity) {
+		this.targetEntity = targetEntity;
+	}
+
+	public String getTargetEntityType() {
+		return targetEntityType;
+	}
+
+	public void setTargetEntityType(String targetEntityType) {
+		this.targetEntityType = targetEntityType;
+	}
+
 	/**
 	 * @since 9.7.9
 	 */

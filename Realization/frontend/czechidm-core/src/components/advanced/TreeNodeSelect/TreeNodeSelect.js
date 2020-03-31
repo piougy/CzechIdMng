@@ -99,7 +99,9 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
     super.setState(json, () => {
       // FIXME: abstract form component everride standard state to show validations => we need to propage this state into component
       if (json && json.showValidationError !== undefined) {
-        this.refs.treeNode.setState({ showValidationError: json.showValidationError}, cb);
+        if (this.refs.treeNode) {
+          this.refs.treeNode.setState({ showValidationError: json.showValidationError}, cb);
+        }
       } else if (cb) {
         cb();
       }
@@ -110,7 +112,9 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
    * Focus input field
    */
   focus() {
-    this.refs.treeNode.focus();
+    if (this.refs.treeNode) {
+      this.refs.treeNode.focus();
+    }
   }
 
   /**

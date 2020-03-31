@@ -129,12 +129,8 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @param backendId
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public DTO getDto(Serializable backendId) {
-		if (lookupService == null) {
-			return getService().get(backendId, IdmBasePermission.READ);
-		}
-		DTO dto = (DTO) lookupService.lookupDto(getDtoClass(), backendId);
+		DTO dto = lookupService.lookupDto(getDtoClass(), backendId);
 		return checkAccess(dto, IdmBasePermission.READ);
 	}
 

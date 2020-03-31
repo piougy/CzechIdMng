@@ -102,7 +102,11 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
 
     if (formEntity.id === undefined) {
       this.context.store.dispatch(roleRequestManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
-        this.afterSave(createdEntity, error);
+        if (startRequest) {
+          this.afterSaveAndStartRequest(createdEntity, error);
+        } else {
+          this.afterSave(createdEntity, error);
+        }
       }));
     } else if (startRequest) {
       this.context.store.dispatch(roleRequestManager.updateEntity(formEntity, `${uiKey}-detail`, this.afterSaveAndStartRequest.bind(this)));
@@ -132,7 +136,27 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
   }
 
   replaceUrl(requestId) {
-    this.context.history.replace(`/role-requests/${requestId}/detail`);
+    if (!this.refs.form.isFormValid()) {
+      return;
+    }
+    const formEntity = this.refs.form.getData();
+    // If request detail from form hasn't ID (is new) and has filled descripton, then we need to make a
+    // update of new request (for prevent lost of this description).
+    if (this._getIsNew() && formEntity.description) {
+      // First we need to get fresh request.
+      this.context.store.dispatch(roleRequestManager.fetchEntity(requestId, null, (request) => {
+        // Set description from form.
+        request.description = formEntity.description;
+        this.setState({showLoading: true}, () => {
+          // => save only
+          this.context.store.dispatch(roleRequestManager.updateEntity(request, `${uiKey}-detail`, () => {
+            this.context.history.replace(`/role-requests/${requestId}/detail`);
+          }));
+        });
+      }));
+    } else {
+      this.context.history.replace(`/role-requests/${requestId}/detail`);
+    }
   }
 
   afterSaveAndStartRequest(entity, error) {

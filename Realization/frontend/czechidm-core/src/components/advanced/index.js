@@ -35,6 +35,7 @@ import NotificationTemplateInfo from './NotificationTemplateInfo/NotificationTem
 import ScriptArea from './ScriptArea/ScriptArea';
 import RoleSelect from './RoleSelect/RoleSelect';
 import IdentitySelect from './IdentitySelect/IdentitySelect';
+import FormProjectionSelect from './FormProjectionSelect/FormProjectionSelect';
 import Recaptcha from './Recaptcha/Recaptcha';
 import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
 import SchedulerTaskInfo from './SchedulerTaskInfo/SchedulerTaskInfo';
@@ -45,6 +46,7 @@ import ValidationMessage from './ValidationMessage/ValidationMessage';
 import DynamicTaskDetail from '../../content/task/DynamicTaskDetail';
 import DecisionButtons from '../../content/task/DecisionButtons';
 import OperationResult from './OperationResult/OperationResult';
+import OperationResultDownloadButton from './OperationResult/OperationResultDownloadButton';
 import ImageDropzone from './ImageDropzone/ImageDropzone';
 import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
@@ -101,6 +103,7 @@ const Components = {
   ScriptArea,
   RoleSelect,
   IdentitySelect,
+  FormProjectionSelect,
   Recaptcha,
   IdentitiesInfo,
   SchedulerTaskInfo,
@@ -111,6 +114,7 @@ const Components = {
   DecisionButtons,
   DynamicTaskDetail,
   OperationResult,
+  OperationResultDownloadButton,
   ImageDropzone,
   WorkflowTaskInfo,
   TreeTypeInfo,
@@ -130,5 +134,5 @@ const Components = {
   CronGenerator
 };
 
-Components.version = '9.4.0';
+Components.version = '10.2.0';
 module.exports = Components;

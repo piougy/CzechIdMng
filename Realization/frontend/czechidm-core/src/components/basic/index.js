@@ -116,5 +116,5 @@ const Components = {
   ToggleSwitch
 };
 
-Components.version = '9.4.0';
+Components.version = '10.2.0';
 module.exports = Components;

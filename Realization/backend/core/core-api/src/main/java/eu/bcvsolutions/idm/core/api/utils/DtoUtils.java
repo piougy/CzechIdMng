@@ -148,6 +148,19 @@ public abstract class DtoUtils {
 	}
 	
 	/**
+	 * Sets target audit fields by given source. 
+	 * Id and realm id is not copied.
+	 * 
+	 * @param auditableSource entity or dto
+	 * @param auditableTarget entity or dto
+	 * @see #setAuditable(Auditable, Auditable)
+	 * @since 10.2.0
+	 */
+	public static void copyAuditFields(Auditable source, Auditable target) {
+		EntityUtils.copyAuditFields(source, target);
+	}
+	
+	/**
 	 * Returns {@link UUID} from given {@code string} or {@link UUID}.
 	 * 
 	 * @param identifier {@code string} or {@link UUID} 

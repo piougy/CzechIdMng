@@ -120,5 +120,13 @@ public interface IdmIdentityContractService extends
 	 * @return
 	 */
 	IdmIdentityContractDto findLastExpiredContract(UUID identityId, LocalDate expiration);
+	
+	/**
+	 * Sort list by prime contract priority => prime contract is the first (priority desc).
+	 * 
+	 * @param contracts sorted list
+	 * @since 10.2.0
+	 */
+	void sortByPrimeContract(List<IdmIdentityContractDto> contracts);
 
 }

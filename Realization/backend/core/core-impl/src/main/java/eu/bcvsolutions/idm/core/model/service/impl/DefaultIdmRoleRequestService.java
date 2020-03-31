@@ -216,14 +216,6 @@ public class DefaultIdmRoleRequestService
 			predicates.add(root.get(IdmRoleRequest_.systemState).get(PROPERTY_STATE).in(resultStates));
 		}
 		//
-		if (filter.getCreatedFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedFrom()));
-		}
-		//
-		if (filter.getCreatedTill() != null) {
-			predicates.add(
-					builder.lessThanOrEqualTo(root.get(IdmRoleRequest_.created), filter.getCreatedTill().plusDays(1)));
-		}
 
 		Boolean executed = filter.getExecuted();
 		// If Boolean.FALSE, then return all requests where IdM state is not DUPLICATED, CANCELED, DISAPPROVED and IdM state is not EXECUTED or system state is not EXECUTED and not null.

@@ -13,14 +13,17 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -45,6 +48,8 @@ public class DefaultIdmRoleFormAttributeService
 	
 	@Autowired @Lazy
 	private IdmFormAttributeService formAttributeService;
+	@Autowired @Lazy
+	private IdmFormDefinitionService formDefinitionService;
 
 	@Autowired
 	public DefaultIdmRoleFormAttributeService(IdmRoleFormAttributeRepository repository,
@@ -113,5 +118,23 @@ public class DefaultIdmRoleFormAttributeService
 		roleFormAttributeDto.setRegex(attribute.getRegex());
 		
 		return this.save(roleFormAttributeDto, permission);
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Batch cannot be null!");
+		
+		IdmRoleFormAttributeDto roleFormAttributeDto = this.get(id);
+		if (roleFormAttributeDto != null) {
+			IdmFormAttributeDto formAttributeDto = DtoUtils.getEmbedded(roleFormAttributeDto,
+					IdmRoleFormAttribute_.formAttribute.getName(), IdmFormAttributeDto.class);
+			Assert.notNull(formAttributeDto, "Form attribute DTO cannot be null!");
+			// Export only form-definition - without attribute definitions
+			formDefinitionService.exportOnlyDefinition(formAttributeDto.getFormDefinition(), batch);
+			// Export form-attribute
+			formAttributeService.export(roleFormAttributeDto.getFormAttribute(), batch);
+		}
+		// Export role-form-attribute
+		super.export(id, batch);
 	}
 }

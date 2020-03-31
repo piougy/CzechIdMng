@@ -4,12 +4,17 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import * as Basic from '../../basic';
+import EntityInfo from '../EntityInfo/EntityInfo';
+import OperationResult from '../OperationResult/OperationResult';
+import OperationResultDownloadButton from '../OperationResult/OperationResultDownloadButton';
 import ProgressBar from '../ProgressBar/ProgressBar';
 import * as Utils from '../../../utils';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
 import { LongRunningTaskManager, ConfigurationManager, SecurityManager } from '../../../redux';
+import { AttachmentService } from '../../../services';
 
 const manager = new LongRunningTaskManager();
+const attachmentService = new AttachmentService();
 
 /**
  * Long running task detail - progress bar.
@@ -183,6 +188,30 @@ class LongRunningTask extends Basic.AbstractContent {
     );
   }
 
+  _getInfoComponent(value) {
+    if (!value) {
+      return null;
+    }
+    const model = value.model;
+    if (model && model.statusCode === OperationResult.PARTIAL_CONTENT_STATUS) {
+      const parameters = model.parameters;
+      if (!parameters || !parameters.ownerType || !parameters.ownerId) {
+        return null;
+      }
+
+      return (
+        <div style={{ marginTop: '15px', marginLeft: '30px' }}>
+          <EntityInfo
+            entityType={Utils.Ui.getSimpleJavaType(parameters.ownerType)}
+            entityIdentifier={parameters.ownerId}
+            showDefaultEntityInfo={false}
+            face="full" />
+        </div>
+      );
+    }
+    return null;
+  }
+
   _renderFull() {
     const {
       instanceId,
@@ -223,6 +252,10 @@ class LongRunningTask extends Basic.AbstractContent {
                       // FIXME: transaction context info
                       return null;
                     }
+                    if (propertyName === 'core:bulkAction') {
+                      // FIXME: bulk action info + #2086
+                      return null;
+                    }
                     return `${ propertyName }: ${ Utils.Ui.toStringValue(_entity.taskProperties[propertyName]) }`;
                   })
                   .filter(v => v !== null)
@@ -247,6 +280,7 @@ class LongRunningTask extends Basic.AbstractContent {
                 bsStyle: 'success'
               }]
             }/>
+          { this._getInfoComponent(_entity ? _entity.result : null)}
         </Basic.PanelBody>
         <Basic.PanelFooter>
           { footerButtons }
@@ -267,6 +301,11 @@ class LongRunningTask extends Basic.AbstractContent {
             disabled={_showLoading}>
             {this.i18n('button.cancel')}
           </Basic.Button>
+          <OperationResultDownloadButton
+            operationResult={_entity ? _entity.result : null}
+            style={{ marginRight: 5 }}
+            btnSize=""
+          />
           <Basic.Button
             title={this.i18n('button.detail')}
             onClick={this.showDetail.bind(this, _entity)}

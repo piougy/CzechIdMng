@@ -105,6 +105,20 @@ module.exports = {
       manager: require('./src/redux').RoleManager
     },
     {
+      id: 'form-attribute-info',
+      type: 'entity-info',
+      entityType: ['formAttribute', 'IdmFormAttribute', 'IdmFormAttributeDto'],
+      component: require('./src/components/advanced/FormAttributeInfo/FormAttributeInfo').default,
+      manager: require('./src/redux').FormAttributeManager
+    },
+    {
+      id: 'form-definition-info',
+      type: 'entity-info',
+      entityType: ['formDefinition', 'IdmFormDefinition', 'IdmFormDefinitionDto'],
+      component: require('./src/components/advanced/FormDefinitionInfo/FormDefinitionInfo').default,
+      manager: require('./src/redux').FormDefinitionManager
+    },
+    {
       id: 'role-catalogue-info',
       type: 'entity-info',
       entityType: ['roleCatalogue', 'IdmRoleCatalogue', 'IdmRoleCatalogueDto', 'ROLE_CATALOGUE'],
@@ -159,6 +173,62 @@ module.exports = {
       entityType: ['contractSlice', 'contractSlice', 'IdmContractSlice', 'IdmContractSliceDto'],
       component: require('./src/components/advanced/ContractSliceInfo/ContractSliceInfo').default,
       manager: require('./src/redux').ContractSliceManager
+    },
+    {
+      id: 'authorization-policy-info',
+      type: 'entity-info',
+      entityType: ['IdmAuthorizationPolicy', 'IdmAuthorizationPolicyDto'],
+      component: require('./src/components/advanced/AuthorizationPolicyInfo/AuthorizationPolicyInfo').default,
+      manager: require('./src/redux').AuthorizationPolicyManager
+    },
+    {
+      id: 'role-composition-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleComposition', 'IdmRoleCompositionDto'],
+      component: require('./src/components/advanced/RoleCompositionInfo/RoleCompositionInfo').default,
+      manager: require('./src/redux').RoleCompositionManager
+    },
+    {
+      id: 'role-incompatible-info',
+      type: 'entity-info',
+      entityType: ['IdmIncompatibleRole', 'IdmIncompatibleRoleDto'],
+      component: require('./src/components/advanced/IncompatibleRoleInfo/IncompatibleRoleInfo').default,
+      manager: require('./src/redux').IncompatibleRoleManager
+    },
+    {
+      id: 'role-guarantee-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleGuarantee', 'IdmRoleGuaranteeDto'],
+      component: require('./src/components/advanced/RoleGuaranteeInfo/RoleGuaranteeInfo').default,
+      manager: require('./src/redux').RoleGuaranteeManager
+    },
+    {
+      id: 'role-guarantee-role-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleGuaranteeRole', 'IdmRoleGuaranteeRoleDto'],
+      component: require('./src/components/advanced/RoleGuaranteeRoleInfo/RoleGuaranteeRoleInfo').default,
+      manager: require('./src/redux').RoleGuaranteeRoleManager
+    },
+    {
+      id: 'role-catalogue-role-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleCatalogueRole', 'IdmRoleCatalogueRoleDto'],
+      component: require('./src/components/advanced/RoleCatalogueRoleInfo/RoleCatalogueRoleInfo').default,
+      manager: require('./src/redux').RoleCatalogueRoleManager
+    },
+    {
+      id: 'role-form-attribute-info',
+      type: 'entity-info',
+      entityType: ['IdmRoleFormAttribute', 'IdmRoleFormAttributeDto'],
+      component: require('./src/components/advanced/RoleFormAttributeInfo/RoleFormAttributeInfo').default,
+      manager: require('./src/redux').RoleFormAttributeManager
+    },
+    {
+      id: 'export-import-info',
+      type: 'entity-info',
+      entityType: ['IdmExportImport', 'IdmExportImportDto'],
+      component: require('./src/components/advanced/ExportImportInfo/ExportImportInfo').default,
+      manager: require('./src/redux').ExportImportManager
     },
     {
       id: 'text-form-value',
@@ -296,7 +366,7 @@ module.exports = {
       persistentType: 'UUID',
       faceType: 'ROLE-CAN-BE-REQUESTED-SELECT',
       component: require('./src/components/advanced/Form/RoleSelectFormAttributeRenderer'),
-      labelKey: 'core:component.advanced.EavForm.faceType.ROLE-SELECT',
+      labelKey: 'core:component.advanced.EavForm.faceType.CAN-BE-REQUESTED-ROLE-SELECT',
       manager: require('./src/redux').RoleManager,
       searchName: 'can-be-requested'
     },
@@ -422,6 +492,15 @@ module.exports = {
       entityType: ['roleCatalogue'],
       searchInFields: ['code', 'name'],
       manager: require('./src/redux').RoleCatalogueManager
+    },
+    {
+      id: 'form-projection-select-box',
+      type: 'entity-select-box',
+      priority: 0,
+      localizationKey: 'entity.FormProjection',
+      entityType: ['formProjection'],
+      searchInFields: ['code', 'ownerType'],
+      manager: require('./src/redux').FormProjectionManager
     },
     {
       id: 'basic-password-change',
@@ -588,6 +667,12 @@ module.exports = {
       id: 'profile-modal',
       type: 'modal',
       component: require('./src/content/modals/Profile')
+    },
+    {
+      id: 'identity-projection',
+      type: 'form-projection',
+      ownerType: 'IdmIdentity',
+      route: '/form/identity-projection'
     }
   ]
 };

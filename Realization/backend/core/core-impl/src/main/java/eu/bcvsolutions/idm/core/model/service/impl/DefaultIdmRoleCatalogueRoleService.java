@@ -14,10 +14,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole_;
@@ -36,6 +38,9 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 public class DefaultIdmRoleCatalogueRoleService 
 		extends AbstractReadWriteDtoService<IdmRoleCatalogueRoleDto,IdmRoleCatalogueRole, IdmRoleCatalogueRoleFilter> 
 		implements IdmRoleCatalogueRoleService {
+	
+	@Autowired
+	private IdmRoleCatalogueService roleCatalogueService;
 	
 	@Autowired
 	public DefaultIdmRoleCatalogueRoleService(
@@ -69,6 +74,21 @@ public class DefaultIdmRoleCatalogueRoleService
 		//
 		return find(filter, null).getContent();
 	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Batch cannot be null!");
+		
+		IdmRoleCatalogueRoleDto catalogRole = this.get(id);
+		if (catalogRole != null) {
+			UUID roleCatalogue = catalogRole.getRoleCatalogue();
+			if (roleCatalogue != null) {
+				roleCatalogueService.export(roleCatalogue, batch);
+			}
+		}
+		super.export(id, batch);
+	}
+	
 	
 	@Override
 	protected List<Predicate> toPredicates(Root<IdmRoleCatalogueRole> root, CriteriaQuery<?> query,

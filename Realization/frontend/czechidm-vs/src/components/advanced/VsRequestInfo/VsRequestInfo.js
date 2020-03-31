@@ -2,8 +2,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 //
-import { VsRequestManager } from '../../../redux/';
 import { Utils, Advanced, Managers, Basic } from 'czechidm-core';
+import { VsRequestManager } from '../../../redux';
 import VsOperationType from '../../../enums/VsOperationType';
 import VsRequestState from '../../../enums/VsRequestState';
 
@@ -32,7 +32,7 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
     if (!super.showLink()) {
       return false;
     }
-    if (!Managers.SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['VSREQUEST_READ']})) {
+    if (!Managers.SecurityManager.hasAccess({ type: 'HAS_ANY_AUTHORITY', authorities: ['VSREQUEST_READ']})) {
       return false;
     }
     return true;
@@ -111,6 +111,17 @@ export class VsRequestInfo extends Advanced.AbstractEntityInfo {
     let content = [];
 
     content = content.concat([
+      {
+        label: this.i18n('vs:content.vs-request.detail.accountOwner'),
+        value: (
+          <Advanced.EntityInfo
+            entityType={ entity ? Utils.Ui.getSimpleJavaType(entity.targetEntityType) : null }
+            entity={ entity ? entity.targetEntity : null }
+            showIcon
+            face="popover"
+            showEntityType/>
+        )
+      },
       {
         label: this.i18n('acc:entity.System.name'),
         value: (

@@ -127,32 +127,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	}
 
 	/**
-	 * Delete entity linked with given account
-	 * 
-	 * @param account
-	 * @param entityType
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
-	 */
-	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
-			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmIdentityDto identity = null;
-		if (entityId != null) {
-			identity = identityService.get(entityId);
-		}
-		if (identity == null) {
-			addToItemLog(logItem, "Warning! -Identity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return;
-		}
-		// Delete identity
-		identityService.delete(identity);
-	}
-
-	/**
 	 * Call provisioning for given account
 	 * 
 	 * @param entity

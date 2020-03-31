@@ -69,7 +69,7 @@ Updated Flyway version requires **PostgresSQL database version >= 9.4** ([suppor
 
 ## Configuration properties
 
-Based on upgraded libraries we have to add and remove configuration properties (mainly related to connection pool and hibernate).
+Based on upgraded libraries we have to add, remove or change configuration properties (mainly related to connection pool, hibernate and quartz).
 
 ### Added properties
 
@@ -78,12 +78,23 @@ Based on upgraded libraries we have to add and remove configuration properties (
 - ``spring.datasource.hikari.maximumPoolSize=50`` - **enlarge pool size** by default. This property should be revised **for each project**. Size should be configured by task and event thread pool size - should be higher than sum of pool sizes.
 - ``spring.jpa.properties.hibernate.session_factory.interceptor=eu.bcvsolutions.idm.core.model.repository.listener.AuditableInterceptor`` - replaced deprecated Hiberante property.
 - ``spring.jpa.hibernate.use-new-id-generator-mappings=false`` - Spring boot 2 changed default to ``true``, but we are using ``IDENTITY`` identifier generators for mssql database.
+- ``spring.servlet.multipart.max-file-size=100MB`` - Spring boot 2 changed property name for file upload size.
+- ``spring.servlet.multipart.max-request-size=100MB`` - Spring boot 2 changed property name for file upload size.
 
 
 ### Removed properties
 
 - ``spring.jpa.properties.jadira.usertype.autoRegisterUserTypes`` - we are using java time now, so configuration for Joda time is not needed.
 - ``spring.jpa.properties.hibernate.ejb.interceptor`` - replaced by new property above.
+- ``multipart.max-file-size=100Mb`` - replaced by new properties above.
+
+### Changed properties
+
+For project, where **CzechIdM version 10.x will be upgraded from any older version, change property ``org.quartz.scheduler.instanceName=schedulerFactoryBean`` in your ``quartz.properties`` file** in your project profiles => tasks will be scheduled under previously effective ``schedulerFactoryBean`` instance name and **previously scheduled task will be preserved**. Without this change, different instance name configured in ``quartz.properties`` file will be effective and you will need to schedule long running tasks again.
+
+Newly installed **CzechIdM version 10.x** will use ``idm-scheduler-instance`` as default and will respect your configuration in ``quartz.properties`` file by your profile, if different instance name is needed. But be aware, tasks need to be rescheduled after any instance name is changes.
+
+> This change is related to [Spring boot upgrade](https://github.com/spring-projects/spring-boot/issues/14243).
 
 ## Conceptual changes
 

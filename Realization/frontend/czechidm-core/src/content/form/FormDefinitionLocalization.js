@@ -84,7 +84,7 @@ class FormDefinitionLocalization extends Basic.AbstractContent {
     const missingAttributeCodes = this._localeMissingAttributeCodes(entity);
     //
     return (
-      <Basic.Panel className={'no-border last'}>
+      <Basic.Panel className="no-border last">
         <Basic.PanelHeader text={this.i18n('title')} />
 
         <Basic.Alert level="success" text={ this.i18n('check.found')} icon="ok" rendered={ this._localeExists(entity) }/>
@@ -92,16 +92,16 @@ class FormDefinitionLocalization extends Basic.AbstractContent {
 
         <Basic.Alert
           level="warning"
-          text={ this.i18n('check.attributes-not-found', { attributes: missingAttributeCodes.join(', '), escape: false } )}
+          text={ this.i18n('check.attributes-not-found', { attributes: missingAttributeCodes.join(', '), escape: false }) }
           icon="info-sign"
           rendered={ this._localeExists(entity) && missingAttributeCodes.length > 0 }/>
 
 
-        <Basic.ContentHeader text={ this.i18n('how-to.header' ) } />
+        <Basic.ContentHeader text={ this.i18n('how-to.header') } />
 
         <Basic.PanelBody style={{ padding: 0 }}>
 
-          { this.i18n('how-to.message', { name: entity.module ? entity.module : 'core', escape: false } ) }
+          { this.i18n('how-to.message', { name: entity.module ? entity.module : 'core', escape: false }) }
           {/* it's ugly, but works */}
           <pre style={{ marginTop: 15 }}>
             ...<br/>

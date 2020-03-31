@@ -36,7 +36,6 @@ public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 
 	public EntityToUuidConverter(ModelMapper modeler, ApplicationContext applicationContext) {
 		Assert.notNull(modeler, "Modeler is required!");
-		Assert.notNull(applicationContext, "Application context is required!");
 		//
 		this.modeler = modeler;
 		this.applicationContext = applicationContext;
@@ -94,6 +93,8 @@ public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 	
 	private LookupService getLookupService() {
 		if (this.lookupService == null) {
+			Assert.notNull(applicationContext, "Application context is required!");
+			//
 			this.lookupService = this.applicationContext.getBean(LookupService.class);
 		}
 		return this.lookupService;

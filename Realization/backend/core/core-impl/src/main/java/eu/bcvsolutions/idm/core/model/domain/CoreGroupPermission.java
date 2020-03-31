@@ -37,7 +37,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdentityBasePermission.PASSWORDCHANGE,
 			IdentityBasePermission.CHANGEPERMISSION,
 			IdentityBasePermission.MANUALLYDISABLE,
-			IdentityBasePermission.MANUALLYENABLE),
+			IdentityBasePermission.MANUALLYENABLE,
+			IdentityBasePermission.CHANGEPROJECTION),
 	PROFILE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -220,6 +221,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
+	FORMPROJECTION(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE),
 	FORMATTRIBUTE(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.COUNT,
@@ -342,7 +351,15 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE, 
-			IdmBasePermission.DELETE),;
+			IdmBasePermission.DELETE),
+	EXPORTIMPORT(
+			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ, 
+			IdmBasePermission.CREATE, 
+			IdmBasePermission.UPDATE, 
+			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authorize SpEl expressions
 	
@@ -546,6 +563,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String FORM_DEFINITION_UPDATE = "FORMDEFINITION" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String FORM_DEFINITION_DELETE = "FORMDEFINITION" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String FORM_PROJECTION_COUNT = "FORMPROJECTION" + BasePermission.SEPARATOR + "COUNT";
+	public static final String FORM_PROJECTION_AUTOCOMPLETE = "FORMPROJECTION" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String FORM_PROJECTION_READ = "FORMPROJECTION" + BasePermission.SEPARATOR + "READ";
+	public static final String FORM_PROJECTION_CREATE = "FORMPROJECTION" + BasePermission.SEPARATOR + "CREATE";
+	public static final String FORM_PROJECTION_UPDATE = "FORMPROJECTION" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String FORM_PROJECTION_DELETE = "FORMPROJECTION" + BasePermission.SEPARATOR + "DELETE";
+	//
 	public static final String FORM_ATTRIBUTE_COUNT = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String FORM_ATTRIBUTE_AUTOCOMPLETE = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String FORM_ATTRIBUTE_READ = "FORMATTRIBUTE" + BasePermission.SEPARATOR + "READ";
@@ -626,6 +650,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLEFORMATTRIBUTE_CREATE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLEFORMATTRIBUTE_UPDATE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLEFORMATTRIBUTE_DELETE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String EXPORTIMPORT_COUNT = "EXPORTIMPORT" + BasePermission.SEPARATOR + "COUNT";
+	public static final String EXPORTIMPORT_AUTOCOMPLETE = "EXPORTIMPORT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String EXPORTIMPORT_READ = "EXPORTIMPORT" + BasePermission.SEPARATOR + "READ";
+	public static final String EXPORTIMPORT_CREATE = "EXPORTIMPORT" + BasePermission.SEPARATOR + "CREATE";
+	public static final String EXPORTIMPORT_UPDATE = "EXPORTIMPORT" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String EXPORTIMPORT_DELETE = "EXPORTIMPORT" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

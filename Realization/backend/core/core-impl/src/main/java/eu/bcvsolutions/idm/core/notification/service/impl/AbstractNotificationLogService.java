@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -26,6 +27,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmMessage_;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient_;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate_;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification_;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
@@ -182,6 +184,11 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 		String topic = filter.getTopic();
 		if (StringUtils.isNotEmpty(topic)) {
 			predicates.add(builder.equal(root.get(IdmNotification_.topic), topic));
+		}
+		UUID templateId = filter.getTemplateId();
+		if (templateId != null) {
+			Path<IdmMessage> message = root.get(IdmNotification_.message);
+			predicates.add(builder.equal(message.get(IdmMessage_.template).get(IdmNotificationTemplate_.id), templateId));
 		}
 		return predicates;
 	}

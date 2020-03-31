@@ -342,6 +342,11 @@ public class DefaultSysRoleSystemAttributeService extends
 			predicates.add(builder.equal(root.get(SysRoleSystemAttribute_.roleSystem).get(AbstractEntity_.id),
 					filter.getRoleSystemId()));
 		}
+		
+		if (filter.getSystemId() != null) {
+			predicates.add(builder.equal(root.get(SysRoleSystemAttribute_.roleSystem).get(SysRoleSystem_.system).get(AbstractEntity_.id),
+					filter.getSystemId()));
+		}
 
 		if (filter.getSystemMappingId() != null) {
 			predicates.add(builder.equal(root.get(SysRoleSystemAttribute_.roleSystem).get(SysRoleSystem_.systemMapping)

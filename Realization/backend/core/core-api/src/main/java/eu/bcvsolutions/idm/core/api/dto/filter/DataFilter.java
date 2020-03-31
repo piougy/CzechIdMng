@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +25,10 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  * @see ParameterConverter
  * @author Radek Tomiška
  */
-public class DataFilter extends QuickFilter implements ModifiedFromFilter {
+public class DataFilter 
+		extends QuickFilter 
+		implements BaseDataFilter, ModifiedFromFilter, ModifiedTillFilter, 
+			CreatedFromFilter, CreatedTillFilter, PermissionContext {
 
 	/**
 	 * Dto uuid identifier
@@ -87,10 +89,11 @@ public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 	}
 	
 	/**
-	 * Return unmodifiable filtering porerties
+	 * Return unmodifiable filtering properties.
 	 * 
-	 * @return
+	 * @return filled properties
 	 */
+	@Override
 	public MultiValueMap<String, Object> getData() {
 		return new LinkedMultiValueMap<>(data);
 	}
@@ -101,8 +104,21 @@ public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 	 * @param data
 	 * @since 9.6.3
 	 */
+	@Override
 	public void putData(MultiValueMap<String, Object> data) {
 		this.data.putAll(data);
+	}
+	
+	/**
+	 * Set parameter value.
+	 * 
+	 * @param propertyName key
+	 * @param propertyValue value
+	 * @since 10.2.0
+	 */
+	@Override
+	public void set(String propertyName, Object propertyValue) {
+		data.set(propertyName, propertyValue);
 	}
 	
 	/**
@@ -159,20 +175,20 @@ public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 	
 	@Override
 	public String getText() {
-		return (String) data.getFirst(PARAMETER_TEXT);
+		return getParameterConverter().toString(data, PARAMETER_TEXT);
 	}
 	
 	@Override
 	public void setText(String text) {
-		data.set(PARAMETER_TEXT, text);
+		set(PARAMETER_TEXT, text);
 	}
 	
 	public String getCodeableIdentifier() {
-		return (String) data.getFirst(PARAMETER_CODEABLE_IDENTIFIER);
+		return getParameterConverter().toString(data, PARAMETER_CODEABLE_IDENTIFIER);
 	}
 	
 	public void setCodeableIdentifier(String text) {
-		data.set(PARAMETER_CODEABLE_IDENTIFIER, text);
+		set(PARAMETER_CODEABLE_IDENTIFIER, text);
 	}
 	
 	/**
@@ -182,7 +198,7 @@ public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 	 * @since 9.5.0
 	 */
 	public UUID getTransactionId() {
-		return EntityUtils.toUuid(data.getFirst(PARAMETER_TRANSACTION_ID));
+		return getParameterConverter().toUuid(data, PARAMETER_TRANSACTION_ID);
 	}
 	
 	/**
@@ -192,7 +208,7 @@ public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 	 * @since 9.5.0
 	 */
 	public void setTransactionId(UUID transactionId) {
-		data.set(PARAMETER_TRANSACTION_ID, transactionId);
+		set(PARAMETER_TRANSACTION_ID, transactionId);
 	}
 	
 	/**
@@ -201,29 +217,8 @@ public class DataFilter extends QuickFilter implements ModifiedFromFilter {
 	 * @return
 	 * @since 9.6.3
 	 */
+	@Override
 	public ParameterConverter getParameterConverter() {
 		return parameterConverter;
-	}
-
-	/**
-	 * Get modified from for filtering entities changed from given time stamp
-	 * 
-	 * @return
-	 * @since 9.7.7
-	 */
-	@Override
-	public ZonedDateTime getModifiedFrom() {
-		return getParameterConverter().toDateTime(data, PARAMETER_MODIFIED_FROM);
-	}
-
-	/**
-	 * Set modified from for filtering entities changed from this time stamp
-	 * 
-	 * @param modifiedFrom
-	 * @since 9.7.7
-	 */
-	@Override
-	public void setModifiedFrom(ZonedDateTime dateTime) {
-		data.set(PARAMETER_MODIFIED_FROM, dateTime);
 	}
 }

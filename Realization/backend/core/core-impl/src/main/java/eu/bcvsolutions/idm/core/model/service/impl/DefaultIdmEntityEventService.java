@@ -169,14 +169,9 @@ public class DefaultIdmEntityEventService
 		if (superOwnerId != null) {
 			predicates.add(builder.equal(root.get(IdmEntityEvent_.superOwnerId), superOwnerId));
 		}
-		if (filter.getCreatedFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmEntityEvent_.created), filter.getCreatedFrom()));
-		}
-		if (filter.getCreatedTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(IdmEntityEvent_.created), filter.getCreatedTill()));
-		}
-		if (!filter.getStates().isEmpty()) {
-			predicates.add(root.get(IdmEntityEvent_.result).get(OperationResult_.state).in(filter.getStates()));
+		List<OperationState> states = filter.getStates();
+		if (!states.isEmpty()) {
+			predicates.add(root.get(IdmEntityEvent_.result).get(OperationResult_.state).in(states));
 		}
 		UUID rootId = filter.getRootId();
 		if (rootId != null) {

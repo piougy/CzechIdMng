@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.eav.api.service;
 
+import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
 import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmCodeListDto;
@@ -17,5 +18,6 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 public interface IdmCodeListService extends 
 		EventableDtoService<IdmCodeListDto, IdmCodeListFilter>,
 		CodeableService<IdmCodeListDto>,
-		AuthorizableService<IdmCodeListDto> {
+		AuthorizableService<IdmCodeListDto>,
+		ScriptEnabled {
 }

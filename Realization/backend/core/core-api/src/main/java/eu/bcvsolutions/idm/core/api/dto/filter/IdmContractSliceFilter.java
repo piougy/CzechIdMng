@@ -6,13 +6,14 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for {@link IdmContractSliceDto} dtos.
  *
  * @author svandav
  */
-public class IdmContractSliceFilter extends IdmIdentityContractFilter implements CorrelationFilter{
+public class IdmContractSliceFilter extends IdmIdentityContractFilter {
 	
 	private UUID excludeContract; // For choose the parent contract. I want to exclude itself contract.
 	private Boolean withoutParent; // Returns contract without filled the parent field.
@@ -27,7 +28,11 @@ public class IdmContractSliceFilter extends IdmIdentityContractFilter implements
 	}
 
 	public IdmContractSliceFilter(MultiValueMap<String, Object> data) {
-		super(IdmContractSliceDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmContractSliceFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmContractSliceDto.class, data, parameterConverter);
 	}
 	
 	public UUID getExcludeContract() {

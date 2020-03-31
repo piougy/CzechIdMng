@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 /**
  * Form values filter
  * 
- * TODO: data properties instead
+ * TODO: data properties instead.
  * 
  * @author Radek Tomiška
  * @param <O> value owner

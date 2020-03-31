@@ -1,4 +1,5 @@
 import React from 'react';
+import Helmet from 'react-helmet';
 //
 import * as Basic from '../../components/basic';
 import { FormDefinitionManager } from '../../redux';
@@ -22,17 +23,15 @@ export default class FormDefinitions extends Basic.AbstractContent {
   }
 
   getNavigationKey() {
-    return 'forms';
+    return 'form-definitions';
   }
 
   render() {
     return (
-      <div>
-        {this.renderPageHeader()}
-        <Basic.Panel>
-          <FormDefinitionTable uiKey="form-table" definitionManager={this.manager}/>
-        </Basic.Panel>
-      </div>
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
+        <FormDefinitionTable uiKey="form-table" definitionManager={ this.manager }/>
+      </Basic.Div>
     );
   }
 }

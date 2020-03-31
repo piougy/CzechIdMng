@@ -371,15 +371,11 @@ class Table extends AbstractComponent {
       content.push(body);
       content.push(footer);
     }
-    let tableStyle = supportsPagination ? {} : { overflowX: 'auto' };
-    if (style) {
-      tableStyle = style;
-    }
     //
     return (
-      <div className={ classNames(className, 'basic-table') }>
+      <div className={ classNames(className, 'basic-table') } style={ supportsPagination ? {} : { overflowX: 'auto' } } >
         <Loading showLoading={ showLoading && data && data.length > 0 }>
-          <table className={ classNamesTable } style={tableStyle}>
+          <table className={ classNamesTable } style={ style }>
             {
               !header || noHeader
               ||

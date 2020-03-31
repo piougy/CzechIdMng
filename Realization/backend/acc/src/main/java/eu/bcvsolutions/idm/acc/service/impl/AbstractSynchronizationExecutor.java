@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -148,7 +147,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(AbstractSynchronizationExecutor.class);
 
-	protected final String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":sync-mapping-cache";
+	public static final String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":sync-mapping-cache";
 
 	@Autowired
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
@@ -1816,8 +1815,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	protected Object getCachedValue(AttributeValueWrapperDto key) {
-		ValueWrapper value = idmCacheManager.getValue(CACHE_NAME, key);
-		return value == null ? null : value.get();
+		Optional<Object> value = idmCacheManager.getValue(CACHE_NAME, key);
+		return value.orElse(null);
 	}
 
 	protected void setCachedValue(AttributeValueWrapperDto key, Object value) {

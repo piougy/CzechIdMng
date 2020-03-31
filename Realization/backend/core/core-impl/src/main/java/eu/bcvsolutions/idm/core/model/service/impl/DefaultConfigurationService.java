@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,6 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -56,8 +56,6 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * 
  * Cache manager is used directly without annotations - its easier for overloaded methods and internal cache usage.
  * 
- * TODO: Create cache manager with FE agenda
- * 
  * @author Radek Tomiška 
  *
  */
@@ -65,9 +63,10 @@ public class DefaultConfigurationService
 		extends AbstractEventableDtoService<IdmConfigurationDto, IdmConfiguration, DataFilter> 
 		implements IdmConfigurationService, ConfigurationService {
 
-	protected static final String CACHE_NAME = CoreModuleDescriptor.MODULE_ID + ":configuration-cache";
+	public static final String CACHE_NAME = CoreModuleDescriptor.MODULE_ID + ":configuration-cache";
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
+
 	//
 	private final IdmConfigurationRepository repository;
 	private final ConfidentialStorage confidentialStorage;
@@ -237,11 +236,10 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional(readOnly = true)
 	public String getValue(String key, String defaultValue) {
-		ValueWrapper cachedValue = getCachedValue(key);
-		if (cachedValue != null) {			
-			String value = (String) cachedValue.get();
-			return value != null ? value : defaultValue;
-		}		
+		Optional<Object> cachedValue = getCachedValue(key);
+		if (cachedValue.isPresent()) {
+			return (String) cachedValue.get();
+		}	
 		//
 		LOG.debug("Reading configuration for key [{}]", key);
 		String value = null;
@@ -412,10 +410,8 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional(readOnly = true)
 	public String getInstanceId() {
-		// TODO: This should be returned from env. only => instances should not be reused by DB property
-		// return env.getProperty(PROPERTY_APP_INSTANCE_ID, DEFAULT_APP_INSTANCE_ID);
-		// 
-		return getValue(PROPERTY_APP_INSTANCE_ID, DEFAULT_APP_INSTANCE_ID);
+		// This should be returned from env. only => instances should not be reused by DB property
+		return env.getProperty(PROPERTY_APP_INSTANCE_ID, DEFAULT_APP_INSTANCE_ID);
 	}
 	
 	@Override
@@ -554,7 +550,7 @@ public class DefaultConfigurationService
 		cacheManager.evictValue(CACHE_NAME, key);
 	}
 	
-	private ValueWrapper getCachedValue(String key) {
+	private Optional<Object> getCachedValue(String key) {
 		return cacheManager.getValue(CACHE_NAME, key);
 	}
 	

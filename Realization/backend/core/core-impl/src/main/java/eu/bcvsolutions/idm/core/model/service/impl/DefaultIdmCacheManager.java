@@ -1,56 +1,65 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
+import com.google.common.collect.Maps;
+
+import eu.bcvsolutions.idm.core.api.config.cache.domain.CacheObjectWrapper;
+import eu.bcvsolutions.idm.core.api.config.cache.IdMCacheConfiguration;
+import eu.bcvsolutions.idm.core.api.config.cache.domain.SerializableCacheObjectWrapper;
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.dto.IdmCacheDto;
 import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 
 /**
  * Default implementation of {@link IdmCacheManager}. It provides basic operations on cache such as listing available
- * caches and clearing them. Internally, this manager uses Spring's implementation {@link CacheManager}.
- *
- * Note that only ConcurrentHashMap implementation is supported at the time. If other implementation of cache is used,
- * then size of each cache will not be determined correctly.
+ * caches and clearing them. Internally, this manager uses jCache JSR107 {@link CacheManager}
  *
  * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
  */
 @Component("idmCacheManager")
 public class DefaultIdmCacheManager implements IdmCacheManager {
 
-    private final CacheManager springCacheManager;
+    private final CacheManager jCacheManager;
+
+    private final Map<String, IdMCacheConfiguration> cacheConfigurations;
+
+    private static final String EMPTY_KEY_MSG = "Cache key cannot be empty";
+    private static final String EMPTY_NAME_MSG = "Cache name cannot be empty";
 
     @Autowired
-    public DefaultIdmCacheManager(CacheManager springCacheManager) {
-        this.springCacheManager = springCacheManager;
+    public DefaultIdmCacheManager(CacheManager springCacheManager, List<IdMCacheConfiguration> cacheConfigurations) {
+        this.jCacheManager = springCacheManager;
+        this.cacheConfigurations = Maps.uniqueIndex(cacheConfigurations, IdMCacheConfiguration::getCacheName);
     }
 
     @Override
     public List<IdmCacheDto> getAllAvailableCaches() {
-        Collection<String> cacheNames = springCacheManager.getCacheNames();
-        return Optional.ofNullable(cacheNames).orElse(Collections.emptyList()).stream()
-                .map(springCacheManager::getCache)
+        Iterable<String> cacheNames = jCacheManager.getCacheNames();
+        return StreamSupport.stream(cacheNames.spliterator(), false)
+                .map(jCacheManager::getCache)
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void evictCache(String cacheId) {
-        // if we do not check cache existence prior asking Spring's CacheManager, then it is going to create it for us, which
-        // is not what we want
-        if (springCacheManager.getCacheNames().contains(cacheId)) {
-            Cache cache = springCacheManager.getCache(cacheId);
+        Cache<Object, Object> cache = jCacheManager.getCache(cacheId);
+        if (cache != null) {
             cache.clear();
         }
     }
@@ -65,51 +74,69 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
 
     @Override
     public boolean cacheValue(String cacheName, Object key, Object value) {
-        Assert.hasText(cacheName, "Cache name cannot be empty");
-        Assert.notNull(key, "Cache key cannot be empty");
-        // lazily creates cache if it does not exist yet
-        final Cache cache = springCacheManager.getCache(cacheName);
-        // need to check this in case caching is disabled
+        Assert.hasText(cacheName, EMPTY_NAME_MSG);
+        Assert.notNull(key, EMPTY_KEY_MSG);
+        //
+        final Cache<Object, Object> cache = jCacheManager.getCache(cacheName);
+        final IdMCacheConfiguration configuration = cacheConfigurations.get(cacheName);
+        // We can cast here safely, because DistributedIdMCacheConfiguration only allows Serializable types
+        final Object toCache = isConfigLocalOnly(configuration) ? new CacheObjectWrapper<>(value) : new SerializableCacheObjectWrapper<>((Serializable)value);
         if (cache != null) {
-            cache.put(key, value);
+                cache.put(key,  toCache);
         }
-        return cache != null && Objects.equals(cache.get(key), value);
+        return cache != null && Objects.equals(cache.get(key), toCache);
     }
 
     @Override
-    public Cache.ValueWrapper getValue(String cacheName, Object key) {
-        Assert.hasText(cacheName, "Cache name cannot be empty");
-        Assert.notNull(key, "Cache key cannot be empty");
+    public Optional<Object> getValue(String cacheName, Object key) {
+        Assert.hasText(cacheName, EMPTY_NAME_MSG);
+        Assert.notNull(key, EMPTY_KEY_MSG);
         //
-        Cache cache = springCacheManager.getCache(cacheName);
-        return cache == null ? null : cache.get(key);
+        final Cache<Object, Object> cache = jCacheManager.getCache(cacheName);
+        final IdMCacheConfiguration cacheConfiguration = cacheConfigurations.get(cacheName);
+        //
+        if (cache == null) {
+            return Optional.empty();
+        }
+        //
+        ValueWrapper result = toValueWrapper(cacheConfiguration, cache.get(key));
+        return result == null ? Optional.empty() : Optional.ofNullable(result.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    private ValueWrapper toValueWrapper(IdMCacheConfiguration cacheConfiguration, Object o) {
+        if (isConfigLocalOnly(cacheConfiguration)) {
+            return (CacheObjectWrapper<?>) o;
+        } else {
+            return (SerializableCacheObjectWrapper<Serializable>) o;
+        }
     }
 
     @Override
     public void evictValue(String cacheName, Object key) {
-        Assert.hasText(cacheName, "Cache name cannot be empty");
-        Assert.notNull(key, "Cache key cannot be empty");
+        Assert.hasText(cacheName, EMPTY_NAME_MSG);
+        Assert.notNull(key, EMPTY_KEY_MSG);
         //
-        if (springCacheManager.getCacheNames().contains(cacheName)) {
-            springCacheManager.getCache(cacheName).evict(key);
+        final Cache<Object, Object> cache = jCacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.remove(key);
         }
     }
 
-
-    private IdmCacheDto toDto(Cache cache) {
+    private IdmCacheDto toDto(Cache<Object, Object> cache) {
         final IdmCacheDto result = new IdmCacheDto();
-        final Object nativeCache = cache.getNativeCache();
-        // TODO: Add support for other cache implementations
-        if (nativeCache instanceof ConcurrentHashMap) {
-            final ConcurrentHashMap<?, ?> concurrentHashMap = (ConcurrentHashMap<?, ?>) nativeCache;
-            result.setSize(concurrentHashMap.size());
-        }
-        //
+
         result.setId(cache.getName());
         result.setName(cache.getName());
-        // TODO: result.setModule()
+        // There is no other way of determining which module this cache belongs to
+        String[] split = StringUtils.split(cache.getName(), ":");
+        result.setModule(split != null && split.length > 0 ? split[0] : "");
         //
         return result;
+    }
+
+    private boolean isConfigLocalOnly(IdMCacheConfiguration configuration) {
+        return configuration == null || configuration.isOnlyLocal();
     }
 
 }

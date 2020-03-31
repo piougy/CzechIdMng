@@ -917,7 +917,7 @@ public class DefaultSysSystemService
 	 * @param connectorKey
 	 */
 	private String getOperationOptionsFormDefinitionCode(IcConnectorKey connectorKey) {
-		return MessageFormat.format("{0} - {1}", OPERATION_OPTIONS_DEFINITION_KEY, connectorKey.getFullName());
+		return MessageFormat.format("{0}-{1}", OPERATION_OPTIONS_DEFINITION_KEY, connectorKey.getFullName());
 	}
 
 	/**

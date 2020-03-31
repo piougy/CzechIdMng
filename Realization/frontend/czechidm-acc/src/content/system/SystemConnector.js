@@ -3,6 +3,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { Link } from 'react-router-dom';
 //
 import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
@@ -15,6 +16,8 @@ const manager = new SystemManager();
  *
  * @author Ondřej Kopr
  * @author Radek Tomiška
+ * @author Vít Švanda
+ * @author Peter Štrunc
  */
 class SystemConnectorContent extends Basic.AbstractContent {
 
@@ -52,7 +55,16 @@ class SystemConnectorContent extends Basic.AbstractContent {
   }
 
   reloadConnectorConfiguration(entityId) {
-    this.context.store.dispatch(manager.fetchConnectorConfiguration(entityId, `${uiKey}-${entityId}`, (formInstance, error) => {
+    this.context.store.dispatch(manager
+      .fetchConnectorConfiguration(entityId, `${uiKey}-${entityId}`, this.getFormInstanceLoadingCallback()));
+    this.context.store.dispatch(manager
+      .fetchPoolingConnectorConfiguration(entityId, `pooling-${uiKey}-${entityId}`, this.getFormInstanceLoadingCallback()));
+    this.context.store.dispatch(manager
+      .fetchOperationOptionsConnectorConfiguration(entityId, `operation-options-${uiKey}-${entityId}`, this.getFormInstanceLoadingCallback()));
+  }
+
+  getFormInstanceLoadingCallback() {
+    return (formInstance, error) => {
       if (error) {
         if (error.statusEnum === 'CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND') {
           this.addErrorMessage({ hidden: true, level: 'info' }, error);
@@ -71,27 +83,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
         });
         this.getLogger().debug(`[EavForm]: Loaded form definition [${formInstance.getDefinition().type}|${formInstance.getDefinition().name}]`);
       }
-    }));
-    this.context.store.dispatch(manager.fetchPoolingConnectorConfiguration(entityId, `pooling-${uiKey}-${entityId}`, (formInstance, error) => {
-      if (error) {
-        if (error.statusEnum === 'CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND') {
-          this.addErrorMessage({ hidden: true, level: 'info' }, error);
-          this.setState({ error });
-        } else if (error.statusEnum === 'CONNECTOR_FORM_DEFINITION_NOT_FOUND') {
-          // dont set error, just show alert block
-          this.addErrorMessage({ hidden: true, level: 'info' }, error);
-          this.setState({ error });
-        } else {
-          this.addError(error);
-          this.setState({ error: null });
-        }
-      } else {
-        this.setState({
-          emptyConnector: false
-        });
-        this.getLogger().debug(`[EavForm]: Loaded form definition [${formInstance.getDefinition().type}|${formInstance.getDefinition().name}]`);
-      }
-    }));
+    };
   }
 
   showDetail() {
@@ -177,7 +169,6 @@ class SystemConnectorContent extends Basic.AbstractContent {
     }, () => {
       if (error) {
         this.addError(error);
-        return;
       }
       // now we do not want to see success message
       // this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
@@ -235,20 +226,56 @@ class SystemConnectorContent extends Basic.AbstractContent {
       //
       const { entityId } = this.props.match.params;
       const filledFormValues = this.refs.poolingEav.getValues();
-      this.getLogger().debug(`[EavForm]: Saving form [${this.refs.poolingEav.getFormDefinition().type}|${this.refs.poolingEav.getFormDefinition().name}]`);
+      this.getLogger()
+        .debug(`[EavForm]: Saving form [${this.refs.poolingEav.getFormDefinition().type}|${this.refs.poolingEav.getFormDefinition().name}]`);
       // save values
-      this.context.store.dispatch(manager.savePoolingConnectorConfiguration(entityId, filledFormValues, `pooling-${uiKey}-${entityId}`, (savedFormInstance, error) => {
-        if (error) {
-          this.addError(error);
-        } else {
-          this.getLogger().debug(`[EavForm]: Form [${this.refs.poolingEav.getFormDefinition().type}|${this.refs.poolingEav.getFormDefinition().name}] saved`);
-          const system = manager.getEntity(this.context.store.getState(), entityId);
-          this.addMessage({ message: this.i18n('save.success', { name: system.name }) });
-        }
-        this.setState({
-          showLoading: false
-        });
-      }));
+      this.context.store.dispatch(manager.savePoolingConnectorConfiguration(entityId, filledFormValues, `pooling-${uiKey}-${entityId}`,
+        (savedFormInstance, error) => {
+          if (error) {
+            this.addError(error);
+          } else {
+            this.getLogger()
+              .debug(`[EavForm]: Form [${this.refs.poolingEav.getFormDefinition().type}|${this.refs.poolingEav.getFormDefinition().name}] saved`);
+            const system = manager.getEntity(this.context.store.getState(), entityId);
+            this.addMessage({ message: this.i18n('save.success', { name: system.name }) });
+          }
+          this.setState({
+            showLoading: false
+          });
+        }));
+    });
+  }
+
+  saveOperationOptionsConfigurations(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      showLoading: true
+    }, () => {
+      if (!this.refs.optionsEav.isValid()) {
+        return;
+      }
+      //
+      const { entityId } = this.props.match.params;
+      const filledFormValues = this.refs.optionsEav.getValues();
+      this.getLogger()
+        .debug(`[EavForm]: Saving form [${this.refs.optionsEav.getFormDefinition().type}|${this.refs.optionsEav.getFormDefinition().name}]`);
+      // save values
+      this.context.store.dispatch(manager.saveOperationOptionsConnectorConfiguration(entityId, filledFormValues,
+        `operation-options-${uiKey}-${entityId}`, (savedFormInstance, error) => {
+          if (error) {
+            this.addError(error);
+          } else {
+            this.getLogger()
+              .debug(`[EavForm]: Form [${this.refs.optionsEav.getFormDefinition().type}|${this.refs.optionsEav.getFormDefinition().name}] saved`);
+            const system = manager.getEntity(this.context.store.getState(), entityId);
+            this.addMessage({ message: this.i18n('save.success', { name: system.name }) });
+          }
+          this.setState({
+            showLoading: false
+          });
+        }));
     });
   }
 
@@ -277,6 +304,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
     }
     return options;
   }
+
   _onChangeSelectTabs(activeKey) {
     this.setState({
       activeKey
@@ -284,14 +312,23 @@ class SystemConnectorContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { formInstance, poolingFormInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
+    const { formInstance, poolingFormInstance, optionsFormInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
     const { error, showLoading, remoteConnectorError, activeKey } = this.state;
     const _showLoading = showLoading || this.props._showLoading;
     const _availableConnectors = this._getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity);
 
+    const attrLink = optionsFormInstance != null ?
+      <Link
+        style={{ marginRight: 5 }}
+        to={`/form-definitions/${encodeURIComponent(optionsFormInstance.definition.id)}/attributes`}
+        title={this.i18n('operationOptionsConfiguration.attributes')}>
+        {this.i18n('operationOptionsConfiguration.attributes')}
+      </Link>
+      : null;
+
     let pickConnector = null;
     if (entity && entity.connectorKey) {
-      pickConnector = _.find(_availableConnectors, { 'value': entity.connectorKey.fullName });
+      pickConnector = _.find(_availableConnectors, { value: entity.connectorKey.fullName });
     }
 
     let content;
@@ -302,7 +339,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
           {this.i18n(`${error.module}:error.${error.statusEnum}.message`, error.parameters)}
         </Basic.Alert>
       );
-    } else if (!formInstance && !_showLoading || remoteConnectorError) {
+    } else if ((!formInstance && !_showLoading) || remoteConnectorError) {
       // connector not found on BE
       content = null;
     } else {
@@ -337,6 +374,27 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
                 useDefaultValue/>
               <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } className="marginable">
+                <Basic.Button
+                  type="submit"
+                  level="success"
+                  showLoadingIcon
+                  showLoadingText={this.i18n('button.saving')}>
+                  {this.i18n('button.save')}
+                </Basic.Button>
+              </Basic.PanelFooter>
+            </form>
+          </Basic.Tab>
+          <Basic.Tab eventKey={ 3 } title={ this.i18n('operationOptionsConfiguration.tab') } className="bordered">
+            <form
+              style={{ paddingRight: 15, paddingLeft: 15, paddingTop: 10}}
+              onSubmit={this.saveOperationOptionsConfigurations.bind(this)}>
+              <Advanced.EavForm
+                ref="optionsEav"
+                formInstance={ optionsFormInstance }
+                readOnly={ !Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') }
+                useDefaultValue/>
+              <Basic.PanelFooter rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_UPDATE') } className="marginable">
+                { attrLink }
                 <Basic.Button
                   type="submit"
                   level="success"
@@ -419,6 +477,7 @@ function select(state, component) {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
     formInstance: Managers.DataManager.getData(state, `${uiKey}-${entityId}`),
     poolingFormInstance: Managers.DataManager.getData(state, `pooling-${uiKey}-${entityId}`),
+    optionsFormInstance: Managers.DataManager.getData(state, `operation-options-${uiKey}-${entityId}`),
     availableFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_CONNECTORS),
     availableRemoteFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_REMOTE_CONNECTORS),
     _permissions: manager.getPermissions(state, null, entityId)

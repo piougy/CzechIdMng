@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.ic.api;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Configuration for IC connector
@@ -28,5 +29,10 @@ public interface IcConnectorConfiguration extends Serializable {
 	 * @return the producerBufferSize
 	 */
 	int getProducerBufferSize();
+
+	/**
+	 * @return Map of operation options for this system
+	 */
+	Map<String, Object> getSystemOperationOptions();
 
 }

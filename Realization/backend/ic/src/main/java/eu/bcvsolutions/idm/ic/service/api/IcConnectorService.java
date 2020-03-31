@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.ic.service.api;
 
 import java.util.List;
+import java.util.Map;
 
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -30,10 +31,11 @@ public interface IcConnectorService {
 	 * @param connectorConfiguration - Connector configuration
 	 * @param objectClass - Type or category of connector object
 	 * @param attributes - Attributes for new object
-	 * @return
+	 * @return Uid of created object
 	 */
 	IcUidAttribute createObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, List<IcAttribute> attributes);
+
 	
 	/**
 	 * Replace attributes in exist object in resource
@@ -42,7 +44,7 @@ public interface IcConnectorService {
 	 * @param objectClass - Type or category of connector object
 	 * @param uid - Identification of object in resource
 	 * @param replaceAttributes - Attributes to replace in resource object
-	 * @return
+	 * @return Uid of account after update
 	 */
 	IcUidAttribute updateObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid, List<IcAttribute> replaceAttributes);
@@ -63,11 +65,11 @@ public interface IcConnectorService {
 	 * @param connectorConfiguration - Connector configuration
 	 * @param objectClass - Type or category of connector object
 	 * @param uid - Identification of object in resource
-	 * @return
+	 * @return Found {@link IcConnectorObject} or null if none was found
 	 */
 	IcConnectorObject readObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid);
-	
+
 	/**
 	 * Authenticate user
 	 * @param connectorInstance - Identification of connector
@@ -83,7 +85,7 @@ public interface IcConnectorService {
 
 	/**
 	 * Do synchronization. For every changed item will be call given handler.
-	 * @param key - Identification of connector
+	 * @param connectorInstance - Connector used to perform the operation
 	 * @param connectorConfiguration - Connector configuration
 	 * @param objectClass - Type or category of connector object
 	 * @param token - Synchronization token
@@ -93,12 +95,13 @@ public interface IcConnectorService {
 	IcSyncToken synchronization(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
 			IcSyncToken token, IcSyncResultsHandler handler);
 
+
 	/**
 	 * Search by given filter. For every searched item will be call given handler.
-	 * @param key - Identification of connector
+	 * @param connectorInstance - Connector used to perform the operation
 	 * @param connectorConfiguration - Connector configuration
 	 * @param objectClass - Type or category of connector object
-	 * @param filter
+	 * @param filter - Filter which will be used to search objects
 	 * @param handler - Handler will be call for every searched item
 	 */
 	void search(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,

@@ -527,11 +527,13 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
           backdrop="static"
           keyboard>
           <Basic.Modal.Header text={ this.getHeader() } closeButton/>
-          <Basic.Modal.Body style={ showTree === true ? { padding: 0 } : {} }>
+          <Basic.Modal.Body
+            className="role-select-modal-body"
+            style={ showTree === true ? { padding: 0 } : {} }>
             <Basic.Row>
               <Basic.Col
                 lg={ 3 }
-                style={{ paddingRight: 0 }}
+                className="role-select-tree-container"
                 rendered={ showTree === true }>
                 <Tree
                   ref="roleCatalogueTree"
@@ -543,7 +545,12 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               </Basic.Col>
               <Basic.Col
                 lg={ showTree ? 9 : 12 }
-                style={ showTree === true ? { paddingLeft: 0 } : {} }>
+                className={
+                  classNames({
+                    'role-select-table-container': true,
+                    'show-tree': showTree === true
+                  })
+                }>
                 <Table
                   ref="table"
                   condensed

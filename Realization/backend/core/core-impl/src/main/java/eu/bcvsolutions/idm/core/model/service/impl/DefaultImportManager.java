@@ -78,6 +78,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ImportTaskExecutor;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -113,7 +114,7 @@ public class DefaultImportManager implements ImportManager {
 
 	@Override
 	@Transactional
-	public IdmExportImportDto uploadImport(String name, String fileName, InputStream inputStream) {
+	public IdmExportImportDto uploadImport(String name, String fileName, InputStream inputStream, BasePermission... permission) {
 		Assert.notNull(name, "Name cannot be null!");
 		Assert.notNull(fileName, "File name cannot be null!");
 		Assert.notNull(inputStream, "Input stream cannot be null!");
@@ -140,7 +141,7 @@ public class DefaultImportManager implements ImportManager {
 			batch.setName(manifest.getName());
 			batch.setExecutorName(manifest.getExecutorName());
 			batch.setData(attachment.getId());
-			batch = exportImportService.save(batch);
+			batch = exportImportService.save(batch, permission);
 		} finally {
 			// Delete temp files.
 			try {

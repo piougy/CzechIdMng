@@ -77,8 +77,6 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 	protected void exportDto(SysSystemDto dto) {
 		SysSystemDto systemDto = systemService.get(dto.getId(), IdmBasePermission.READ);
 		UUID systemId = systemDto.getId();
-		// Check rights
-		systemService.checkAccess(systemDto, IdmBasePermission.UPDATE);
 		// Create new getBatch() (if doesn't exist)
 		initBatch("Export of systems");
 

@@ -7,6 +7,12 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 
+/**
+ * Export manager
+ * 
+ * @author Vít Švanda
+ *
+ */
 public interface ExportManager {
 
 	static final String EXTENSION_JSON = "json";
@@ -27,7 +33,7 @@ public interface ExportManager {
 	 * @param batch
 	 * @return
 	 */
-	IdmExportImportDto exportDTO(BaseDto dto, IdmExportImportDto batch);
+	IdmExportImportDto exportDto(BaseDto dto, IdmExportImportDto batch);
 
 	/**
 	 * Sets authoritative mode for given DTO class. It means data (this DTO class)
@@ -70,7 +76,7 @@ public interface ExportManager {
 	 * @param batch
 	 * @return
 	 */
-	Path createDTODirectory(Class<? extends BaseDto> dtoClass, IdmExportImportDto batch);
+	Path createDtoDirectory(Class<? extends BaseDto> dtoClass, IdmExportImportDto batch);
 
 	/**
 	 * Get export descriptor form given DTO type from the batch.

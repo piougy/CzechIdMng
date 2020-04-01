@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -70,6 +71,7 @@ public class DefaultIdmImportLogService extends
 	}
 	
 	@Override
+	@Transactional
 	public IdmImportLogDto saveDistinct(IdmImportLogDto dto, BasePermission... permission) {
 		if (this.isNew(dto)) {
 			Assert.notNull(dto.getBatch(), "Batch ID must be filled for distinct save!");

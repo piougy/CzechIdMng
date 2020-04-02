@@ -2,6 +2,7 @@ import AbstractRequestService from './AbstractRequestService';
 import SearchParameters from '../domain/SearchParameters';
 import IdentityService from './IdentityService';
 import RoleService from './RoleService';
+import {i18n} from './LocalizationService';
 
 const identityService = new IdentityService();
 const roleService = new RoleService();
@@ -21,8 +22,8 @@ export default class RoleGuaranteeService extends AbstractRequestService {
   }
 
   getNiceLabel(entity) {
-    if (!entity || !entity._embedded) {
-      return '';
+    if (!entity || !entity._embedded || !entity._embedded.guarantee) {
+      return i18n('entity.RoleGuarantee._type');
     }
     let label = `${roleService.getNiceLabel(entity._embedded.role)}`;
     if (entity.guarantee) {

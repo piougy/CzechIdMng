@@ -102,13 +102,14 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Target system tests
+ * Target system tests.
  * 
  * @author Radek Tomiška
  *
  */
-public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
+public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationTest {
 	
+	// TODO: remove + transactional
 	private static final String SYSTEM_NAME_ONE = "test_system_one_" + System.currentTimeMillis();
 	private static final String SYSTEM_NAME_TWO = "test_system_two_" + System.currentTimeMillis();
 	
@@ -149,7 +150,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void testReferentialIntegrity() {
 		SysSystemDto system = new SysSystemDto();
-		String systemName = "t_s_" + System.currentTimeMillis();
+		String systemName = getHelper().createName();
 		system.setName(systemName);
 		system = systemService.save(system);
 		// object class
@@ -220,7 +221,6 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		assertEquals(0, roleSystemService.find(roleSystemFilter, null).getTotalElements());
 		assertNull(roleSystemAttributeService.get(roleSystemAttribute.getId()));
 	}
-	
 	
 	@Test
 	public void testReferentialIntegrityPasswordGenerationPolicy() {
@@ -682,7 +682,6 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		attributeDto = formDefinition.getMappedAttributeByCode(SysSystemService.MIN_TIME_TO_EVIC_PROPERTY);
 		Assert.assertNotNull(attributeDto);
 	}
-	
 	
 	@Test
 	public void testPoolingConnectorConfiguration(){

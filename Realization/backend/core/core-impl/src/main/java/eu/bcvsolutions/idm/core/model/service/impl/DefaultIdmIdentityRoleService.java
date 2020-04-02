@@ -61,6 +61,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
@@ -129,7 +130,7 @@ public class DefaultIdmIdentityRoleService
 	}
 	
 	@Override
-	protected List<IdmFormInstanceDto> getFormInstances(IdmIdentityRoleDto result) {
+	protected List<IdmFormInstanceDto> getFormInstances(IdmIdentityRoleDto result, BasePermission... permission) {
 		IdmFormInstanceDto formInstanceDto = getRoleAttributeValues(result);
 		if (formInstanceDto != null) {
 			// Validate the form instance

@@ -10,34 +10,45 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
- * Process provisioning operations in queue periodically
+ * Process provisioning operations in queue periodically.
  * 
  * @author Radek Tomiška
  *
  */
-@Service
+@Component(ProvisioningQueueTaskExecutor.TASK_NAME)
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
-@Description("Process provisioning operations in queue periodically")
+@Description("Process provisioning operations in queue periodically.")
 public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulExecutor<SysProvisioningBatchDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningQueueTaskExecutor.class);
+	public static final String TASK_NAME = "acc-provisioning-queue-long-running-task";
 	private static final String PARAMETER_VIRTUAL = "virtualSystem";
 	//
 	@Autowired private ProvisioningExecutor provisioningExecutor;	
 	@Autowired private SysProvisioningBatchService provisioningBatchService;
 	//
 	private Boolean virtualSystem; // configured virtual system
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -101,6 +112,17 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 		Map<String, Object> properties = super.getProperties();
 		properties.put(PARAMETER_VIRTUAL, virtualSystem);
 		return properties;
+	}
+	
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		IdmFormAttributeDto virtualSystem = new IdmFormAttributeDto(
+				PARAMETER_VIRTUAL,
+				PARAMETER_VIRTUAL, 
+				PersistentType.BOOLEAN);
+		virtualSystem.setFaceType(BaseFaceType.BOOLEAN_SELECT);
+		//
+		return Lists.newArrayList(virtualSystem);
 	}
 	
 	public void setVirtual(boolean virtual) {

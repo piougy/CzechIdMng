@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -262,5 +263,14 @@ public class IdmContractPositionController extends AbstractEventableDtoControlle
 			@ApiParam(value = "Contract position's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
+	}
+	
+	@Override
+	protected IdmContractPositionFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmContractPositionFilter filter = new IdmContractPositionFilter(parameters, getParameterConverter());
+		// codeable decorator
+		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, IdmContractPositionFilter.PARAMETER_IDENTITY, IdmIdentityDto.class));
+		//
+		return filter;
 	}
 }

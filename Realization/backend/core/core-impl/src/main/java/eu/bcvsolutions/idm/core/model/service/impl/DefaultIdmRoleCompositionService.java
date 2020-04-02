@@ -19,7 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -264,9 +267,44 @@ public class DefaultIdmRoleCompositionService
 		UUID sub = filter.getSubId();
 		if (sub != null) {
 			predicates.add(builder.equal(root.get(IdmRoleComposition_.sub).get(IdmRole_.id), sub));
-		}		
+		}
+		// role
+		UUID role = filter.getRoleId();
+		if (role != null) {
+			predicates.add(builder.or(//
+					builder.equal(root.get(IdmRoleComposition_.sub).get(IdmRole_.id), role),
+					builder.equal(root.get(IdmRoleComposition_.superior).get(IdmRole_.id), role)));
+		}
 		//
 		return predicates;
+	}
+	
+	@Override
+	protected IdmRoleCompositionDto internalExport(UUID id) {
+		IdmRoleCompositionDto dto = this.get(id);
+
+		// Advanced pairing
+		// We cannot clear all embedded data, because we need to export DTO for
+		// connected sub and superior role.
+		BaseDto roleSubDto = dto.getEmbedded().get(IdmRoleComposition_.sub.getName());
+		BaseDto roleSuperDto = dto.getEmbedded().get(IdmRoleComposition_.superior.getName());
+		dto.getEmbedded().clear();
+		dto.getEmbedded().put(IdmRoleComposition_.sub.getName(), roleSubDto);
+		dto.getEmbedded().put(IdmRoleComposition_.superior.getName(), roleSuperDto);
+
+		return dto;
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Export batch must exist!");
+		// Export break-recipient
+		super.export(id, batch);
+		
+		// Advanced pairing
+		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, this.getDtoClass());
+		descriptorDto.getAdvancedParingFields().add(IdmRoleComposition_.sub.getName());
+		descriptorDto.getAdvancedParingFields().add(IdmRoleComposition_.superior.getName());
 	}
 	
 	private void findAllSuperiorRoles(List<IdmRoleCompositionDto> results, UUID subId, BasePermission... permission) {

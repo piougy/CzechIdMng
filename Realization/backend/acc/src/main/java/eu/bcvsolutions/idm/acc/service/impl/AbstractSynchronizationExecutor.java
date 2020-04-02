@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -148,7 +147,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(AbstractSynchronizationExecutor.class);
 
-	protected final String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":sync-mapping-cache";
+	public static final String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":sync-mapping-cache";
 
 	@Autowired
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
@@ -1169,7 +1168,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			entity = getService().get(entityId);
 		}
 		if (entity == null) {
-			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
+			addToItemLog(logItem, MessageFormat.format("Warning! - Entity for account [{0}] was not found!", account.getUid()));
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
@@ -1816,8 +1815,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	protected Object getCachedValue(AttributeValueWrapperDto key) {
-		ValueWrapper value = idmCacheManager.getValue(CACHE_NAME, key);
-		return value == null ? null : value.get();
+		Optional<Object> value = idmCacheManager.getValue(CACHE_NAME, key);
+		return value.orElse(null);
 	}
 
 	protected void setCachedValue(AttributeValueWrapperDto key, Object value) {
@@ -2165,6 +2164,49 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			return entityAccounts.get(0).getEntity();
 		}
 	}
+	
+	@Override
+	public DTO getDtoByAccount(UUID entityId, AccAccountDto account) {
+		if (entityId == null && account != null) {
+			Assert.notNull(account.getId(), "Account ID cannot be null!");
+			
+			EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
+			entityAccountFilter.setAccountId(account.getId());
+			entityAccountFilter.setOwnership(Boolean.TRUE);
+			List<EntityAccountDto> entityAccounts = this.getEntityAccountService()//
+					.find(entityAccountFilter, PageRequest.of(0, 1))//
+					.getContent();
+			if (!entityAccounts.isEmpty()) {
+				// We assume that all identity accounts
+				// (mark as
+				// ownership) have same identity!
+				EntityAccountDto entityAccountDto = entityAccounts.get(0);
+				if (entityAccountDto instanceof AbstractDto && entityAccountDto.getEntity() != null) {
+					UUID entityIdLocal = entityAccountDto.getEntity();
+					AbstractDto entityAccount = (AbstractDto) entityAccountDto;
+					
+					// Try to find target entity in embedded by entityId.
+					BaseDto targetDto = entityAccount.getEmbedded().values()//
+							.stream()//
+							.filter(dto -> entityIdLocal.equals(dto.getId()))//
+							.findFirst()//
+							.orElse(null);
+					if (targetDto != null) {
+						@SuppressWarnings("unchecked")
+						DTO result = (DTO) targetDto;
+						return result;
+					} else {
+						entityId = entityIdLocal;
+					}
+				}
+			}
+		}
+		DTO entity = null;
+		if (entityId != null) {
+			entity = this.getService().get(entityId);
+		}
+		return entity;
+	}
 
 	/**
 	 * Find account ID by entity ID
@@ -2293,14 +2335,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entity = this.getEntityByAccount(account.getId());
-		if (entity == null) {
-			addToItemLog(logItem, "Warning! - Entity account relation (with ownership = true) was not found!");
+		DTO dto =  this.getDtoByAccount(null, account);
+		if (dto == null) {
+			addToItemLog(logItem, MessageFormat.format("Warning! - Entity for account [{0}] was not found!", account.getUid()));
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
 			return;
 		}
-		DTO dto = getService().get(entity);
 		String entityIdentification = dto.getId().toString();
 		if (dto instanceof Codeable) {
 			entityIdentification = ((Codeable) dto).getCode();

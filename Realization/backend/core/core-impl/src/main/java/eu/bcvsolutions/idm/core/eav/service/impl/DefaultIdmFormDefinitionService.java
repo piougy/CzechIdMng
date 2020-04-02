@@ -3,12 +3,14 @@ package eu.bcvsolutions.idm.core.eav.service.impl;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +20,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -154,8 +160,9 @@ public class DefaultIdmFormDefinitionService
 					));
 		}
 		//
-		if (StringUtils.isNotEmpty(filter.getType())) {
-			predicates.add(builder.equal(root.get(IdmFormDefinition_.type), filter.getType()));
+		List<String> types = filter.getTypes();
+		if (CollectionUtils.isNotEmpty(types)) {
+			predicates.add(root.get(IdmFormDefinition_.type).in(types));
 		}
 		//
 		if (StringUtils.isNotEmpty(filter.getCode())) {
@@ -328,8 +335,45 @@ public class DefaultIdmFormDefinitionService
 		return null;
 	}
 	
+	@Override
+	public void exportOnlyDefinition(UUID id, IdmExportImportDto batch) {
+		IdmFormDefinitionDto definition = internalExport(id);
+		definition.setFormAttributes(Lists.newArrayList());
+		
+		batch.getExportedDtos().add(definition);
+		ExportDescriptorDto exportDescriptorDto = new ExportDescriptorDto(definition.getClass());
+
+		if (!batch.getExportOrder().contains(exportDescriptorDto)) {
+			batch.getExportOrder().add(exportDescriptorDto);
+		}
+		// super.export(id, batch);
+	}
+	
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		super.export(id, batch);
+		
+		// Export form attributes
+		IdmFormAttributeFilter systemMappingFilter = new IdmFormAttributeFilter();
+		systemMappingFilter.setDefinitionId(id);
+		List<IdmFormAttributeDto> attributes = formAttributeService.find(systemMappingFilter, null).getContent();
+
+		if (attributes.isEmpty()) {
+			formAttributeService.export(UUID.fromString(ExportManager.BLANK_UUID), batch);
+		}
+		attributes.forEach(mapping -> {
+			formAttributeService.export(mapping.getId(), batch);
+			// Authoritative mode is not set here only parent field could be sets.
+			ExportDescriptorDto descriptor = getExportManager().getDescriptor(batch, mapping.getClass());
+			if (descriptor != null) {
+				descriptor.getParentFields().add(IdmFormAttribute_.formDefinition.getName());
+			}
+		});
+	}
+	
 	/**
-	 * Attribute's fileds persistentType, confidential cannot be updated automatically - provide change sript, or create new definition (~version)
+	 * Attribute's fileds persistentType, confidential cannot be updated automatically - provide change script, or create new definition (~version)
 	 * 
 	 * @param formDefinition
 	 * @param savedAttribute

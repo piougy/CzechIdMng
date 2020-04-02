@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -48,9 +49,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
@@ -58,6 +63,8 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractEnableProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractEndProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -80,6 +87,8 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Autowired private IdmConceptRoleRequestService conceptRequestService;
 	@Autowired private IdmProfileService profileService;
 	@Autowired private TokenManager tokenManager;
+	@Autowired private LookupService lookupService;
+	@Autowired private IdmFormProjectionService projectionService;
 	//
 	private DefaultIdmIdentityService identityService;
 
@@ -480,6 +489,89 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		} finally {
 			getHelper().enableProcessor(IdentityContractEndProcessor.PROCESSOR_NAME);
 			getHelper().enableProcessor(IdentityContractEnableProcessor.PROCESSOR_NAME);
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeProjectionWithChangePermission() {
+		// just for sure some two identity exists
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmFormProjectionDto projection = new IdmFormProjectionDto();
+		projection.setCode(getHelper().createName());
+		projection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+		projection = projectionService.save(projection);
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE, IdentityBasePermission.CHANGEPROJECTION);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			identity.setFormProjection(projection.getId());
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(projection.getId(), identity.getFormProjection());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeProjectionWithoutCheckPermissions() {
+		// just for sure some two identity exists
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmFormProjectionDto projection = new IdmFormProjectionDto();
+		projection.setCode(getHelper().createName());
+		projection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+		projection = projectionService.save(projection);
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			identity.setFormProjection(projection.getId());
+			identity = identityService.save(identity);	
+			Assert.assertEquals(projection.getId(), identity.getFormProjection());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test(expected = ForbiddenEntityException.class)
+	@Transactional
+	public void testChangeProjectionWithoutChangePermission() {
+		// just for sure some two identity exists
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmFormProjectionDto projection = new IdmFormProjectionDto();
+		projection.setCode(getHelper().createName());
+		projection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+		projection = projectionService.save(projection);
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			identity.setFormProjection(projection.getId());
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
 		}
 	}
 }

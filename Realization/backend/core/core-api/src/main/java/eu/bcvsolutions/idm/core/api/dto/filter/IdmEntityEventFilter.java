@@ -1,22 +1,20 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter for entity events (changes)
+ * Filter for entity events (changes).
  * 
  * @author Radek Tomiška
  *
@@ -25,121 +23,99 @@ public class IdmEntityEventFilter extends DataFilter {
 	
 	public static final String PARAMETER_ROOT_ID = "rootId";
 	public static final String PARAMETER_PARENT_ID = "parentId";
-	//
-	private String ownerType;
-	private UUID ownerId;
-	private UUID superOwnerId;
-	private ZonedDateTime createdFrom; // >=
-    private ZonedDateTime createdTill; // <=
-    private List<OperationState> states;
-    private PriorityType priority;
-    private String resultCode;
-    private String eventType;
+	public static final String PARAMETER_OWNER_TYPE = "ownerType";
+	public static final String PARAMETER_OWNER_ID = "ownerId";
+	public static final String PARAMETER_SUPER_OWNER_ID = "superOwnerId";
+	public static final String PARAMETER_STATES = "states";
+	public static final String PARAMETER_PRIORITY = "priority";
+	public static final String PARAMETER_RESULT_CODE = "resultCode";
+	public static final String PARAMETER_EVENT_TYPE = "eventType";
 	
 	public IdmEntityEventFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
 	
 	public IdmEntityEventFilter(MultiValueMap<String, Object> data) {
-		super(IdmEntityEventDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmEntityEventFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmEntityEventDto.class, data, parameterConverter);
 	}
 
 	public String getOwnerType() {
-		return ownerType;
+		return getParameterConverter().toString(getData(), PARAMETER_OWNER_TYPE);
 	}
 
 	public void setOwnerType(String ownerType) {
-		this.ownerType = ownerType;
+		set(PARAMETER_OWNER_TYPE, ownerType);
 	}
 
 	public UUID getOwnerId() {
-		return ownerId;
+		return getParameterConverter().toUuid(getData(), PARAMETER_OWNER_ID);
 	}
 
 	public void setOwnerId(UUID ownerId) {
-		this.ownerId = ownerId;
-	}
-
-	public ZonedDateTime getCreatedFrom() {
-		return createdFrom;
-	}
-
-	public void setCreatedFrom(ZonedDateTime createdFrom) {
-		this.createdFrom = createdFrom;
-	}
-
-	public ZonedDateTime getCreatedTill() {
-		return createdTill;
-	}
-
-	public void setCreatedTill(ZonedDateTime createdTill) {
-		this.createdTill = createdTill;
+		set(PARAMETER_OWNER_ID, ownerId);
 	}
 	
 	public List<OperationState> getStates() {
-		if (states == null) {
-			states = new ArrayList<>();
-		}
-		return states;
+		return getParameterConverter().toEnums(getData(), PARAMETER_STATES, OperationState.class);
 	}
 	
 	public void setStates(List<OperationState> states) {
-		this.states = states;
+		if (CollectionUtils.isEmpty(states)) {
+    		data.remove(PARAMETER_STATES);
+    	} else {
+    		data.put(PARAMETER_STATES, new ArrayList<Object>(states));
+    	}
 	}
 	
 	public UUID getParentId() {
-		try {
-			return DtoUtils.toUuid(data.getFirst(PARAMETER_PARENT_ID));
-		} catch (ClassCastException ex) {
-			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
-		}
+		return getParameterConverter().toUuid(getData(), PARAMETER_PARENT_ID);
 	}
 	
 	public void setParentId(UUID parentId) {
-		data.set(PARAMETER_PARENT_ID, parentId);
+		set(PARAMETER_PARENT_ID, parentId);
 	}
 	
 	public void setPriority(PriorityType priority) {
-		this.priority = priority;
+		set(PARAMETER_PRIORITY, priority);
 	}
 	
 	public PriorityType getPriority() {
-		return priority;
+		return getParameterConverter().toEnum(getData(), PARAMETER_PRIORITY, PriorityType.class);
 	}
 	
 	public void setRootId(UUID rootId) {
-		data.set(PARAMETER_ROOT_ID, rootId);
+		set(PARAMETER_ROOT_ID, rootId);
 	}
 	
 	public UUID getRootId() {
-		try {
-			return DtoUtils.toUuid(data.getFirst(PARAMETER_ROOT_ID));
-		} catch (ClassCastException ex) {
-			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
-		}
+		return getParameterConverter().toUuid(getData(), PARAMETER_ROOT_ID);
 	}
 	
 	public UUID getSuperOwnerId() {
-		return superOwnerId;
+		return getParameterConverter().toUuid(getData(), PARAMETER_SUPER_OWNER_ID);
 	}
 	
 	public void setSuperOwnerId(UUID superOwnerId) {
-		this.superOwnerId = superOwnerId;
+		set(PARAMETER_SUPER_OWNER_ID, superOwnerId);
 	}
 	
 	public void setResultCode(String resultCode) {
-		this.resultCode = resultCode;
+		set(PARAMETER_RESULT_CODE, resultCode);
 	}
 	
 	public String getResultCode() {
-		return resultCode;
+		return getParameterConverter().toString(getData(), PARAMETER_RESULT_CODE);
 	}
 	
 	public String getEventType() {
-		return eventType;
+		return getParameterConverter().toString(getData(), PARAMETER_EVENT_TYPE);
 	}
 	
 	public void setEventType(String eventType) {
-		this.eventType = eventType;
+		set(PARAMETER_EVENT_TYPE, eventType);
 	}
 }

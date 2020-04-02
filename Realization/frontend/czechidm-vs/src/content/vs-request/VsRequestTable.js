@@ -90,6 +90,14 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
     return manager.cancel(bulkActionValue, ids, this, null, event);
   }
 
+  /**
+  * Method get last string of split string by dot.
+  * Used for get niceLabel for type entity.
+  */
+  _getType(name) {
+    return Utils.Ui.getSimpleJavaType(name);
+  }
+
   _getSystemCell({ rowIndex, data }) {
     return (
       <Advanced.EntityInfo
@@ -107,6 +115,20 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
         entityIdentifier={ data[rowIndex].id }
         entity={ data[rowIndex] }
         face="link" />
+    );
+  }
+
+  renderTargetEntity({rowIndex, data}) {
+    if (!data[rowIndex].targetEntity) {
+      return data[rowIndex].uid;
+    }
+    return (
+      <Advanced.EntityInfo
+        entityType={ this._getType(data[rowIndex].targetEntityType) }
+        entity={ data[rowIndex].targetEntity }
+        showIcon
+        face="popover"
+        showEntityType/>
     );
   }
 
@@ -159,7 +181,17 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, columns, forceSearchParameters, showRowSelection, showFilter, showToolbar, showPageSize, showId, className, defaultSearchParameters } = this.props;
+    const {
+      uiKey,
+      columns,
+      forceSearchParameters,
+      showRowSelection, showFilter,
+      showToolbar,
+      showPageSize,
+      showId,
+      className,
+      defaultSearchParameters
+    } = this.props;
     const { filterOpened, showLoading} = this.state;
 
     return (
@@ -207,10 +239,10 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
                 <Basic.Row>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.FilterDate
-                    ref="fromTill"
-                    facePlaceholder={this.i18n('vs:entity.VsRequest.created.label')}
-                    fromProperty="createdAfter"
-                    tillProperty="createdBefore"/>
+                      ref="fromTill"
+                      facePlaceholder={this.i18n('vs:entity.VsRequest.created.label')}
+                      fromProperty="createdAfter"
+                      tillProperty="createdBefore"/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.FilterDate
@@ -234,7 +266,9 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
                       ref="systemId"
                       placeholder={this.i18n('acc:entity.System._type')}
                       multiSelect={false}
-                      forceSearchParameters={new Domain.SearchParameters().setName(Domain.SearchParameters.NAME_AUTOCOMPLETE).setFilter('virtual', true)}
+                      forceSearchParameters={new Domain.SearchParameters()
+                        .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
+                        .setFilter('virtual', true)}
                       manager={systemManager}/>
                   </Basic.Col>
                 </Basic.Row>
@@ -247,7 +281,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
             ]
           }
           _searchParameters={ this.getSearchParameters() }
-          >
+        >
 
           <Advanced.Column
             header=""
@@ -263,24 +297,71 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
             }
             sort={false}/>
           <Advanced.Column
-              header={this.i18n('vs:entity.VsRequest.uid.label')}
-              rendered={_.includes(columns, 'uid')}
-              cell={this._getUidCell.bind(this)}/>
+            property="uid"
+            header={this.i18n('vs:entity.VsRequest.uid.label')}
+            rendered={_.includes(columns, 'uid')}
+            sort
+            cell={this._getUidCell.bind(this)}/>
           <Advanced.Column
-              header={this.i18n('acc:entity.System.name')}
-              rendered={_.includes(columns, 'systemId')}
-              cell={this._getSystemCell.bind(this)}/>
-          <Advanced.Column property="operationType" width="15%" sort face="enum" enumClass={VsOperationType} rendered={_.includes(columns, 'operationType')}/>
-          <Advanced.Column property="state" width="15%" sort face="enum" enumClass={VsRequestState} rendered={_.includes(columns, 'state')}/>
-          <Advanced.Column property="executeImmediately" width="5%" sort face="bool" rendered={_.includes(columns, 'executeImmediately')}/>
+            property="targetEntity"
+            rendered={ _.includes(columns, 'targetEntity') }
+            header={ this.i18n('vs:content.vs-request.detail.accountOwner') }
+            width="25%"
+            cell={ this.renderTargetEntity.bind(this) }
+          />
           <Advanced.Column
-              header={this.i18n('vs:entity.VsRequest.implementers.label')}
-              rendered={_.includes(columns, 'implementers')}
-              cell={this._getImplementersCell.bind(this)}/>
-          <Advanced.Column property="created" width="30%" sort face="datetime" rendered={_.includes(columns, 'created')}/>
-          <Advanced.Column property="creator" width="15%" sort face="text" rendered={_.includes(columns, 'creator')}/>
-          <Advanced.Column property="modified" width="30%" sort face="datetime" rendered={_.includes(columns, 'modified')}/>
-          <Advanced.Column property="modifier" width="15%" sort face="text" rendered={_.includes(columns, 'modifier')}/>
+            header={this.i18n('acc:entity.System.name')}
+            rendered={_.includes(columns, 'systemId')}
+            width="15%"
+            cell={this._getSystemCell.bind(this)}/>
+          <Advanced.Column
+            property="operationType"
+            width="15%"
+            sort
+            face="enum"
+            enumClass={VsOperationType}
+            rendered={_.includes(columns, 'operationType')}/>
+          <Advanced.Column
+            property="state"
+            width="15%"
+            sort
+            face="enum"
+            enumClass={VsRequestState}
+            rendered={_.includes(columns, 'state')}/>
+          <Advanced.Column
+            property="executeImmediately"
+            width="5%"
+            sort
+            face="bool"
+            rendered={_.includes(columns, 'executeImmediately')}/>
+          <Advanced.Column
+            header={this.i18n('vs:entity.VsRequest.implementers.label')}
+            rendered={_.includes(columns, 'implementers')}
+            cell={this._getImplementersCell.bind(this)}/>
+          <Advanced.Column
+            property="created"
+            width="30%"
+            sort
+            face="datetime"
+            rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column
+            property="creator"
+            width="15%"
+            sort
+            face="text"
+            rendered={_.includes(columns, 'creator')}/>
+          <Advanced.Column
+            property="modified"
+            width="30%"
+            sort
+            face="datetime"
+            rendered={_.includes(columns, 'modified')}/>
+          <Advanced.Column
+            property="modifier"
+            width="15%"
+            sort
+            face="text"
+            rendered={_.includes(columns, 'modifier')}/>
           <Advanced.Column
             property="roleRequestId"
             header={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.label') }
@@ -294,7 +375,7 @@ export class VsRequestTable extends Advanced.AbstractTableContent {
                   <Link
                     to={ `/role-requests/${encodeURIComponent(entity.roleRequestId)}/detail` }
                     title={ this.i18n('acc:entity.ProvisioningOperation.roleRequestId.help') }>
-                      <Basic.Icon value="fa:key" style={{marginLeft: '25px'}}/>
+                    <Basic.Icon value="fa:key" style={{marginLeft: '25px'}}/>
                   </Link>
                 );
               }
@@ -337,7 +418,17 @@ VsRequestTable.propTypes = {
 };
 
 VsRequestTable.defaultProps = {
-  columns: ['uid', 'state', 'systemId', 'operationType', 'executeImmediately', 'implementers', 'created', 'creator', 'modified', 'modifier', 'operations', 'roleRequestId'],
+  columns: ['state',
+    'systemId',
+    'operationType',
+    'executeImmediately',
+    'implementers',
+    'created',
+    'creator',
+    'operations',
+    'roleRequestId',
+    'targetEntity',
+    'uid'],
   filterOpened: false,
   forceSearchParameters: new Domain.SearchParameters(),
   showAddButton: true,

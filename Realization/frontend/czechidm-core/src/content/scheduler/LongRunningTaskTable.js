@@ -7,7 +7,16 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import OperationStateEnum from '../../enums/OperationStateEnum';
-import { SecurityManager, ConfigurationManager } from '../../redux';
+import {
+  SecurityManager,
+  ConfigurationManager,
+  DataManager,
+  SchedulerManager,
+  FormAttributeManager
+} from '../../redux';
+
+const schedulerManager = new SchedulerManager();
+const formAttributeManager = new FormAttributeManager();
 
 /**
  * Table with long running tasks
@@ -28,6 +37,12 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
       },
       filterOpened: true
     };
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this.context.store.dispatch(schedulerManager.fetchSupportedTasks());
   }
 
   getContentKey() {
@@ -90,7 +105,11 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
       this.i18n(`action.task-run.message`, { record: this.getManager().getNiceLabel(entity) }),
       this.i18n(`action.task-run.header`)
     ).then(() => {
-      this.context.store.dispatch(this.getManager().processCreatedTask(entity.id, 'task-queue-process-created', () => {
+      this.context.store.dispatch(this.getManager().processCreatedTask(entity.id, 'task-queue-process-created', (e, error) => {
+        if (error) {
+          this.addError(error);
+          return;
+        }
         this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
         this.refs.table.reload();
       }));
@@ -252,8 +271,36 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data, property }) => {
                 const entity = data[rowIndex];
                 const propertyValue = entity[property];
+                const simpleTaskType = Utils.Ui.getSimpleJavaType(propertyValue);
+                const { supportedTasks } = this.props;
+                //
+                let _taskType;
+                if (supportedTasks && supportedTasks.has(entity.taskType)) {
+                  _taskType = supportedTasks.get(entity.taskType);
+                }
+                let _label = simpleTaskType;
+                let _icon = 'component:scheduled-task';
+                if (_taskType && _taskType.formDefinition) {
+                  _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', _label);
+                  _icon = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'icon', _icon);
+                }
+                if (_label !== simpleTaskType) {
+                  // append simple taks type name as new line
+                  _label = (
+                    <span>
+                      <Basic.Icon value={ _icon } style={{ marginRight: 3 }}/>
+                      { _label }
+                      <small style={{ display: 'block' }}>
+                        { `(${ simpleTaskType })` }
+                      </small>
+                    </span>
+                  );
+                }
+                //
                 return (
-                  <span title={propertyValue}>{ propertyValue.split('.').pop(-1) }</span>
+                  <span title={propertyValue}>
+                    { _label }
+                  </span>
                 );
               }
             }/>
@@ -271,6 +318,10 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                   }
                   if (propertyName === 'core:transactionContext') {
                     // FIXME: transaction context info
+                    return null;
+                  }
+                  if (propertyName === 'core:bulkAction') {
+                    // FIXME: bulk action info + #2086
                     return null;
                   }
                   return (
@@ -353,7 +404,8 @@ LongRunningTaskTable.defaultProps = {
 function select(state, component) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    showTransactionId: ConfigurationManager.showTransactionId(state)
+    showTransactionId: ConfigurationManager.showTransactionId(state),
+    supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
   };
 }
 

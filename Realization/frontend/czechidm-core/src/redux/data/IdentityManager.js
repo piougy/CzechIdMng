@@ -1,3 +1,5 @@
+import _ from 'lodash';
+//
 import FormableEntityManager from './FormableEntityManager';
 import SecurityManager, { RECEIVE_PROFILE } from '../security/SecurityManager';
 import { IdentityService } from '../../services';
@@ -171,13 +173,13 @@ export default class IdentityManager extends FormableEntityManager {
    * @return {bool}
    */
   canChangePassword(passwordChangeType, permissions) {
+    if (SecurityManager.isAdmin()) {
+      // admin - highest priority
+      return true;
+    }
     if (!passwordChangeType || passwordChangeType === IdentityManager.PASSWORD_DISABLED) {
       // password cannot be changed by environment configuration
       return false;
-    }
-    if (SecurityManager.isAdmin()) {
-      // admin
-      return true;
     }
     return Utils.Permission.hasPermission(permissions, 'PASSWORDCHANGE');
   }
@@ -250,18 +252,14 @@ export default class IdentityManager extends FormableEntityManager {
   /**
    * Upload image to BE
    */
-  uploadProfileImage(identityId, formData) {
+  uploadProfileImage(identityId, formData, cb) {
     const uiKey = this.resolveProfileUiKey(identityId);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().uploadProfileImage(identityId, formData)
-        .then(() => {
-          const previousProfile = DataManager.getData(getState(), uiKey);
-          let profile = { imageUrl: null };
-          if (previousProfile) {
-            profile = { ...previousProfile, ...profile }; // prevent to clear loaded profile image
-          }
-          dispatch(this.dataManager.receiveData(uiKey, profile)); // enforce reload
+        .then((profile) => {
+          profile.imageUrl = null; // reload image will occurs after
+          dispatch(this.dataManager.receiveData(uiKey, profile, cb)); // enforce reload
           dispatch(this.downloadProfileImage(identityId));
         })
         .catch(error => {
@@ -320,15 +318,11 @@ export default class IdentityManager extends FormableEntityManager {
 
   deleteProfileImage(identityId) {
     const uiKey = this.resolveProfileUiKey(identityId);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().deleteProfileImage(identityId)
-        .then(() => {
-          const previousProfile = DataManager.getData(getState(), uiKey);
-          let profile = { imageUrl: false };
-          if (previousProfile) {
-            profile = { ...previousProfile, ...profile }; // prevent to clear loaded profile image
-          }
+        .then((profile) => {
+          profile.imageUrl = false;
           dispatch(this.dataManager.receiveData(uiKey, profile));
         })
         .catch(error => {
@@ -392,6 +386,27 @@ export default class IdentityManager extends FormableEntityManager {
           dispatch(this.receiveError(null, uiKey, error));
         });
     };
+  }
+
+  /**
+   * Detail link by configured projection or default.
+   *
+   * @param  {object} identity
+   * @return {string} url
+   * @since 10.2.0
+   */
+  getDetailLink(identity) {
+    if (!identity) {
+      return null;
+    }
+    //
+    if (identity._embedded && identity._embedded.formProjection) {
+      const route = Utils.Ui.getRouteUrl(identity._embedded.formProjection.route);
+      //
+      return `${ route }/${ encodeURIComponent(identity.username) }`;
+    }
+    // default
+    return `/identity/${ encodeURIComponent(identity.username) }/profile`;
   }
 }
 

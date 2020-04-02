@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -11,11 +10,12 @@ import org.springframework.util.MultiValueMap;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter for role request
+ * Filter for role request.
  *
- * TODO: remove state field - use states
+ * TODO: remove state field - use states.
  *
  * @author svandav
  */
@@ -26,8 +26,6 @@ public class IdmRoleRequestFilter extends DataFilter {
 	private List<OperationState> systemStates;
 	private UUID duplicatedToRequestId;
 	private List<RoleRequestState> states;
-	private ZonedDateTime createdFrom;
-	private ZonedDateTime createdTill;
 	private List<UUID> applicants;
 	private UUID creatorId;
 	private boolean includeConcepts = false;
@@ -54,7 +52,11 @@ public class IdmRoleRequestFilter extends DataFilter {
 	}
 
 	public IdmRoleRequestFilter(MultiValueMap<String, Object> data) {
-		super(IdmRoleRequestDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmRoleRequestFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmRoleRequestDto.class, data, parameterConverter);
 	}
 
 	public List<UUID> getApplicants() {
@@ -66,22 +68,6 @@ public class IdmRoleRequestFilter extends DataFilter {
 
 	public void setApplicants(List<UUID> applicants) {
 		this.applicants = applicants;
-	}
-
-	public ZonedDateTime getCreatedFrom() {
-		return createdFrom;
-	}
-
-	public void setCreatedFrom(ZonedDateTime createdFrom) {
-		this.createdFrom = createdFrom;
-	}
-
-	public ZonedDateTime getCreatedTill() {
-		return createdTill;
-	}
-
-	public void setCreatedTill(ZonedDateTime createdTill) {
-		this.createdTill = createdTill;
 	}
 
 	public UUID getApplicantId() {

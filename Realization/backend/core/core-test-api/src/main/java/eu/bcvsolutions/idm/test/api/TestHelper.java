@@ -182,7 +182,7 @@ public interface TestHelper {
 	IdmRoleCatalogueDto createRoleCatalogue(String code, UUID parentId);
 	
 	/**
-	 * assign role catalogue to tole
+	 * assign role catalogue to role
 	 * 
 	 * @param role
 	 * @param catalogue

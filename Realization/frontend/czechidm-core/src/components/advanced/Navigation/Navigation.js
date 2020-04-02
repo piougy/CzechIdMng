@@ -407,8 +407,8 @@ export class Navigation extends Basic.AbstractContent {
               this.setState({
                 identityMenuShowLoading: true
               }, () => {
-                this.context.store.dispatch(identityManager.downloadProfileImage(userContext.id));
-                this.context.store.dispatch(identityManager.fetchEntityIfNeeded(userContext.id, null, () => {
+                this.context.store.dispatch(identityManager.downloadProfileImage(userContext.username));
+                this.context.store.dispatch(identityManager.fetchEntityIfNeeded(userContext.username, null, () => {
                   this.setState({
                     identityMenuShowLoading: false
                   });

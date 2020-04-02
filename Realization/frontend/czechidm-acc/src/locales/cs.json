@@ -254,6 +254,10 @@
       "connector": {
         "header": "Nastavení konektoru",
         "poolingConfiguration": "Pooling nastavení",
+        "operationOptionsConfiguration": {
+          "tab": "Další volby konektoru",
+          "attributes": "Spravovat atributy"
+        },
         "title": "Konfigurace",
         "button": {
           "showBasicInfo": "Přejít na základní údaje",
@@ -758,6 +762,7 @@
       "attributes": "Atributy na koncovém systému"
     },
     "SchemaObjectClass": {
+      "_type": "Schéma systému",
       "auxiliary": "Pomocný objekt",
       "container": "Je kontejnerem",
       "objectClassName": "Název objektu",
@@ -780,6 +785,7 @@
       }
     },
     "SchemaAttribute": {
+      "_type": "Atribut schematu",
       "name": "Název atributu",
       "objectClass": "Atribut náleží objektu",
       "classType": "Datový typ",
@@ -793,6 +799,7 @@
       "multivalued": "Obsahuje více hodnot"
     },
     "SystemAttributeMapping": {
+      "_type": "Atribut mapování",
       "name": {
         "label": "Název",
         "help": "Uživatelsky definovaný identifikátor tohoto atributu."
@@ -898,6 +905,7 @@
       "role": "Přiřazen dle role"
     },
     "SynchronizationConfig": {
+      "_type": "Synchronizace",
       "enabled": "Povolena",
       "name": "Název",
       "description": "Popis",
@@ -1087,13 +1095,14 @@
     "ProvisioningArchive": {
       "_type": "Provisioning - archív",
       "modified": {
-        "short": "Archiváno",
-        "label": "Archiváno",
+        "short": "Archivováno",
+        "label": "Archivováno",
         "title": "Operace byla archivována (provedena, zrušena)",
         "help": "Operace byla archivována (provedena, zrušena)."
       }
     },
     "ProvisioningBreakConfig": {
+      "_type": "Provisioning brzda",
       "operationType": {
         "label": "Typ blokované operace",
         "help": "Typ operace, pro kterou bude mít brzda vliv."
@@ -1128,6 +1137,7 @@
       "globalConfiguration": "Globální konfigurace"
     },
     "ProvisioningBreakConfigRecipient": {
+      "_type": "Provisioning brzda - příjemci",
       "role": "Příjemci s rolí",
       "identity": "Příjemce",
       "type": {
@@ -1983,6 +1993,18 @@
         "label": "Duplikovat systém",
         "help": "Vytvoří duplikát systému <strong>včetně všech konfigurací</strong>. Nový systém bude neaktivní, stejně jako jeho nastavené synchronizace. "
       },
+      "system-export-bulk-action": {
+        "icon": "export",
+        "label": "Exportovat systém",
+        "title": "Systémy",
+        "help": "Vytvoří exportní dávku obsahující vybrané systémy. Nový systém bude neaktivní, stejně jako jeho nastavené synchronizace. Výsledný export bude uložen v agendě <strong>Export/Import</strong>.",
+        "attributes": {
+          "name": {
+            "label": "Popis exportu",
+            "help": ""
+          }
+        }
+      },
       "system-delete-bulk-action": {
         "label": "$t(action.delete.action) systémy",
         "help": "Smaže vybrané systémy. <strong>Systém nesmí obsahovat žádné účty ani nevyřešené provisioning operace</strong>.",
@@ -2035,7 +2057,7 @@
       "acc-delete-provisioning-archive-long-running-task": {
         "label": "Smazat archivované operace pro provisioning",
         "help": "Smaže operace z archivu provisioningu starší, nežli zadaný počet dní.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Počet dní",
@@ -2061,7 +2083,7 @@
       "acc-delete-synchronization-log-long-running-task": {
         "label": "Smazat logy synchronizací",
         "help": "Smaže logy synchronizací starší, nežli zadaný počet dní.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Počet dní",
@@ -2087,8 +2109,35 @@
       },
       "acc-account-protection-expiration-long-running-task": {
         "label": "Smazat účty s expirovaným ochranným intervalem",
-        "help": "Smazě účty s expirovaným ochranným intervalem. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu.",
-        "icon": "fa:trash"
+        "help": "Smaže účty s expirovaným ochranným intervalem. K reálnému smazání IdM účtu (a tím i účtu na koncovém systému), dojde po expiraci ochranného intervalu.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "acc-attribute-controlled-values-recalculation-long-running-task": {
+        "label": "Přepočítat hodnoty kontrolovaných atributů pro provisioning (merge)",
+        "help": "Přepočítá hodnoty kontrolovaných atributů s nastavenou strategií pro jejich sloučení (merge) při provisioningu.",
+        "icon": "component:scheduled-task"
+      },
+      "acc-cancel-provisioning-queue-long-running-task": {
+        "label": "Zrušit frontu provisioningu (nepodporováno)",
+        "help": "Zrušit všechny aktivní operace ve frontě privisioningu. Tato úloha již není dále rozvíjená (podporovaná) - hromadná akce pro zrušení aktivních operecí je dostupná přímo z tabulky v agendě provisioningu.",
+        "icon": "component:scheduled-task"
+      },
+      "acc-provisioning-queue-long-running-task": {
+        "label": "Zpracovat frontu provisioningu",
+        "help": "Zpracovat vytvořené aktivní operace ve frontě provisioningu. Aktivní operace provisioningu jsou zařazeny do fronty, pokud je systém nakonfigurován jako asynchronní. Pokud není nakonfigurován žádný asynchronní systém, není třeba plánovat tuto úlohu.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "virtualsystem": {
+            "label": "Virtuální systémy",
+            "placeholder": "Všechny systémy ...",
+            "help": "[Všechny systémy ...] - všechny systémy, [Ano] - jen virtuální, [Ne] - všechny kromě virtuálních."
+          }
+        }
+      },
+      "acc-retry-provisioning-long-running-task": {
+        "label": "Opakovat provisioning operace (retry)",
+        "help": "Opakovat neprovedené operace uložené ve frontě provisioningu (retry mechanismus). Při selhání provisioning operace se automaticky naplánuje čas dalšího pokusu. Tato úloha spustí operace v naplánovaném časem dalšího pokusu.",
+        "icon": "component:scheduled-task"
       }
     }
   },
@@ -2132,6 +2181,10 @@
     "PROVISIONING_SUCCEED": {
       "title": "Proběhl provisioning účtu [{{name}}]",
       "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
+    },
+    "PROVISIONING_TIMEOUT": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal. Překročen časový limit [{{timeout}}]ms pro kontaktování systému. Zkontrolujte, že koncový systém je dostupný."
     },
     "PROVISIONING_IS_IN_QUEUE": {
       "title": "Provisioning účtu [{{name}}] byl zařazen do fronty",

@@ -14,7 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.7.12
  */
-@Service(DeleteNotificationTaskExecutor.TASK_NAME)
+@Component(DeleteNotificationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Delete notifications.")
 public class DeleteNotificationTaskExecutor

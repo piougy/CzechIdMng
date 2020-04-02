@@ -8,9 +8,12 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Entity event processors filter
+ * Entity event processors filter.
+ * 
+ * FIXME: use data filter properties
  * 
  * @author Radek Tomiška
  */
@@ -28,8 +31,12 @@ public class EntityEventProcessorFilter extends DataFilter {
 	}
 	
 	public EntityEventProcessorFilter(MultiValueMap<String, Object> data) {
-		super(EntityEventProcessorDto.class, data);
+		this(data, null);
 	}
+	
+	public EntityEventProcessorFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+        super(EntityEventProcessorDto.class , data, parameterConverter);
+    }
 	
 	public Class<? extends Serializable> getContentClass() {
 		return contentClass;

@@ -62,7 +62,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
             && (!error || error.statusCode === 401)) { // show loading check has to be here - new state is needed
           this.context.store.dispatch(manager.queueAutocompleteEntityIfNeeded(entityId, uiKey, (e, ex) => {
             // TODO: move to other place - is called only when entity is not given
-            if (!ex && (face === 'full' || (face === 'link' && this.getLink()))) {
+            if (!ex && (face === 'full' || (face === 'link' && this.getLink(e)))) {
               this.onEnter();
             }
             this.setState({
@@ -154,6 +154,20 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     return true;
   }
 
+  /**
+   * Show identity detail by configured projection
+   *
+   * @param  {event} event
+   * @since 10.2.0
+   */
+  showDetail(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    this.context.history.push(this.getLink(entity));
+  }
+
   onShowAuditableInfo(show, event) {
     if (event) {
       event.preventDefault();
@@ -205,7 +219,12 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
   getNiceLabel(entity) {
     const _entity = entity || this.getEntity();
     //
-    return this.getManager().getNiceLabel(_entity);
+    let value = this.getManager().getNiceLabel(_entity);
+    if (value.length > 60) {
+      value = `${value.substr(0, 60)}...`;
+    }
+
+    return value;
   }
 
   /**
@@ -305,7 +324,20 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
         className="abstract-entity-info-popover"
         onEnter={ this.onEnter.bind(this) }>
         {
-          <span style={ style }>
+          <span
+            style={ style }
+            onClick={
+              (event) => {
+                if (event && event.ctrlKey) {
+                  const link = this.getLink(entity);
+                  if (link) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.showDetail(entity, event);
+                  }
+                }
+              }
+            }>
             { this._renderIcon(entity) }
             <span
               className="popover-link"

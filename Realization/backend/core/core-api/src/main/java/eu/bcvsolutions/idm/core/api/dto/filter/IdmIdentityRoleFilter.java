@@ -11,18 +11,16 @@ import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
- * Filter for identity role
+ * Filter for identity role.
  *
  * @author svandav
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
-public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentifiable, CorrelationFilter, FormableFilter {
+public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentifiableFilter, CorrelationFilter, FormableFilter {
 	
 	public static final String PARAMETER_DIRECT_ROLE = "directRole"; //if its direct role (true) or not (false - depends on some filled direct role)
 	public static final String PARAMETER_DIRECT_ROLE_ID = "directRoleId";
@@ -46,7 +44,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
 
     public UUID getIdentityId() {
-    	return DtoUtils.toUuid(data.getFirst(PARAMETER_IDENTITY_ID));
+    	return getParameterConverter().toUuid(data, PARAMETER_IDENTITY_ID);
     }
 
     public void setIdentityId(UUID identityId) {
@@ -70,7 +68,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
     
     public UUID getRoleId() {
-    	return DtoUtils.toUuid(data.getFirst(PARAMETER_ROLE_ID));
+    	return getParameterConverter().toUuid(data, PARAMETER_ROLE_ID);
 	}
     
     public void setRoleId(UUID roleId) {
@@ -94,7 +92,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
     
     public String getRoleEnvironment() {
-    	return (String) data.getFirst(PARAMETER_ROLE_ENVIRONMENT);
+    	return getParameterConverter().toString(data, PARAMETER_ROLE_ENVIRONMENT);
 	}
     
     public void setRoleEnvironment(String roleEnvironment) {
@@ -118,11 +116,11 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
 
 	public UUID getRoleCatalogueId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_ROLE_CATALOGUE_ID));
+		return getParameterConverter().toUuid(data, PARAMETER_ROLE_CATALOGUE_ID);
 	}
 
 	public void setRoleCatalogueId(UUID roleCatalogueId) {
-		data.set(PARAMETER_ROLE_CATALOGUE_ID, roleCatalogueId);
+		set(PARAMETER_ROLE_CATALOGUE_ID, roleCatalogueId);
 	}
 
 	public Boolean getValid() {
@@ -130,7 +128,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
 
 	public void setValid(Boolean valid) {
-		data.set(PARAMETER_VALID, valid);
+		set(PARAMETER_VALID, valid);
 	}
 
 	public Boolean getAutomaticRole() {
@@ -138,33 +136,23 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
 
 	public void setAutomaticRole(Boolean automaticRole) {
-		data.set(PARAMETER_AUTOMATIC_ROLE, automaticRole);
+		set(PARAMETER_AUTOMATIC_ROLE, automaticRole);
 	}
 
 	public UUID getAutomaticRoleId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_AUTOMATIC_ROLE_ID));
+		return getParameterConverter().toUuid(data, PARAMETER_AUTOMATIC_ROLE_ID);
 	}
 
 	public void setAutomaticRoleId(UUID automaticRoleId) {
-		data.set(PARAMETER_AUTOMATIC_ROLE_ID, automaticRoleId);
+		set(PARAMETER_AUTOMATIC_ROLE_ID, automaticRoleId);
 	}
 
 	public UUID getIdentityContractId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_IDENTITY_CONTRACT_ID));
+		return getParameterConverter().toUuid(data, PARAMETER_IDENTITY_CONTRACT_ID);
 	}
 
 	public void setIdentityContractId(UUID identityContractId) {
-		data.set(PARAMETER_IDENTITY_CONTRACT_ID, identityContractId);
-	}
-	
-	@Override
-	public String getExternalId() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
-	}
-	
-	@Override
-	public void setExternalId(String externalId) {
-		data.set(PROPERTY_EXTERNAL_ID, externalId);
+		set(PARAMETER_IDENTITY_CONTRACT_ID, identityContractId);
 	}
 	
 	public Boolean getDirectRole() {
@@ -172,60 +160,30 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
 
 	public void setDirectRole(Boolean directRole) {
-		data.set(PARAMETER_DIRECT_ROLE, directRole);
+		set(PARAMETER_DIRECT_ROLE, directRole);
 	}
 
 	public UUID getDirectRoleId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_DIRECT_ROLE_ID));
+		return getParameterConverter().toUuid(data, PARAMETER_DIRECT_ROLE_ID);
 	}
 
 	public void setDirectRoleId(UUID directRoleId) {
-		data.set(PARAMETER_DIRECT_ROLE_ID, directRoleId);
+		set(PARAMETER_DIRECT_ROLE_ID, directRoleId);
 	}
 
 	public UUID getRoleCompositionId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_ROLE_COMPOSITION_ID));
+		return getParameterConverter().toUuid(data, PARAMETER_ROLE_COMPOSITION_ID);
 	}
 
 	public void setRoleCompositionId(UUID roleCompositionId) {
-		data.set(PARAMETER_ROLE_COMPOSITION_ID, roleCompositionId);
+		set(PARAMETER_ROLE_COMPOSITION_ID, roleCompositionId);
 	}
 	
 	public UUID getContractPositionId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_CONTRACT_POSITION_ID));
+		return getParameterConverter().toUuid(data, PARAMETER_CONTRACT_POSITION_ID);
 	}
 	
 	public void setContractPositionId(UUID contractPositionId) {
-		data.set(PARAMETER_CONTRACT_POSITION_ID, contractPositionId);
-	}
-
-	@Override
-	public String getProperty() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
-	}
-
-	@Override
-	public void setProperty(String property) {
-		data.set(PARAMETER_CORRELATION_PROPERTY, property);
-	}
-
-	@Override
-	public String getValue() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
-	}
-
-	@Override
-	public void setValue(String value) {
-		data.set(PARAMETER_CORRELATION_VALUE, value);
-	}
-
-	@Override
-	public Boolean getAddEavMetadata() {
-    	return getParameterConverter().toBoolean(data, PARAMETER_ADD_EAV_METADATA);
-	}
-
-	@Override
-	public void setAddEavMetadata(Boolean value) {
-		data.set(PARAMETER_ADD_EAV_METADATA, value);
+		set(PARAMETER_CONTRACT_POSITION_ID, contractPositionId);
 	}
 }

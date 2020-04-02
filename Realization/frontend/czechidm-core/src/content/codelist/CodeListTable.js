@@ -65,7 +65,7 @@ export class CodeListTable extends Advanced.AbstractTableContent {
     const { filterOpened } = this.state;
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -119,7 +119,7 @@ export class CodeListTable extends Advanced.AbstractTableContent {
           <Advanced.Column property="code" sort/>
           <Advanced.Column property="name" sort/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

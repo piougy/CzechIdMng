@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -159,4 +160,13 @@ public interface ReadDtoService<DTO extends BaseDto, F extends BaseFilter>
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	DTO checkAccess(DTO dto, BasePermission... permission);
+
+	
+	/**
+	 * Exports DTO. DTO will be added to the given batch. 
+	 * 
+	 * @param id
+	 * @param batch
+	 */
+	void export(UUID id, IdmExportImportDto batch);
 }

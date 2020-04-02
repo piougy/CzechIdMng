@@ -27,6 +27,7 @@ const roleCatalogueManager = new RoleCatalogueManager();
 * Component for select roles by role catalogue
 * TODO: allow return object instead of ids (selectedRoles)
 * FIXME: use RoleTable component
+* FIXME: prevent import cycles => dont use filter component?
 *
 * @author Ondrej Kopr
 * @author Radek Tomiška
@@ -527,11 +528,13 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
           backdrop="static"
           keyboard>
           <Basic.Modal.Header text={ this.getHeader() } closeButton/>
-          <Basic.Modal.Body style={ showTree === true ? { padding: 0 } : {} }>
+          <Basic.Modal.Body
+            className="role-select-modal-body"
+            style={ showTree === true ? { padding: 0 } : {} }>
             <Basic.Row>
               <Basic.Col
                 lg={ 3 }
-                style={{ paddingRight: 0 }}
+                className="role-select-tree-container"
                 rendered={ showTree === true }>
                 <Tree
                   ref="roleCatalogueTree"
@@ -543,7 +546,12 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               </Basic.Col>
               <Basic.Col
                 lg={ showTree ? 9 : 12 }
-                style={ showTree === true ? { paddingLeft: 0 } : {} }>
+                className={
+                  classNames({
+                    'role-select-table-container': true,
+                    'show-tree': showTree === true
+                  })
+                }>
                 <Table
                   ref="table"
                   condensed
@@ -557,7 +565,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                     return _.includes(selectedRows, data[rowIndex].id) ? selectRowClass : Utils.Ui.getDisabledRowClass(data[rowIndex]);
                   }}
                   filter={
-                    <Filter onSubmit={ this.useFilter.bind(this) }>
+                    <Filter embedded>
                       <Basic.AbstractForm ref="filterForm">
                         <Basic.Row className="last">
                           <Basic.Col lg={ 4 }>
@@ -577,6 +585,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                           </Basic.Col>
                           <Basic.Col lg={ 3 } className="text-right">
                             <Filter.FilterButtons
+                              useFilter={ this.useFilter.bind(this) }
                               cancelFilter={ this.cancelFilter.bind(this) }
                               showIcon
                               showText={ false }/>

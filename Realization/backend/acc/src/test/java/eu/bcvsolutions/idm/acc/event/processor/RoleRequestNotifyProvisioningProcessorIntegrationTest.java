@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
@@ -89,8 +90,7 @@ public class RoleRequestNotifyProvisioningProcessorIntegrationTest extends Abstr
 			// wait for executed events
 			final IdmEntityEventFilter eventFilter = new IdmEntityEventFilter();
 			eventFilter.setOwnerId(roleRequestOne.getId());
-			eventFilter.getStates().add(OperationState.RUNNING);
-			eventFilter.getStates().add(OperationState.CREATED);
+			eventFilter.setStates(Lists.newArrayList(OperationState.RUNNING, OperationState.CREATED));
 			getHelper().waitForResult(res -> {
 				return entityEventService.find(eventFilter, PageRequest.of(0, 1)).getTotalElements() != 0;
 			}, 1000, 30);

@@ -103,20 +103,16 @@
 			<url>https://repo1.maven.org/maven2/</url>
 		</repository>
 		<repository>
+			<id>nexus</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-all/</url>
+		</repository>
+		<repository>
 			<id>nexus-public</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
 		</repository>
 		<repository>
-			<id>nexus-public-releases</id>
-			<url>https://nexus.bcvsolutions.eu/repository/maven-public-releases/</url>
-		</repository>
-		<repository>
 			<id>maven-snapshots</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
-		</repository>
-		<repository>
-			<id>jcenter-releases</id>
-			<url>http://jcenter.bintray.com</url>
 		</repository>
 	</repositories>
 
@@ -172,10 +168,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -448,6 +440,25 @@
 			<version>1.59</version>
 		</dependency>
 
+		<!-- EhCache3 -->
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>3.8.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache-clustered</artifactId>
+			<version>3.8.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -485,6 +496,7 @@
 			<plugin>
 				<groupId>org.bsc.maven</groupId>
 				<artifactId>maven-processor-plugin</artifactId>
+				<version>3.3.3</version>
 				<executions>
 					<execution>
 						<id>process</id>
@@ -832,6 +844,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
+						<version>3.2.1</version>
 						<executions>
 							<execution>
 								<id>attach-sources</id>

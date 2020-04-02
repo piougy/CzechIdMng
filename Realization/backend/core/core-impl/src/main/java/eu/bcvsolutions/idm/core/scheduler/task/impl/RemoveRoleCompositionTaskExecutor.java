@@ -12,10 +12,11 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -30,6 +31,8 @@ import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
@@ -41,17 +44,23 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.0.0
  */
-@Service
+@Component(RemoveRoleCompositionTaskExecutor.TASK_NAME)
 @Description("Long running task for remove assigned roles by given composition from identities.")
 public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityRoleDto> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveRoleCompositionTaskExecutor.class);
+	public static final String TASK_NAME = "core-remove-role-composition-long-running-task";
 	public static final String PARAMETER_ROLE_COMPOSITION_ID = "role-composition-id";
 	//
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	//
 	private UUID roleCompositionId = null;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -194,6 +203,17 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		List<String> propertyNames = super.getPropertyNames();
 		propertyNames.add(PARAMETER_ROLE_COMPOSITION_ID);
 		return propertyNames;
+	}
+	
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		IdmFormAttributeDto compositionId = new IdmFormAttributeDto(
+				PARAMETER_ROLE_COMPOSITION_ID,
+				PARAMETER_ROLE_COMPOSITION_ID, 
+				PersistentType.UUID);
+		compositionId.setRequired(true);
+		//
+		return Lists.newArrayList(compositionId);
 	}
 	
 	@Override

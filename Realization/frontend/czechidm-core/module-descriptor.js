@@ -377,6 +377,7 @@ module.exports = {
                 labelKey: 'content.role.incompatible-roles.header',
                 titleKey: 'content.role.incompatible-roles.title',
                 order: 125,
+                icon: 'fa:times-circle',
                 path: '/role/:entityId/incompatible-roles',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['INCOMPATIBLEROLE_READ'] } ]
               },
@@ -404,6 +405,7 @@ module.exports = {
                 labelKey: 'content.role.authorization-policies.label',
                 titleKey: 'content.role.authorization-policies.title',
                 order: 200,
+                icon: 'fa:shield-alt',
                 path: '/role/:entityId/authorization-policies',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
               },
@@ -520,6 +522,7 @@ module.exports = {
                 labelKey: 'content.role.incompatible-roles.header',
                 titleKey: 'content.role.incompatible-roles.title',
                 order: 125,
+                icon: 'fa:times-circle',
                 path: 'requests/:requestId/role/:entityId/incompatible-roles',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['INCOMPATIBLEROLE_READ'] } ]
               },
@@ -565,6 +568,7 @@ module.exports = {
                 labelKey: 'content.role.authorization-policies.label',
                 titleKey: 'content.role.authorization-policies.title',
                 order: 200,
+                icon: 'fa:shield-alt',
                 path: 'requests/:requestId/role/:entityId/authorization-policies',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
               },
@@ -940,8 +944,8 @@ module.exports = {
             type: 'HAS_ANY_AUTHORITY',
             authorities: [
               'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ', 'GENERATEVALUE_READ',
-              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ',
-              'CONFIDENTIALSTORAGEVALUE_READ', 'CODELIST_READ'
+              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'FORMPROJECTION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ',
+              'CONFIDENTIALSTORAGEVALUE_READ', 'CODELIST_READ', 'EXPORTIMPORT_READ'
             ]
           }
         ],
@@ -1324,65 +1328,116 @@ module.exports = {
             labelKey: 'content.formDefinitions.header',
             titleKey: 'content.formDefinitions.title',
             iconColor: '#000000',
-            order: 40,
-            path: '/forms',
-            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ],
+            order: 55,
+            path: '/forms/form-definitions',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ', 'FORMPROJECTION_READ'] } ],
             items: [
               {
-                id: 'forms-detail',
-                labelKey: 'content.formDefinitions.detail.title',
-                order: 10,
-                path: '/forms/:entityId/detail',
+                id: 'form-definitions',
+                labelKey: 'content.formDefinitions.header',
+                titleKey: 'content.formDefinitions.title',
                 icon: '',
+                order: 40,
+                path: '/forms/form-definitions',
                 type: 'TAB',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ]
-              },
-              {
-                id: 'forms-attributes',
-                labelKey: 'content.formDefinitions.attributes.title',
-                order: 100,
-                path: '/forms/:entityId/attributes',
-                icon: '',
-                type: 'TAB',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMATTRIBUTE_READ'] } ],
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ],
                 items: [
                   {
-                    id: 'forms-attribute-detail',
-                    labelKey: 'content.formAttributes.detail.title',
+                    id: 'forms-detail',
+                    labelKey: 'content.formDefinitions.detail.title',
                     order: 10,
-                    path: '/forms/attribute/:entityId/detail',
+                    path: '/form-definitions/:entityId/detail',
                     icon: '',
                     type: 'TAB',
-                    access: [{ type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] }]
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ]
                   },
                   {
-                    id: 'form-attribute-values',
-                    labelKey: 'content.formAttributes.form-values.title',
-                    order: 505,
-                    path: '/forms/attribute/:entityId/values',
+                    id: 'forms-attributes',
+                    labelKey: 'content.formDefinitions.attributes.title',
+                    order: 100,
+                    path: '/form-definitions/:entityId/attributes',
                     icon: '',
                     type: 'TAB',
-                    access: [{ type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] }]
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMATTRIBUTE_READ'] } ],
+                    items: [
+                      {
+                        id: 'forms-attribute-detail',
+                        labelKey: 'content.formAttributes.detail.title',
+                        order: 10,
+                        path: '/form-definitions/attribute/:entityId/detail',
+                        icon: '',
+                        type: 'TAB',
+                        access: [{ type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] }]
+                      },
+                      {
+                        id: 'form-attribute-values',
+                        labelKey: 'content.formAttributes.form-values.title',
+                        order: 505,
+                        path: '/form-definitions/attribute/:entityId/values',
+                        icon: '',
+                        type: 'TAB',
+                        access: [{ type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] }]
+                      }
+                    ]
+                  },
+                  {
+                    id: 'form-definition-values',
+                    labelKey: 'content.form-values.title',
+                    order: 200,
+                    path: '/form-definitions/:entityId/values',
+                    icon: '',
+                    type: 'TAB',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
+                  },
+                  {
+                    id: 'forms-localization',
+                    labelKey: 'content.formDefinitions.localization.title',
+                    order: 900,
+                    path: '/form-definitions/:entityId/localization',
+                    icon: '',
+                    type: 'TAB',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ]
                   }
                 ]
               },
               {
-                id: 'form-definition-values',
-                labelKey: 'content.form-values.title',
-                order: 200,
-                path: '/forms/:entityId/values',
+                id: 'form-projections',
+                labelKey: 'content.form-projections.header',
+                titleKey: 'content.form-projections.title',
                 icon: '',
+                order: 45,
                 type: 'TAB',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
-              },
-              {
-                id: 'forms-localization',
-                labelKey: 'content.formDefinitions.localization.title',
-                order: 900,
-                path: '/forms/:entityId/localization',
-                icon: '',
-                type: 'TAB',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMDEFINITION_READ'] } ]
+                path: 'forms/form-projections',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ],
+                items: [
+                  {
+                    id: 'form-projection-detail',
+                    labelKey: 'content.form-projections.detail.title',
+                    order: 10,
+                    path: '/form-projections/:entityId/detail',
+                    icon: 'fa:newspaper-o',
+                    type: 'TAB',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
+                  },
+                  {
+                    id: 'form-projection-identities',
+                    type: 'TAB',
+                    labelKey: 'content.form-projections.identities.label',
+                    order: 40,
+                    icon: 'fa:group',
+                    path: '/form-projections/:entityId/identities',
+                    access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['FORMPROJECTION_READ', 'IDENTITY_READ'] } ]
+                  },
+                  {
+                    id: 'form-projection-localization',
+                    labelKey: 'content.form-projections.localization.title',
+                    order: 900,
+                    path: '/form-projections/:entityId/localization',
+                    icon: 'fa:language',
+                    type: 'TAB',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
+                  }
+                ]
               }
             ]
           },
@@ -1406,6 +1461,16 @@ module.exports = {
             path: '/confidential-storage',
             access: [ { type: 'DENY_ALL' } ],
           },
+          {
+            id: 'export-imports',
+            labelKey: 'content.export-imports.header',
+            titleKey: 'content.export-imports.title',
+            icon: 'export',
+            iconColor: '#000000',
+            order: 400,
+            path: '/export-imports',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['EXPORTIMPORT_READ'] } ],
+          }
         ]
       },
       {
@@ -1436,7 +1501,7 @@ module.exports = {
       {
         id: 'identity-menu-detail',
         section: 'identity-menu',
-        labelKey: 'component.advanced.IdentityInfo.link.detail.label',
+        labelKey: 'component.advanced.IdentityInfo.link.detail.default.label',
         icon: 'fa:angle-double-right',
         order: 10,
         path: '/identity/:loggedUsername/profile',
@@ -1457,6 +1522,7 @@ module.exports = {
         labelKey: 'content.identity.profile-setting.header',
         icon: 'fa:cog',
         modal: 'profile-modal',
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PROFILE_READ'] } ],
         order: 800
       },
       {

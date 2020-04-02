@@ -93,7 +93,7 @@ class FormDefinitionDetail extends Basic.AbstractContent {
     });
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     if (isNew) {
-      this.context.history.replace(`/forms`);
+      this.context.history.replace(`/forms/form-definitions`);
     }
   }
 

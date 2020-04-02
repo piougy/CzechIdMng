@@ -3,6 +3,10 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -148,7 +153,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	 */
 	@TransactionalEventListener
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	public synchronized SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation) {
+	public SysProvisioningOperationDto executeInternal(SysProvisioningOperationDto provisioningOperation) {
 		Assert.notNull(provisioningOperation, "Provisioning operation is required.");
 		Assert.notNull(provisioningOperation.getSystemEntity(), "System entity is required.");
 		Assert.notNull(provisioningOperation.getProvisioningContext(), "Provisioning context is required.");
@@ -166,9 +171,48 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		//
 		CoreEvent<SysProvisioningOperationDto> event = new CoreEvent<SysProvisioningOperationDto>(provisioningOperation.getOperationType(), provisioningOperation);
 		try {
-			EventContext<SysProvisioningOperationDto> context = entityEventManager.process(event);
-			//
-			return context.getContent();
+			// set a global provisioning timeout even for synchronous call
+			FutureTask<EventContext<SysProvisioningOperationDto>> futureTask = new FutureTask<EventContext<SysProvisioningOperationDto>>(new Callable<EventContext<SysProvisioningOperationDto>>() {
+
+				@Override
+				public EventContext<SysProvisioningOperationDto> call() {
+					return entityEventManager.process(event);
+				}
+				
+			});
+			// thread pool is not used here
+			Thread thread = new Thread(futureTask);
+	        thread.start();
+	        //
+			// global timeout by configuration
+			long timeout = provisioningConfiguration.getTimeout();
+			try {
+				// TODO: non blocking wait if possible (refactoring is needed + java 9 helps)
+				EventContext<SysProvisioningOperationDto> context = futureTask.get(
+						timeout, 
+						TimeUnit.MILLISECONDS
+				);
+				//
+				return context.getContent();
+			} catch (InterruptedException ex) {
+				futureTask.cancel(true);
+				// propagate exception to upper catch
+				throw ex;
+			} catch (TimeoutException ex) {
+				futureTask.cancel(true);
+				// put thread into queue and wait => timeout too => retry mecchanism will work
+				throw new ResultCodeException(
+						AccResultCode.PROVISIONING_TIMEOUT,
+						ImmutableMap.of(
+							"name", provisioningOperation.getSystemEntityUid(), 
+							"system", provisioningOperation.getSystem(),
+							"operationType", provisioningOperation.getOperationType(),
+							"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass(),
+							"timeout", String.valueOf(timeout)
+						),
+						ex
+				);
+			}
 		} catch (Exception ex) {
 			return provisioningOperationService.handleFailed(provisioningOperation, ex);
 		} finally {

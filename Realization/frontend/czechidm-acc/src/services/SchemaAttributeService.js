@@ -1,11 +1,6 @@
-import { Services } from 'czechidm-core';
-import { Domain } from 'czechidm-core';
+import { Services, Domain } from 'czechidm-core';
 
 export default class SchemaAttributeService extends Services.AbstractService {
-
-  constructor() {
-    super();
-  }
 
   // dto
   supportsPatch() {
@@ -20,7 +15,10 @@ export default class SchemaAttributeService extends Services.AbstractService {
     if (!objectClass) {
       objectClass = (entity._embedded && entity._embedded.objectClass ? entity._embedded.objectClass.objectClassName : '');
     }
-    return `${entity.name} (${objectClass})`;
+    if (objectClass) {
+      return `${entity.name} (${objectClass})`;
+    }
+    return `${entity.name}`;
   }
 
   getApiPath() {

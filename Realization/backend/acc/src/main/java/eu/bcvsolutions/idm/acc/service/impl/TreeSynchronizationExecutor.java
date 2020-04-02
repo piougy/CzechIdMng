@@ -370,11 +370,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	@Override
 	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		UUID entityId = getEntityByAccount(account.getId());
-		IdmTreeNodeDto treeNode = null;
-		if (entityId != null) {
-			treeNode = treeNodeService.get(entityId);
-		}
+		IdmTreeNodeDto treeNode =  this.getDtoByAccount(null, account);
 		if (treeNode == null) {
 			addToItemLog(logItem, "Warning! - Tree node was not found and cannot be deleted (maybe was deleted  within deleting of parent node).");
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,

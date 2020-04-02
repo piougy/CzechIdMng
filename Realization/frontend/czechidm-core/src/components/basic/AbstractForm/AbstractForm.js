@@ -221,6 +221,10 @@ class AbstractForm extends AbstractContextComponent {
         continue;
       }
       const component = this.getComponent(this.state.componentsKeys[componentRef]);
+      if (!component) {
+        // component could not be rendered
+        continue;
+      }
       component.setState({showValidationError: show});
     }
   }

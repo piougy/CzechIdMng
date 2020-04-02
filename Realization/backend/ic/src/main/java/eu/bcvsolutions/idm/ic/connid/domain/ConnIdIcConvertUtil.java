@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.ic.connid.domain;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -127,6 +128,7 @@ public class ConnIdIcConvertUtil {
 		IcObjectPoolConfigurationImpl connectorPoolConfiguration = (IcObjectPoolConfigurationImpl) convertConnIdPoolConfiguration(
 				conf.getConnectorPoolConfiguration());
 		dto.setConnectorPoolConfiguration(connectorPoolConfiguration);
+		dto.setOperationOptions(Collections.emptyMap());
 		return dto;
 	}
 

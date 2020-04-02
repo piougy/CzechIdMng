@@ -2,8 +2,12 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.TaskFilter;
 
 /**
  * Interface for scheduler service.
@@ -20,11 +24,20 @@ public interface SchedulerManager {
 	List<Task> getSupportedTasks();
 	
 	/**
-	 * Returns all tasks
+	 * Returns all scheduled tasks.
 	 *
 	 * @return all tasks
 	 */
 	List<Task> getAllTasks();
+	
+	/**
+	 * Returns scheduled tasks by given filter.
+	 *
+	 * @param filter
+	 * @param pageable page + sort
+	 * @return tasks match given filter
+	 */
+	Page<Task> find(TaskFilter filter, Pageable pageable);
 	
 	/**
 	 * Reads existed task by id.

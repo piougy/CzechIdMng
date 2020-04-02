@@ -41,7 +41,7 @@
       },
       "roleRequest": {
         "implementer": {
-            "label": "Žadatel, který vytvořil žádost o změnou rolí"
+            "label": "Žadatel, který vytvořil žádost o změnu rolí"
         }
       }
     }
@@ -164,6 +164,7 @@
         "header": "Požadavek na realizaci",
         "title": "$t(vs:content.vs-request.detail.header)",
         "requestAttributes": "Atributy v tomto požadavku",
+        "accountOwner": "Vlastník účtu",
         "wishAttributes": "Cílový stav na systému",
         "label": {
           "oldValue": "Původní hodnota",

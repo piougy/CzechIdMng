@@ -104,17 +104,6 @@ public class EntityEventProcessorController {
 		}
 		return pagedResourcesAssembler.toResource(page);
 	}
-	
-	private EntityEventProcessorFilter toFilter(MultiValueMap<String, Object> parameters) {
-		EntityEventProcessorFilter filter = new EntityEventProcessorFilter(parameters); // text is filled automatically
-		filter.setDescription(getParameterConverter().toString(parameters, "description"));
-		filter.setEntityType(getParameterConverter().toString(parameters, "entityType"));
-		filter.setName(getParameterConverter().toString(parameters, "name"));
-		filter.setEventTypes(getParameterConverter().toStrings(parameters, "eventTypes"));
-		filter.setModule(getParameterConverter().toString(parameters, "module"));
-		//
-		return filter;
-	}
 
 	/**
 	 * Enable event processor
@@ -172,5 +161,16 @@ public class EntityEventProcessorController {
 			filterConverter = new FilterConverter(lookupService, mapper);
 		}
 		return filterConverter;
+	}
+	
+	private EntityEventProcessorFilter toFilter(MultiValueMap<String, Object> parameters) {
+		EntityEventProcessorFilter filter = new EntityEventProcessorFilter(parameters, getParameterConverter()); // text is filled automatically
+		filter.setDescription(getParameterConverter().toString(parameters, "description"));
+		filter.setEntityType(getParameterConverter().toString(parameters, "entityType"));
+		filter.setName(getParameterConverter().toString(parameters, "name"));
+		filter.setEventTypes(getParameterConverter().toStrings(parameters, "eventTypes"));
+		filter.setModule(getParameterConverter().toString(parameters, "module"));
+		//
+		return filter;
 	}
 }

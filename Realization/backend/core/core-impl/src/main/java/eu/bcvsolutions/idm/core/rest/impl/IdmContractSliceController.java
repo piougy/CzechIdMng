@@ -415,7 +415,7 @@ public class IdmContractSliceController
 
 	@Override
 	protected IdmContractSliceFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmContractSliceFilter filter = new IdmContractSliceFilter(parameters);
+		IdmContractSliceFilter filter = new IdmContractSliceFilter(parameters, getParameterConverter());
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentity.class));
 		filter.setValid(getParameterConverter().toBoolean(parameters, "valid"));

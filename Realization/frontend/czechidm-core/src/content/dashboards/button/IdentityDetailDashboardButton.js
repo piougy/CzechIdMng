@@ -28,7 +28,9 @@ class IdentityDetailDashboardButton extends Advanced.AbstractIdentityDashboardBu
   }
 
   onClick() {
-    this.context.history.push(`/identity/${ encodeURIComponent(this.getIdentityIdentifier()) }/profile`);
+    const { identity } = this.props;
+    // detail by projection
+    this.context.history.push(identityManager.getDetailLink(identity));
   }
 }
 

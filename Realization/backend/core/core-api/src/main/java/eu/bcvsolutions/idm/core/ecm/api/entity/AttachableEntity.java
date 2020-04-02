@@ -22,6 +22,9 @@ public interface AttachableEntity extends BaseEntity {
 	 * Is used for put attachment id into result model parameter.
 	 */
 	String PARAMETER_ATTACHMENT_ID = "attachmentId";
+	String PARAMETER_DOWNLOAD_URL = "downloadUrl";
+	String PARAMETER_OWNER_ID = "ownerId";
+	String PARAMETER_OWNER_TYPE = "ownerType";
 	
 	/**
 	 * Entity with {@link UUID} identifier only

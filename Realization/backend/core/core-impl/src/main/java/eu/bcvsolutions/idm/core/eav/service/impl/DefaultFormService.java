@@ -43,7 +43,9 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationClassProperty;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -584,7 +586,7 @@ public class DefaultFormService implements FormService {
 						}
 					}
 					results.add(newValue);
-					LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getCode(), newValue.getId(), ownerEntity);
+					LOG.trace("FormValue [{}:{}] for owner [{}] was created.", attribute.getCode(), newValue.getId(), ownerEntity);
 				}
 			} else {
 				//
@@ -626,15 +628,18 @@ public class DefaultFormService implements FormService {
 							}
 						}
 						results.add(previousValue);
-						LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getCode(), previousValue.getId(), ownerEntity);
+						LOG.trace("FormValue [{}:{}] for owner [{}] was updated.", attribute.getCode(), previousValue.getId(), ownerEntity);
 					} else {
 						formValueService.delete(previousValue, permission);
 						if (previousValue.getPersistentType() == PersistentType.ATTACHMENT) {
 							// delete attachment - permissions are evaluated before
 							attachmentManager.deleteAttachments(previousValue.getId(), attachmentManager.getOwnerType(formValueService.getEntityClass()));
 						}
-						LOG.trace("FormValue [{}:{}] for owner [{}] was deleted", attribute.getCode(), previousValue.getId(), ownerEntity);
+						LOG.trace("FormValue [{}:{}] for owner [{}] was deleted.", attribute.getCode(), previousValue.getId(), ownerEntity);
 					}
+				} else {
+					results.add(previousValue);
+					LOG.trace("FormValue [{}:{}] for owner [{}] was preserved unchanged.", attribute.getCode(), previousValue.getId(), ownerEntity);
 				}
 			}
 		}
@@ -897,6 +902,17 @@ public class DefaultFormService implements FormService {
 		}
 		//
 		return formInstance;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmFormInstanceDto> getFormInstances(Identifiable owner, BasePermission... permission) {
+		return getDefinitions(owner, !PermissionUtils.isEmpty(permission) ? IdmBasePermission.AUTOCOMPLETE : null)
+				.stream()
+				.map(definition -> {
+					return getFormInstance(owner, definition, permission);
+				})
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -1500,6 +1516,26 @@ public class DefaultFormService implements FormService {
 			return (FormableEntity) Class.forName(formDefinition.getType()).getDeclaredConstructor().newInstance();
 		} catch (ReflectiveOperationException ex) {
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("formDefinition", formDefinition.getType()), ex);
+		}
+	}
+	
+	@Override
+	public void export(IdmFormInstanceDto formInstanceDto, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Export batch must exist!");
+		Assert.notNull(formInstanceDto, "Instance of cannot be null for export!");
+		
+		// All confidential values will be removed from the export. We don't want change
+		// confidential value on a target IdM.
+		List<IdmFormValueDto> valuesWithoutConfidential = formInstanceDto.getValues().stream()//
+				.filter(formValue -> !formValue.isConfidential())//
+				.collect(Collectors.toList());
+		formInstanceDto.setValues(valuesWithoutConfidential);
+		
+		batch.getExportedDtos().add(formInstanceDto);
+		
+		ExportDescriptorDto exportDescriptorDto = new ExportDescriptorDto(formInstanceDto.getClass());
+		if (!batch.getExportOrder().contains(exportDescriptorDto)) {
+			batch.getExportOrder().add(exportDescriptorDto);
 		}
 	}
 }

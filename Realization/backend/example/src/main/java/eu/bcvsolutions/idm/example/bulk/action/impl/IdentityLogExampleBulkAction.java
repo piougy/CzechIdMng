@@ -205,4 +205,9 @@ public class IdentityLogExampleBulkAction extends AbstractBulkAction<IdmIdentity
 	public ReadWriteDtoService<IdmIdentityDto, IdmIdentityFilter> getService() {
 		return identityService;
 	}
+	
+	@Override
+	public boolean isRecoverable() {
+		return true;
+	}
 }

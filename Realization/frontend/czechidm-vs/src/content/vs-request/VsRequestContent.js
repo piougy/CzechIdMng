@@ -15,10 +15,6 @@ const manager = new VsRequestManager();
  */
 class VsRequestContent extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   /**
    * "Shorcut" for localization
    */

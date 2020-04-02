@@ -64,22 +64,27 @@ import eu.bcvsolutions.idm.core.eav.api.service.CodeListManager;
 import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdentityProjectionManager;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmCodeListItemService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmCodeListService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
 import eu.bcvsolutions.idm.core.eav.repository.IdmCodeListItemRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmCodeListRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormDefinitionRepository;
+import eu.bcvsolutions.idm.core.eav.repository.IdmFormProjectionRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormRepository;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCodeListManager;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCommonFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdentityProjectionManager;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmCodeListItemService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmCodeListService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormProjectionService;
 import eu.bcvsolutions.idm.core.ecm.api.config.AttachmentConfiguration;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.ecm.config.DefaultAttachmentConfiguration;
@@ -197,6 +202,7 @@ public class IdmServiceConfiguration {
 	@Autowired private IdmAuthorizationPolicyRepository authorizationPolicyRepository;
 	@Autowired private IdmConfidentialStorageValueRepository confidentialStorageValueRepository;
 	@Autowired private IdmFormDefinitionRepository formDefinitionRepository;
+	@Autowired private IdmFormProjectionRepository formProjectionRepository;
 	@Autowired private IdmFormAttributeRepository formAttributeRepository;
 	@Autowired private IdmLongRunningTaskRepository longRunningTaskRepository;
 	@Autowired private IdmContractGuaranteeRepository contractGuaranteeRepository;
@@ -430,6 +436,18 @@ public class IdmServiceConfiguration {
 	}
 	
 	/**
+	 * Form projections.
+	 * 
+	 * @return default projection service
+	 * @since 10.2.0
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdmFormProjectionService.class)
+	public IdmFormProjectionService formProjectionService() {
+		return new DefaultIdmFormProjectionService(formProjectionRepository, entityEventManager());
+	}
+	
+	/**
 	 * EAV forms
 	 * 
 	 * @return
@@ -549,6 +567,18 @@ public class IdmServiceConfiguration {
 				identityRepository, 
 				formService(),
 				entityEventManager());
+	}
+	
+	/**
+	 * Identity projection.
+	 * 
+	 * @return manager
+	 * @since 10.2.0
+	 */
+	@Bean
+	@ConditionalOnMissingBean(IdentityProjectionManager.class)
+	public IdentityProjectionManager identityProjectionService() {
+		return new DefaultIdentityProjectionManager();
 	}
 	
 	/***

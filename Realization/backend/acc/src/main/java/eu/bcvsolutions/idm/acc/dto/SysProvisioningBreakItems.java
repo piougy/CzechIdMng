@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -18,8 +19,10 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
  * @author Ondrej Kopr
  *
  */
-public class SysProvisioningBreakItems {
-
+public class SysProvisioningBreakItems implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	//
 	private final Map<ProvisioningEventType, List<Long>> executedItems;
 
 	public SysProvisioningBreakItems() {

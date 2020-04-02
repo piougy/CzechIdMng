@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.6.3
  */
-@Service(DeleteProvisioningArchiveTaskExecutor.TASK_NAME)
+@Component(DeleteProvisioningArchiveTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Delete archived provisioning operations.")
 public class DeleteProvisioningArchiveTaskExecutor

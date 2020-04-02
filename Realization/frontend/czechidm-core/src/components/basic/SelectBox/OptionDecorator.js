@@ -86,12 +86,15 @@ export default class OptionDecorator extends AbstractContextComponent {
   }
 
   /**
-   * Returns entity icon (null by default - icon will not be rendered)
+   * Returns entity icon (internal '_icon' property by default).
    *
    * @param  {object} entity
    */
-  getEntityIcon(/* entity*/) {
-    return null;
+  getEntityIcon(entity) {
+    if (!entity || !entity._icon) {
+      return null;
+    }
+    return entity._icon;
   }
 
   /**

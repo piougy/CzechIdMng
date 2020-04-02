@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
@@ -35,11 +36,14 @@ class RoleEav extends Basic.AbstractContent {
     const { _entity, _permissions } = this.props;
     //
     return (
-      <Advanced.EavContent
-        formableManager={ manager }
-        entityId={ entityId }
-        contentKey={ this.getContentKey() }
-        showSaveButton={ manager.canSave(_entity, _permissions) }/>
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
+        <Advanced.EavContent
+          formableManager={ manager }
+          entityId={ entityId }
+          contentKey={ this.getContentKey() }
+          showSaveButton={ manager.canSave(_entity, _permissions) }/>
+      </Basic.Div>
     );
   }
 }

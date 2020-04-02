@@ -34,43 +34,50 @@ export class RoleCatalogueInfo extends AbstractEntityInfo {
   }
 
   /**
-   * TODO: implement different face
+   * Returns popovers title
+   *
+   * @param  {object} entity
    */
-  render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
-    //
-    if (!rendered) {
-      return null;
-    }
-    let _entity = this.props._entity;
-    if (entity) { // entity prop has higher priority
-      _entity = entity;
-    }
-    //
-    const classNames = classnames(
-      'role-catalogue-info',
-      className
-    );
-    if (showLoading || (_showLoading && entityIdentifier && !_entity)) {
-      return (
-        <Basic.Icon className={ classNames } value="refresh" showLoading style={style}/>
-      );
-    }
-    if (!_entity) {
-      if (!entityIdentifier) {
-        return null;
+  getPopoverTitle() {
+    return this.i18n('entity.RoleCatalogue._type');
+  }
+
+  /**
+   * Returns entity icon (null by default - icon will not be rendered)
+   *
+   * @param  {object} entity
+   */
+  getEntityIcon() {
+    return 'fa:list-alt';
+  }
+
+  /**
+   * Get link to detail (`url`).
+   *
+   * @return {string}
+   */
+  getLink() {
+    const entity = this.getEntity();
+
+    return `/role-catalogue/${encodeURIComponent(entity.id)}/detail`;
+  }
+
+  /**
+   * Returns popover info content
+   *
+   * @param  {array} table data
+   */
+  getPopoverContent(entity) {
+    return [
+      {
+        label: this.i18n('entity.RoleCatalogue.name.name'),
+        value: entity.name
+      },
+      {
+        label: this.i18n('entity.RoleCatalogue.code.name'),
+        value: entity.code
       }
-      return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
-    }
-    //
-    if (!this.showLink()) {
-      return (
-        <span className={ classNames }>{ manager.getNiceLabel(_entity) }</span>
-      );
-    }
-    return (
-      <Link className={ classNames } to={`/role-catalogue/${entityIdentifier}`}>{manager.getNiceLabel(_entity)}</Link>
-    );
+    ];
   }
 }
 

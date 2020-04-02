@@ -41,8 +41,9 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.jaxb.JaxbCharacterEscapeEncoder;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
@@ -75,7 +76,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  */
 @Service("notificationTemplateService")
 public class DefaultIdmNotificationTemplateService extends
-		AbstractReadWriteDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, IdmNotificationTemplateFilter>
+		AbstractEventableDtoService<IdmNotificationTemplateDto, IdmNotificationTemplate, IdmNotificationTemplateFilter>
 		implements IdmNotificationTemplateService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmNotificationTemplateService.class);
@@ -95,8 +96,8 @@ public class DefaultIdmNotificationTemplateService extends
 	@Autowired private SecurityService securityService;
 	
 	@Autowired
-	public DefaultIdmNotificationTemplateService(IdmNotificationTemplateRepository repository) {
-		super(repository);
+	public DefaultIdmNotificationTemplateService(IdmNotificationTemplateRepository repository, EntityEventManager entityEventManager) {
+		super(repository, entityEventManager);
 		//
 		this.repository = repository;
 		//

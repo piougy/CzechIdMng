@@ -1,0 +1,58 @@
+// variables
+@margin-right: 10px;
+@margin-bottom: 16px;
+
+// mixins
+.flex-vertical-center {
+  display: flex;
+  align-items: center;
+}
+// groups
+.main-group {
+  .flex-vertical-center();
+  flex-wrap: wrap;
+  font-size: 14px;
+  margin-bottom: @margin-bottom;
+}
+// month or week
+.secondary-group {
+  .flex-vertical-center();
+}
+.text-group {
+  .flex-vertical-center();
+  height: 36px;
+}
+// boxes
+.interval-select {
+  margin-right: @margin-right;
+  margin-bottom: 0;
+  width: 90px;
+}
+.text {
+  margin-right: @margin-right;
+}
+.num-select {
+  margin-right: @margin-right;
+  margin-bottom: 0;
+  width: 56px;
+}
+.weekday-select {
+  margin-right: @margin-right;
+  margin-bottom: 0;
+  width: 70px;
+}
+.time-select {
+  margin-right: @margin-right;
+  width: 140px;
+}
+.date-select {
+  margin-right: @margin-right;
+  width: 200px;
+  margin-bottom: 0;
+}
+.warning-icon {
+  color: #eb9316;
+}
+.cron-expression {
+  color: #BBBBBB;
+}

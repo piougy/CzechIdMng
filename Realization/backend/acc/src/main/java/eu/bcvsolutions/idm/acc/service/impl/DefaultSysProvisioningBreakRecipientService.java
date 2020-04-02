@@ -18,11 +18,15 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakRecipient;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakRecipient_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBreakRecipientRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
@@ -117,6 +121,34 @@ public class DefaultSysProvisioningBreakRecipientService extends
 	}
 	
 	@Override
+	protected SysProvisioningBreakRecipientDto internalExport(UUID id) {
+		SysProvisioningBreakRecipientDto recipientDto = this.get(id);
+
+		// Advanced pairing
+		// We cannot clear all embedded data, because we need to export DTO for
+		// connected role and identity.
+		BaseDto roleDto = recipientDto.getEmbedded().get(SysProvisioningBreakRecipient_.role.getName());
+		BaseDto identityDto = recipientDto.getEmbedded().get(SysProvisioningBreakRecipient_.identity.getName());
+		recipientDto.getEmbedded().clear();
+		recipientDto.getEmbedded().put(SysProvisioningBreakRecipient_.role.getName(), roleDto);
+		recipientDto.getEmbedded().put(SysProvisioningBreakRecipient_.identity.getName(), identityDto);
+
+		return recipientDto;
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Export batch must exist!");
+		// Export break-recipient
+		super.export(id, batch);
+		
+		// Advanced pairing
+		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, this.getDtoClass());
+		descriptorDto.getAdvancedParingFields().add(SysProvisioningBreakRecipient_.role.getName());
+		descriptorDto.getAdvancedParingFields().add(SysProvisioningBreakRecipient_.identity.getName());
+	}
+	
+	@Override
 	protected List<Predicate> toPredicates(Root<SysProvisioningBreakRecipient> root, CriteriaQuery<?> query,
 			CriteriaBuilder builder, SysProvisioningBreakRecipientFilter filter) {
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
@@ -133,6 +165,11 @@ public class DefaultSysProvisioningBreakRecipientService extends
 			predicates.add(builder.equal(root.get(SysProvisioningBreakRecipient_.role).get(AbstractEntity_.id), filter.getRoleId()));
 		}
 		//
+		if (filter.getSystemId() != null) {
+			predicates.add(builder.equal(root.get(SysProvisioningBreakRecipient_.breakConfig)
+					.get(SysProvisioningBreakConfig_.system).get(AbstractEntity_.id), filter.getSystemId()));
+		}
+		
 		return predicates;
 	}
 

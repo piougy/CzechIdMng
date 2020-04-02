@@ -81,7 +81,6 @@ public class IdmAuthorizationPolicy extends AbstractEntity implements Authorizat
 	@Column(name = "seq")
 	private Short seq;
 	
-	
 	public IdmAuthorizationPolicy() {
 	}
 	

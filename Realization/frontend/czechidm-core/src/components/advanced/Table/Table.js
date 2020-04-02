@@ -612,6 +612,22 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
   }
 
+  /**
+ * Removes prohibited actions.
+ */
+  _removeProhibitedActions(actions) {
+    const {prohibitedActions} = this.props;
+
+    return actions.filter(action => {
+      if (!prohibitedActions) {
+        return true;
+      }
+      return prohibitedActions
+        .filter(prohibitedAction => action.value === prohibitedAction)
+        .length === 0;
+    });
+  }
+
   _renderPrevalidateMessages(backendBulkAction) {
     if (!backendBulkAction.prevalidateResult) {
       return null;
@@ -813,7 +829,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       className,
       uuidEnd,
       hover,
-      sizeOptions
+      sizeOptions,
+      prohibitedActions
     } = this.props;
     const {
       filterOpened,
@@ -959,8 +976,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       count = selectedRows.length;
     }
     //
-    const _actionsWithSelection = _actions.filter(action => { return action.showWithSelection; });
-    const _actionsWithoutSelection = _actions.filter(action => { return action.showWithoutSelection; });
+    let _actionsWithSelection = _actions
+      .filter(action => { return action.showWithSelection; });
+    // Remove prohibited actions
+    _actionsWithSelection = this._removeProhibitedActions(_actionsWithSelection);
+
+    let _actionsWithoutSelection = _actions
+      .filter(action => { return action.showWithoutSelection; });
+    // Remove prohibited actions
+    _actionsWithoutSelection = this._removeProhibitedActions(_actionsWithoutSelection);
+
     let _actionClassName;
     if (selectedRows.length <= 0) {
       _actionClassName = _actionsWithoutSelection.length === 0 ? 'hidden' : 'bulk-action';
@@ -1288,6 +1313,11 @@ AdvancedTable.propTypes = {
    * Enable hover table class
    */
   hover: PropTypes.bool,
+  /**
+   * Prohibited actions. Defines array an keys of a bulk actions, that shouldn't be visible in this table.
+   */
+  prohibitedActions: PropTypes.arrayOf(PropTypes.string),
+
   //
   // Private properties, which are used internally for async data fetching
   //
@@ -1326,7 +1356,8 @@ AdvancedTable.defaultProps = {
   showAuditLink: true,
   uuidEnd: false,
   initialReload: true,
-  hover: true
+  hover: true,
+  prohibitedActions: []
 };
 
 const makeMapStateToProps = () => {

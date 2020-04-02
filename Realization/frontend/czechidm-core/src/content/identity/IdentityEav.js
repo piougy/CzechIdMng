@@ -1,4 +1,5 @@
 import React from 'react';
+import Helmet from 'react-helmet';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -25,11 +26,14 @@ export default class IdentityEav extends Basic.AbstractContent {
     const { entityId } = this.props.match.params;
     //
     return (
-      <Advanced.EavContent
-        formableManager={ manager }
-        entityId={ entityId }
-        contentKey={ this.getContentKey() }
-        showSaveButton />
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
+        <Advanced.EavContent
+          formableManager={ manager }
+          entityId={ entityId }
+          contentKey={ this.getContentKey() }
+          showSaveButton />
+      </Basic.Div>
     );
   }
 }

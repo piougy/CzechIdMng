@@ -3,11 +3,11 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -388,11 +388,11 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	@Override
 	public SynchronizationEntityExecutor getSyncExecutor(SystemEntityType entityType, UUID syncConfigId) {
-		ValueWrapper value = this.idmCacheManager.getValue(SYNC_EXECUTOR_CACHE_NAME, syncConfigId);
-		if (value != null) {
-			return (SynchronizationEntityExecutor) value.get();
-		}
+		Optional<Object> value = this.idmCacheManager.getValue(SYNC_EXECUTOR_CACHE_NAME, syncConfigId);
+		return value.map(o -> (SynchronizationEntityExecutor)o).orElseGet(() -> getExecutor(entityType, syncConfigId));
+	}
 
+	private SynchronizationEntityExecutor getExecutor(SystemEntityType entityType, UUID syncConfigId) {
 		SynchronizationEntityExecutor executor = pluginExecutors.getPluginFor(entityType);
 		if (executor == null) {
 			throw new UnsupportedOperationException(MessageFormat

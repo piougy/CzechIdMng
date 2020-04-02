@@ -25,6 +25,7 @@ const securityManager = new SecurityManager();
  * Basic password change fields (old password and new password) and validation message
  *
  * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 class PasswordChangeComponent extends Basic.AbstractFormComponent {
 
@@ -127,7 +128,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       })
       .catch(error => {
         if (!error) {
-          return {};
+          return;
         }
         if (error.statusEnum === PASSWORD_PREVALIDATION) {
           this.addErrorMessage({hidden: true}, error);
@@ -171,7 +172,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       requestData.all = true;
       requestData.idm = true;
     } else {
-      formData.accounts.map(resourceValue => {
+      formData.accounts.forEach(resourceValue => {
         if (resourceValue === RESOURCE_IDM) {
           requestData.idm = true;
         } else {
@@ -309,10 +310,10 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           icon="info-sign"
           text={this.i18n('message.isAdmin')}
           rendered={ SecurityManager.isAdmin(userContext) }
-          style={{ margin: '15px 0 0 0' }}/>
+          style={{ margin: '15px 0' }}/>
       );
       content.push(
-        <ValidationMessage error={validationError} validationDefinition={validationDefinition} />
+        <ValidationMessage error={ validationError } validationDefinition={ validationDefinition } />
       );
 
       content.push(
@@ -320,26 +321,26 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           <Basic.TextField
             type="password"
             ref="oldPassword"
-            label={this.i18n('password.old')}
-            hidden={!oldPasswordRequired}
-            disabled={!accountsExits}
-            required={oldPasswordRequired}/>
+            label={ this.i18n('password.old') }
+            hidden={ !oldPasswordRequired }
+            disabled={ !accountsExits }
+            required={ oldPasswordRequired }/>
 
-          <PasswordField className="form-control" ref="passwords" disabled={!accountsExits}/>
+          <PasswordField className="form-control" ref="passwords" disabled={ !accountsExits }/>
 
           <Basic.EnumSelectBox
             ref="accounts"
-            label={this.i18n('accounts.label')}
-            placeholder={this.i18n('accounts.placeholder')}
+            label={ this.i18n('accounts.label') }
+            placeholder={ this.i18n('accounts.placeholder') }
             multiSelect
-            options={accountOptions}
+            options={ accountOptions }
             required
-            disabled={(passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)) || !accountsExits}
+            disabled={ (passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)) || !accountsExits }
             onChange={ this._preValidate.bind(this) }/>
 
-          <div className={allOnlyWarningClassNames}>
-            <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
-          </div>
+          <Basic.Div className={ allOnlyWarningClassNames }>
+            <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={ this.i18n('changeType.ALL_ONLY') } className="last no-margin"/>
+          </Basic.Div>
         </Basic.AbstractForm>
       );
       content.push(
@@ -347,15 +348,15 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
           <Basic.Button
             type="submit"
             level="success"
-            disabled={!accountsExits}
-            showLoading={this.state.showLoading}>{this.i18n('button.change')}
+            disabled={ !accountsExits }
+            showLoading={ this.state.showLoading }>{ this.i18n('button.change') }
           </Basic.Button>
         </Basic.PanelFooter>
       );
     }
     //
     return (
-      <form onSubmit={this.save.bind(this)}>
+      <form onSubmit={ this.save.bind(this) }>
         <Basic.ContentHeader icon="component:password" text={ this.i18n('header') }/>
         <Basic.Panel className="no-border">
           <Basic.Loading className="static" showLoading={ preload && this._canPasswordChange(_permissions) }/>
@@ -363,12 +364,16 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
             level="warning"
             icon="exclamation-sign"
             text={ this.i18n('changeType.DISABLED') }
-            rendered={ passwordChangeType === IdentityManager.PASSWORD_DISABLED && !SecurityManager.isAdmin(userContext)}/>
+            rendered={ passwordChangeType === IdentityManager.PASSWORD_DISABLED && !SecurityManager.isAdmin(userContext) }/>
           <Basic.Alert
             level="warning"
             icon="exclamation-sign"
             text={ this.i18n('permission.failed') }
-            rendered={ _permissions !== undefined && !this._canPasswordChange(_permissions) && passwordChangeType !== IdentityManager.PASSWORD_DISABLED }/>
+            rendered={
+              _permissions !== undefined
+                && !this._canPasswordChange(_permissions)
+                && passwordChangeType !== IdentityManager.PASSWORD_DISABLED
+            }/>
           <Basic.Alert
             level="info"
             icon="exclamation-sign"

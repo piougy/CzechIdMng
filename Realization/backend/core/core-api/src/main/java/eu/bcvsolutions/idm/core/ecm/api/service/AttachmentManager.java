@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.ecm.api.service;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -193,6 +194,15 @@ public interface AttachmentManager extends
 	File createTempFile();
 	
 	/**
+	 * Create temporary directory
+	 * 
+	 * @param prefix
+	 * @return
+	 * @since 10.1.0
+	 */
+	Path createTempDirectory(String prefix);
+	
+	/**
 	 * Owner type has to be entity class - dto class can be given.
 	 * 
 	 * @param owner
@@ -209,4 +219,5 @@ public interface AttachmentManager extends
 	 * @since 9.2.2
 	 */
 	String getOwnerType(Class<? extends Identifiable> ownerType);
+
 }

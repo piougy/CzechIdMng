@@ -23,6 +23,8 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
@@ -184,6 +186,26 @@ public class DefaultIdmRoleCatalogueService
 		IdmRoleCatalogue catalogue = this.getEntity(catalogueId);
 		List<IdmRoleCatalogue> roleCatalogues = repository.findAllParents(catalogue, null);
 		return toDtos(roleCatalogues, true);
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Batch cannot be null!");
+		// We need to export all catalog items (direct to the root)
+		IdmRoleCatalogueDto catalog = this.get(id);
+		if (catalog != null) {
+			UUID parent = catalog.getParent();
+			if (parent != null) {
+				this.export(parent, batch);
+			}
+		}
+		super.export(id, batch);
+
+		// Authoritative mode is not set here only parent field could be sets.
+		ExportDescriptorDto descriptor = getExportManager().getDescriptor(batch, IdmRoleCatalogueDto.class);
+		if (descriptor != null) {
+			descriptor.getParentFields().add(IdmRoleCatalogue_.parent.getName());
+		}
 	}
 	
 	@Override

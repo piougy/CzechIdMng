@@ -61,7 +61,7 @@ Input variables:
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state DISAPPROVED to concept
-def conceptDto = conceptRoleRequestService.get(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id,null);
 conceptDto.setState(RoleRequestState.DISAPPROVED);
 conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>
@@ -71,7 +71,7 @@ conceptRoleRequestService.save(conceptDto);</script>
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state APPROVED to concept
-def conceptDto = conceptRoleRequestService.get(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id,null);
 conceptDto.setState(RoleRequestState.APPROVED);
 
 // Set current validity dates
@@ -87,7 +87,7 @@ conceptRoleRequestService.save(conceptDto);</script>
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state CANCELED to concept
-def conceptDto = conceptRoleRequestService.get(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id,null);
 conceptDto.setState(RoleRequestState.CANCELED);
 conceptRoleRequestService.addToLog(conceptDto, 'Identity role not exist!');
 conceptRoleRequestService.save(conceptDto);</script>
@@ -98,7 +98,7 @@ conceptRoleRequestService.save(conceptDto);</script>
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state IN_PROGRESS to concept
-def conceptDto = conceptRoleRequestService.get(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id,null);
 conceptDto.setState(RoleRequestState.IN_PROGRESS);
 // Save process ID to concept
 conceptDto.setWfProcessId(processInstanceId);
@@ -280,7 +280,7 @@ if(!skip){
       <script>import eu.bcvsolutions.idm.core.api.domain.RequestState;
  
 // Set and save state IN_PROGRESS to concept
-def requestDto = automaticRoleRequestService.get(entityEvent.content.id);
+def requestDto = automaticRoleRequestService.get(entityEvent.content.id,null);
 requestDto.setState(RequestState.IN_PROGRESS);
 // Save process ID to concept
 // requestDto.setWfProcessId(processInstanceId);
@@ -339,7 +339,7 @@ if(!skip){
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state DISAPPROVED to concept
-def conceptDto = conceptRoleRequestService.get(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id,null);
 conceptDto.setState(RoleRequestState.DISAPPROVED);
 conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>
@@ -403,7 +403,7 @@ if(!skip){
       <script>import eu.bcvsolutions.idm.core.api.domain.RequestState;
  
 // Set and save state APPROVED to concept
-def requestDto = automaticRoleRequestService.get(entityEvent.content.id);
+def requestDto = automaticRoleRequestService.get(entityEvent.content.id,null);
 requestDto.setState(RequestState.APPROVED);
 automaticRoleRequestService.save(requestDto);</script>
     </scriptTask>

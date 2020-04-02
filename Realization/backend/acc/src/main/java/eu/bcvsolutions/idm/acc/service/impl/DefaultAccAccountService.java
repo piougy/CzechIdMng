@@ -355,13 +355,8 @@ public class DefaultAccAccountService extends AbstractEventableDtoService<AccAcc
 
 	}
 
-	/**
-	 * Find executor for synchronization given entity type
-	 *
-	 * @param entityType
-	 * @return
-	 */
-	private SynchronizationEntityExecutor getSyncExecutor(SystemEntityType entityType) {
+	@Override
+	public SynchronizationEntityExecutor getSyncExecutor(SystemEntityType entityType) {
 
 		if (this.pluginExecutors == null) {
 			this.pluginExecutors = OrderAwarePluginRegistry.create(executors);

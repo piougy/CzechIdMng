@@ -19,12 +19,12 @@ Input variables:
 
 Configuration properties:
 - idm.sec.core.wf.approval.helpdesk.enabled: If is "false", then process will be not do approving by helpdesk
-- idm.sec.core.wf.approval.helpdesk.role: Role using for find candates (approve by Helpdesk department)
+- idm.sec.core.wf.approval.helpdesk.role: Role using for find candidates (approve by Helpdesk department)
 - idm.sec.core.wf.approval.manager.enabled: If is "false", then process will be not do approving by manager
 - idm.sec.core.wf.approval.usermanager.enabled: If is "false", then process will be not do approving by user manager
-- idm.sec.core.wf.approval.usermanager.role: Role using for find candates (approve by User manage department)
+- idm.sec.core.wf.approval.usermanager.role: Role using for find candidates (approve by User manage department)
 - idm.sec.core.wf.approval.security.enabled: If is "false", then process will be not do approving by security
-- idm.sec.core.wf.approval.security.role: Role using for find candates (approve by Security department)
+- idm.sec.core.wf.approval.security.role: Role using for find candidates (approve by Security department)
 - idm.sec.core.wf.approval.incompatibility.enabled=true (by default)
 - idm.sec.core.wf.approval.incompatibility.role=Incompatibility (default role for approval of role incompatibilities)</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
@@ -37,7 +37,7 @@ Configuration properties:
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway2" default="flow20"></exclusiveGateway>
@@ -54,7 +54,7 @@ Configuration properties:
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow15" sourceRef="returnedRequestFromHelpdesk" targetRef="exclusivegateway1"></sequenceFlow>
@@ -222,7 +222,7 @@ if(!skip){
     helpdesks.add(identityService.getByUsername("admin"));
   }
 
-  //Is current logged user = implemeneter user and is betwen helpdesks? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between helpdesks? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(helpdesks, implementerIdentifier);
   }else{
@@ -251,7 +251,7 @@ if(!skip){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="sid-CB31E93D-4436-474F-B565-D990B2AC1E64" default="sid-97770AD6-3F73-4833-B2EE-918194BBA074"></exclusiveGateway>
@@ -265,7 +265,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-503B495E-9455-44B9-8789-19E5D35765A9" sourceRef="returnedRequestFromManager" targetRef="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4"></sequenceFlow>
@@ -292,7 +292,7 @@ if(!skip){
     managers.add(identityService.getByUsername("admin"));
   }
 
-  //Is current logged user = implemeneter user and is betwen managers? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between managers? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(managers, implementerIdentifier);
   }else{
@@ -321,7 +321,7 @@ if(!skip){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471" default="sid-62F032AA-0D66-4AC4-9A9E-EC0276A2EEB3"></exclusiveGateway>
@@ -335,7 +335,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-0311903F-711C-4751-81EB-814842E975FD" sourceRef="returnedRequestFromUserManager" targetRef="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E"></sequenceFlow>
@@ -362,7 +362,7 @@ if(!skip){
   if(usermanagers.isEmpty()){
     usermanagers.add(identityService.getByUsername("admin"));
   }
-  //Is current logged user = implemeneter user and is betwen usermanagers? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between usermanagers? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(usermanagers, implementerIdentifier);
   }else{
@@ -435,7 +435,7 @@ roleRequestService.save(requestDto);</script>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <scriptTask id="scripttask7" name="Find all identities with security role and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -458,7 +458,7 @@ if(!skip){
     securities.add(identityService.getByUsername("admin"));
   }
 
-  //Is current logged user = implemeneter user and is betwen securities? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between securities? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(securities, implementerIdentifier);
   }else{
@@ -523,6 +523,8 @@ def applicantIdentity = identityService.getByUsername(applicantUsername);
 
 def implementerIdentity = identityService.get(implementerIdentifier);
 
+def url = getUrl(entityEvent.content);
+
 //send notification
 if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
   if(sendNotificationToImplementer || sendNotificationToApplicant){
@@ -535,6 +537,7 @@ if (implementerIdentity.getId().equals(applicantIdentity.getId())) {
        .addParameter("removedRoles", removedRoles)
        .addParameter("identity", applicantIdentity)
        .addParameter("from", from)
+       .addParameter("url", url)
      .build(),
      applicantIdentity
     );
@@ -550,6 +553,7 @@ if(sendNotificationToApplicant){
      .addParameter("removedRoles", removedRoles)
      .addParameter("identity", applicantIdentity)
      .addParameter("from", from)
+     .addParameter("url", url)
    .build(),
    applicantIdentity
   );
@@ -564,10 +568,19 @@ if(sendNotificationToApplicant){
        .addParameter("removedRoles", removedRoles)
        .addParameter("identity", applicantIdentity)
        .addParameter("from", from)
+       .addParameter("url", url)
      .build(),
      implementerIdentity
     );
   }
+}
+
+
+def getUrl(request){
+	if (request == null) {
+		return null;
+	}
+	return configurationService.getFrontendUrl("/role-requests/"+request.getId()+"/detail");
 }
 </script>
     </scriptTask>
@@ -904,7 +917,7 @@ if(sendNotificationToApplicant){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <scriptTask id="scripttask13" name="Find all identities for approving a incompatibilities and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -927,7 +940,7 @@ if(!skip){
     approvers.add(identityService.getByUsername("admin"));
   }
 
-  //Is current logged user = implemeneter user and is betwen identities? If yes, then we can skip task.
+  //Is current logged user = implemeneter user and is between identities? If yes, then we can skip task.
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(approvers, implementerIdentifier);
   }else{

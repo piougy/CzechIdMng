@@ -19,6 +19,7 @@ public class SysRoleSystemAttributeFilter implements BaseFilter {
 	private UUID systemAttributeMappingId;
 	private UUID identityId;
 	private UUID accountId;
+	private UUID systemId;
 
 	public Boolean getIsUid() {
 		return isUid;
@@ -76,4 +77,11 @@ public class SysRoleSystemAttributeFilter implements BaseFilter {
 		this.accountId = accountId;
 	}
 
+	public UUID getSystemId() {
+		return systemId;
+	}
+
+	public void setSystemId(UUID systemId) {
+		this.systemId = systemId;
+	}
 }

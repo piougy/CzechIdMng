@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
@@ -32,11 +32,10 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
  * @author Radek Tomiška
  * @since 9.7.12
  */
-@Service(DeleteLongRunningTaskExecutor.TASK_NAME)
+@Component(DeleteLongRunningTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Delete long running tasks.")
-public class DeleteLongRunningTaskExecutor
-		extends AbstractSchedulableStatefulExecutor<IdmLongRunningTaskDto> {
+public class DeleteLongRunningTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmLongRunningTaskDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteLongRunningTaskExecutor.class);
 	public static final String TASK_NAME = "core-delete-long-running-task";

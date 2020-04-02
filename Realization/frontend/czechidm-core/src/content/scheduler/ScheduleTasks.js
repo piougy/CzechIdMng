@@ -24,8 +24,29 @@ const formAttributeManager = new FormAttributeManager();
  */
 class SchedulerTaskOptionDecorator extends Basic.SelectBox.OptionDecorator {
 
-  getEntityIcon() {
-    return 'component:scheduled-task';
+  static _getIcon(supportedTasks, entity) {
+    //
+    let _task;
+    if (supportedTasks && supportedTasks.has(entity.taskType)) {
+      _task = supportedTasks.get(entity.taskType);
+    }
+    //
+    let icon = null;
+    if (_task && _task.formDefinition) {
+      icon = formAttributeManager.getLocalization(_task.formDefinition, null, 'icon', null);
+    }
+    //
+    if (!icon) {
+      // default
+      return 'component:scheduled-task';
+    }
+    return icon;
+  }
+
+  getEntityIcon(entity) {
+    const { supportedTasks } = this.props;
+    //
+    return SchedulerTaskOptionDecorator._getIcon(supportedTasks, entity);
   }
 
   getDescriptionMaxLength() {
@@ -54,32 +75,56 @@ class SchedulerTaskOptionDecorator extends Basic.SelectBox.OptionDecorator {
       } else if (_task && _task.formDefinition) { // task's form definition is available
         parameterNameLocalized = formAttributeManager.getLocalization(_task.formDefinition, { code: parameterName }, 'label', parameterName);
       }
+      let confidential = false;
+      if (_task && _task.formDefinition) {
+        const instance = new Domain.FormInstance(_task.formDefinition);
+        if (instance.getAttributes().has(parameterName)) {
+          const attribute = instance.getAttributes().get(parameterName);
+          if (attribute && !!attribute.confidential) {
+            confidential = true;
+          }
+        }
+      }
       parameterValues.push(
         <div>
-          { `${ parameterNameLocalized }: ${ Utils.Ui.toStringValue(entity.parameters[parameterName]) }` }
+          { `${ parameterNameLocalized }: ${ (!confidential) ? Utils.Ui.toStringValue(entity.parameters[parameterName]) : '*****' }` }
         </div>
       );
     });
     //
     return (
-      <div>
+      <Basic.Div>
         { super.renderDescription(entity) }
         {
           parameterValues.length === 0
           ||
-          <div style={{ color: '#555', fontSize: '0.95em' }}>
+          <Basic.Div style={{ color: '#555', fontSize: '0.95em' }}>
             { this.i18n('content.scheduler.schedule-tasks.action.task-edit.parameters') }
-            <div style={{ fontStyle: 'italic' }}>
+            <Basic.Div style={{ fontStyle: 'italic' }}>
               {
                 parameterValues
               }
-            </div>
-          </div>
+            </Basic.Div>
+          </Basic.Div>
         }
-      </div>
+      </Basic.Div>
     );
   }
+}
 
+/**
+ * Task icon in select box value.
+ *
+ * @author Radek Tomiška
+ * @since 10.2.0
+ */
+class SchedulerTaskValueDecorator extends Basic.SelectBox.ValueDecorator {
+
+  getEntityIcon(entity) {
+    const { supportedTasks } = this.props;
+    //
+    return SchedulerTaskOptionDecorator._getIcon(supportedTasks, entity);
+  }
 }
 
 /**
@@ -122,6 +167,23 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     super.componentDidMount();
     //
     this.context.store.dispatch(manager.fetchSupportedTasks());
+    if (this.refs.text) {
+      this.refs.text.focus();
+    }
+  }
+
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.cancelFilter(this.refs.filterForm);
   }
 
   /**
@@ -272,6 +334,12 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     }
     const formEntity = this.refs.triggerForm.getData();
     //
+    if (formEntity.type === 'REPEAT') {
+      formEntity.type = 'CRON';
+      formEntity.cron = this.refs.repeat.getCron();
+      formEntity.executeDate = this.refs.repeat.getExecuteDate();
+    }
+
     this.context.store.dispatch(this.getManager().createTrigger(formEntity, () => {
       this.addMessage({ message: this.i18n('action.trigger-create.success') });
       this.closeTriggerDetail();
@@ -279,11 +347,17 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
     }));
   }
 
-
   onChangeTriggerType(triggerType) {
+    // If the repeat task is chosen, trigger init of cron expression preview
     this.setState({
       triggerType: triggerType.value
-    });
+    }, () => this.initCron());
+  }
+
+  initCron() {
+    if (this.state.triggerType === 'REPEAT') {
+      this.refs.repeat.generateCron();
+    }
   }
 
   /**
@@ -324,16 +398,28 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
 
   _toOption(task) {
     return {
-      niceLabel: task.formDefinition
-        ? formAttributeManager.getLocalization(task.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(task.taskType))
-        : Utils.Ui.getSimpleJavaType(task.taskType),
+      niceLabel:
+        task.formDefinition
+        ?
+        formAttributeManager.getLocalization(task.formDefinition, null, 'label', Utils.Ui.getSimpleJavaType(task.taskType))
+        :
+        Utils.Ui.getSimpleJavaType(task.taskType),
       value: task.taskType,
-      description: task.formDefinition
-        ? formAttributeManager.getLocalization(task.formDefinition, null, 'help', task.description)
-        : task.description,
+      description:
+        task.formDefinition
+        ?
+        formAttributeManager.getLocalization(task.formDefinition, null, 'help', task.description)
+        :
+        task.description,
       parameters: task.parameters,
       formDefinition: task.formDefinition,
-      disabled: task.disabled
+      disabled: task.disabled,
+      _icon:
+        task.formDefinition
+        ?
+        formAttributeManager.getLocalization(task.formDefinition, null, 'icon', 'component:scheduled-task')
+        :
+        'component:scheduled-task'
     };
   }
 
@@ -374,6 +460,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           uiKey="schedule-task-table"
           manager={ manager }
           showRowSelection={ SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE']) }
+          showAuditLink={ false }
           buttons={
             [
               <Basic.Button
@@ -393,6 +480,23 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
             ]
           }
+          filter={
+            <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
+              <Basic.AbstractForm ref="filterForm">
+                <Basic.Row className="last">
+                  <Basic.Col lg={ 8 }>
+                    <Advanced.Filter.TextField
+                      ref="text"
+                      placeholder={ this.i18n('filter.text.placeholder') }/>
+                  </Basic.Col>
+                  <Basic.Col lg={ 4 } className="text-right">
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
+                  </Basic.Col>
+                </Basic.Row>
+              </Basic.AbstractForm>
+            </Advanced.Filter>
+          }
+          filterOpened
           _searchParameters={ this.getSearchParameters() }
           uuidEnd>
           <Advanced.Column
@@ -419,13 +523,16 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                 }
                 const simpleTaskType = Utils.Ui.getSimpleJavaType(propertyValue);
                 let _label = simpleTaskType;
+                let _icon = 'component:scheduled-task';
                 if (_taskType && _taskType.formDefinition) {
-                  _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', simpleTaskType);
+                  _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', _label);
+                  _icon = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'icon', _icon);
                 }
                 if (_label !== simpleTaskType) {
                   // append simple taks type name as new line
                   _label = (
                     <span>
+                      <Basic.Icon value={ _icon } style={{ marginRight: 3 }}/>
                       { _label }
                       <small style={{ display: 'block' }}>
                         { `(${ simpleTaskType })` }
@@ -433,7 +540,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                     </span>
                   );
                 }
-
+                //
                 return (
                   <span title={propertyValue}>
                     { _label }
@@ -464,8 +571,15 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                     // not filled (false is needed to render)
                     return null;
                   }
+                  let attribute = null;
+                  if (_taskType && _taskType.formDefinition) {
+                    const instance = new Domain.FormInstance(_taskType.formDefinition);
+                    if (instance.getAttributes().has(parameterName)) {
+                      attribute = instance.getAttributes().get(parameterName);
+                    }
+                  }
                   return (
-                    <div>
+                    <Basic.Div>
                       {
                         _taskType
                         ?
@@ -474,8 +588,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                         parameterName
                       }
                       {': '}
-                      { Utils.Ui.toStringValue(entity.parameters[parameterName]) }
-                    </div>
+                      { (!attribute || !attribute.confidential) ? Utils.Ui.toStringValue(entity.parameters[parameterName]) : '*****' }
+                    </Basic.Div>
                   );
                 }).values()];
               }
@@ -483,11 +597,12 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           <Basic.Column
             property="triggers"
             header={ this.i18n('entity.SchedulerTask.triggers') }
+            width={ 200 }
             cell={
               ({ data, rowIndex, property}) => {
                 const triggers = data[rowIndex][property];
                 return (
-                  <div>
+                  <Basic.Div>
                     {
                       triggers.map(trigger => {
                         if (!trigger.initiatorTaskId
@@ -496,13 +611,13 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                           return null;
                         }
                         return (
-                          <div>
+                          <Basic.Div>
                             {
                               trigger.initiatorTaskId
                               ?
                               <Advanced.SchedulerTaskInfo entityIdentifier={ trigger.initiatorTaskId } face="popover"/>
                               :
-                              <Advanced.DateValue value={trigger.nextFireTime} showTime />
+                              <Advanced.DateValue value={trigger.nextFireTime} title={trigger.cron ? `Cron: ${trigger.cron}` : null} showTime />
                             }
                             {' '}
                             <Basic.Button
@@ -512,7 +627,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                               rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE']) }>
                               <Basic.Icon value="remove" color="red"/>
                             </Basic.Button>
-                          </div>
+                          </Basic.Div>
                         );
                       })
                     }
@@ -525,7 +640,7 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                       {' '}
                       { this.i18n('button.add') }
                     </Basic.Button>
-                  </div>
+                  </Basic.Div>
                 );
               }
             }/>
@@ -582,7 +697,8 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   required
                   searchable
                   readOnly={ !Utils.Entity.isNew(detail.entity) }
-                  helpBlock={ taskType ? taskType.description : null }/>
+                  helpBlock={ taskType ? taskType.description : null }
+                  clearable={ false }/>
                 <Basic.TextArea
                   ref="description"
                   placeholder={ taskType ? taskType.description : null }
@@ -593,13 +709,13 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.SchedulerTask.instanceId.label') }
                   helpBlock={ this.i18n('entity.SchedulerTask.instanceId.help') }
                   required/>
-                <div style={ showProperties ? {} : { display: 'none' }}>
+                <Basic.Div style={ showProperties ? {} : { display: 'none' }}>
                   <Basic.ContentHeader text={ this.i18n('action.task-edit.parameters') }/>
                   <Advanced.EavForm
                     ref="formInstance"
                     formInstance={ formInstance }
                     useDefaultValue={ Utils.Entity.isNew(detail.entity) }/>
-                </div>
+                </Basic.Div>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -638,12 +754,17 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   enum={ TriggerTypeEnum }
                   label={ this.i18n('entity.SchedulerTask.trigger._type.label') }
                   required
-                  onChange={this.onChangeTriggerType.bind(this)}/>
+                  onChange={ this.onChangeTriggerType.bind(this) }
+                  clearable={ false }/>
                 <Basic.DateTimePicker
                   ref="fireTime"
                   label={ this.i18n('entity.SchedulerTask.trigger.fireTime') }
                   hidden={ triggerType !== 'SIMPLE' }
                   required={ triggerType === 'SIMPLE' }/>
+                <Advanced.CronGenerator
+                  ref="repeat"
+                  hidden={ triggerType !== 'REPEAT' }
+                  required={ triggerType === 'REPEAT' }/>
                 <Basic.TextField
                   ref="cron"
                   label={ this.i18n('entity.SchedulerTask.trigger.cron.label') }
@@ -658,6 +779,11 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   }
                   hidden={ triggerType !== 'CRON' }
                   required={ triggerType === 'CRON' }/>
+                <Basic.DateTimePicker
+                  ref="executeDate"
+                  label={ this.i18n('entity.SchedulerTask.trigger.executeDate.label') }
+                  helpBlock={ this.i18n('entity.SchedulerTask.trigger.executeDate.help') }
+                  hidden={ triggerType !== 'CRON' }/>
                 <Basic.SelectBox
                   ref="initiatorTaskId"
                   manager={ manager }
@@ -666,7 +792,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                   helpBlock={ this.i18n('entity.SchedulerTask.trigger.dependent.initiatorTaskId.help') }
                   hidden={ triggerType !== 'DEPENDENT' }
                   required={ triggerType === 'DEPENDENT' }
-                  optionComponent={ connect(() => { return { supportedTasks }; })(SchedulerTaskOptionDecorator) }/>
+                  optionComponent={ connect(() => { return { supportedTasks }; })(SchedulerTaskOptionDecorator) }
+                  valueComponent={ connect(() => { return { supportedTasks }; })(SchedulerTaskValueDecorator) }
+                  clearable={ false }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -715,7 +843,7 @@ function select(state) {
     supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
     showLoading: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
     showLoadingDetail: Utils.Ui.isShowLoading(state, SchedulerManager.UI_KEY_TASKS),
-    _searchParameters: Utils.Ui.getSearchParameters(state, SchedulerManager.UI_KEY_TASKS)
+    _searchParameters: Utils.Ui.getSearchParameters(state, 'schedule-task-table')
   };
 }
 

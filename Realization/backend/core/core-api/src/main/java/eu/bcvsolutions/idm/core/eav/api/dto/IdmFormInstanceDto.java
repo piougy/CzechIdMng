@@ -18,8 +18,11 @@ import org.springframework.util.ObjectUtils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Used as value holder for form service - form definition + their values by owner.
@@ -28,7 +31,7 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
  *
  * @author Radek Tomiška
  */
-public class IdmFormInstanceDto implements Serializable {
+public class IdmFormInstanceDto implements BaseDto {
 	
 	private static final long serialVersionUID = 1L;
 	//
@@ -40,8 +43,16 @@ public class IdmFormInstanceDto implements Serializable {
 	private Class<? extends Identifiable> ownerType;
 	private List<IdmFormValueDto> values;
 	private List<InvalidFormAttributeDto> validationErrors;
+	@JsonDeserialize(as = UUID.class)
+	@ApiModelProperty(required = true, notes = "Unique uuid identifier. It's ID of FormDefinition here.", dataType = "java.util.UUID")
+	private UUID id;
 	
 	public IdmFormInstanceDto() {
+		super();
+	}
+	
+	public IdmFormInstanceDto(UUID id) {
+		this.id = id;
 	}
 	
 	public IdmFormInstanceDto(Identifiable owner, IdmFormDefinitionDto formDefinition, List<IdmFormValueDto> values) {
@@ -229,5 +240,19 @@ public class IdmFormInstanceDto implements Serializable {
 	 */
 	public List<InvalidFormAttributeDto> getValidationErrors() {
 		return validationErrors;
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(Serializable id) {
+		try {
+			this.id = EntityUtils.toUuid(id);
+		} catch (ClassCastException ex) {
+			throw new IllegalArgumentException("FormDefinition supports only UUID identifier.", ex);
+		}
 	}
 }

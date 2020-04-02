@@ -21,12 +21,13 @@ public class IdmNotificationFilter extends QuickFilter {
 	private String sender; // senders username
 	private String recipient; // recipients username
 	private NotificationState state;
-	private ZonedDateTime from;
-	private ZonedDateTime till;
+	private ZonedDateTime from;  // TODO: createdFrom alias => DataFilter is needed
+	private ZonedDateTime till;  // TODO: createdTill alias => DataFilter is needed
 	private Boolean sent;
 	private Class<? extends BaseEntity> notificationType;
 	private UUID parent;
 	private String topic;
+	private UUID templateId;
 
 	public String getSender() {
 		return sender;
@@ -111,4 +112,26 @@ public class IdmNotificationFilter extends QuickFilter {
 	public void setTopic(String topic) {
 		this.topic = topic;
 	}
+
+	/**
+	 * Notification templateId
+	 * 
+	 * @return templateId
+	 * @since 10.2.0
+	 */
+	public UUID getTemplateId() {
+		return templateId;
+	}
+
+	/**
+	 * Notification templateId
+	 * 
+	 * @param templateId
+	 * @since 10.2.0
+	 */
+	public void setTemplateId(UUID templateId) {
+		this.templateId = templateId;
+	}
+	
+	
 }

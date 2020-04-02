@@ -11,6 +11,8 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AbstractSysSyncConfigDto;
+import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
@@ -64,5 +66,15 @@ public interface SynchronizationEntityExecutor extends Plugin<SystemEntityType> 
 	 * @return
 	 */
 	UUID getEntityByAccount(UUID accountId);
+
+	/**
+	 * Finds target entity and its DTO. First tries to find a DTO in embedded data
+	 * (in entity-account relation).
+	 * 
+	 * @param entityId
+	 * @param account
+	 * @return
+	 */
+	AbstractDto getDtoByAccount(UUID entityId, AccAccountDto account);
 
 }

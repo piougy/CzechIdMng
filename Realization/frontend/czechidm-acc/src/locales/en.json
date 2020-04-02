@@ -254,6 +254,10 @@
       "connector": {
         "header": "Connector configuration",
         "poolingConfiguration": "Pooling configuration",
+        "operationOptionsConfiguration": {
+          "tab": "Additional connector configuration",
+          "attributes": "Manage attributes"
+        },
         "title": "Configuration",
         "button": {
           "showBasicInfo": "Show basic information",
@@ -757,6 +761,7 @@
       "attributes": "Attributes on the target system"
     },
     "SchemaObjectClass": {
+      "_type": "System schema",
       "auxiliary": "Auxiliary",
       "container": "Container",
       "objectClassName": "Object name",
@@ -779,6 +784,7 @@
       }
     },
     "SchemaAttribute": {
+      "_type": "Schema attribute",
       "name": "Name",
       "objectClass": "Attribute belongs to object",
       "classType": "Data type",
@@ -792,6 +798,7 @@
       "multivalued": "Multivalued"
     },
     "SystemAttributeMapping": {
+      "_type": "Mapping atribute",
       "name": {
         "label": "Name",
         "help": "User-defined name of the attribute"
@@ -897,6 +904,7 @@
       "role": "Assigned by role"
     },
     "SynchronizationConfig": {
+      "_type": "Sync",
       "enabled": "Allowed",
       "name": "Name",
       "description": "Description",
@@ -1093,6 +1101,7 @@
       }
     },
     "ProvisioningBreakConfig": {
+      "_type": "Provisioning brake",
       "operationType": {
         "label": "Type of blocked operation",
         "help": "The type of operation for which the brake will affect."
@@ -1127,6 +1136,7 @@
       "globalConfiguration": "Global configuration"
     },
     "ProvisioningBreakConfigRecipient": {
+      "_type": "Provisioning brake - recipients",
       "role": "Recipients with role",
       "identity": "Recipient",
       "type": {
@@ -1981,6 +1991,18 @@
         "label": "Duplicate the system",
         "help": "Creates copy of selected systems <strong>duplicate contains all configurations</strong>. New system (and his syncs) will be inactive. "
       },
+      "system-export-bulk-action": {
+        "icon": "export",
+        "label": "Export system",
+        "title": "Systems",
+        "help": "Creates an export batch containing selected systems. The new system will be inactive as well as its sync settings. The resulting export will be saved in the <strong>Export/Import</strong> agenda.",
+        "attributes": {
+          "name": {
+              "label": "Description of export",
+            "help": ""
+          }
+        }
+      },
       "system-delete-bulk-action": {
         "label": "$t(action.delete.action) systems",
         "help": "$t(action.delete.action) selected systems. <strong>System must not contains any accounts and unresolved provisioning operations</strong>.",
@@ -2033,7 +2055,7 @@
       "acc-delete-provisioning-archive-long-running-task": {
         "label": "Delete archived provisioning operations",
         "help": "Delete provisioning operations in archive older than given number of days.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Number of days",
@@ -2059,7 +2081,7 @@
       "acc-delete-synchronization-log-long-running-task": {
         "label": "Delete synchronization logs",
         "help": "Delete synchronization logs older than given number of days.",
-        "icon": "fa:trash",
+        "icon": "$t(action.delete.icon)",
         "attributes": {
           "numberofdays": {
             "label": "Number of days",
@@ -2086,7 +2108,34 @@
       "acc-account-protection-expiration-long-running-task": {
         "label": "Removes accounts with expired protection interval",
         "help": "Removes accounts with expired protection interval. To really delete the IdM account (and thus the account on the end system), it will occur after the expiration of the protection interval.",
-        "icon": "fa:trash"
+        "icon": "$t(action.delete.icon)"
+      },
+      "acc-attribute-controlled-values-recalculation-long-running-task": {
+        "label": "Recalculate values of controlled attributes for provisioning (merge)",
+        "help": "Recalculate values of controlled attributes with configured merge strategy for provisioning .",
+        "icon": "component:scheduled-task"
+      },
+      "acc-cancel-provisioning-queue-long-running-task": {
+        "label": "Cancel provisioning queue (deprecated)",
+        "help": "Cancel all active provisioning operations in queue for all systems. This task is deprecated - bulk action can be used directly from active provisioning operation table.",
+        "icon": "component:scheduled-task"
+      },
+      "acc-provisioning-queue-long-running-task": {
+        "label": "Process queue of provisioning operations",
+        "help": "Process created active provisioning operations in queue. Active provisioning operation is added to queue, if target system is configured as asynchronous. If no asynchronous system exists, it is not required to schedule this task.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "virtualsystem": {
+            "label": "Virtual systems",
+            "placeholder": "All systems ...",
+            "help": "[All systems...] - all systems, [Yes] - virtual only, [No] - all but virtual."
+          }
+        }
+      },
+      "acc-retry-provisioning-long-running-task": {
+        "label": "Retry provisioning periodically",
+        "help": "Retry failed operations in provisioning queue. Failed provisioning operations are automatically scheduled. This task runs such operations at scheduled time.",
+        "icon": "component:scheduled-task"
       }
     }
   },
@@ -2130,6 +2179,10 @@
     "PROVISIONING_SUCCEED": {
       "title": "Provisioning of account [{{name}}] executed",
       "message": "Provisioning of account [{{name}}] in system [{{system}}] successfully finished."
+    },
+    "PROVISIONING_TIMEOUT": {
+      "title": "Provisioning of account [{{name}}] wasn't executed",
+      "message": "Provisioning of account [{{name}}] in system [{{system}}] failed. Provisioning timeout [{{timeout}}]ms exceeded. Check target system is available."
     },
     "PROVISIONING_IS_IN_QUEUE": {
       "title": "Provisioning task for account [{{name}}] stored to queue",

@@ -1,11 +1,12 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
 /**
- * Filter for search entity by correlation property
+ * Filter for search entity by correlation property.
  *
  * @author svandav
+ * @author Radek Tomiška
  */
-public interface CorrelationFilter extends BaseFilter {
+public interface CorrelationFilter extends BaseDataFilter {
 
 	/**
 	 * Little dynamic search by identity property and value
@@ -13,12 +14,40 @@ public interface CorrelationFilter extends BaseFilter {
 	String PARAMETER_CORRELATION_PROPERTY = "correlationProperty";
 	String PARAMETER_CORRELATION_VALUE = "correlationValue";
 	
-    String getProperty();
+	/**
+	 * Property name (~ dto/entity field).
+	 * 
+	 * @return property name
+	 */
+    default String getProperty() {
+    	return getParameterConverter().toString(getData(), PARAMETER_CORRELATION_PROPERTY);
+    }
 
-    void setProperty(String property);
+    /**
+     * Property name (~ dto/entity field).
+     * 
+     * @param property property name
+     */
+    default void setProperty(String property) {
+    	set(PARAMETER_CORRELATION_PROPERTY, property);
+    }
 
-    String getValue();
+    /**
+     * Property value (~ dto/entity field value).
+     * 
+     * @return value
+     */
+    default String getValue() {
+    	return getParameterConverter().toString(getData(), PARAMETER_CORRELATION_VALUE);
+    }
 
-    void setValue(String value);
+    /**
+     * Property value (~ dto/entity field value).
+     * 
+     * @param value value
+     */
+    default void setValue(String value) {
+    	set(PARAMETER_CORRELATION_VALUE, value);
+    }
 
 }

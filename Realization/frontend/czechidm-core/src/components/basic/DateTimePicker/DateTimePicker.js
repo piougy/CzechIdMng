@@ -21,10 +21,6 @@ const INVALID_DATE = 'Invalid date';
  */
 class DateTimePicker extends AbstractFormComponent {
 
-  constructor(props) {
-    super(props);
-  }
-
   getRequiredValidationSchema() {
     return Joi.any().required();
   }
@@ -45,7 +41,7 @@ class DateTimePicker extends AbstractFormComponent {
     const { mode, dateFormat, timeFormat } = this.props;
     //
     if (!mode || mode === 'datetime') {
-      return this._getDateFormat(dateFormat) + ' ' + this._getTimeFormat(timeFormat);
+      return `${ this._getDateFormat(dateFormat) } ${ this._getTimeFormat(timeFormat) }`;
     }
     if (mode === 'date') {
       return this._getDateFormat(dateFormat);
@@ -53,6 +49,7 @@ class DateTimePicker extends AbstractFormComponent {
     if (mode === 'time') {
       return this._getTimeFormat(timeFormat);
     }
+    return undefined;
   }
 
   _getDateFormat(dateFormat) {
@@ -72,8 +69,8 @@ class DateTimePicker extends AbstractFormComponent {
   }
 
   validate(showValidationError) {
-    const {required, isValidDate} = this.props;
-    const {value} = this.state;
+    const { required, isValidDate } = this.props;
+    const { value } = this.state;
 
     const showValidations = showValidationError != null ? showValidationError : true;
     if (this.state.validation) {
@@ -120,6 +117,8 @@ class DateTimePicker extends AbstractFormComponent {
       // show validation error on UI
       return false;
     }
+    //
+    return true;
   }
 
   onChange(value) {
@@ -173,6 +172,7 @@ class DateTimePicker extends AbstractFormComponent {
     this.refs.input.setState({ inputValue: null }); // we need to set empty string, null does not work
     this.onChange(null);
   }
+
   _openDialog() {
     const dateTimePicker = this.refs.input;
     dateTimePicker.setState({ open: true });
@@ -220,7 +220,12 @@ class DateTimePicker extends AbstractFormComponent {
               {
                 (disabled || readOnly)
                 ?
-                <input type="text" value={value && value._isAMomentObject ? this._format(value) : value} readOnly className="form-control" style={style}/>
+                <input
+                  type="text"
+                  value={ value && value._isAMomentObject ? this._format(value) : value }
+                  readOnly
+                  className="form-control"
+                  style={ style }/>
                 :
                 <Datetime
                   ref="input"
@@ -242,7 +247,8 @@ class DateTimePicker extends AbstractFormComponent {
                   }}
                   isValidDate={isValidDate}/>
               }
-              <Button type="button"
+              <Button
+                type="button"
                 level="default"
                 className="btn-sm"
                 disabled={disabled || readOnly}
@@ -250,7 +256,8 @@ class DateTimePicker extends AbstractFormComponent {
                 onClick={this._openDialog.bind(this)}>
                 <Icon type="fa" icon="calendar"/>
               </Button>
-              <Button type="button"
+              <Button
+                type="button"
                 level="default"
                 className="btn-sm"
                 disabled={disabled || readOnly}

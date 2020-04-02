@@ -6,15 +6,11 @@ import SearchParameters from '../../domain/SearchParameters';
 import AuthorizationPolicyTable from './AuthorizationPolicyTable';
 
 /**
- * Automatic roles - tab on role detail
+ * Automatic roles - tab on role detail.
  *
  * @author Radek Tomiška
  */
 export default class AuthorizationPolicies extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.role.authorization-policies';
@@ -28,12 +24,8 @@ export default class AuthorizationPolicies extends Basic.AbstractContent {
     const forceSearchParameters = new SearchParameters().setFilter('roleId', this.props.match.params.entityId);
     //
     return (
-      <div>
-        <Helmet title={ this.i18n('title') } />
-
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          {this.i18n('header')}
-        </Basic.ContentHeader>
+      <Basic.Div>
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
         <Basic.Panel className="no-border last">
           <AuthorizationPolicyTable
@@ -43,7 +35,7 @@ export default class AuthorizationPolicies extends Basic.AbstractContent {
             className="no-margin"/>
         </Basic.Panel>
 
-      </div>
+      </Basic.Div>
     );
   }
 }

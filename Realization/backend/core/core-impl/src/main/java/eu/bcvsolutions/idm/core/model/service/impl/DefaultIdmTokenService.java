@@ -95,11 +95,6 @@ public class DefaultIdmTokenService
 		if (ownerId != null) {
 			predicates.add(builder.equal(root.get(IdmToken_.ownerId), ownerId));
 		}
-		// disabled
-		Boolean disabled = filter.getDisabled();
-		if (disabled != null) {
-			predicates.add(builder.equal(root.get(IdmToken_.disabled), disabled));
-		}
 		// expiration
 		ZonedDateTime expirationTill = filter.getExpirationTill();
 		if (expirationTill != null) {

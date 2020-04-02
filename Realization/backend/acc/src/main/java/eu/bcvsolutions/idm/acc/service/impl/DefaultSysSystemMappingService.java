@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
@@ -43,9 +44,11 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
@@ -204,6 +207,25 @@ public class DefaultSysSystemMappingService
 		original.setId(null);
 		EntityUtils.clearAuditFields(original);
 		return original;
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		super.export(id, batch);
+		
+		// Export mapped attributes
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setSystemMappingId(id);
+		List<SysSystemAttributeMappingDto> attributes = this.getAttributeMappingService().find(filter, null).getContent();
+		if (attributes.isEmpty()) {
+			this.getAttributeMappingService().export(UUID.fromString(ExportManager.BLANK_UUID), batch);
+		}
+		attributes.forEach(systemAttributeMapping -> {
+					this.getAttributeMappingService().export(systemAttributeMapping.getId(), batch);
+				});
+		// Set parent field -> set authoritative mode.
+		getExportManager().setAuthoritativeMode(SysSystemAttributeMapping_.systemMapping.getName(), "systemId",
+				SysSystemAttributeMappingDto.class, batch);
 	}
 
 	/**

@@ -10,10 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -22,6 +23,9 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
@@ -34,11 +38,12 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  *
  */
-@Service
-@Description("Rebuild tree node index")
+@Component(RebuildTreeNodeIndexTaskExecutor.TASK_NAME)
+@Description("Rebuild tree node forest index.")
 public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RebuildTreeNodeIndexTaskExecutor.class);
+	public static final String TASK_NAME = "core-rebuild-tree-node-index-long-running-task";
 	private static final String PARAMETER_TREE_TYPE = "Tree type code";
 	//
 	@Autowired private IdmTreeTypeService treeTypeService;
@@ -47,6 +52,11 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 	@Autowired private ConfigurationService configurationService;
 	//
 	private String treeTypeCode;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -135,7 +145,7 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 	}
 	
 	private IdmTreeTypeDto getTreeType() {
-		IdmTreeTypeDto treeType = treeTypeService.getByCode(treeTypeCode);
+		IdmTreeTypeDto treeType = getLookupService().lookupDto(IdmTreeTypeDto.class, treeTypeCode);
 		if(treeType == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,
 					ImmutableMap.of("entity", treeTypeCode));
@@ -156,6 +166,18 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 		List<String> parameters = super.getPropertyNames();
 		parameters.add(PARAMETER_TREE_TYPE);
 		return parameters;
+	}
+	
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		IdmFormAttributeDto treeType = new IdmFormAttributeDto(
+				PARAMETER_TREE_TYPE,
+				PARAMETER_TREE_TYPE, 
+				PersistentType.UUID);
+		treeType.setRequired(true);
+		treeType.setFaceType(BaseFaceType.TREE_TYPE_SELECT);
+		//
+		return Lists.newArrayList(treeType);
 	}
 	
 	@Override

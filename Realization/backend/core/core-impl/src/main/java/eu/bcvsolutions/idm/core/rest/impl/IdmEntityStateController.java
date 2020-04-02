@@ -23,14 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -160,13 +157,9 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
     
     @Override
 	protected IdmEntityStateFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmEntityStateFilter filter = new IdmEntityStateFilter(parameters);
-		filter.setCreatedFrom(getParameterConverter().toDateTime(parameters, "createdFrom"));
-		filter.setCreatedTill(getParameterConverter().toDateTime(parameters, "createdTill"));
-		filter.setOwnerType(getParameterConverter().toString(parameters, "ownerType"));
-		filter.setResultCode(getParameterConverter().toString(parameters, "resultCode"));
-		filter.setStates(getParameterConverter().toEnums(parameters, "states", OperationState.class));
+		IdmEntityStateFilter filter = new IdmEntityStateFilter(parameters, getParameterConverter());
 		//
+		// owner decorator
 		String ownerId = getParameterConverter().toString(parameters, "ownerId");
 		UUID ownerUuid = null;
 		if (StringUtils.isNotEmpty(filter.getOwnerType()) 
@@ -181,15 +174,10 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
 			}
 		}
 		if (ownerUuid == null) {
-			try {
-				ownerUuid = getParameterConverter().toUuid(parameters, "ownerId");
-			} catch (ClassCastException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
-			}
+			ownerUuid = getParameterConverter().toUuid(parameters, "ownerId");
 		}
 		filter.setOwnerId(ownerUuid);
-		filter.setEventId(getParameterConverter().toUuid(parameters, "eventId"));
-		filter.setSuperOwnerId(getParameterConverter().toUuid(parameters, "superOwnerId"));
+		//
 		return filter;
 	}
 

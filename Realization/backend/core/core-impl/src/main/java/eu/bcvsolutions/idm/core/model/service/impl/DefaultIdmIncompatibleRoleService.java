@@ -18,7 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
@@ -161,8 +165,43 @@ public class DefaultIdmIncompatibleRoleService
 		UUID sub = filter.getSubId();
 		if (sub != null) {
 			predicates.add(builder.equal(root.get(IdmIncompatibleRole_.sub).get(IdmRole_.id), sub));
-		}		
+		}
+		// role
+		UUID role = filter.getRoleId();
+		if (role != null) {
+			predicates.add(builder.or(//
+					builder.equal(root.get(IdmIncompatibleRole_.sub).get(IdmRole_.id), role),
+					builder.equal(root.get(IdmIncompatibleRole_.superior).get(IdmRole_.id), role)));
+		}
 		//
 		return predicates;
+	}
+	
+	@Override
+	protected IdmIncompatibleRoleDto internalExport(UUID id) {
+		IdmIncompatibleRoleDto dto = this.get(id);
+
+		// Advanced pairing
+		// We cannot clear all embedded data, because we need to export DTO for
+		// connected sub and superior role.
+		BaseDto roleSubDto = dto.getEmbedded().get(IdmIncompatibleRole_.sub.getName());
+		BaseDto roleSuperDto = dto.getEmbedded().get(IdmIncompatibleRole_.superior.getName());
+		dto.getEmbedded().clear();
+		dto.getEmbedded().put(IdmIncompatibleRole_.sub.getName(), roleSubDto);
+		dto.getEmbedded().put(IdmIncompatibleRole_.superior.getName(), roleSuperDto);
+
+		return dto;
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Export batch must exist!");
+		// Export break-recipient
+		super.export(id, batch);
+		
+		// Advanced pairing
+		ExportDescriptorDto descriptorDto = getExportManager().getDescriptor(batch, this.getDtoClass());
+		descriptorDto.getAdvancedParingFields().add(IdmIncompatibleRole_.sub.getName());
+		descriptorDto.getAdvancedParingFields().add(IdmIncompatibleRole_.superior.getName());
 	}
 }

@@ -28,6 +28,12 @@ import org.quartz.utils.Key;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -44,6 +50,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.DependentTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.TaskTriggerState;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.TaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.exception.DryRunNotSupportedException;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
@@ -113,17 +120,68 @@ public class DefaultSchedulerManager implements SchedulerManager {
 
 	@Override
 	public List<Task> getAllTasks() {
+		return find(null, null).getContent();
+	}
+	
+	@Override
+	public Page<Task> find(TaskFilter filter, Pageable pageable) {
 		try {
 			List<Task> tasks = new ArrayList<>();
-			
+			// load scheduled tasks
 			for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(DEFAULT_GROUP_NAME))) {
 				Task task = getTask(jobKey);
-				if (task != null) {
+				//
+				if (passFilter(task, filter)) {
 					tasks.add(task);
 				}
 			}
-
-			return tasks;
+			//
+			// pageable is required internally
+			Pageable internalPageable;
+			if (pageable == null) {
+				internalPageable = PageRequest.of(0, Integer.MAX_VALUE);
+			} else {
+				internalPageable = pageable;
+			}
+			// apply "naive" sort and pagination
+			tasks = tasks
+					.stream()
+					.sorted((taskOne, taskTwo) -> {
+						Sort sort = internalPageable.getSort();
+						if (internalPageable.getSort() == null) {
+							return 0;
+						}
+						int compareAscValue = 0;
+						boolean asc = true;
+						// "naive" sort implementation
+						Order orderForTaskType = sort.getOrderFor(Task.PROPERTY_TASK_TYPE);
+						if (orderForTaskType != null) {
+							asc = orderForTaskType.isAscending();
+							compareAscValue = taskOne.getTaskType().getSimpleName().compareTo(taskTwo.getTaskType().getSimpleName());
+						}
+						Order orderForDescription = sort.getOrderFor(Task.PROPERTY_DESCRIPTION);
+						if (orderForDescription != null) {
+							asc = orderForDescription.isAscending();
+							compareAscValue = taskOne.getDescription().compareTo(taskTwo.getDescription());
+						}
+						Order orderForInstance = sort.getOrderFor(Task.PROPERTY_INSTANCE_ID);
+						if (orderForInstance != null) {
+							asc = orderForInstance.isAscending();
+							compareAscValue = taskOne.getInstanceId().compareTo(taskTwo.getInstanceId());
+						}
+						//
+						return asc ? compareAscValue : compareAscValue * -1;
+					})
+					.collect(Collectors.toList());
+			// "naive" pagination
+			int first = internalPageable.getPageNumber() * internalPageable.getPageSize();
+			int last = internalPageable.getPageSize() + first;
+			List<Task> taskPage = tasks.subList(
+					first < tasks.size() ? first : tasks.size() > 0 ? tasks.size() - 1 : 0, 
+					last < tasks.size() ? last : tasks.size()
+			);
+			//
+			return new PageImpl<>(taskPage, internalPageable, tasks.size());
 		} catch (org.quartz.SchedulerException ex) {
 			throw new CoreException(ex);
 		}
@@ -143,77 +201,6 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	@Override
 	public Task getTask(String taskId) {
 		return getTask(getKey(taskId));
-	}
-	
-	/**
-	 * Returns task by given key
-	 * 
-	 * @param jobKey
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	private Task getTask(JobKey jobKey) {
-		try {
-			JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-			if (jobDetail == null) {
-				// job does not exists
-				return null;
-			}
-			Task task = new Task();
-			// task setting
-			task.setId(jobKey.getName());
-			// app context is needed here
-			SchedulableTaskExecutor<?> taskExecutor = (SchedulableTaskExecutor<?>) context.getAutowireCapableBeanFactory()
-					.createBean(jobDetail.getJobClass());
-			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) AutowireHelper.getTargetClass(taskExecutor));
-			task.setDescription(jobDetail.getDescription());
-			task.setInstanceId(jobDetail.getJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
-			task.setTriggers(new ArrayList<>());
-			// task properties
-			// TODO: deprecated since 9.2.0 - remove in 10.x
-			for (Entry<String, Object> entry : jobDetail.getJobDataMap().entrySet()) {
-				task.getParameters().put(entry.getKey(), entry.getValue() == null ? null : entry.getValue().toString());
-			}
-			task.setDisabled(taskExecutor.isDisabled());
-			if (!task.isDisabled()) {
-				task.setSupportsDryRun(taskExecutor.supportsDryRun());
-				task.setFormDefinition(taskExecutor.getFormDefinition());
-				task.setRecoverable(taskExecutor.isRecoverable());
-			} else {
-				LOG.warn("Task [{}] is disabled and cannot be executed, remove schedule for this task to hide this warning.",
-						task.getTaskType().getSimpleName());
-			}
-			// scheduled triggers - native
-			for (Trigger trigger : scheduler.getTriggersOfJob(jobKey)) {
-				TriggerState state = scheduler.getTriggerState(trigger.getKey());	
-				if (trigger instanceof CronTrigger) {
-					task.getTriggers().add(new CronTaskTrigger(task.getId(), (CronTrigger) trigger, TaskTriggerState.convert(state)));
-				} else if (trigger instanceof SimpleTrigger) {
-					task.getTriggers().add(new SimpleTaskTrigger(task.getId(), (SimpleTrigger) trigger, TaskTriggerState.convert(state)));
-				} else {
-					LOG.warn("Job '{}' ({}) has registered trigger of unsupported type {}", jobKey,
-							jobDetail.getJobClass(), trigger);
-				}
-			}
-			// dependent tasks
-			dependentTaskTriggerRepository
-				.findByDependentTaskId(jobKey.getName())
-				.forEach(dependentTask -> {
-					task.getTriggers().add(new DependentTaskTrigger(task.getId(), dependentTask.getId(), dependentTask.getInitiatorTaskId()));
-				});
-			return task;
-		} catch (org.quartz.SchedulerException ex) {
-			if (ex.getCause() instanceof ClassNotFoundException) {
-				deleteTask(jobKey.getName());
-				LOG.warn("Job [{}] inicialization failed, job class was removed, scheduled task is removed.", jobKey, ex);
-				return null;
-			}
-			throw new CoreException(ex);	
-		} catch (BeansException | IllegalArgumentException ex) {
-			deleteTask(jobKey.getName());
-			LOG.warn("Job [{}] inicialization failed, scheduled task is removed", jobKey, ex);
-			return null;
-		}
 	}
 	
 	@Override
@@ -375,10 +362,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		trigger.setTaskId(taskId);
 		//
 		// TODO use of visitor pattern may be good
-		if (trigger instanceof CronTaskTrigger) {
-			createTriggerInternal(taskId, (CronTaskTrigger) trigger, dryRun);
-		} else if (trigger instanceof SimpleTaskTrigger) {
+		if (trigger instanceof SimpleTaskTrigger) {
 			createTriggerInternal(taskId, (SimpleTaskTrigger) trigger, dryRun);
+		} else if (trigger instanceof CronTaskTrigger) {
+			createTriggerInternal(taskId, (CronTaskTrigger) trigger, dryRun);
 		} else if(trigger instanceof DependentTaskTrigger) {
 			createTriggerInternal(taskId, (DependentTaskTrigger) trigger);
 		} else {
@@ -387,57 +374,6 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		return trigger;
 	}
 	
-	private void createTriggerInternal(String taskId, CronTaskTrigger trigger, boolean dryRun) {
-		CronTaskTrigger cronTaskTrigger = (CronTaskTrigger) trigger;
-		CronScheduleBuilder cronBuilder;
-		try {
-			cronBuilder = CronScheduleBuilder
-					.cronSchedule(cronTaskTrigger.getCron())
-					.withMisfireHandlingInstructionFireAndProceed() // prevent to skip job execution.
-					.inTimeZone(TimeZone.getDefault());
-		} catch(RuntimeException ex) {
-			throw new InvalidCronExpressionException(cronTaskTrigger.getCron(), ex);
-		}
-		//
-		try {
-			scheduler.scheduleJob(
-					TriggerBuilder.newTrigger()
-						.withIdentity(trigger.getId(), taskId)
-						.forJob(getKey(taskId))
-						.withDescription(cronTaskTrigger.getDescription())
-						.withSchedule(cronBuilder)
-						.usingJobData(SchedulableTaskExecutor.PARAMETER_DRY_RUN, dryRun)
-						.startNow()
-						.build());
-		} catch (org.quartz.SchedulerException ex) {
-			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);
-		}
-	}
-	
-	private void createTriggerInternal(String taskId, SimpleTaskTrigger trigger, boolean dryRun) {
-		try {
-			scheduler.scheduleJob(
-					TriggerBuilder.newTrigger()
-						.withIdentity(trigger.getId(), taskId)
-						.forJob(getKey(taskId))
-						.withDescription(trigger.getDescription())
-						.withSchedule(
-								SimpleScheduleBuilder
-									.simpleSchedule()
-									.withMisfireHandlingInstructionFireNow()
-						)
-						.startAt(Date.from(((SimpleTaskTrigger) trigger).getFireTime().toInstant()))
-						.usingJobData(SchedulableTaskExecutor.PARAMETER_DRY_RUN, dryRun)
-						.build());
-		} catch (org.quartz.SchedulerException ex) {
-			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);
-		}
-	}
-	
-	private void createTriggerInternal(String taskId, DependentTaskTrigger trigger) {
-		dependentTaskTriggerRepository.save(new IdmDependentTaskTrigger(trigger.getInitiatorTaskId(), taskId));
-	}
-
 	@Override
 	public void deleteTrigger(String taskId, String triggerId) {
 		try {
@@ -479,5 +415,160 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	 */
 	protected JobKey getKey(String taskId) {
 		return new JobKey(taskId, DEFAULT_GROUP_NAME);
+	}
+	
+	/**
+	 * Returns task by given key
+	 * 
+	 * @param jobKey
+	 * @return task dto
+	 */
+	@SuppressWarnings("unchecked")
+	private Task getTask(JobKey jobKey) {
+		try {
+			JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+			if (jobDetail == null) {
+				// job does not exists
+				return null;
+			}
+			Task task = new Task();
+			// task setting
+			task.setId(jobKey.getName());
+			// app context is needed here
+			SchedulableTaskExecutor<?> taskExecutor = (SchedulableTaskExecutor<?>) context.getAutowireCapableBeanFactory()
+					.createBean(jobDetail.getJobClass());
+			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) AutowireHelper.getTargetClass(taskExecutor));
+			task.setDescription(jobDetail.getDescription());
+			task.setInstanceId(jobDetail.getJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
+			task.setTriggers(new ArrayList<>());
+			// task properties
+			// TODO: deprecated since 9.2.0 - remove in 10.x
+			for (Entry<String, Object> entry : jobDetail.getJobDataMap().entrySet()) {
+				task.getParameters().put(entry.getKey(), entry.getValue() == null ? null : entry.getValue().toString());
+			}
+			task.setDisabled(taskExecutor.isDisabled());
+			if (!task.isDisabled()) {
+				task.setSupportsDryRun(taskExecutor.supportsDryRun());
+				task.setFormDefinition(taskExecutor.getFormDefinition());
+				task.setRecoverable(taskExecutor.isRecoverable());
+			} else {
+				LOG.warn("Task [{}] is disabled and cannot be executed, remove schedule for this task to hide this warning.",
+						task.getTaskType().getSimpleName());
+			}
+			// scheduled triggers - native
+			for (Trigger trigger : scheduler.getTriggersOfJob(jobKey)) {
+				TriggerState state = scheduler.getTriggerState(trigger.getKey());
+				if (trigger instanceof CronTrigger) {
+					task.getTriggers().add(new CronTaskTrigger(task.getId(), (CronTrigger) trigger, TaskTriggerState.convert(state)));
+				} else if (trigger instanceof SimpleTrigger) {
+					task.getTriggers().add(new SimpleTaskTrigger(task.getId(), (SimpleTrigger) trigger, TaskTriggerState.convert(state)));
+				} else {
+					LOG.warn("Job '{}' ({}) has registered trigger of unsupported type {}", jobKey,
+							jobDetail.getJobClass(), trigger);
+				}
+			}
+			// dependent tasks
+			dependentTaskTriggerRepository
+				.findByDependentTaskId(jobKey.getName())
+				.forEach(dependentTask -> {
+					task.getTriggers().add(new DependentTaskTrigger(task.getId(), dependentTask.getId(), dependentTask.getInitiatorTaskId()));
+				});
+			return task;
+		} catch (org.quartz.SchedulerException ex) {
+			if (ex.getCause() instanceof ClassNotFoundException) {
+				deleteTask(jobKey.getName());
+				LOG.warn("Job [{}] inicialization failed, job class was removed, scheduled task is removed.", jobKey, ex);
+				return null;
+			}
+			throw new CoreException(ex);	
+		} catch (BeansException | IllegalArgumentException ex) {
+			deleteTask(jobKey.getName());
+			LOG.warn("Job [{}] inicialization failed, scheduled task is removed", jobKey, ex);
+			return null;
+		}
+	}
+	
+	private void createTriggerInternal(String taskId, CronTaskTrigger trigger, boolean dryRun) {
+		CronTaskTrigger cronTaskTrigger = (CronTaskTrigger) trigger;
+		CronScheduleBuilder cronBuilder;
+		try {
+			cronBuilder = CronScheduleBuilder
+					.cronSchedule(cronTaskTrigger.getCron())
+					.withMisfireHandlingInstructionFireAndProceed() // prevent to skip job execution.
+					.inTimeZone(TimeZone.getDefault());
+		} catch(RuntimeException ex) {
+			throw new InvalidCronExpressionException(cronTaskTrigger.getCron(), ex);
+		}
+		//
+		try {
+			ZonedDateTime executeDate = trigger.getExecuteDate(); // postpone first fire time
+			scheduler.scheduleJob(
+					TriggerBuilder.newTrigger()
+						.withIdentity(trigger.getId(), taskId)
+						.forJob(getKey(taskId))
+						.withDescription(cronTaskTrigger.getDescription())
+						.withSchedule(cronBuilder)
+						.usingJobData(SchedulableTaskExecutor.PARAMETER_DRY_RUN, dryRun)
+						.startAt(executeDate == null ? new Date() : Date.from(executeDate.toInstant()))
+						.build());
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);
+		}
+	}
+	
+	private void createTriggerInternal(String taskId, SimpleTaskTrigger trigger, boolean dryRun) {
+		try {
+			scheduler.scheduleJob(
+					TriggerBuilder.newTrigger()
+						.withIdentity(trigger.getId(), taskId)
+						.forJob(getKey(taskId))
+						.withDescription(trigger.getDescription())
+						.withSchedule(
+								SimpleScheduleBuilder
+									.simpleSchedule()
+									.withMisfireHandlingInstructionFireNow()
+						)
+						.startAt(Date.from(((SimpleTaskTrigger) trigger).getFireTime().toInstant()))
+						.usingJobData(SchedulableTaskExecutor.PARAMETER_DRY_RUN, dryRun)
+						.build());
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);
+		}
+	}
+	
+	private void createTriggerInternal(String taskId, DependentTaskTrigger trigger) {
+		dependentTaskTriggerRepository.save(new IdmDependentTaskTrigger(trigger.getInitiatorTaskId(), taskId));
+	}
+	
+	/**
+	 * Returns true, when given processor pass given filter
+	 * 
+	 * @param processor
+	 * @param filter
+	 * @return
+	 */
+	private boolean passFilter(Task task, TaskFilter filter) {
+		if (task == null) {
+			return false;
+		}
+		if (filter == null) {
+			// empty filter
+			return true;
+		}
+		// id - not supported
+		if (filter.getId() != null) {
+			throw new UnsupportedOperationException("Filtering event processors by [id] is not supported.");
+		}
+		// text - lowercase like in type, description
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = filter.getText().toLowerCase();
+			if (!task.getTaskType().getCanonicalName().toLowerCase().contains(text)
+					&& (task.getDescription() == null || !task.getDescription().toLowerCase().contains(text))) {
+				return false;
+			}
+		}
+		//
+		return true;
 	}
 }

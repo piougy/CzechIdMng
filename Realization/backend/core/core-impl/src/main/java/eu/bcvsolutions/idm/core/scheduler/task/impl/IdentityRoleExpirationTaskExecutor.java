@@ -15,7 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -41,7 +41,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Jan Helbich
  * @author Radek Tomiška
  */
-@Service(IdentityRoleExpirationTaskExecutor.TASK_NAME)
+@Component(IdentityRoleExpirationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Removes expired assigned roles from identites.")
 public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityRoleDto> {

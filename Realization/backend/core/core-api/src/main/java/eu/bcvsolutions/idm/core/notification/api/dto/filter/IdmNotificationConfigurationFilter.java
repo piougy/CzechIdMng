@@ -6,7 +6,9 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 
 /**
- * Filter for notification configuration
+ * Filter for notification configuration.
+ * 
+ * TODO: refactor to data filter + disableable.
  * 
  * @author Patrik Stloukal
  *

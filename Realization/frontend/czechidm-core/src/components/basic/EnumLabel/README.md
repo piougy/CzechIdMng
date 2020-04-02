@@ -18,6 +18,6 @@ All parameters from AbstractFormComponent are supported. Added parameters:
     ref="wfState"
     enum={VpnActivityStateEnum}
     value="IMPLEMENTED"
-    label={this.i18n('wfState')}/>
+    label={this.i18n('wfState')}
  />
 ```

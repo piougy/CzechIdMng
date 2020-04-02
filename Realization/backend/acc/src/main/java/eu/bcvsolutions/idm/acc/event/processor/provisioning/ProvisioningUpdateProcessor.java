@@ -64,7 +64,7 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 					connectorObject.getObjectClass(), uidAttribute, transformedIcAttributes);
 		} else {
 			// TODO: appropriate message - provisioning is not executed - attributes don't change
-			// Operation was logged only. Provisioning was not executes, because attributes does'nt change.
+			// Operation was logged only. Provisioning was not executed, because attributes doesn't change.
 		}
 		return null;
 	}

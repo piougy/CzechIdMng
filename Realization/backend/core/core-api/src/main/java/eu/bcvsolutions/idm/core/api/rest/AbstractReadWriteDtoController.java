@@ -43,7 +43,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 /**
- * CRUD operations for DTO
+ * CRUD operations for DTO.
  * 
  * @see DataFilter
  * @param <DTO> dto type
@@ -125,15 +125,13 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	}
 
 	/**
-	 * Creates / updates given DTO
+	 * Creates / updates given DTO.
 	 * 
 	 * @param dto
 	 * @return
 	 */
 	public DTO postDto(DTO dto) {
-		ReadWriteDtoService<DTO, F> service = getService();
-		//
-		return saveDto(dto, service.isNew(dto) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
+		return saveDto(dto, getService().isNew(dto) ? IdmBasePermission.CREATE : IdmBasePermission.UPDATE);
 	}
 
 	/**

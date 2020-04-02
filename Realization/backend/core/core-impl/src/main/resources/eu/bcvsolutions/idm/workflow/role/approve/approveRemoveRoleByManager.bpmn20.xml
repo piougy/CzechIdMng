@@ -51,7 +51,7 @@ Input variables:
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state APPROVED to concept
-def conceptDto = conceptRoleRequestService.get(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id,null);
 conceptDto.setState(RoleRequestState.APPROVED);
 
 // Set current validity dates
@@ -68,7 +68,7 @@ conceptRoleRequestService.save(conceptDto);</script>
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state DISAPPROVED to concept
-def conceptDto = conceptRoleRequestService.get(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id,null);
 conceptDto.setState(RoleRequestState.DISAPPROVED);
 conceptRoleRequestService.save(conceptDto);</script>
     </scriptTask>
@@ -77,7 +77,7 @@ conceptRoleRequestService.save(conceptDto);</script>
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state CANCELED to concept
-def conceptDto = conceptRoleRequestService.get(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id,null);
 conceptDto.setState(RoleRequestState.CANCELED);
 conceptRoleRequestService.addToLog(conceptDto, 'Identity role not exist!');
 conceptRoleRequestService.save(conceptDto);</script>
@@ -88,7 +88,7 @@ conceptRoleRequestService.save(conceptDto);</script>
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
  
 // Set and save state IN_PROGRESS to concept
-def conceptDto = conceptRoleRequestService.get(conceptRole.id);
+def conceptDto = conceptRoleRequestService.get(conceptRole.id,null);
 conceptDto.setState(RoleRequestState.IN_PROGRESS);
 // Save process ID to concept
 conceptDto.setWfProcessId(processInstanceId);

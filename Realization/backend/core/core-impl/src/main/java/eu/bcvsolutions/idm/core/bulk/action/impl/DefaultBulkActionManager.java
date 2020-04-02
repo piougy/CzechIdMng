@@ -28,7 +28,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
- * Implementation of manager for bulk action
+ * Implementation of manager for bulk action.
+ * 
+ * TODO: find with filter / agenda on FE.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *

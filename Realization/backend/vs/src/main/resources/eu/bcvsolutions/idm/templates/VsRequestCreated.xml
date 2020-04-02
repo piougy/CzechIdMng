@@ -120,7 +120,7 @@ New virtual system request (for realization) was created and send to implementer
 		#else
 			Jméno: 
 		#end
-		<b>$fullName</b><br />
+		<a href='$targetEntityUrl'><b>$fullName</b></a><br />
 		
 		#if($locEng == $loc)
 			Phone:  
@@ -200,7 +200,7 @@ New virtual system request (for realization) was created and send to implementer
     <br />
 
     <div style="display: block; margin: 30px auto; max-width: 400px;">
-        CzechIdM © 2018&nbsp;BCV Solutions s.r.o.&nbsp;
+        CzechIdM © 2020&nbsp;BCV Solutions s.r.o.&nbsp;
     </div>
     
     <div style="display: block; margin: 30px auto; max-width: 800px;">
@@ -252,7 +252,7 @@ New virtual system request (for realization) was created and send to implementer
     <br />
 
     <div style="display: block; margin: 30px auto; max-width: 400px;">
-        CzechIdM © 2018&nbsp;BCV Solutions s.r.o.&nbsp;
+        CzechIdM © 2020&nbsp;BCV Solutions s.r.o.&nbsp;
     </div>
   </body>
 </html>

@@ -160,7 +160,6 @@ class Caches extends Basic.AbstractContent {
                 );
               }
             }/>
-          <Basic.Column property="size" header={this.i18n('entity.Cache.size')}/>
           <Basic.Column
             header={this.i18n('label.action')}
             className="action"

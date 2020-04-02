@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import _ from 'lodash';
+import moment from 'moment';
+//
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import _ from 'lodash';
-import moment from 'moment';
 import { LocalizationService } from '../../services';
 
 /**
@@ -15,10 +16,6 @@ import { LocalizationService } from '../../services';
  */
 export default class LongRunningTaskDetail extends Basic.AbstractContent {
 
-  constructor(props) {
-    super(props);
-  }
-
   getContentKey() {
     return 'content.scheduler.all-tasks';
   }
@@ -27,7 +24,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
     const { entity } = this.props;
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.Panel className="no-border last">
@@ -74,6 +71,10 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                           // FIXME: transaction context info
                           return null;
                         }
+                        if (propertyName === 'core:bulkAction') {
+                          // FIXME: bulk action info + #2086
+                          return null;
+                        }
                         return (
                           <div>{ propertyName }: { Utils.Ui.toStringValue(entity.taskProperties[propertyName]) }</div>
                         );
@@ -90,15 +91,15 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
 
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
-                  {
-                    !entity.taskStarted
-                    &&
-                    <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.notstarted')}/>
-                    ||
-                    <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
+                  <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.counter') }>
+                    {
+                      !entity.taskStarted
+                      ?
+                      this.i18n('entity.LongRunningTask.notstarted')
+                      :
                       <Advanced.LongRunningTask entity={ entity } face="count"/>
-                    </Basic.LabelWrapper>
-                  }
+                    }
+                  </Basic.LabelWrapper>
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
                   {
@@ -108,9 +109,18 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                       <Basic.Tooltip
                         ref="popover"
                         placement="bottom"
-                        value={ moment.utc(moment.duration(moment(entity.modified).diff(moment(entity.taskStarted))).asMilliseconds()).format(this.i18n('format.times'))}>
+                        value={
+                          moment
+                            .utc(moment.duration(moment(entity.modified).diff(moment(entity.taskStarted))).asMilliseconds())
+                            .format(this.i18n('format.times'))
+                        }>
                         <span>
-                          { moment.duration(moment(entity.taskStarted).diff(moment(entity.modified))).locale(LocalizationService.getCurrentLanguage()).humanize() }
+                          {
+                            moment
+                              .duration(moment(entity.taskStarted).diff(moment(entity.modified)))
+                              .locale(LocalizationService.getCurrentLanguage())
+                              .humanize()
+                          }
                         </span>
                       </Basic.Tooltip>
                     </Basic.LabelWrapper>
@@ -129,7 +139,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
             </Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

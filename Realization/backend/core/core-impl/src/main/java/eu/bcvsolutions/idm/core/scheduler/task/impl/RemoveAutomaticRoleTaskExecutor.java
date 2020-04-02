@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -63,7 +63,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  *
  */
-@Service
+@Component(RemoveAutomaticRoleTaskExecutor.TASK_NAME)
 @Description("Remove automatic role (by tree structure or attribute).")
 public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityRoleDto> {
 	

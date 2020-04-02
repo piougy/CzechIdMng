@@ -3,6 +3,13 @@ import Immutable from 'immutable';
 import { Managers, Domain } from 'czechidm-core';
 import { SystemService } from '../services';
 
+/**
+ * Manager for a target systems
+ *
+ * @author Vít Švanda
+ * @author Radek Tomiška
+ * @author Peter Štrunc
+ */
 export default class SystemManager extends Managers.EntityManager {
 
   constructor() {
@@ -36,29 +43,14 @@ export default class SystemManager extends Managers.EntityManager {
    * @returns {action}
    */
   fetchConnectorConfiguration(id, uiKey, cb = null) {
-    return (dispatch) => {
-      dispatch(this.dataManager.requestData(uiKey));
-
-      const connectorFormDefinitionPromise = this.getService().getConnectorFormDefinition(id);
-      const connectorFormValuesPromise = this.getService().getConnectorFormValues(id);
-
-      Promise.all([connectorFormDefinitionPromise, connectorFormValuesPromise])
-        .then((jsons) => {
-          const formDefinition = jsons[0];
-          const formValues = jsons[1].values;
-
-          const formInstance = new Domain.FormInstance(formDefinition, formValues);
-
-          dispatch(this.dataManager.receiveData(uiKey, formInstance));
-          if (cb) {
-            cb(formInstance);
-          }
-        })
-        .catch(error => {
-          // TODO: data uiKey
-          dispatch(this.receiveError(null, uiKey, error, cb));
-        });
+    const getFormDefinitionFun = (identifier) => {
+      return this.getService().getConnectorFormDefinition(identifier);
     };
+    const getFormValuesFun = (identifier) => {
+      return this.getService().getConnectorFormValues(identifier);
+    };
+
+    return this.fetchConfiguration(id, uiKey, getFormDefinitionFun, getFormValuesFun, cb);
   }
 
   /**
@@ -70,11 +62,42 @@ export default class SystemManager extends Managers.EntityManager {
    * @returns {action}
    */
   fetchPoolingConnectorConfiguration(id, uiKey, cb = null) {
+    const getFormDefinitionFun = (identifier) => {
+      return this.getService().getPoolingConnectorFormDefinition(identifier);
+    };
+    const getFormValuesFun = (identifier) => {
+      return this.getService().getPoolingConnectorFormValues(identifier);
+    };
+
+    return this.fetchConfiguration(id, uiKey, getFormDefinitionFun, getFormValuesFun, cb);
+  }
+
+  /**
+   * Load operation options connector configuration for given system
+   *
+   * @param  {string} id system identifier
+   * @param {string} uiKey
+   * @param {func} cb callback
+   * @returns {action}
+   */
+  fetchOperationOptionsConnectorConfiguration(id, uiKey, cb = null) {
+    const getFormDefinitionFun = (identifier) => {
+      return this.getService().getOperationOptionsConnectorFormDefinition(identifier);
+    };
+    const getFormValuesFun = (identifier) => {
+      return this.getService().getOperationOptionsConnectorFormValues(identifier);
+    };
+
+    return this.fetchConfiguration(id, uiKey, getFormDefinitionFun, getFormValuesFun, cb);
+  }
+
+
+  fetchConfiguration(id, uiKey, getFormDefinitionFun, getFormValuesFun, cb = null) {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
 
-      const connectorFormDefinitionPromise = this.getService().getPoolingConnectorFormDefinition(id);
-      const connectorFormValuesPromise = this.getService().getPoolingConnectorFormValues(id);
+      const connectorFormDefinitionPromise = getFormDefinitionFun(id);
+      const connectorFormValuesPromise = getFormValuesFun(id);
 
       Promise.all([connectorFormDefinitionPromise, connectorFormValuesPromise])
         .then((jsons) => {
@@ -108,12 +131,12 @@ export default class SystemManager extends Managers.EntityManager {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().saveConnectorFormValues(id, values)
-      .then(() => {
-        dispatch(this.fetchConnectorConfiguration(id, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(null, uiKey, error, cb));
-      });
+        .then(() => {
+          dispatch(this.fetchConnectorConfiguration(id, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
     };
   }
 
@@ -130,12 +153,34 @@ export default class SystemManager extends Managers.EntityManager {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().savePoolingConnectorFormValues(id, values)
-      .then(() => {
-        dispatch(this.fetchPoolingConnectorConfiguration(id, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(null, uiKey, error, cb));
-      });
+        .then(() => {
+          dispatch(this.fetchPoolingConnectorConfiguration(id, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
+    };
+  }
+
+  /**
+   * Saves connector configuration form values for operation options
+   *
+   * @param  {string} id system identifier
+   * @param  {arrayOf(entity)} values filled form values
+   * @param {string} uiKey
+   * @param {func} cb callback
+   * @returns {action}
+   */
+  saveOperationOptionsConnectorConfiguration(id, values, uiKey, cb = null) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().saveOperationOptionsConnectorFormValues(id, values)
+        .then(() => {
+          dispatch(this.fetchOperationOptionsConnectorConfiguration(id, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
     };
   }
 

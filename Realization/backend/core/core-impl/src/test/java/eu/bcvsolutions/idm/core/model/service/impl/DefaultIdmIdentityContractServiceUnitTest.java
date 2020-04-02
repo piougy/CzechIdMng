@@ -1,19 +1,22 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import java.time.LocalDate;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -21,8 +24,10 @@ import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
+import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -53,6 +58,16 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 	@InjectMocks 
 	private DefaultIdmIdentityContractService service;
 	
+	@Before
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void init() {
+		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUuidConverter(modelMapper, null);
+		TypeMap typeMapEntityToUiid = modelMapper.createTypeMap(IdmTreeNode.class, UUID.class);
+		typeMapEntityToUiid.setConverter(entityToUiid);
+		TypeMap typeMapEntityToUiid2 = modelMapper.createTypeMap(IdmTreeType.class, UUID.class);
+		typeMapEntityToUiid2.setConverter(entityToUiid);
+	}
+	
 	@Test
 	public void testSimplePrimeContract() {
 		List<IdmIdentityContract> contracts = new ArrayList<>();
@@ -77,7 +92,8 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		IdmIdentityContract contractWithPosition = new IdmIdentityContract(UUID.randomUUID());
 		contractWithPosition.setMain(false);
 		IdmTreeNode workPosition = new IdmTreeNode();
-		workPosition.setTreeType(new IdmTreeType());
+		workPosition.setId(UUID.randomUUID());
+		workPosition.setTreeType(new IdmTreeType(UUID.randomUUID()));
 		contractWithPosition.setWorkPosition(workPosition);
 		//
 		IdmIdentityContract otherContract = new IdmIdentityContract(UUID.randomUUID());
@@ -99,6 +115,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		IdmIdentityContract contractWithDefaultPosition = new IdmIdentityContract(UUID.randomUUID());
 		contractWithDefaultPosition.setMain(false);
 		IdmTreeNode defaultWorkPosition = new IdmTreeNode();
+		defaultWorkPosition.setId(UUID.randomUUID());
 		IdmTreeType defaultTreeType = new IdmTreeType(UUID.randomUUID());
 		defaultWorkPosition.setTreeType(defaultTreeType);
 		contractWithDefaultPosition.setWorkPosition(defaultWorkPosition);
@@ -106,6 +123,7 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 		IdmIdentityContract otherContract = new IdmIdentityContract(UUID.randomUUID());
 		otherContract.setMain(false);
 		IdmTreeNode workPosition = new IdmTreeNode();
+		workPosition.setId(UUID.randomUUID());
 		workPosition.setTreeType(new IdmTreeType(UUID.randomUUID()));
 		otherContract.setWorkPosition(workPosition);
 		//

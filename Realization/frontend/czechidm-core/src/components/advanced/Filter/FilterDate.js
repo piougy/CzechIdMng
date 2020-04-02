@@ -74,6 +74,7 @@ export default class FilterDate extends Basic.AbstractFormComponent {
       [faceProperty]: face
     };
     //
+    // TODO: convert face instead convert each case
     switch (face) { // string representation
       case DateFaceEnum.findKeyBySymbol(DateFaceEnum.TODAY): {
         resultValue[fromProperty] = this._getValue(mode, moment().startOf('day'));
@@ -165,8 +166,16 @@ export default class FilterDate extends Basic.AbstractFormComponent {
   }
 
   onChangeFace(option) {
+    const face = option ? option.value : null;
     this.setState({
-      face: option ? option.value : null
+      face
+    }, () => {
+      if (face && face === DateFaceEnum.findKeyBySymbol(DateFaceEnum.BETWEEN)) {
+        // set now into from
+        if (this.refs.from) {
+          this.refs.from.setValue(moment());
+        }
+      }
     });
   }
 

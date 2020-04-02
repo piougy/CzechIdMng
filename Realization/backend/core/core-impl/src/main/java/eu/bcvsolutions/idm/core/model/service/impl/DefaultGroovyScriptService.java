@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.codehaus.groovy.control.CompilationFailedException;
@@ -14,7 +15,6 @@ import org.kohsuke.groovy.sandbox.GroovyInterceptor;
 import org.kohsuke.groovy.sandbox.SandboxTransformer;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -40,11 +40,12 @@ import groovy.lang.Script;
 @Service
 public class DefaultGroovyScriptService implements GroovyScriptService {
 
+
 	public static final String CACHE_NAME = CoreModuleDescriptor.MODULE_ID + ":default-groovy-script-service-script-cache";
 
 	@Autowired
 	IdmCacheManager cacheManager;
-	
+
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(DefaultGroovyScriptService.class);
 	
@@ -167,15 +168,12 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 
 	private Script getScript(String source) {
 		// TODO: consider hashing source in order to not waste so much space
-		Cache.ValueWrapper value = cacheManager.getValue(CACHE_NAME, source);
-
-		if (value == null || value.get() == null){
+		Optional<Object> value = cacheManager.getValue(CACHE_NAME, source);
+		return value.map(o -> (Script)o).orElseGet(() -> {
 			Script script = buildScript(source);
 			cacheManager.cacheValue(CACHE_NAME, source, script);
 			return script;
-		}
-
-		return (Script) value.get();
+		});
 	}
 
 	private Script buildScript(String source) {

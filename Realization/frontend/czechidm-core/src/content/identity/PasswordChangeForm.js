@@ -73,13 +73,13 @@ class PasswordChangeForm extends Basic.AbstractContent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={ this.i18n('title') } />
         {/* TODO: check span counter - the same alghoritm as on dashboard */}
         <Basic.Row>
           { components }
         </Basic.Row>
-      </div>
+      </Basic.Div>
     );
   }
 }

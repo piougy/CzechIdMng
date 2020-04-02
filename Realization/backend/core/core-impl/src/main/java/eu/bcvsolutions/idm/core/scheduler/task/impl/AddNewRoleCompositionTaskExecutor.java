@@ -11,10 +11,11 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -26,6 +27,8 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
@@ -38,17 +41,23 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.0.0
  */
-@Service
+@Component(AddNewRoleCompositionTaskExecutor.TASK_NAME)
 @Description("Long running task for assign sub roles defined by this composition to identities having superior role."
 		+ " Can be executed repetitively to assign unprocessed roles to identities, after process was stopped or interrupted (e.g. by server restart).")
 public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmRoleDto> {
 
+	public static final String TASK_NAME = "core-add-new-role-composition-long-running-task";
 	public static final String PARAMETER_ROLE_COMPOSITION_ID = "role-composition-id";
 	//
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	//
 	private UUID roleCompositionId = null;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -120,6 +129,17 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		List<String> propertyNames = super.getPropertyNames();
 		propertyNames.add(PARAMETER_ROLE_COMPOSITION_ID);
 		return propertyNames;
+	}
+	
+	@Override
+	public List<IdmFormAttributeDto> getFormAttributes() {
+		IdmFormAttributeDto compositionId = new IdmFormAttributeDto(
+				PARAMETER_ROLE_COMPOSITION_ID,
+				PARAMETER_ROLE_COMPOSITION_ID, 
+				PersistentType.UUID);
+		compositionId.setRequired(true);
+		//
+		return Lists.newArrayList(compositionId);
 	}
 	
 	@Override

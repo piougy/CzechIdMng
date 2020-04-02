@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -44,18 +44,16 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Vít Švanda
  *
  */
-
-@Service
+@Component(ClearDirtyStateForContractSliceTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Clear dirty state for contract slices. During synchronization is set dirty flag for all processed slices. This task remove the flag.")
 public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedulableTaskExecutor<OperationResult> {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ClearDirtyStateForContractSliceTaskExecutor.class);
+	public static final String TASK_NAME = "core-clear-dirty-state-contract-slice-long-running-task";
 	public final static String ORIGINAL_SLICE = "originalSlice";
 	public final static String CURRENT_SLICE = "currentSlice";
 	public final static String TO_DELETE = "toDelete";
-
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(ClearDirtyStateForContractSliceTaskExecutor.class);
 
 	@Autowired
 	private EntityStateManager entityStateManager;
@@ -65,6 +63,11 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 	private ContractSliceManager contractSliceManager;
 	@Autowired
 	private EntityManager entityManager;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 
 	@Override
 	public OperationResult process() {

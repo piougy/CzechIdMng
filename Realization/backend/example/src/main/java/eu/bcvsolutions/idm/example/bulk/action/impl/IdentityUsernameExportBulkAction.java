@@ -186,4 +186,9 @@ public class IdentityUsernameExportBulkAction extends AbstractBulkAction<IdmIden
 	public ReadWriteDtoService<IdmIdentityDto, IdmIdentityFilter> getService() {
 		return identityService;
 	}
+	
+	@Override
+	public boolean isRecoverable() {
+		return true;
+	}
 }

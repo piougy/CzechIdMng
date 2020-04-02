@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
@@ -15,10 +16,6 @@ const manager = new IdentityContractManager();
  */
 class IdentityContractEav extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   componentDidMount() {
     this.selectSidebarItem('identity-contract-eav');
   }
@@ -32,11 +29,14 @@ class IdentityContractEav extends Basic.AbstractContent {
     const { _entity, _permissions } = this.props;
     //
     return (
-      <Advanced.EavContent
-        formableManager={manager}
-        entityId={entityId}
-        contentKey={this.getContentKey()}
-        showSaveButton={ manager.canSaveContract(_entity, _permissions) }/>
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
+        <Advanced.EavContent
+          formableManager={manager}
+          entityId={entityId}
+          contentKey={this.getContentKey()}
+          showSaveButton={ manager.canSaveContract(_entity, _permissions) }/>
+      </Basic.Div>
     );
   }
 }

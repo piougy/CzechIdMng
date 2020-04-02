@@ -15,12 +15,19 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  * @since 9.7.10
  */
-@Component
+@Component(ModelMapperCheckerTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
 @Description("Check model mapper is properly initialized to prevent dto mapping exceptions.")
 public class ModelMapperCheckerTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
+	public static final String TASK_NAME = "core-model-mapper-checker-long-running-task";
+	//
 	@Autowired private ModelMapperChecker modelMapperChecker;
+	
+	@Override
+	public String getName() {
+		return TASK_NAME;
+	}
 	
 	@Override
 	public Boolean process() {

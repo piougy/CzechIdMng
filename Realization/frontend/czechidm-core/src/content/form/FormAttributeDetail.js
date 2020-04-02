@@ -291,7 +291,14 @@ class FormAttributeDetail extends Basic.AbstractContent {
                       ref="seq"
                       label={ this.i18n('entity.FormAttribute.seq.label') }
                       helpBlock={ this.i18n('entity.FormAttribute.seq.help') }
-                      validation={ Joi.number().required().integer().min(0).max(99999) }/>
+                      validation={
+                        Joi
+                          .number()
+                          .required()
+                          .integer()
+                          .min(0)
+                          .max(99999)
+                      }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>

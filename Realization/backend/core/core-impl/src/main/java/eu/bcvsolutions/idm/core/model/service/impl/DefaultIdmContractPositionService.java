@@ -15,13 +15,15 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.repository.IdmContractPositionRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
@@ -65,12 +67,22 @@ public class DefaultIdmContractPositionService
 		// contract id
 		UUID contractId = filter.getIdentityContractId();
 		if (contractId != null) {
-			predicates.add(builder.equal(root.get(IdmContractPosition_.identityContract).get(AbstractEntity_.id), contractId));
+			predicates.add(builder.equal(root.get(IdmContractPosition_.identityContract).get(IdmIdentityContract_.id), contractId));
 		}
 		// tree node id
 		UUID workPosition = filter.getWorkPosition();
 		if (workPosition != null) {
-			predicates.add(builder.equal(root.get(IdmContractPosition_.workPosition).get(AbstractEntity_.id), workPosition));
+			predicates.add(builder.equal(root.get(IdmContractPosition_.workPosition).get(IdmTreeNode_.id), workPosition));
+		}
+		UUID identity = filter.getIdentity();
+		if (identity != null) {
+			predicates.add(builder.equal(
+					root
+						.get(IdmContractPosition_.identityContract)
+						.get(IdmIdentityContract_.identity)
+						.get(IdmIdentity_.id), 
+					identity)
+			);
 		}
 		return predicates;
 	}

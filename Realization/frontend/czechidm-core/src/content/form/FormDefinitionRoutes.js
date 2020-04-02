@@ -58,7 +58,7 @@ class FormDefinitionRoutes extends Basic.AbstractContent {
           <Advanced.DetailHeader
             entity={ entity }
             showLoading={ showLoading }
-            back="/forms">
+            back="/forms/form-definitions">
             { manager.getNiceLabel(entity)} <small> { this.i18n('edit') }</small>
           </Advanced.DetailHeader>
         }
@@ -67,7 +67,7 @@ class FormDefinitionRoutes extends Basic.AbstractContent {
           ?
           <FormDefinitionDetail isNew match={ this.props.match } />
           :
-          <Advanced.TabPanel position="left" parentId="forms" match={ this.props.match }>
+          <Advanced.TabPanel position="left" parentId="form-definitions" match={ this.props.match }>
             { this.getRoutes() }
           </Advanced.TabPanel>
         }

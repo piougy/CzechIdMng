@@ -34,6 +34,10 @@ public class Task implements BaseDto {
 
 	private static final long serialVersionUID = 1L;
 	//
+	public static final String PROPERTY_TASK_TYPE = "taskType";
+	public static final String PROPERTY_DESCRIPTION = "description";
+	public static final String PROPERTY_INSTANCE_ID = "instanceId";
+	//
 	@JsonDeserialize(as = String.class)
 	private String id; // quartz job name
 	private String module;

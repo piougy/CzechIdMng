@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,7 +13,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -28,15 +28,20 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakItems;
+import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakRecipientDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningBreakRecipientFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakConfig_;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBreakRecipient_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBreakConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
+import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationTemplateDto;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -56,9 +61,10 @@ public class DefaultSysProvisioningBreakConfigService extends
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningBreakConfigService.class);
 	//
 	private static final Integer MAX_CONFIGS_FOR_SYSTEM = 3;
-	private static final String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":provisioning-cache";
+	public static final String CACHE_NAME = AccModuleDescriptor.MODULE_ID + ":provisioning-cache";
 	private static final Map<UUID, SysProvisioningBreakItems> localCache = new ConcurrentHashMap<>();
 	//
+
 	private final SysProvisioningBreakRecipientService breakRecipientService;
 	private final ProvisioningBreakConfiguration provisioningBreakConfiguration;
 	private final IdmCacheManager idmCacheManager;
@@ -137,17 +143,9 @@ public class DefaultSysProvisioningBreakConfigService extends
 	
 	@Override
 	public SysProvisioningBreakItems getCacheProcessedItems(UUID systemId) {
-		Cache.ValueWrapper cachedValueWrapper = this.idmCacheManager.getValue(CACHE_NAME, systemId);
-		SysProvisioningBreakItems cache;
-		if (cachedValueWrapper == null) {
-			// local cache is used => cache can be turned off
-			cache = localCache.get(systemId);
-		} else {
-			// cache is enabled
-			cache = (SysProvisioningBreakItems) cachedValueWrapper.get();
-			// we can clear local cache (prevent to grow memory)
-			localCache.remove(systemId);
-		}
+		Optional<Object> cachedValueWrapper = this.idmCacheManager.getValue(CACHE_NAME, systemId);
+		SysProvisioningBreakItems cache = cachedValueWrapper.map(o -> (SysProvisioningBreakItems)o).orElseGet(() -> localCache.get(systemId));
+		cachedValueWrapper.ifPresent(o -> localCache.remove(systemId));
 		//
 		return cache == null ? new SysProvisioningBreakItems() : cache;
 	}
@@ -252,6 +250,28 @@ public class DefaultSysProvisioningBreakConfigService extends
 	public void clearCache(UUID systemId, ProvisioningEventType event) {
 		SysProvisioningBreakItems cache = this.getCacheProcessedItems(systemId);
 		cache.clearRecords(event);
+	}
+	
+	@Override
+	public void export(UUID id, IdmExportImportDto batch) {
+		Assert.notNull(batch, "Export batch must exist!");
+		// Export break configuration
+		super.export(id, batch);
+
+		// Export break recipients
+		SysProvisioningBreakRecipientFilter provisioningBreakRecipientFilter = new SysProvisioningBreakRecipientFilter();
+		provisioningBreakRecipientFilter.setBreakConfigId(id);
+		List<SysProvisioningBreakRecipientDto> recipients = breakRecipientService
+				.find(provisioningBreakRecipientFilter, null).getContent();
+		if (recipients.isEmpty()) {
+			breakRecipientService.export(UUID.fromString(ExportManager.BLANK_UUID), batch);
+		}
+		recipients.forEach(breakConfig -> {
+			breakRecipientService.export(breakConfig.getId(), batch);
+		});
+		// Set parent field -> set authoritative mode.
+		this.getExportManager().setAuthoritativeMode(SysProvisioningBreakRecipient_.breakConfig.getName(), "systemId", SysProvisioningBreakRecipientDto.class,
+				batch);
 	}
 	
 	/**

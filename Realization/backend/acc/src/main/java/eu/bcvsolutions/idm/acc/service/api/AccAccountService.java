@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
@@ -72,4 +73,13 @@ public interface AccAccountService extends//
 	 * @return
 	 */
 	IcConnectorObject getConnectorObject(AccAccountDto account, BasePermission... permissions);
+
+	/**
+	 * Find sync executor for given entity type.
+	 *
+	 * @since 10.2.0
+	 * @param entityType
+	 * @return
+	 */
+	SynchronizationEntityExecutor getSyncExecutor(SystemEntityType entityType);
 }

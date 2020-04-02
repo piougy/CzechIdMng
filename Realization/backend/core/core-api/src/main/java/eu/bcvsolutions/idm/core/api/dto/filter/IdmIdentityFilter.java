@@ -9,19 +9,19 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ExternalCodeable;
-import eu.bcvsolutions.idm.core.api.domain.ExternalIdentifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter for identities
+ * Filter for identities.
  * 
  * @author Radek Tomiška
  *
  */
-public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, ExternalIdentifiable, ExternalCodeable {
+public class IdmIdentityFilter 
+		extends DataFilter 
+		implements CorrelationFilter, ExternalIdentifiableFilter, ExternalCodeable, DisableableFilter, FormableFilter {
 	
 	/**
 	 * Identity by username.
@@ -52,10 +52,6 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	 */
 	public static final String PARAMETER_MANAGERS_BY_CONTRACT = "managersByContract";
 	/**
-	 * Identity is disabled.
-	 */
-	public static final String PARAMETER_DISABLED = "disabled";
-	/**
 	 * Identity state.
 	 */
 	public static final String PARAMETER_STATE = "state";
@@ -76,30 +72,33 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	 */
 	public static final String PARAMETER_EMAIL = "email";
 	/**
-	 * roles - OR.
+	 * role - multiple, OR.
 	 */
-	private List<UUID> roles;	
-	
+	public static final String PARAMETER_ROLE = "role";
 	/**
 	 * Identities for tree structure (by identity contract).
 	 */
-	private UUID treeNode;
+	public static final String PARAMETER_TREE_NODE = "treeNodeId";
 	/**
-	 * Identities for tree structure recursively down.
+	 * Identities for tree structure recursively down (true by default).
 	 */
-	private boolean recursively = true;
+	public static final String PARAMETER_RECURSIVELY = "recursively";
 	/**
 	 * Identities for tree structure (by identity contract).
 	 */
-	private UUID treeType;
+	public static final String PARAMETER_TREE_TYPE = "treeTypeId";
 	/**
 	 * Identity first name - exact match.
 	 */
-	private String firstName;
+	public static final String PARAMETER_FIRSTNAME = "firstName";
 	/**
 	 * Identity last name - exact match.
 	 */
-	private String lastName;
+	public static final String PARAMETER_LASTNAME = "lastName";
+	/**
+	 * Identity projection.
+	 */
+	public static final String PARAMETER_FORM_PROJECTION = "formProjection";
 	
 	public IdmIdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -114,154 +113,127 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 	
 	public String getUsername() {
-		return (String) data.getFirst(PARAMETER_USERNAME);
+		return getParameterConverter().toString(getData(), PARAMETER_USERNAME);
 	}
 
 	public void setUsername(String username) {
-		data.set(PARAMETER_USERNAME, username);
+		set(PARAMETER_USERNAME, username);
 	}
 
 	public UUID getSubordinatesFor() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_FOR));
+		return getParameterConverter().toUuid(getData(), PARAMETER_SUBORDINATES_FOR);
 	}
 
 	public void setSubordinatesFor(UUID subordinatesFor) {
-		data.set(PARAMETER_SUBORDINATES_FOR, subordinatesFor);
+		set(PARAMETER_SUBORDINATES_FOR, subordinatesFor);
 	}
 
 	public UUID getSubordinatesByTreeType() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_SUBORDINATES_BY_TREE_TYPE));
+		return getParameterConverter().toUuid(getData(), PARAMETER_SUBORDINATES_BY_TREE_TYPE);
 	}
 
 	public void setSubordinatesByTreeType(UUID subordinatesByTreeType) {
-		data.set(PARAMETER_SUBORDINATES_BY_TREE_TYPE, subordinatesByTreeType);
+		set(PARAMETER_SUBORDINATES_BY_TREE_TYPE, subordinatesByTreeType);
 	}
 	
 	public void setManagersFor(UUID managersFor) {
-		data.set(PARAMETER_MANAGERS_FOR, managersFor);
+		set(PARAMETER_MANAGERS_FOR, managersFor);
 	}
 	
 	public UUID getManagersFor() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_FOR));
+		return getParameterConverter().toUuid(getData(), PARAMETER_MANAGERS_FOR);
 	}
 	
 	public void setManagersByTreeType(UUID managersByTreeType) {
-		data.set(PARAMETER_MANAGERS_BY_TREE_TYPE, managersByTreeType);
+		set(PARAMETER_MANAGERS_BY_TREE_TYPE, managersByTreeType);
 	}
 	
 	public UUID getManagersByTreeType() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_BY_TREE_TYPE));
+		return getParameterConverter().toUuid(getData(), PARAMETER_MANAGERS_BY_TREE_TYPE);
 	}
 	
 	public UUID getManagersByContract() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_MANAGERS_BY_CONTRACT));
+		return getParameterConverter().toUuid(getData(), PARAMETER_MANAGERS_BY_CONTRACT);
 	}
 	
 	public void setManagersByContract(UUID managersByContract) {
-		data.set(PARAMETER_MANAGERS_BY_CONTRACT, managersByContract);
+		set(PARAMETER_MANAGERS_BY_CONTRACT, managersByContract);
 	}
 	
 	public void setRoles(List<UUID> roles) {
-		this.roles = roles;
+		if (CollectionUtils.isEmpty(roles)) {
+    		data.remove(PARAMETER_ROLE);
+    	} else {
+    		data.put(PARAMETER_ROLE, new ArrayList<Object>(roles));
+    	}
 	}
 	
 	public List<UUID> getRoles() {
-		if (roles == null) {
-			roles = new ArrayList<>();
-		}
-		return roles;
-	}
-
-	@Override
-	public String getProperty() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_PROPERTY);
-	}
-
-	@Override
-	public void setProperty(String property) {
-		data.set(PARAMETER_CORRELATION_PROPERTY, property);
-	}
-
-	@Override
-	public String getValue() {
-		return (String) data.getFirst(PARAMETER_CORRELATION_VALUE);
-	}
-
-	@Override
-	public void setValue(String value) {
-		data.set(PARAMETER_CORRELATION_VALUE, value);
+		return getParameterConverter().toUuids(getData(), PARAMETER_ROLE);
 	}
 	
 	public UUID getTreeNode() {
-		return treeNode;
+		return getParameterConverter().toUuid(getData(), PARAMETER_TREE_NODE);
 	}
 	
 	public void setTreeNode(UUID treeNode) {
-		this.treeNode = treeNode;
+		set(PARAMETER_TREE_NODE, treeNode);
 	}
 	
 	public UUID getTreeType() {
-		return treeType;
+		return getParameterConverter().toUuid(getData(), PARAMETER_TREE_TYPE);
 	}
 	
 	public void setTreeType(UUID treeType) {
-		this.treeType = treeType;
+		set(PARAMETER_TREE_TYPE, treeType);
 	}
 	
 	public boolean isRecursively() {
-		return recursively;
+		return getParameterConverter().toBoolean(getData(), PARAMETER_RECURSIVELY, true);
 	}
 	
 	public void setRecursively(boolean recursively) {
-		this.recursively = recursively;
+		set(PARAMETER_RECURSIVELY, recursively);
 	}
 	
 	public boolean isIncludeGuarantees() {
-		return getParameterConverter().toBoolean(data, PARAMETER_INCLUDE_GUARANTEES, true);
+		return getParameterConverter().toBoolean(getData(), PARAMETER_INCLUDE_GUARANTEES, true);
 	}
 	
 	public void setIncludeGuarantees(boolean includeGuarantees) {
-		data.set(PARAMETER_INCLUDE_GUARANTEES, includeGuarantees);
-	}
-
-	public Boolean getDisabled() {
-		return getParameterConverter().toBoolean(data, PARAMETER_DISABLED);
-	}
-
-	public void setDisabled(Boolean disabled) {
-		data.set(PARAMETER_DISABLED, disabled);
+		set(PARAMETER_INCLUDE_GUARANTEES, includeGuarantees);
 	}
 
 	public String getFirstName() {
-		return firstName;
+		return getParameterConverter().toString(getData(), PARAMETER_FIRSTNAME);
 	}
 
 	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+		set(PARAMETER_FIRSTNAME, firstName);
 	}
 
 	public String getLastName() {
-		return lastName;
+		return getParameterConverter().toString(getData(), PARAMETER_LASTNAME);
 	}
 
 	public void setLastName(String lastName) {
-		this.lastName = lastName;
+		set(PARAMETER_LASTNAME, lastName);
 	}
 	
 	public void setState(IdentityState state) {
-		data.set(PARAMETER_STATE, state);
+		set(PARAMETER_STATE, state);
 	}
 	
 	public IdentityState getState() {
-		return (IdentityState) data.getFirst(PARAMETER_STATE);
+		return getParameterConverter().toEnum(getData(), PARAMETER_STATE, IdentityState.class);
 	}
 
 	public UUID getAutomaticRoleId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_AUTOMATIC_ROLE));
+		return getParameterConverter().toUuid(getData(), PARAMETER_AUTOMATIC_ROLE);
 	}
 
 	public void setAutomaticRoleId(UUID automaticRoleId) {
-		data.set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
+		set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
 	}
 	
 	public void setIdentifiers(List<String> identifiers) {
@@ -273,35 +245,25 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	}
 
 	public List<String> getIdentifiers() {
-		return getParameterConverter().toStrings(data, PARAMETER_IDENTIFIERS);
+		return getParameterConverter().toStrings(getData(), PARAMETER_IDENTIFIERS);
 	}
 
 	@Override
 	public String getExternalCode() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_CODE);
+		return getParameterConverter().toString(getData(), PROPERTY_EXTERNAL_CODE);
 	}
 
 	@Override
 	public void setExternalCode(String externalCode) {
-		data.set(PROPERTY_EXTERNAL_CODE, externalCode);
-	}
-	
-	@Override
-	public String getExternalId() {
-		return (String) data.getFirst(PROPERTY_EXTERNAL_ID);
-	}
-	
-	@Override
-	public void setExternalId(String externalId) {
-		data.set(PROPERTY_EXTERNAL_ID, externalId);
+		set(PROPERTY_EXTERNAL_CODE, externalCode);
 	}
 	
 	public UUID getGuaranteesForRole() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_GUARANTEES_FOR_ROLE));
+		return getParameterConverter().toUuid(getData(), PARAMETER_GUARANTEES_FOR_ROLE);
 	}
 	
 	public void setGuaranteesForRole(UUID guaranteesForRole) {
-		data.set(PARAMETER_GUARANTEES_FOR_ROLE, guaranteesForRole);
+		set(PARAMETER_GUARANTEES_FOR_ROLE, guaranteesForRole);
 	}
 	
 	/**
@@ -317,6 +279,26 @@ public class IdmIdentityFilter extends DataFilter implements CorrelationFilter, 
 	 * @param email
 	 */
 	public void setEmail(String email) {
-		data.set(PARAMETER_EMAIL, email);
+		set(PARAMETER_EMAIL, email);
+	}
+	
+	/**
+	 * Form projection (~identity type).
+	 * 
+	 * @return projection
+	 * @since 10.2.0
+	 */
+	public UUID getFormProjection() {
+		return getParameterConverter().toUuid(getData(), PARAMETER_FORM_PROJECTION);
+	}
+	
+	/**
+	 * Form projection (~identity type).
+	 * 
+	 * @param formProjection projection
+	 * @since 10.2.0
+	 */
+	public void setFormProjection(UUID formProjection) {
+		set(PARAMETER_FORM_PROJECTION, formProjection);
 	}
 }

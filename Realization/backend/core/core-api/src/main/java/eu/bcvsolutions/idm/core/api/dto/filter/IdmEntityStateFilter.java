@@ -1,105 +1,93 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter for entity state
+ * Filter for entity state.
  * 
  * @author Radek Tomiška
  *
  */
 public class IdmEntityStateFilter extends DataFilter {
 	
-	private String ownerType;
-	private UUID ownerId;
-	private UUID superOwnerId;
-	private UUID eventId;
-	private ZonedDateTime createdFrom;
-    private ZonedDateTime createdTill;
-    private String resultCode;
-    private List<OperationState> states;
+	public static final String PARAMETER_OWNER_TYPE = "ownerType";
+	public static final String PARAMETER_OWNER_ID = "ownerId";
+	public static final String PARAMETER_SUPER_OWNER_ID = "superOwnerId";
+	public static final String PARAMETER_EVENT_ID = "eventId";
+	public static final String PARAMETER_STATES = "states";
+	public static final String PARAMETER_RESULT_CODE = "resultCode";
 
 	public IdmEntityStateFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
 	
 	public IdmEntityStateFilter(MultiValueMap<String, Object> data) {
-		super(IdmEntityStateDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmEntityStateFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmEntityStateDto.class, data, parameterConverter);
 	}
 
 	public String getOwnerType() {
-		return ownerType;
+		return getParameterConverter().toString(getData(), PARAMETER_OWNER_TYPE);
 	}
 
 	public void setOwnerType(String ownerType) {
-		this.ownerType = ownerType;
+		set(PARAMETER_OWNER_TYPE, ownerType);
 	}
 
 	public UUID getOwnerId() {
-		return ownerId;
+		return getParameterConverter().toUuid(getData(), PARAMETER_OWNER_ID);
 	}
 
 	public void setOwnerId(UUID ownerId) {
-		this.ownerId = ownerId;
+		set(PARAMETER_OWNER_ID, ownerId);
 	}
 	
-	public UUID getEventId() {
-		return eventId;
-	}
-	
-	public void setEventId(UUID eventId) {
-		this.eventId = eventId;
-	}
-
-	public ZonedDateTime getCreatedFrom() {
-		return createdFrom;
-	}
-
-	public void setCreatedFrom(ZonedDateTime createdFrom) {
-		this.createdFrom = createdFrom;
-	}
-
-	public ZonedDateTime getCreatedTill() {
-		return createdTill;
-	}
-
-	public void setCreatedTill(ZonedDateTime createdTill) {
-		this.createdTill = createdTill;
-	}
-	
-	public UUID getSuperOwnerId() {
-		return superOwnerId;
-	}
-	
-	public void setSuperOwnerId(UUID superOwnerId) {
-		this.superOwnerId = superOwnerId;
-	}
-	
-	public void setResultCode(String resultCode) {
-		this.resultCode = resultCode;
-	}
-	
-	public String getResultCode() {
-		return resultCode;
-	}
-
 	public List<OperationState> getStates() {
-		if (states == null) {
-			states = new ArrayList<>();
-		}
-		return states;
+		return getParameterConverter().toEnums(getData(), PARAMETER_STATES, OperationState.class);
 	}
 	
 	public void setStates(List<OperationState> states) {
-		this.states = states;
+		if (CollectionUtils.isEmpty(states)) {
+    		data.remove(PARAMETER_STATES);
+    	} else {
+    		data.put(PARAMETER_STATES, new ArrayList<Object>(states));
+    	}
 	}
+	
+	public UUID getEventId() {
+		return getParameterConverter().toUuid(getData(), PARAMETER_EVENT_ID);
+	}
+	
+	public void setEventId(UUID eventId) {
+		set(PARAMETER_EVENT_ID, eventId);
+	}
+	
+	public UUID getSuperOwnerId() {
+		return getParameterConverter().toUuid(getData(), PARAMETER_SUPER_OWNER_ID);
+	}
+	
+	public void setSuperOwnerId(UUID superOwnerId) {
+		set(PARAMETER_SUPER_OWNER_ID, superOwnerId);
+	}
+	
+	public void setResultCode(String resultCode) {
+		set(PARAMETER_RESULT_CODE, resultCode);
+	}
+	
+	public String getResultCode() {
+		return getParameterConverter().toString(getData(), PARAMETER_RESULT_CODE);
+	}	
 }

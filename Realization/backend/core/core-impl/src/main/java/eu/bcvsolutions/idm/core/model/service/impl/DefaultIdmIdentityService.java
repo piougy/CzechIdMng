@@ -191,10 +191,6 @@ public class DefaultIdmIdentityService
 			predicates.add(builder.exists(subquery));
 		}
 		//
-		// disabled
-		if (filter.getDisabled() != null) {
-			predicates.add(builder.equal(root.get(IdmIdentity_.disabled), filter.getDisabled()));
-		}
 		// treeNode
 		if (filter.getTreeNode() != null) {
 			Subquery<IdmIdentityContract> subquery = query.subquery(IdmIdentityContract.class);

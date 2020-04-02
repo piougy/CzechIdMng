@@ -108,7 +108,7 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		roleSystemFilter.setSystemId(systemId);
 		List<SysRoleSystemDto> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 		if (roleSystems.isEmpty()) {
-			roleSystemService.export(UUID.fromString(ExportManager.BLANK_UUID), getBatch());
+			roleSystemService.export(ExportManager.BLANK_UUID, getBatch());
 		}
 		roleSystems.forEach(roleSystem -> {
 			roleSystemService.export(roleSystem.getId(), getBatch());
@@ -174,7 +174,7 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		syncConfigFilter.setSystemId(systemId);
 		List<AbstractSysSyncConfigDto> syncs = synchronizationConfigService.find(syncConfigFilter, null).getContent();
 		if (syncs.isEmpty()) {
-			synchronizationConfigService.export(UUID.fromString(ExportManager.BLANK_UUID), getBatch());
+			synchronizationConfigService.export(ExportManager.BLANK_UUID, getBatch());
 			// Set parent field -> set authoritative mode. If none sync exists, then default
 			// type will be used.
 			this.getExportManager().setAuthoritativeMode(SysSyncConfig_.systemMapping.getName(),
@@ -200,7 +200,7 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		systemMappingFilter.setSystemId(systemId);
 		List<SysSystemMappingDto> systemMappings = systemMappingService.find(systemMappingFilter, null).getContent();
 		if (systemMappings.isEmpty()) {
-			systemMappingService.export(UUID.fromString(ExportManager.BLANK_UUID), getBatch());
+			systemMappingService.export(ExportManager.BLANK_UUID, getBatch());
 		}
 		systemMappings.forEach(mapping -> {
 			systemMappingService.export(mapping.getId(), getBatch());
@@ -220,7 +220,7 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		objectClassFilter.setSystemId(systemId);
 		List<SysSchemaObjectClassDto> objectClasses = objectClassService.find(objectClassFilter, null).getContent();
 		if (objectClasses.isEmpty()) {
-			schemaObjectClassService.export(UUID.fromString(ExportManager.BLANK_UUID), getBatch());
+			schemaObjectClassService.export(ExportManager.BLANK_UUID, getBatch());
 		}
 		objectClasses.forEach(schema -> {
 			schemaObjectClassService.export(schema.getId(), getBatch());
@@ -241,7 +241,7 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		List<SysProvisioningBreakConfigDto> breakConfigs = provisioningBreakService
 				.find(provisioningBreakConfigFilter, null).getContent();
 		if (breakConfigs.isEmpty()) {
-			provisioningBreakService.export(UUID.fromString(ExportManager.BLANK_UUID), getBatch());
+			provisioningBreakService.export(ExportManager.BLANK_UUID, getBatch());
 		}
 		breakConfigs.forEach(breakConfig -> {
 			provisioningBreakService.export(breakConfig.getId(), getBatch());

@@ -65,8 +65,6 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 
 	private IdmExportImportDto batch = null;
 	private OperationResult itemException;
-	// Is here because this class is in API module (I don't see entity)
-	public static final String OWNER_TYPE = "eu.bcvsolutions.idm.core.model.entity.IdmExportImport";
 	// Name of export batch
 	public static final String PROPERTY_NAME = "name";
 	
@@ -127,7 +125,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 				attachment.setName(zipPath.toFile().getName());
 				attachment.setMimetype(ExportManager.APPLICATION_ZIP);
 				attachment.setInputData(inputStream);
-				attachment.setOwnerType(OWNER_TYPE);
+				attachment.setOwnerType(getLookupService().getOwnerType(IdmExportImportDto.class));
 
 				attachment = attachmentManager.saveAttachment(batch, attachment);
 				batch.setData(attachment.getId());

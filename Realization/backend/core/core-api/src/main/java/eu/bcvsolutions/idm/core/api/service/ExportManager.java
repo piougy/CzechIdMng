@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.service;
 
 import java.nio.file.Path;
 import java.util.Set;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
@@ -24,7 +25,7 @@ public interface ExportManager {
 	 * to ensure add all DTO types (in full deep) in correct order (even when no
 	 * child entity exists (no schema, no sync ...)).
 	 */
-	String BLANK_UUID = "00000000-0000-0000-0000-000000000000";
+	UUID BLANK_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
 	/**
 	 * Exports given DTO to the JSON file to a temp.

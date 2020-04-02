@@ -34,7 +34,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import eu.bcvsolutions.idm.core.api.bulk.action.AbstractExportBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -129,7 +128,7 @@ public class DefaultImportManager implements ImportManager {
 		attachment.setName(fileName);
 		attachment.setMimetype(ExportManager.APPLICATION_ZIP);
 		attachment.setInputData(inputStream);
-		attachment.setOwnerType(AbstractExportBulkAction.OWNER_TYPE);
+		attachment.setOwnerType(lookupService.getOwnerType(IdmExportImportDto.class));
 
 		attachment = attachmentManager.saveAttachment(batch, attachment);
 
@@ -215,12 +214,12 @@ public class DefaultImportManager implements ImportManager {
 					.setExportDescriptors(manifest.getExportOrder())//
 					.setDryRun(dryRun)//
 					.setBatch(batch)//
-					.setImportLRT(importTaskExecutor);
+					.setImportTaskExecutor(importTaskExecutor);
 
 			// Set count of all files in the batch (minus manifest)
 			long countOfFiles = countOfFiles(tempDirectory);
-			context.getImportLRT().setCounter(0L);
-			context.getImportLRT().setCount(countOfFiles - 1);
+			context.getImportTaskExecutor().setCounter(0L);
+			context.getImportTaskExecutor().setCount(countOfFiles - 1);
 
 			// Import new and update exist DTOs.
 			manifest.getExportOrder().forEach(descriptor -> {
@@ -279,8 +278,8 @@ public class DefaultImportManager implements ImportManager {
 			dtos.forEach(dto -> {
 
 				// Increase counter and update state of import LRT.
-				context.getImportLRT().increaseCounter();
-				context.getImportLRT().updateState();
+				context.getImportTaskExecutor().increaseCounter();
+				context.getImportTaskExecutor().updateState();
 
 				BaseDto parentDto = getParentDtoFromBatch(dto, context);
 				if (parentDto == null) {

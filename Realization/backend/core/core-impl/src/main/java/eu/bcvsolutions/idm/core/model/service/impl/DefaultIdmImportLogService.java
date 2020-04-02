@@ -118,7 +118,7 @@ public class DefaultIdmImportLogService extends
 		Boolean roots = filter.getRoots();
 		if (roots != null && roots) {
 			if (filter.getBatchId() == null) {
-				predicates.add(builder.equal(root.get(IdmImportLog_.batch).get(IdmExportImport_.id), UUID.fromString(ExportManager.BLANK_UUID)));
+				predicates.add(builder.equal(root.get(IdmImportLog_.batch).get(IdmExportImport_.id), ExportManager.BLANK_UUID));
 			}
 			predicates.add(builder.isNull(root.get(IdmImportLog_.parentId)));
 		}

@@ -41,8 +41,7 @@ export default class FilterButtons extends Basic.AbstractContextComponent {
       style,
       className,
       showIcon,
-      showText,
-      useFilter
+      showText
     } = this.props;
     //
     if (!rendered || showLoading) {

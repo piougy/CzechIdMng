@@ -6719,7 +6719,7 @@
     },
     "ATTACHMENT_SIZE_LIMIT_EXCEEDED": {
       "title": "Velikost přílohy překročila limit",
-      "message": "Limit pro velikost přílohy je [{{actualSize}}] bytů."
+      "message": "Limit pro velikost přílohy je [{{actualSize}}]."
     },
     "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
       "title": "Šablona nebyla nalezena",

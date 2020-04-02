@@ -6667,7 +6667,7 @@
     },
     "ATTACHMENT_SIZE_LIMIT_EXCEEDED": {
       "title": "Attachment size limit exceeded",
-      "message": "Attachment size limit is [{{actualSize}}] bytes."
+      "message": "Attachment size limit is [{{actualSize}}]."
     },
     "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
       "title": "Template not found",

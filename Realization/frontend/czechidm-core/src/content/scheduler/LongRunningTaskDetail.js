@@ -87,23 +87,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                     !entity.taskStarted
                     ||
                     <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.duration') }>
-                      <Basic.Tooltip
-                        ref="popover"
-                        placement="bottom"
-                        value={
-                          moment
-                            .utc(moment.duration(moment(entity.modified).diff(moment(entity.taskStarted))).asMilliseconds())
-                            .format(this.i18n('format.times'))
-                        }>
-                        <span>
-                          {
-                            moment
-                              .duration(moment(entity.taskStarted).diff(moment(entity.modified)))
-                              .locale(LocalizationService.getCurrentLanguage())
-                              .humanize()
-                          }
-                        </span>
-                      </Basic.Tooltip>
+                      <Basic.TimeDuration start={ entity.taskStarted } end={ entity.modified } humanForm/>
                     </Basic.LabelWrapper>
                   }
                 </Basic.Col>

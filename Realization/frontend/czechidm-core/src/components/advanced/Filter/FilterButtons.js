@@ -60,7 +60,7 @@ export default class FilterButtons extends Basic.AbstractContextComponent {
           text={ showText ? this.i18n('button.filter.cancel') : null }/>
         <Basic.Button
           level="primary"
-          type={ useFilter ? 'button' : 'submit' }
+          type="submit"
           onClick={ this._useFilter.bind(this) }
           icon={ showIcon ? 'fa:check' : null }
           title={ this.i18n('button.filter.use') }

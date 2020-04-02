@@ -565,7 +565,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                     return _.includes(selectedRows, data[rowIndex].id) ? selectRowClass : Utils.Ui.getDisabledRowClass(data[rowIndex]);
                   }}
                   filter={
-                    <Filter embedded>
+                    <Filter>
                       <Basic.AbstractForm ref="filterForm">
                         <Basic.Row className="last">
                           <Basic.Col lg={ 4 }>

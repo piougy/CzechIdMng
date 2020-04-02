@@ -83,7 +83,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_READ + "')")
 	@ApiOperation(
-			value = "Search reports (/search/quick alias)", 
+			value = "Search batchs (/search/quick alias)", 
 			nickname = "searchBatchs", 
 			tags = { IdmExportImportController.TAG }, 
 			authorizations = {
@@ -103,7 +103,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_READ + "')")
 	@ApiOperation(
-			value = "Search reports", 
+			value = "Search batchs", 
 			nickname = "searchQuickBatchs", 
 			tags = { IdmExportImportController.TAG }, 
 			authorizations = {
@@ -123,7 +123,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_AUTOCOMPLETE + "')")
 	@ApiOperation(
-			value = "Autocomplete reports (selectbox usage)", 
+			value = "Autocomplete batchs (selectbox usage)", 
 			nickname = "autocompleteBatchs", 
 			tags = { IdmExportImportController.TAG }, 
 			authorizations = { 
@@ -196,7 +196,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_DELETE + "')")
 	@ApiOperation(
-			value = "Delete report", 
+			value = "Delete batch", 
 			nickname = "deleteBatch", 
 			tags = { IdmExportImportController.TAG }, 
 			authorizations = { 

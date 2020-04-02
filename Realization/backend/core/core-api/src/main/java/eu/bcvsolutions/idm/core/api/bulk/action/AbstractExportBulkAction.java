@@ -53,7 +53,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 	@Autowired
 	private ExportManager exportManager;
 	@Autowired
-	private IdmExportImportService exportImportSerivce;
+	private IdmExportImportService exportImportService;
 	@Autowired
 	private AttachmentManager attachmentManager;
 	@Autowired
@@ -131,7 +131,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 
 				attachment = attachmentManager.saveAttachment(batch, attachment);
 				batch.setData(attachment.getId());
-				batch = exportImportSerivce.save(batch);
+				batch = exportImportService.save(batch);
 
 			} catch (IOException e) {
 				result = new OperationResult.Builder(OperationState.EXCEPTION)
@@ -229,7 +229,7 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 	}
 
 	protected IdmExportImportService getExportImportSerivce() {
-		return exportImportSerivce;
+		return exportImportService;
 	}
 
 	protected AttachmentManager getAttachmentManager() {
@@ -261,7 +261,8 @@ public abstract class AbstractExportBulkAction<DTO extends AbstractDto, F extend
 			batch.setExecutorName(this.getName());
 			batch.setLongRunningTask(getLongRunningTaskId());
 
-			batch = exportImportSerivce.save(batch, IdmBasePermission.CREATE);
+			batch = exportImportService.save(batch, IdmBasePermission.CREATE);
+
 		}
 	}
 

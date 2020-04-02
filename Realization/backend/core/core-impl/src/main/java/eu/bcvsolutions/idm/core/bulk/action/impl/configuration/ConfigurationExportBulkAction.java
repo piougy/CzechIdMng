@@ -34,6 +34,7 @@ public class ConfigurationExportBulkAction extends AbstractExportBulkAction<IdmC
 	@Override
 	protected void exportDto(IdmConfigurationDto dto) {
 		IdmConfigurationDto configurationDto = configurationService.get(dto.getId(), IdmBasePermission.READ);
+		
 		// Create new batch (if doesn't exist)
 		initBatch("Export of configurations");
 

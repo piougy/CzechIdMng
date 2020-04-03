@@ -119,7 +119,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
       const updateKey = ProvisioningOperationTypeEnum.findKeyBySymbol(ProvisioningOperationTypeEnum.UPDATE);
       const deleteKey = ProvisioningOperationTypeEnum.findKeyBySymbol(ProvisioningOperationTypeEnum.DELETE);
       return (
-        <div>
+        <Basic.Div>
           {
             !system.blockedOperation.createOperation
             ||
@@ -150,7 +150,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
                 value={ProvisioningOperationTypeEnum.getNiceLabel(deleteKey)}/>
             </span>
           }
-        </div>
+        </Basic.Div>
       );
     }
   }
@@ -160,7 +160,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
     const { filterOpened } = this.state;
 
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-duplicate" level="danger"/>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
@@ -178,7 +178,8 @@ export class SystemTable extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('acc:entity.System.name')}/>
+                      placeholder={ this.i18n('acc:entity.System.name') }
+                      help={ Advanced.Filter.getTextHelp() }/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
@@ -203,9 +204,9 @@ export class SystemTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink to="/system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
-          <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
-          <Advanced.Column property="queue" sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
+          <Advanced.ColumnLink to="/system/:id/detail" property="name" width="15%" sort face="text" rendered={ _.includes(columns, 'name') }/>
+          <Advanced.Column property="description" sort face="text" rendered={ _.includes(columns, 'description') }/>
+          <Advanced.Column property="queue" sort face="bool" width={ 75 } rendered={ _.includes(columns, 'queue') }/>
           <Advanced.Column
             property="state"
             header={ this.i18n('acc:entity.System.state.label')}
@@ -238,9 +239,9 @@ export class SystemTable extends Advanced.AbstractTableContent {
                 this._getBlockedOperations(data[rowIndex])
               );
             }}
-            rendered={_.includes(columns, 'blockedOperation')}/>
+            rendered={ _.includes(columns, 'blockedOperation') }/>
         </Advanced.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

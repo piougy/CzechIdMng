@@ -94,6 +94,8 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 		SysSystemDto system = exportConnectorConfig(systemId);
 		// Export pooling configuration (EAV)
 		exportPoolingConfig(system);
+		// Export operation options (EAV)		
+		exportOperationOption(system);
 		// Export role systems
 		exportRoleSystems(systemId);
 	}
@@ -139,6 +141,28 @@ public class SystemExportBulkAction extends AbstractExportBulkAction<SysSystemDt
 			}
 		}
 	}
+	
+	/**
+	 * Export Operation options
+	 * 
+	 * @param system
+	 */
+	private void exportOperationOption(SysSystemDto system) {
+		if (system.getConnectorInstance() != null && system.getConnectorKey() != null) {
+			IdmFormDefinitionDto operationOptions = systemService
+					.getOperationOptionsConnectorFormDefinition(system.getConnectorInstance());
+			if (operationOptions != null) {
+				formDefinitionService.export(operationOptions.getId(), getBatch());
+
+				IdmFormInstanceDto formInstance = this.getFormService().getFormInstance(system, operationOptions);
+				if (formInstance != null) {
+					formInstance.setId(formInstance.getFormDefinition().getId());
+					this.getFormService().export(formInstance, getBatch());
+				}
+			}
+		}
+	}
+	
 
 	/**
 	 * Export connector configuration

@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.acc.bulk.action.impl;
 
 import java.util.List;
+import java.util.Map;
 
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -283,6 +285,57 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		Assert.assertEquals(333, poolConfiguration.getMinIdle());
 		Assert.assertEquals(444, poolConfiguration.getMaxWait());
 		Assert.assertEquals(555, poolConfiguration.getMinEvictableIdleTimeMillis());
+	}
+	
+	@Test
+	public void testExportAndImportConnectorOperationOptions() {
+		final Integer testPageSizeVal = new Integer(123456);
+		final String testAttrsToGetVal = "testVAlue1";
+		SysSystemDto system = createSystem();
+
+		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
+		Assert.assertNotNull(connectorInstance);
+		IdmFormDefinitionDto formDefinition = systemService.getOperationOptionsConnectorFormDefinition(connectorInstance);
+		Assert.assertNotNull(formDefinition);
+		systemService.save(system);
+		
+		List<IdmFormValueDto> values = formService.getValues(system, formDefinition);
+		Assert.assertNotNull(values);
+		Assert.assertEquals(0, values.size());
+		values = Lists.newArrayList();
+		
+		IdmFormValueDto formValueDto = new IdmFormValueDto(
+				formService.getAttribute(formDefinition, OperationOptions.OP_PAGE_SIZE));
+		// Change value
+		formValueDto.setValue(testPageSizeVal);
+		values.add(formValueDto);
+		
+		formValueDto = new IdmFormValueDto(
+				formService.getAttribute(formDefinition, OperationOptions.OP_ATTRIBUTES_TO_GET));
+		// Change value
+		formValueDto.setValue(testAttrsToGetVal);
+		values.add(formValueDto);
+		
+		// Save all values
+		formService.saveValues(system, formDefinition, values);
+		
+		IcConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(system);
+		Assert.assertNotNull(connectorConfiguration);
+		Map<String, Object> optionMap  = connectorConfiguration.getSystemOperationOptions();
+		Assert.assertEquals(testPageSizeVal, (Integer)optionMap.get(OperationOptions.OP_PAGE_SIZE));
+		Assert.assertEquals(testAttrsToGetVal, (String)optionMap.get(OperationOptions.OP_ATTRIBUTES_TO_GET));
+		
+		// Make export, upload, delete system and import
+		executeExportAndImport(system);
+		
+		system = systemService.get(system.getId());
+		Assert.assertNotNull(system);
+		connectorConfiguration = systemService.getConnectorConfiguration(system);
+		Assert.assertNotNull(connectorConfiguration);
+		
+		optionMap  = connectorConfiguration.getSystemOperationOptions();
+		Assert.assertEquals(testPageSizeVal, (Integer)optionMap.get(OperationOptions.OP_PAGE_SIZE));
+		Assert.assertEquals(testAttrsToGetVal, (String)optionMap.get(OperationOptions.OP_ATTRIBUTES_TO_GET));
 	}
 
 	@Test

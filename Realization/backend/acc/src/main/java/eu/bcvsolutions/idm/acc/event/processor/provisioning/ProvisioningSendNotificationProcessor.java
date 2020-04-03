@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Vít Švanda
  */
-@Component
+@Component(ProvisioningSendNotificationProcessor.PROCESSOR_NAME)
 @Description("After success provisioning send notification to identity with new generate password.")
 public class ProvisioningSendNotificationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 	
@@ -109,9 +109,6 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 			return false;
 		}
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
-		if (provisioningOperation == null) {
-			return false;
-		} 
 		// Notification can be send only if provisioning operation ended successfully!
 		if (OperationState.EXECUTED != provisioningOperation.getResultState()) {
 			LOG.warn(

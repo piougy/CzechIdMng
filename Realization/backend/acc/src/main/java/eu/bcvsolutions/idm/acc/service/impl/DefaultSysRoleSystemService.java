@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
@@ -55,6 +56,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
@@ -77,6 +79,7 @@ public class DefaultSysRoleSystemService
 	@Autowired private SysSystemMappingService systemMappingService;
 	@Autowired private SysRoleSystemAttributeService roleSystemAttributeService;
 	@Autowired private IdmRoleCompositionService roleCompositionService;
+	@Autowired private LookupService lookupService;
 
 	@Autowired
 	public DefaultSysRoleSystemService(SysRoleSystemRepository repository) {
@@ -130,6 +133,15 @@ public class DefaultSysRoleSystemService
 		if (systemMappingDto != null && SystemEntityType.IDENTITY != systemMappingDto.getEntityType()) {
 			throw new ResultCodeException(AccResultCode.ROLE_SYSTEM_SUPPORTS_ONLY_IDENTITY,
 					ImmutableMap.of("entityType", systemMappingDto.getEntityType().name()));
+		}
+		
+		// Used System mapping has to belong to the System the role is assigned to
+		UUID systemUUID = dto.getSystem();
+		UUID systemMappingSystemUUID = ((SysSchemaObjectClassDto) lookupService.lookupEmbeddedDto(systemMappingDto,
+				SysSystemMapping_.objectClass)).getSystem();
+		if (!systemUUID.equals(systemMappingSystemUUID)) {
+			throw new ResultCodeException(AccResultCode.FOREIGN_SYSTEM_MAPPING_ASSIGNED,
+					ImmutableMap.of("systemUUID", systemUUID, "systemMappingSystemUUID", systemMappingSystemUUID));
 		}
 
 		SysRoleSystemFilter filter = new SysRoleSystemFilter();

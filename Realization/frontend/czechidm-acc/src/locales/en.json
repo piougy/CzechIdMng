@@ -2508,6 +2508,10 @@
       "title": "No role account found",
       "message": "No role account found for account id [{{account}}]."
     },
+    "FOREIGN_SYSTEM_MAPPING_ASSIGNED": {
+      "title": "Wrong system mapping used",
+      "message": "Attempt to use system mapping belonging to system [{{systemMappingSystemUUID}}] with system [{{systemUUID}}]."
+    },
     "ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> contains  <strong class=\"highlight\">{{count}}</strong> user relationships",
       "title": ""

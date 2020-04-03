@@ -2510,6 +2510,10 @@
       "title": "'Role account' nenalezen",
       "message": "'Role account' nenalezen pro id účtu [{{account}}]."
     },
+    "FOREIGN_SYSTEM_MAPPING_ASSIGNED": {
+      "title": "Použito chybné mapování systému",
+      "message": "Chybné použití mapování systému patřící systému [{{systemMappingSystemUUID}}] se systémem [{{systemUUID}}]."
+    },
     "ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> obsahuje  <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele.",
       "title": ""

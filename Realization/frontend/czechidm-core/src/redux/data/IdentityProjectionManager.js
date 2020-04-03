@@ -39,7 +39,7 @@ export default class IdentityProjectionManager extends IdentityManager {
     if (!projection || Utils.Entity.isNew(projection.identity)) {
       return SecurityManager.hasAuthority(`${ this.getGroupPermission() }_CREATE`);
     }
-    return Utils.Permission.hasPermission(projection._permissions, 'UPDATE');
+    return Utils.Permission.hasPermission(projection.identity._permissions, 'UPDATE');
   }
 
   /**

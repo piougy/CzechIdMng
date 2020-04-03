@@ -166,7 +166,6 @@ IdentityAttributeEnum.TITLE_AFTER = Symbol('TITLE_AFTER');
 IdentityAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
 IdentityAttributeEnum.STATE = Symbol('STATE');
 IdentityAttributeEnum.PASSWORD = Symbol('PASSWORD');
-IdentityAttributeEnum.FORM_PROJECTION = Symbol('FORM_PROJECTION');
 
 /**
 * Form projection detail.

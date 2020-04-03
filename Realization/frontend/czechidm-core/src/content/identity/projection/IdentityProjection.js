@@ -127,6 +127,7 @@ class IdentityProjection extends Basic.AbstractContent {
       //
       _identityProjection = {
         ...identityProjection.identity,
+        identity: identityProjection.identity,
         email: identityProjection.identity.email || '',
         contract: identityProjection.contract,
         validFrom,
@@ -479,6 +480,9 @@ class IdentityProjection extends Basic.AbstractContent {
       showContract = identityContractManager.canRead(identityProjection ? identityProjection.contract : {});
     }
     //
+    // TODO: form can be saved, if logged user can update identity, can be improved in future
+    const readOnly = !identityProjectionManager.canSave(isNew ? null : identityProjection);
+    //
     return (
       <Basic.Div>
         <Helmet title={ isNew ? this.i18n('create.title') : this.i18n('edit.title') } />
@@ -526,14 +530,16 @@ class IdentityProjection extends Basic.AbstractContent {
                   <Basic.AbstractForm
                     ref="form"
                     data={ identityProjection }
-                    readOnly={ !identityProjectionManager.canSave(isNew ? null : identityProjection) }
+                    readOnly={ readOnly }
                     style={{ padding: 0 }}>
 
                     <Basic.TextField
                       ref="username"
                       label={ this.i18n('identity.username.label') }
                       max={ 255 }
-                      rendered={ this._isRendered(formProjection, 'username') }/>
+                      rendered={ this._isRendered(formProjection, 'username') }
+                      readOnly={ readOnly }
+                      required={ !isNew && this._isRendered(formProjection, 'username') }/>
 
                     <Basic.Row>
                       <Basic.Col
@@ -542,7 +548,8 @@ class IdentityProjection extends Basic.AbstractContent {
                         <Basic.TextField
                           ref="firstName"
                           label={ this.i18n('content.identity.profile.firstName') }
-                          max={ 255 } />
+                          max={ 255 }
+                          readOnly={ readOnly }/>
                       </Basic.Col>
                       <Basic.Col
                         lg={ this._isRendered(formProjection, 'firstName') ? 6 : 12 }
@@ -550,7 +557,8 @@ class IdentityProjection extends Basic.AbstractContent {
                         <Basic.TextField
                           ref="lastName"
                           label={ this.i18n('content.identity.profile.lastName') }
-                          max={ 255 } />
+                          max={ 255 }
+                          readOnly={ readOnly }/>
                       </Basic.Col>
                     </Basic.Row>
 
@@ -558,7 +566,8 @@ class IdentityProjection extends Basic.AbstractContent {
                       ref="externalCode"
                       label={ this.i18n('content.identity.profile.externalCode') }
                       rendered={ this._isRendered(formProjection, 'externalCode') }
-                      max={ 255 }/>
+                      max={ 255 }
+                      readOnly={ readOnly }/>
 
                     <Basic.Row>
                       <Basic.Col
@@ -567,7 +576,8 @@ class IdentityProjection extends Basic.AbstractContent {
                         <Basic.TextField
                           ref="titleBefore"
                           label={ this.i18n('entity.Identity.titleBefore') }
-                          max={ 100 }/>
+                          max={ 100 }
+                          readOnly={ readOnly }/>
                       </Basic.Col>
                       <Basic.Col
                         lg={ this._isRendered(formProjection, 'titleBefore') ? 6 : 12 }
@@ -575,7 +585,8 @@ class IdentityProjection extends Basic.AbstractContent {
                         <Basic.TextField
                           ref="titleAfter"
                           label={ this.i18n('entity.Identity.titleAfter') }
-                          max={ 100 }/>
+                          max={ 100 }
+                          readOnly={ readOnly }/>
                       </Basic.Col>
                     </Basic.Row>
 
@@ -587,7 +598,8 @@ class IdentityProjection extends Basic.AbstractContent {
                           ref="email"
                           label={ this.i18n('content.identity.profile.email.label') }
                           placeholder={ this.i18n('content.identity.profile.email.placeholder') }
-                          validation={ Joi.string().email() }/>
+                          validation={ Joi.string().email() }
+                          readOnly={ readOnly }/>
                       </Basic.Col>
                       <Basic.Col
                         lg={ this._isRendered(formProjection, 'email') ? 6 : 12 }
@@ -596,7 +608,8 @@ class IdentityProjection extends Basic.AbstractContent {
                           ref="phone"
                           label={ this.i18n('content.identity.profile.phone.label') }
                           placeholder={ this.i18n('content.identity.profile.phone.placeholder') }
-                          max={ 30 }/>
+                          max={ 30 }
+                          readOnly={ readOnly }/>
                       </Basic.Col>
                     </Basic.Row>
 
@@ -607,14 +620,14 @@ class IdentityProjection extends Basic.AbstractContent {
                             mode="date"
                             ref="validFrom"
                             label={ this.i18n('contract.validFrom.label') }
-                            readOnly={ !identityContractManager.canSave(identityProjection ? identityProjection.contract : {}) }/>
+                            readOnly={ readOnly || !identityContractManager.canSave(identityProjection ? identityProjection.contract : {}) }/>
                         </Basic.Col>
                         <Basic.Col lg={ 6 }>
                           <Basic.DateTimePicker
                             mode="date"
                             ref="validTill"
                             label={ this.i18n('contract.validTill.label') }
-                            readOnly={ !identityContractManager.canSave(identityProjection ? identityProjection.contract : {}) }/>
+                            readOnly={ readOnly || !identityContractManager.canSave(identityProjection ? identityProjection.contract : {}) }/>
                         </Basic.Col>
                       </Basic.Row>
 
@@ -624,7 +637,7 @@ class IdentityProjection extends Basic.AbstractContent {
                         header={ this.i18n('contract.workPosition.label') }
                         treeNodeLabel={ this.i18n('contract.workPosition.label') }
                         useFirstType
-                        readOnly={ !identityContractManager.canSave(identityProjection ? identityProjection.contract : {}) }/>
+                        readOnly={ readOnly || !identityContractManager.canSave(identityProjection ? identityProjection.contract : {}) }/>
                     </Basic.Div>
 
                     <Basic.Div rendered={
@@ -645,6 +658,8 @@ class IdentityProjection extends Basic.AbstractContent {
                         treeNodeLabel={ this.i18n('otherPosition.workPosition.label') }
                         useFirstType
                         readOnly={
+                          readOnly
+                          ||
                           !contractPositionManager.canSave(identityProjection ? identityProjection.otherPosition : {})
                           ||
                           (identityProjection && !identityProjection.contract && !identityContractManager.canSave({}))
@@ -659,6 +674,7 @@ class IdentityProjection extends Basic.AbstractContent {
                         contentKey="content.identity.eav"
                         showSaveButton
                         showAttributesOnly
+                        readOnly={ readOnly }
                         showDefinitions={ attributes }
                         entityId={ isNew ? null : entityId }
                         formInstances={ isNew ? null : identityProjection._eav } />
@@ -673,6 +689,7 @@ class IdentityProjection extends Basic.AbstractContent {
                         contentKey="content.identity-contract.eav"
                         showSaveButton
                         showAttributesOnly
+                        readOnly={ readOnly }
                         showDefinitions={ attributes }
                         entityId={ isNew ? null : identityProjection.contract.id }
                         formInstances={ isNew ? null : identityProjection.contractEav } />
@@ -684,7 +701,8 @@ class IdentityProjection extends Basic.AbstractContent {
                       placeholder={ this.i18n('content.identity.profile.description.placeholder') }
                       rows={ 4 }
                       max={ 1000 }
-                      rendered={ this._isRendered(formProjection, 'description') }/>
+                      rendered={ this._isRendered(formProjection, 'description') }
+                      readOnly={ readOnly }/>
 
                     <Basic.EnumSelectBox
                       ref="state"
@@ -802,7 +820,7 @@ class IdentityProjection extends Basic.AbstractContent {
                     showLoading={ showLoading }
                     showLoadingIcon
                     showLoadingText={ this.i18n('button.saving') }
-                    rendered={ identityProjectionManager.canSave(isNew ? null : identityProjection) }>
+                    rendered={ !readOnly }>
                     { this.i18n('button.save') }
                   </Basic.Button>
                 </Basic.PanelFooter>

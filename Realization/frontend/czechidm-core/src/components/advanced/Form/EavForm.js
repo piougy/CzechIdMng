@@ -138,7 +138,11 @@ export default class EavForm extends Basic.AbstractContextComponent {
     }
     if (formInstance.getAttributes().size === 0) {
       return (
-        <Basic.Alert level="info" text={ this.i18n('attributes.empty') } className="no-margin"/>
+        <Basic.Alert
+          level="info"
+          text={ this.i18n('attributes.empty') }
+          className="no-margin"
+          rendered={ !showAttributes }/>
       );
     }
 

@@ -81,7 +81,8 @@ class ExampleIdentityProjection extends Basic.AbstractContent {
       }
       //
       _identityProjection = {
-        ...identityProjection.identity
+        ...identityProjection.identity,
+        identity: identityProjection.identity
       };
     } else {
       // new projection
@@ -219,7 +220,9 @@ class ExampleIdentityProjection extends Basic.AbstractContent {
                     <Basic.TextField
                       ref="username"
                       label={ this.i18n('identity.username.label') }
-                      max={ 255 }/>
+                      max={ 255 }
+                      readOnly={ !identityProjectionManager.canSave(isNew ? null : identityProjection) }
+                      required={ !isNew }/>
 
                   </Basic.AbstractForm>
                 </Basic.PanelBody>

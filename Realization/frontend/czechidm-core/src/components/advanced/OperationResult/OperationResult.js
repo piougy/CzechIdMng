@@ -128,10 +128,10 @@ export default class OperationResult extends Basic.AbstractContextComponent {
     const message = this.getFlashManager().convertFromResultModel(value.model);
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.ContentHeader text={ header === null ? this.i18n('result.header') : header }/>
 
-        <div style={{ marginBottom: 15 }}>
+        <Basic.Div style={{ marginBottom: 15 }}>
           <Basic.Div style={{ float: 'left' }}>
             <Basic.EnumValue
               level={ message ? message.level : null }
@@ -150,21 +150,21 @@ export default class OperationResult extends Basic.AbstractContextComponent {
           <Basic.FlashMessage message={ message } style={{ margin: '15px 0 0 0' }}/>
           <OperationResultDownloadButton
             style={{ marginTop: '15px' }}
-            downloadLinkPrefix={downloadLinkPrefix}
-            downloadLinkSuffix={downloadLinkSuffix}
-            operationResult={value}/>
-        </div>
+            downloadLinkPrefix={ downloadLinkPrefix }
+            downloadLinkSuffix={ downloadLinkSuffix }
+            operationResult={ value }/>
+        </Basic.Div>
         {
           (!value || !value.stackTrace)
           ||
-          <div>
+          <Basic.Div>
             <Basic.TextArea
               rows="10"
               value={value.stackTrace}
               readOnly/>
-          </div>
+          </Basic.Div>
         }
-      </div>
+      </Basic.Div>
     );
   }
 
@@ -208,8 +208,6 @@ OperationResult.propTypes = {
   stateLabel: PropTypes.string,
   /**
    * link to detail
-   *
-   * @type {[type]}
    */
   detailLink: PropTypes.oneOfType([
     PropTypes.string,
@@ -217,22 +215,17 @@ OperationResult.propTypes = {
   ]),
   /**
    * Header text
-   * @type {[type]}
    */
   header: PropTypes.string,
   /**
    * Download link prefix for specific download url.
    * When is download link prefix null classic download url from attachment controller
    * will be used. Eq.: /attachments/{$attachmentId}/download
-   *
-   * @type {String}
    */
   downloadLinkPrefix: PropTypes.string,
   /**
    * Download link prefix for specific download url. Suffix can be used only with
    * prefix. Cant be used itself.
-   *
-   * @type {String}
    */
   downloadLinkSuffix: PropTypes.string
 };

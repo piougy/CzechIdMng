@@ -78,14 +78,14 @@ public class DefaultIdmPasswordPolicyService
 	private static final String PASSWORD_SIMILAR_LASTNAME = "passwordSimilarLastName";
 	private static final String PASSWORD_SIMILAR_TITLESAFTER = "passwordSimilarTitlesAfter";
 	private static final String PASSWORD_SIMILAR_TITLESBEFORE = "passwordSimilarTitlesBefore";
-	private static final String PASSWORD_SIMILAR_PERSONALNUM = "passwordSimilarPersonalNum";
+	private static final String PASSWORD_SIMILAR_EXTERNALCODE = "passwordSimilarExternalCode";
 	private static final String PASSWORD_SIMILAR_USERNAME_PREVALIDATE = "passwordSimilarUsernamePreValidate";
 	private static final String PASSWORD_SIMILAR_EMAIL_PREVALIDATE = "passwordSimilarEmailPreValidate";
 	private static final String PASSWORD_SIMILAR_FIRSTNAME_PREVALIDATE = "passwordSimilarFirstNamePreValidate";
 	private static final String PASSWORD_SIMILAR_LASTNAME_PREVALIDATE = "passwordSimilarLastNamePreValidate";
 	private static final String PASSWORD_SIMILAR_TITLESAFTER_PREVALIDATE = "passwordSimilarTitlesAfterPreValidate";
 	private static final String PASSWORD_SIMILAR_TITLESBEFORE_PREVALIDATE = "passwordSimilarTitlesBeforePreValidate";
-	private static final String PASSWORD_SIMILAR_PERSONALNUM_PREVALIDATE = "passwordSimilarPersonalNumPreValidate";
+	private static final String PASSWORD_SIMILAR_EXTERNALCODE_PREVALIDATE = "passwordSimilarExternalCodePreValidate";
 	private static final String POLICY_NAME_PREVALIDATION = "policiesNamesPreValidation";
 	private static final String SPECIAL_CHARACTER_BASE = "specialCharacterBase";
 	private static final String FORBIDDEN_CHARACTER_BASE = "forbiddenCharacterBase";
@@ -533,8 +533,8 @@ public class DefaultIdmPasswordPolicyService
 					errors.put(PASSWORD_SIMILAR_TITLESBEFORE_PREVALIDATE, "");
 				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.TITLESAFTER.name())) {
 					errors.put(PASSWORD_SIMILAR_TITLESAFTER_PREVALIDATE, "");
-				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.PERSONALNUM.name())) {
-					errors.put(PASSWORD_SIMILAR_PERSONALNUM_PREVALIDATE, "");
+				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EXTERNALCODE.name())) {
+					errors.put(PASSWORD_SIMILAR_EXTERNALCODE_PREVALIDATE, "");
 				}
 			}
 		}
@@ -581,9 +581,9 @@ public class DefaultIdmPasswordPolicyService
 					value = identity.getUsername();
 					controlledValue = PASSWORD_SIMILAR_USERNAME;
 					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
-				} else if (IdmPasswordPolicyIdentityAttributes.PERSONALNUM.name().equals(attributeToCheck)) {
+				} else if (IdmPasswordPolicyIdentityAttributes.EXTERNALCODE.name().equals(attributeToCheck)) {
 					value = identity.getExternalCode();
-					controlledValue = PASSWORD_SIMILAR_PERSONALNUM;
+					controlledValue = PASSWORD_SIMILAR_EXTERNALCODE;
 					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
 				} else if (IdmPasswordPolicyIdentityAttributes.TITLESBEFORE.name().equals(attributeToCheck)) {
 					value = identity.getTitleBefore();

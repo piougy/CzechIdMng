@@ -759,7 +759,7 @@
       "EMAIL": "E-mail",
       "TITLESBEFORE": "Titles before",
       "TITLESAFTER": "Titles after",
-      "PERSONALNUM": "Personal number"
+      "EXTERNALCODE": "Personal number"
     },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
@@ -1288,7 +1288,7 @@
         "passwordSimilarLastName": "Password cannot be similar to surname: {{0}}",
         "passwordSimilarTitlesBefore": "Password cannot be similar to title: {{0}}",
         "passwordSimilarTitlesAfter": "Password cannot be similar to title: {{0}}",
-        "passwordSimilarPersonalNum": "Password cannot be similar to personal number: {{0}}",
+        "passwordSimilarExternalCode": "Password cannot be similar to personal number: {{0}}",
         "date": "Password can not be change now, try again: {{0}}",
         "advancedControlValidateType": "Enhanced control is available only for validate policies.",
         "specialCharacterBase":{
@@ -1305,7 +1305,7 @@
         "passwordSimilarLastNamePreValidate": "surname",
         "passwordSimilarTitlesBeforePreValidate": "title before name",
         "passwordSimilarTitlesAfterPreValidate": "title after name",
-        "passwordSimilarPersonalNumPreValidate": "personal number",
+        "passwordSimilarExternalCodePreValidate": "personal number",
         "passwordSimilarPreValidate": "Password cannot be similar to",
         "passwordHintPreValidate": "Hint for a ",
         "passwordHintPreValidatePwd": "new password",

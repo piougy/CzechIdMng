@@ -15,5 +15,5 @@ public enum IdmPasswordPolicyIdentityAttributes {
 	EMAIL,
 	TITLESBEFORE,
 	TITLESAFTER,
-	PERSONALNUM;
+	EXTERNALCODE;
 }

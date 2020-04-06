@@ -1433,7 +1433,7 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
 		policy.setType(IdmPasswordPolicyType.VALIDATE);
 		policy.setEnchancedControl(true);
-		policy.setIdentityAttributeCheck(IdmPasswordPolicyIdentityAttributes.PERSONALNUM.name());
+		policy.setIdentityAttributeCheck(IdmPasswordPolicyIdentityAttributes.EXTERNALCODE.name());
 
 		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
 		validation.setIdentity(identity);

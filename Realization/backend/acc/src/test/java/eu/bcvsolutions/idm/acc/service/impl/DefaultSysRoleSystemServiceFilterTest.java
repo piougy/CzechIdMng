@@ -73,10 +73,12 @@ public class DefaultSysRoleSystemServiceFilterTest extends AbstractIntegrationTe
 		SysSystemDto system1 = helper.createTestResourceSystem(true);
 		SysSystemDto system2 = helper.createTestResourceSystem(true);
 		//
-		SysSystemMappingDto sysSystemMappingDto = mappingService
+		SysSystemMappingDto sysSystemMapping1Dto = mappingService
 				.findBySystemId(system1.getId(), SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
-		createRoleSystem(role1.getId(), system1.getId(), sysSystemMappingDto.getId());
-		SysRoleSystemDto roleSystem2 = createRoleSystem(role2.getId(), system2.getId(), sysSystemMappingDto.getId());
+		SysSystemMappingDto sysSystemMapping2Dto = mappingService
+				.findBySystemId(system2.getId(), SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
+		createRoleSystem(role1.getId(), system1.getId(), sysSystemMapping1Dto.getId());
+		SysRoleSystemDto roleSystem2 = createRoleSystem(role2.getId(), system2.getId(), sysSystemMapping2Dto.getId());
 		//
 		SysRoleSystemFilter roleFilter = new SysRoleSystemFilter();
 		roleFilter.setSystemId(system2.getId());
@@ -98,7 +100,7 @@ public class DefaultSysRoleSystemServiceFilterTest extends AbstractIntegrationTe
 		SysSystemMappingDto sysSystemMappingDto2 = mappingService
 				.findBySystemId(system2.getId(), SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY).get(0);
 		SysRoleSystemDto roleSystem1 = createRoleSystem(role1.getId(), system1.getId(), sysSystemMappingDto1.getId());
-		createRoleSystem(role2.getId(), system1.getId(), sysSystemMappingDto2.getId());
+		createRoleSystem(role2.getId(), system2.getId(), sysSystemMappingDto2.getId());
 		//
 		SysRoleSystemFilter roleFilter = new SysRoleSystemFilter();
 		roleFilter.setSystemMappingId(sysSystemMappingDto1.getId());

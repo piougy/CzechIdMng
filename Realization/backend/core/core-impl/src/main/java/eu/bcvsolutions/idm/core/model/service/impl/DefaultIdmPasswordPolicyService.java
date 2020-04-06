@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * validation and generate method.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Husnik
  *
  */
 public class DefaultIdmPasswordPolicyService
@@ -75,14 +76,22 @@ public class DefaultIdmPasswordPolicyService
 	private static final String PASSWORD_SIMILAR_EMAIL = "passwordSimilarEmail";
 	private static final String PASSWORD_SIMILAR_FIRSTNAME = "passwordSimilarFirstName";
 	private static final String PASSWORD_SIMILAR_LASTNAME = "passwordSimilarLastName";
+	private static final String PASSWORD_SIMILAR_TITLESAFTER = "passwordSimilarTitlesAfter";
+	private static final String PASSWORD_SIMILAR_TITLESBEFORE = "passwordSimilarTitlesBefore";
+	private static final String PASSWORD_SIMILAR_PERSONALNUM = "passwordSimilarPersonalNum";
 	private static final String PASSWORD_SIMILAR_USERNAME_PREVALIDATE = "passwordSimilarUsernamePreValidate";
 	private static final String PASSWORD_SIMILAR_EMAIL_PREVALIDATE = "passwordSimilarEmailPreValidate";
 	private static final String PASSWORD_SIMILAR_FIRSTNAME_PREVALIDATE = "passwordSimilarFirstNamePreValidate";
 	private static final String PASSWORD_SIMILAR_LASTNAME_PREVALIDATE = "passwordSimilarLastNamePreValidate";
+	private static final String PASSWORD_SIMILAR_TITLESAFTER_PREVALIDATE = "passwordSimilarTitlesAfterPreValidate";
+	private static final String PASSWORD_SIMILAR_TITLESBEFORE_PREVALIDATE = "passwordSimilarTitlesBeforePreValidate";
+	private static final String PASSWORD_SIMILAR_PERSONALNUM_PREVALIDATE = "passwordSimilarPersonalNumPreValidate";
 	private static final String POLICY_NAME_PREVALIDATION = "policiesNamesPreValidation";
 	private static final String SPECIAL_CHARACTER_BASE = "specialCharacterBase";
 	private static final String FORBIDDEN_CHARACTER_BASE = "forbiddenCharacterBase";
 	private static final String MAX_HISTORY_SIMILAR = "maxHistorySimilar";
+	private final int MIN_CONSIDERED_ATTR_LEN = 3;
+	private final String DELIMITER_SET_REGEXP = ",\\.\\-—_£\\s";
 	
 	private PasswordGenerator passwordGenerator;
 	private final IdmPasswordPolicyRepository repository;
@@ -520,6 +529,12 @@ public class DefaultIdmPasswordPolicyService
 					errors.put(PASSWORD_SIMILAR_LASTNAME_PREVALIDATE, "");
 				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.USERNAME.name())) {
 					errors.put(PASSWORD_SIMILAR_USERNAME_PREVALIDATE, "");
+				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.TITLESBEFORE.name())) {
+					errors.put(PASSWORD_SIMILAR_TITLESBEFORE_PREVALIDATE, "");
+				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.TITLESAFTER.name())) {
+					errors.put(PASSWORD_SIMILAR_TITLESAFTER_PREVALIDATE, "");
+				} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.PERSONALNUM.name())) {
+					errors.put(PASSWORD_SIMILAR_PERSONALNUM_PREVALIDATE, "");
 				}
 			}
 		}
@@ -541,52 +556,143 @@ public class DefaultIdmPasswordPolicyService
 		if (passwordPolicy.isEnchancedControl()) {
 			String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
 			String passwordWithAccents = password.toLowerCase();
-			String passwordWithoutAccents = StringUtils.stripAccents(passwordWithAccents);
-
 			IdmIdentityDto identity = passwordValidationDto.getIdentity();
+
 			for (int index = 0; index < attributes.length; index++) {
 
 				String attributeToCheck = attributes[index];
 				String value = null;
-				String transformedValueWithAccents = null;
-				String transformedValueWithoutAccents = null;
 				String controlledValue = null;
+				boolean containsSubstring = false;
 
 				if (IdmPasswordPolicyIdentityAttributes.EMAIL.name().equals(attributeToCheck)) {
 					value = identity.getEmail();
 					controlledValue = PASSWORD_SIMILAR_EMAIL;
+					containsSubstring = containsEmailSubstring(passwordWithAccents, value);
 				} else if (IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name().equals(attributeToCheck)) {
 					value = identity.getFirstName();
 					controlledValue = PASSWORD_SIMILAR_FIRSTNAME;
+					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
 				} else if (IdmPasswordPolicyIdentityAttributes.LASTNAME.name().equals(attributeToCheck)) {
-					value = identity.getLastName(); 
+					value = identity.getLastName();
 					controlledValue = PASSWORD_SIMILAR_LASTNAME;
+					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
 				} else if (IdmPasswordPolicyIdentityAttributes.USERNAME.name().equals(attributeToCheck)) {
 					value = identity.getUsername();
 					controlledValue = PASSWORD_SIMILAR_USERNAME;
-				}
-				
-				value = StringUtils.trimToNull(value);
-				if (StringUtils.isEmpty(value)) {
-					continue;
+					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
+				} else if (IdmPasswordPolicyIdentityAttributes.PERSONALNUM.name().equals(attributeToCheck)) {
+					value = identity.getExternalCode();
+					controlledValue = PASSWORD_SIMILAR_PERSONALNUM;
+					containsSubstring = containsGeneralSubstring(passwordWithAccents, value);
+				} else if (IdmPasswordPolicyIdentityAttributes.TITLESBEFORE.name().equals(attributeToCheck)) {
+					value = identity.getTitleBefore();
+					controlledValue = PASSWORD_SIMILAR_TITLESBEFORE;
+					containsSubstring = containsTitleSubstring(passwordWithAccents, value);
+				} else if (IdmPasswordPolicyIdentityAttributes.TITLESAFTER.name().equals(attributeToCheck)) {
+					value = identity.getTitleAfter();
+					controlledValue = PASSWORD_SIMILAR_TITLESAFTER;
+					containsSubstring = containsTitleSubstring(passwordWithAccents, value);
 				}
 
-				transformedValueWithAccents = StringUtils.lowerCase(value);
-				transformedValueWithoutAccents = StringUtils.stripAccents(transformedValueWithAccents);
-				
-				boolean contains = StringUtils.contains(passwordWithAccents, transformedValueWithAccents);
-				if (contains) {
-					errors.put(controlledValue, value);
-					continue;
-				}
-				contains = StringUtils.contains(passwordWithoutAccents, transformedValueWithoutAccents);
-				if (contains) {
-					errors.put(controlledValue, value);
-					continue;
+				if (containsSubstring) {
+					errors.put(controlledValue, StringUtils.trim(value));
+					containsSubstring = false;
 				}
 			}
 		}
 		return errors;
+	}
+	
+	/**
+	 *  Method splits checkedStr argument to individual substrings and then tests
+	 *  whether they are contained in the password. If found, true is returned otherwise false.
+	 *  Only substrings longer than MIN_CONSIDERED_ATTR_LEN are considered.
+	 * 
+	 * @param password
+	 * @param checkedStr
+	 * @param delimiterSetRegExp
+	 * @return
+	 */
+	private boolean findSubstringsByDelimiter(String password, String checkedStr, String delimiterSetRegExp) {
+		if (password == null || checkedStr == null) {
+			return false;
+		}
+
+		String splitted[] = checkedStr.split("[" + delimiterSetRegExp + "]+");
+		for (int i = 0; i < splitted.length; ++i) {
+			if (splitted[i].length() < MIN_CONSIDERED_ATTR_LEN) {
+				continue;
+			}
+			if (password.contains(splitted[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * This methods checks presence of title string in the password.
+	 * Needs special treating not to split titles according 'period' sign.
+	 * Some of them would fall apart. ex. 'Ph.D.' -> 'Ph' and 'D' instead of required 'PhD'
+	 * 
+	 * @param passwod
+	 * @param checkedStr
+	 * @return
+	 */
+	private boolean containsTitleSubstring(String passwod, String checkedStr) {
+		if (checkedStr == null) {
+			return false;
+		}
+		String checkStringNoPeriod = checkedStr.replace(".", "");
+		return containsGeneralSubstring(passwod, checkStringNoPeriod);
+	}
+	
+	/**
+	 * This method is specialization for searching of the email contained in password.
+	 * Email is searched as a whole.
+	 * 
+	 * @param password
+	 * @param checkedStr
+	 * @return
+	 */
+	public boolean containsEmailSubstring(String password, String checkedStr) {
+		checkedStr = StringUtils.trimToNull(checkedStr);
+		if (StringUtils.isEmpty(checkedStr)) {
+			return false;
+		}
+		String transformedValueWithAccents = StringUtils.lowerCase(checkedStr);
+		boolean contains = password.contains(transformedValueWithAccents);
+		if (!contains) {
+			String passwordWithoutAccents = StringUtils.stripAccents(password);
+			String transformedValueWithoutAccents = StringUtils.stripAccents(transformedValueWithAccents);
+			contains = passwordWithoutAccents.contains(transformedValueWithoutAccents);
+		}
+		return contains;
+	}
+	
+	/**
+	 * General method searching for any of substrings from attribute in password.
+	 *  
+	 * 
+	 * @param password
+	 * @param checkedStr
+	 * @return
+	 */
+	private boolean containsGeneralSubstring(String password, String checkedStr) {
+		checkedStr = StringUtils.trimToNull(checkedStr);
+		if (StringUtils.isEmpty(checkedStr)) {
+			return false;
+		}
+		String transformedValueWithAccents = StringUtils.lowerCase(checkedStr);
+		boolean contains = findSubstringsByDelimiter(password, transformedValueWithAccents, DELIMITER_SET_REGEXP);
+		if (!contains) {
+			String passwordWithoutAccents = StringUtils.stripAccents(password);
+			String transformedValueWithoutAccents = StringUtils.stripAccents(transformedValueWithAccents);
+			contains = findSubstringsByDelimiter(passwordWithoutAccents, transformedValueWithoutAccents,
+					DELIMITER_SET_REGEXP);
+		}
+		return contains;
 	}
 	
 	/**

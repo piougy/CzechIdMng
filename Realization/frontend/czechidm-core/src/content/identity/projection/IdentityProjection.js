@@ -530,7 +530,6 @@ class IdentityProjection extends Basic.AbstractContent {
                   <Basic.AbstractForm
                     ref="form"
                     data={ identityProjection }
-                    readOnly={ readOnly }
                     style={{ padding: 0 }}>
 
                     <Basic.TextField

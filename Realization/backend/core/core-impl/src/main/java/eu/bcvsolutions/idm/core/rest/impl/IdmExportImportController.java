@@ -285,30 +285,37 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_UPDATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_ADMIN + "')")
 	@RequestMapping(value = "/{backendId}/execute-import", method = RequestMethod.PUT)
 	@ApiOperation(value = "Execute import", nickname = "executeImport", response = IdmExportImportDto.class, tags = {
 			IdmExportImportController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
-							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = "") }),
+							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_ADMIN, description = "")}),
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
-							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = "") }) }, notes = "Execute import")
+							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_ADMIN, description = "")}) }, 
+					notes = "Execute import. "
+							+ "UPDATE import batch permission is needed for execute import in dry run mode, "
+							+ "ADMIN import batch permission is needed for execute import otherwise.")
 	public ResponseEntity<?> executeImport(
 			@ApiParam(value = "Import batch UUID identifier.", required = true) @PathVariable @NotNull String backendId,
 			@ApiParam(value = "Import batch is executed as dry run." ) @RequestParam("dryRun") boolean dryRun) {
 
+		IdmExportImportDto batch = getDto(backendId);
+		if (batch == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		
 		return new ResponseEntity<>(
-				toResource(importManager.executeImport(this.getService().get(backendId), dryRun)),
+				toResource(importManager.executeImport(batch, dryRun, dryRun ? IdmBasePermission.UPDATE : IdmBasePermission.ADMIN)),
 				HttpStatus.OK);
 	}
-
 	
 	@Override
 	protected IdmExportImportFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmExportImportFilter filter = new IdmExportImportFilter(parameters);
-		filter.setFrom(getParameterConverter().toDateTime(parameters, "from"));
-		filter.setTill(getParameterConverter().toDateTime(parameters, "till"));
-		return filter;
+		return new IdmExportImportFilter(parameters, getParameterConverter());
 	}
 
 }

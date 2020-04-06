@@ -651,6 +651,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String ROLEFORMATTRIBUTE_UPDATE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLEFORMATTRIBUTE_DELETE = "ROLEFORMATTRIBUTE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String EXPORTIMPORT_ADMIN = "EXPORTIMPORT" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String EXPORTIMPORT_COUNT = "EXPORTIMPORT" + BasePermission.SEPARATOR + "COUNT";
 	public static final String EXPORTIMPORT_AUTOCOMPLETE = "EXPORTIMPORT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String EXPORTIMPORT_READ = "EXPORTIMPORT" + BasePermission.SEPARATOR + "READ";

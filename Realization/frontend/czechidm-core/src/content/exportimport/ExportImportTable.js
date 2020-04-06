@@ -278,7 +278,7 @@ export class ExportImportTable extends Advanced.AbstractTableContent {
           ref="import-execute"
           type="button"
           level="success"
-          rendered={ Managers.SecurityManager.hasAnyAuthority(['EXPORTIMPORT_UPDATE']) }
+          rendered={ Managers.SecurityManager.hasAnyAuthority(['EXPORTIMPORT_ADMIN']) }
           style={{ marginLeft: 3 }}
           title={ this.i18n('action.execute.title') }
           titlePlacement="bottom"
@@ -330,7 +330,10 @@ export class ExportImportTable extends Advanced.AbstractTableContent {
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <Basic.Col lg={ 8 }>
-                    <Advanced.Filter.FilterDate ref="fromTill"/>
+                    <Advanced.Filter.FilterDate
+                      ref="fromTill"
+                      fromProperty="createdFrom"
+                      tillProperty="createdTill"/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

@@ -78,7 +78,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExe
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ImportTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Import manager
@@ -106,8 +105,6 @@ public class DefaultImportManager implements ImportManager {
 	private LongRunningTaskManager longRunningTaskManager;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private SecurityService securityService;
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultImportManager.class);
 
@@ -122,7 +119,7 @@ public class DefaultImportManager implements ImportManager {
 		IdmExportImportDto batch = new IdmExportImportDto();
 		batch.setName(name);
 		batch.setType(ExportImportType.IMPORT);
-		batch = exportImportService.save(batch);
+		batch = exportImportService.save(batch, permission);
 
 		IdmAttachmentDto attachment = new IdmAttachmentDto();
 		attachment.setName(fileName);
@@ -159,15 +156,13 @@ public class DefaultImportManager implements ImportManager {
 
 	@Override
 	@Transactional
-	public IdmExportImportDto executeImport(IdmExportImportDto importBatch, boolean dryRun) {		
+	public IdmExportImportDto executeImport(IdmExportImportDto importBatch, boolean dryRun, BasePermission... permission) {		
 		Assert.notNull(importBatch, "Batch cannot be null!");
 		Assert.notNull(importBatch.getId(), "Id of batch cannot be null!");
 		LOG.info("Import [{}, dry-run: {}] starts ...", importBatch.toString(), dryRun);
 
-		if (!dryRun && !securityService.isAdmin()) {
-			// Only super-admin can execute import!
-			throw new ResultCodeException(CoreResultCode.IMPORT_CAN_EXECUTE_ONLY_ADMIN);
-		}
+		// Check permissions (if given) before LRT is executed (dry run updates batch too => permissions have to be evaluated).
+		exportImportService.checkAccess(importBatch, permission);
 
 		OperationResult operationResult = importBatch.getResult();
 		if (operationResult != null && OperationState.RUNNING == operationResult.getState()) {
@@ -181,7 +176,7 @@ public class DefaultImportManager implements ImportManager {
 		UUID taskId = result.getExecutor().getLongRunningTaskId();
 		importBatch.setLongRunningTask(taskId);
 
-		return exportImportService.save(importBatch);
+		return exportImportService.save(importBatch, permission);
 	}
 
 	@Override

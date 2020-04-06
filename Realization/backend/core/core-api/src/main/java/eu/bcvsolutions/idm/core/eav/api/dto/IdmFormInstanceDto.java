@@ -35,6 +35,9 @@ public class IdmFormInstanceDto implements BaseDto {
 	
 	private static final long serialVersionUID = 1L;
 	//
+	@JsonDeserialize(as = UUID.class)
+	@ApiModelProperty(required = true, notes = "Unique uuid identifier. It's ID of FormDefinition here.", dataType = "java.util.UUID")
+	private UUID id;
 	@NotNull
 	private IdmFormDefinitionDto formDefinition;
 	@JsonDeserialize(as = String.class)
@@ -43,12 +46,8 @@ public class IdmFormInstanceDto implements BaseDto {
 	private Class<? extends Identifiable> ownerType;
 	private List<IdmFormValueDto> values;
 	private List<InvalidFormAttributeDto> validationErrors;
-	@JsonDeserialize(as = UUID.class)
-	@ApiModelProperty(required = true, notes = "Unique uuid identifier. It's ID of FormDefinition here.", dataType = "java.util.UUID")
-	private UUID id;
 	
 	public IdmFormInstanceDto() {
-		super();
 	}
 	
 	public IdmFormInstanceDto(UUID id) {

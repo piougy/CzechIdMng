@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.ImportContext;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
@@ -24,8 +25,9 @@ public interface ImportManager {
 	 * @param name
 	 * @param fileName
 	 * @param inputStream
-	 * @param permission
+	 * @param permission base permissions to evaluate (AND) 
 	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	IdmExportImportDto uploadImport(String name, String fileName, InputStream inputStream, BasePermission... permission);
 
@@ -34,9 +36,11 @@ public interface ImportManager {
 	 * 
 	 * @param idmExportImportDto
 	 * @param dryRun
+	 * @param permission base permissions to evaluate (AND) 
 	 * @return
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	IdmExportImportDto executeImport(IdmExportImportDto idmExportImportDto, boolean dryRun);
+	IdmExportImportDto executeImport(IdmExportImportDto idmExportImportDto, boolean dryRun, BasePermission... permission);
 
 	/**
 	 * Internal executing of the batch

@@ -52,7 +52,14 @@ public interface IdentityConfiguration extends Configurable {
 	 */
 	String PROPERTY_IDENTITY_CREATE_DEFAULT_CONTRACT = 
 			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.create.defaultContract.enabled";
-	boolean DEFAULT_IDENTITY_CREATE_DEFAULT_CONTRACT = true;	
+	boolean DEFAULT_IDENTITY_CREATE_DEFAULT_CONTRACT = true;
+	
+	/**
+	 * Skip identity dashboard => full detail is shown without dashboard.
+	 */
+	String PROPERTY_IDENTITY_DASHBORD_SKIP = 
+			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.dashboard.skip";
+	boolean DEFAULT_IDENTITY_DASHBORD_SKIP = false;
 	
 	@Override
 	default String getConfigurableType() {

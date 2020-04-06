@@ -115,7 +115,7 @@ class Profile extends Basic.AbstractContent {
     //
     // if updated profile is logged identity profile => dispach changes
     this.context.store.dispatch(securityManager.setCurrentProfile(profile));
-    this.addMessage({ level: 'success', message: this.i18n('message.success.update') });
+    this.addMessage({ level: 'success', key: 'core-profile-save-success', message: this.i18n('message.success.update') });
     // new profile can be created => nee need to set id into form
     this.refs.form.setData(profile);
   }

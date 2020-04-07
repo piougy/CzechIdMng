@@ -42,7 +42,6 @@ public class ZipUtilsUnitTest extends AbstractUnitTest {
 		ZipUtils.extract(wfZip, wfExtracted.getPath());
 		//
 		Assert.assertEquals(filesCount, countFiles(wfExtracted));
-		Assert.assertEquals(filesSize, getFileSize(wfExtracted));
 	}
 	
 	private long countFiles(File file) throws IOException {

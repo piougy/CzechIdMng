@@ -309,7 +309,7 @@ public class DefaultIdmIncompatibleRoleServiceIntegrationTest extends AbstractIn
 				.collect(Collectors.toSet());
 		//
 		long duration = System.currentTimeMillis() - start;
-		Assert.assertTrue(duration < 5000);
+		Assert.assertTrue(duration < 30000);
 		Assert.assertEquals(3 + count, incompatibleRoles.size());
 		Assert.assertTrue(incompatibleRoles
 				.stream()

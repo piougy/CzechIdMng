@@ -317,6 +317,7 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		//
 		return Long.valueOf(Lists.newArrayList(temp.listFiles()).stream()//
 				.filter(file -> file.isFile())//
+				.filter(file -> file.getName().endsWith(".tmp"))// FIXME: move temporary file extension to manager api
 				.count())//
 				.intValue();
 	}

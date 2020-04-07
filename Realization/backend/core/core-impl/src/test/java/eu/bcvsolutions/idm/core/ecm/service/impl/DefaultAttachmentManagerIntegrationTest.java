@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.ecm.api.config.AttachmentConfiguration;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
@@ -27,7 +29,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Attachments
  * - CRUD
  * - versions
- * 
+ *
  * @author Radek Tomiška
  *
  */
@@ -38,12 +40,12 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 	@Autowired private AttachmentConfiguration attachmentConfiguration;
 	//
 	private DefaultAttachmentManager attachmentManager;
-	
+
 	@Before
 	public void init() {
 		attachmentManager = context.getAutowireCapableBeanFactory().createBean(DefaultAttachmentManager.class);
-	}	
-	
+	}
+
 	@Test
 	public void testCreateAttachment() throws IOException {
 		Identifiable owner = new TestOwnerEntity(UUID.randomUUID());
@@ -77,7 +79,7 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		//
 		Assert.assertEquals(0, attachmentManager.getAttachments(owner, null).getTotalElements());
 	}
-	
+
 	@Test
 	public void testAttachmentVersions() throws IOException {
 		Identifiable owner = new TestOwnerEntity(UUID.randomUUID());
@@ -147,7 +149,7 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		Assert.assertNull(attachmentManager.get(attachmentTwo));
 		Assert.assertNull(attachmentManager.get(attachmentThree));
 	}
-	
+
 	@Test
 	public void testAttachmentVersionsWithSameName() throws IOException {
 		Identifiable owner = new TestOwnerEntity(UUID.randomUUID());
@@ -197,7 +199,7 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		Assert.assertNull(attachmentManager.get(attachmentTwo));
 		Assert.assertNull(attachmentManager.get(attachmentThree));
 	}
-	
+
 	@Test
 	public void testUpdateAttachment() {
 		Identifiable owner = new TestOwnerEntity(UUID.randomUUID());
@@ -207,7 +209,7 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		//
 		String updatedContent = "update";
 		attachment.setInputData(IOUtils.toInputStream(updatedContent));
-		attachment.setDescription(updatedContent);		
+		attachment.setDescription(updatedContent);
 		attachment = attachmentManager.updateAttachment(attachment);
 		//
 		List<IdmAttachmentDto> attachments = attachmentManager.getAttachmentVersions(attachment.getId());
@@ -232,7 +234,7 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		//
 		Assert.assertEquals(0, attachmentManager.getAttachmentVersions(attachment.getId()).size());
 	}
-	
+
 	@Test
 	public void testCreateAndPurgeTempFiles() {
 		long ttl = attachmentConfiguration.getTempTtl();
@@ -264,7 +266,7 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 			attachmentConfiguration.setTempTtl(ttl);
 		}
 	}
-	
+
 	@Test
 	public void testCreateAndPurgeTempAttachments() {
 		long ttl = attachmentConfiguration.getTempTtl();
@@ -281,7 +283,7 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 			attachmentConfiguration.setTempTtl(10000);
 			attachmentManager.purgeTemp();
 			Assert.assertEquals(1, attachmentManager.find(filter, null).getContent().size());
-			
+
 			attachmentConfiguration.setTempTtl(19);
 			attachmentManager.purgeTemp();
 			Assert.assertTrue(attachmentManager.find(filter, null).getContent().isEmpty());
@@ -289,7 +291,7 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 			attachmentConfiguration.setTempTtl(ttl);
 		}
 	}
-	
+
 	private IdmAttachmentDto prepareAttachment(String content) {
 		IdmAttachmentDto attachment = new IdmAttachmentDto();
 		attachment.setName("test.txt");
@@ -298,20 +300,24 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		//
 		return attachment;
 	}
-	
+
 	private int countTempFiles() {
 		File temp = new File(attachmentConfiguration.getTempPath());
 		//
-		return temp.listFiles().length;
+		return Long.valueOf(Lists.newArrayList(temp.listFiles()).stream()//
+				.filter(file -> file.isFile())//
+				.filter(file -> file.getName().endsWith(".tmp"))// FIXME: move temporary file extension to manager api
+				.count())//
+				.intValue();
 	}
-	
+
 	private IdmAttachmentDto createDto(UUID ownerId) {
 		IdmAttachmentDto dto = prepareDto();
 		dto.setOwnerId(ownerId);
 		//
 		return attachmentManager.save(dto);
 	}
-	
+
 	public static IdmAttachmentDto prepareDto() {
 		IdmAttachmentDto dto = new IdmAttachmentDto();
 		dto.setOwnerType(AttachmentManager.TEMPORARY_ATTACHMENT_OWNER_TYPE);
@@ -326,25 +332,25 @@ public class DefaultAttachmentManagerIntegrationTest extends AbstractIntegration
 		//
 		return dto;
 	}
-	
+
 	private class TestOwnerEntity implements AttachableEntity {
-		
+
 		private static final long serialVersionUID = 1L;
 		private UUID id;
-		
+
 		public TestOwnerEntity(UUID id) {
 			this.id = id;
 		}
-		
+
 		@Override
 		public void setId(Serializable id) {
-			this.id = (UUID) id; 			
+			this.id = (UUID) id;
 		}
 
 		@Override
 		public UUID getId() {
 			return id;
 		}
-		
+
 	}
 }

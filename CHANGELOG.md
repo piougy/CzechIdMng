@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 ``AbstractFormableService#getFormInstances(DTO, BasePermission...)`` init method definition. Method usage is backward compatible.
 - [#2164](https://redmine.czechidm.com/issues/2164) - method ``PrivateIdentityConfiguration#isFormAttributesSecured`` is deprecated. Secured identity attributes will be supported only in future version. This configuration will be removed in the next version.
 - [#2164](https://redmine.czechidm.com/issues/2164) - new method ``renderConfirm`` was added to frontend component ``AbstractIdentityDashboardButton``. **Use this method for your custom dashboard button, if button needs to show confirm dialog**. Confirm dialog cannot be closed otherwise, if it's rendered inside button content.
+- [#2024](https://redmine.czechidm.com/issues/2024) - Support for cluster friendly cache manager for distributed cache was added. **Check cache manager usage in your custom module and add [cache configuration](https://wiki.czechidm.com/devel/documentation/caching#configuring_distributed_cache)**.
 
 ## [10.1.0]
 

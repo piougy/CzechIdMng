@@ -487,8 +487,8 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	
 	@Test
 	public void testMisfireHandlingSimpleTrigger() {
-		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
-		identityOne = identityService.get(identityOne);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityOne = identityService.get(identity);
 		Assert.assertNotEquals(identityOne.getUsername(), identityOne.getLastName());
 		//
 		Task createTask = new Task();
@@ -502,7 +502,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		Task task = manager.getTask(taskOne.getId());
 		
 		Function<String, Boolean> continueFunction = res -> {
-			return !manager.getTask(task.getId()).getTriggers().isEmpty();
+			return identityService.get(identity.getId()).getLastName().equals(identity.getUsername());
 		};
 		
 		SimpleTaskTrigger trigger = new SimpleTaskTrigger();

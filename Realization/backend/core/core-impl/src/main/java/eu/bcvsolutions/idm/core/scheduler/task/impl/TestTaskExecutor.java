@@ -17,12 +17,15 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Test task executor implementation
@@ -70,7 +73,11 @@ public class TestTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIde
 	@Override
 	public Optional<OperationResult> processItem(IdmIdentityDto dto) {
 		try {
-			LOG.warn(".......... identity: [{}]", dto.getUsername());
+			LOG.warn("identity: [{}], loggedUser: [{}], transactionId: [{}]",
+					dto.getUsername(), 
+					AutowireHelper.getBean(SecurityService.class).getCurrentUsername(),
+					TransactionContextHolder.getContext().getTransactionId()
+			);
 			Thread.sleep(300L);
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch (Exception ex) {

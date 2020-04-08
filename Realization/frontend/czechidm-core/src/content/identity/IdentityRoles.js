@@ -197,7 +197,7 @@ class IdentityRoles extends Basic.AbstractContent {
    * @param  {string} identityId
    */
   showContracts(identityId) {
-    this.context.history.push(`/identity/${identityId}/contracts`);
+    this.context.history.push(`/identity/${ encodeURIComponent(identityId) }/contracts`);
   }
 
   _getWfProcessCell({ rowIndex, data}) {

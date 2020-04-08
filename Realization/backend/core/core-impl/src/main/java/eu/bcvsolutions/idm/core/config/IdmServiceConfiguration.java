@@ -6,6 +6,7 @@ import java.util.concurrent.Executor;
 import javax.persistence.EntityManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -150,6 +151,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultLookupService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
 import eu.bcvsolutions.idm.core.model.service.impl.LogbackLoggerManager;
 import eu.bcvsolutions.idm.core.model.service.thin.DefaultIdmIdentityRoleThinService;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
@@ -187,6 +189,7 @@ public class IdmServiceConfiguration {
 	// Spring environment
 	@Autowired private ConfigurableEnvironment environment;
 	@Autowired private ApplicationContext context;
+	@Qualifier(SchedulerConfiguration.TASK_EXECUTOR_NAME)
 	@Autowired private Executor executor;
 	@Autowired private EntityManager entityManager;
 	//

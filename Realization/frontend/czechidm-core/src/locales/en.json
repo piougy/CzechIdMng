@@ -5460,6 +5460,11 @@
           }
         }
       },
+      "form-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) form definitions",
+        "help": "$t(action.delete.action) selected form definitions.",
+        "icon": "$t(action.delete.icon)"
+      },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) configuration items",
         "help": "$t(action.delete.action) selected configuration items.",

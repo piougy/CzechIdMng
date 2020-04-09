@@ -5512,6 +5512,11 @@
           }
         }
       },
+      "form-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) definice formuláře",
+        "help": "Smaže vybrané definice formuláře.",
+        "icon": "$t(action.delete.icon)"
+      },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) konfigurace",
         "help": "Smaže vybrané konfigurace",

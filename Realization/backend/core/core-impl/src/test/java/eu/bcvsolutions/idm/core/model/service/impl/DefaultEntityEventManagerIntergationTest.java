@@ -307,7 +307,7 @@ public class DefaultEntityEventManagerIntergationTest extends AbstractIntegratio
 			// wait for executed events
 			getHelper().waitForResult(res -> {
 				return entityEventService.find(filter, PageRequest.of(0, 1)).getTotalElements() != 0;
-			}, 1000, 10);
+			}, 1000, 15);
 			//
 			// check what happened
 			filter.setStates(Lists.newArrayList(OperationState.EXECUTED));

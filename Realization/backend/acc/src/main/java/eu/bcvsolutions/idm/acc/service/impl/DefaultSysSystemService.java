@@ -261,10 +261,10 @@ public class DefaultSysSystemService
 			configuration = new IcConnectorConfigurationImpl();
 		}
 		// Create configuration for pool
-		fillPoolingConnectorConfiguration(configuration, system.getConnectorInstance(), system);
+		fillPoolingConnectorConfiguration(configuration, connectorInstance, system);
 
 		// Load operation options
-		configuration.setOperationOptions(getOperationOptionsForSystem(system.getConnectorInstance(), system));
+		configuration.setOperationOptions(getOperationOptionsForSystem(connectorInstance, system));
 
 		IcConfigurationProperties properties = new IcConfigurationPropertiesImpl();
 		configuration.setConfigurationProperties(properties);
@@ -681,11 +681,18 @@ public class DefaultSysSystemService
 		}
 
 		Map<String, List<IdmFormValueDto>> optionToValues = formInstance.toValueMap();
-		return optionToValues.keySet().stream()
+		return optionToValues
+				.keySet()
+				.stream()
 				.filter(key -> !optionToValues.get(key).isEmpty())
 				.collect(Collectors.toMap(key -> key, key -> {
-					final List<IdmFormValueDto> values = optionToValues.get(key);
-					return values.size() > 1 ? toArray(values, formDefinition.getMappedAttributeByCode(key).getPersistentType()) : values.iterator().next().getValue();
+					List<IdmFormValueDto> values = optionToValues.get(key);
+					//
+					return values.size() > 1
+							? 
+							toArray(values, formDefinition.getMappedAttributeByCode(key).getPersistentType()) 
+							: 
+							values.get(0).getValue();
 				}));
 	}
 

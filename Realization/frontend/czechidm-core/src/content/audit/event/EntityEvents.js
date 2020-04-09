@@ -20,13 +20,13 @@ export default class EntityEvents extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
-        {this.renderPageHeader()}
+      <Basic.Div>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
           <EntityEventTable uiKey="entity-event-table" filterOpened />
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

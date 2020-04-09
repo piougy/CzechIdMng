@@ -134,6 +134,11 @@
     },
     "transactionId": {
       "placeholder": "$t(entity.transactionId.label) (uuid)"
+    },
+    "entityId": {
+      "placeholder": "Entity identifier (uuid)",
+      "codeable": "Entity identifier (uuid or code)",
+      "help": "If <strong>entity type</strong> is selected and entity has unique code, then this code can be used instead uuid identifier. For example <strong>role code</strong> (for type IdmRole), <strong>username</strong> (for type IdmIdentity) could be used etc."
     }
   },
   "action": {

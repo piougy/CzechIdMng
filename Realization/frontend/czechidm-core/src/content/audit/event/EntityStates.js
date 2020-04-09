@@ -1,13 +1,14 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as Basic from '../../../components/basic';
-import {EntityStateTable} from './EntityStateTable';
-import {SecurityManager} from '../../../redux';
+import EntityStateTable from './EntityStateTable';
+
 
 /**
- * Audit of entity events state
+ * Audit of entity events state.
  *
  * @author artem
+ * @author Radek Tomiška
  */
 class EntityStates extends Basic.AbstractContent {
 
@@ -21,8 +22,8 @@ class EntityStates extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
-        {this.renderPageHeader()}
+      <Basic.Div>
+        { this.renderPageHeader() }
 
         <Basic.Panel>
           <EntityStateTable
@@ -30,7 +31,7 @@ class EntityStates extends Basic.AbstractContent {
             filterOpened
             showRowSelection/>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

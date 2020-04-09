@@ -533,12 +533,12 @@ class SelectBox extends AbstractFormComponent {
           !label
           ||
           <label
-            className={labelClassName}>
-            {label}
+            className={ labelClassName }>
+            { label }
             { this.renderHelpIcon() }
           </label>
         }
-        <div className={componentSpan}>
+        <div className={ componentSpan }>
           {
             (disabled === true && this.props.multiSelect !== true)
             ?
@@ -573,7 +573,7 @@ class SelectBox extends AbstractFormComponent {
               </span>
             </Tooltip>
           }
-          {this.props.children}
+          { this.props.children }
           { !label ? this.renderHelpIcon() : null }
           { this.renderHelpBlock() }
         </div>

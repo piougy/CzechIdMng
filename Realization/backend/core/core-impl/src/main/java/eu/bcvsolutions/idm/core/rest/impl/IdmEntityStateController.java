@@ -21,17 +21,22 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import io.swagger.annotations.Api;
@@ -160,7 +165,7 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
 		IdmEntityStateFilter filter = new IdmEntityStateFilter(parameters, getParameterConverter());
 		//
 		// owner decorator
-		String ownerId = getParameterConverter().toString(parameters, "ownerId");
+		String ownerId = getParameterConverter().toString(parameters, IdmEntityStateFilter.PARAMETER_OWNER_ID);
 		UUID ownerUuid = null;
 		if (StringUtils.isNotEmpty(filter.getOwnerType()) 
 				&& StringUtils.isNotEmpty(ownerId)) {
@@ -171,6 +176,12 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
 			} else {
 				LOG.debug("Entity type [{}] with identifier [{}] does not found, raw ownerId will be used as uuid.", 
 						filter.getOwnerType(), ownerId);
+				// Better exception for FE.
+				try {
+					DtoUtils.toUuid(ownerId);
+				} catch (ClassCastException ex) {
+					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ownerId));
+				}
 			}
 		}
 		if (ownerUuid == null) {

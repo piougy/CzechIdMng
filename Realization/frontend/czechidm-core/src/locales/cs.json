@@ -134,6 +134,11 @@
     },
     "transactionId": {
       "placeholder": "$t(entity.transactionId.label) (uuid)"
+    },
+    "entityId": {
+      "placeholder": "Identifikátor entity (uuid)",
+      "codeable": "Identifikátor entity (uuid či kód)",
+      "help": "Pokud <strong>je vybrán typ entity</strong> a entita má unikátní kód, lze zadat místo uuid i kód entity.<br /> Například lze zadat <strong>kód role</strong> (pro typ IdmRole), <strong>uživatelské jméno</strong> (pro typ IdmIdentity) apod."
     }
   },
   "action": {

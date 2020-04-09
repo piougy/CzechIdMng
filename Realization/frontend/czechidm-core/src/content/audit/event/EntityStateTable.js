@@ -6,11 +6,12 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { EntityStateManager } from '../../../redux';
+import { EntityStateManager, AuditManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
 
 const manager = new EntityStateManager();
+const auditManager = new AuditManager();
 
 /**
  * Table of persisted entity states
@@ -26,8 +27,17 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
       detail: {
         show: false,
         entity: {}
-      }
+      },
+      entityType: props._searchParameters && props._searchParameters.getFilters().has('ownerType')
+        ? props._searchParameters.getFilters().get('ownerType')
+        : null
     };
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this.context.store.dispatch(auditManager.fetchAuditedEntitiesNames());
   }
 
   getContentKey() {
@@ -60,6 +70,12 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
     this.refs.table.reload();
   }
 
+  onEntityTypeChange(entityType) {
+    this.setState({
+      entityType: entityType ? entityType.value : null
+    });
+  }
+
   render() {
     const {
       columns,
@@ -68,9 +84,10 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
       showFilter,
       showToolbar,
       className,
-      showRowSelection
+      showRowSelection,
+      auditedEntities
     } = this.props;
-    const { filterOpened, detail } = this.state;
+    const { filterOpened, detail, entityType } = this.state;
     //
     if (!rendered) {
       return null;
@@ -79,7 +96,7 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
     const _forceSearchParameters = forceSearchParameters || new SearchParameters();
     //
     return (
-      <div>
+      <Basic.Div>
         <Advanced.Table
           ref="table"
           uiKey={ this.getUiKey() }
@@ -122,14 +139,18 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
                       help={ Advanced.Filter.getTextHelp({ includeUuidHelp: true }) }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
-                    <Advanced.Filter.TextField
+                    <Advanced.Filter.EnumSelectBox
                       ref="ownerType"
-                      placeholder={ this.i18n('filter.ownerType.placeholder') }/>
+                      searchable
+                      placeholder={this.i18n('filter.ownerType.placeholder')}
+                      options={ auditedEntities }
+                      onChange={ this.onEntityTypeChange.bind(this) }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="ownerId"
-                      placeholder={ this.i18n('filter.ownerId.placeholder') }/>
+                      placeholder={ entityType ? this.i18n('filter.entityId.codeable') : this.i18n('filter.entityId.placeholder') }
+                      help={ this.i18n('filter.entityId.help') }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -255,9 +276,9 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
             {
               !detail.entity
               ||
-              <div>
+              <Basic.Div>
                 <Advanced.OperationResult value={ detail.entity.result } face="full"/>
-              </div>
+              </Basic.Div>
             }
           </Basic.Modal.Body>
 
@@ -269,7 +290,7 @@ export class EntityStateTable extends Advanced.AbstractTableContent {
             </Basic.Button>
           </Basic.Modal.Footer>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -297,7 +318,8 @@ EntityStateTable.defaultProps = {
 
 function select(state, component) {
   return {
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    auditedEntities: auditManager.prepareOptionsFromAuditedEntitiesNames(auditManager.getAuditedEntitiesNames(state))
   };
 }
 

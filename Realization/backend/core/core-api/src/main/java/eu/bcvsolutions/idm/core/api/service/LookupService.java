@@ -79,6 +79,7 @@ public interface LookupService extends ScriptEnabled {
 	 * @param entityId
 	 * @return {@link BaseDto}
 	 * @throws IllegalArgumentExceptionif service for load dto not found or identifiableType is not valid
+	 * @since 8.1.7
 	 */
 	<DTO extends BaseDto> DTO lookupDto(String identifiableType, Serializable entityId);
 	

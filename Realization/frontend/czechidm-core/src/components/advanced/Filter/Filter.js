@@ -75,7 +75,8 @@ export default class Filter extends Basic.AbstractContextComponent {
   }
 
   /**
-   * Return "like" operator help
+   * Return "like" operator help.
+   * Lookout: static method => static i18n without escape feature.
    *
    * @return {HelpContent} help can be given to input help props or to the help icon itself
    */
@@ -87,17 +88,17 @@ export default class Filter extends Basic.AbstractContextComponent {
       </span>
     );
     const content = [];
-    content.push(
-      <span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.body') }}/>
-    );
     if (includeUuidHelp) {
       content.push(
         <span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.uuid') }}/>
       );
+      content.push(<br />);
     }
-    helpContent = helpContent.setBody(content);
+    content.push(
+      <span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.body') }}/>
+    );
     //
-    return helpContent;
+    return helpContent.setBody(content);
   }
 }
 

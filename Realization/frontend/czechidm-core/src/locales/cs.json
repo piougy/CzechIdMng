@@ -125,7 +125,7 @@
       "help": {
         "header": "Filtrování",
         "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chcete hledat samotné speciální znaky, přidejte zpětné lomítko <strong>\\%,\\_</strong></div>",
-        "uuid": "<div>Zadané <strong>uuid</strong> identifikátory nesmí obsahovat pomlčky (lze zadat krátký tvar identifikátoru nebo odebrat pomlčky).</div>"
+        "uuid": "<div>Zadané <strong>uuid</strong> identifikátory s využitím krátkého tvaru nesmí obsahovat pomlčky (pomlčky je třeba odebrat nebo zadat celý uuid identifikátor).</div>"
       }
     },
     "module": {

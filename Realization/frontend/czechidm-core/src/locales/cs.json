@@ -5512,6 +5512,18 @@
           }
         }
       },
+      "form-definition-export-bulk-action": {
+        "icon": "export",
+        "label": "Exportovat definici formuláře",
+        "title": "Definice formuláře",
+        "help": "Vytvoří exportní dávku obsahující definice formulářů. Výsledný export bude uložen v agendě <strong>Export/Import</strong>.",
+        "attributes": {
+          "name": {
+              "label": "Popis exportu",
+            "help": ""
+          }
+        }
+      },
       "form-definition-delete-bulk-action": {
         "label": "$t(action.delete.action) definice formuláře",
         "help": "Smaže vybrané definice formuláře.",

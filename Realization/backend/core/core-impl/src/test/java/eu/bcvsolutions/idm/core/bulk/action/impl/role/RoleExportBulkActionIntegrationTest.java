@@ -9,9 +9,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.collections.Lists;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.ExportImportType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
@@ -27,14 +26,12 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleFormAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmExportImportFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIncompatibleRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFormAttributeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
-import eu.bcvsolutions.idm.core.api.service.IdmExportImportService;
 import eu.bcvsolutions.idm.core.api.service.IdmIncompatibleRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
@@ -50,15 +47,11 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
-import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmExportImport;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.evaluator.task.SelfLongRunningTaskEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
+import eu.bcvsolutions.idm.test.api.AbstractExportBulkActionTest;
 
 /**
  * Export role integration test
@@ -66,7 +59,7 @@ import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
  * @author Vít Švanda
  *
  */
-public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest {
+public class RoleExportBulkActionIntegrationTest extends AbstractExportBulkActionTest {
 
 	@Autowired
 	private IdmRoleService roleService;
@@ -76,10 +69,6 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 	private FormService formService;
 	@Autowired
 	private IdmRoleCompositionService roleCompositionService;
-	@Autowired
-	private IdmExportImportService exportImportService;
-	@Autowired
-	private AttachmentManager attachmentManager;
 	@Autowired
 	private ImportManager importManager;
 	@Autowired
@@ -118,7 +107,8 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 		Assert.assertFalse(findRoleFormAttributes(role).isEmpty());
 
 		// Make export, upload and import
-		executeExportAndImport(role);
+		executeExportAndImport(role, RoleExportBulkAction.NAME,
+				ImmutableMap.of(EXECUTE_BEFORE_DTO_DELETE, this::deleteAllSubroles));
 
 		role = roleService.get(role.getId());
 		Assert.assertNotNull(role);
@@ -145,7 +135,8 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 		formService.saveValues(role, finalFormAttribute, Lists.newArrayList(attributeValue));
 
 		// Make export, upload and import
-		executeExportAndImport(role);
+		executeExportAndImport(role, RoleExportBulkAction.NAME,
+				ImmutableMap.of(EXECUTE_BEFORE_DTO_DELETE, this::deleteAllSubroles));
 
 		role = roleService.get(role.getId());
 		Assert.assertNotNull(role);
@@ -171,7 +162,8 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 				incompatibileRoleOne);
 
 		// Make export, upload and import
-		IdmExportImportDto importBatch = executeExportAndImport(role);
+		IdmExportImportDto importBatch = executeExportAndImport(role, RoleExportBulkAction.NAME,
+				ImmutableMap.of(EXECUTE_BEFORE_DTO_DELETE, this::deleteAllSubroles));
 
 		role = roleService.get(role.getId());
 		Assert.assertNotNull(role);
@@ -204,7 +196,8 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 		IdmRoleGuaranteeDto guarantee = this.getHelper().createRoleGuarantee(role, guaranteeIdentity);
 
 		// Make export, upload and import
-		IdmExportImportDto importBatch = executeExportAndImport(role);
+		IdmExportImportDto importBatch = executeExportAndImport(role, RoleExportBulkAction.NAME,
+				ImmutableMap.of(EXECUTE_BEFORE_DTO_DELETE, this::deleteAllSubroles));
 		
 		role = roleService.get(role.getId());
 		Assert.assertNotNull(role);
@@ -239,7 +232,8 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 		IdmRoleGuaranteeRoleDto guarantee = this.getHelper().createRoleGuaranteeRole(role, guaranteeRole);
 
 		// Make export, upload and import
-		IdmExportImportDto importBatch = executeExportAndImport(role);
+		IdmExportImportDto importBatch = executeExportAndImport(role, RoleExportBulkAction.NAME,
+				ImmutableMap.of(EXECUTE_BEFORE_DTO_DELETE, this::deleteAllSubroles));
 
 		role = roleService.get(role.getId());
 		Assert.assertNotNull(role);
@@ -274,7 +268,8 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 				IdmBasePermission.READ);
 
 		// Make export, upload and import
-		IdmExportImportDto importBatch = executeExportAndImport(role);
+		IdmExportImportDto importBatch = executeExportAndImport(role, RoleExportBulkAction.NAME,
+				ImmutableMap.of(EXECUTE_BEFORE_DTO_DELETE, this::deleteAllSubroles));
 
 		role = roleService.get(role.getId());
 		Assert.assertNotNull(role);
@@ -310,7 +305,8 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 		IdmRoleCatalogueRoleDto roleCatalogueRole = this.getHelper().createRoleCatalogueRole(role, catalogue);
 
 		// Make export, upload and import
-		IdmExportImportDto importBatch = executeExportAndImport(role);
+		IdmExportImportDto importBatch = executeExportAndImport(role, RoleExportBulkAction.NAME,
+				ImmutableMap.of(EXECUTE_BEFORE_DTO_DELETE, this::deleteAllSubroles));
 
 		role = roleService.get(role.getId());
 		Assert.assertNotNull(role);
@@ -345,52 +341,6 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 		Assert.assertNotNull(roleCatalogueService.get(parentCatalogue.getId()));
 		// Not using catalogue was not created.
 		Assert.assertNull(roleCatalogueService.get(notUseCatalogue.getId()));
-	}
-
-	private IdmExportImportDto executeExportAndImport(IdmRoleDto role) {
-		String batchName = getHelper().createName();
-		IdmBulkActionDto bulkAction = findBulkAction(IdmRole.class, RoleExportBulkAction.NAME);
-		bulkAction.setIdentifiers(Sets.newHashSet(role.getId()));
-		bulkAction.getProperties().put(RoleExportBulkAction.PROPERTY_NAME, batchName);
-		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-
-		checkResultLrt(processAction, 1l, null, null);
-
-		IdmExportImportFilter exportImportFilter = new IdmExportImportFilter();
-		exportImportFilter.setText(batchName);
-		List<IdmExportImportDto> batches = exportImportService.find(exportImportFilter, null).getContent();
-		Assert.assertEquals(1, batches.size());
-		IdmExportImportDto batch = batches.get(0);
-		Assert.assertEquals(OperationState.EXECUTED, batch.getResult().getState());
-		Assert.assertNotNull(batch.getData());
-
-		List<IdmAttachmentDto> attachments = attachmentManager//
-				.getAttachments(batch.getId(), IdmExportImport.class.getCanonicalName(), null)//
-				.getContent();//
-		Assert.assertEquals(1, attachments.size());
-		IdmAttachmentDto attachment = attachments.get(0);
-
-		// Upload import
-		IdmExportImportDto importBatch = importManager.uploadImport(attachment.getName(), attachment.getName(),
-				attachmentManager.getAttachmentData(attachment.getId()));
-		Assert.assertNotNull(importBatch);
-		Assert.assertEquals(batch.getName(), importBatch.getName());
-		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());
-
-		// Delete original role
-		findAllSubRoles(role).forEach(subRole -> {
-			roleCompositionService.delete(subRole);
-		});
-		roleService.delete(role);
-		Assert.assertNull(roleService.get(role.getId()));
-
-		// Execute import
-		importBatch = importManager.executeImport(importBatch, false);
-		Assert.assertNotNull(importBatch);
-		Assert.assertEquals(batch.getName(), importBatch.getName());
-		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());
-		Assert.assertEquals(OperationState.EXECUTED, importBatch.getResult().getState());
-		return importBatch;
 	}
 
 	private IdmRoleDto createRole() {
@@ -485,6 +435,12 @@ public class RoleExportBulkActionIntegrationTest extends AbstractBulkActionTest 
 
 	private List<IdmRoleCompositionDto> findAllSubRoles(IdmRoleDto role) {
 		return roleCompositionService.findAllSubRoles(role.getId());
+	}
+	
+	private void deleteAllSubroles(IdmRoleDto role) {
+		findAllSubRoles(role).forEach(subRole -> {
+			roleCompositionService.delete(subRole);
+		});
 	}
 
 }

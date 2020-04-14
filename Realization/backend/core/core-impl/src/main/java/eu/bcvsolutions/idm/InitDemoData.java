@@ -85,6 +85,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String FORM_ATTRIBUTE_UUID = "uuid";
 	public static final String FORM_ATTRIBUTE_PASSWORD = "password";
 	public static final String FORM_ATTRIBUTE_DATETIME = "datetime";
+	public static final String FORM_ATTRIBUTE_DATE = "date";
+	public static final String FORM_ATTRIBUTE_LETTER = "letter";
 	public static final String DEFAULT_ROLE_NAME = "userRole";
 	
 	@Autowired private InitApplicationData initApplicationData;	
@@ -391,7 +393,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				// demo eav identity form
 				
 				IdmFormAttributeDto letter = new IdmFormAttributeDto();
-				letter.setCode("letter");
+				letter.setCode(FORM_ATTRIBUTE_LETTER);
 				letter.setName("Favorite letter");
 				letter.setPlaceholder("Character");
 				letter.setDescription("Some favorite character");
@@ -454,7 +456,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				currency = formService.saveAttribute(IdmIdentity.class, currency);
 				
 				IdmFormAttributeDto date = new IdmFormAttributeDto();
-				date.setCode("date");
+				date.setCode(FORM_ATTRIBUTE_DATE);
 				date.setName("Date");
 				date.setPersistentType(PersistentType.DATE);
 				date.setRequired(true);

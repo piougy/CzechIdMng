@@ -414,7 +414,7 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 				try {
 					DtoUtils.toUuid(entityId);
 				} catch (ClassCastException ex) {
-					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", entityId));
+					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", entityId), ex);
 				}
 			}
 		}

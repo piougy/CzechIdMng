@@ -180,7 +180,7 @@ public class IdmEntityStateController extends DefaultReadWriteDtoController<IdmE
 				try {
 					DtoUtils.toUuid(ownerId);
 				} catch (ClassCastException ex) {
-					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ownerId));
+					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ownerId), ex);
 				}
 			}
 		}

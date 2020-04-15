@@ -27,10 +27,10 @@ export default class AutomaticRoleAttributes extends Basic.AbstractContent {
 
   render() {
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
         <AutomaticRoleAttributeTable uiKey="automatic-role-attribute-table" manager={this.manager}/>
-      </div>
+      </Basic.Div>
     );
   }
 }

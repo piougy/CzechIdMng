@@ -18,4 +18,5 @@ All parameters from ``AbstractContextComponent`` are supported. Added parameters
 | entity | object | Entity for show system information. | |
 | back  | string | Close button path. Close button will not be shown, if empty. |  |
 | icon  | string | Header left icon |  |
-| buttons | arrayOf(element) | Additional Buttons are shown before close detail button. | ||
+| buttons | arrayOf(element) | Additional Buttons are shown before close detail button. | |
+| small | bool | True - page header, false - content header. | false |

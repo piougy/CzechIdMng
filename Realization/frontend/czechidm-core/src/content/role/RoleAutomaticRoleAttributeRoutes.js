@@ -34,7 +34,7 @@ class RoleAutomaticRoleAttributeRoutes extends Basic.AbstractContent {
   _getIsNew() {
     const { query } = this.props.location;
     if (query) {
-      return query.new ? true : false;
+      return !!query.new;
     }
     return false;
   }
@@ -42,15 +42,22 @@ class RoleAutomaticRoleAttributeRoutes extends Basic.AbstractContent {
   _changeAutomaticRole() {
     const { entity} = this.props;
     const uuidId = uuid.v1();
-    this.context.history.push(`/automatic-role-requests/${uuidId}/new?new=1&roleId=${entity.role}&automaticRoleId=${entity.id}`);
+    this.context.history.push(`/automatic-role-requests/${ uuidId }/new?new=1&roleId=${ entity.role }&automaticRoleId=${entity.id}`);
   }
 
   render() {
+    const { entity } = this.props;
+    //
     return (
-      <div>
-        <Basic.ContentHeader>
-          <Basic.Icon value="component:automatic-roles"/> {this.i18n('content.automaticRoles.attribute.header')}
-        </Basic.ContentHeader>
+      <Basic.Div>
+        <Advanced.DetailHeader
+          icon="component:automatic-roles"
+          entity={ entity }
+          showLoading={ !entity }
+          back={ !entity ? null : `/role/${ entity.role }/automatic-roles/attributes`}
+          small>
+          { this.i18n('content.automaticRoles.attribute.header') }
+        </Advanced.DetailHeader>
 
         <Basic.Row>
           <Basic.Col lg={ 6 }>
@@ -63,18 +70,17 @@ class RoleAutomaticRoleAttributeRoutes extends Basic.AbstractContent {
                 <Basic.Button
                   level="warning"
                   onClick={ this._changeAutomaticRole.bind(this) }
-                  titlePlacement="bottom">
-                  <Basic.Icon type="fa" icon="key"/>
-                  {' '}
+                  titlePlacement="bottom"
+                  icon="fa:key">
                   { this.i18n('button.change.label') }
                 </Basic.Button>
               ]}/>
           </Basic.Col>
         </Basic.Row>
         <Advanced.TabPanel position="top" parentId="role-automatic-role-attribute" match={ this.props.match }>
-          {this.getRoutes()}
+          { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

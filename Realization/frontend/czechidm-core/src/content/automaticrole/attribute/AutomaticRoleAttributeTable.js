@@ -21,10 +21,6 @@ const roleManager = new RoleManager();
  */
 export class AutomaticRoleAttributeTable extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return this.props.manager;
   }

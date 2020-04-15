@@ -25,15 +25,17 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
       entity,
       back,
       children,
-      buttons
+      buttons,
+      small
     } = this.props;
     //
     if (!rendered) {
       return null;
     }
+    const HeaderComponent = small ? Basic.ContentHeader : Basic.PageHeader;
     //
     return (
-      <Basic.PageHeader
+      <HeaderComponent
         icon={ icon }
         showLoading={ showLoading }>
         <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
@@ -46,7 +48,7 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
             <CloseButton to={ back } />
           </Basic.Div>
         </Basic.Div>
-      </Basic.PageHeader>
+      </HeaderComponent>
     );
   }
 }
@@ -69,9 +71,16 @@ DetailHeader.propTypes = {
    * Additional Buttons are shown before close detail button.
    */
   buttons: PropTypes.arrayOf(PropTypes.element),
+  /**
+   * True - page header, false - content header.
+   *
+   * @since 10.3.0
+   */
+  small: PropTypes.bool
 };
 
 DetailHeader.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
-  buttons: []
+  buttons: [],
+  small: false
 };

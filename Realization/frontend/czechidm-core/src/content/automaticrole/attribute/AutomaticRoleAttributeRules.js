@@ -24,15 +24,24 @@ class AutomaticRoleAttributeRules extends Basic.AbstractContent {
     return 'content.automaticRoles.attribute';
   }
 
-  componentDidMount() {
-    const { automaticRoleId, entityId } = this.props.match.params;
-    if (entityId) {
-      this.selectNavigationItems(['roles-menu', 'roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-rules']);
-    } else {
-      this.selectNavigationItems(['roles-menu', 'automatic-roles', 'automatic-role-attribute-rules']);
-    }
+  isEmbeddedDetail() {
+    const { entityId } = this.props.match.params;
+    //
+    return !!entityId;
+  }
 
-    this.getLogger().debug(`[TypeContent] loading entity detail [id:${automaticRoleId}]`);
+  getNavigationKey() {
+    if (this.isEmbeddedDetail()) {
+      return 'role-automatic-role-attribute-rules';
+    }
+    return 'automatic-role-attribute-rules';
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    const { automaticRoleId } = this.props.match.params;
+    this.getLogger().debug(`[TypeContent] loading entity detail [id:${ automaticRoleId }]`);
     this.context.store.dispatch(manager.fetchEntity(automaticRoleId));
   }
 
@@ -48,7 +57,7 @@ class AutomaticRoleAttributeRules extends Basic.AbstractContent {
             manager={ this.automaticRoleAttributeRuleManager }
             uiKey={ entity ? entity.id : null }
             attributeId={ entity ? entity.id : null }
-            className="no-margin"/>
+            className={ !this.isEmbeddedDetail() ? 'no-margin' : '' }/>
         </Basic.Panel>
       </div>
     );

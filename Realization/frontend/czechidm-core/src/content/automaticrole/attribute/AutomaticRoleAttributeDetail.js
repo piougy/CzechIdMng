@@ -26,7 +26,22 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
     return 'content.automaticRoles.attribute';
   }
 
+  isEmbeddedDetail() {
+    const { entityId } = this.props.match.params;
+    //
+    return !!entityId;
+  }
+
+  getNavigationKey() {
+    if (this.isEmbeddedDetail()) {
+      return 'role-automatic-role-attribute-detail';
+    }
+    return 'automatic-role-attribute-detail';
+  }
+
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entity } = this.props;
     this._initForm(entity);
   }
@@ -108,7 +123,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
         showLoading: false
       }, this.refs.form.processEnded());
       //
-      this.context.history.replace('/automatic-role/attributes/' + entity.id);
+      this.context.history.replace(`/automatic-role/attributes/${ entity.id }`);
     }
   }
 
@@ -147,12 +162,19 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
     const { showLoading } = this.state;
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="recalculate-automatic-role" level="warning"/>
 
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={ Utils.Entity.isNew(entity) ? '' : 'no-border last' }>
-            <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.automaticRoles.attribute.basic.title')} />
+            <Basic.PanelHeader
+              text={
+                Utils.Entity.isNew(entity)
+                ?
+                this.i18n('create.header')
+                :
+                this.i18n('content.automaticRoles.attribute.basic.title')
+              }/>
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
               <Basic.AbstractForm
                 ref="form"
@@ -175,7 +197,8 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
 
               <Basic.PanelFooter showLoading={showLoading} className="noBorder" >
                 <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
-                <Basic.Button type="button"
+                <Basic.Button
+                  type="button"
                   level="warning"
                   onClick={this._recalculate.bind(this)}
                   rendered={entity && entity.concept === true}>
@@ -198,7 +221,7 @@ export default class AutomaticRoleAttributeDetail extends Basic.AbstractContent 
             </Basic.PanelBody>
           </Basic.Panel>
         </form>
-      </div>
+      </Basic.Div>
     );
   }
 }

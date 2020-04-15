@@ -34,7 +34,7 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
   _getIsNew() {
     const { query } = this.props.location;
     if (query) {
-      return query.new ? true : false;
+      return !!query.new;
     }
     return false;
   }
@@ -46,12 +46,17 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
   }
 
   render() {
+    const { entity } = this.props;
     //
     return (
-      <div>
-        <Basic.PageHeader>
-          <Basic.Icon value="component:automatic-roles"/> {this.i18n('content.automaticRoles.attribute.header')}
-        </Basic.PageHeader>
+      <Basic.Div>
+        <Advanced.DetailHeader
+          icon="component:automatic-roles"
+          entity={ entity }
+          showLoading={ !entity }
+          back="/automatic-role/attributes">
+          { this.i18n('content.automaticRoles.attribute.header') }
+        </Advanced.DetailHeader>
 
         <Basic.Row rendered={ SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_CREATE') }>
           <Basic.Col lg={ 6 }>
@@ -64,9 +69,8 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
                 <Basic.Button
                   level="warning"
                   onClick={ this._changeAutomaticRole.bind(this) }
-                  titlePlacement="bottom">
-                  <Basic.Icon type="fa" icon="key"/>
-                  {' '}
+                  titlePlacement="bottom"
+                  icon="fa:key">
                   { this.i18n('button.change.label') }
                 </Basic.Button>
               ]}/>
@@ -76,7 +80,7 @@ class AutomaticRoleAttributeRoutes extends Basic.AbstractContent {
         <Advanced.TabPanel position="left" parentId="automatic-role-attribute" match={ this.props.match }>
           {this.getRoutes()}
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

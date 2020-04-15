@@ -32,7 +32,6 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -554,19 +553,9 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 	protected IdmIdentityContractFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter(parameters, getParameterConverter());
 		// to entity decorator
-		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentityDto.class));
-		
-		
-		
-		
-		
-		filter.setWorkPosition(getParameterConverter().toEntityUuid(parameters, "workPosition", IdmTreeNodeDto.class));		
-		filter.setValid(getParameterConverter().toBoolean(parameters, "valid"));
-		filter.setExterne(getParameterConverter().toBoolean(parameters, "externe"));
-		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));
-		filter.setMain(getParameterConverter().toBoolean(parameters, "main"));
-		filter.setValidNowOrInFuture(getParameterConverter().toBoolean(parameters, "validNowOrInFuture"));
-		filter.setPosition(getParameterConverter().toString(parameters, "position"));
+		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, IdmIdentityContractFilter.PARAMETER_IDENTITY, IdmIdentityDto.class));
+		filter.setSubordinatesFor(getParameterConverter().toEntityUuid(parameters, IdmIdentityContractFilter.PARAMETER_SUBORDINATES_FOR, IdmIdentityDto.class));
+		//
 		return filter;
 	}
 }

@@ -5460,6 +5460,23 @@
           }
         }
       },
+      "form-definition-export-bulk-action": {
+        "icon": "export",
+        "label": "Export form definition",
+        "title": "Form definition",
+        "help": "Creates an export batch containing selected form definitions. The export result will be saved in the <strong>Export/Import</strong> agenda.",
+        "attributes": {
+          "name": {
+              "label": "Description of export",
+            "help": ""
+          }
+        }
+      },
+      "form-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) form definitions",
+        "help": "$t(action.delete.action) selected form definitions.",
+        "icon": "$t(action.delete.icon)"
+      },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) configuration items",
         "help": "$t(action.delete.action) selected configuration items.",

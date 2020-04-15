@@ -952,4 +952,21 @@ public class DefaultTestHelper implements TestHelper {
         	JdbcUtils.closeConnection(connection);
         }
 	}
+	
+	@Override
+	public IdmFormDefinitionDto createFormDefinition(String type) {
+		boolean isMain = false;
+		return createFormDefinition(type, isMain);
+	}
+
+	@Override
+	public IdmFormDefinitionDto createFormDefinition(String type, boolean isMain) {
+		IdmFormDefinitionDto def = new IdmFormDefinitionDto();
+		def.setCode(this.createName());
+		def.setName(this.createName());
+		def.setType(type);
+		def.setMain(isMain);
+		def = formDefinitionService.save(def);
+		return def;
+	}
 }

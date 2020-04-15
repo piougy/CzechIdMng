@@ -21,10 +21,14 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractTransitiveEvaluator;
 
 /**
- * Permissions to contracts by identity
+ * Permissions to contracts by identity.
+ * 
+ * Lookout: Prevent to combine with {@link IdentityByContractEvaluator} - configure one of them.
+ * {@link IdentityByContractEvaluator} is more flexibile - contracts can be secured by manager (by tree structure or by guarantee).
+ * If {@link IdentityRoleByContractEvaluator} is configured, then logged identity can see / edit roles assigned to managed contracts.
+ * 
  * 
  * @author Radek Tomiška
- *
  */
 @Component
 @Description("Permissions to contracts by identity")

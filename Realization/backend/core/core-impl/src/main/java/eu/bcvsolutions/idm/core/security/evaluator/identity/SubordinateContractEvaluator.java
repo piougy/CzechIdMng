@@ -12,57 +12,66 @@ import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluator;
 
 /**
- * Permissions to subordinates.
+ * Permissions to subordinate contracts.
  * 
- * Lookout: Prevent to combine with {@link SubordinateContractEvaluator} - configure one of them.
+ * Lookout: Prevent to combine with {@link SubordinatesEvaluator} - configure one of them.
  * {@link SubordinateContractEvaluator} is more flexibile - contracts can be secured by manager (by tree structure or by guarantee).
  * If {@link IdentityRoleByContractEvaluator} is configured, then logged identity can see / edit roles assigned to managed contracts.
  * 
  * @author Radek Tomiška
- *
+ * @since 10.3.0
  */
-@Component
-@Description("Permissions to subordinates.")
-public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIdentity> {
+@Component(SubordinateContractEvaluator.EVALUATOR_NAME)
+@Description("Permissions to subordinate contracts.")
+public class SubordinateContractEvaluator extends AbstractAuthorizationEvaluator<IdmIdentityContract> {
 	
+	public static final String EVALUATOR_NAME = "core-subordinate-contract-evaluator";
+	//
 	@Autowired private SecurityService securityService;
 	@Autowired private FilterManager filterManager;
 	@Autowired private IdmIdentityService identityService;
+	
+	@Override
+	public String getName() {
+		return EVALUATOR_NAME;
+	}
 
 	@Override
-	public Predicate getPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicy policy, BasePermission... permission) {
+	public Predicate getPredicate(Root<IdmIdentityContract> root, CriteriaQuery<?> query, CriteriaBuilder builder, AuthorizationPolicy policy, BasePermission... permission) {
 		if (!hasPermission(policy, permission)) {
 			return null;
 		}
 		if (!securityService.isAuthenticated()) {
 			return null;
 		}
-		IdmIdentityFilter filter = new IdmIdentityFilter();
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setSubordinatesFor(securityService.getAuthentication().getCurrentIdentity().getId());
 		//
 		return filterManager
-				.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR)
+				.getBuilder(IdmIdentityContract.class, IdmIdentityContractFilter.PARAMETER_SUBORDINATES_FOR)
 				.getPredicate(root, query, builder, filter);
 	}
 	
 	@Override
-	public Set<String> getPermissions(IdmIdentity entity, AuthorizationPolicy policy) {
+	public Set<String> getPermissions(IdmIdentityContract entity, AuthorizationPolicy policy) {
 		Set<String> permissions = super.getPermissions(entity, policy);
 		if (entity == null || !securityService.isAuthenticated()) {
 			return permissions;
 		}
 		IdmIdentityFilter filter = new IdmIdentityFilter();
-		filter.setManagersFor(entity.getId());
+		filter.setManagersFor(entity.getIdentity().getId()); // required - filter is registered to this property
+		filter.setManagersByContract(entity.getId());
 		filter.setUsername(securityService.getUsername());
 		boolean isManager = identityService
 				.findIds(filter, PageRequest.of(0, 1))

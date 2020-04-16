@@ -248,7 +248,8 @@ export class RoleConceptDetail extends Basic.AbstractContent {
           onChange={this._onChangeSelectOfContract.bind(this)}
           niceLabel={ (contract) => identityContractManager.getNiceLabel(contract, false)}
           required
-          useFirst/>
+          useFirst
+          clearable={ false }/>
         <Basic.LabelWrapper
           label={ this.i18n('entity.IdentityRole.automaticRole.label') }
           helpBlock={ this.i18n('entity.IdentityRole.automaticRole.help') }

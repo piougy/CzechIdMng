@@ -411,7 +411,8 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 niceLabel={ (contract) => { return this.identityContractManager.getNiceLabel(contract, false); }}
                 value={ selectedIdentityContract }
                 required
-                useFirst/>
+                useFirst
+                clearable={ false }/>
 
               <Basic.DateTimePicker
                 mode="date"

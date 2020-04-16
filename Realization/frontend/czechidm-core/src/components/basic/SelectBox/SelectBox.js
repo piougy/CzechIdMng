@@ -442,6 +442,12 @@ class SelectBox extends AbstractFormComponent {
   }
 
   onChange(value) {
+    // handle empty option before custom handler is called
+    if (value && value._clearable) {
+      // null option
+      value = null;
+    }
+    //
     let result = true;
     if (this.props.onChange) {
       result = this.props.onChange(value);
@@ -450,12 +456,7 @@ class SelectBox extends AbstractFormComponent {
     if (result === false) {
       return;
     }
-
-    if (value && value._clearable) {
-      // null option
-      value = null;
-    }
-
+    //
     this.setState({
       value,
       error: null // clear previous error

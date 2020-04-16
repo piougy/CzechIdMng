@@ -321,9 +321,8 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                       title={this.i18n('button.start')}
                       titlePlacement="bottom"
                       onClick={startRequestFunc && startRequestFunc.bind(this, [data[rowIndex].id])}
-                      className="btn-xs">
-                      <Basic.Icon type="fa" icon="play"/>
-                    </Basic.Button>
+                      className="btn-xs"
+                      icon="fa:play"/>
                   </span>
                 );
               }

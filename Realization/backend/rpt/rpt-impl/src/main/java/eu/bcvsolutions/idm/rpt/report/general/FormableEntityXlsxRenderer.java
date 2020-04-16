@@ -27,13 +27,14 @@ import eu.bcvsolutions.idm.rpt.api.renderer.RendererRegistrar;
  *
  * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
  */
-@Component("formableEntityXlsxRenderer")
+@Component(FormableEntityXlsxRenderer.NAME)
 @Description(AbstractXlsxRenderer.RENDERER_EXTENSION) // will be show as format for download
 public class FormableEntityXlsxRenderer extends AbstractXlsxRenderer implements RendererRegistrar {
 
-	public static final String NAME = "formableEntityXlsxRenderer";
+	public static final String NAME = "formable-entity-xlsx-renderer";
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public InputStream render(RptReportDto report) {
 		try (JsonParser jParser = getMapper().getFactory().createParser(getReportData(report));
 			 XSSFWorkbook workbook = new XSSFWorkbook()) {
@@ -89,7 +90,7 @@ public class FormableEntityXlsxRenderer extends AbstractXlsxRenderer implements 
 
 	@Override
 	public String[] register(String reportName) {
-		if (FromableEntityReportExecutor.NAME.equals(reportName)) {
+		if (FormableEntityReportExecutor.NAME.equals(reportName)) {
 			return new String[]{getName()};
 		}
 		return new String[0];

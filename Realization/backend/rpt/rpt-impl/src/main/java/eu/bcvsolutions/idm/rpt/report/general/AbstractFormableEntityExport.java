@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
 
 /**
@@ -44,8 +45,8 @@ public abstract class AbstractFormableEntityExport<D extends FormableDto, F exte
 	protected Map<String, String> tramsformToMap(D dto) {
 		Map<String, String> map = super.tramsformToMap(dto);
 		//
-		List<IdmFormDefinitionDto> definitions = formService.getDefinitions(dto);
-		List<IdmFormInstanceDto> formInstances = definitions.stream().map(d -> formService.getFormInstance(dto, d)).collect(Collectors.toList());
+		List<IdmFormDefinitionDto> definitions = formService.getDefinitions(dto, IdmBasePermission.AUTOCOMPLETE);
+		List<IdmFormInstanceDto> formInstances = definitions.stream().map(d -> formService.getFormInstance(dto, d, IdmBasePermission.READ)).collect(Collectors.toList());
 		//
 		formInstances.forEach(formInstance -> processFormInstance(map, formInstance, dto.getEavs().size() > 1));
 		return map;
@@ -56,6 +57,9 @@ public abstract class AbstractFormableEntityExport<D extends FormableDto, F exte
 		// fill existing values
 		formInstance.getValues().forEach(val -> {
 			final String eavName = getEavName(formInstance.getMappedAttribute(val.getFormAttribute()), formInstance, prefixEavsWithDefinitionCode);
+			if (eavName == null) {
+				return;
+			}
 			if (!eavsWithValues.containsKey(eavName)) {
 				eavsWithValues.put(eavName, new ArrayList<>());
 			}
@@ -78,7 +82,15 @@ public abstract class AbstractFormableEntityExport<D extends FormableDto, F exte
 	}
 
 	protected String getEavName(IdmFormAttributeDto mappedAttribute,IdmFormInstanceDto formInstance, boolean prefixEavsWithDefinitionCode) {
-		return prefixEavsWithDefinitionCode ? formInstance.getFormDefinition().getCode() + "_" + mappedAttribute.getCode() : mappedAttribute.getCode();
+		if (mappedAttribute == null || (prefixEavsWithDefinitionCode && formInstance == null)) {
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+		if (prefixEavsWithDefinitionCode) {
+			sb.append(formInstance.getFormDefinition().getCode());
+			sb.append("_");
+		}
+		return sb.append(mappedAttribute.getCode()).toString();
 	}
 
 }

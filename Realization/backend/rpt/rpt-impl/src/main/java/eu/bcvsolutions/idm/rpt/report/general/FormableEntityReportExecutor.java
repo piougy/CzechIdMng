@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.rpt.api.executor.AbstractReportExecutor;
 @Component
 @Description("General export of entities")
 @Order(Integer.MAX_VALUE)
-public class FromableEntityReportExecutor extends AbstractReportExecutor {
+public class FormableEntityReportExecutor extends AbstractReportExecutor {
 
 	public static final String NAME = "formable-entity-report";
 

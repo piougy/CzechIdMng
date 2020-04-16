@@ -84,6 +84,7 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Map<String, String> tramsformToMap(D dto) {
 		Map<String, String> map = getMapper().convertValue(dto, Map.class);
 
@@ -122,7 +123,7 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 	protected void createReport() {
 		RptReportDto report = new RptReportDto();
 		report.setLongRunningTask(getLongRunningTaskId());
-		report.setExecutorName(FromableEntityReportExecutor.NAME);
+		report.setExecutorName(FormableEntityReportExecutor.NAME);
 		report.setName(REPORT_NAME);
 
 		this.relatedReport = reportService.save(report).getId();

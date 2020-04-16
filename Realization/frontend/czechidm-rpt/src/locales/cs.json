@@ -77,7 +77,7 @@
   },
   "eav": {
     "bulk-action": {
-      "generic-formable-entity-report": {
+      "generic-entity-report": {
         "label": "Report",
         "title": "Reportovat vybrané objekty do xls",
         "icon": "fa:file-excel"

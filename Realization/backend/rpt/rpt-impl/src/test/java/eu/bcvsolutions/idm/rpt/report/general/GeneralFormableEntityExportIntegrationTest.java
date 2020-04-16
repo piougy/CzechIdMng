@@ -33,7 +33,6 @@ import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
-import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -44,7 +43,6 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.dto.filter.RptReportFilter;
 import eu.bcvsolutions.idm.rpt.api.service.ReportManager;
 import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
-import eu.bcvsolutions.idm.rpt.report.identity.IdentityEavReportXlsxRenderer;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrationTest {
@@ -54,11 +52,7 @@ public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrat
 	@Autowired
 	private RptReportService reportService;
 	@Autowired
-	private IdentityEavReportXlsxRenderer xlsxRenderer;
-	@Autowired
 	private IdmIdentityService identityService;
-	@Autowired
-	private AttachmentManager attachmentManager;
 	@Autowired
 	private LoginService loginService;
 	@Autowired
@@ -123,9 +117,10 @@ public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrat
 
 		Assert.assertNotNull(render);
 
-		XSSFWorkbook workbook = new XSSFWorkbook(render.getRenderedReport());
-
-		XSSFSheet sheetAt = workbook.getSheetAt(0);
+		XSSFSheet sheetAt = null;
+		try (XSSFWorkbook workbook = new XSSFWorkbook(render.getRenderedReport())) {
+			sheetAt = workbook.getSheetAt(0);
+		}
 
 		Map<String, Map<String, String>> parsed = sheetToMap(sheetAt);
 

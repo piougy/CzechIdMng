@@ -1,9 +1,13 @@
 package eu.bcvsolutions.idm.rpt.report.general;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -24,5 +28,10 @@ public class SysSystemGeneralEntityExport extends AbstractFormableEntityExport<S
 	public SysSystemGeneralEntityExport(ReadWriteDtoService<SysSystemDto, SysSystemFilter> service,
 										RptReportService reportService, AttachmentManager attachmentManager, ObjectMapper mapper, FormService formService) {
 		super(service, reportService, attachmentManager, mapper, formService);
+	}
+	
+	@Override
+	protected List<String> getAuthoritiesForEntity() {
+		return Lists.newArrayList(AccGroupPermission.SYSTEM_READ);
 	}
 }

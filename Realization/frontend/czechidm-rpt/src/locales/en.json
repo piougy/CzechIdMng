@@ -77,7 +77,7 @@
   },
   "eav": {
     "bulk-action": {
-      "generic-formable-entity-report": {
+      "generic-entity-report": {
         "label": "Report",
         "title": "Report selected objects to xls spreadsheet",
         "icon": "fa:file-excel"

@@ -1,26 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.apache.commons.lang3.BooleanUtils;
-import java.time.ZonedDateTime;
-import java.time.LocalDate;
-import java.time.ZoneId;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationContext;
@@ -61,21 +44,39 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 /**
  * Identity sync executor
- * 
+ *
  * @author svandav
  *
  */
 @Component
 public class IdentitySynchronizationExecutor extends AbstractSynchronizationExecutor<IdmIdentityDto>
 		implements SynchronizationEntityExecutor {
-	
+
 	private static final String PRIME_VALID_CONTRACT_KEY = "prime-valid-contract";
 
 	@Autowired
@@ -94,11 +95,12 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	private LongRunningTaskManager longRunningTaskManager;
 	@Autowired
 	private IdentityConfiguration identityConfiguration;
-	
+	@Autowired
+	private IdmFormProjectionService formProjectionService;
+
 	@Override
 	protected SynchronizationContext validate(UUID synchronizationConfigId) {
 		SynchronizationContext context = super.validate(synchronizationConfigId);
-
 		SysSyncIdentityConfigDto config = this.getConfig(context);
 		SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
 		UUID defaultRole = config.getDefaultRole();
@@ -109,7 +111,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			SysSystemMappingDto provisioningMapping = systemMappingService.findProvisioningMapping(
 					context.getSystem().getId(),
 					context.getEntityType());
-			
+
 			if (provisioningMapping == null) {
 				throw new ResultCodeException(AccResultCode.SYNCHRONIZATION_PROVISIONING_MUST_EXIST,
 						ImmutableMap.of("property", SynchronizationInactiveOwnerBehaviorType.LINK_PROTECTED));
@@ -128,7 +130,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 
 	/**
 	 * Call provisioning for given account
-	 * 
+	 *
 	 * @param entity
 	 * @param entityType
 	 * @param logItem
@@ -153,7 +155,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	/**
 	 * Save entity In the identity sync are creation of the default contract
 	 * skipped.
-	 * 
+	 *
 	 * @param entity
 	 * @param skipProvisioning
 	 * @return
@@ -163,7 +165,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		SysSyncIdentityConfigDto config = this.getConfig(context);
 		boolean isNew = identityService.isNew(entity);
 		boolean createDefaultContract = config.isCreateDefaultContract();
-		
+
 		if (isNew && createDefaultContract) {
 			addToItemLog(context.getLogItem(), "The default contract will be created for the identity.");
 		}
@@ -185,7 +187,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 
 	/**
 	 * Operation remove IdentityAccount relations and linked roles
-	 * 
+	 *
 	 * @param account
 	 * @param removeIdentityRole
 	 * @param log
@@ -224,7 +226,6 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			}
 
 		});
-		return;
 	}
 
 	@Override
@@ -237,7 +238,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		Assert.isInstanceOf(AccIdentityAccountDto.class, entityAccount,
 				"For identity sync must be entity-account relation instance of AccIdentityAccountDto!");
 		AccIdentityAccountDto identityAccount = (AccIdentityAccountDto) entityAccount;
-		
+
 		SysSyncIdentityConfigDto config = this.getConfig(context);
 		SysSyncItemLogDto itemLog = context.getLogItem();
 
@@ -249,20 +250,20 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		IdmRoleDto defaultRole = DtoUtils.getEmbedded(config, SysSyncIdentityConfig_.defaultRole);
 		Assert.notNull(defaultRole, "Default role must be found for this sync configuration!");
 		this.addToItemLog(itemLog, (MessageFormat.format(
-						"Default role [{1}] is defined and will be assigned to the identity [{0}].", entity.getCode(),
-						defaultRole.getCode())));
-		
+				"Default role [{1}] is defined and will be assigned to the identity [{0}].", entity.getCode(),
+				defaultRole.getCode())));
+
 		List<IdmIdentityContractDto> contracts = Lists.newArrayList();
-		
+
 		// Could be default role assigned to all valid or future valid contracts?
 		if (config.isAssignDefaultRoleToAll()) {
-			
+
 			IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
 			contractFilter.setValidNowOrInFuture(Boolean.TRUE);
 			contractFilter.setIdentity(entity.getId());
-			
+
 			contracts = identityContractService.find(contractFilter, null).getContent();
-			
+
 			this.addToItemLog(itemLog, (MessageFormat.format(
 					"Default role will be assigned to all valid or future valid contracts, number of found contracts [{0}].", contracts.size())));
 		} else {
@@ -279,14 +280,13 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 						"Default role is set, but it will not be assigned - no contract was found for identity [{0}],"
 						+ " so the account will be in protection.", entity.getCode())));
 			} else {
-				this.addToItemLog(itemLog, (
-						"Warning! - Default role is set, but could not be assigned to identity, because the identity has not any suitable contract!"));
+				this.addToItemLog(itemLog, ("Warning! - Default role is set, but could not be assigned to identity, because the identity has not any suitable contract!"));
 				this.initSyncActionLog(context.getActionType(), OperationResultType.WARNING, context.getLogItem(),
 						context.getLog(), context.getActionLogs());
 			}
 			return identityAccount;
 		}
-		
+
 		List<IdmConceptRoleRequestDto> concepts = new ArrayList<>(contracts.size());
 
 		for (IdmIdentityContractDto contract : contracts) {
@@ -319,9 +319,9 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			// Same IdentityAccount had to be created by assigned default role!
 			this.addToItemLog(itemLog, (MessageFormat.format(
 					"This identity-account (identity-role id: [{2}]) is new and duplicated, "
-							+ "we do not want create duplicated relation! "
-							+ "We will reuse already persisted identity-account [{3}]. "
-							+ "Probable reason: Same identity-account had to be created by assigned default role!",
+					+ "we do not want create duplicated relation! "
+					+ "We will reuse already persisted identity-account [{3}]. "
+					+ "Probable reason: Same identity-account had to be created by assigned default role!",
 					identityAccount.getAccount(), identityAccount.getIdentity(), identityAccount.getIdentityRole(),
 					duplicate.getId())));
 			// Reusing duplicate
@@ -337,10 +337,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		return new AccIdentityAccountFilter();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	protected EntityAccountService<EntityAccountDto, EntityAccountFilter> getEntityAccountService() {
-		return (EntityAccountService)identityAccoutnService;
+		return (EntityAccountService) identityAccoutnService;
 	}
 
 	@Override
@@ -444,7 +444,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 	/**
 	 * Search duplicate for given identity-account relation. If some duplicate is
 	 * found, then is returned first.
-	 * 
+	 *
 	 * @param identityAccount
 	 * @return
 	 */
@@ -466,13 +466,16 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		}
 		return entityAccounts.get(0);
 	}
-	
+
 	/**
-	 * Apply settings that are specific to this type of entity.
-	 * Default implementation is empty.
+	 * Apply settings that are specific to this type of entity.Default
+	 * implementation is empty.
+	 *
 	 * @param account
 	 * @param entity - can be null in the case of Missing entity situation
 	 * @param context
+	 *
+	 * @return
 	 */
 	@Override
 	protected AccAccountDto applySpecificSettingsBeforeLink(AccAccountDto account, IdmIdentityDto entity, SynchronizationContext context) {
@@ -528,7 +531,7 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			return account;
 		}
 	}
-	
+
 	@Override
 	protected boolean skipEntityUpdate(IdmIdentityDto entity, SynchronizationContext context) {
 		IdmIdentityContractDto primeContract = this.getPrimeValidContract(entity, context);
@@ -544,16 +547,35 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		}
 
 		SynchronizationInactiveOwnerBehaviorType inactiveOwnerBehavior = config.getInactiveOwnerBehavior();
-		if (SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK == inactiveOwnerBehavior && entity != null) {
-			return true;
-		}
 
-		return false;
+		return SynchronizationInactiveOwnerBehaviorType.DO_NOT_LINK == inactiveOwnerBehavior && entity != null;
 	}
-	
+
+	@Override
+	protected Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes,
+			SynchronizationContext context) {
+		Object transformedValue = super.getValueByMappedAttribute(attribute, icAttributes, context);
+		// Try to find projection (user-type) by code.
+		if (IdmIdentity_.formProjection.getName().equals(attribute.getIdmPropertyName())
+				&& attribute.isEntityAttribute()) {
+			if (transformedValue instanceof String) {
+				IdmFormProjectionDto projection = formProjectionService.getByCode((String) transformedValue);
+				if (projection != null) {
+					if (context.getLogItem() != null) {
+						addToItemLog(context.getLogItem(), MessageFormat.format(
+								"User type (projection [{1}]) was found for code [{0}].",
+								transformedValue, projection.toString()));
+					}
+					return projection.getId();
+				}
+			}
+		}
+		return transformedValue;
+	}
+
 	/**
 	 * Get prime valid contract for given identity. Using a cache in the context.
-	 * 
+	 *
 	 * @param entity
 	 * @param context
 	 * @return
@@ -566,10 +588,10 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 			}
 			return (IdmIdentityContractDto) primeContract;
 		}
-		
-		IdmIdentityContractDto primeContract =  entity != null ? identityContractService.getPrimeValidContract(entity.getId()) : null;
+
+		IdmIdentityContractDto primeContract = entity != null ? identityContractService.getPrimeValidContract(entity.getId()) : null;
 		context.addProperty(PRIME_VALID_CONTRACT_KEY, primeContract);
-		
+
 		return primeContract;
 	}
 
@@ -580,22 +602,23 @@ public class IdentitySynchronizationExecutor extends AbstractSynchronizationExec
 		   Last valid contract + interval ... default
 		     - enable past dates  .... default
 		     - if no contract or past date, then set current date + interval
-		*/
-		
+		 */
+
 		// Compute the values for the protection
 		Integer protectionInterval = context.getProtectionInterval();
 		ZonedDateTime endOfProtection = null;
-		LocalDate protectionStart = null;
+		LocalDate protectionStart;
 		IdmIdentityContractDto lastExpiredContract = null;
+
 		if (protectionInterval != null) {
 			LocalDate now = LocalDate.now();
 			lastExpiredContract = entity != null ? identityContractService.findLastExpiredContract(entity.getId(), now) : null;
 			protectionStart = (lastExpiredContract != null) ? lastExpiredContract.getValidTill() : now;
 			// interval + 1 day = ensure that the account is in protection for at least specified number of days
 			// after the contract ended. This can be in the past.
-			endOfProtection = protectionStart.atStartOfDay(ZoneId.systemDefault()).plusDays(protectionInterval+1);
+			endOfProtection = protectionStart.atStartOfDay(ZoneId.systemDefault()).plusDays(protectionInterval + 1);
 		}
-		
+
 		// Set the values to the account
 		account.setInProtection(true);
 		account.setEndOfProtection(endOfProtection);

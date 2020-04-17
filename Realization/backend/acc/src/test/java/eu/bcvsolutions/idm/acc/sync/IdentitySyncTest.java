@@ -1,31 +1,6 @@
 package eu.bcvsolutions.idm.acc.sync;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.transaction.Transactional;
-
-import org.activiti.engine.ProcessEngine;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
-
 import com.beust.jcommander.internal.Lists;
-
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -97,8 +72,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
@@ -107,6 +85,27 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.transaction.Transactional;
+import org.activiti.engine.ProcessEngine;
+import org.junit.After;
+import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
 
 /**
  * Identity synchronization tests (basic tests for identity sync are in
@@ -179,6 +178,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 	private IdentityConfiguration identityConfiguration;
 	@Autowired
 	private ProcessEngine processEngine;
+	@Autowired
+	private IdmFormProjectionService formProjectionService;
 
 	@After
 	public void logout() {
@@ -730,6 +731,73 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		// Delete log
 		syncLogService.delete(log);
 
+	}
+
+	@Test
+	public void updateIdentityWithUserTypeTest() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+		SysSyncIdentityConfigDto config = doCreateSyncConfig(system);
+		IdmRoleDto defaultRole = helper.createRole();
+
+		// Set default role to sync configuration
+		config.setDefaultRole(defaultRole.getId());
+		config.setInactiveOwnerBehavior(SynchronizationInactiveOwnerBehaviorType.LINK);
+		config.setUnlinkedAction(SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY);
+		config = (SysSyncIdentityConfigDto) syncConfigService.save(config);
+
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(system.getId());
+		
+		// Create projection
+		IdmFormProjectionDto projection = new IdmFormProjectionDto();
+		projection.setOwnerType(IdmIdentity.class.getCanonicalName());
+		projection.setCode(getHelper().createName());
+		projection.setDisabled(false);
+		projection = formProjectionService.save(projection);
+		
+		SysSchemaAttributeDto someSchemaAttribute = schemaAttributeService.find(schemaAttributeFilter, null).getContent().get(0);
+		Assert.assertNotNull(someSchemaAttribute);
+		
+		// Create attribute returns code of projection.
+		SysSystemAttributeMappingDto projectionAttribute = new SysSystemAttributeMappingDto();
+		projectionAttribute.setIdmPropertyName(IdmIdentity_.formProjection.getName());
+		projectionAttribute.setEntityAttribute(true);
+		projectionAttribute.setExtendedAttribute(false);
+		projectionAttribute.setName(IdmIdentity_.formProjection.getName());
+		projectionAttribute.setSchemaAttribute(someSchemaAttribute.getId());
+		projectionAttribute.setSystemMapping(config.getSystemMapping());
+		projectionAttribute.setTransformFromResourceScript(MessageFormat.format("return \"{0}\";", projection.getCode()));
+		projectionAttribute = schemaAttributeMappingService.save(projectionAttribute);
+
+		IdmIdentityDto identityOne = helper.createIdentity(IDENTITY_ONE);
+
+		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
+		identityFilter.setUsername(IDENTITY_ONE);
+
+		helper.startSynchronization(config);
+
+		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.LINK_AND_UPDATE_ENTITY, 1, OperationResultType.SUCCESS);
+
+		Assert.assertFalse(log.isRunning());
+		Assert.assertFalse(log.isContainsError());
+
+		List<IdmIdentityRoleDto> roles = identityRoleService.findAllByIdentity(identityOne.getId());
+		Assert.assertEquals(1, roles.size());
+		Assert.assertEquals(defaultRole.getId(), roles.get(0).getRole());
+		
+		identityOne = identityService.get(identityOne.getId());
+		
+		// Identity must have sets projection.
+		Assert.assertNotNull(identityOne);
+		Assert.assertNotNull(identityOne.getFormProjection());
+		Assert.assertEquals(projection.getId(), identityOne.getFormProjection());
+
+		// Delete log
+		syncLogService.delete(log);
+		// Delete projection attribute and projection.
+		schemaAttributeMappingService.delete(projectionAttribute);
+		formProjectionService.delete(projection);
 	}
 
 	@Test

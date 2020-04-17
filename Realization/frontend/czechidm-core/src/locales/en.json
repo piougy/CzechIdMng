@@ -899,7 +899,7 @@
       "PASSWORD": "Password (GuardedString)",
       "ASSIGNED_ROLES": "User assigned roles",
       "ASSIGNED_ROLES_FOR_SYSTEM": "User assigned roles (for this system)",
-      "FORM_PROJECTION": "User type (UUID)",
+      "FORM_PROJECTION": "User type (IdmFormProjectionDto)",
       "helpBlock": {
         "USERNAME": "",
         "EXTERNAL_CODE": "",
@@ -915,7 +915,7 @@
         "PASSWORD": "",
         "ASSIGNED_ROLES": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
         "ASSIGNED_ROLES_FOR_SYSTEM": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles which <strong>assigned this system</strong> (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
-        "FORM_PROJECTION": ""
+        "FORM_PROJECTION": "<strong>Sync - </strong> You can use an identifier or <strong>projection code</strong> to get a user-type (projection).<br/><strong>Provisioning - </strong> Input value in transformation to the system (<strong> attributeValue </strong>) is the entire user-type object (IdmFormProjectionDto)."
       }
     },
     "ContractAttributeEnum": {

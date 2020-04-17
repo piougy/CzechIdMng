@@ -932,7 +932,7 @@
       "PASSWORD": "Heslo (GuardedString)",
       "ASSIGNED_ROLES": "Přiřazené role uživatele",
       "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento systém)",
-      "FORM_PROJECTION": "Typ uživatele (UUID)",
+      "FORM_PROJECTION": "Typ uživatele (IdmFormProjectionDto)",
       "helpBlock": {
         "USERNAME": "",
         "EXTERNAL_CODE": "",
@@ -948,7 +948,7 @@
         "PASSWORD": "",
         "ASSIGNED_ROLES": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
         "ASSIGNED_ROLES_FOR_SYSTEM": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele, které přiřazují <strong>tento systém</strong> (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
-        "FORM_PROJECTION": ""
+        "FORM_PROJECTION": "<strong>Synchronizace - </strong> Pro dohledání konkrétního typu uživatele (projekce) v rámci synchronizace, můžete použít identifikátor nebo <strong>kód projekce</strong>.<br/><strong>Provisioning - </strong> Vstupem transformace do systému (<strong>attributeValue</strong>) je celý objet typu-uživatele (IdmFormProjectionDto)."
       }
     },
     "ContractAttributeEnum": {

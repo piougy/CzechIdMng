@@ -82,7 +82,7 @@ public class DefaultContractByManagerFilter extends AbstractFilterBuilder<IdmIde
 		Join<IdmIdentityContract, IdmTreeNode> wpRoot = subRoot.join(IdmIdentityContract_.workPosition, JoinType.LEFT);
 		subqueryWp.where(builder.and(
 				// valid contract only
-				RepositoryUtils.getValidPredicate(subqueryWpRoot, builder),
+				RepositoryUtils.getValidNowOrInFuturePredicate(subqueryWpRoot, builder),
 				builder.equal(subqueryWpRoot.get(IdmIdentityContract_.disabled), Boolean.FALSE),
 				//
 				(filter.getSubordinatesByTreeType() == null) // only id tree type is specified

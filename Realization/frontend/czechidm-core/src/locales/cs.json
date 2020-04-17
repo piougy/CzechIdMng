@@ -3076,11 +3076,17 @@
         },
         "create": {
           "title": "Nový garant",
-          "header": "Nový garant"
+          "header": "Nový garant",
+          "endedContract": "Nového garanta lze přidat pouze pro aktuálně nebo v budoucnu platný kontrakt"
         },
         "action": {
           "save": {
             "success": "Pro pracovní pozici byl úspěšně uložen vedoucí (odpovědná osoba) [{{record}}]"
+          }
+        },
+        "endedContract": {
+          "warning": {
+            "message": "Platnost kontraktu vypršela. Tento <strong>kontrakt již nemůže mít vedoucího</strong>. Je možné pouze odebrat předešle nastaveného vedoucího (odpovědnou osobu), který již není platný."
           }
         }
       },

@@ -41,7 +41,9 @@ class ContentHeader extends AbstractComponent {
                 { text }
                 { children }
               </div>
-              { buttons }
+              <div style={{ fontSize: '0.7em' }}>
+                { buttons }
+              </div>
               <HelpIcon content={ help }/>
             </div>
           }

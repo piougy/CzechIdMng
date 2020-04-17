@@ -3023,11 +3023,17 @@
         },
         "create": {
           "title": "Add guarantee",
-          "header": "Add guarantee"
+          "header": "Add guarantee",
+          "endedContract": "New guarantee can be added to valid or future valid contact"
         },
         "action": {
           "save": {
             "success": "For contracted position was successfully saved authorizer [{{record}}]"
+          }
+        },
+        "endedContract": {
+          "warning": {
+            "message": "Contract ended in the past. This <strong>contract cannot define managers and guarantee</strong>. Is possible to remove previously defined (now not active) direct guarantees only."
           }
         }
       },

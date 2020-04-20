@@ -78,6 +78,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -91,6 +92,7 @@ import eu.bcvsolutions.idm.core.model.service.api.LongPollingManager;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultLongPollingManager;
 import eu.bcvsolutions.idm.core.rest.DeferredResultWrapper;
 import eu.bcvsolutions.idm.core.rest.LongPollingSubscriber;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -136,6 +138,7 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 	@Autowired private SysSyncActionLogService syncActionLogService;
 	@Autowired private SysSystemController systemController;
 	@Autowired private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired private ConfidentialStorage confidentialStorage;
 	
 	@Before
 	public void login() {
@@ -869,6 +872,38 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 		Assert.assertEquals(lastAttribute.isMultiple(), recreatedLastAttribute.isMultiple());
 		Assert.assertEquals(lastAttribute.isUnique(), recreatedLastAttribute.isUnique());
 		Assert.assertEquals(lastAttribute.isUnmodifiable(), recreatedLastAttribute.isUnmodifiable());
+	}
+	
+	/**
+	 * Test that password of the remote server is not lost after getting a system with remote server.
+	 */
+	@Test
+	public void testPasswordNotOverriden() {
+		final String testPassword = "myPassword123456";
+		final String name = helper.createName();
+		SysSystemDto system = helper.createSystem(name);
+		system.setRemote(true);
+		system.setVirtual(false);
+		system.getConnectorServer().setPassword(new GuardedString(testPassword));
+		system = systemService.save(system);
+
+		// Prove that confidential storage contains correct password
+		String storedPassword = confidentialStorage.getGuardedString(system.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD).asString();
+		Assert.assertEquals(testPassword, storedPassword);
+		
+		// Get stored system and prove it doesn't contain readable password 
+		SysSystemDto systemTmp = systemService.get(system.getId());		
+		GuardedString obtainedPassword = systemTmp.getConnectorServer().getPassword();
+		Assert.assertTrue(obtainedPassword == null
+				|| obtainedPassword.asString().contentEquals(GuardedString.SECRED_PROXY_STRING));				
+		
+		systemTmp = systemService.save(systemTmp);
+
+		// Prove that confidential storage still contains correct password
+		storedPassword = confidentialStorage.getGuardedString(system.getId(),
+				SysSystem.class, SysSystemService.REMOTE_SERVER_PASSWORD).asString();
+		Assert.assertEquals(testPassword, storedPassword);
 	}
 
 	private AbstractSysSyncConfigDto createSync(SysSystemDto system) {

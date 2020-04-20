@@ -255,13 +255,15 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { hidden, required, rendered, validationErrors, multiSelect, onChange } = this.props;
+    const { hidden, required, rendered, validationErrors, multiSelect, onChange, showOnlyIfOptionsExists } = this.props;
     const { options, value, disabled, readOnly } = this.state;
     const showLoading = this.props.showLoading || this.state.showLoading;
     //
     if (!rendered) {
       return null;
     }
+
+    const localHidden = hidden || (showOnlyIfOptionsExists && options.length === 0);
     //
     return (
       <span>
@@ -274,7 +276,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           readOnly={ readOnly || disabled }
           required={ required }
           validationErrors={ validationErrors }
-          hidden={ hidden || (options.length === 0 && !showLoading) }
+          hidden={ localHidden || (options.length === 0 && !showLoading) }
           showLoading={ showLoading }
           options={ options }
           multiSelect={ multiSelect }
@@ -289,7 +291,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           readOnly={ readOnly || disabled }
           required={ required }
           validationErrors={ validationErrors }
-          hidden={ showLoading || hidden || options.length > 0 }
+          hidden={ showLoading || localHidden || options.length > 0 }
           onChange={ onChange }
         />
       </span>
@@ -336,6 +338,10 @@ CodeListSelect.propTypes = {
    */
   multiSelect: PropTypes.bool,
   /**
+   * If is true, then will be component visible only if there is least one codelist option.
+   */
+  showOnlyIfOptionsExists: PropTypes.bool,
+  /**
    * On chage seleceted value callback
    */
   onChange: PropTypes.func
@@ -346,5 +352,6 @@ CodeListSelect.defaultProps = {
   uiKey: 'code-list-select',
   useFirst: false,
   items: null,
-  multiSelect: false
+  multiSelect: false,
+  showOnlyIfOptionsExists: false
 };

@@ -143,7 +143,10 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
 
           <form onSubmit={this.save.bind(this, {})}>
             <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
-            <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('edit.header', { name: manager.getNiceLabel(detail.entity) }) } rendered={ !Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('edit.header', { name: manager.getNiceLabel(detail.entity) }) }
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
@@ -162,6 +165,13 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.RoleGuaranteeRole.guaranteeRole.label') }
                   helpBlock={ this.i18n('entity.RoleGuaranteeRole.guaranteeRole.help') }
                   required/>
+                <Advanced.CodeListSelect
+                  ref="type"
+                  code="guarantee-type"
+                  showOnlyIfOptionsExists
+                  label={ this.i18n('entity.RoleGuaranteeRole.type.label') }
+                  helpBlock={ this.i18n(`entity.RoleGuaranteeRole.type.help`) }
+                  max={ 255 }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

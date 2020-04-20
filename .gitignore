@@ -12,3 +12,7 @@
 hs_err_pid*
 Realization/.vscode/launch.json
 Realization/frontend/.vscode/launch.json
+Realization/backend/app/nbactions-dev.xml
+Realization/backend/acc/nbactions-dev.xml
+Realization/backend/core/core-impl/nbactions.xml
+Realization/backend/core/nbactions.xml

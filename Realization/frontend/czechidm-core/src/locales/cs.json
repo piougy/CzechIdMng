@@ -3901,6 +3901,10 @@
       "guarantee": {
         "label": "Garant - identita",
         "help": "Vybraná identita se stane garantem role."
+      },
+      "type": {
+        "label": "Typ garanta",
+        "help": ""
       }
     },
     "RoleGuaranteeRole": {
@@ -3911,6 +3915,10 @@
       "guaranteeRole": {
         "label": "Garant - role",
         "help": "Identity mající vybranou roli se stanou garanty dané role."
+      },
+      "type": {
+        "label": "Typ garanta",
+        "help": ""
       }
     },
     "ConfidentialStorageValue": {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.ContractBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -54,7 +55,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
 			IdmBasePermission.UPDATE,
-			IdmBasePermission.DELETE),
+			IdmBasePermission.DELETE,
+			ContractBasePermission.CHANGEPERMISSION),
 	CONTRACTSLICE(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.COUNT,

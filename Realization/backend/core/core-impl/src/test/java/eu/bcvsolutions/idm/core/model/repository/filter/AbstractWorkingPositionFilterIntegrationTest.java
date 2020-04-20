@@ -42,12 +42,14 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	//
 	protected IdmIdentityDto managerOne;
 	protected IdmIdentityDto managerTwo;
+	protected IdmIdentityDto managerThree;
 	protected IdmIdentityDto invalidManagerExpiredContract;
 	protected IdmIdentityDto invalidManagerDisabledIdentity;
 	protected IdmIdentityDto invalidManagerExcludedContract;
 	protected IdmIdentityDto invalidManagerDisabledContract;
 	protected IdmIdentityDto guaranteeThree;
 	protected IdmIdentityDto guaranteeFour;
+	protected IdmIdentityDto guaranteeFive;
 	protected IdmIdentityDto disabledGuarantee;
 	protected IdmIdentityDto subordinateOne;
 	protected IdmIdentityDto subordinateTwo;
@@ -58,6 +60,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	protected IdmIdentityContractDto contractTwo;
 	protected IdmIdentityContractDto contractSubordinateTwo;
 	protected IdmIdentityContractDto contractThree;
+	protected IdmIdentityContractDto contractFourDisabled;
 	
 	@Before
 	public void init() {
@@ -75,12 +78,14 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	protected void prepareData() {
 		managerOne = getHelper().createIdentity((GuardedString) null);
 		managerTwo = getHelper().createIdentity((GuardedString) null);
+		managerThree = getHelper().createIdentity((GuardedString) null);
 		invalidManagerExpiredContract = getHelper().createIdentity((GuardedString) null);
 		invalidManagerDisabledIdentity = getHelper().createIdentity((GuardedString) null);
 		invalidManagerExcludedContract = getHelper().createIdentity((GuardedString) null);
 		invalidManagerDisabledContract = getHelper().createIdentity((GuardedString) null);
 		guaranteeThree = getHelper().createIdentity((GuardedString) null);
 		guaranteeFour = getHelper().createIdentity((GuardedString) null);
+		guaranteeFive = getHelper().createIdentity((GuardedString) null);
 		disabledGuarantee = getHelper().createIdentity((GuardedString) null);
 		subordinateOne = getHelper().createIdentity((GuardedString) null);
 		subordinateTwo = getHelper().createIdentity((GuardedString) null);
@@ -89,7 +94,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		structureOne = getHelper().createTreeType();
 		IdmTreeNodeDto managerOnePosition = getHelper().createTreeNode(structureOne, null); 
 		getHelper().createIdentityContact(managerOne, managerOnePosition);
-		getHelper().createIdentityContact(invalidManagerExpiredContract, managerOnePosition, LocalDate.now().plusDays(1), null);
+		getHelper().createIdentityContact(invalidManagerExpiredContract, managerOnePosition, null, LocalDate.now().minusDays(1));
 		getHelper().createIdentityContact(invalidManagerDisabledIdentity, managerOnePosition);
 		IdmIdentityContractDto exclededContract = getHelper().createIdentityContact(invalidManagerExcludedContract, managerOnePosition);
 		exclededContract.setState(ContractState.EXCLUDED);
@@ -97,6 +102,8 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		IdmIdentityContractDto disabledContract = getHelper().createIdentityContact(invalidManagerDisabledContract, managerOnePosition);
 		disabledContract.setState(ContractState.EXCLUDED);
 		getHelper().getService(IdmIdentityContractService.class).save(disabledContract);
+		IdmTreeNodeDto managerThreePosition = getHelper().createTreeNode(structureOne, null); 
+		getHelper().createIdentityContact(managerThree, managerThreePosition);
 		//
 		getHelper().getService(IdmIdentityService.class).disable(disabledGuarantee.getId());
 		getHelper().getService(IdmIdentityService.class).disable(invalidManagerDisabledIdentity.getId());
@@ -109,9 +116,12 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		contractOne = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionOne);
 		getHelper().createContractGuarantee(contractOne.getId(), guaranteeThree.getId());
 		IdmTreeNodeDto subordinateOnePositionTwo = createPosition(structureTwo, managerTwoPosition); 
-		contractTwo = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionTwo);
+		contractTwo = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionTwo, LocalDate.now().plusDays(1), null);
+		IdmTreeNodeDto subordinateOnePositionThree = createPosition(structureOne, managerThreePosition); 
+		contractFourDisabled = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionThree, null, LocalDate.now().minusDays(2));
 		getHelper().createContractGuarantee(contractTwo.getId(), guaranteeFour.getId());
 		getHelper().createContractGuarantee(contractTwo.getId(), disabledGuarantee.getId());
+		getHelper().createContractGuarantee(contractFourDisabled.getId(), guaranteeFive.getId());
 		// subordinate two
 		IdmTreeNodeDto subordinateTwoPosition = createPosition(structureOne, subordinateOnePositionOne);
 		contractSubordinateTwo = getHelper().createIdentityContact(subordinateTwo, subordinateTwoPosition);
@@ -165,7 +175,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		assertEquals(1, managers.size());
 		assertTrue(contains(managers, managerTwo));
 		//
-		// all manager - for subordinate one
+		// all manager - for subordinate two
 		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateTwo.getId());
 		managers = builder.find(filter, null).getContent();

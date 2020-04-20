@@ -26,13 +26,13 @@ export default class RoleRequestManager extends EntityManager {
     uiKey = this.resolveUiKey(uiKey, roleRequestByIdentity.roleRequest);
     return (dispatch) => {
       this.getService().copyRolesByIdentity(roleRequestByIdentity)
-      .then(json => {
-        // Return is newly update role request
-        dispatch(this.receiveEntity(json.id, json, uiKey, cb));
-      })
-      .catch(error => {
-        dispatch(this.receiveError(roleRequestByIdentity, uiKey, error, cb));
-      });
+        .then(json => {
+          // Return is newly update role request
+          dispatch(this.receiveEntity(json.id, json, uiKey, cb));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(roleRequestByIdentity, uiKey, error, cb));
+        });
     };
   }
 

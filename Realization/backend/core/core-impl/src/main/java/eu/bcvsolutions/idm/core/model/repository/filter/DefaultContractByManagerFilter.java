@@ -81,8 +81,8 @@ public class DefaultContractByManagerFilter extends AbstractFilterBuilder<IdmIde
 		Join<IdmIdentityContract, IdmTreeNode> wp = subqueryWpRoot.join(IdmIdentityContract_.workPosition);
 		Join<IdmIdentityContract, IdmTreeNode> wpRoot = subRoot.join(IdmIdentityContract_.workPosition, JoinType.LEFT);
 		subqueryWp.where(builder.and(
-				// valid contract only
-				RepositoryUtils.getValidPredicate(subqueryWpRoot, builder),
+				// future valid contract only
+				RepositoryUtils.getValidNowOrInFuturePredicate(subqueryWpRoot, builder),
 				builder.equal(subqueryWpRoot.get(IdmIdentityContract_.disabled), Boolean.FALSE),
 				//
 				(filter.getSubordinatesByTreeType() == null) // only id tree type is specified
@@ -95,6 +95,8 @@ public class DefaultContractByManagerFilter extends AbstractFilterBuilder<IdmIde
 		// 
 		subquery.where(
                 builder.and(
+                		// future valid contract only
+                		RepositoryUtils.getValidNowOrInFuturePredicate(root, builder),
                 		builder.equal(subRoot, root), // correlation attr - identity has identity contract
                 		builder.or(subPredicates.toArray(new Predicate[subPredicates.size()]))
                 		)

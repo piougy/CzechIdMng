@@ -5,7 +5,7 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import {RequestIdentityRoleManager, RoleRequestManager, IdentityContractManager } from '../../redux';
+import { RequestIdentityRoleManager, RoleRequestManager, IdentityContractManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import RoleSelectByIdentity from './RoleSelectByIdentity';
 import RoleConceptDetail from './RoleConceptDetail';
@@ -48,6 +48,26 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
 
   componentDidMount() {
     super.componentDidMount();
+    // load contracts for evaluate assigned roles permisions
+    const { identityId } = this.props;
+    this.context.store.dispatch(
+      identityContractManager.fetchEntities(
+        new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE)
+          .setFilter('identity', identityId)
+          .setFilter('validNowOrInFuture', true)
+          .setFilter('addPermissions', true),
+        `role-identity-contracts-${ identityId }`,
+        (contracts, error) => {
+          if (error) {
+            this.addError(error);
+          } else {
+            this.setState({
+              _contracts: contracts._embedded[identityContractManager.getCollectionType()]
+            });
+          }
+        }
+      )
+    );
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -366,7 +386,12 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     content.push(
       <Advanced.DetailButton
         title={ this.i18n('button.detail') }
-        onClick={ this._showDetail.bind(this, requestIdentityRole, operation !== 'REMOVE', false) }/>
+        onClick={ this._showDetail.bind(
+          this,
+          requestIdentityRole,
+          operation !== 'REMOVE' && this._canChangePermissions(this.state._contracts, requestIdentityRole.identityContract),
+          false
+        )}/>
     );
     content.push(
       <IncompatibleRoleWarning incompatibleRoles={ this._getIncompatibleRoles(role) }/>
@@ -390,7 +415,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
    */
   renderConceptActionsCell({rowIndex, data}) {
     const {readOnly} = this.props;
-    const {showLoadingActions} = this.state;
+    const { showLoadingActions, _contracts } = this.state;
 
     const actions = [];
     const value = data[rowIndex];
@@ -402,7 +427,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         level="danger"
         onClick={ this._internalDelete.bind(this, data[rowIndex]) }
         className="btn-xs"
-        disabled={ readOnly || !manualRole }
+        disabled={ readOnly || !manualRole || !this._canChangePermissions(_contracts, value.identityContract) }
         showLoading={ showLoadingActions }
         role="group"
         title={ this.i18n('button.delete') }
@@ -416,7 +441,13 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
           showLoading={ showLoadingActions }
           onClick={ this._showDetail.bind(this, data[rowIndex], true, false) }
           className="btn-xs"
-          disabled={ readOnly || !manualRole || !value.role || !value.identityContract }
+          disabled={
+            readOnly
+              || !manualRole
+              || !value.role
+              || !value.identityContract
+              || !this._canChangePermissions(_contracts, value.identityContract)
+          }
           role="group"
           title={ this.i18n('button.edit') }
           titlePlacement="bottom"
@@ -428,6 +459,13 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
         { actions }
       </div>
     );
+  }
+
+  _canChangePermissions(contracts, contractId) {
+    if (!contracts || contracts.length === 0 || !contractId) {
+      return false;
+    }
+    return contracts.some(c => c.id === contractId && Utils.Permission.hasPermission(c._permissions, 'CHANGEPERMISSION'));
   }
 
   renderConceptAttributesCell({rowIndex, data}) {

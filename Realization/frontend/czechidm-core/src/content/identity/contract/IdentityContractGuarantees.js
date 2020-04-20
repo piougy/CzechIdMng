@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { ContractGuaranteeManager, SecurityManager, IdentityManager } from '../../../redux';
+import { ContractGuaranteeManager, SecurityManager, IdentityManager, IdentityContractManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import IdentityTable from '../IdentityTable';
 
@@ -14,6 +14,7 @@ const uiKey = 'identity-contract-guarantees-table';
 const uiKeyManagers = 'contract-managers-table';
 const manager = new ContractGuaranteeManager();
 const identityManager = new IdentityManager();
+const contractManager = new IdentityContractManager();
 
 /**
  * Identity contract's managers and guarantees
@@ -67,17 +68,26 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
 
   render() {
     const { entityId, identityId, controlledBySlices } = this.props.match.params;
-    const { _showLoading, _permissions } = this.props;
+    const { entity, _showLoading, _permissions } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new SearchParameters().setFilter('identityContractId', entityId);
+    const endedContract = entity && !Utils.Entity.isValid(entity) && !Utils.Entity.isValidInFuture(entity);
     //
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
+        <Basic.Div style={{ paddingTop: 15 }} rendered={ endedContract }>
+          <Basic.Alert
+            icon="warning-sign"
+            level="warning"
+            text={ this.i18n('endedContract.warning.message', { escape: false }) }
+            className="no-margin" />
+        </Basic.Div>
+
         <Basic.Row>
-          <Basic.Col lg={ 6 }>
+          <Basic.Col lg={ endedContract ? 12 : 6 }>
             <Basic.Panel className="no-border last">
               <Basic.PanelHeader text={ this.i18n('guarantees.direct', { escape: false }) }/>
               <Advanced.Table
@@ -86,7 +96,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                 manager={ manager }
                 forceSearchParameters={ forceSearchParameters }
                 showRowSelection={ SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_DELETE']) }
-                rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]._embedded.guarantee); }}
+                rowClass={({rowIndex, data}) => { return endedContract ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]._embedded.guarantee); }}
                 className="no-margin"
                 actions={
                   SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_DELETE'])
@@ -101,10 +111,12 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                       level="success"
                       key="add_button"
                       className="btn-xs"
-                      onClick={this.showDetail.bind(this, { identityContract: entityId })}
-                      rendered={ !controlledBySlices && SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_CREATE']) }>
-                      <Basic.Icon type="fa" icon="plus"/>
-                      {' '}
+                      onClick={ this.showDetail.bind(this, { identityContract: entityId }) }
+                      rendered={ !controlledBySlices && SecurityManager.hasAnyAuthority(['CONTRACTGUARANTEE_CREATE']) }
+                      icon="fa:plus"
+                      title={ endedContract ? this.i18n('create.endedContract') : null }
+                      titlePlacement="bottom"
+                      disabled={ endedContract }>
                       { this.i18n('button.add') }
                     </Basic.Button>
                   ]
@@ -114,7 +126,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                   cell={
                     ({rowIndex, data}) => {
                       return (
-                        <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                        <Advanced.DetailButton onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                       );
                     }
                   }/>
@@ -133,14 +145,20 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
 
             <Basic.Modal
               bsSize="large"
-              show={detail.show}
-              onHide={this.closeDetail.bind(this)}
+              show={ detail.show }
+              onHide={ this.closeDetail.bind(this) }
               backdrop="static"
-              keyboard={!_showLoading}>
+              keyboard={ !_showLoading }>
 
-              <form onSubmit={this.save.bind(this, {})}>
-                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
-                <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
+              <form onSubmit={ this.save.bind(this, {}) }>
+                <Basic.Modal.Header
+                  closeButton={ !_showLoading}
+                  text={ this.i18n('create.header') }
+                  rendered={ Utils.Entity.isNew(detail.entity) }/>
+                <Basic.Modal.Header
+                  closeButton={ !_showLoading }
+                  text={ this.i18n('edit.header', { name: detail.entity.name }) }
+                  rendered={ !Utils.Entity.isNew(detail.entity) }/>
                 <Basic.Modal.Body>
                   <Basic.AbstractForm
                     ref="form"
@@ -149,8 +167,8 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                     <Basic.SelectBox
                       ref="guarantee"
                       manager={ identityManager }
-                      label={this.i18n('entity.ContractGuarantee.guarantee.label')}
-                      helpBlock={this.i18n('entity.ContractGuarantee.guarantee.help')}
+                      label={ this.i18n('entity.ContractGuarantee.guarantee.label') }
+                      helpBlock={ this.i18n('entity.ContractGuarantee.guarantee.help') }
                       required/>
                   </Basic.AbstractForm>
                 </Basic.Modal.Body>
@@ -158,9 +176,9 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                 <Basic.Modal.Footer>
                   <Basic.Button
                     level="link"
-                    onClick={this.closeDetail.bind(this)}
-                    showLoading={_showLoading}>
-                    {this.i18n('button.close')}
+                    onClick={ this.closeDetail.bind(this) }
+                    showLoading={ _showLoading }>
+                    { this.i18n('button.close') }
                   </Basic.Button>
                   <Basic.Button
                     type="submit"
@@ -168,7 +186,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
                     showLoading={ _showLoading }
                     showLoadingIcon
                     showLoadingText={ this.i18n('button.saving') }
-                    rendered={!controlledBySlices && manager.canSave(detail.entity, _permissions) }>
+                    rendered={ !controlledBySlices && manager.canSave(detail.entity, _permissions) }>
                     { this.i18n('button.save') }
                   </Basic.Button>
                 </Basic.Modal.Footer>
@@ -183,7 +201,12 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
               ref="managers"
               uiKey={ uiKeyManagers }
               identityManager={ identityManager }
-              forceSearchParameters={ new SearchParameters().setFilter('managersFor', identityId).setFilter('managersByContract', entityId).setFilter('includeGuarantees', false) }
+              forceSearchParameters={
+                new SearchParameters()
+                  .setFilter('managersFor', identityId)
+                  .setFilter('managersByContract', entityId)
+                  .setFilter('includeGuarantees', false)
+              }
               showAddButton={ false }
               showDetailButton={ false }
               showFilter={ false }
@@ -191,7 +214,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
               columns={ ['entityInfo'] }/>
           </Basic.Col>
         </Basic.Row>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -207,9 +230,9 @@ function select(state, component) {
   const { entityId } = component.match.params;
 
   return {
-    entity: manager.getEntity(state, entityId),
-    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
-    _permissions: Utils.Permission.getPermissions(state, `${uiKey}-detail`)
+    entity: contractManager.getEntity(state, entityId),
+    _showLoading: Utils.Ui.isShowLoading(state, `${ uiKey }-detail`),
+    _permissions: Utils.Permission.getPermissions(state, `${ uiKey }-detail`)
   };
 }
 

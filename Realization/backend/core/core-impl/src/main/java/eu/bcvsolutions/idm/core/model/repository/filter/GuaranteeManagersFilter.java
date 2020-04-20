@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * Managers criteria builder:
  * - by guarantee only
  * - only "valid" identity can be manager
+ * - only valid or valid in future contracts can have managers
  * 
  * @author Radek Tomiška
  *
@@ -74,6 +75,7 @@ public class GuaranteeManagersFilter
 		//
 		subqueryGuarantee.where(
               builder.and(
+            		  RepositoryUtils.getValidNowOrInFuturePredicate(pathIc, builder),
             		  builder.equal(pathIc.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), filter.getManagersFor()),
             		  builder.equal(subRootGuarantee.get(IdmContractGuarantee_.guarantee), root),
             		  filter.getManagersByContract() != null // concrete contract id only
@@ -103,7 +105,7 @@ public class GuaranteeManagersFilter
 				builder.equal(root.get(IdmIdentity_.disabled), Boolean.FALSE),
 				//
         		// valid contract only
-				RepositoryUtils.getValidPredicate(subRoot, builder),
+				RepositoryUtils.getValidNowOrInFuturePredicate(subRoot, builder),
 				//
         		// not disabled, not excluded contract
         		builder.equal(subRoot.get(IdmIdentityContract_.disabled), Boolean.FALSE),

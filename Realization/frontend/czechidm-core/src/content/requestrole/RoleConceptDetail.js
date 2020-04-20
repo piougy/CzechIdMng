@@ -239,14 +239,19 @@ export class RoleConceptDetail extends Basic.AbstractContent {
         <Basic.SelectBox
           ref="identityContract"
           manager={ identityContractManager }
-          forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
+          forceSearchParameters={
+            new SearchParameters()
+              .setFilter('identity', identityUsername)
+              .setFilter('validNowOrInFuture', true)
+              .setFilter('_permission', 'CHANGEPERMISSION')
+          }
           label={ this.i18n('entity.IdentityRole.identityContract.label') }
           placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
           helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
           returnProperty={false}
-          readOnly={!added || readOnly || !Utils.Entity.isNew(entity)}
-          onChange={this._onChangeSelectOfContract.bind(this)}
-          niceLabel={ (contract) => identityContractManager.getNiceLabel(contract, false)}
+          readOnly={ !added || readOnly || !Utils.Entity.isNew(entity) }
+          onChange={ this._onChangeSelectOfContract.bind(this) }
+          niceLabel={ (contract) => identityContractManager.getNiceLabel(contract, false) }
           required
           useFirst
           clearable={ false }/>

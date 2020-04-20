@@ -16,3 +16,5 @@ Realization/backend/app/nbactions-dev.xml
 Realization/backend/acc/nbactions-dev.xml
 Realization/backend/core/core-impl/nbactions.xml
 Realization/backend/core/nbactions.xml
+Realization/backend/acc/nbactions.xml
+Realization/backend/vs/nbactions.xml

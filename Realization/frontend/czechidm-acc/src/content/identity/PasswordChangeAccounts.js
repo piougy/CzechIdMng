@@ -29,7 +29,12 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
       .setFilter('ownership', true)
       .setFilter('supportChangePassword', true)
       .setFilter('identity', entityId);
-    this.context.store.dispatch(accountManager.fetchEntities(defaultSearchParameters, `${ entityId }-accounts`));
+    this.context.store.dispatch(accountManager.fetchEntities(defaultSearchParameters, `${ entityId }-accounts`, (accounts, error) => {
+      // Prevent to show error, when logged identity cannot read identity accounts => password change for IdM only.
+      if (error && error.statusCode !== 403) {
+        this.addError(error);
+      }
+    }));
   }
 
   _getOptions() {

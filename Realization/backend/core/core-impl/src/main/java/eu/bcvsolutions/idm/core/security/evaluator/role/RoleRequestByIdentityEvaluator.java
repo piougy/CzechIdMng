@@ -14,11 +14,14 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest_;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.ContractBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
@@ -40,6 +43,7 @@ public class RoleRequestByIdentityEvaluator extends AbstractTransitiveEvaluator<
 
 	@Autowired private AuthorizationManager authorizationManager;
 	@Autowired private SecurityService securityService;
+	@Autowired private IdmIdentityContractService contractService; 
 	
 	@Override
 	protected Identifiable getOwner(IdmRoleRequest entity) {
@@ -71,12 +75,17 @@ public class RoleRequestByIdentityEvaluator extends AbstractTransitiveEvaluator<
 	@Override
 	public Set<String> getPermissions(IdmRoleRequest entity, AuthorizationPolicy policy) {
 		Set<String> permissions = super.getPermissions(entity, policy);
-		// add permissions, when CHANGEPERMISSION is available
-		if (PermissionUtils.hasPermission(permissions, IdentityBasePermission.CHANGEPERMISSION)) {
-			permissions.add(IdmBasePermission.READ.getName());
-			permissions.add(IdmBasePermission.CREATE.getName());
-			permissions.add(IdmBasePermission.UPDATE.getName());
-			permissions.add(IdmBasePermission.DELETE.getName());
+		// Add permissions, when CHANGEPERMISSION is available on at least one contract of selected identity.
+		IdmIdentity applicant = entity.getApplicant();
+		if (applicant != null) {
+			IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+			filter.setIdentity(applicant.getId());
+			if (contractService.count(filter, ContractBasePermission.CHANGEPERMISSION) > 0) {
+				permissions.add(IdmBasePermission.READ.getName());
+				permissions.add(IdmBasePermission.CREATE.getName());
+				permissions.add(IdmBasePermission.UPDATE.getName());
+				permissions.add(IdmBasePermission.DELETE.getName());
+			}
 		}
 		return permissions;
 	}
@@ -84,8 +93,8 @@ public class RoleRequestByIdentityEvaluator extends AbstractTransitiveEvaluator<
 	@Override
 	public Set<String> getAuthorities(UUID identityId, AuthorizationPolicy policy) {
 		Set<String> authorities = super.getAuthorities(identityId, policy);
-		// add permissions, when CHANGEPERMISSION is available
-		if (PermissionUtils.hasPermission(authorities, IdentityBasePermission.CHANGEPERMISSION)) {
+		// add permissions, when any CHANGEPERMISSION authority is available 
+		if (PermissionUtils.hasPermission(authorities, ContractBasePermission.CHANGEPERMISSION)) {
 			authorities.add(IdmBasePermission.READ.getName());
 			authorities.add(IdmBasePermission.CREATE.getName());
 			authorities.add(IdmBasePermission.UPDATE.getName());

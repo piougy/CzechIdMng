@@ -79,6 +79,7 @@ public class DefaultManagersFilter
 		Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
 		subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));			
 		subqueryWp.where(builder.and(
+				// future valid contract only
 				RepositoryUtils.getValidNowOrInFuturePredicate(subqueryWpRoot, builder),
 				builder.equal(
 						subqueryWpRoot.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), 
@@ -107,7 +108,7 @@ public class DefaultManagersFilter
 				// valid identity only
 				builder.equal(root.get(IdmIdentity_.disabled), Boolean.FALSE),
 				//
-        		// valid contract only
+        		// future valid contract only
 				RepositoryUtils.getValidNowOrInFuturePredicate(subRoot, builder),
 				//
         		// not disabled, not excluded contract

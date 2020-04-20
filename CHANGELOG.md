@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 ## [10.3.0]
 
 - [#2002](https://redmine.czechidm.com/issues/2002) - **Only valid or future valid contract can define managers and subordinates**. Ended contract in the past cannot define managers or subordinates now. On the other hand, contract state (e.g. manually disabled contract) still can define managers or subordinates - when contract is disabled by manager, then manager still can enable contract again. All product [filters](https://wiki.czechidm.com/devel/documentation/architecture/dev/filters) for find managers and their subordinates were updated - **change behavior in your custom (overriden) filters if needed**.
+- [#1146](https://redmine.czechidm.com/issues/1146) - Base permission ``CHANGEPERMISSION`` added to identity contracts. This permission can be granted per contract instead adding it to whole identity - manager will be able to change or assign roles only for contract, which he manages. **Check usage of ``IdentityContractByIdentityEvaluator`` by user role configuration on your project and [configure this new permission to contracts](https://wiki.czechidm.com/devel/documentation/security/dev/authorization#manager_and_subordinates), if ``IdentityContractByIdentityEvaluator`` is not used.**
+
 
 
 ## [10.2.0]

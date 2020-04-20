@@ -71,8 +71,9 @@ class IdentityRoles extends Basic.AbstractContent {
       identityContractManager.fetchEntities(
         new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE)
           .setFilter('identity', entityId)
-          .setFilter('validNowOrInFuture', true),
-        `${uiKeyContracts}-${entityId}`,
+          .setFilter('validNowOrInFuture', true)
+          .setFilter('addPermissions', true),
+        `${ uiKeyContracts }-${ entityId }`,
         () => {
           this.context.store.dispatch(identityManager.fetchIncompatibleRoles(entityId, `${ uiKeyIncompatibleRoles }${ entityId }`));
           this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded('environment'));
@@ -180,9 +181,17 @@ class IdentityRoles extends Basic.AbstractContent {
    * @return {[type]} [description]
    */
   _canChangePermissions() {
-    const { _permissions } = this.props;
-    //
-    return Utils.Permission.hasPermission(_permissions, 'CHANGEPERMISSION');
+    const { _permissions, _contracts } = this.props;
+    // identity permission
+    if (Utils.Permission.hasPermission(_permissions, 'CHANGEPERMISSION')) {
+      return true;
+    }
+    // contract permission
+    if (!_contracts || _contracts.length === 0) {
+      return false;
+    }
+    // can change permission for  at least one contract
+    return _contracts.some(c => Utils.Permission.hasPermission(c._permissions, 'CHANGEPERMISSION'));
   }
 
   _isLongPollingEnabled() {
@@ -256,7 +265,7 @@ class IdentityRoles extends Basic.AbstractContent {
           <Basic.AbstractForm
             ref={`automaticRefreshForm-${key}`}
             readOnly={!longPollingEnabled}
-            style={{padding: '0px'}}
+            style={{ padding: 0 }}
             data={data}>
             <Basic.ToggleSwitch
               ref={`automaticRefreshSwitch-${key}`}
@@ -298,7 +307,7 @@ class IdentityRoles extends Basic.AbstractContent {
     roleRequestsForceSearch = roleRequestsForceSearch.setFilter('executed', 'false');
     //
     return (
-      <div style={{ paddingTop: 15 }}>
+      <Basic.Div style={{ paddingTop: 15 }}>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         {
           !!embedded
@@ -324,7 +333,7 @@ class IdentityRoles extends Basic.AbstractContent {
 
         <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
           <Basic.Tab eventKey={ 1 } title={ this.i18n('header') } className="bordered">
-            {this._getToolbar(_contracts, 'identity-role')}
+            { this._getToolbar(_contracts, 'identity-role') }
             <Basic.ContentHeader
               icon="component:identity-roles"
               text={ this.i18n('directRoles.header') }
@@ -384,7 +393,7 @@ class IdentityRoles extends Basic.AbstractContent {
             {
               !SecurityManager.hasAuthority('ROLEREQUEST_READ')
               ||
-              <div>
+              <Basic.Div>
                 <Basic.ContentHeader
                   icon="fa:key"
                   text={ this.i18n('changePermissionRequests.header') }
@@ -397,7 +406,7 @@ class IdentityRoles extends Basic.AbstractContent {
                   columns={ ['state', 'created', 'modified', 'wf', 'detail', 'systemState'] }
                   externalRefresh={this._refreshAll.bind(this)}
                   manager={ roleRequestManager }/>
-              </div>
+              </Basic.Div>
             }
 
             <Basic.ContentHeader
@@ -460,7 +469,7 @@ class IdentityRoles extends Basic.AbstractContent {
             </Advanced.Table>
           </Basic.Tab>
         </Basic.Tabs>
-      </div>
+      </Basic.Div>
     );
   }
 }

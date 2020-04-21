@@ -19,7 +19,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.collections.Lists;
 
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -58,7 +57,6 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 
 	@Autowired private ApplicationContext context;
 	@Autowired private FormService formService;
-	@Autowired private PrivateIdentityConfiguration identityConfiguration;
 	//
 	private DefaultIdentityProjectionManager manager;
 
@@ -717,185 +715,178 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	
 	@Test
 	public void testSaveProjectionEavSecuredException() {		
-		getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, true);
+		//
+		// create definition with two attributes
+		IdmFormAttributeDto formAttributeOne = new IdmFormAttributeDto("one");
+		IdmFormAttributeDto formAttributeTwo = new IdmFormAttributeDto("two");
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(
+				IdmIdentityDto.class, 
+				getHelper().createName(), 
+				Lists.newArrayList(formAttributeOne, formAttributeTwo));
+		formAttributeOne = formDefinition.getMappedAttributeByCode(formAttributeOne.getCode());
+		formAttributeTwo = formDefinition.getMappedAttributeByCode(formAttributeTwo.getCode());
+		//
+		IdmIdentityDto identityOne = getHelper().createIdentity(); // password is needed
+		IdmIdentityDto identityTwo = getHelper().createIdentity(); // password is needed
+		IdmIdentityDto identityOther = getHelper().createIdentity((GuardedString) null);
+		//
+		// assign self identity authorization policy - READ - to identityOne
+		IdmRoleDto roleReadIdentity = getHelper().createRole();		
+		getHelper().createAuthorizationPolicy(
+				roleReadIdentity.getId(), 
+				CoreGroupPermission.IDENTITY, 
+				IdmIdentity.class, 
+				SelfIdentityEvaluator.class, 
+				IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
+		getHelper().createUuidPolicy( // and other
+				roleReadIdentity.getId(), 
+				identityOther.getId(), 
+				IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
+		getHelper().createIdentityRole(identityOne, roleReadIdentity);
+		//
+		// assign self identity authorization policy - UPDATE - to identityOne
+		IdmRoleDto roleUpdateIdentity = getHelper().createRole();		
+		getHelper().createAuthorizationPolicy(
+				roleUpdateIdentity.getId(), 
+				CoreGroupPermission.IDENTITY, 
+				IdmIdentity.class, 
+				SelfIdentityEvaluator.class, // self
+				IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
+		getHelper().createUuidPolicy( // and other
+				roleUpdateIdentity.getId(), 
+				identityOther.getId(), 
+				IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identityTwo, roleUpdateIdentity);
+		//
+		// assign autocomplete to form definition 
+		getHelper().createUuidPolicy( 
+				roleReadIdentity.getId(), 
+				formDefinition.getId(), 
+				IdmBasePermission.AUTOCOMPLETE,
+				IdmBasePermission.READ);
+		getHelper().createUuidPolicy( // and other
+				roleUpdateIdentity.getId(), 
+				formDefinition.getId(), 
+				IdmBasePermission.AUTOCOMPLETE,
+				IdmBasePermission.READ);
+		//
+		// save some values as admin to identity one
+		IdmFormValueDto formValueOne = new IdmFormValueDto(formAttributeOne);
+		formValueOne.setValue(getHelper().createName());
+		IdmFormValueDto formValueTwo = new IdmFormValueDto(formAttributeTwo);
+		formValueTwo.setValue(getHelper().createName());
+		List<IdmFormValueDto> formValues = Lists.newArrayList(formValueOne, formValueTwo);
+		identityOne.setEavs(Lists.newArrayList(new IdmFormInstanceDto(identityOne, formDefinition, formValues)));
+		manager.publish(new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, new IdmIdentityProjectionDto(identityOne)));
+		//
+		// values cannot be read as identity one 
+		getHelper().login(identityOne);
 		try {
-			Assert.assertTrue(identityConfiguration.isFormAttributesSecured());
-			//
-			// create definition with two attributes
-			IdmFormAttributeDto formAttributeOne = new IdmFormAttributeDto("one");
-			IdmFormAttributeDto formAttributeTwo = new IdmFormAttributeDto("two");
-			IdmFormDefinitionDto formDefinition = formService.createDefinition(
-					IdmIdentityDto.class, 
-					getHelper().createName(), 
-					Lists.newArrayList(formAttributeOne, formAttributeTwo));
-			formAttributeOne = formDefinition.getMappedAttributeByCode(formAttributeOne.getCode());
-			formAttributeTwo = formDefinition.getMappedAttributeByCode(formAttributeTwo.getCode());
-			//
-			IdmIdentityDto identityOne = getHelper().createIdentity(); // password is needed
-			IdmIdentityDto identityTwo = getHelper().createIdentity(); // password is needed
-			IdmIdentityDto identityOther = getHelper().createIdentity((GuardedString) null);
-			//
-			// assign self identity authorization policy - READ - to identityOne
-			IdmRoleDto roleReadIdentity = getHelper().createRole();		
-			getHelper().createAuthorizationPolicy(
-					roleReadIdentity.getId(), 
-					CoreGroupPermission.IDENTITY, 
-					IdmIdentity.class, 
-					SelfIdentityEvaluator.class, 
-					IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
-			getHelper().createUuidPolicy( // and other
-					roleReadIdentity.getId(), 
-					identityOther.getId(), 
-					IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
-			getHelper().createIdentityRole(identityOne, roleReadIdentity);
-			//
-			// assign self identity authorization policy - UPDATE - to identityOne
-			IdmRoleDto roleUpdateIdentity = getHelper().createRole();		
-			getHelper().createAuthorizationPolicy(
-					roleUpdateIdentity.getId(), 
-					CoreGroupPermission.IDENTITY, 
-					IdmIdentity.class, 
-					SelfIdentityEvaluator.class, // self
-					IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			getHelper().createUuidPolicy( // and other
-					roleUpdateIdentity.getId(), 
-					identityOther.getId(), 
-					IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			getHelper().createIdentityRole(identityTwo, roleUpdateIdentity);
-			//
-			// assign autocomplete to form definition 
-			getHelper().createUuidPolicy( 
-					roleReadIdentity.getId(), 
-					formDefinition.getId(), 
-					IdmBasePermission.AUTOCOMPLETE,
-					IdmBasePermission.READ);
-			getHelper().createUuidPolicy( // and other
-					roleUpdateIdentity.getId(), 
-					formDefinition.getId(), 
-					IdmBasePermission.AUTOCOMPLETE,
-					IdmBasePermission.READ);
-			//
-			// save some values as admin to identity one
-			IdmFormValueDto formValueOne = new IdmFormValueDto(formAttributeOne);
-			formValueOne.setValue(getHelper().createName());
-			IdmFormValueDto formValueTwo = new IdmFormValueDto(formAttributeTwo);
-			formValueTwo.setValue(getHelper().createName());
-			List<IdmFormValueDto> formValues = Lists.newArrayList(formValueOne, formValueTwo);
-			identityOne.setEavs(Lists.newArrayList(new IdmFormInstanceDto(identityOne, formDefinition, formValues)));
-			manager.publish(new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, new IdmIdentityProjectionDto(identityOne)));
-			//
-			// values cannot be read as identity one 
-			getHelper().login(identityOne);
-			try {
-				IdmIdentityProjectionDto projection = manager.get(identityOne.getId(), IdmBasePermission.READ);
-				IdmFormInstanceDto formInstance = projection
-						.getIdentity()
-						.getEavs()
-						.stream()
-						.filter(i -> i.getFormDefinition().getId().equals(formDefinition.getId()))
-						.findFirst()
-						.get();
-				Assert.assertTrue(formInstance.getValues().isEmpty());
-				Assert.assertEquals(0, formInstance.getFormDefinition().getFormAttributes().size());
-			} finally {
-				logout();
-			}
-			
-			getHelper().login(identityTwo);
-			try {
-				IdmIdentityProjectionDto projection = manager.get(identityOther.getId(), IdmBasePermission.READ);
-				IdmFormInstanceDto formInstance = projection
-						.getIdentity()
-						.getEavs()
-						.stream()
-						.filter(i -> i.getFormDefinition().getId().equals(formDefinition.getId()))
-						.findFirst()
-						.get();
-				Assert.assertTrue(formInstance.getValues().isEmpty());
-				Assert.assertEquals(0, formInstance.getFormDefinition().getFormAttributes().size());
-			} finally {
-				logout();
-			}
-			//
-			// configure authorization policy to read attribute one and edit attribute two - for self
-			ConfigurationMap properties = new ConfigurationMap();
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeOne.getCode());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_SELF_ONLY, true);
-			getHelper().createAuthorizationPolicy(
-					roleReadIdentity.getId(), 
-					CoreGroupPermission.FORMVALUE, 
-					IdmIdentityFormValue.class, 
-					IdentityFormValueEvaluator.class,
-					properties,
-					IdmBasePermission.READ);
-			//
-			// read self attribute one
-			getHelper().login(identityOne);
-			try {
-				IdmIdentityProjectionDto projection = manager.get(identityOne.getId(), IdmBasePermission.READ);
-				IdmFormInstanceDto formInstance = projection
-						.getIdentity()
-						.getEavs()
-						.stream()
-						.filter(i -> i.getFormDefinition().getId().equals(formDefinition.getId()))
-						.findFirst()
-						.get();
-				//
-				Assert.assertEquals(1, formInstance.getValues().size());
-				Assert.assertEquals(formValueOne.getShortTextValue(), formInstance.getValues().get(0).getShortTextValue());
-				Assert.assertEquals(1, formInstance.getFormDefinition().getFormAttributes().size());
-				Assert.assertEquals(formAttributeOne.getCode(), formInstance.getFormDefinition().getFormAttributes().get(0).getCode());
-			} finally {
-				logout();
-			}
-			//
-			// update is forbidden
-			getHelper().login(identityOne);
-			try {
-				identityOne.setEavs(Lists.newArrayList(new IdmFormInstanceDto(identityOne, formDefinition, Lists.newArrayList(formValueOne))));
-				manager
-					.publish(
-							new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, new IdmIdentityProjectionDto(identityOne)),
-							IdmBasePermission.UPDATE)
-					.getContent();
-			} catch (ForbiddenEntityException ex) {
-				// ok
-			} finally {
-				logout();
-			}
-			getHelper().login(identityOne);
-			try {
-				identityTwo.setEavs(Lists.newArrayList(new IdmFormInstanceDto(identityOne, formDefinition, Lists.newArrayList(formValueOne))));
-				manager
-					.publish(
-							new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, new IdmIdentityProjectionDto(identityTwo)),
-							IdmBasePermission.UPDATE)
-					.getContent();
-			} catch (ForbiddenEntityException ex) {
-				// ok
-			} finally {
-				logout();
-			}
-			//
-			// add policy to edit attribute two for identity one
-			properties = new ConfigurationMap();
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeTwo.getCode());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_SELF_ONLY, true);
-			getHelper().createAuthorizationPolicy(
-					roleReadIdentity.getId(), 
-					CoreGroupPermission.FORMVALUE, 
-					IdmIdentityFormValue.class, 
-					IdentityFormValueEvaluator.class,
-					properties,
-					IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			//
-			String updatedValue = getHelper().createName();
-			formValueTwo.setValue(updatedValue);
+			IdmIdentityProjectionDto projection = manager.get(identityOne.getId(), IdmBasePermission.READ);
+			IdmFormInstanceDto formInstance = projection
+					.getIdentity()
+					.getEavs()
+					.stream()
+					.filter(i -> i.getFormDefinition().getId().equals(formDefinition.getId()))
+					.findFirst()
+					.get();
+			Assert.assertTrue(formInstance.getValues().isEmpty());
+			Assert.assertEquals(0, formInstance.getFormDefinition().getFormAttributes().size());
 		} finally {
-			getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, false);
-			Assert.assertFalse(identityConfiguration.isFormAttributesSecured());
+			logout();
 		}
+		
+		getHelper().login(identityTwo);
+		try {
+			IdmIdentityProjectionDto projection = manager.get(identityOther.getId(), IdmBasePermission.READ);
+			IdmFormInstanceDto formInstance = projection
+					.getIdentity()
+					.getEavs()
+					.stream()
+					.filter(i -> i.getFormDefinition().getId().equals(formDefinition.getId()))
+					.findFirst()
+					.get();
+			Assert.assertTrue(formInstance.getValues().isEmpty());
+			Assert.assertEquals(0, formInstance.getFormDefinition().getFormAttributes().size());
+		} finally {
+			logout();
+		}
+		//
+		// configure authorization policy to read attribute one and edit attribute two - for self
+		ConfigurationMap properties = new ConfigurationMap();
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeOne.getCode());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_SELF_ONLY, true);
+		getHelper().createAuthorizationPolicy(
+				roleReadIdentity.getId(), 
+				CoreGroupPermission.FORMVALUE, 
+				IdmIdentityFormValue.class, 
+				IdentityFormValueEvaluator.class,
+				properties,
+				IdmBasePermission.READ);
+		//
+		// read self attribute one
+		getHelper().login(identityOne);
+		try {
+			IdmIdentityProjectionDto projection = manager.get(identityOne.getId(), IdmBasePermission.READ);
+			IdmFormInstanceDto formInstance = projection
+					.getIdentity()
+					.getEavs()
+					.stream()
+					.filter(i -> i.getFormDefinition().getId().equals(formDefinition.getId()))
+					.findFirst()
+					.get();
+			//
+			Assert.assertEquals(1, formInstance.getValues().size());
+			Assert.assertEquals(formValueOne.getShortTextValue(), formInstance.getValues().get(0).getShortTextValue());
+			Assert.assertEquals(1, formInstance.getFormDefinition().getFormAttributes().size());
+			Assert.assertEquals(formAttributeOne.getCode(), formInstance.getFormDefinition().getFormAttributes().get(0).getCode());
+		} finally {
+			logout();
+		}
+		//
+		// update is forbidden
+		getHelper().login(identityOne);
+		try {
+			identityOne.setEavs(Lists.newArrayList(new IdmFormInstanceDto(identityOne, formDefinition, Lists.newArrayList(formValueOne))));
+			manager
+				.publish(
+						new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, new IdmIdentityProjectionDto(identityOne)),
+						IdmBasePermission.UPDATE)
+				.getContent();
+		} catch (ForbiddenEntityException ex) {
+			// ok
+		} finally {
+			logout();
+		}
+		getHelper().login(identityOne);
+		try {
+			identityTwo.setEavs(Lists.newArrayList(new IdmFormInstanceDto(identityOne, formDefinition, Lists.newArrayList(formValueOne))));
+			manager
+				.publish(
+						new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, new IdmIdentityProjectionDto(identityTwo)),
+						IdmBasePermission.UPDATE)
+				.getContent();
+		} catch (ForbiddenEntityException ex) {
+			// ok
+		} finally {
+			logout();
+		}
+		//
+		// add policy to edit attribute two for identity one
+		properties = new ConfigurationMap();
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeTwo.getCode());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_SELF_ONLY, true);
+		getHelper().createAuthorizationPolicy(
+				roleReadIdentity.getId(), 
+				CoreGroupPermission.FORMVALUE, 
+				IdmIdentityFormValue.class, 
+				IdentityFormValueEvaluator.class,
+				properties,
+				IdmBasePermission.READ, IdmBasePermission.UPDATE);
+		//
+		String updatedValue = getHelper().createName();
+		formValueTwo.setValue(updatedValue);
 	}
 }

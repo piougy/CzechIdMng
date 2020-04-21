@@ -3033,7 +3033,7 @@
         },
         "endedContract": {
           "warning": {
-            "message": "Contract ended in the past. This <strong>contract cannot define managers and guarantee</strong>. Is possible to remove previously defined (now not active) direct guarantees only."
+            "message": "Contract ended in the past. Is possible to remove previously defined direct guarantees only."
           }
         }
       },

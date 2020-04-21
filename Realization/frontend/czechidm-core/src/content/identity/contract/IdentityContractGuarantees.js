@@ -87,7 +87,7 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
         </Basic.Div>
 
         <Basic.Row>
-          <Basic.Col lg={ endedContract ? 12 : 6 }>
+          <Basic.Col lg={ 6 }>
             <Basic.Panel className="no-border last">
               <Basic.PanelHeader text={ this.i18n('guarantees.direct', { escape: false }) }/>
               <Advanced.Table
@@ -211,7 +211,8 @@ class IdentityContractGuarantees extends Advanced.AbstractTableContent {
               showDetailButton={ false }
               showFilter={ false }
               className="no-margin"
-              columns={ ['entityInfo'] }/>
+              columns={ ['entityInfo'] }
+              rowClass={ ({rowIndex, data}) => { return endedContract ? 'disabled' : Utils.Ui.getRowClass(data[rowIndex]); } }/>
           </Basic.Col>
         </Basic.Row>
       </Basic.Div>

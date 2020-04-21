@@ -141,9 +141,31 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		List<IdmIdentity> managers = builder.find(filter, null).getContent();
 		assertTrue(contains(managers, managerOne));
 		assertTrue(contains(managers, managerTwo));
+		assertTrue(contains(managers, managerThree));
+		assertTrue(contains(managers, guaranteeThree));
+		assertTrue(contains(managers, guaranteeFour));
+		assertTrue(contains(managers, guaranteeFive));
+		assertEquals(6, managers.size());
+		//
+		filter = new IdmIdentityFilter();
+		filter.setManagersFor(subordinateOne.getId());
+		filter.setIncludeGuarantees(true);
+		filter.setValidContractManagers(Boolean.TRUE);
+		managers = builder.find(filter, null).getContent();
+		assertTrue(contains(managers, managerOne));
+		assertTrue(contains(managers, managerTwo));
 		assertTrue(contains(managers, guaranteeThree));
 		assertTrue(contains(managers, guaranteeFour));
 		assertEquals(4, managers.size());
+		//
+		filter = new IdmIdentityFilter();
+		filter.setManagersFor(subordinateOne.getId());
+		filter.setIncludeGuarantees(true);
+		filter.setValidContractManagers(Boolean.FALSE);
+		managers = builder.find(filter, null).getContent();
+		assertTrue(contains(managers, managerThree));
+		assertTrue(contains(managers, guaranteeFive));
+		assertEquals(2, managers.size());
 		//
 		// find contract managers
 		filter = new IdmIdentityFilter();
@@ -167,6 +189,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		filter = new IdmIdentityFilter();
 		filter.setManagersFor(subordinateOne.getId());
 		filter.setManagersByTreeType(structureOne.getId());
+		filter.setValidContractManagers(Boolean.TRUE);
 		managers = builder.find(filter, null).getContent();
 		assertEquals(1, managers.size());
 		assertTrue(contains(managers, managerOne));

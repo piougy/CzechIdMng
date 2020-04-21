@@ -3086,7 +3086,7 @@
         },
         "endedContract": {
           "warning": {
-            "message": "Platnost kontraktu vypršela. Tento <strong>kontrakt již nemůže mít vedoucího</strong>. Je možné pouze odebrat předešle nastaveného vedoucího (odpovědnou osobu), který již není platný."
+            "message": "Platnost kontraktu vypršela. Je možné pouze odebrat předešle nastaveného vedoucího (odpovědnou osobu)."
           }
         }
       },

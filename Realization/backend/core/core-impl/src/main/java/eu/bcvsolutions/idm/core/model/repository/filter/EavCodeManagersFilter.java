@@ -42,6 +42,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * - by guarantee and tree structure - finds parent tree node by code in eav attribute value
  * - only "valid" identity can be manager
  * - only valid or valid in future contracts can have managers
+ * - additional filter parameter - IdmIdentityFilter.PARAMETER_VALID_CONTRACT_MANAGERS
  * 
  * @author Radek Tomiška
  *
@@ -106,7 +107,8 @@ public class EavCodeManagersFilter
 		//
 		Path<IdmTreeNode> wp = joinContracts.get(IdmIdentityContract_.workPosition);
 		subqueryEav.where(builder.and(
-						RepositoryUtils.getValidNowOrInFuturePredicate(joinContracts, builder),
+						// future valid contracts
+						guaranteeManagersFilter.getValidNowOrInFuturePredicate(joinContracts, builder, filter),
 						filter.getManagersByContract() != null // concrete contract id only
 			    			? builder.equal(joinContracts.get(IdmIdentityContract_.id), filter.getManagersByContract())
 			    			: builder.conjunction(),

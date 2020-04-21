@@ -2,12 +2,12 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * - by guarantee only
  * - only "valid" identity can be manager
  * - only valid or valid in future contracts can have managers
+ * - additional filter parameter - IdmIdentityFilter.PARAMETER_VALID_CONTRACT_MANAGERS
  * 
  * @author Radek Tomiška
  *
@@ -51,13 +52,6 @@ public class GuaranteeManagersFilter
 	}
 	
 	/**
-	 * @since 9.7.0 use {@link #getGuaranteesPredicate(Root, AbstractQuery, CriteriaBuilder, IdmIdentityFilter)}
-	 */
-	public Predicate getGuaranteesPredicate(Root<IdmIdentity> root, CriteriaQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
-		return getGuaranteesPredicate(root, (AbstractQuery<?>) query, builder, filter);
-	}
-	
-	/**
 	 * Predicate for manager as guarantee configured manually
 	 * 
 	 * @param root
@@ -75,7 +69,7 @@ public class GuaranteeManagersFilter
 		//
 		subqueryGuarantee.where(
               builder.and(
-            		  RepositoryUtils.getValidNowOrInFuturePredicate(pathIc, builder),
+            		  getValidNowOrInFuturePredicate(pathIc, builder, filter),
             		  builder.equal(pathIc.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), filter.getManagersFor()),
             		  builder.equal(subRootGuarantee.get(IdmContractGuarantee_.guarantee), root),
             		  filter.getManagersByContract() != null // concrete contract id only
@@ -83,6 +77,27 @@ public class GuaranteeManagersFilter
             		  	: builder.conjunction()
               		));
 		return builder.exists(subqueryGuarantee);
+	}
+	
+	/**
+	 * Predicate for valid or valid in future contracts - by given filter.
+	 * 
+	 * @return predicate - never return null (conjunction, if filter is not set).
+	 * @since 10.3.0
+	 */
+	public Predicate getValidNowOrInFuturePredicate(Path<IdmIdentityContract> pathIc, CriteriaBuilder builder, IdmIdentityFilter filter) {
+		Boolean validContractManagers = filter.getValidContractManagers();
+		// not set => nullable filter
+		if (validContractManagers == null) {
+			return builder.conjunction();
+		}
+		// valid
+		Predicate validContractManagersPredicate = RepositoryUtils.getValidNowOrInFuturePredicate(pathIc, builder);
+		// invalid
+		if (BooleanUtils.isFalse(validContractManagers)) {
+			validContractManagersPredicate = builder.not(validContractManagersPredicate);
+		}
+		return validContractManagersPredicate;
 	}
 
 	@Override

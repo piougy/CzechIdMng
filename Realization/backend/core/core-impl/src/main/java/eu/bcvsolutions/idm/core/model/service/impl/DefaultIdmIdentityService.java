@@ -385,34 +385,27 @@ public class DefaultIdmIdentityService
 		return toDtoPage(getRepository().findAll(criteria, pageable));
 	}
 
-
-	/**
-	 * Method find all managers by identity contract and return manager's
-	 * 
-	 * @param forIdentity
-	 * @return String - usernames separate by commas
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllManagers(UUID forIdentity) {
 		return this.findAllManagers(forIdentity, null);
 	}
-
-	/**
-	 * Method finds all identity's managers by identity contract (guarantee or by assigned tree structure).
-	 * 
-	 * @param forIdentity
-	 * @param byTreeType If optional tree type is given, then only managers defined with this type is returned
-	 * @return
-	 */
+	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllManagers(UUID forIdentity, UUID byTreeType) {
+		return this.findAllManagers(forIdentity, byTreeType, null);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentityDto> findAllManagers(UUID forIdentity, UUID byTreeType, Boolean validContractManagers) {
 		Assert.notNull(forIdentity, "Identity id is required.");
 		//		
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setManagersFor(forIdentity);
 		filter.setManagersByTreeType(byTreeType);
+		filter.setValidContractManagers(validContractManagers);
 		//
 		List<IdmIdentityDto> results = new ArrayList<>();
 		Page<IdmIdentityDto> managers = find(filter, PageRequest.of(0, 50, Sort.Direction.ASC, IdmIdentity_.username.getName()));

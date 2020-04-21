@@ -895,9 +895,7 @@ public class DefaultSysSystemServiceIntegrationTest extends AbstractIntegrationT
 		// Get stored system and prove it doesn't contain readable password 
 		SysSystemDto systemTmp = systemService.get(system.getId());		
 		GuardedString obtainedPassword = systemTmp.getConnectorServer().getPassword();
-		Assert.assertTrue(obtainedPassword == null
-				|| obtainedPassword.asString().contentEquals(GuardedString.SECRED_PROXY_STRING));				
-		
+		Assert.assertTrue(obtainedPassword == null);				
 		systemTmp = systemService.save(systemTmp);
 
 		// Prove that confidential storage still contains correct password

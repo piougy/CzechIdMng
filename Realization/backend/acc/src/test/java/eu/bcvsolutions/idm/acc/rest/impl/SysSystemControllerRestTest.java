@@ -1,5 +1,10 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -7,6 +12,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
@@ -15,6 +23,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Controller tests:
@@ -138,6 +148,33 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 		List<SysSystemDto> results = find(filter);
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().allMatch(r -> r.getId().equals(systemOne.getId())));
+	}
+	
+	@Test
+	public void testGetRemoteServerPasswordContainsAsterisks() throws Exception {
+		String password = "testPassword123654";
+		SysSystemDto system = prepareDto();
+		system.setRemote(true);
+		SysConnectorServerDto conServer = new SysConnectorServerDto();
+		conServer.setPassword(new GuardedString(password));
+		conServer.setHost("localhost");
+		system.setConnectorServer(conServer);
+		system = createDto(system);
+		
+		ObjectMapper mapper = getMapper();
+				
+		String response = getMockMvc().perform(get(getDetailUrl(system.getId()))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		SysSystemDto gotSystem = (SysSystemDto) mapper.readValue(response, SysSystemDto.class);
+		
+		Assert.assertNotNull(gotSystem);
+		Assert.assertEquals(gotSystem.getConnectorServer().getPassword().asString(), GuardedString.SECRED_PROXY_STRING);
 	}
 	
 	private UUID createPasswordPolicy(IdmPasswordPolicyType type) {

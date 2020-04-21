@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -261,8 +262,11 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	private ConnectorInfoManager findRemoteConnectorManager(IcConnectorServer server) {
 		// get all saved remote connector servers
+		GuardedString passGuarded = server.getPassword();
+		char pass[] = passGuarded != null ? passGuarded.asString().toCharArray()
+				: GuardedString.SECRED_PROXY_STRING.toCharArray();
 		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(server.getHost(), server.getPort(),
-				new org.identityconnectors.common.security.GuardedString(server.getPassword().asString().toCharArray()),
+				new org.identityconnectors.common.security.GuardedString(pass),
 				server.isUseSsl(), null, server.getTimeout());
 
 		ConnectorInfoManager manager = null;

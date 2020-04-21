@@ -52,7 +52,7 @@ class LongRunningTask extends Basic.AbstractContent {
       this.safelyClearInterval();
     }
 
-    this.context.store.dispatch(manager.fetchEntity(identifier, null, (task) => {
+    this.context.store.dispatch(manager.autocompleteEntity(identifier, null, (task) => {
       if (task && OperationStateEnum.findSymbolByKey(task.resultState) !== OperationStateEnum.RUNNING) {
         this.safelyClearInterval();
         if (onComplete) {
@@ -90,7 +90,7 @@ class LongRunningTask extends Basic.AbstractContent {
       const uiKey = manager.resolveUiKey(null, entityIdentifier);
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
           && !Utils.Ui.getError(this.context.store.getState(), uiKey)) { // show loading check has to be here - new state is needed
-        this.context.store.dispatch(manager.fetchEntity(entityIdentifier, null, (task) => {
+        this.context.store.dispatch(manager.autocompleteEntity(entityIdentifier, null, (task) => {
           this.setRefresh(task);
         }));
       }
@@ -131,7 +131,7 @@ class LongRunningTask extends Basic.AbstractContent {
    * Shows modal detail with given entity
    */
   showDetail(entity) {
-    this.context.history.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
+    this.context.history.push(`/scheduler/all-tasks/${ encodeURIComponent(entity.id) }/detail`);
   }
 
   setRefresh(task) {

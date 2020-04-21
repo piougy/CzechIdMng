@@ -36,7 +36,7 @@ public class LongRunningTaskDeleteBulkAction extends AbstractRemoveBulkAction<Id
 
 	@Override
 	protected List<String> getAuthoritiesForEntity() {
-		return Lists.newArrayList(CoreGroupPermission.LONGRUNNINGTASK_DELETE);
+		return Lists.newArrayList(CoreGroupPermission.SCHEDULER_DELETE);
 	}
 
 	@Override

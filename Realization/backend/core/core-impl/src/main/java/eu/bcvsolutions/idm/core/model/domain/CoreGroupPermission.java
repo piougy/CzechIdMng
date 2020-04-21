@@ -189,15 +189,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE),
-	SCHEDULER(
+	SCHEDULER( // ~ LONGRUNNINGTASK
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.EXECUTE, 
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE,
-			IdmBasePermission.DELETE),
-	LONGRUNNINGTASK(
 			IdmBasePermission.DELETE),
 	ROLEREQUEST(
 			IdmBasePermission.ADMIN,
@@ -535,13 +534,12 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String MODULE_UPDATE = "MODULE" + BasePermission.SEPARATOR + "UPDATE";
 	//
 	public static final String SCHEDULER_COUNT = "SCHEDULER" + BasePermission.SEPARATOR + "COUNT";
+	public static final String SCHEDULER_AUTOCOMPLETE = "SCHEDULER" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String SCHEDULER_READ = "SCHEDULER" + BasePermission.SEPARATOR + "READ";
 	public static final String SCHEDULER_CREATE = "SCHEDULER" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SCHEDULER_UPDATE = "SCHEDULER" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SCHEDULER_DELETE = "SCHEDULER" + BasePermission.SEPARATOR + "DELETE";
 	public static final String SCHEDULER_EXECUTE = "SCHEDULER" + BasePermission.SEPARATOR + "EXECUTE";
-	//
-	public static final String LONGRUNNINGTASK_DELETE = "LONGRUNNINGTASK" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ROLE_REQUEST_ADMIN = "ROLEREQUEST" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String ROLE_REQUEST_COUNT = "ROLEREQUEST" + BasePermission.SEPARATOR + "COUNT";

@@ -3854,6 +3854,10 @@
       "guarantee": {
         "label": "Authorizer - identity",
         "help": "Selected identity will be the role authorizer."
+      },
+      "type": {
+        "label": "Authorizer type",
+        "help": ""
       }
     },
     "RoleGuaranteeRole": {
@@ -3864,6 +3868,10 @@
       "guaranteeRole": {
         "label": "Authorizer - role",
         "help": "Identities with the selected role assigned will be the role authorizers."
+      },
+      "type": {
+        "label": "Authorizer type",
+        "help": ""
       }
     },
     "ConfidentialStorageValue": {

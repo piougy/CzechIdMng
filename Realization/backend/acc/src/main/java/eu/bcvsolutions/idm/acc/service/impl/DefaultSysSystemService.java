@@ -195,6 +195,14 @@ public class DefaultSysSystemService
 				// when provisioning is disabled (~super disabled), then system is disabled too (prevent to execute already created provisioning operations)
 				dto.setDisabled(true);
 			}
+			// if dto comes with set GuardedString.SECRED_PROXY_STRING which indicates password existence
+			// we don't want to override password in confidential storage by this GuardedString.SECRED_PROXY_STRING
+			if (dto.isRemote() && dto.getConnectorServer() != null) {
+				GuardedString pass = dto.getConnectorServer().getPassword();
+				if (pass != null && pass.asString().contentEquals(GuardedString.SECRED_PROXY_STRING)) {
+					dto.getConnectorServer().setPassword(null);
+				}
+			}
 		}
 		return super.saveInternal(dto);
 	}

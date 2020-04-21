@@ -266,15 +266,20 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		}
 		return null;
 	}
+
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return true;
+	}
 	
 	@Override
-	protected VsRequestDto toDto(VsRequest entity, VsRequestDto dto) {
-		dto = super.toDto(entity, dto);
-		if (dto != null && dto.getSystem() != null && dto.getUid() != null) {
+	protected VsRequestDto toDto(VsRequest entity, VsRequestDto dto, VsRequestFilter filter) {
+		dto = super.toDto(entity, dto, filter);
+		if (dto != null && dto.getSystem() != null && dto.getUid() != null && filter != null && filter.isIncludeOwner()) {
+			// Load and set target entity. For loading a target entity is using sync
+			// executor. Owner loading is processed only if filter "includeOwner" is present!
 			AccAccountDto account = accAccountService.getAccount(dto.getUid(), dto.getSystem());
 			if (account != null) {
-				// Load and set target entity. For loading a target entity is using sync
-				// executor.
 				SystemEntityType entityType = account.getEntityType();
 				if (entityType != null && entityType.isSupportsSync()) {
 					SynchronizationEntityExecutor executor = accAccountService.getSyncExecutor(entityType);

@@ -162,6 +162,13 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.RoleGuarantee.guarantee.label') }
                   helpBlock={ this.i18n('entity.RoleGuarantee.guarantee.help') }
                   required/>
+                <Advanced.CodeListSelect
+                  ref="type"
+                  code="guarantee-type"
+                  showOnlyIfOptionsExists
+                  label={ this.i18n('entity.RoleGuarantee.type.label') }
+                  helpBlock={ this.i18n(`entity.RoleGuarantee.type.help`) }
+                  max={ 255 }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

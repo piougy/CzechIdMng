@@ -344,7 +344,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Contract's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return formDefinitionController.getDefinitions(IdmIdentityContract.class);
+		return formDefinitionController.getDefinitions(IdmIdentityContract.class, IdmBasePermission.AUTOCOMPLETE);
 	}
 	
 	/**
@@ -371,7 +371,10 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
+				IdmIdentityContract.class,
+				definitionCode,
+				IdmBasePermission.AUTOCOMPLETE);
 		
 		IdmIdentityContractDto dto = getDto(backendId);
 		if (dto == null) {
@@ -383,9 +386,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 			return new Resource<>(formInstance);
 		}
 		//
-		checkAccess(dto, IdmBasePermission.READ);
-		//
-		IdmFormInstanceDto formInstance = formService.getFormInstance(dto, formDefinition);
+		IdmFormInstanceDto formInstance = formService.getFormInstance(dto, formDefinition, IdmBasePermission.READ);
 		//
 		// If is contract controlled by slice, then we make all
 		// attributes in main definition readOnly!
@@ -401,14 +402,15 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 	}
 	
 	/**
-	 * Saves entity's form values
+	 * Saves entity form values
 	 * 
 	 * @param backendId
 	 * @param formValues
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_UPDATE + "')"
+			+ "or hasAuthority('" + CoreGroupPermission.FORM_VALUE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/form-values", method = { RequestMethod.POST, RequestMethod.PATCH })
 	@ApiOperation(
 			value = "Identity contract form definition - save values", 
@@ -416,9 +418,11 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 			tags = { IdmIdentityContractController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_UPDATE, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_UPDATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_VALUE_UPDATE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_UPDATE, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_UPDATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_VALUE_UPDATE, description = "") })
 				})
 	public Resource<?> saveFormValues(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
@@ -431,12 +435,13 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		// 
-		checkAccess(dto, IdmBasePermission.UPDATE);
 		//
-		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(IdmIdentityContract.class, definitionCode);
+		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
+				IdmIdentityContract.class,
+				definitionCode,
+				IdmBasePermission.AUTOCOMPLETE);
 		//
-		return formDefinitionController.saveFormValues(dto, formDefinition, formValues);
+		return formDefinitionController.saveFormValues(dto, formDefinition, formValues, IdmBasePermission.UPDATE);
 	}
 	
 	/**
@@ -448,17 +453,20 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 	 * @since 9.4.0
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_UPDATE + "')"
+			+ "or hasAuthority('" + CoreGroupPermission.FORM_VALUE_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}/form-value", method = { RequestMethod.POST } )
 	@ApiOperation(
-			value = "Role form definition - save value", 
-			nickname = "postRoleFormValue", 
+			value = "Contract form definition - save value", 
+			nickname = "postIdentityContractFormValue", 
 			tags = { IdmIdentityContractController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_UPDATE, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_UPDATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_VALUE_UPDATE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_UPDATE, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_UPDATE, description = ""),
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_VALUE_UPDATE, description = "") })
 				})
 	public Resource<?> saveFormValue(
 			@ApiParam(value = "Contract's uuid identifier .", required = true)
@@ -468,9 +476,8 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		checkAccess(dto, IdmBasePermission.UPDATE);
 		//
-		return formDefinitionController.saveFormValue(dto, formValue);
+		return formDefinitionController.saveFormValue(dto, formValue, IdmBasePermission.UPDATE);
 	}
 	
 	/**
@@ -504,7 +511,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId));
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId), IdmBasePermission.READ);
 		if (value == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
 		}
@@ -542,7 +549,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId));
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId), IdmBasePermission.READ);
 		if (value == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
 		}

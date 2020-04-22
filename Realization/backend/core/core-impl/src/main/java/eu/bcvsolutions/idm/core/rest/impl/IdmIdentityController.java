@@ -755,7 +755,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	}
 	
 	/**
-	 * Saves connector configuration form values
+	 * Save form values.
 	 * 
 	 * @param backendId
 	 * @param formValues

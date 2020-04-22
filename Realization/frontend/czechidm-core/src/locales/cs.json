@@ -1077,7 +1077,13 @@
       "MANUALLYDISABLE": "Manuální deaktivace uživatele",
       "MANUALLYENABLE": "Manuální aktivace uživatele",
       "CANBEREQUESTED": "O roli lze žádat",
-      "CHANGEPROJECTION": "Změna typu uživatele (projekce)"
+      "CHANGEPROJECTION": "Změna typu uživatele (projekce)",
+      "CHANGEUSERNAME": "Změna uživatelského jména",
+      "CHANGENAME": "Změna jména, příjmení a titulů",
+      "CHANGEPHONE": "Změna telefonu",
+      "CHANGEEMAIL": "Změna emailu",
+      "CHANGEEXTERNALCODE": "Změna osobního čísla",
+      "CHANGEDESCRIPTION": "Změna popisu"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",

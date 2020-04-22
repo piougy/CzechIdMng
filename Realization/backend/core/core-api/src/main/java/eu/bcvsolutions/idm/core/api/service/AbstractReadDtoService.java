@@ -449,6 +449,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	
 	/**
 	 * Apply context on given dto.
+	 * Lookout: {@link #supportsToDtoWithFilter()} is required to return {@code true}.
 	 * 
 	 * @param dto
 	 * @param context

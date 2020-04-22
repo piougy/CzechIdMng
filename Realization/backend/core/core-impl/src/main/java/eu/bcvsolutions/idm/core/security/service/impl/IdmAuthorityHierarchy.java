@@ -59,7 +59,7 @@ public class IdmAuthorityHierarchy implements RoleHierarchy {
 						break;
 					}
 				}
-			}			
+			}
 		}		
 		return Collections.unmodifiableCollection(reachableRoles);
 	}

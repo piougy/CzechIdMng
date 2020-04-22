@@ -39,7 +39,13 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdentityBasePermission.CHANGEPERMISSION,
 			IdentityBasePermission.MANUALLYDISABLE,
 			IdentityBasePermission.MANUALLYENABLE,
-			IdentityBasePermission.CHANGEPROJECTION),
+			IdentityBasePermission.CHANGEPROJECTION,
+			IdentityBasePermission.CHANGEUSERNAME,
+			IdentityBasePermission.CHANGENAME,
+			IdentityBasePermission.CHANGEPHONE,
+			IdentityBasePermission.CHANGEEMAIL,
+			IdentityBasePermission.CHANGEEXTERNALCODE,
+			IdentityBasePermission.CHANGEDESCRIPTION),
 	PROFILE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -382,6 +388,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITY_CHANGEPERMISSION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEPERMISSION";
 	public static final String IDENTITY_MANUALLYDISABLE = "IDENTITY" + BasePermission.SEPARATOR + "MANUALLYDISABLE";
 	public static final String IDENTITY_MANUALLYENABLE = "IDENTITY" + BasePermission.SEPARATOR + "MANUALLYENABLE";
+	public static final String IDENTITY_CHANGEPROJECTION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEPROJECTION";
+	public static final String IDENTITY_CHANGEUSERNAME = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEUSERNAME";
+	public static final String IDENTITY_CHANGENAME = "IDENTITY" + BasePermission.SEPARATOR + "CHANGENAME";
+	public static final String IDENTITY_CHANGEPHONE = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEPHONE";
+	public static final String IDENTITY_CHANGEEMAIL = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEEMAIL";
+	public static final String IDENTITY_CHANGEEXTERNALCODE = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEEXTERNALCODE";
+	public static final String IDENTITY_CHANGEDESCRIPTION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEDESCRIPTION";
 	//
 	public static final String PROFILE_ADMIN = "PROFILE" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String PROFILE_COUNT = "PROFILE" + BasePermission.SEPARATOR + "COUNT";

@@ -326,6 +326,13 @@ class IdentityProjection extends Basic.AbstractContent {
     return true; // rendered by default
   }
 
+  _hasPermission(identityProjection, permission) {
+    if (!identityProjection) {
+      return false;
+    }
+    return Utils.Permission.hasPermission(identityProjection._permissions, permission);
+  }
+
   save(event) {
     if (event) {
       event.preventDefault();
@@ -537,7 +544,7 @@ class IdentityProjection extends Basic.AbstractContent {
                       label={ this.i18n('identity.username.label') }
                       max={ 255 }
                       rendered={ this._isRendered(formProjection, 'username') }
-                      readOnly={ readOnly }
+                      readOnly={ readOnly || !this._hasPermission(identityProjection, 'CHANGEUSERNAME') }
                       required={ !isNew && this._isRendered(formProjection, 'username') }/>
 
                     <Basic.Row>
@@ -548,7 +555,7 @@ class IdentityProjection extends Basic.AbstractContent {
                           ref="firstName"
                           label={ this.i18n('content.identity.profile.firstName') }
                           max={ 255 }
-                          readOnly={ readOnly }/>
+                          readOnly={ readOnly || !this._hasPermission(identityProjection, 'CHANGENAME') }/>
                       </Basic.Col>
                       <Basic.Col
                         lg={ this._isRendered(formProjection, 'firstName') ? 6 : 12 }
@@ -557,7 +564,7 @@ class IdentityProjection extends Basic.AbstractContent {
                           ref="lastName"
                           label={ this.i18n('content.identity.profile.lastName') }
                           max={ 255 }
-                          readOnly={ readOnly }/>
+                          readOnly={ readOnly || !this._hasPermission(identityProjection, 'CHANGENAME') }/>
                       </Basic.Col>
                     </Basic.Row>
 
@@ -566,7 +573,7 @@ class IdentityProjection extends Basic.AbstractContent {
                       label={ this.i18n('content.identity.profile.externalCode') }
                       rendered={ this._isRendered(formProjection, 'externalCode') }
                       max={ 255 }
-                      readOnly={ readOnly }/>
+                      readOnly={ readOnly || !this._hasPermission(identityProjection, 'CHANGEEXTERNALCODE') }/>
 
                     <Basic.Row>
                       <Basic.Col
@@ -576,7 +583,7 @@ class IdentityProjection extends Basic.AbstractContent {
                           ref="titleBefore"
                           label={ this.i18n('entity.Identity.titleBefore') }
                           max={ 100 }
-                          readOnly={ readOnly }/>
+                          readOnly={ readOnly || !this._hasPermission(identityProjection, 'CHANGENAME') }/>
                       </Basic.Col>
                       <Basic.Col
                         lg={ this._isRendered(formProjection, 'titleBefore') ? 6 : 12 }
@@ -585,7 +592,7 @@ class IdentityProjection extends Basic.AbstractContent {
                           ref="titleAfter"
                           label={ this.i18n('entity.Identity.titleAfter') }
                           max={ 100 }
-                          readOnly={ readOnly }/>
+                          readOnly={ readOnly || !this._hasPermission(identityProjection, 'CHANGENAME') }/>
                       </Basic.Col>
                     </Basic.Row>
 
@@ -598,7 +605,7 @@ class IdentityProjection extends Basic.AbstractContent {
                           label={ this.i18n('content.identity.profile.email.label') }
                           placeholder={ this.i18n('content.identity.profile.email.placeholder') }
                           validation={ Joi.string().email() }
-                          readOnly={ readOnly }/>
+                          readOnly={ readOnly || !this._hasPermission(identityProjection, 'CHANGEEMAIL') }/>
                       </Basic.Col>
                       <Basic.Col
                         lg={ this._isRendered(formProjection, 'email') ? 6 : 12 }
@@ -608,7 +615,7 @@ class IdentityProjection extends Basic.AbstractContent {
                           label={ this.i18n('content.identity.profile.phone.label') }
                           placeholder={ this.i18n('content.identity.profile.phone.placeholder') }
                           max={ 30 }
-                          readOnly={ readOnly }/>
+                          readOnly={ readOnly || !this._hasPermission(identityProjection, 'CHANGEPHONE') }/>
                       </Basic.Col>
                     </Basic.Row>
 

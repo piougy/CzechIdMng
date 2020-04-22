@@ -1044,7 +1044,13 @@
       "MANUALLYDISABLE": "Deactivate user manually",
       "MANUALLYENABLE": "Activate user manually",
       "CANBEREQUESTED": "Can be requested",
-      "CHANGEPROJECTION": "Change user type (projection)"
+      "CHANGEPROJECTION": "Change user type (projection)",
+      "CHANGEUSERNAME": "Change login",
+      "CHANGENAME": "Change first name, surname and titles",
+      "CHANGEPHONE": "Change phone",
+      "CHANGEEMAIL": "Change email",
+      "CHANGEEXTERNALCODE": "Change personal number",
+      "CHANGEDESCRIPTION": "Change note"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",

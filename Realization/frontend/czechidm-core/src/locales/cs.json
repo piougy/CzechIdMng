@@ -5720,6 +5720,21 @@
             "help": "Přiřadí pouze oprávnění pro možnost žádat o přiřazenou stejnou roli. Použitelné například při kopírování rolí od jiného uživatele."
           }
         }
+      },
+      "core-codelist-item-by-code-evaluator": {
+        "help": "Oprávnění pro položky číselníku. Oprávnění je možné přidat pouze pro vybraý číselník a vybrané položky (všechny položky jsou použity jako výchozí).",
+        "attributes": {
+          "codelist": {
+            "label": "Číselník",
+            "help": "Vyberte číselník, která obsahuje položky, kterým bude nastaveno oprávnění.",
+            "placeholder": "Vyberte číselník ..."
+          },
+          "item-codes": {
+            "label": "Položky číselníku",
+            "help": "Položky, kterým bude nastaveno oprávnění. Pokud ponecháte položky prázdné, bude oprávnění nastaveno pro všechny položky daného číselníku.",
+            "placeholder": "Všechny položky daného číselníku nebo zadejte kódy položek oddělené čárkou"
+          }
+        }
       }
     },
     "value-generator": {

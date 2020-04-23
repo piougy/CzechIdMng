@@ -173,7 +173,11 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
     this.setState({
       showLoading: true
     }, () => {
-      let searchParameters = new Domain.SearchParameters().setFilter('codeListId', code).setSort('name', false).setSize(10000);
+      let searchParameters = new Domain.SearchParameters()
+        .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
+        .setFilter('codeListId', code)
+        .setSort('name', false)
+        .setSize(10000);
       let _forceSearchParameters = null;
       if (forceSearchParameters) {
         _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination

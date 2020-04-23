@@ -5668,6 +5668,21 @@
             "help": "Add permission for role requests only (can be requested). Usable, when assigned roles need to be copied from another user."
           }
         }
+      },
+      "core-codelist-item-by-code-evaluator": {
+        "help": "Permissions to codelist items. By code list and item codes (all if not specified).",
+        "attributes": {
+          "codelist": {
+            "label": "Code list",
+            "help": "Select code list, which contains items.",
+            "placeholder": "Select code list ..."
+          },
+          "item-codes": {
+            "label": "Items",
+            "help": "Add permission to code list items. All items from selected code list will be used as default.",
+              "placeholder": "All items or items codes (use comma as separator)"
+          }
+        }
       }
     },
     "value-generator": {

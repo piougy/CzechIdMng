@@ -13,13 +13,6 @@ import RoleSelect from '../RoleSelect/RoleSelect';
  */
 export default class RoleSelectFormAttributeRenderer extends SelectBoxFormAttributeRenderer {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      ...this.state
-    };
-  }
-
   /**
    * Returns true, when multi value mode is supported
    *

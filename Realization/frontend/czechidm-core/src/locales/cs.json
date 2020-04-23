@@ -607,6 +607,8 @@
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
           "CAN-BE-REQUESTED-ROLE-SELECT": "Výběr rolí dostupných pro žádost (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
+          "FORM-PROJECTION-SELECT": "Výběr projekce formuláře (SelectBox)",
+          "CODE-LIST-SELECT": "Výběr číselníku (SelectBox)",
           "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
           "TREE-TYPE-SELECT": "Výběr typu stromu (SelectBox)",
           "SCRIPT-SELECT": "Výběr skriptu (SelectBox)",
@@ -5722,7 +5724,7 @@
         }
       },
       "core-codelist-item-by-code-evaluator": {
-        "help": "Oprávnění pro položky číselníku. Oprávnění je možné přidat pouze pro vybraý číselník a vybrané položky (všechny položky jsou použity jako výchozí).",
+        "help": "Oprávnění pro položky číselníku. Oprávnění je možné přidat pouze pro vybraný číselník a vybrané položky (všechny položky jsou použity jako výchozí).",
         "attributes": {
           "codelist": {
             "label": "Číselník",
@@ -5733,6 +5735,16 @@
             "label": "Položky číselníku",
             "help": "Položky, kterým bude nastaveno oprávnění. Pokud ponecháte položky prázdné, bude oprávnění nastaveno pro všechny položky daného číselníku.",
             "placeholder": "Všechny položky daného číselníku nebo zadejte kódy položek oddělené čárkou"
+          }
+        }
+      },
+      "core-identity-by-form-projection-evaluator": {
+        "help": "Oprávnění pro uživatele dle typu. Oprávnění je možné přidat pro vybraný typ uživatele nebo pro výchozí (uživatelé bez vyplněného typu).",
+        "attributes": {
+          "form-projection": {
+            "label": "Typ uživatele",
+            "help": "Vyberte typ uživatele, kterému bude nastaveno oprávnění.",
+            "placeholder": "Defaultní typ uživatele nebo vyberte ..."
           }
         }
       }

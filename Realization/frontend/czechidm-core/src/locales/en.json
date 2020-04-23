@@ -574,6 +574,8 @@
           "ROLE-SELECT": "Select role (SelectBox)",
           "CAN-BE-REQUESTED-ROLE-SELECT": "Select role available for request (SelectBox)",
           "FORM-DEFINITION-SELECT": "Select form definition (SelectBox)",
+          "FORM-PROJECTION-SELECT": "Select form projection (SelectBox)",
+          "CODE-LIST-SELECT": "Select codelist (SelectBox)",
           "TREE-NODE-SELECT": "Select tree node (SelectBox)",
           "TREE-TYPE-SELECT": "Select tree type (SelectBox)",
           "SCRIPT-SELECT": "Select script (SelectBox)",
@@ -5681,6 +5683,16 @@
             "label": "Items",
             "help": "Add permission to code list items. All items from selected code list will be used as default.",
               "placeholder": "All items or items codes (use comma as separator)"
+          }
+        }
+      },
+      "core-identity-by-form-projection-evaluator": {
+        "help": "Permissions to user by type. Add permisson by selected user type or by default type (user without type is specified).",
+        "attributes": {
+          "form-projection": {
+            "label": "User type",
+            "help": "Add permission to selected user type or to default type (user without type is specified).",
+            "placeholder": "Default (empty) user type or select ..."
           }
         }
       }

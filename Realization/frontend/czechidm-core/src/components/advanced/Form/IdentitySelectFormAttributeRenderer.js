@@ -6,20 +6,13 @@ import SelectBoxFormAttributeRenderer from './SelectBoxFormAttributeRenderer';
 import IdentitySelect from '../IdentitySelect/IdentitySelect';
 
 /**
- * Role select component
+ * Identity select component.
  * - TODO: validation
  *
  * @author Radek Tomiška
  * @since 10.1.0
  */
 export default class IdentitySelectFormAttributeRenderer extends SelectBoxFormAttributeRenderer {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      ...this.state
-    };
-  }
 
   /**
    * Returns true, when multi value mode is supported

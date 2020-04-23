@@ -380,6 +380,15 @@ module.exports = {
       manager: require('./src/redux').FormDefinitionManager
     },
     {
+      id: 'form-projection-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'UUID',
+      faceType: 'FORM-PROJECTION-SELECT',
+      component: require('./src/components/advanced/Form/FormProjectionSelectFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.FORM-PROJECTION-SELECT',
+      manager: require('./src/redux').FormProjectionManager
+    },
+    {
       id: 'code-list-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'UUID',

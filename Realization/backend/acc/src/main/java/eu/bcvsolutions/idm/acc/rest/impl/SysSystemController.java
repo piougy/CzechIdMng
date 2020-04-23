@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1010,6 +1011,18 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	
 	@Override
 	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
-		return new SysSystemFilter(parameters, getParameterConverter());
+		SysSystemFilter filter = new SysSystemFilter(parameters, getParameterConverter());
+		// Context property only
+		filter.setFilterSetFromOutsideBE(true);
+		return filter;
+	}
+	
+	@Override
+	public SysSystemDto getDto(Serializable backendId) {
+		SysSystemDto dto = super.getDto(backendId);
+		if (dto != null && dto.isRemote()) {
+			dto = systemService.get(dto.getId(), toFilter(null));
+		}
+		return dto;
 	}
 }

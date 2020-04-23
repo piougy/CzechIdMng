@@ -24,6 +24,8 @@ import {
 import IdentityStateEnum from '../../../enums/IdentityStateEnum';
 import OrganizationPosition from '../OrganizationPosition';
 import IdentityRoles from '../IdentityRoles';
+import DisableIdentityDashboardButton from '../../dashboards/button/DisableIdentityDashboardButton';
+import EnableIdentityDashboardButton from '../../dashboards/button/EnableIdentityDashboardButton';
 
 const PASSWORD_PREVALIDATION = 'PASSWORD_PREVALIDATION';
 
@@ -86,18 +88,22 @@ class IdentityProjection extends Basic.AbstractContent {
         }));
       }
     } else {
-      this.getLogger().debug(`[FormDetail] loading entity detail [id:${ entityId }]`);
-      this.context.store.dispatch(identityProjectionManager.fetchProjection(entityId, null, (entity, error) => {
-        if (error) {
-          this.addError(error);
-        } else {
-          this._initProjection(entityId, entity);
-        }
-      }));
+      this._fetchIdentityProjection(entityId);
     }
   }
 
-  _initProjection(entityId, identityProjection = null, formProjection = null) {
+  _fetchIdentityProjection(entityId, focusUsername = true) {
+    this.getLogger().debug(`[FormDetail] loading entity detail [id:${ entityId }]`);
+    this.context.store.dispatch(identityProjectionManager.fetchProjection(entityId, null, (entity, error) => {
+      if (error) {
+        this.addError(error);
+      } else {
+        this._initProjection(entityId, entity, null, focusUsername);
+      }
+    }));
+  }
+
+  _initProjection(entityId, identityProjection = null, formProjection = null, focusUsername = true) {
     const { location } = this.props;
     const { generatePassword } = this.state;
     const isNew = !!Utils.Ui.getUrlParameter(location, 'new');
@@ -179,7 +185,7 @@ class IdentityProjection extends Basic.AbstractContent {
       identityProjection: _identityProjection,
       formProjection
     }, () => {
-      if (this.refs.username) {
+      if (this.refs.username && focusUsername) {
         this.refs.username.focus();
       }
       if (isNew && this.refs.password) {
@@ -820,6 +826,24 @@ class IdentityProjection extends Basic.AbstractContent {
                   <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
                     { this.i18n('button.back') }
                   </Basic.Button>
+                  {
+                    isNew || !identityProjection
+                    ||
+                    <Basic.Div style={{ display: 'inline' }}>
+                      <DisableIdentityDashboardButton
+                        entityId={ identityProjection.username }
+                        identity={ identityProjection }
+                        permissions={ identityProjection._permissions }
+                        buttonSize="default"
+                        onComplete={ () => this._fetchIdentityProjection(entityId, false) }/>
+                      <EnableIdentityDashboardButton
+                        entityId={ identityProjection.username }
+                        identity={ identityProjection }
+                        permissions={ identityProjection._permissions }
+                        buttonSize="default"
+                        onComplete={ () => this._fetchIdentityProjection(entityId, false) }/>
+                    </Basic.Div>
+                  }
                   <Basic.Button
                     type="submit"
                     level="success"

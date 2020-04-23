@@ -15,6 +15,8 @@ import {
   SecurityManager
 } from '../../redux';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
+import DisableIdentityDashboardButton from '../dashboards/button/DisableIdentityDashboardButton';
+import EnableIdentityDashboardButton from '../dashboards/button/EnableIdentityDashboardButton';
 
 const identityManager = new IdentityManager();
 const profileManager = new ProfileManager();
@@ -321,6 +323,22 @@ class IdentityDetail extends Basic.AbstractContent {
                 showLoading={ showLoading }>
                 { this.i18n('button.back') }
               </Basic.Button>
+              {
+                !identity
+                ||
+                <Basic.Div style={{ display: 'inline' }}>
+                  <DisableIdentityDashboardButton
+                    entityId={ identity.username }
+                    identity={ identity }
+                    permissions={ _permissions }
+                    buttonSize="default"/>
+                  <EnableIdentityDashboardButton
+                    entityId={ identity.username }
+                    identity={ identity }
+                    permissions={ _permissions }
+                    buttonSize="default"/>
+                </Basic.Div>
+              }
               <Basic.Button
                 type="submit"
                 level="success"

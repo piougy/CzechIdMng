@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as Basic from '../../basic';
 
 /**
- * Filter buttons (use, clear) mainly for advanced table
+ * Filter buttons (use, clear) mainly for advanced table.
  *
  * TODO: condensed with btn-xs (depends on condensed filter too).
  * FIXME: show loading is not propagated - add uiKey as prop + redux.

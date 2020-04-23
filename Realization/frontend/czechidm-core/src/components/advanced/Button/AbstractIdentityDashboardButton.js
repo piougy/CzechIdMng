@@ -164,7 +164,7 @@ AbstractIdentityDashboardButton.propTypes = {
    */
   userContext: PropTypes.object.isRequired,
   /**
-   * Button size (by bootstrap)
+   * Button size (by bootstrap).
    *
    * @since 10.3.0
    */

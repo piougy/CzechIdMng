@@ -4,7 +4,10 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager, WorkflowTaskInstanceManager, SecurityManager } from '../../redux';
+import { WorkflowHistoricProcessInstanceManager,
+  WorkflowHistoricTaskInstanceManager,
+  WorkflowTaskInstanceManager,
+  SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
 
@@ -72,24 +75,37 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     this.setState({showModalDiagram: false});
   }
 
-  _getAssigneCell({ rowIndex, data, property}) {
+  _getAssigneCell({ rowIndex, data}) {
     const entity = data[rowIndex];
-    if (!entity || !entity[property]) {
+    if (!entity || !entity.taskAssignee) {
       return '';
     }
     return (
-      <Advanced.IdentityInfo entityIdentifier={entity[property]} face="link"/>
+      <Advanced.IdentityInfo entityIdentifier={entity.taskAssignee} face="link"/>
     );
   }
 
-  _getCandidatesCell({ rowIndex, data, property}) {
+  _getCandidatesCell({ rowIndex, data}) {
     const entity = data[rowIndex];
-    if (!entity || !entity[property]) {
+    if (!entity || !entity.identityLinks) {
       return '';
     }
+    const identityIds = [];
+    for (const index in entity.identityLinks) {
+      if (entity.identityLinks.hasOwnProperty(index)) {
+        const identityLink = entity.identityLinks[index];
+        if (identityLink.type === 'candidate') {
+          identityIds.push(identityLink.userId);
+        }
+      }
+    }
     return (
-      <Advanced.IdentitiesInfo identities={entity[property]} maxEntry={MAX_CANDICATES} />
+      <Advanced.IdentitiesInfo identities={identityIds} maxEntry={MAX_CANDICATES} />
     );
+  }
+
+  showTaskDetail(task) {
+    this.context.history.push(`/task/${task.id}`);
   }
 
   _getProcessInfo(process) {
@@ -102,6 +118,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
         </div>
       );
     }
+    return null;
   }
 
   _getWfTaskCell({ rowIndex, data}) {
@@ -109,8 +126,6 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     if (!entity || !entity.id) {
       return '';
     }
-    entity.taskName = entity.name;
-    entity.taskDescription = entity.description;
     return (
       workflowTaskInstanceManager.localize(entity, 'name')
     );
@@ -138,30 +153,38 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
         <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.AbstractForm ref="form" data={_historicProcess} readOnly style={{ padding: '15px 15px 0 15px' }}>
             {this._getProcessInfo(_historicProcess)}
-            <Basic.TextField ref="id" label={this.i18n('id')}/>
-            <Basic.TextField ref="processDefinitionKey" label={this.i18n('processDefinitionKey')}/>
-            <Basic.TextField ref="superProcessInstanceId" label={this.i18n('superProcessInstanceId')}/>
-            <Basic.DateTimePicker ref="startTime" label={this.i18n('startTime')}/>
-            <Basic.DateTimePicker ref="endTime" label={this.i18n('endTime')}/>
-            <Basic.TextArea ref="deleteReason" label={this.i18n('deleteReason')}/>
-            <Basic.ScriptArea ref="_processVariablesJson" mode="json" readOnly rows={6} label={this.i18n('processVariables')} rendered={ SecurityManager.isAdmin() }/>
+            <Basic.LabelWrapper
+              ref="startTime"
+              label={this.i18n('startTime')}>
+              <Advanced.DateValue value={_historicProcess ? _historicProcess.startTime : null} showTime/>
+            </Basic.LabelWrapper>
+            <Basic.LabelWrapper
+              ref="endTime"
+              label={this.i18n('endTime')}>
+              <Advanced.DateValue value={_historicProcess ? _historicProcess.endTime : null} showTime/>
+            </Basic.LabelWrapper>
           </Basic.AbstractForm>
-          <Basic.PanelFooter>
-            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>
-              {this.i18n('button.back')}
-            </Basic.Button>
-          </Basic.PanelFooter>
-        </Basic.Panel>
-        <Basic.Panel>
-          <Basic.PanelHeader>
-            {this.i18n('tasks')}
-          </Basic.PanelHeader>
+          <Basic.ContentHeader
+            icon="tasks"
+            text={ this.i18n('tasks') }
+            style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}/>
           <Advanced.Table
             ref="tableTasks"
             uiKey="table-tasks"
             pagination={false}
             forceSearchParameters={force}
             manager={workflowHistoricTaskInstanceManager}>
+            <Advanced.Column
+              header=""
+              className="detail-button"
+              cell={
+                ({ rowIndex, data }) => (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showTaskDetail.bind(this, data[rowIndex])}/>
+                )
+              }
+              sort={false}/>
             <Advanced.Column
               header=""
               property="name"
@@ -172,45 +195,72 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
               sort={false}
               cell={this._getAssigneCell}/>
             <Advanced.Column
-                property="candicateUsers"
-                sort={false}
-                cell={this._getCandidatesCell}/>
+              property="candicateUsers"
+              sort={false}
+              cell={this._getCandidatesCell}/>
             <Advanced.Column property="createTime" sort face="datetime"/>
             <Advanced.Column property="endTime" sort face="datetime"/>
             <Advanced.Column property="completeTaskDecision" sort={false} face="text"/>
             <Advanced.Column property="completeTaskMessage" sort={false} face="text"/>
             <Advanced.Column property="deleteReason" sort={false} face="text"/>
           </Advanced.Table>
-        </Basic.Panel>
-        <Basic.Panel>
-          <Basic.PanelHeader>
-            {this.i18n('subprocesses')}
-          </Basic.PanelHeader>
-          <HistoricProcessInstanceTable uiKey="historic_subprocess_instance_table" ref="subprocessTable"
+          <Basic.ContentHeader
+            icon="fa:image"
+            text={ this.i18n('diagram') }
+            style={{ marginBottom: 15, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}>
+            <div className="pull-right">
+              <Basic.Button type="button" className="btn-sm" level="success" onClick={this._showFullDiagram.bind(this)}>
+                <Basic.Icon icon="fullscreen"/>
+              </Basic.Button>
+            </div>
+          </Basic.ContentHeader>
+          <div style={{textAlign: 'center', marginBottom: '40px'}}>
+            <img style={{maxWidth: '70%'}} src={diagramUrl}/>
+          </div>
+          <Basic.ContentHeader
+            icon="fa:sitemap"
+            text={ this.i18n('subprocesses') }
+            style={{ marginBottom: 15, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}/>
+          <HistoricProcessInstanceTable
+            uiKey="historic_subprocess_instance_table"
+            ref="subprocessTable"
             workflowHistoricProcessInstanceManager={workflowHistoricProcessInstanceManager}
             forceSearchParameters={forceSubprocess}
             filterOpened={false}/>
         </Basic.Panel>
-        <Basic.Panel showLoading={!diagramUrl}>
-          <Basic.PanelHeader>
-            {this.i18n('diagram')} <div className="pull-right">
-            <Basic.Button type="button" className="btn-sm" level="success" onClick={this._showFullDiagram.bind(this)}>
-              <Basic.Icon icon="fullscreen"/>
+        <Basic.Panel showLoading={showLoadingInternal}>
+          <Basic.ContentHeader
+            icon="nextProcessOptions"
+            text={ this.i18n('nextProcessOptions') }
+            style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}/>
+          <Basic.AbstractForm ref="form" data={_historicProcess} readOnly style={{ padding: '15px 15px 0 15px' }}>
+            <Basic.TextField ref="id" label={this.i18n('id')}/>
+            <Basic.TextField ref="processDefinitionKey" label={this.i18n('processDefinitionKey')}/>
+            <Basic.TextField ref="superProcessInstanceId" label={this.i18n('superProcessInstanceId')}/>
+            <Basic.TextArea ref="deleteReason" label={this.i18n('deleteReason')}/>
+            <Basic.ScriptArea
+              ref="_processVariablesJson"
+              mode="json"
+              readOnly
+              rows={6}
+              label={this.i18n('processVariables')}
+              rendered={ SecurityManager.isAdmin() }/>
+          </Basic.AbstractForm>
+          <Basic.PanelFooter>
+            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>
+              {this.i18n('button.back')}
             </Basic.Button>
-          </div>
-        </Basic.PanelHeader>
-        <div style={{textAlign: 'center', marginBottom: '40px'}}>
-          <img style={{maxWidth: '70%'}} src={diagramUrl}/>
-        </div>
+          </Basic.PanelFooter>
         </Basic.Panel>
         <Basic.Modal
-           show={showModalDiagram}
-           dialogClassName="modal-large"
-           onHide={this._closeModalDiagram.bind(this)}
-           style={{width: '90%'}} keyboard={!diagramUrl}>
+          show={showModalDiagram}
+          dialogClassName="modal-large"
+          onHide={this._closeModalDiagram.bind(this)}
+          style={{width: '90%'}}
+          keyboard={!diagramUrl}>
           <Basic.Modal.Header text={this.i18n('fullscreenDiagram')}/>
           <Basic.Modal.Body style={{overflow: 'scroll'}}>
-            <img src={diagramUrl}/>
+            <img style={{maxWidth: '140%'}} src={diagramUrl}/>
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
             <Basic.Button level="link" disabled={showLoading} onClick={this._closeModalDiagram.bind(this)}>{this.i18n('button.close')}</Basic.Button>

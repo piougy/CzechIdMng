@@ -1502,6 +1502,13 @@
           "conceptIdentityRoles": "Role žadatele"
         }
       },
+      "historicInstance": {
+        "name": "<strong>Tento úkol byl již vyřešen.</strong>",
+        "assignee": "Vyřešeno uživatelem",
+        "endTime": "Datum vyřešení",
+        "result": "Způsob vyřešení",
+        "process": "Úkol je součástí procesu"
+      },
       "DefaultTaskDetail": {
         "applicant": "Žádost pro",
         "implementerIdentifier": "Žadatel",
@@ -3550,7 +3557,7 @@
           "endTime": "$t(entity.WorkflowHistoricProcessInstance.endTime)",
           "deleteReason": "$t(entity.WorkflowHistoricProcessInstance.deleteReason)",
           "processVariables": "$t(entity.WorkflowHistoricProcessInstance.processVariables)",
-          "name": "$t(entity.WorkflowHistoricProcessInstance.name)",
+          "name": "Název procesu",
           "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
           "processDefinitionKey": "$t(entity.WorkflowHistoricProcessInstance.processDefinitionKey)",
@@ -3558,6 +3565,7 @@
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "Uživatelské úkoly procesu",
           "subprocesses": "Podřízené procesy",
+          "nextProcessOptions": "Další vlastnosti procesu",
           "filter": {
             "processDefinition":{
               "label": "Definice",
@@ -5332,32 +5340,38 @@
       "approve": {
         "label" : "Schválit",
         "tooltip": "Provede schválení tohoto úkolu.",
-        "warning": "Opravdu chcete provést schválení?"
+        "warning": "Opravdu chcete provést schválení?",
+        "resultLabel": "Schváleno"
       },
       "disapprove": {
         "label" : "Zamítnout",
         "tooltip": "Zamítnout úkol.",
-        "warning": "Opravdu chcete zamítnout úkol?"
+        "warning": "Opravdu chcete zamítnout úkol?",
+        "resultLabel": "Zamítnuto"
       },
       "backToApplicant": {
         "label" : "Vrátit žadateli",
         "tooltip": "Vrátí žádost žadateli.",
-        "warning": "Opravdu chcete vrátit žádost žadateli?"
+        "warning": "Opravdu chcete vrátit žádost žadateli?",
+        "resultLabel": "Vráceno žadateli."
       },
       "createRequest": {
         "label" : "Vytvořit žádost",
         "tooltip": "Vytvoří žádost.",
-        "warning": "Opravdu chcete vytvořit žádost?"
+        "warning": "Opravdu chcete vytvořit žádost?",
+        "resultLabel": "Žádost vytvořena."
       },
       "cancelRequest": {
         "label" : "Smazat žádost",
         "tooltip": "Zruší tuto žádost.",
-        "warning": "Opravdu chcete zrušit tuto žádost?"
+        "warning": "Opravdu chcete zrušit tuto žádost?",
+        "resultLabel": "Žádost smazána."
       },
       "repairedRequest": {
         "label" : "Žádost opravena",
         "tooltip": "Žádost byla opravena/doplněna dle připomínek.",
-        "warning": "Opravdu chcete žádost vrátit ke schválení?"
+        "warning": "Opravdu chcete žádost vrátit ke schválení?",
+        "resultLabel": "Žádost opravena."
       }
     },
     "formData" : {

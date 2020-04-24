@@ -71,8 +71,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
@@ -102,6 +104,8 @@ public class DefaultIdmConceptRoleRequestService extends
 	private IdmIdentityRoleThinService identityRoleThinService;
 	@Autowired
 	private ValueGeneratorManager valueGeneratorManager;
+	@Autowired
+	private WorkflowHistoricProcessInstanceService historicProcessService;
 
 	@Autowired
 	public DefaultIdmConceptRoleRequestService(IdmConceptRoleRequestRepository repository,
@@ -150,12 +154,20 @@ public class DefaultIdmConceptRoleRequestService extends
 			return entity;
 		}
 
-		// We have rights on the concept, when we have rights on workflow process using in the concept
+		// We have rights on the concept, when we have rights on workflow process using in the concept.
+		// Beware, concet can use different WF process than whole request. So we need to check directly process on concept!
 		String processId = entity.getWfProcessId();
 		if (!Strings.isNullOrEmpty(processId)) {
-			WorkflowProcessInstanceDto processInstance = workflowProcessInstanceService.get(processId);
+			WorkflowProcessInstanceDto processInstance = workflowProcessInstanceService.get(processId, true);
 			if (processInstance != null) {
 				return entity;
+			}
+			if (processInstance == null) {
+				// Ok process was not returned, but we need to check historic process (on involved user) too.
+				WorkflowHistoricProcessInstanceDto historicProcess = historicProcessService.get(processId);
+				if (historicProcess != null) {
+					return entity;
+				}
 			}
 		}
 

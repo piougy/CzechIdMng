@@ -9,7 +9,6 @@ import org.activiti.engine.HistoryService;
 import org.activiti.engine.history.HistoricIdentityLink;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
-import org.activiti.engine.task.IdentityLinkType;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,12 +26,16 @@ import com.google.common.base.Strings;
 import eu.bcvsolutions.idm.core.rest.AbstractBaseDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.workflow.model.dto.IdentityLinkDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
+import java.util.Map;
 
 /**
  * Default implementation of workflow process historic service
@@ -53,6 +56,8 @@ public class DefaultWorkflowHistoricTaskInstanceService
 	private WorkflowTaskDefinitionService workflowTaskDefinitionService;
 	@Autowired
 	private WorkflowProcessDefinitionService workflowProcessDefinitionService;
+	@Autowired
+	private WorkflowTaskInstanceService workflowTaskInstanceService;
 
 	@Override
 	public Page<WorkflowHistoricTaskInstanceDto> find(Pageable pageable, BasePermission... permission) {
@@ -137,12 +142,12 @@ public class DefaultWorkflowHistoricTaskInstanceService
 		List<WorkflowHistoricTaskInstanceDto> dtos = new ArrayList<>();
 
 		if (processInstances != null) {
-			for (HistoricTaskInstance instance : processInstances) {
+			processInstances.forEach((instance) -> {
 				dtos.add(toResource(instance));
-			}
+			});
 		}
 
-		return new PageImpl<WorkflowHistoricTaskInstanceDto>(dtos, pageable, count);
+		return new PageImpl<>(dtos, pageable, count);
 	}
 	
 	@Override
@@ -171,8 +176,8 @@ public class DefaultWorkflowHistoricTaskInstanceService
 		return !resources.isEmpty() ? resources.get(0) : null;
 	}
 
-	private WorkflowHistoricTaskInstanceDto toResource(HistoricTaskInstance instance) {
-		if (instance == null) {
+	private WorkflowHistoricTaskInstanceDto toResource(HistoricTaskInstance task) {
+		if (task == null) {
 			return null;
 		}
 
@@ -180,51 +185,85 @@ public class DefaultWorkflowHistoricTaskInstanceService
 		// Not working ... variables are not local but global in process scope
 		// ... may be logged level?
 		// TODO can be slow
-		if (instance.getTaskLocalVariables() != null) {
-			if(instance.getTaskLocalVariables().containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION)) {
+		if (task.getTaskLocalVariables() != null) {
+			if(task.getTaskLocalVariables().containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION)) {
 				dto.setCompleteTaskDecision((String)
-						instance.getTaskLocalVariables().get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION));
+						task.getTaskLocalVariables().get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION));
 			}
-			if(instance.getTaskLocalVariables().containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE)) {
+			if(task.getTaskLocalVariables().containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE)) {
 				dto.setCompleteTaskMessage((String)
-						instance.getTaskLocalVariables().get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE));
+						task.getTaskLocalVariables().get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE));
 			}
 		}
-		dto.setId(instance.getId());
-		dto.setName(instance.getName());
-		dto.setProcessDefinitionId(instance.getProcessDefinitionId());
-		dto.setTaskVariables(instance.getTaskLocalVariables());
-		dto.setDeleteReason(instance.getDeleteReason());
-		dto.setDurationInMillis(instance.getDurationInMillis());
-		dto.setEndTime(instance.getEndTime());
-		dto.setStartTime(instance.getStartTime());
-		dto.setPriority(instance.getPriority());
-		dto.setAssignee(instance.getAssignee());
-		dto.setCreateTime(instance.getCreateTime());
-		dto.setDueDate(instance.getDueDate());
-
-		List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForTask(instance.getId());
-		if (identityLinks != null && !identityLinks.isEmpty()) {
-			List<String> candicateUsers = new ArrayList<>();
-			for	(HistoricIdentityLink identity : identityLinks) {
-				if (IdentityLinkType.CANDIDATE.equals(identity.getType())) {
-					candicateUsers.add(identity.getUserId());
-				}
-			}
-			dto.setCandicateUsers(candicateUsers);
-		}
+		dto.setId(task.getId());
+		dto.setName(task.getName());
+		dto.setProcessDefinitionId(task.getProcessDefinitionId());
+		dto.setPriority(task.getPriority());
+		dto.setAssignee(task.getAssignee());
+		dto.setCreated(task.getCreateTime());
+		dto.setDescription(task.getDescription());
+		dto.setProcessInstanceId(task.getProcessInstanceId());
+		dto.setDeleteReason(task.getDeleteReason());
+		dto.setDurationInMillis(task.getDurationInMillis());
+		dto.setEndTime(task.getEndTime());
+		dto.setStartTime(task.getStartTime());
+		dto.setCreateTime(task.getCreateTime());
+		dto.setDueDate(task.getDueDate());
+		dto.setFormKey(task.getFormKey());
 		
-		dto.setDefinition(workflowTaskDefinitionService.searchTaskDefinitionById(dto.getProcessDefinitionId(),
-				instance.getTaskDefinitionKey()));
+		Map<String, Object> taskVariables = task.getTaskLocalVariables();
+		Map<String, Object> processVariables = task.getProcessVariables();
 
-		if (!Strings.isNullOrEmpty(dto.getProcessDefinitionId())) {
+		// Add applicant username to task dto (for easier work)
+		if (processVariables != null
+				&& processVariables.containsKey(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER)) {
+			dto.setApplicant(
+					(String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER).toString());
+		}
+		dto.setVariables(processVariables);
+		workflowTaskInstanceService.convertToDtoVariables(dto, taskVariables);
+		
+		// TODO: Prevent selection of the definition here (performance).
+		dto.setDefinition(workflowTaskDefinitionService.searchTaskDefinitionById(task.getProcessDefinitionId(),
+				task.getTaskDefinitionKey()));
+
+		if (!Strings.isNullOrEmpty(task.getProcessDefinitionId())) {
 			WorkflowProcessDefinitionDto processDefinition = workflowProcessDefinitionService
-					.get(dto.getProcessDefinitionId());
+					.get(task.getProcessDefinitionId());
 			if (processDefinition != null) {
 				dto.setProcessDefinitionKey(processDefinition.getKey());
 			}
 		}
 
+		// Search and add identity links to dto (It means all user
+		// (assigned/candidates/group) for this task)
+		List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForTask(task.getId());
+		if (identityLinks != null) {
+			List<IdentityLinkDto> identityLinksDtos = new ArrayList<>(identityLinks.size());
+			identityLinks.forEach((identityLink) -> {
+				identityLinksDtos.add(this.convertHistoricIdentityLink(identityLink));
+			});
+			dto.getIdentityLinks().addAll(identityLinksDtos);
+		}
+
+		return dto;
+	}
+	
+	/**
+	 * Convert given activiti historic link to IdentityLinkDto.
+	 * 
+	 * @param link
+	 * @return 
+	 */
+	private IdentityLinkDto convertHistoricIdentityLink(HistoricIdentityLink link) {
+		if (link == null) {
+			return null;
+		}
+
+		IdentityLinkDto dto = new IdentityLinkDto();
+		dto.setGroupId(link.getGroupId());
+		dto.setType(link.getType());
+		dto.setUserId(link.getUserId());
 		return dto;
 	}
 

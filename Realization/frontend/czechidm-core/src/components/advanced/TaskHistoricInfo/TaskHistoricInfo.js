@@ -90,7 +90,7 @@ export class TaskHistoricInfo extends AbstractEntityInfo {
     result.push(
       {
         label: this.i18n('content.task.historicInstance.process'),
-        value: (<WorkflowProcessInfo entityIdentifier={task.processInstanceId}/>)
+        value: (<WorkflowProcessInfo maxLength={35} entityIdentifier={task.processInstanceId}/>)
       }
     );
     return result;

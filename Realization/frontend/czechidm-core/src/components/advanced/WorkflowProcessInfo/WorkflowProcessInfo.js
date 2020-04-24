@@ -107,7 +107,7 @@ WorkflowProcessInfo.defaultProps = {
   entity: null,
   face: 'link',
   _showLoading: true,
-  maxLength: 35
+  maxLength: 100
 };
 
 function select(state, component) {

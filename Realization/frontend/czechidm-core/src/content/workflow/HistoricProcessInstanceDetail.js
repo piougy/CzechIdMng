@@ -113,7 +113,12 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
       return (
         <div>
           <Basic.LabelWrapper readOnly ref="name" label={this.i18n('name')}>
-            <Advanced.WorkflowProcessInfo entity={process} showLink={false} showLoading={!process} className="no-margin"/>
+            <Advanced.WorkflowProcessInfo
+              entity={process}
+              showLink={false}
+              showLoading={!process}
+              maxLength={150}
+              className="no-margin"/>
           </Basic.LabelWrapper>
         </div>
       );

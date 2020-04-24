@@ -6,7 +6,8 @@ import SelectBoxFormAttributeRenderer from './SelectBoxFormAttributeRenderer';
 import CodeListSelect from '../CodeListSelect/CodeListSelect';
 
 /**
- * Code list select component
+ * Code list select component.
+ * - FIXME: Lookout: select codelist item by configured eav codelist - rename this component and add CodeListSelectFormAttributeRenderer to select codelists!
  * - TODO: add support multiple attributes
  *
  * @author Radek Tomiška
@@ -71,7 +72,7 @@ export default class CodeListSelectFormAttributeRenderer extends SelectBoxFormAt
 
   renderSingleInput(originalValues) {
     const { attribute, values, uiKey, validationErrors, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <CodeListSelect

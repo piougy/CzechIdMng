@@ -13,13 +13,6 @@ import RoleCatalogueSelect from '../RoleCatalogueSelect/RoleCatalogueSelect';
  */
 export default class RoleCatalogueSelectFormAttributeRenderer extends SelectBoxFormAttributeRenderer {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      ...this.state
-    };
-  }
-
   /**
    * Returns true, when confidential mode is supported
    *
@@ -31,7 +24,7 @@ export default class RoleCatalogueSelectFormAttributeRenderer extends SelectBoxF
 
   renderSingleInput(originalValues) {
     const { attribute, values, uiKey, validationErrors, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <RoleCatalogueSelect
@@ -42,7 +35,13 @@ export default class RoleCatalogueSelectFormAttributeRenderer extends SelectBoxF
         label={ this.getLabel(null, showOriginalValue) }
         placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
-        value={ !attribute.multiple ? this.toInputValue(showOriginalValue ? originalValues : values) : this.toInputValues(showOriginalValue ? originalValues : values) }
+        value={
+          !attribute.multiple
+          ?
+          this.toInputValue(showOriginalValue ? originalValues : values)
+          :
+          this.toInputValues(showOriginalValue ? originalValues : values)
+        }
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
         multiSelect={ attribute.multiple }

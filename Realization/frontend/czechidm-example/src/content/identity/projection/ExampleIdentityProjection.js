@@ -221,7 +221,11 @@ class ExampleIdentityProjection extends Basic.AbstractContent {
                       ref="username"
                       label={ this.i18n('identity.username.label') }
                       max={ 255 }
-                      readOnly={ !identityProjectionManager.canSave(isNew ? null : identityProjection) }
+                      readOnly={
+                        !identityProjectionManager.canSave(isNew ? null : identityProjection)
+                        ||
+                        (!isNew && identityProjection && !Utils.Permission.hasPermission(identityProjection._permissions, 'CHANGEUSERNAME'))
+                      }
                       required={ !isNew }/>
 
                   </Basic.AbstractForm>

@@ -1,17 +1,27 @@
 import React from 'react';
 //
+import SearchParameters from '../../../domain/SearchParameters';
 import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
 import SelectBoxFormAttributeRenderer from './SelectBoxFormAttributeRenderer';
-import TreeNodeSelect from '../TreeNodeSelect/TreeNodeSelect';
+import FormProjectionSelect from '../FormProjectionSelect/FormProjectionSelect';
 
 /**
- * Tree select component
- * - TODO: supports multiple attributes
+ * Form projection select component.
  * - TODO: validation
  *
  * @author Radek Tomiška
+ * @since 10.3.0
  */
-export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAttributeRenderer {
+export default class FormProjectionSelectFormAttributeRenderer extends SelectBoxFormAttributeRenderer {
+
+  /**
+   * Returns true, when multi value mode is supported
+   *
+   * @return {boolean}
+   */
+  supportsMultiple() {
+    return true;
+  }
 
   /**
    * Returns true, when confidential mode is supported
@@ -23,19 +33,25 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
   }
 
   renderSingleInput(originalValues) {
-    const { attribute, values, uiKey, validationErrors, className, style } = this.props;
+    const { attribute, values, uiKey, validationErrors, className, style, component } = this.props;
     const showOriginalValue = !!originalValues;
     //
+    // set search name into force search parameters
+    let forceSearchParameters = null;
+    if (component.searchName) {
+      forceSearchParameters = new SearchParameters(component.searchName);
+    }
+    //
     return (
-      <TreeNodeSelect
+      <FormProjectionSelect
         ref={ AbstractFormAttributeRenderer.INPUT }
         uiKey={ uiKey || `form-attribute-${attribute.code}` }
         manager={ this.getManager() }
+        forceSearchParameters={ forceSearchParameters }
         header={ this.getLabel(null, showOriginalValue) }
         label={ this.getLabel(null, showOriginalValue) }
         placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
-        showTreeType={ false }
         value={
           !attribute.multiple
           ?
@@ -50,5 +66,9 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
         className={ className }
         style={ style}/>
     );
+  }
+
+  renderMultipleInput(originalValues) {
+    return this.renderSingleInput(originalValues);
   }
 }

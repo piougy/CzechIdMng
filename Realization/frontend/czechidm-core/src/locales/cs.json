@@ -607,6 +607,8 @@
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
           "CAN-BE-REQUESTED-ROLE-SELECT": "Výběr rolí dostupných pro žádost (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
+          "FORM-PROJECTION-SELECT": "Výběr projekce formuláře (SelectBox)",
+          "CODE-LIST-SELECT": "Výběr číselníku (SelectBox)",
           "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
           "TREE-TYPE-SELECT": "Výběr typu stromu (SelectBox)",
           "SCRIPT-SELECT": "Výběr skriptu (SelectBox)",
@@ -1077,7 +1079,13 @@
       "MANUALLYDISABLE": "Manuální deaktivace uživatele",
       "MANUALLYENABLE": "Manuální aktivace uživatele",
       "CANBEREQUESTED": "O roli lze žádat",
-      "CHANGEPROJECTION": "Změna typu uživatele (projekce)"
+      "CHANGEPROJECTION": "Změna typu uživatele (projekce)",
+      "CHANGEUSERNAME": "Změna uživatelského jména",
+      "CHANGENAME": "Změna jména, příjmení a titulů",
+      "CHANGEPHONE": "Změna telefonu",
+      "CHANGEEMAIL": "Změna emailu",
+      "CHANGEEXTERNALCODE": "Změna osobního čísla",
+      "CHANGEDESCRIPTION": "Změna popisu"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -1686,7 +1694,7 @@
           "message_2": "Opravdu chcete manuálně deaktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně deaktivovaní uživatelé můžou být opět aktiovováni pouze manuálně.",
           "message_5": "$t(content.identities.action.deactivate.message_2)",
           "error": "Při deaktivaci uživatele {{username}} nastala chyba",
-          "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni"
+          "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni."
         },
         "activate": {
           "action": "Aktivovat - manuálně",
@@ -1698,7 +1706,7 @@
           "message_2": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
           "message_5": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybraných uživatelů? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
           "error": "Při aktivaci uživatele {{username}} nastala chyba",
-          "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní"
+          "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní."
         },
         "remove": {
           "action": "Odebrat"
@@ -5726,6 +5734,31 @@
           "can-be-requested-only": {
             "label": "Pouze pro žádosti o role",
             "help": "Přiřadí pouze oprávnění pro možnost žádat o přiřazenou stejnou roli. Použitelné například při kopírování rolí od jiného uživatele."
+          }
+        }
+      },
+      "core-codelist-item-by-code-evaluator": {
+        "help": "Oprávnění pro položky číselníku. Oprávnění je možné přidat pouze pro vybraný číselník a vybrané položky (všechny položky jsou použity jako výchozí).",
+        "attributes": {
+          "codelist": {
+            "label": "Číselník",
+            "help": "Vyberte číselník, která obsahuje položky, kterým bude nastaveno oprávnění.",
+            "placeholder": "Vyberte číselník ..."
+          },
+          "item-codes": {
+            "label": "Položky číselníku",
+            "help": "Položky, kterým bude nastaveno oprávnění. Pokud ponecháte položky prázdné, bude oprávnění nastaveno pro všechny položky daného číselníku.",
+            "placeholder": "Všechny položky daného číselníku nebo zadejte kódy položek oddělené čárkou"
+          }
+        }
+      },
+      "core-identity-by-form-projection-evaluator": {
+        "help": "Oprávnění pro uživatele dle typu. Oprávnění je možné přidat pro vybraný typ uživatele nebo pro výchozí (uživatelé bez vyplněného typu).",
+        "attributes": {
+          "form-projection": {
+            "label": "Typ uživatele",
+            "help": "Vyberte typ uživatele, kterému bude nastaveno oprávnění.",
+            "placeholder": "Defaultní typ uživatele nebo vyberte ..."
           }
         }
       }

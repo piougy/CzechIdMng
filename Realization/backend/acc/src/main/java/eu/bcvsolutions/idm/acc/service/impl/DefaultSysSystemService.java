@@ -164,8 +164,8 @@ public class DefaultSysSystemService
 	}
 
 	@Override
-	public SysSystemDto get(Serializable id, BasePermission... permission) {
-		SysSystemDto entity = super.get(id, permission);
+	public SysSystemDto get(Serializable id, SysSystemFilter filter, BasePermission... permission) {
+		SysSystemDto entity = super.get(id, filter, permission);
 		if (entity == null) {
 			return null;
 		}
@@ -176,7 +176,12 @@ public class DefaultSysSystemService
 				Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
 						SysSystemService.REMOTE_SERVER_PASSWORD);
 				if (password != null && entity.getConnectorServer() != null) {
-					entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+					if (filter != null && filter.isFilterSetOutsideBE()) {
+						entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+					} else {
+						entity.getConnectorServer().setPassword(null);
+					}
+					
 				}
 			} catch (ResultCodeException ex) {
 				// decorator only - we has to log exception, because is not possible to change password, if error occurs in get ....
@@ -195,14 +200,6 @@ public class DefaultSysSystemService
 				// when provisioning is disabled (~super disabled), then system is disabled too (prevent to execute already created provisioning operations)
 				dto.setDisabled(true);
 			}
-			// if dto comes with set GuardedString.SECRED_PROXY_STRING which indicates password existence
-			// we don't want to override password in confidential storage by this GuardedString.SECRED_PROXY_STRING
-			if (dto.isRemote() && dto.getConnectorServer() != null) {
-				GuardedString pass = dto.getConnectorServer().getPassword();
-				if (pass != null && pass.asString().contentEquals(GuardedString.SECRED_PROXY_STRING)) {
-					dto.getConnectorServer().setPassword(null);
-				}
-			}
 		}
 		return super.saveInternal(dto);
 	}
@@ -211,6 +208,11 @@ public class DefaultSysSystemService
 	@Transactional(readOnly = true)
 	public SysSystemDto getByCode(String name) {
 		return toDto(systemRepository.findOneByName(name));
+	}
+	
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return true;
 	}
 
 	@Override

@@ -15,6 +15,8 @@ import {
   SecurityManager
 } from '../../redux';
 import IdentityStateEnum from '../../enums/IdentityStateEnum';
+import DisableIdentityDashboardButton from '../dashboards/button/DisableIdentityDashboardButton';
+import EnableIdentityDashboardButton from '../dashboards/button/EnableIdentityDashboardButton';
 
 const identityManager = new IdentityManager();
 const profileManager = new ProfileManager();
@@ -177,6 +179,7 @@ class IdentityDetail extends Basic.AbstractContent {
     const { showLoading, showLoadingIdentityTrimmed, showCropper, cropperSrc } = this.state;
     //
     const blockLoginDate = identity && identity.blockLoginDate ? moment(identity.blockLoginDate).format(this.i18n('format.datetime')) : null;
+    const _readOnly = !identityManager.canSave(identity, _permissions) || readOnly;
     //
     return (
       <Basic.Div className="identity-detail">
@@ -193,12 +196,11 @@ class IdentityDetail extends Basic.AbstractContent {
 
             <Basic.AbstractForm
               ref="form"
-              data={identity}
-              readOnly={ !identityManager.canSave(identity, _permissions) || readOnly }
+              data={ identity }
               showLoading={ showLoadingIdentityTrimmed || showLoading }>
-              <div className="image-field-container">
-                <div className="image-col">
-                  <div className="image-wrapper">
+              <Basic.Div className="image-field-container">
+                <Basic.Div className="image-col">
+                  <Basic.Div className="image-wrapper">
                     <Advanced.ImageDropzone
                       ref="dropzone"
                       accept="image/*"
@@ -225,45 +227,74 @@ class IdentityDetail extends Basic.AbstractContent {
                       className="btn-xs btn-remove">
                       <Basic.Icon type="fa" icon="trash"/>
                     </Basic.Button>
-                  </div>
-                </div>
-                <div className="field-col">
-                  <Basic.TextField ref="username" label={this.i18n('username')} required min={3} max={255} />
-                  <Basic.TextField ref="firstName" label={this.i18n('firstName')} max={255} />
-                  <Basic.TextField ref="lastName" label={this.i18n('lastName')} max={255} />
-                </div>
-              </div>
-              <Basic.TextField ref="externalCode" label={this.i18n('content.identity.profile.externalCode')} max={255}/>
+                  </Basic.Div>
+                </Basic.Div>
+                <Basic.Div className="field-col">
+                  <Basic.TextField
+                    ref="username"
+                    label={ this.i18n('username') }
+                    required
+                    min={ 3 }
+                    max={ 255 }
+                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEUSERNAME') }/>
+                  <Basic.TextField
+                    ref="firstName"
+                    label={ this.i18n('firstName') }
+                    max={255}
+                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGENAME') }/>
+                  <Basic.TextField
+                    ref="lastName"
+                    label={ this.i18n('lastName') }
+                    max={ 255 }
+                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGENAME') }/>
+                </Basic.Div>
+              </Basic.Div>
+              <Basic.TextField
+                ref="externalCode"
+                label={ this.i18n('content.identity.profile.externalCode') }
+                max={ 255 }
+                readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEEXTERNALCODE') }/>
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
-                  <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100} />
+                  <Basic.TextField
+                    ref="titleBefore"
+                    label={ this.i18n('entity.Identity.titleBefore') }
+                    max={ 100 }
+                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGENAME') }/>
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
-                  <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100} />
+                  <Basic.TextField
+                    ref="titleAfter"
+                    label={ this.i18n('entity.Identity.titleAfter') }
+                    max={ 100 }
+                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGENAME') }/>
                 </Basic.Col>
               </Basic.Row>
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="email"
-                    label={this.i18n('email.label')}
-                    placeholder={this.i18n('email.placeholder')}
-                    validation={Joi.string().allow(null).email()}/>
+                    label={ this.i18n('email.label') }
+                    placeholder={ this.i18n('email.placeholder') }
+                    validation={ Joi.string().allow(null).email() }
+                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEEMAIL') }/>
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
                   <Basic.TextField
                     ref="phone"
-                    label={this.i18n('phone.label')}
-                    placeholder={this.i18n('phone.placeholder')}
-                    max={30} />
+                    label={ this.i18n('phone.label') }
+                    placeholder={ this.i18n('phone.placeholder') }
+                    max={ 30 }
+                    readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEPHONE') }/>
                 </Basic.Col>
               </Basic.Row>
               <Basic.TextArea
                 ref="description"
-                label={this.i18n('description.label')}
-                placeholder={this.i18n('description.placeholder')}
-                rows={4}
-                max={1000}/>
+                label={ this.i18n('description.label') }
+                placeholder={ this.i18n('description.placeholder') }
+                rows={ 4 }
+                max={ 1000 }
+                readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEDESCRIPTION') }/>
               <Basic.EnumSelectBox
                 ref="state"
                 enum={ IdentityStateEnum }
@@ -275,7 +306,7 @@ class IdentityDetail extends Basic.AbstractContent {
                 ref="formProjection"
                 label={ this.i18n('entity.Identity.formProjection.label') }
                 helpBlock={ this.i18n('entity.Identity.formProjection.help') }
-                readOnly={ !Utils.Permission.hasPermission(_permissions, 'CHANGEPROJECTION') }
+                readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEPROJECTION') }
                 rendered={ SecurityManager.hasAllAuthorities(['FORMPROJECTION_AUTOCOMPLETE'], userContext) }
                 showIcon/>
               <Basic.Checkbox
@@ -292,6 +323,22 @@ class IdentityDetail extends Basic.AbstractContent {
                 showLoading={ showLoading }>
                 { this.i18n('button.back') }
               </Basic.Button>
+              {
+                !identity
+                ||
+                <Basic.Div style={{ display: 'inline' }}>
+                  <DisableIdentityDashboardButton
+                    entityId={ identity.username }
+                    identity={ identity }
+                    permissions={ _permissions }
+                    buttonSize="default"/>
+                  <EnableIdentityDashboardButton
+                    entityId={ identity.username }
+                    identity={ identity }
+                    permissions={ _permissions }
+                    buttonSize="default"/>
+                </Basic.Div>
+              }
               <Basic.Button
                 type="submit"
                 level="success"

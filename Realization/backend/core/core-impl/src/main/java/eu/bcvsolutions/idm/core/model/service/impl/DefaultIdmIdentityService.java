@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -487,7 +488,12 @@ public class DefaultIdmIdentityService
 					IdmIdentity_.state.getName(), identity.getState()));
 		}
 		identity.setState(evaluateState(identity));
-		return save(identity, permission);
+		//
+		// enable identity is important operation => HIGH priority by default
+		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
+		event.setPriority(PriorityType.HIGH);
+		//
+		return publish(event, permission).getContent();
 	}
 	
 	@Override
@@ -506,7 +512,12 @@ public class DefaultIdmIdentityService
 			
 		}
 		identity.setState(IdentityState.DISABLED_MANUALLY);
-		return save(identity, permission);
+		//
+		// disable identity is important operation => HIGH priority by default
+		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
+		event.setPriority(PriorityType.HIGH);
+		//
+		return publish(event, permission).getContent();
 	}
 	
 	@Override

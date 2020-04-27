@@ -66,6 +66,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -74,6 +75,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -1423,6 +1425,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				synchronizationActionType, uid);
 		log.setContainsError(true);
 		logItem.setMessage(message);
+		// prefer IdM exception message on the top  
+		if (!(e instanceof CoreException)) {
+			Throwable idmEx = ExceptionUtils.resolveException(e);
+			if (idmEx != e) {
+				addToItemLog(logItem, idmEx.toString());
+			}
+		}
 		addToItemLog(logItem, Throwables.getStackTraceAsString(e));
 		initSyncActionLog(synchronizationActionType, OperationResultType.ERROR, logItem, log, actionLogs);
 		LOG.error(message, e);

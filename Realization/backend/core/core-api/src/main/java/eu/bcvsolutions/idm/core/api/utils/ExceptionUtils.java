@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
@@ -92,6 +93,25 @@ public abstract class ExceptionUtils {
 		} else {
 			logger.warn(resultModel.toString(), ex);
 		}
+	}
+	
+	/**
+	 * Extracts a list of parameters according to the paramKey 
+	 * from the list of ResultModel items(e.g. errors or infos list in {@link ResultModels} )
+	 * Values in the result list are in the same order as records in ResultModels  
+	 * 
+	 * @param <T>
+	 * @param paramKey
+	 * @param resultList
+	 * @return
+	 */
+	public static List<Object> getParameterChainByKey(String paramKey, List<ResultModel> resultList) {
+		List<Object> paramList = resultList.stream().map(paramMap -> {
+			return paramMap.getParameters().get(paramKey);
+		}).filter(val -> {
+			return val != null;
+		}).collect(Collectors.toList());
+		return paramList;
 	}
 	
 }

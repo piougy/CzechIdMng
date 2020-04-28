@@ -6168,7 +6168,11 @@
     },
     "FORBIDDEN_ENTITY": {
       "title": "Nedostatečná oprávnění",
-      "message": "Na požadovaný záznam [{{entity}}] nemáte dostatečná oprávnění [{{permission}}]."
+      "message": "Na požadovaný záznam [{{entity}}] [typ: {{type}}] nemáte dostatečná oprávnění [{{permission}}]."
+    },
+    "FORBIDDEN_CODEABLE_ENTITY": {
+      "title": "Nedostatečná oprávnění",
+      "message": "Na požadovaný záznam [{{code}}] [typ: {{type}}] nemáte dostatečná oprávnění [{{permission}}]."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Změna hesla neproběhla",

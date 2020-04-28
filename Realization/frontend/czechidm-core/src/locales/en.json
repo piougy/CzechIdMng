@@ -6116,7 +6116,11 @@
     },
     "FORBIDDEN_ENTITY": {
       "title": "Insufficient permissions",
-      "message": "You do not have insufficient permission [{{permission}}] for selected record [{{entity}}]."
+      "message": "You do not have insufficient permission [{{permission}}] for selected record [{{entity}}] [type: {{type}}]."
+    },
+    "FORBIDDEN_ENTITY": {
+      "title": "Insufficient permissions",
+      "message": "You do not have insufficient permission [{{permission}}] for selected record [{{code}}] [typ: {{type}}]."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Password change failed",

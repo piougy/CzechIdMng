@@ -26,16 +26,15 @@ class IdentityContractEav extends Basic.AbstractContent {
 
   render() {
     const { entityId} = this.props.match.params;
-    const { _entity, _permissions } = this.props;
     //
     return (
       <Basic.Div>
         <Helmet title={ this.i18n('title') } />
         <Advanced.EavContent
-          formableManager={manager}
-          entityId={entityId}
-          contentKey={this.getContentKey()}
-          showSaveButton={ manager.canSaveContract(_entity, _permissions) }/>
+          formableManager={ manager }
+          entityId={ entityId}
+          contentKey={ this.getContentKey() }
+          showSaveButton/>
       </Basic.Div>
     );
   }

@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 /**
  * Dto for workflow task instance
+ * 
  * @author svandav
  *
  */
@@ -42,11 +43,16 @@ public class WorkflowTaskInstanceDto implements BaseDto {
 	private List<IdentityLinkDto> identityLinks;
 	private String processInstanceId;
 	private String processDefinitionKey;
+	private String processDefinitionId;
+	private int priority;
+	@JsonProperty(value = "_dtotype", access = JsonProperty.Access.READ_ONLY)
+	private Class<? extends BaseDto> type = this.getClass();
 	/*
 	 * From key defined custom UI component use for rendered detail this task
 	 */
 	private String formKey;
 
+	@Override
 	public String getId() {
 		return id;
 	}
@@ -178,6 +184,14 @@ public class WorkflowTaskInstanceDto implements BaseDto {
 		}
 		this.id = (String) id;
 	}
+	
+	public String getProcessDefinitionId() {
+		return processDefinitionId;
+	}
+
+	public void setProcessDefinitionId(String processDefinitionId) {
+		this.processDefinitionId = processDefinitionId;
+	}
 
 	public String getProcessDefinitionKey() {
 		return processDefinitionKey;
@@ -185,5 +199,17 @@ public class WorkflowTaskInstanceDto implements BaseDto {
 
 	public void setProcessDefinitionKey(String processDefinitionKey) {
 		this.processDefinitionKey = processDefinitionKey;
+	}
+	
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
+	public Class<? extends BaseDto> getType() {
+		return type;
 	}
 }

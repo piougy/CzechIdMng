@@ -111,7 +111,7 @@ export class HistoricProcessInstanceTable extends Advanced.AbstractTableContent 
       return '';
     }
     return (
-      <Advanced.WorkflowProcessInfo entityIdentifier={entity.id}/>
+      <Advanced.WorkflowProcessInfo entityIdentifier={entity.id} maxLength={100}/>
     );
   }
 

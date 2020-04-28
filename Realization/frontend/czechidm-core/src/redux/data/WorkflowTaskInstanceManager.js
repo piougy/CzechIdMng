@@ -30,28 +30,28 @@ export default class WorkflowTaskInstanceManager extends EntityManager {
     return (dispatch) => {
       dispatch(this.requestEntity(task.id, uiKey));
       this.getService().completeTask(task.id, formData)
-      .then(response => {
-        if (response.status === 200) {
-          return null;
-        }
-        return response.json();
-      })
-      .then(json => {
-        if (Utils.Response.hasError(json)) {
-          throw Utils.Response.getFirstError(json);
-        }
-        return json;
-      })
-      .then(json => {
-        if (json) {
-          dispatch(this.receiveEntity(task.id, json, uiKey, cb));
-        } else {
-          cb(task, null);
-        }
-      })
-      .catch(error => {
-        dispatch(this.receiveError(task, uiKey, error, cb));
-      });
+        .then(response => {
+          if (response.status === 200) {
+            return null;
+          }
+          return response.json();
+        })
+        .then(json => {
+          if (Utils.Response.hasError(json)) {
+            throw Utils.Response.getFirstError(json);
+          }
+          return json;
+        })
+        .then(json => {
+          if (json) {
+            dispatch(this.receiveEntity(task.id, json, uiKey, cb));
+          } else {
+            cb(task, null);
+          }
+        })
+        .catch(error => {
+          dispatch(this.receiveError(task, uiKey, error, cb));
+        });
     };
   }
 
@@ -83,5 +83,6 @@ export default class WorkflowTaskInstanceManager extends EntityManager {
       }
       return result;
     }
+    return null;
   }
 }

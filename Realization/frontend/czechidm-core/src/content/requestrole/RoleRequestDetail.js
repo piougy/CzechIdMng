@@ -387,6 +387,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.wfProcessId')}>
                 <Advanced.WorkflowProcessInfo
                   entityIdentifier={ request.wfProcessId }
+                  maxLength={100}
                   entity={ request._embedded ? request._embedded.wfProcessId : null }/>
               </Basic.LabelWrapper>
               <Basic.TextField

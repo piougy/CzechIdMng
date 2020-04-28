@@ -100,7 +100,10 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <Advanced.WorkflowProcessInfo entityIdentifier={ entity.wfProcessId } entity={ entity._embedded ? entity._embedded.wfProcessId : null }/>
+      <Advanced.WorkflowProcessInfo
+        entityIdentifier={ entity.wfProcessId }
+        entity={ entity._embedded ? entity._embedded.wfProcessId : null }
+        maxLength={100}/>
     );
   }
 

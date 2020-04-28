@@ -1464,6 +1464,13 @@
           "conceptIdentityRoles": "Applicant's roles"
         }
       },
+      "historicInstance": {
+        "name": "<strong>This task has already been solved.</strong>",
+        "assignee": "Resolved by",
+        "endTime": "Date of resolution",
+        "result": "Result",
+        "process": "The task is part of the process"
+      },
       "DefaultTaskDetail": {
         "applicant": "Requested for",
         "implementerIdentifier": "Applicant",
@@ -3513,6 +3520,7 @@
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "User tasks in  process",
           "subprocesses": "Sub-processes",
+          "nextProcessOptions": "Next process options",
           "filter": {
             "processDefinition":{
               "label": "Definition",
@@ -5288,32 +5296,38 @@
       "approve": {
         "label" : "Accept",
         "tooltip": "Executes approval of the task.",
-        "warning": "Do you want to approve the request?"
+        "warning": "Do you want to approve the request?",
+        "resultLabel": "Approved"
       },
       "disapprove": {
         "label" : "Reject",
         "tooltip": "Reject task.",
-        "warning": "Do you want to reject the request?"
+        "warning": "Do you want to reject the request?",
+        "resultLabel": "Rejected"
       },
       "backToApplicant": {
         "label" : "Return to applicant",
         "tooltip": "Returns request to requester.",
-        "warning": "Do you want to return the request?"
+        "warning": "Do you want to return the request?",
+        "resultLabel": "Returned to requester."
       },
       "createRequest": {
         "label" : "Submit request",
         "tooltip": "Submit request.",
-        "warning": "Do you want to submit the request?"
+        "warning": "Do you want to submit the request?",
+        "resultLabel": "Request submitted."
       },
       "cancelRequest": {
         "label" : "Delete request",
         "tooltip": "Delete this request.",
-        "warning": "Do you want to delete the request?"
+        "warning": "Do you want to delete the request?",
+        "resultLabel": "Request canceled."
       },
       "repairedRequest": {
         "label" : "Request repaired",
         "tooltip": "Request was repaired by comments.",
-        "warning": "Do you want return request to approve?"
+        "warning": "Do you want return request to approve?",
+        "resultLabel": "Request repaired."
       }
     },
     "formData" : {

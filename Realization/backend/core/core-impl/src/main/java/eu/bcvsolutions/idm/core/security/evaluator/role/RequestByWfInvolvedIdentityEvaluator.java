@@ -47,7 +47,7 @@ public class RequestByWfInvolvedIdentityEvaluator extends AbstractAuthorizationE
 		}
 		//
 		// search process instance by role request - its returned, if currently logged identity was involved in wf
-		WorkflowProcessInstanceDto processInstance = processService.get(entity.getWfProcessId());
+		WorkflowProcessInstanceDto processInstance = processService.get(entity.getWfProcessId(), true);
 		if (processInstance != null) {
 			permissions.addAll(policy.getPermissions());
 		}		

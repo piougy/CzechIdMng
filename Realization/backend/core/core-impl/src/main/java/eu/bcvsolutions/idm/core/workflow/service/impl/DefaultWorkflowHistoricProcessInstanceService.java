@@ -169,12 +169,18 @@ public class DefaultWorkflowHistoricProcessInstanceService
 	}
 	
 	@Override
+	/**
+	 * Beware, rights on involeved user are evolved here, but given permissions are not used!
+	 */
 	public WorkflowHistoricProcessInstanceDto get(Serializable id, BasePermission... permission) {
 		Assert.notNull(id, "Identifier is required.");
 		return this.get(String.valueOf(id));
 	}
 
 	@Override
+	/**
+	 * Rights on involved user are evolved here!
+	 */
 	public WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(historicProcessInstanceId);

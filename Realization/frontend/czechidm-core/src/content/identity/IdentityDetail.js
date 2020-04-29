@@ -307,7 +307,7 @@ class IdentityDetail extends Basic.AbstractContent {
                 label={ this.i18n('entity.Identity.formProjection.label') }
                 helpBlock={ this.i18n('entity.Identity.formProjection.help') }
                 readOnly={ _readOnly || !Utils.Permission.hasPermission(_permissions, 'CHANGEPROJECTION') }
-                rendered={ SecurityManager.hasAllAuthorities(['FORMPROJECTION_AUTOCOMPLETE'], userContext) }
+                hidden={ !SecurityManager.hasAllAuthorities(['FORMPROJECTION_AUTOCOMPLETE'], userContext) }
                 showIcon/>
               <Basic.Checkbox
                 ref="disabled"

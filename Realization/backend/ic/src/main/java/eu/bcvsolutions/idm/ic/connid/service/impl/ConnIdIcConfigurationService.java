@@ -262,15 +262,15 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	private ConnectorInfoManager findRemoteConnectorManager(IcConnectorServer server) {
 		// get all saved remote connector servers
-		GuardedString passGuarded = server.getPassword();
-		char pass[] = passGuarded != null ? passGuarded.asString().toCharArray()
-				: GuardedString.SECRED_PROXY_STRING.toCharArray();
-		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(server.getHost(), server.getPort(),
-				new org.identityconnectors.common.security.GuardedString(pass),
-				server.isUseSsl(), null, server.getTimeout());
-
 		ConnectorInfoManager manager = null;
 		try {
+		GuardedString pass = server.getPassword();
+		if (pass == null) {
+			throw new InvalidCredentialException();
+		}
+		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(server.getHost(), server.getPort(),
+				new org.identityconnectors.common.security.GuardedString(pass.asString().toCharArray()),
+				server.isUseSsl(), null, server.getTimeout());
 			// flush remote cache
 			ConnectorInfoManagerFactory instance = ConnectorInfoManagerFactory.getInstance();
 			instance.clearRemoteCache();

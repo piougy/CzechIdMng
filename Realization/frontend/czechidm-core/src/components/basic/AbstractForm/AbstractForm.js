@@ -31,16 +31,20 @@ class AbstractForm extends AbstractContextComponent {
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.children !== this.props.children) {
       const {componentsKeys} = this.state;
-      const newComponentKeys = [];
+
       // We need find our form components keys and compare they with previous keys.
       // If keys (component) changed, then we set new keys and set data.
+      const oldSortedComponentKeys = componentsKeys ? _.map(componentsKeys, _.clone).sort() : [];
+      const newComponentKeys = [];
       this.findFormComponentsKeys(this.props.children, newComponentKeys, this);
-      if (!(_.isEqual(componentsKeys ? componentsKeys.sort() : [], newComponentKeys.sort()))) {
+      const newSortedComponentKeys = newComponentKeys ? _.map(newComponentKeys, _.clone).sort() : [];
+      if (!(_.isEqual(oldSortedComponentKeys, newSortedComponentKeys))) {
         this.setState({componentsKeys: newComponentKeys}, () => {
           this.setData(nextProps.data);
         });
       }
     }
+
     if (nextProps.readOnly !== this.props.readOnly) {
       this.setReadOnly(nextProps.readOnly);
     }

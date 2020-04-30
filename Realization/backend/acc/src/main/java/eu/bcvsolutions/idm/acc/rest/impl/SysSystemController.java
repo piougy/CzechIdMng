@@ -1016,13 +1016,4 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 		filter.setFilterSetFromOutsideBE(true);
 		return filter;
 	}
-	
-	@Override
-	public SysSystemDto getDto(Serializable backendId) {
-		SysSystemDto dto = super.getDto(backendId);
-		if (dto != null && dto.isRemote()) {
-			dto = systemService.get(dto.getId(), toFilter(null));
-		}
-		return dto;
-	}
 }

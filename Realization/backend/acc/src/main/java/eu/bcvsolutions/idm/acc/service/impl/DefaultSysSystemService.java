@@ -173,15 +173,12 @@ public class DefaultSysSystemService
 		// found if entity has filled password
 		if (entity.isRemote()) {
 			try {
-				Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
-						SysSystemService.REMOTE_SERVER_PASSWORD);
-				if (password != null && entity.getConnectorServer() != null) {
-					if (filter != null && filter.isFilterSetOutsideBE()) {
+				if (filter != null && filter.isContainsRemoteServerPasswordProxyChars()) {
+					Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
+							SysSystemService.REMOTE_SERVER_PASSWORD);
+					if (password != null && entity.getConnectorServer() != null) {
 						entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
-					} else {
-						entity.getConnectorServer().setPassword(null);
 					}
-					
 				}
 			} catch (ResultCodeException ex) {
 				// decorator only - we has to log exception, because is not possible to change password, if error occurs in get ....

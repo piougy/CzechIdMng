@@ -1013,7 +1013,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SysSystemFilter filter = new SysSystemFilter(parameters, getParameterConverter());
 		// Context property only
-		filter.setFilterSetFromOutsideBE(true);
+		filter.setContainsRemoteServerPasswordProxyChars(true);
 		return filter;
 	}
 }

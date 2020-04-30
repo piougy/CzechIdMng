@@ -21,7 +21,9 @@ public class SysSystemFilter extends DataFilter {
 	public static final String PARAMETER_PASSWORD_POLICY_VALIDATION_ID = "passwordPolicyValidationId";
 	public static final String PARAMETER_PASSWORD_POLICY_GENERATION_ID = "passwordPolicyGenerationId";
 	// Context parameters only
-	public static final String PARAMETER_FILTER_SET_OUTSIDE_BE = "filterSetOutsideBE";
+	// used for indication that remote server password in SysSystemDto should be filled with proxy asterisks
+	// necessary when get from REST otherwise remains null 
+	public static final String PARAMETER_CONTAINS_REMOTE_SERVER_PASSWORD_PROXY_CHARS = "containsRemoteServerPasswordProxyChars";
 	
 	public SysSystemFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -59,11 +61,11 @@ public class SysSystemFilter extends DataFilter {
 		data.set(PARAMETER_VIRTUAL, virtual);
 	}
 
-	public void setFilterSetFromOutsideBE(Boolean savePassword) {
-		data.set(PARAMETER_FILTER_SET_OUTSIDE_BE, savePassword);
+	public void setContainsRemoteServerPasswordProxyChars(Boolean savePassword) {
+		data.set(PARAMETER_CONTAINS_REMOTE_SERVER_PASSWORD_PROXY_CHARS, savePassword);
 	}
 
-	public Boolean isFilterSetOutsideBE() {
-		return getParameterConverter().toBoolean(data, PARAMETER_FILTER_SET_OUTSIDE_BE);
+	public Boolean isContainsRemoteServerPasswordProxyChars() {
+		return getParameterConverter().toBoolean(data, PARAMETER_CONTAINS_REMOTE_SERVER_PASSWORD_PROXY_CHARS);
 	}
 }

@@ -30,7 +30,12 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
     const {request} = this.props;
 
     let showChangesOnly = false;
-    if (request && request.state === 'EXECUTED') {
+    if (request && (request.state === 'EXECUTED'
+      || request.state === 'CANCELED'
+      || request.state === 'DISAPPROVED'
+      || request.state === 'EXCEPTION'
+      || request.state === 'DUPLICATED'
+    )) {
       showChangesOnly = true;
     }
     this.state = {

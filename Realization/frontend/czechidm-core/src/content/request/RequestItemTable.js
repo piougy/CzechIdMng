@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -7,7 +8,6 @@ import {RequestItemManager, SecurityManager, WorkflowTaskInstanceManager } from 
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import RequestItemChangesTable from './RequestItemChangesTable';
-import _ from 'lodash';
 
 const uiKey = 'universal-request';
 const requestItemManager = new RequestItemManager();
@@ -20,10 +20,6 @@ const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
  * @author Vít Švanda
  */
 class RequestItemTable extends Advanced.AbstractTableContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return requestItemManager;
@@ -40,7 +36,7 @@ class RequestItemTable extends Advanced.AbstractTableContent {
   /**
    * Create value (highlights changes) cell for attributes table
    */
-  _getWishValueCell( old = false, showChanges = true, { rowIndex, data}) {
+  _getWishValueCell(old = false, showChanges = true, { rowIndex, data}) {
     const entity = data[rowIndex];
     if (!entity || (!entity.value && !entity.values)) {
       return '';
@@ -60,7 +56,7 @@ class RequestItemTable extends Advanced.AbstractTableContent {
             style={item.change === 'REMOVE' ? {textDecoration: 'line-through'} : null}
             text={value}/>);
         } else {
-          listResult.push(value ? (item.value + ' ') : '');
+          listResult.push(value ? `${item.value} ` : '');
         }
         listResult.push(' ');
       }
@@ -74,10 +70,10 @@ class RequestItemTable extends Advanced.AbstractTableContent {
     if (!old && entity.value.change && showChanges) {
       return (<Basic.Label
         title={entity.value.change ? this.i18n(`attribute.diff.${entity.value.change}`) : null}
-        level={'warning'}
-        text={value !== null ? value + '' : '' }/>);
+        level="warning"
+        text={value !== null ? `${value} ` : '' }/>);
     }
-    return value !== null ? value + '' : '';
+    return value !== null ? `${value} ` : '';
   }
 
   _getNameOfDTO(ownerType) {
@@ -105,9 +101,9 @@ class RequestItemTable extends Advanced.AbstractTableContent {
       return '';
     }
     const task = {taskName: entity._embedded.wfProcessId.currentActivityName,
-                  processDefinitionKey: entity._embedded.wfProcessId.processDefinitionKey,
-                  definition: {id: entity._embedded.wfProcessId.activityId}
-                };
+      processDefinitionKey: entity._embedded.wfProcessId.processDefinitionKey,
+      definition: {id: entity._embedded.wfProcessId.activityId}
+    };
     return (
       workflowTaskInstanceManager.localize(task, 'name')
     );
@@ -154,12 +150,12 @@ class RequestItemTable extends Advanced.AbstractTableContent {
 
   showItemChanges(entity) {
     this.getManager().getService().getChanges(entity.id)
-    .then(json => {
-      this.setState({itemDetail: {changes: json, show: true, item: entity}});
-    })
-    .catch(error => {
-      this.addError(error);
-    });
+      .then(json => {
+        this.setState({itemDetail: {changes: json, show: true, item: entity}});
+      })
+      .catch(error => {
+        this.addError(error);
+      });
   }
 
   _getCandidatesCell({ rowIndex, data, property}) {
@@ -194,10 +190,12 @@ class RequestItemTable extends Advanced.AbstractTableContent {
           forceSearchParameters={forceSearchParameters}
           showRowSelection={isEditable && SecurityManager.hasAuthority('REQUEST_UPDATE')}
           actions={
-            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
-               action: this.onDelete.bind(this), disabled: false }]
+            [{ value: 'delete',
+              niceLabel: this.i18n('action.delete.action'),
+              action: this.onDelete.bind(this),
+              disabled: false }]
           }
-          >
+        >
           <Advanced.Column
             property=""
             header=""
@@ -228,13 +226,13 @@ class RequestItemTable extends Advanced.AbstractTableContent {
             face="text"
             rendered={_.includes(columns, 'wf')}
             cell={this._getCandidatesCell}
-            />
+          />
           <Advanced.Column
             property="currentActivity"
             face="text"
             rendered={_.includes(columns, 'wf')}
             cell={this._getCurrentActivitiCell}
-            />
+          />
           <Advanced.Column
             property="wfProcessId"
             cell={this._getWfProcessCell}
@@ -266,19 +264,19 @@ class RequestItemTable extends Advanced.AbstractTableContent {
           onHide={this.closeDetail.bind(this)}
           backdrop="static"
           keyboard={!showLoading}>
-            <Basic.Modal.Header closeButton={ !showLoading } text={this.i18n(`itemDetail.title.${operation}`)}/>
-            <Basic.Modal.Body>
-              <RequestItemChangesTable
-                itemData={itemDetail ? itemDetail.changes : null}/>
-            </Basic.Modal.Body>
-            <Basic.Modal.Footer>
-              <Basic.Button
-                level="link"
-                onClick={ this.closeDetail.bind(this) }
-                showLoading={ showLoading }>
-                { this.i18n('button.close') }
-              </Basic.Button>
-            </Basic.Modal.Footer>
+          <Basic.Modal.Header closeButton={ !showLoading } text={this.i18n(`itemDetail.title.${operation}`)}/>
+          <Basic.Modal.Body>
+            <RequestItemChangesTable
+              itemData={itemDetail ? itemDetail.changes : null}/>
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={ this.closeDetail.bind(this) }
+              showLoading={ showLoading }>
+              { this.i18n('button.close') }
+            </Basic.Button>
+          </Basic.Modal.Footer>
         </Basic.Modal>
       </div>
     );

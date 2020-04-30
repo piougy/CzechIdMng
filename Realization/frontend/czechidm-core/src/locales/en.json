@@ -6118,7 +6118,7 @@
       "title": "Insufficient permissions",
       "message": "You do not have insufficient permission [{{permission}}] for selected record [{{entity}}] [type: {{type}}]."
     },
-    "FORBIDDEN_ENTITY": {
+    "FORBIDDEN_CODEABLE_ENTITY": {
       "title": "Insufficient permissions",
       "message": "You do not have insufficient permission [{{permission}}] for selected record [{{code}}] [typ: {{type}}]."
     },

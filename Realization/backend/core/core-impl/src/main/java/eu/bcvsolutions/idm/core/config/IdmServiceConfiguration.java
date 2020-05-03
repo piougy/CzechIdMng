@@ -63,6 +63,7 @@ import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultTreeConfiguration;
 import eu.bcvsolutions.idm.core.eav.api.service.CodeListManager;
 import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionManager;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdentityProjectionManager;
@@ -79,6 +80,7 @@ import eu.bcvsolutions.idm.core.eav.repository.IdmFormProjectionRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormRepository;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCodeListManager;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCommonFormService;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormProjectionManager;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdentityProjectionManager;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmCodeListItemService;
@@ -570,6 +572,18 @@ public class IdmServiceConfiguration {
 				identityRepository, 
 				formService(),
 				entityEventManager());
+	}
+	
+	/**
+	 * Common form projection manager.
+	 * 
+	 * @return manager
+	 * @since 10.3.0
+	 */
+	@Bean
+	@ConditionalOnMissingBean(FormProjectionManager.class)
+	public FormProjectionManager formProjectionManager() {
+		return new DefaultFormProjectionManager();
 	}
 	
 	/**

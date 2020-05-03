@@ -1,5 +1,6 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
+import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
 /**
@@ -45,6 +46,26 @@ class FormProjectionService extends AbstractService {
    */
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('code', 'asc');
+  }
+
+  /**
+   * Loads all registered routes (available for authorization policies)
+   *
+   * @return {promise}
+   * @since 10.3.0
+   */
+  getSupportedRoutes() {
+    return RestApiService
+      .get(`${ this.getApiPath() }/search/supported`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }
 

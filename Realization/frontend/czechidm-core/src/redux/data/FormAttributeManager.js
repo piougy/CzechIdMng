@@ -108,7 +108,8 @@ export default class FormAttributeManager extends EntityManager {
     }
     const definitionPrefix = FormDefinitionManager.getLocalizationPrefix(_formDefinition, false);
     const resolvedModule = formAttribute.module || _formDefinition.module; // attribute module has higher priority
+    const modulePrefix = (withModule && resolvedModule) ? `${ resolvedModule }:` : '';
     //
-    return `${ (withModule && resolvedModule) ? `${ resolvedModule }:` : '' }${ definitionPrefix }.attributes.${ Utils.Ui.spinalCase(formAttribute.code) }`;
+    return `${ modulePrefix }${ definitionPrefix }.attributes.${ Utils.Ui.spinalCase(formAttribute.code) }`;
   }
 }

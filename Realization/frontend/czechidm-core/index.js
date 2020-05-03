@@ -35,6 +35,7 @@ import IdentityTableComponent from './src/content/identity/IdentityTable';
 import RoleRequestTableComponent from './src/content/requestrole/RoleRequestTable';
 import IdentityRoleTableComponent from './src/content/identity/IdentityRoleTable';
 import OrganizationPosition from './src/content/identity/OrganizationPosition';
+import AbstractIdentityProjection from './src/content/identity/projection/AbstractIdentityProjection';
 
 const ModuleRoot = {
   Basic,
@@ -64,7 +65,8 @@ const ModuleRoot = {
   },
   Content: {
     ValidationMessage, // backward compatibility
-    OrganizationPosition
+    OrganizationPosition,
+    AbstractIdentityProjection
   },
   Table: {
     IdentityTable: IdentityTableComponent,

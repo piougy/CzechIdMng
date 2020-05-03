@@ -2802,6 +2802,12 @@
         "button": {
           "close": {
             "label": "Zpět na seznam uživatelů"
+          },
+          "formProjection": {
+            "label": "Upravit projekci formuláře"
+          },
+          "editContract": {
+            "label": "Přidat kontrakt pro tuto organizaci"
           }
         },
         "identity": {
@@ -2819,6 +2825,15 @@
           "workPosition": {
             "label": "Organizační zařazení"
           }
+        },
+        "primeContract": {
+          "label": "Hlavní kontrakt"
+        },
+        "otherContracts": {
+          "label": "Další kontrakty"
+        },
+        "allContracts": {
+          "label": "Kontrakty"
         },
         "otherPosition": {
           "workPosition": {
@@ -4327,7 +4342,7 @@
       "main": {
         "short": "H",
         "label": "Hlavní pozice",
-        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele.",
+        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele.",
         "title": "Hlavní pozice"
       },
       "state": {
@@ -6146,6 +6161,28 @@
         "help": "Vytvořit interního uživatele",
         "icon": "fa:user",
         "level": "success"
+      }
+    },
+    "form-projection-route": {
+      "form-identity-projection": {
+        "attributes": {
+          "prime-contract": {
+            "label": "Zobrazit hlavní kontrakt",
+            "help": "Zobrazit (a editovat) pouze hlavní kontrakt uživatele."
+          },
+          "all-contracts": {
+            "label": "Zobrazit všechny kontrakty uživatele",
+            "help": "Zobrazit (a editovat) všechny kontrakty uživatele. Vyžaduje definici číselníku <strong>contract-position</strong> - číselník řídí dostupné typy kontraktů dle typu organizace."
+          },
+          "other-position": {
+            "label": "Zobrazit další pozici kontraktu uživatele",
+            "help": "Zobrazit (a editovat) jednu další pozici kontraktu uživatele."
+          },
+          "assigned-roles": {
+            "label": "Zobrazit přiřazené role",
+            "help": "Zobrazit možnost přiřadit role pro nového uživatele a zažádat o změnu rolí pro stávajícího."
+          }
+        }
       }
     }
   },

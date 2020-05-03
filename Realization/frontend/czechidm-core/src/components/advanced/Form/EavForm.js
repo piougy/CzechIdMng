@@ -180,7 +180,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 useDefaultValue={ useDefaultValue }
                 manager={ ManagerType ? new ManagerType() : null }
                 validationErrors={ this.getInvalidFormAttributes(validationErrors || formInstance.validationErrors, attribute.code) }
-                className={ formInstance.getAttributes().last().id === attribute.id ? 'last' : '' }
+                className={ !showAttributes && formInstance.getAttributes().last().id === attribute.id ? 'last' : '' }
                 formableManager={ formableManager }
                 component={ component }/>
             );

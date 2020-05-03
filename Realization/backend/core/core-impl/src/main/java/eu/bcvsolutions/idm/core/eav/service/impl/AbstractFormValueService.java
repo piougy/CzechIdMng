@@ -112,9 +112,9 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	protected E toEntity(IdmFormValueDto dto, E entity) {
 		entity = super.toEntity(dto, entity);
 		// If DTO does not contains a owner entity, then we try to find it by owner type and ID.
-		if(dto.getOwner() == null && dto.getOwnerId() != null && dto.getOwnerType() != null) {
+		if (dto.getOwner() == null && dto.getOwnerId() != null && dto.getOwnerType() != null) {
 			entity.setOwner((O) this.getOwnerEntity((UUID) dto.getOwnerId(), dto.getOwnerType()));
-		}else {
+		} else {
 			entity.setOwner((O) dto.getOwner());
 		}
 		return entity;

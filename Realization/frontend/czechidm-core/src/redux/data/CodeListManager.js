@@ -5,7 +5,7 @@ import SearchParameters from '../../domain/SearchParameters';
 import CodeListItemManager from './CodeListItemManager';
 
 /**
- * Code lists
+ * Code lists.
  *
  * @author Radek Tomiška
  * @since 9.4.0
@@ -39,8 +39,17 @@ export default class CodeListManager extends EntityManager {
     return `codelist-${ code }`;
   }
 
+  /**
+   * Load codelist items to select boxes.
+   * Autocomplete permission is needed.
+   * When codelist is not defined, then no options is returned (without error).
+   *
+   * @param  {string} code
+   * @param  {func} [cb=null]
+   * @return {action}
+   */
   fetchCodeListIfNeeded(code, cb = null) {
-    const uiKey = `codelist-${ code }`;
+    const uiKey = this.getCodeListUiKey(code);
     //
     return (dispatch, getState) => {
       const codeList = DataManager.getData(getState(), uiKey);
@@ -52,7 +61,11 @@ export default class CodeListManager extends EntityManager {
       } else {
         // TODO: new store?
         dispatch(this.dataManager.requestData(uiKey));
-        const searchParameters = new SearchParameters().setFilter('codeListId', code).setSort('name', false).setSize(10000);
+        const searchParameters = new SearchParameters()
+          .setName(SearchParameters.NAME_AUTOCOMPLETE)
+          .setFilter('codeListId', code)
+          .setSort('name', true)
+          .setSize(10000);
         this.codeListItemManager.getService().search(searchParameters)
           .then(json => {
             const data = json._embedded[this.codeListItemManager.getCollectionType()] || [];

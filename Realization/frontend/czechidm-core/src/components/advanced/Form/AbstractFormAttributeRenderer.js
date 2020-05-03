@@ -266,8 +266,12 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
             }
           </div>
           <div>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.title`) }:</div>
-          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.type`) }: { _formDefinition.type }</div>
-          <div style={{ wordWrap: 'break-word' }}>{ this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.code`) }: { _formDefinition.code }</div>
+          <div style={{ wordWrap: 'break-word' }}>
+            { this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.type`) }: { _formDefinition.type }
+          </div>
+          <div style={{ wordWrap: 'break-word' }}>
+            { this.i18n(`component.advanced.EavForm.${mode}.unsupported.formDefinition.code`) }: { _formDefinition.code }
+          </div>
         </Basic.Alert>
       </Basic.LabelWrapper>
     );
@@ -285,11 +289,20 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
    * If key in localization and form name is not defined, it will be used default value.
    */
   getLabel(defaultValue = null, showOriginalValue = false) {
-    const { attribute } = this.props;
+    const { formDefinition, attribute } = this.props;
     //
     const hasOriginalValue = this.valueChanged();
     const label = this._getLocalization('label', attribute.name || attribute.code || defaultValue);
     if (!showOriginalValue && !hasOriginalValue) {
+      if (this.isDevelopment()) {
+        // dev tool: code in localization
+        return (
+          <span title={ FormAttributeManager.getLocalizationPrefix(formDefinition, attribute, false) }>
+            { label }
+          </span>
+        );
+      }
+      //
       return label;
     }
     // We generates component with new value
@@ -318,7 +331,9 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
   getHelpBlock(defaultValue = null) {
     const { attribute } = this.props;
     //
-    return this._getLocalization('help', attribute.description || defaultValue);
+    return (
+      <span dangerouslySetInnerHTML={{ __html: this._getLocalization('help', attribute.description || defaultValue) }}/>
+    );
   }
 
   /**

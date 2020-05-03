@@ -100,7 +100,6 @@ public class IdentityByFormProjectionEvaluator extends AbstractAuthorizationEval
 				PersistentType.UUID, 
 				BaseFaceType.FORM_PROJECTION_SELECT
 		);
-
 		//
 		return Lists.newArrayList(formProjection);
 	}

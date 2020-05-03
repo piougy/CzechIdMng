@@ -35,12 +35,6 @@ module.exports = {
       type: 'icon',
       entityType: [ 'marcel'],
       component: require('./src/components/MarcelIcon')
-    },
-    {
-      id: 'example-identity-projection',
-      type: 'form-projection',
-      ownerType: 'IdmIdentity',
-      route: '/example/form/identity-projection'
     }
   ]
 };

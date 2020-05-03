@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionManager;
 import eu.bcvsolutions.idm.core.eav.api.service.IdentityProjectionManager;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
@@ -56,6 +57,7 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * 
  * @author Radek Tomiška
  * @since 10.2.0
+ * @see FormProjectionManager
  */
 public class DefaultIdentityProjectionManager implements IdentityProjectionManager {
 

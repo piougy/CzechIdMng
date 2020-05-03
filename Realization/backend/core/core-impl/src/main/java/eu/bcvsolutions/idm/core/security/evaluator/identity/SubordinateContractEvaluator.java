@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -69,8 +70,13 @@ public class SubordinateContractEvaluator extends AbstractAuthorizationEvaluator
 		if (entity == null || !securityService.isAuthenticated()) {
 			return permissions;
 		}
+		IdmIdentity identity = entity.getIdentity();
+		if (identity == null) {
+			// new contract is saved together with idenitity - identity is not created now.
+			return permissions;
+		}
 		IdmIdentityFilter filter = new IdmIdentityFilter();
-		filter.setManagersFor(entity.getIdentity().getId()); // required - filter is registered to this property
+		filter.setManagersFor(identity.getId()); // required - filter is registered to this property
 		filter.setManagersByContract(entity.getId());
 		filter.setUsername(securityService.getUsername());
 		boolean isManager = identityService

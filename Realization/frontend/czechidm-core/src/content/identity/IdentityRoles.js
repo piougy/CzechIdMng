@@ -237,10 +237,10 @@ class IdentityRoles extends Basic.AbstractContent {
 
   _changePermissions() {
     const { entityId } = this.props.match.params;
-    const identity = identityManager.getEntity(this.context.store.getState(), entityId);
+    const identity = this.props.identity || identityManager.getEntity(this.context.store.getState(), entityId);
     //
     const uuidId = uuid.v1();
-    this.context.history.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
+    this.context.history.push(`/role-requests/${ uuidId }/new?new=1&applicantId=${ identity.id }`);
   }
 
   _refreshAll(props = null) {
@@ -504,7 +504,7 @@ function select(state, component) {
   const longPollingEnabled = ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.long-polling.enabled', true);
 
   return {
-    identity: identityManager.getEntity(state, entityId),
+    identity: component.identity || identityManager.getEntity(state, entityId),
     _showLoading: identityRoleManager.isShowLoading(state, `${uiKey}-${entityId}`),
     _showLoadingContracts: identityContractManager.isShowLoading(state, `${uiKeyContracts}-${entityId}`),
     _contracts: identityContractManager.getEntities(state, `${uiKeyContracts}-${entityId}`),

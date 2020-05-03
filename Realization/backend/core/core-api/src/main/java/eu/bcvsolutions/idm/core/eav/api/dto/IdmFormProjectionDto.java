@@ -29,7 +29,7 @@ public class IdmFormProjectionDto
 	@Size(max = DefaultFieldLengths.NAME)
 	private String module;
 	@Size(max = DefaultFieldLengths.NAME)
-	private String route;
+	private String route; // route type
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	private boolean disabled;

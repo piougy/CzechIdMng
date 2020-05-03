@@ -112,7 +112,7 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
   }
 
   render() {
-    const { buttonSize, style } = this.props;
+    const { buttonSize, style, showLoading } = this.props;
     //
     const _style = {
       marginRight: 3,
@@ -137,7 +137,8 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
           titlePlacement="bottom"
           rendered={ this.isRendered() === true }
           showLoading={ this.isShowLoading() }
-          showLoadingIcon>
+          showLoadingIcon
+          disabled={ showLoading }>
           { this.renderContent() }
         </Basic.Button>
       </span>

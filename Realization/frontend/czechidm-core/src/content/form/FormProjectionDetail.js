@@ -6,12 +6,11 @@ import _ from 'lodash';
 //
 import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
-import { FormProjectionManager, FormDefinitionManager, FormAttributeManager } from '../../redux';
-import ComponentService from '../../services/ComponentService';
+import * as Advanced from '../../components/advanced';
+import { FormProjectionManager, FormDefinitionManager, FormAttributeManager, DataManager } from '../../redux';
 import AbstractEnum from '../../enums/AbstractEnum';
 import * as Domain from '../../domain';
 
-const componentService = new ComponentService();
 const manager = new FormProjectionManager();
 const formDefinitionManager = new FormDefinitionManager();
 const formAttributeManager = new FormAttributeManager();
@@ -202,9 +201,11 @@ class FormProjectionDetail extends Basic.AbstractContent {
         this._initProjection(projection);
       }));
     }
+    this.context.store.dispatch(manager.fetchSupportedRoutes());
   }
 
   _initProjection(projection) {
+    const { supportedRoutes } = this.props;
     let _formDefinitions = new Immutable.OrderedMap();
     //
     if (projection) {
@@ -240,7 +241,8 @@ class FormProjectionDetail extends Basic.AbstractContent {
     //
     this.setState({
       projection,
-      formDefinitions: _formDefinitions
+      formDefinitions: _formDefinitions,
+      formProjectionRoute: !supportedRoutes || !supportedRoutes.has(projection.route) ? null : supportedRoutes.get(projection.route)
     }, () => {
       this.refs.code.focus();
     });
@@ -259,6 +261,11 @@ class FormProjectionDetail extends Basic.AbstractContent {
     }
     if (!this.refs.form.isFormValid()) {
       return;
+    }
+    if (this.refs.formInstance) {
+      if (!this.refs.formInstance.isValid()) {
+        return;
+      }
     }
     //
     this.refs.form.processStarted();
@@ -282,6 +289,11 @@ class FormProjectionDetail extends Basic.AbstractContent {
       }
     });
     entity.formDefinitions = JSON.stringify(_formDefinitions);
+    //
+    // transform properties
+    if (this.refs.formInstance) {
+      entity.properties = this.refs.formInstance.getProperties();
+    }
     // save
     if (entity.id === undefined) {
       this.context.store.dispatch(manager.createEntity(entity, `${ uiKey }-detail`, (createdEntity, error) => {
@@ -309,30 +321,6 @@ class FormProjectionDetail extends Basic.AbstractContent {
     if (isNew) {
       this.context.history.replace(`/forms/form-projections`);
     }
-  }
-
-  getFormProjections(ownerType) {
-    if (!ownerType) {
-      return null;
-    }
-    //
-    const projections = componentService.getComponentDefinitions(ComponentService.FORM_PROJECTION_COMPONENT_TYPE)
-      .filter(component => {
-        if (!component.ownerType) {
-          // persistent type is required
-          return false;
-        }
-        // persistent type has to fit
-        return component.ownerType === ownerType || component.ownerType === Utils.Ui.getSimpleJavaType(ownerType);
-      })
-      .toArray()
-      .map(component => {
-        return {
-          value: component.route,
-          niceLabel: `${ component.labelKey ? this.i18n(component.labelKey) : component.route }`
-        };
-      });
-    return projections;
   }
 
   onChangeFormDefinition(id, formDefinition) {
@@ -367,9 +355,49 @@ class FormProjectionDetail extends Basic.AbstractContent {
     });
   }
 
+  onChangeRoute(formProjectionRoute) {
+    this.setState({
+      formProjectionRoute
+    });
+  }
+
+  _getSupportedRoutes() {
+    const { supportedRoutes } = this.props;
+    //
+    const _supportedRoutes = [];
+    if (!supportedRoutes) {
+      return [];
+    }
+    //
+    supportedRoutes.forEach(route => {
+      _supportedRoutes.push(this._toRouteOption(route));
+    });
+    //
+    return _supportedRoutes;
+  }
+
+  _toRouteOption(route) {
+    return {
+      niceLabel: formAttributeManager.getLocalization(route.formDefinition, null, 'label', route.id),
+      value: route.id,
+      description: formAttributeManager.getLocalization(route.formDefinition, null, 'help', route.description),
+      formDefinition: route.formDefinition
+    };
+  }
+
   render() {
     const { uiKey, showLoading, _permissions } = this.props;
-    const { projection, formDefinitions } = this.state;
+    const { projection, formDefinitions, formProjectionRoute } = this.state;
+    //
+    const _supportedRoutes = this._getSupportedRoutes();
+    let formInstance = new Domain.FormInstance({});
+    if (formProjectionRoute && formProjectionRoute.formDefinition && projection) {
+      formInstance = new Domain.FormInstance(formProjectionRoute.formDefinition).setProperties(projection.properties);
+    }
+    const showProperties = formInstance
+      && formProjectionRoute
+      && formProjectionRoute.formDefinition
+      && formProjectionRoute.formDefinition.formAttributes.length > 0;
     //
     return (
       <form onSubmit={ this.save.bind(this) }>
@@ -404,13 +432,6 @@ class FormProjectionDetail extends Basic.AbstractContent {
                 label={ this.i18n('entity.FormProjection.module.label') }
                 max={ 255 }
                 helpBlock={ this.i18n('entity.FormProjection.module.help') }/>
-              <Basic.EnumSelectBox
-                ref="route"
-                options={ this.getFormProjections(projection ? projection.ownerType : 'IdmIdentity') }
-                label={ this.i18n('entity.FormProjection.route.label') }
-                helpBlock={ this.i18n('entity.FormProjection.route.help') }
-                clearable={ false }
-                required/>
               <Basic.EnumSelectBox
                 enum={ IdentityAttributeEnum }
                 ref="basicFields"
@@ -456,14 +477,15 @@ class FormProjectionDetail extends Basic.AbstractContent {
                             multiSelect
                             style={{ marginBottom: 5 }}
                             onChange={ (attrs) => this.onChangeFormAttributes(definitionId, attrs) }
-                            readOnly={ definitionId === null }/>
+                            readOnly={ definitionId === null || !manager.canSave(projection, _permissions) }/>
                         </Basic.Div>
                         <Basic.Button
                           level="danger"
                           icon="fa:trash"
                           title={ this.i18n('entity.FormProjection.formDefinitions.button.remove.title') }
                           titlePlacement="left"
-                          onClick={ () => this.removeFormDefinition(definitionId) }/>
+                          onClick={ () => this.removeFormDefinition(definitionId) }
+                          disabled={ !manager.canSave(projection, _permissions) }/>
                       </Basic.Div>
                     )).values()
                   ]
@@ -476,10 +498,31 @@ class FormProjectionDetail extends Basic.AbstractContent {
                   title={ this.i18n('entity.FormProjection.formDefinitions.button.add.title') }
                   style={{ marginBottom: 5 }}
                   onClick={ () => this.addFormDefinition() }
-                  disabled={ formDefinitions && _.includes(formDefinitions.keySeq().toArray(), null) }>
+                  disabled={
+                    !manager.canSave(projection, _permissions)
+                    ||
+                    (formDefinitions && _.includes(formDefinitions.keySeq().toArray(), null))
+                  }>
                   { this.i18n('entity.FormProjection.formDefinitions.button.add.label') }
                 </Basic.Button>
               </Basic.LabelWrapper>
+
+              <Basic.EnumSelectBox
+                ref="route"
+                options={ _supportedRoutes }
+                onChange={ this.onChangeRoute.bind(this) }
+                label={ this.i18n('entity.FormProjection.route.label') }
+                helpBlock={ formProjectionRoute ? formProjectionRoute.description : this.i18n('entity.FormProjection.route.help') }
+                clearable={ false }
+                required/>
+
+              <Basic.Div style={ showProperties ? {} : { display: 'none' }}>
+                <Advanced.EavForm
+                  ref="formInstance"
+                  formInstance={ formInstance }
+                  useDefaultValue={ Utils.Entity.isNew(projection) }
+                  readOnly={ !manager.canSave(projection, _permissions) }/>
+              </Basic.Div>
 
               <Basic.TextArea
                 ref="description"
@@ -529,7 +572,8 @@ function select(state, component) {
   return {
     entity: manager.getEntity(state, entityId),
     showLoading: manager.isShowLoading(state, null, entityId),
-    _permissions: manager.getPermissions(state, null, entityId)
+    _permissions: manager.getPermissions(state, null, entityId),
+    supportedRoutes: DataManager.getData(state, FormProjectionManager.UI_KEY_SUPPORTED_ROUTES)
   };
 }
 

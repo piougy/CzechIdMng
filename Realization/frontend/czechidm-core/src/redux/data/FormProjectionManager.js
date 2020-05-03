@@ -1,6 +1,9 @@
+import Immutable from 'immutable';
+//
 import EntityManager from './EntityManager';
 import { FormProjectionService } from '../../services';
 import FormDefinitionManager from './FormDefinitionManager';
+import DataManager from './DataManager';
 
 /**
  * Form projections.
@@ -51,4 +54,38 @@ export default class FormProjectionManager extends EntityManager {
     // reuse eav form feature
     return this.formDefinitionManager.getLocalization({ ...projection, type: 'form-projection' }, property, defaultValue);
   }
+
+  /**
+   * Loads all registered routes (available for form projections)
+   *
+   * @return {action}
+   */
+  fetchSupportedRoutes() {
+    const uiKey = FormProjectionManager.UI_KEY_SUPPORTED_ROUTES;
+    //
+    return (dispatch, getState) => {
+      const loaded = DataManager.getData(getState(), uiKey);
+      if (loaded) {
+        // we dont need to load them again - change depends on BE restart
+      } else {
+        dispatch(this.dataManager.requestData(uiKey));
+        this.getService().getSupportedRoutes()
+          .then(json => {
+            let routes = new Immutable.Map();
+            if (json._embedded && json._embedded.formProjectionRoutes) {
+              json._embedded.formProjectionRoutes.forEach(item => {
+                routes = routes.set(item.id, item);
+              });
+            }
+            dispatch(this.dataManager.receiveData(uiKey, routes));
+          })
+          .catch(error => {
+            // TODO: data uiKey
+            dispatch(this.dataManager.receiveError(null, uiKey, error));
+          });
+      }
+    };
+  }
 }
+
+FormProjectionManager.UI_KEY_SUPPORTED_ROUTES = 'form-projection-supported-routes';

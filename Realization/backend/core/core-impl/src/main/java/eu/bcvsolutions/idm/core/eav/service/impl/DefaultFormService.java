@@ -1503,13 +1503,8 @@ public class DefaultFormService implements FormService {
 		return result.toString();
 	}
 	
-	/**
-	 * Prepares new owner instance
-	 * 
-	 * @param formDefinition
-	 * @return
-	 */
-	private FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition) {
+	@Override
+	public FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition) {
 		Assert.notNull(formDefinition, "Form definition is required.");
 		//
 		try {

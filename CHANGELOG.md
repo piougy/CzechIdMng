@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - [#2225](https://redmine.czechidm.com/issues/2225) - Code lists and their items supports ``AUTOCOMPLETE`` permission. Code lists and items in select boxes are now secured by ``AUTOCOMPLETE`` permission as other select boxes (**``READ`` permission is not needed and now**). **[Configure](https://wiki.czechidm.com/devel/documentation/security/dev/authorization#default_settings_of_permissions_for_an_identity_profile) ``AUTOCOMPLETE`` permission on your projects, where code list select boxes are used (e.g. environment, custom code lists in extended attributes).**
 - [#2163](https://redmine.czechidm.com/issues/2156) - DTO for history of workflow tasks was redesigned. Since this version is  DTO **WorkflowHistoricTaskInstanceDto** extended by workflow task DTO **WorkflowTaskInstanceDto**. Some of a fields in **WorkflowHistoricTaskInstanceDto** were removed or renamed (candicateUsers, taskVariables)!
 - [#2163](https://redmine.czechidm.com/issues/2156) - Workflow history task service was changed. Interface is same, but implementation of the **toResource** method was changed.
+- [#2229](https://redmine.czechidm.com/issues/2229) - **Frontend component definition for identity form projection was removed** and replaced by backend registrable component. **See updated [documentation](https://wiki.czechidm.com/devel/documentation/identities/dev/user-type), how to register new identity form projection in you custom module**.
 
 
 ## [10.2.0]

@@ -913,4 +913,15 @@ public interface FormService extends ScriptEnabled {
 	 * @param batch
 	 */
 	void export(IdmFormInstanceDto formInstanceDto, IdmExportImportDto batch);
+	
+	
+	/**
+	 * Prepares new owner instance by form definition type.
+	 * Usable just for UC, where instance of owner has to be evaluated before owner is saved.
+	 * 
+	 * @param formDefinition
+	 * @return
+	 * @since 10.3.0
+	 */
+	FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition);
 }

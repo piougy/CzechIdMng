@@ -2749,6 +2749,12 @@
         "button": {
           "close": {
             "label": "Back to list of users"
+          },
+          "formProjection": {
+            "label": "Edit form projection"
+          },
+          "editContract": {
+            "label": "Add contract for this organization unit"
           }
         },
         "identity": {
@@ -2766,6 +2772,15 @@
           "workPosition": {
             "label": "Organizational positon"
           }
+        },
+        "primeContract": {
+          "label": "Prime contract"
+        },
+        "otherContracts": {
+          "label": "Other contracts"
+        },
+        "allContracts": {
+          "label": "Contracts"
         },
         "otherPosition": {
           "workPosition": {
@@ -4274,7 +4289,7 @@
       "main": {
         "short": "M",
         "label": "Main position",
-        "help": "Main / prime work position. It's created automatically when the user is created.",
+        "help": "Main / prime work position.",
         "title": "Main position"
       },
       "state": {
@@ -6094,6 +6109,28 @@
         "help": "Create internal user",
         "icon": "fa:user",
         "level": "success"
+      }
+    },
+    "form-projection-route": {
+      "form-identity-projection": {
+        "attributes": {
+          "prime-contract": {
+            "label": "Show prime contract",
+            "help": "Show (and update) prime user contract only."
+          },
+          "all-contracts": {
+            "label": "Show all user contracts",
+            "help": "Show (and update) all user contracts. Code list <strong>contract-position</strong> s required - available contract types are controlled by organization types."
+          },
+          "other-position": {
+            "label": "Show other contract position",
+            "help": "Show (and update) one other contract position."
+          },
+          "assigned-roles": {
+            "label": "Show assigned roles",
+            "help": "Add assigned roles for newly created user and show assigned roles updated user."
+          }
+        }
       }
     }
   },

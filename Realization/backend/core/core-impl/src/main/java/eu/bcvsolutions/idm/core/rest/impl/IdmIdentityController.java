@@ -745,6 +745,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			// empty form instance with filled form definition
 			IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
 			formInstance.setFormDefinition(formDefinition);
+			formInstance.setOwnerType(IdmIdentity.class);
 			// secure attributes
 			formDefinitionController.secureAttributes(formInstance);
 			//

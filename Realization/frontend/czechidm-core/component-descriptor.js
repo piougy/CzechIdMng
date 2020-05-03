@@ -567,7 +567,7 @@ module.exports = {
     {
       id: 'main-contract-icon',
       type: 'icon',
-      entityType: ['main-contract'],
+      entityType: ['main-contract', 'prime-contract'],
       component: require('./src/components/advanced/Icon/MainContractIcon')
     },
     {
@@ -685,12 +685,6 @@ module.exports = {
       id: 'profile-modal',
       type: 'modal',
       component: require('./src/content/modals/Profile')
-    },
-    {
-      id: 'identity-projection',
-      type: 'form-projection',
-      ownerType: 'IdmIdentity',
-      route: '/form/identity-projection'
     }
   ]
 };

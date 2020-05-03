@@ -381,6 +381,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 			// empty form instance with filled form definition
 			IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
 			formInstance.setFormDefinition(formDefinition);
+			formInstance.setOwnerType(IdmIdentityContract.class);
 			formDefinitionController.secureAttributes(formInstance);
 			//
 			return new Resource<>(formInstance);

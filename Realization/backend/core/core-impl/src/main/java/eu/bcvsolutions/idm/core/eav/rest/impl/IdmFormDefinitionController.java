@@ -65,7 +65,6 @@ import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
@@ -536,20 +535,31 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	
 	/**
 	 * Secure form attributes by configured authorization policies.
+	 * Usable, when owner not exists (is created together with eavs).
 	 * 
 	 * @param formDefinition
 	 * @since 10.2.0
 	 */
 	public void secureAttributes(IdmFormInstanceDto formInstance) {
-		FormValueService<FormableEntity> formValueService = formService.getFormValueService(IdmIdentity.class);
+		Assert.notNull(formInstance, "Form instance is required.");
 		IdmFormDefinitionDto formDefinition = formInstance.getFormDefinition();
+		Assert.notNull(formDefinition, "Form definition is required.");
+		Class<? extends Identifiable> ownerType = formInstance.getOwnerType();
+		Assert.notNull(ownerType, "Form instance owner type is required.");
+		//
+		FormValueService<FormableEntity> formValueService = formService.getFormValueService(ownerType);
 		List<IdmFormAttributeDto> attributes = formDefinition.getFormAttributes();
 		Set<UUID> removeAttributes = new HashSet<>(attributes.size());
 		attributes.forEach(attribute -> {
-			Set<String> valuePermissions = formValueService.getPermissions(new IdmFormValueDto(attribute));
+			IdmFormValueDto formValue = new IdmFormValueDto(attribute);
+			formValue.setOwner(formService.getEmptyOwner(formDefinition));
+			if (formInstance.getOwnerId() != null) {
+				formValue.getOwner().setId(formInstance.getOwnerId());
+			}
+			Set<String> valuePermissions = formValueService.getPermissions(formValue);
 			if (!PermissionUtils.hasPermission(valuePermissions, IdmBasePermission.READ)) {
 				removeAttributes.add(attribute.getId());
-			} else if (!PermissionUtils.hasPermission(valuePermissions, IdmBasePermission.UPDATE)) {
+			} else if (!PermissionUtils.hasAnyPermission(valuePermissions, IdmBasePermission.CREATE, IdmBasePermission.UPDATE)) {
 				if (formInstance.getOwnerId() == null) {
 					// new owner - remove readonly fields
 					removeAttributes.add(attribute.getId());

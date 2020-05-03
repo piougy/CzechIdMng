@@ -55,6 +55,7 @@ export default class AuthorizationPolicyService extends AbstractRequestService {
       .setSort('seq')
       .setSort('groupPermission')
       .setSort('authorizableType')
+      .setSort('evaluatorType')
       .setSize(50);
   }
 

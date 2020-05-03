@@ -174,7 +174,64 @@ public class SysSystemControllerRestTest extends AbstractReadWriteDtoControllerR
 		SysSystemDto gotSystem = (SysSystemDto) mapper.readValue(response, SysSystemDto.class);
 		
 		Assert.assertNotNull(gotSystem);
-		Assert.assertEquals(gotSystem.getConnectorServer().getPassword().asString(), GuardedString.SECRED_PROXY_STRING);
+		Assert.assertEquals(GuardedString.SECRED_PROXY_STRING, gotSystem.getConnectorServer().getPassword().asString());
+	}
+	
+	@Test
+	public void testGetRemoteServerPasswordContainsAsterisksByCode() throws Exception {
+		String password = "testPassword123654";
+		SysSystemDto system = prepareDto();
+		system.setRemote(true);
+		SysConnectorServerDto conServer = new SysConnectorServerDto();
+		conServer.setPassword(new GuardedString(password));
+		conServer.setHost("localhost");
+		system.setConnectorServer(conServer);
+		system = createDto(system);
+		
+		ObjectMapper mapper = getMapper();
+				
+		String response = getMockMvc().perform(get(getDetailUrl(system.getCode()))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		SysSystemDto gotSystem = (SysSystemDto) mapper.readValue(response, SysSystemDto.class);
+		
+		Assert.assertNotNull(gotSystem);
+		Assert.assertEquals(GuardedString.SECRED_PROXY_STRING, gotSystem.getConnectorServer().getPassword().asString());
+	}
+	
+	@Test
+	public void testGetRemoteServerPasswordContainsAsterisksByUUIDCode() throws Exception {
+		String password = "testPassword123654";
+		SysSystemDto system = prepareDto();
+		// System name is UUID in string. For testing if will be used lookupService for get correct system.
+		String codeFromUUID = UUID.randomUUID().toString();
+		system.setName(codeFromUUID);
+		system.setRemote(true);
+		SysConnectorServerDto conServer = new SysConnectorServerDto();
+		conServer.setPassword(new GuardedString(password));
+		conServer.setHost("localhost");
+		system.setConnectorServer(conServer);
+		createDto(system);
+		
+		ObjectMapper mapper = getMapper();
+				
+		String response = getMockMvc().perform(get(getDetailUrl(codeFromUUID))
+        		.with(authentication(getAdminAuthentication()))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		SysSystemDto gotSystem = (SysSystemDto) mapper.readValue(response, SysSystemDto.class);
+		
+		Assert.assertNotNull(gotSystem);
+		Assert.assertEquals(GuardedString.SECRED_PROXY_STRING, gotSystem.getConnectorServer().getPassword().asString());
 	}
 	
 	private UUID createPasswordPolicy(IdmPasswordPolicyType type) {

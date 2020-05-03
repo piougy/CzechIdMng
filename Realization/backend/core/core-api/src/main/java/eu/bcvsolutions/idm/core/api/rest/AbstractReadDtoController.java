@@ -48,6 +48,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import java.util.UUID;
+import org.springframework.util.LinkedMultiValueMap;
 
 /**
  * Read operations (get, find, autocomplete)
@@ -132,7 +134,40 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	public DTO getDto(Serializable backendId) {
-		DTO dto = lookupService.lookupDto(getDtoClass(), backendId);
+		DTO dto = null;
+		// If service supports context, we need to call service.get method with context/filter.
+		if (service.supportsToDtoWithFilter()) {
+			// Create mockup context/filter. We expect the logic (setting of the context) in the method toFilter.
+			F context = toFilter(new LinkedMultiValueMap<>());
+			if (backendId instanceof UUID) {
+				// BackendId is UUID, we try to load DTO by service.get method (with context).
+				dto = service.get((UUID) backendId, context);
+			} else if (backendId instanceof String) {
+				try {
+					UUID id = UUID.fromString((String) backendId);
+					// BackendId is UUID, we try to load DTO by service.get method (with context).
+					dto = service.get(id, context);
+					if (dto == null) {
+						// DTO was not found by UUID. Theoretically is UUID not ID, but code (for example).
+						// We try to use lookup service now.
+						dto = lookupService.lookupDto(getDtoClass(), backendId);
+						if (dto != null) {
+							// DTO was found by lookup service. Now we need to call service.get with context.
+							dto = service.get(dto.getId(), context);
+						}
+					}
+				} catch (IllegalArgumentException ex) {
+					// Ok, backendId is not UUID, so we can try to lookupSerivce.
+					dto = lookupService.lookupDto(getDtoClass(), backendId);
+					if (dto != null) {
+						// DTO was found by lookup service. Now we need to call service.get with context.
+						dto = service.get(dto.getId(), context);
+					}
+				}
+			}
+		} else {
+			dto = lookupService.lookupDto(getDtoClass(), backendId);
+		}
 		return checkAccess(dto, IdmBasePermission.READ);
 	}
 

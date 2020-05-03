@@ -1013,16 +1013,7 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SysSystemFilter filter = new SysSystemFilter(parameters, getParameterConverter());
 		// Context property only
-		filter.setFilterSetFromOutsideBE(true);
+		filter.setContainsRemoteServerPasswordProxyChars(true);
 		return filter;
-	}
-	
-	@Override
-	public SysSystemDto getDto(Serializable backendId) {
-		SysSystemDto dto = super.getDto(backendId);
-		if (dto != null && dto.isRemote()) {
-			dto = systemService.get(dto.getId(), toFilter(null));
-		}
-		return dto;
 	}
 }

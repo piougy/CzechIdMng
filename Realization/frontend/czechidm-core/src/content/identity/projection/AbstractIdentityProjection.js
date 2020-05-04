@@ -1132,7 +1132,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
                       <Basic.Button
                         type="button"
                         level="link"
-                        rendered={ false && SecurityManager.hasAllAuthorities(['FORMPROJECTION_UPDATE'], userContext) && this.isDevelopment() }
+                        rendered={ SecurityManager.hasAllAuthorities(['FORMPROJECTION_UPDATE'], userContext) && this.isDevelopment() }
                         onClick={ () => this.context.history.push(`/form-projections/${ formProjection.id }/detail`) }>
                         { this.i18n('button.formProjection.label') }
                       </Basic.Button>

@@ -673,6 +673,15 @@ module.exports = {
       enum: require('./src/enums/OperationStateEnum')
     },
     {
+      id: 'base-permission-enum-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'ENUMERATION',
+      faceType: 'BASE-PERMISSION-ENUM',
+      component: require('./src/components/advanced/Form/EnumSelectBoxFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.BASE-PERMISSION-ENUM',
+      enum: require('./src/enums/BasePermissionEnum')
+    },
+    {
       id: 'workflow-definition-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'SHORTTEXT',

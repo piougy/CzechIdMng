@@ -29,5 +29,6 @@ public interface BaseFaceType {
 	//
 	String BOOLEAN_SELECT = "BOOLEAN-SELECT";
 	//
+	String BASE_PERMISSION_ENUM = "BASE-PERMISSION-ENUM"; // @since 10.3.0 @see IdmBasePermission
 	String OPERATION_STATE_ENUM = "OPERATION-STATE-ENUM"; // OperationState ~ OperationStateEnum
 }

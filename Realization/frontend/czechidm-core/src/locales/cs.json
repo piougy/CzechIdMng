@@ -619,6 +619,7 @@
           "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
           "AUTOMATIC-ROLE-TREE-SELECT": "Výběr automatické role dle stromové struktury (SelectBox)",
           "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Výběr automatické role dle atributu (SelectBox)",
+          "BASE-PERMISSION-ENUM": "Základní oprávnění v IdM",
           "OPERATION-STATE-ENUM": "Stav operace",
           "WORKFLOW-DEFINITION-SELECT": "Výběr definice workflow (SelectBox)"
         },
@@ -5774,6 +5775,16 @@
             "label": "Typ uživatele",
             "help": "Vyberte typ uživatele, kterému bude nastaveno oprávnění.",
             "placeholder": "Defaultní typ uživatele nebo vyberte ..."
+          }
+        }
+      },
+      "core-contract-by-identity-evaluator": {
+        "help": "Oprávnění pro kontrakty uživatele dle oprávnění na uživatele.",
+        "attributes": {
+          "include-permissions": {
+            "label": "Přenést oprávnění",
+            "help": "Vyberte oprávnění, které budou přenesena dle oprávnění na uživatele.",
+            "placeholder": "Stejná oprávnění jako na uživatele nebo vyberte ..."
           }
         }
       }

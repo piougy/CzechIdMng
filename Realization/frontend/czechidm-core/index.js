@@ -20,6 +20,7 @@ import * as Domain from './src/domain';
 import ComponentService from './src/services/ComponentService';
 //
 import AbstractEnum from './src/enums/AbstractEnum';
+import BasePermissionEnum from './src/enums/BasePermissionEnum';
 import OperationStateEnum from './src/enums/OperationStateEnum';
 import PasswordPolicyTypeEnum from './src/enums/PasswordPolicyTypeEnum';
 import ScriptCategoryEnum from './src/enums/ScriptCategoryEnum';
@@ -54,6 +55,7 @@ const ModuleRoot = {
   Domain,
   Enums: {
     AbstractEnum,
+    BasePermissionEnum,
     OperationStateEnum,
     PasswordPolicyTypeEnum,
     ScriptCategoryEnum,

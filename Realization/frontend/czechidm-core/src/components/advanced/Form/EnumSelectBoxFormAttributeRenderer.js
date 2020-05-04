@@ -6,7 +6,7 @@ import AbstractFormAttributeRenderer from './AbstractFormAttributeRenderer';
 import ShortTextFormAttributeRenderer from './ShortTextFormAttributeRenderer';
 
 /**
- * Enumeration select box component
+ * Enumeration select box component.
  *
  * @author Radek Tomiška
  */
@@ -104,7 +104,7 @@ export default class EnumSelectBoxFormAttributeRenderer extends ShortTextFormAtt
 
   renderSingleInput(originalValues) {
     const { attribute, values, validationErrors, className, style, component } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <Basic.EnumSelectBox

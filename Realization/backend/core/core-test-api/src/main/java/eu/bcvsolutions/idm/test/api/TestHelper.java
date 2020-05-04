@@ -42,6 +42,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
@@ -923,4 +924,21 @@ public interface TestHelper {
 	 * @see IdmFlywayMigrationStrategy
 	 */
 	boolean isDatabaseMssql();
+	
+	/**
+	 *  Creates a form definition of given type and main flag
+	 * 
+	 * @param type
+	 * @param isMain
+	 * @return
+	 */
+	IdmFormDefinitionDto createFormDefinition(String type, boolean isMain);
+
+	/**
+	 * Creates a form definition of given type and man flag set to false
+	 * 
+	 * @param type
+	 * @return
+	 */
+	IdmFormDefinitionDto createFormDefinition(String type);
 }

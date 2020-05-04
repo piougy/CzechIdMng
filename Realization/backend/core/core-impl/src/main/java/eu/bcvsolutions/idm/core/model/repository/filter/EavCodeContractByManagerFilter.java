@@ -117,7 +117,7 @@ public class EavCodeContractByManagerFilter
 		Path<IdmTreeNode> wp = subqueryWpRoot.get(IdmIdentityContract_.workPosition);
 		subqueryWp.where(builder.and(
 				// valid contract only
-				RepositoryUtils.getValidPredicate(subqueryWpRoot, builder),
+				RepositoryUtils.getValidNowOrInFuturePredicate(subqueryWpRoot, builder),
         		builder.equal(subqueryWpRoot.get(IdmIdentityContract_.disabled), Boolean.FALSE),
 				//
 				(filter.getSubordinatesByTreeType() == null) 

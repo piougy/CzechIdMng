@@ -103,7 +103,7 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
     const identity = identityManager.getEntity(this.context.store.getState(), entityId);
     //
     const uuidId = uuid.v1();
-    this.context.history.push(`/role-requests/${uuidId}/new?new=1&applicantId=${identity.id}`);
+    this.context.history.push(`/role-requests/${ uuidId }/new?new=1&applicantId=${identity.id}`);
   }
 
   save(entity, event) {

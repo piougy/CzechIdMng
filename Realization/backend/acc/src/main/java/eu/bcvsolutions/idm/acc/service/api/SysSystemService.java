@@ -33,6 +33,7 @@ public interface SysSystemService extends
 	String CONNECTOR_FRAMEWORK_CZECHIDM = "czechidm";
 	// Pooling
 	String POOLING_DEFINITION_KEY = "pooling-connector-configuration";
+	String OPERATION_OPTIONS_DEFINITION_KEY = "operation-options-connector-configuration";
 	String POOLING_SUPPORTED_PROPERTY = "poolingSupported";
 	String POOLING_SUPPORTED_NAME = "Pooling supported";
 	String MAX_IDLE_PROPERTY = "maxIdle";
@@ -110,6 +111,8 @@ public interface SysSystemService extends
 	 * @return
 	 */
 	IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass);
+
+	IdmFormDefinitionDto getOperationOptionsConnectorFormDefinition(IcConnectorInstance connectorInstance);
 
 	/**
 	 * Duplicate (create/persist new) system with all configurations

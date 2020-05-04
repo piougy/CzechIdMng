@@ -24,7 +24,8 @@ class EnableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardBu
   isRendered() {
     const { identity, userContext, permissions } = this.props;
     //
-    return identity.state === IdentityStateEnum.findKeyBySymbol(IdentityStateEnum.DISABLED_MANUALLY)
+    return identity
+      && identity.state === IdentityStateEnum.findKeyBySymbol(IdentityStateEnum.DISABLED_MANUALLY)
       && userContext.id !== identity.id
       && Utils.Permission.hasPermission(permissions, 'MANUALLYENABLE');
   }
@@ -38,7 +39,7 @@ class EnableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardBu
   }
 
   onClick() {
-    const { identity } = this.props;
+    const { identity, onComplete } = this.props;
     //
     this.refs['confirm-enable'].show(
       this.i18n(`content.identities.action.activate.message`, { count: 1, record: identityManager.getNiceLabel(identity) }),
@@ -56,6 +57,11 @@ class EnableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardBu
             //
             this.setState({
               showLoading: false
+            }, () => {
+              this.addMessage({ key: 'dashboard-button-message', level: 'success'});
+              if (onComplete) {
+                onComplete(json);
+              }
             });
           });
       });
@@ -64,12 +70,9 @@ class EnableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardBu
     });
   }
 
-  renderContent() {
+  renderConfirm() {
     return (
-      <span>
-        { super.renderContent() }
-        <Basic.Confirm ref="confirm-enable" level="success" />
-      </span>
+      <Basic.Confirm ref="confirm-enable" level="success" />
     );
   }
 }

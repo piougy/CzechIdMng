@@ -3,11 +3,13 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -16,6 +18,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.util.Asserts;
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -161,8 +164,8 @@ public class DefaultSysSystemService
 	}
 
 	@Override
-	public SysSystemDto get(Serializable id, BasePermission... permission) {
-		SysSystemDto entity = super.get(id, permission);
+	public SysSystemDto get(Serializable id, SysSystemFilter filter, BasePermission... permission) {
+		SysSystemDto entity = super.get(id, filter, permission);
 		if (entity == null) {
 			return null;
 		}
@@ -170,10 +173,12 @@ public class DefaultSysSystemService
 		// found if entity has filled password
 		if (entity.isRemote()) {
 			try {
-				Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
-						SysSystemService.REMOTE_SERVER_PASSWORD);
-				if (password != null && entity.getConnectorServer() != null) {
-					entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+				if (filter != null && filter.isContainsRemoteServerPasswordProxyChars()) {
+					Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
+							SysSystemService.REMOTE_SERVER_PASSWORD);
+					if (password != null && entity.getConnectorServer() != null) {
+						entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+					}
 				}
 			} catch (ResultCodeException ex) {
 				// decorator only - we has to log exception, because is not possible to change password, if error occurs in get ....
@@ -201,6 +206,11 @@ public class DefaultSysSystemService
 	public SysSystemDto getByCode(String name) {
 		return toDto(systemRepository.findOneByName(name));
 	}
+	
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return true;
+	}
 
 	@Override
 	protected List<Predicate> toPredicates(Root<SysSystem> root, CriteriaQuery<?> query, CriteriaBuilder builder, SysSystemFilter filter) {
@@ -211,7 +221,7 @@ public class DefaultSysSystemService
 					builder.or(
 							builder.like(builder.lower(root.get(SysSystem_.name)), "%" + filter.getText().toLowerCase() + "%"),
 							builder.like(builder.lower(root.get(SysSystem_.description)), "%" + filter.getText().toLowerCase() + "%")
-							));
+					));
 
 		}
 		if (filter.getVirtual() != null) {
@@ -250,15 +260,18 @@ public class DefaultSysSystemService
 
 		// fill connector configuration from form values
 		IcConnectorConfigurationImpl configuration = null;
-		if (SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())){
+		if (SysSystemService.CONNECTOR_FRAMEWORK_CZECHIDM.equals(connectorInstance.getConnectorKey().getFramework())) {
 			// For CzechIdM connector framework is needs system ID (exactly for virtual systems).
-			 configuration = new IcConnectorConfigurationCzechIdMImpl();
-			 ((IcConnectorConfigurationCzechIdMImpl)configuration).setSystemId(system.getId());
+			configuration = new IcConnectorConfigurationCzechIdMImpl();
+			((IcConnectorConfigurationCzechIdMImpl) configuration).setSystemId(system.getId());
 		} else {
-			 configuration = new IcConnectorConfigurationImpl();
+			configuration = new IcConnectorConfigurationImpl();
 		}
 		// Create configuration for pool
-		fillPoolingConnectorConfiguration(configuration, system.getConnectorInstance(), system);
+		fillPoolingConnectorConfiguration(configuration, connectorInstance, system);
+
+		// Load operation options
+		configuration.setOperationOptions(getOperationOptionsForSystem(connectorInstance, system));
 
 		IcConfigurationProperties properties = new IcConfigurationPropertiesImpl();
 		configuration.setConfigurationProperties(properties);
@@ -284,7 +297,7 @@ public class DefaultSysSystemService
 
 	@Override
 	@Transactional
-	public IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass){
+	public IcConnectorObject readConnectorObject(UUID systemId, String uid, IcObjectClass objectClass) {
 		Assert.notNull(systemId, "System ID cannot be null!");
 		Assert.notNull(uid, "Account UID cannot be null!");
 
@@ -464,6 +477,21 @@ public class DefaultSysSystemService
 
 	@Override
 	@Transactional
+	public IdmFormDefinitionDto getOperationOptionsConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance, "Connector instance is required.");
+		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
+
+		IdmFormDefinitionDto formDefinition = getFormService().getDefinition(SysSystem.class.getName(),
+				getOperationOptionsFormDefinitionCode(connectorInstance.getConnectorKey()));
+
+		if (formDefinition == null) {
+			formDefinition = createOperationOptionsFormDefinition(connectorInstance);
+		}
+		return formDefinition;
+	}
+
+	@Override
+	@Transactional
 	public SysSystemDto duplicate(UUID id) {
 		SysSystemDto originalSystem = this.get(id);
 		Asserts.notNull(originalSystem, "System must be found!");
@@ -485,7 +513,7 @@ public class DefaultSysSystemService
 		// Duplicate connector configuration values in EAV
 		IcConnectorInstance connectorInstance = originalSystem.getConnectorInstance();
 
-		if(connectorInstance != null && connectorInstance.getConnectorKey() != null && connectorInstance.getConnectorKey().getFramework() != null){
+		if (connectorInstance != null && connectorInstance.getConnectorKey() != null && connectorInstance.getConnectorKey().getFramework() != null) {
 			IdmFormDefinitionDto formDefinition = getConnectorFormDefinition(connectorInstance);
 			List<IdmFormValueDto> originalFormValues = this.getFormService().getValues(id, SysSystem.class,
 					formDefinition);
@@ -557,7 +585,7 @@ public class DefaultSysSystemService
 	}
 
 	private SysSchemaObjectClassDto convertIcObjectClassInfo(IcObjectClassInfo objectClass,
-			SysSchemaObjectClassDto sysObjectClass) {
+															 SysSchemaObjectClassDto sysObjectClass) {
 		if (objectClass == null) {
 			return null;
 		}
@@ -597,10 +625,10 @@ public class DefaultSysSystemService
 	 * @param system
 	 */
 	private void fillPoolingConnectorConfiguration(IcConnectorConfigurationImpl configuration,
-			IcConnectorInstance connectorInstance, SysSystemDto system) {
+												   IcConnectorInstance connectorInstance, SysSystemDto system) {
 
 		IdmFormDefinitionDto formDefinition = getPoolingConnectorFormDefinition(connectorInstance);
-		if( formDefinition == null) {
+		if (formDefinition == null) {
 			return;
 		}
 		IdmFormInstanceDto formInstance = getFormService().getFormInstance(system, formDefinition);
@@ -644,9 +672,76 @@ public class DefaultSysSystemService
 	}
 
 	/**
+	 * Creates configuration for operation options by EAV values
+	 *
+	 * @param connectorInstance
+	 * @param system
+	 */
+	private Map<String, Object> getOperationOptionsForSystem(IcConnectorInstance connectorInstance, SysSystemDto system) {
+		IdmFormDefinitionDto formDefinition = getOperationOptionsConnectorFormDefinition(connectorInstance);
+		if (formDefinition == null) {
+			return Collections.emptyMap();
+		}
+		IdmFormInstanceDto formInstance = getFormService().getFormInstance(system, formDefinition);
+		if (formInstance == null) {
+			return Collections.emptyMap();
+		}
+
+		Map<String, List<IdmFormValueDto>> optionToValues = formInstance.toValueMap();
+		return optionToValues
+				.keySet()
+				.stream()
+				.filter(key -> !optionToValues.get(key).isEmpty())
+				.collect(Collectors.toMap(key -> key, key -> {
+					List<IdmFormValueDto> values = optionToValues.get(key);
+					//
+					return values.size() > 1
+							? 
+							toArray(values, formDefinition.getMappedAttributeByCode(key).getPersistentType()) 
+							: 
+							values.get(0).getValue();
+				}));
+	}
+
+
+	/**
+	 * This method solves issue of instantiation of multivalue array, which then can be sent to ConnId. If an array does not have specific type
+	 * (String, int, etc..), then ConnId will throw an exception, because it checks the type if passed values. This is the reason, why we need
+	 * to determine an array type by persistent type of EAV.
+	 *
+	 * @param values {@link List} of {@link IdmFormValueDto} to convert to an array
+	 * @param persistentType {@link PersistentType} of given values
+	 * @return Correctly typed array containing all values passed in values argument of this method
+	 * @throws IllegalArgumentException if a type, which is not supported, is passed as an argument
+	 */
+	 private Object[] toArray(List<IdmFormValueDto> values, PersistentType persistentType) {
+		switch (persistentType){
+			case SHORTTEXT:
+			case TEXT:
+				return values.stream().map(IdmFormValueDto::getValue).toArray(value -> new String[values.size()]);
+			case LONG:
+				return values.stream().map(IdmFormValueDto::getValue).toArray(value -> new Long[values.size()]);
+			case INT:
+				return values.stream().map(IdmFormValueDto::getValue).toArray(value -> new Integer[values.size()]);
+			case BOOLEAN:
+				return values.stream().map(IdmFormValueDto::getValue).toArray(value -> new Boolean[values.size()]);
+			case UUID:
+				return values.stream().map(IdmFormValueDto::getValue).toArray(value -> new UUID[values.size()]);
+			case DOUBLE:
+				return values.stream().map(IdmFormValueDto::getValue).toArray(value -> new Double[values.size()]);
+			case CHAR:
+				return values.stream().map(IdmFormValueDto::getValue).toArray(value -> new Character[values.size()]);
+			default:
+				throw new IllegalArgumentException(String.format("Invalid multivalue operation option type %s.", persistentType));
+		}
+	}
+
+
+	/**
 	 * Create form definition to given connectorInstance by connector properties
 	 *
-	 * @param connectorKey
+	 * @param formDefinition
+	 * @param connectorInstance
 	 * @return
 	 */
 	private synchronized IdmFormDefinitionDto resolveConnectorFormDefinition(IdmFormDefinitionDto formDefinition, IcConnectorInstance connectorInstance) {
@@ -772,12 +867,71 @@ public class DefaultSysSystemService
 	}
 
 	/**
+	 * Create form definition for connector operation options configuration
+	 *
+	 * @param connectorInstance
+	 * @return
+	 */
+	private synchronized IdmFormDefinitionDto createOperationOptionsFormDefinition(
+			IcConnectorInstance connectorInstance) {
+		String definitionCode = getOperationOptionsFormDefinitionCode(connectorInstance.getConnectorKey());
+		//
+		List<IdmFormAttributeDto> formAttributes = new ArrayList<>();
+
+		formAttributes.add(createAttribute(OperationOptions.OP_PAGE_SIZE, OperationOptions.OP_PAGE_SIZE,
+				PersistentType.INT, (short) 1));
+		formAttributes.add(createAttribute(OperationOptions.OP_ATTRIBUTES_TO_GET, OperationOptions.OP_ATTRIBUTES_TO_GET,
+				PersistentType.SHORTTEXT, (short) 2, true));
+
+		return getFormService().createDefinition(SysSystem.class, definitionCode, formAttributes);
+	}
+
+	/**
+	 * Creates {@link IdmFormAttributeDto} using given attributes
+	 *
+	 * @param code Code of attribute
+	 * @param name Name of attribute
+	 * @param type Persistent type of attribute
+	 * @param order Order of attribute in definition
+	 * @return A newly constructed {@link IdmFormAttributeDto}. Dto is not yet persisted.
+	 */
+	private IdmFormAttributeDto createAttribute(String code, String name, PersistentType type, short order) {
+		return createAttribute(code, name, type, order, false);
+	}
+
+	/**
+	 * Creates {@link IdmFormAttributeDto} using given attributes
+	 *
+	 * @param code Code of attribute
+	 * @param name Name of attribute
+	 * @param type Persistent type of attribute
+	 * @param order Order of attribute in definition
+	 * @param multi Indicates, whether the attribute supports multiple values
+	 * @return A newly constructed {@link IdmFormAttributeDto}. Dto is not yet persisted.
+	 */
+	private IdmFormAttributeDto createAttribute(String code, String name, PersistentType type, short order, boolean multi) {
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto(code, name, type);
+		attribute.setSeq(order);
+		attribute.setMultiple(multi);
+		return attribute;
+	}
+
+	/**
 	 * Returns name (code) of form-definition pool configuration
 	 * @param connectorInstance
 	 * @return
 	 */
 	private String getPoolingFormDefinitionCode(IcConnectorInstance connectorInstance) {
 		return POOLING_DEFINITION_KEY;
+	}
+
+	/**
+	 * Returns name (code) of form-definition for operation options
+	 * @return
+	 * @param connectorKey
+	 */
+	private String getOperationOptionsFormDefinitionCode(IcConnectorKey connectorKey) {
+		return MessageFormat.format("{0}-{1}", OPERATION_OPTIONS_DEFINITION_KEY, connectorKey.getFullName());
 	}
 
 	/**

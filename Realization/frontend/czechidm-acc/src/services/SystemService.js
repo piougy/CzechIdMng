@@ -5,6 +5,7 @@ import { Services, Domain, Utils} from 'czechidm-core';
  *
  * @author Vít Švanda
  * @author Radek Tomiška
+ * @author Peter Štrunc
  */
 class SystemService extends Services.AbstractService {
 
@@ -194,6 +195,60 @@ class SystemService extends Services.AbstractService {
   }
 
   /**
+   * Returns operation options connector form definition to given system
+   * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+   *
+   * @param  {string} id system identifier
+   * @return {promise}
+   */
+  getOperationOptionsConnectorFormDefinition(id) {
+    return Services.RestApiService
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/operation-options-connector-form-definition`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Returns filled connector configuration for operation options
+   * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+   *
+   * @param  {string} id system identifier
+   * @return {promise}
+   */
+  getOperationOptionsConnectorFormValues(id) {
+    return Services.RestApiService
+      .get(`${ this.getApiPath() }/${ encodeURIComponent(id) }/operation-options-connector-form-values`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
    * Saves connector configuration form values
    *
    * @param  {string} id system identifier
@@ -230,6 +285,33 @@ class SystemService extends Services.AbstractService {
   savePoolingConnectorFormValues(id, values) {
     return Services.RestApiService
       .post(`${ this.getApiPath() }/${ encodeURIComponent(id) }/pooling-connector-form-values`, values)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Saves operation-options connector configuration form values
+   *
+   * @param  {string} id system identifier
+   * @param  {arrayOf(entity)} values filled form values
+   * @return {promise}
+   */
+  saveOperationOptionsConnectorFormValues(id, values) {
+    return Services.RestApiService
+      .post(`${ this.getApiPath() }/${ encodeURIComponent(id) }/operation-options-connector-form-values`, values)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);

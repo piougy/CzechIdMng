@@ -616,7 +616,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
  * Removes prohibited actions.
  */
   _removeProhibitedActions(actions) {
-    const {prohibitedActions} = this.props;
+    const { prohibitedActions } = this.props;
 
     return actions.filter(action => {
       if (!prohibitedActions) {
@@ -672,7 +672,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
     let modalContent = null;
     if (backendBulkAction && backendBulkAction.longRunningTaskId) {
-      if (SecurityManager.hasAuthority('SCHEDULER_READ')) {
+      if (SecurityManager.hasAuthority('SCHEDULER_AUTOCOMPLETE')) {
         modalContent = (
           <Basic.Modal.Body style={ {padding: 0, marginBottom: -20} }>
             <LongRunningTask

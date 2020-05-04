@@ -135,6 +135,7 @@
         "situationAction": "Akce",
         "situationActionWf": "Workflow",
         "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu), podle kterého chceme hledat příslušné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
+        "customFilterWithReconciliation": "Vlastní filtr nebude použit během rekonciliace.",
         "treeInfo": "Synchronizace stromu je vždy spouštěna jako rekonciliace.",
         "edit": {
           "header": "Detail konfigurace synchronizace"
@@ -254,6 +255,10 @@
       "connector": {
         "header": "Nastavení konektoru",
         "poolingConfiguration": "Pooling nastavení",
+        "operationOptionsConfiguration": {
+          "tab": "Další volby konektoru",
+          "attributes": "Spravovat atributy"
+        },
         "title": "Konfigurace",
         "button": {
           "showBasicInfo": "Přejít na základní údaje",
@@ -2505,6 +2510,10 @@
     "ROLE_ACCOUNT_NOT_FOUND": {
       "title": "'Role account' nenalezen",
       "message": "'Role account' nenalezen pro id účtu [{{account}}]."
+    },
+    "FOREIGN_SYSTEM_MAPPING_ASSIGNED": {
+      "title": "Použito chybné mapování systému",
+      "message": "Chybné použití mapování systému patřící systému [{{systemMappingSystemUUID}}] se systémem [{{systemUUID}}]."
     },
     "ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> obsahuje  <strong class=\"highlight\">{{count}}</strong> vazeb na uživatele.",

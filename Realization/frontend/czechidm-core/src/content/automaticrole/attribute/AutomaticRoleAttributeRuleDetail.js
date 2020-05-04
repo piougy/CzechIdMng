@@ -311,6 +311,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
   }
 
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entity } = this.props;
     this._initForm(entity);
   }

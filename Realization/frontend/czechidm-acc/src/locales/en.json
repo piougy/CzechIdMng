@@ -135,6 +135,7 @@
         "situationAction": "Action",
         "situationActionWf": "Workflow",
         "customFilterInfo": "Custom filter can be defined by selection of attribute (Filter by attribute) by which we want to find relevant operations (Filtering operations). More complicated criteria can be defined in section below.",
+        "customFilterWithReconciliation": "Custom filter will not be used during reconciliation.",
         "treeInfo": "Synchronization of Tree is always execute as reconciliation.",
         "edit": {
           "header": "Synchronization configuration details "
@@ -254,6 +255,10 @@
       "connector": {
         "header": "Connector configuration",
         "poolingConfiguration": "Pooling configuration",
+        "operationOptionsConfiguration": {
+          "tab": "Additional connector configuration",
+          "attributes": "Manage attributes"
+        },
         "title": "Configuration",
         "button": {
           "showBasicInfo": "Show basic information",
@@ -2503,6 +2508,10 @@
     "ROLE_ACCOUNT_NOT_FOUND": {
       "title": "No role account found",
       "message": "No role account found for account id [{{account}}]."
+    },
+    "FOREIGN_SYSTEM_MAPPING_ASSIGNED": {
+      "title": "Wrong system mapping used",
+      "message": "Attempt to use system mapping belonging to system [{{systemMappingSystemUUID}}] with system [{{systemUUID}}]."
     },
     "ROLE_ACM_BULK_ACTION_NUMBER_OF_IDENTITIES": {
       "message": "Role <strong>{{role}}</strong> contains  <strong class=\"highlight\">{{count}}</strong> user relationships",

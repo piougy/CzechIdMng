@@ -29,45 +29,25 @@ class ContentHeader extends AbstractComponent {
     //
     return (
       <div className={ classNames } { ...others }>
-        <div className="pull-left">
-          <h2>
-            {
-              showLoading
-              ?
-              <Icon type="fa" icon="refresh" showLoading className="icon-loading"/>
-              :
-              <Icon value={ icon } className="icon-left"/>
-            }
-            {
-              showLoading || icon
-              ?
-              '\u00a0'
-              :
-              null
-            }
-            <span>
-              { text }
-              { children }
-            </span>
-          </h2>
-        </div>
-        {
-          !buttons
-          ||
-          <div className="pull-right">
-            { buttons }
-          </div>
-        }
-        {
-          help
-          ?
-          <div className="pull-right">
-            <HelpIcon content={ help }/>
-          </div>
-          :
-          null
-        }
-        <div className="clearfix"></div>
+        <h2>
+          {
+            showLoading
+            ?
+            <Icon type="fa" icon="refresh" showLoading className="icon-loading"/>
+            :
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Icon value={ icon } style={{ marginRight: 7 }}/>
+              <div style={{ flex: 1 }}>
+                { text }
+                { children }
+              </div>
+              <div style={{ fontSize: '0.7em' }}>
+                { buttons }
+              </div>
+              <HelpIcon content={ help }/>
+            </div>
+          }
+        </h2>
       </div>
     );
   }

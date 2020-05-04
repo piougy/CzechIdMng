@@ -125,6 +125,26 @@ public class IdmLongRunningTaskController
 	
 	@Override
 	@ResponseBody
+	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_AUTOCOMPLETE + "')")
+	@ApiOperation(
+			value = "Autocomplete LRTs (selectbox usage)", 
+			nickname = "autocompleteLongRunningTasks", 
+			tags = { IdmLongRunningTaskController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_AUTOCOMPLETE, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_AUTOCOMPLETE, description = "") })
+				})
+	public Resources<?> autocomplete(
+			@RequestParam(required = false) MultiValueMap<String, Object> parameters, 
+			@PageableDefault Pageable pageable) {
+		return super.autocomplete(parameters, pageable);
+	}
+	
+	@Override
+	@ResponseBody
 	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_COUNT + "')")
 	@ApiOperation(
@@ -176,16 +196,16 @@ public class IdmLongRunningTaskController
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.LONGRUNNINGTASK_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.SCHEDULER_DELETE + "')")
 	@ApiOperation(
 			value = "Delete LRT", 
 			nickname = "deleteLongRunningTask", 
 			tags = { IdmLongRunningTaskController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.LONGRUNNINGTASK_DELETE, description = "") }),
+						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_DELETE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.LONGRUNNINGTASK_DELETE, description = "") })
+						@AuthorizationScope(scope = CoreGroupPermission.SCHEDULER_DELETE, description = "") })
 				})
 	public ResponseEntity<?> delete(
 			@ApiParam(value = "LRT's uuid identifier.", required = true)

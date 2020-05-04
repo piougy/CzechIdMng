@@ -11,7 +11,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluator;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -26,6 +28,8 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 public class RoleRequestByWfInvolvedIdentityEvaluator extends AbstractAuthorizationEvaluator<IdmRoleRequest> {
 	
 	private final WorkflowProcessInstanceService processService;
+	@Autowired
+	private WorkflowHistoricProcessInstanceService historicProcessService;
 	private final SecurityService securityService;
 	
 	@Autowired
@@ -46,11 +50,18 @@ public class RoleRequestByWfInvolvedIdentityEvaluator extends AbstractAuthorizat
 			return permissions;
 		}
 		//
-		// search process instance by role request - its returned, if currently logged identity was involved in wf
-		WorkflowProcessInstanceDto processInstance = processService.get(entity.getWfProcessId());
+		// Search process instance by role request - its returned, if currently logged identity was involved in wf.
+		WorkflowProcessInstanceDto processInstance = processService.get(entity.getWfProcessId(), true);
 		if (processInstance != null) {
 			permissions.addAll(policy.getPermissions());
 		}		
+		if (processInstance == null) {
+			// Ok process was not returned, but we need to check historic process (on involved user) too.
+			WorkflowHistoricProcessInstanceDto historicProcess = historicProcessService.get(entity.getWfProcessId());
+			if (historicProcess != null) {
+				permissions.addAll(policy.getPermissions());
+			}
+		}
 		return permissions;
 	}
 }

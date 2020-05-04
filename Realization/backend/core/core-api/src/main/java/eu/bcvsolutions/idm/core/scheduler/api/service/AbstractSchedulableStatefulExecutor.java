@@ -25,7 +25,8 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.UnexpectedRollbackException;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
@@ -258,61 +259,48 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 			--count;
 			return Optional.empty();
 		}
+		// Is not possible to get real cause from UnexpectedRollbackException,
+		// so result has to be evaluated inside before this exception is catch.
+		List<Optional<OperationResult>> results = new ArrayList<>(1); 
 		//
-		if (requireNewTransaction()) {
-			return this.processItemInternalNewTransaction(candidate, dryRun);
-		} else {
-			return this.processItemInternal(candidate, dryRun);
-		}
-	}
-	
-	private Optional<OperationResult> processItemInternalNewTransaction(DTO candidate, boolean dryRun) {
-		TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
-		template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-		//
-		return template.execute(new TransactionCallback<Optional<OperationResult>>() {
-			public Optional<OperationResult> doInTransaction(TransactionStatus transactionStatus) {
-				return processItemInternal(candidate, dryRun);
+		if (dryRun) {
+			if (!supportsDryRun()) {
+				throw new DryRunNotSupportedException(getName());
 			}
-		});
-	}
-	
-	private Optional<OperationResult> processItemInternal(DTO candidate, boolean dryRun) {
-		Optional<OperationResult> result;
-		try {
-			if (dryRun) {
-				if (!supportsDryRun()) {
-					throw new DryRunNotSupportedException(getName());
-				}
-				// dry run mode - operation is not executed with dry run code (no content)
-				result = Optional.of(new OperationResult
-						.Builder(OperationState.NOT_EXECUTED)
-						.setModel(new DefaultResultModel(CoreResultCode.DRY_RUN))
-						.build());
-			} else {
-				result = this.processItem(candidate);
-			}			
-		} catch (Exception ex) {
-			// convert exception to result code exception with model
-			ResultCodeException resultCodeException;
-			if (ex instanceof ResultCodeException) {
-				resultCodeException = (ResultCodeException) ex;
-			} else {
-				resultCodeException = new ResultCodeException(
-						CoreResultCode.LONG_RUNNING_TASK_ITEM_FAILED, 
-						ImmutableMap.of(
-								"referencedEntityId", candidate.getId()),
-						ex);	
-			}
-			LOG.error("[" + resultCodeException.getId() + "] ", resultCodeException);
+			// dry run mode - operation is not executed with dry run code (no content)
+			results.add(Optional.of(new OperationResult
+					.Builder(OperationState.NOT_EXECUTED)
+					.setModel(new DefaultResultModel(CoreResultCode.DRY_RUN))
+					.build()));
+		} else if (requireNewTransaction()) {
+			TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
+			template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 			//
-			result = Optional.of(new OperationResult
-						.Builder(OperationState.EXCEPTION)
-						.setException(resultCodeException)
-						.build());
+			try {
+				template.execute(new TransactionCallbackWithoutResult() {
+					
+					@Override
+					protected void doInTransactionWithoutResult(TransactionStatus status) {
+						results.add(processItemInternal(candidate));
+					}
+				});
+			} catch (UnexpectedRollbackException ex ) {
+				// Just log for sure ... exception solved in new transaction, but this lower transaction is marked as roll-back.
+				LOG.debug("Statefull process [{}] processed item [{}] failed",
+						getClass().getSimpleName(), candidate, ex);
+			}
+		} else {
+			results.add(this.processItemInternal(candidate));
 		}
 		//
 		++counter;
+		Optional<OperationResult> result;
+		if (!results.isEmpty()) {
+			result = results.get(0);
+		} else {
+			result = Optional.empty();
+		}
+		//
 		if (result.isPresent()) {
 			OperationResult opResult = result.get();
 			this.logItemProcessed(candidate, opResult);
@@ -342,6 +330,30 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		}
 		//
 		return result;
+	}
+	
+	private Optional<OperationResult> processItemInternal(DTO candidate) {
+		try {
+			return processItem(candidate);
+		} catch (Exception ex) {
+			// convert exception to result code exception with model
+			ResultCodeException resultCodeException;
+			if (ex instanceof ResultCodeException) {
+				resultCodeException = (ResultCodeException) ex;
+			} else {
+				resultCodeException = new ResultCodeException(
+						CoreResultCode.LONG_RUNNING_TASK_ITEM_FAILED, 
+						ImmutableMap.of(
+								"referencedEntityId", candidate.getId()),
+						ex);	
+			}
+			LOG.error("[" + resultCodeException.getId() + "] ", resultCodeException);
+			//
+			return Optional.of(new OperationResult
+						.Builder(OperationState.EXCEPTION)
+						.setException(resultCodeException)
+						.build());
+		}
 	}
 	
 	private Page<IdmProcessedTaskItemDto> getItemFromQueue(UUID entityRef) {

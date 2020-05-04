@@ -75,7 +75,16 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
   /**
    * OnClick button function
    */
-  onClick() {
+  onClick(/* event */) {
+  }
+
+  /**
+   * Render confirm dialog if needed.
+   * Confirm dialog cannot be rendered inside button ro prevent event propagation.
+   *
+   * @since 10.2.0
+   */
+  renderConfirm() {
   }
 
   /**
@@ -103,20 +112,36 @@ export default class AbstractIdentityDashboardButton extends Basic.AbstractConte
   }
 
   render() {
+    const { buttonSize, style, showLoading } = this.props;
+    //
+    const _style = {
+      marginRight: 3,
+      minWidth: 150,
+      ...style
+    };
+    if (!buttonSize) {
+      _style.height = 50;
+    }
+    //
     return (
-      <Basic.Button
-        icon={ this.getIcon() }
-        level={ this.getLevel() }
-        className="btn-large"
-        onClick={ this.onClick.bind(this) }
-        style={{ height: 50, marginRight: 3, minWidth: 150 }}
-        title={ this.getTitle() }
-        titlePlacement="bottom"
-        rendered={ this.isRendered() === true }
-        showLoading={ this.isShowLoading() }
-        showLoadingIcon>
-        { this.renderContent() }
-      </Basic.Button>
+      <span>
+        { this.renderConfirm() }
+
+        <Basic.Button
+          icon={ this.getIcon() }
+          level={ this.getLevel() }
+          className={ !buttonSize || buttonSize === 'default' ? null : `btn-${ buttonSize }` }
+          onClick={ (event) => this.onClick(event) }
+          style={ _style }
+          title={ this.getTitle() }
+          titlePlacement="bottom"
+          rendered={ this.isRendered() === true }
+          showLoading={ this.isShowLoading() }
+          showLoadingIcon
+          disabled={ showLoading }>
+          { this.renderContent() }
+        </Basic.Button>
+      </span>
     );
   }
 }
@@ -138,5 +163,18 @@ AbstractIdentityDashboardButton.propTypes = {
   /**
    * Security context
    */
-  userContext: PropTypes.object.isRequired
+  userContext: PropTypes.object.isRequired,
+  /**
+   * Button size (by bootstrap).
+   *
+   * @since 10.3.0
+   */
+  buttonSize: PropTypes.oneOf(['default', 'xs', 'sm', 'lg']),
+  /**
+   * Callback function.
+   * Depends on button implementation. Supported e.g. in action buttons.
+   *
+   * @since 10.3.0
+   */
+  onComplete: PropTypes.func
 };

@@ -33,8 +33,10 @@ public class NeverEndingProcessor extends CoreEventProcessor<IdmIdentityDto> {
 	@Override
 	public EventResult<IdmIdentityDto> process(EntityEvent<IdmIdentityDto> event) {
 		// TODO Auto-generated method stub
-		while (wait) {
+		int counter = 0;
+		while (wait && counter < 50) { // max wait is 15s
 			try {
+				counter++;
 				Thread.sleep(300L);
 			} catch (Exception ex) {
 				throw new CoreException(ex);

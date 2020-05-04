@@ -5,7 +5,7 @@ import AbstractContextComponent from '../../basic/AbstractContextComponent/Abstr
 import * as Basic from '../../basic';
 
 /**
- * Button for closable filter mainly for advanced table
+ * Button for closable filter mainly for advanced table.
  *
  * @author Radek Tomiška
  */
@@ -69,15 +69,15 @@ export default class FilterToogleButton extends AbstractContextComponent {
       <Basic.Tooltip value={tooltip}>
         <span>
           <Basic.Button
-            className="btn-xs"
-            level={level}
-            onClick={this._filterOpen.bind(this, !filterOpened)}
-            showLoading={showLoading}
+            level={ level }
+            buttonSize="xs"
+            onClick={ this._filterOpen.bind(this, !filterOpened) }
+            showLoading={ showLoading }
             icon="filter"
-            {...others}>
+            { ...others }>
             { this.i18n('button.filter.toogle') }
             {' '}
-            <Basic.Icon icon={!filterOpened ? 'triangle-bottom' : 'triangle-top'} style={{ fontSize: '0.85em'}}/>
+            <Basic.Icon icon={ !filterOpened ? 'triangle-bottom' : 'triangle-top' } style={{ fontSize: '0.85em'}}/>
           </Basic.Button>
         </span>
       </Basic.Tooltip>

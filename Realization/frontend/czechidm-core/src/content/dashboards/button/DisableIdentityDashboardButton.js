@@ -23,7 +23,8 @@ class DisableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardB
   isRendered() {
     const { identity, permissions, userContext } = this.props;
     //
-    return !identity.disabled
+    return identity
+      && !identity.disabled
       && userContext.id !== identity.id
       && Utils.Permission.hasPermission(permissions, 'MANUALLYDISABLE');
   }
@@ -37,7 +38,7 @@ class DisableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardB
   }
 
   onClick() {
-    const { identity } = this.props;
+    const { identity, onComplete } = this.props;
     //
     this.refs['confirm-disable'].show(
       this.i18n(`content.identities.action.deactivate.message`, { count: 1, record: identityManager.getNiceLabel(identity) }),
@@ -55,6 +56,11 @@ class DisableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardB
             //
             this.setState({
               showLoading: false
+            }, () => {
+              this.addMessage({ key: 'dashboard-button-message', level: 'success'});
+              if (onComplete) {
+                onComplete(json);
+              }
             });
           });
       });
@@ -63,12 +69,9 @@ class DisableIdentityDashboardButton extends Advanced.AbstractIdentityDashboardB
     });
   }
 
-  renderContent() {
+  renderConfirm() {
     return (
-      <span>
-        { super.renderContent() }
-        <Basic.Confirm ref="confirm-disable" level="danger" />
-      </span>
+      <Basic.Confirm ref="confirm-disable" level="danger" />
     );
   }
 

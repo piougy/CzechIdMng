@@ -71,13 +71,7 @@ export class FormDefinitionTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={ uiKey }
           manager={ definitionManager }
-          showRowSelection={ SecurityManager.hasAuthority('FORMDEFINITION_DELETE') }
           rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-            ]
-          }
           filter={
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">

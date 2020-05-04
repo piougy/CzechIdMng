@@ -15,7 +15,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Dto for role guarantee - identity
- * 
+ *
  * @author Radek Tomiška
  *
  */
@@ -33,12 +33,15 @@ public class IdmRoleGuaranteeDto extends AbstractDto implements ExternalIdentifi
 	@NotNull
 	@Embedded(dtoClass = IdmIdentityDto.class)
 	private UUID guarantee; // guarantee as identity
+	@ApiModelProperty(notes = "Type (codelist)")
+	@Size(max = DefaultFieldLengths.NAME)
+	private String type; //Type - codelist
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
 
 	/**
 	 * Owner
-	 * 
+	 *
 	 * @return
 	 */
 	public UUID getRole() {
@@ -47,16 +50,16 @@ public class IdmRoleGuaranteeDto extends AbstractDto implements ExternalIdentifi
 
 	/**
 	 * Owner
-	 * 
+	 *
 	 * @param role
 	 */
 	public void setRole(UUID role) {
 		this.role = role;
 	}
-	
+
 	/**
 	 * Guarantee as identity
-	 * 
+	 *
 	 * @return
 	 */
 	public UUID getGuarantee() {
@@ -65,23 +68,23 @@ public class IdmRoleGuaranteeDto extends AbstractDto implements ExternalIdentifi
 
 	/**
 	 * Guarantee as identity
-	 * 
+	 *
 	 * @param guarantee
 	 */
 	public void setGuarantee(UUID guarantee) {
 		this.guarantee = guarantee;
 	}
-	
+
 	@Override
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
 	}
-	
+
 	@Override
 	public String getExternalId() {
 		return externalId;
 	}
-	
+
 	@Override
 	public UUID getRequestItem() {
 		return requestItem;
@@ -90,5 +93,13 @@ public class IdmRoleGuaranteeDto extends AbstractDto implements ExternalIdentifi
 	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

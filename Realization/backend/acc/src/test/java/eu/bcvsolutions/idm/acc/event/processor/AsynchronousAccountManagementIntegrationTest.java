@@ -113,7 +113,7 @@ public class AsynchronousAccountManagementIntegrationTest extends AbstractIntegr
 			List<IdmEntityEventDto> failedEvents = entityEventService.find(eventFilter, null).getContent();
 			//
 			Assert.assertEquals(1, failedEvents.size());
-			Assert.assertEquals(CoreResultCode.GROOVY_SCRIPT_EXCEPTION.getCode(), failedEvents.get(0).getResult().getCode());
+			Assert.assertEquals(CoreResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED.getCode(), failedEvents.get(0).getResult().getCode());
 			
 		} finally {
 			identityService.delete(identity);

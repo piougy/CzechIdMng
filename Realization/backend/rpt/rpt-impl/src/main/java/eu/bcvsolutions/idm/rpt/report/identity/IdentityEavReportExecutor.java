@@ -24,7 +24,6 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -66,8 +65,6 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 	private IdmIdentityService identityService;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private PrivateIdentityConfiguration identityConfiguration;
 
 	@Override
 	protected IdmAttachmentDto generateData(RptReportDto report) {
@@ -158,7 +155,7 @@ public class IdentityEavReportExecutor extends AbstractReportExecutor {
 	private boolean writeValues(IdmIdentityDto identity, IdmFormAttributeDto formAttribute, String eavValue,
 								JsonGenerator jGenerator) throws IOException {
 		boolean ret = true;
-		List<IdmFormValueDto> formValues = formService.getValues(identity, formAttribute, identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.READ : null);
+		List<IdmFormValueDto> formValues = formService.getValues(identity, formAttribute, IdmBasePermission.READ);
 		//
 		if (formValues.isEmpty()) {
 			count--;

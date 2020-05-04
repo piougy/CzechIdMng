@@ -24,3 +24,6 @@ PasswordPolicyIdentityAttributeEnum.USERNAME = Symbol('USERNAME');
 PasswordPolicyIdentityAttributeEnum.EMAIL = Symbol('EMAIL');
 PasswordPolicyIdentityAttributeEnum.FIRSTNAME = Symbol('FIRSTNAME');
 PasswordPolicyIdentityAttributeEnum.LASTNAME = Symbol('LASTNAME');
+PasswordPolicyIdentityAttributeEnum.TITLESBEFORE = Symbol('TITLESBEFORE');
+PasswordPolicyIdentityAttributeEnum.TITLESAFTER = Symbol('TITLESAFTER');
+PasswordPolicyIdentityAttributeEnum.EXTERNALCODE = Symbol('EXTERNALCODE');

@@ -80,6 +80,7 @@ Based on upgraded libraries we have to add, remove or change configuration prope
 - ``spring.jpa.hibernate.use-new-id-generator-mappings=false`` - Spring boot 2 changed default to ``true``, but we are using ``IDENTITY`` identifier generators for mssql database.
 - ``spring.servlet.multipart.max-file-size=100MB`` - Spring boot 2 changed property name for file upload size.
 - ``spring.servlet.multipart.max-request-size=100MB`` - Spring boot 2 changed property name for file upload size.
+  - For these properties to work correctly, you have to update your Tomcat's ``server.xml``. In this file, locate configuration of HTTP connector (usually on port 8080) and add the ``maxSwallowSize="-1"`` property therein.
 
 
 ### Removed properties

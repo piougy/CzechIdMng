@@ -61,10 +61,11 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
+import org.activiti.engine.task.TaskInfo;
 
 /**
  * Default workflow task instance service
- * 
+ *
  * @author svandav
  *
  */
@@ -107,9 +108,9 @@ public class DefaultWorkflowTaskInstanceService extends
 	public void completeTask(String taskId, String decision, Map<String, String> formData,
 			Map<String, Object> variables) {
 		BasePermission[] permission = {IdmBasePermission.UPDATE};
-		this.completeTask(taskId, decision, formData, variables,  permission);
+		this.completeTask(taskId, decision, formData, variables, permission);
 	}
-	
+
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData,
 			Map<String, Object> variables, BasePermission[] permission) {
@@ -136,12 +137,12 @@ public class DefaultWorkflowTaskInstanceService extends
 
 	/**
 	 * Check if user can complete this task
-	 * 
+	 *
 	 * @param taskId
 	 * @return
 	 */
 	private boolean canExecute(WorkflowTaskInstanceDto task, BasePermission[] permission) {
-		return permission == null || permission.length == 0  || this.getPermissions(task).contains(IdmBasePermission.EXECUTE.getName());
+		return permission == null || permission.length == 0 || this.getPermissions(task).contains(IdmBasePermission.EXECUTE.getName());
 	}
 
 	@Override
@@ -155,9 +156,19 @@ public class DefaultWorkflowTaskInstanceService extends
 		Assert.notNull(id, "Identifier is required.");
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setId(UUID.fromString(String.valueOf(id)));
-		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null,  permission).getContent();
+		List<WorkflowTaskInstanceDto> tasks = internalSearch(filter, null, permission).getContent();
 
-		return tasks.isEmpty() ? null : tasks.get(0);
+		if (!tasks.isEmpty()) {
+			return tasks.get(0);
+
+		}
+
+		WorkflowHistoricTaskInstanceDto historicTask = historicTaskInstanceService.get(String.valueOf(id));
+		if (historicTask != null) {
+			return historicTask;
+		}
+
+		return null;
 	}
 
 	@Override
@@ -171,32 +182,37 @@ public class DefaultWorkflowTaskInstanceService extends
 		// Set<GrantedAuthority> defaultAuthorities =
 		// autorizationPolicyService.getDefaultAuthorities(securityService.getCurrentId());
 		// defaultAuthorities.contains(CoreGroupPermission.WORKFLOW_TASK_ADMIN);
-		//
-		for (IdentityLinkDto identity : dto.getIdentityLinks()) {
-			if ((identity.getType().equals(IdentityLinkType.ASSIGNEE)
-					|| identity.getType().equals(IdentityLinkType.CANDIDATE))
-					&& identity.getUserId().equals(loggedUserId)) {
-				permissions.add(IdmBasePermission.EXECUTE.getName());
-			}
+		
+		// If is logged user candidate or assigned, then can execute task.
+		boolean isCandidate = dto.getIdentityLinks().stream()
+				.filter(
+						(identity) -> ((identity.getType().equals(IdentityLinkType.ASSIGNEE)
+						|| identity.getType().equals(IdentityLinkType.CANDIDATE))
+						&& identity.getUserId().equals(loggedUserId)))
+				.findFirst().isPresent();
+		if (isCandidate) {
+			permissions.add(IdmBasePermission.EXECUTE.getName());
 		}
 		return permissions;
 	}
 
-	private WorkflowTaskInstanceDto toResource(Task task, BasePermission[] permission) {
+	private WorkflowTaskInstanceDto toResource(TaskInfo task, BasePermission[] permission) {
 		if (task == null) {
 			return null;
 		}
 
 		WorkflowTaskInstanceDto dto = new WorkflowTaskInstanceDto();
 		dto.setId(task.getId());
+		dto.setName(task.getName());
+		dto.setProcessDefinitionId(task.getProcessDefinitionId());
+		dto.setPriority(task.getPriority());
+		dto.setAssignee(task.getAssignee());
 		dto.setCreated(task.getCreateTime());
 		dto.setFormKey(task.getFormKey());
-		dto.setAssignee(task.getAssignee());
-		dto.setName(task.getName());
 		dto.setDescription(task.getDescription());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
 
-		Map<String, Object> taksVariables = task.getTaskLocalVariables();
+		Map<String, Object> taskVariables = task.getTaskLocalVariables();
 		Map<String, Object> processVariables = task.getProcessVariables();
 
 		// Add applicant username to task dto (for easier work)
@@ -207,7 +223,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		}
 
 		dto.setVariables(processVariables);
-		convertToDtoVariables(dto, taksVariables);
+		convertToDtoVariables(dto, taskVariables);
 
 		dto.setDefinition(workflowTaskDefinitionService.searchTaskDefinitionById(task.getProcessDefinitionId(),
 				task.getTaskDefinitionKey()));
@@ -230,18 +246,18 @@ public class DefaultWorkflowTaskInstanceService extends
 		List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(task.getId());
 		if (identityLinks != null) {
 			List<IdentityLinkDto> identityLinksDtos = new ArrayList<>(identityLinks.size());
-			for (IdentityLink il : identityLinks) {
+			identityLinks.forEach((il) -> {
 				identityLinksDtos.add(toResource(il));
-			}
+			});
 			dto.getIdentityLinks().addAll(identityLinksDtos);
 		}
 
 		// Check if the logged user can complete this task
 		boolean canExecute = this.canExecute(dto, permission);
 		if (formProperties != null && !formProperties.isEmpty()) {
-			for (FormProperty property : formProperties) {
+			formProperties.forEach((property) -> {
 				resovleFormProperty(property, dto, canExecute);
-			}
+			});
 		}
 
 		return dto;
@@ -249,7 +265,7 @@ public class DefaultWorkflowTaskInstanceService extends
 
 	/**
 	 * Convert form property and add to result dto
-	 * 
+	 *
 	 * @param property
 	 * @param dto
 	 * @param canExecute
@@ -302,12 +318,13 @@ public class DefaultWorkflowTaskInstanceService extends
 		}
 	}
 
-	private void convertToDtoVariables(WorkflowTaskInstanceDto dto, Map<String, Object> taksVariables) {
-		if (taksVariables != null) {
-			for (Entry<String, Object> entry : taksVariables.entrySet()) {
+	@Override
+	public void convertToDtoVariables(WorkflowTaskInstanceDto dto, Map<String, Object> taskVariables) {
+		if (taskVariables != null) {
+			taskVariables.entrySet().forEach((entry) -> {
 				Object value = entry.getValue();
 				dto.getVariables().put(entry.getKey(), value == null ? null : value.toString());
-			}
+			});
 		}
 	}
 
@@ -369,7 +386,7 @@ public class DefaultWorkflowTaskInstanceService extends
 
 	/**
 	 * Method return true if it is possible read all tasks.
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean canReadAllTask(BasePermission... permission) {
@@ -436,7 +453,7 @@ public class DefaultWorkflowTaskInstanceService extends
 			Assert.notNull(dto, "DTO is required.");
 			query.taskCandidateOrAssigned(String.valueOf(dto.getId()));
 		}
-		
+
 		if (pageable.getSort() != null) {
 			pageable.getSort().forEach(order -> {
 				if (SORT_BY_TASK_CREATED.equals(order.getProperty())) {
@@ -452,7 +469,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		}
 		query.orderByTaskCreateTime();
 		query.desc();
-		
+
 		long count = query.count();
 		List<Task> tasks = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
 

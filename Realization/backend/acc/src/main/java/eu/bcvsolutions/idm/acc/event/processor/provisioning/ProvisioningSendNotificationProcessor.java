@@ -32,9 +32,9 @@ import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
  * Only for system entity = IDENTITY. System must has mapped attribute __PASSWORD__
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Vít Švanda
  */
-@Component
+@Component(ProvisioningSendNotificationProcessor.PROCESSOR_NAME)
 @Description("After success provisioning send notification to identity with new generate password.")
 public class ProvisioningSendNotificationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 	
@@ -92,6 +92,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 							.addParameter("systemName", system.getName())
 							.addParameter("uid", uid)
 							.addParameter("password", password)
+							.addParameter("identity", identity)
 							.build(),
 							identity);
 
@@ -103,14 +104,11 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	}
 	
 	@Override
-	public boolean supports(EntityEvent<?> entityEvent) {
-		if (!super.supports(entityEvent)) {
+	public boolean conditional(EntityEvent<SysProvisioningOperationDto> event) {
+		if (!super.conditional(event)) {
 			return false;
 		}
-		SysProvisioningOperationDto provisioningOperation = (SysProvisioningOperationDto) entityEvent.getContent();
-		if (provisioningOperation == null) {
-			return false;
-		} 
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
 		// Notification can be send only if provisioning operation ended successfully!
 		if (OperationState.EXECUTED != provisioningOperation.getResultState()) {
 			LOG.warn(

@@ -22,7 +22,7 @@ public class ZipUtilsUnitTest extends AbstractUnitTest {
 
 	@Test
 	public void testCompressAndExtract() throws Exception {
-		File source = new File(this.getClass().getClassLoader().getResource("eu/bcvsolutions/idm/workflow").getFile());
+		File source = new File(this.getClass().getClassLoader().getResource("eu/bcvsolutions/idm/zipTest").getFile());
 		File destination = new File("target/zip-test");
 		if (destination.exists()) {
 			FileUtils.deleteDirectory(destination);
@@ -42,7 +42,6 @@ public class ZipUtilsUnitTest extends AbstractUnitTest {
 		ZipUtils.extract(wfZip, wfExtracted.getPath());
 		//
 		Assert.assertEquals(filesCount, countFiles(wfExtracted));
-		Assert.assertEquals(filesSize, getFileSize(wfExtracted));
 	}
 	
 	private long countFiles(File file) throws IOException {

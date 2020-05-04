@@ -403,7 +403,12 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
               <Basic.SelectBox
                 ref="identityContract"
                 manager={ this.identityContractManager }
-                forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername).setFilter('validNowOrInFuture', true) }
+                forceSearchParameters={
+                  new SearchParameters()
+                    .setFilter('identity', identityUsername)
+                    .setFilter('validNowOrInFuture', true)
+                    .setFilter('_permission', 'CHANGEPERMISSION')
+                }
                 label={ this.i18n('targetIdentityContract.label') }
                 placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
                 helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
@@ -411,7 +416,8 @@ class RoleSelectByIdentity extends Basic.AbstractContextComponent {
                 niceLabel={ (contract) => { return this.identityContractManager.getNiceLabel(contract, false); }}
                 value={ selectedIdentityContract }
                 required
-                useFirst/>
+                useFirst
+                clearable={ false }/>
 
               <Basic.DateTimePicker
                 mode="date"

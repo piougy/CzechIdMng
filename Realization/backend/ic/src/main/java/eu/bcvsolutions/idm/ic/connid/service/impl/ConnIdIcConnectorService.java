@@ -1,16 +1,11 @@
 package eu.bcvsolutions.idm.ic.connid.service.impl;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConnectorFacade;
-import org.identityconnectors.framework.api.ConnectorFacadeFactory;
-import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.common.exceptions.InvalidCredentialException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -45,6 +40,7 @@ import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacadeFactory;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
 
 @Service
@@ -52,11 +48,11 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ConnIdIcConnectorService.class);
 
-	private ConnIdIcConfigurationService configurationServiceConnId;
+	private final IcConnectorFacadeFactory facadeFactory;
 
 	@Autowired
 	public ConnIdIcConnectorService(IcConnectorFacade icConnectorAggregator,
-			ConnIdIcConfigurationService configurationServiceConnId) {
+									IcConnectorFacadeFactory facadeFactory) {
 		if (icConnectorAggregator.getIcConnectors() == null) {
 			throw new IcException("Map of IC implementations is not defined!");
 		}
@@ -65,7 +61,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 					MessageFormat.format("IC implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
 		}
 		icConnectorAggregator.getIcConnectors().put(IMPLEMENTATION_TYPE, this);
-		this.configurationServiceConnId = configurationServiceConnId;
+		this.facadeFactory = facadeFactory;
 	}
 
 	final private static String IMPLEMENTATION_TYPE = "connId";
@@ -84,7 +80,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(attributes, "Attributes are required.");
 		LOG.debug("Create object - ConnId ({} {})", connectorInstance.getConnectorKey().toString(), attributes.toString());
 
-		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
+		ConnectorFacade conn = facadeFactory.getConnectorFacade(connectorInstance, connectorConfiguration);
 		Set<Attribute> connIdAttributes = new HashSet<>(attributes.size());
 		for (IcAttribute icAttribute : attributes) {
 			connIdAttributes.add(ConnIdIcConvertUtil.convertIcAttribute(icAttribute));
@@ -94,7 +90,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 			objectClassConnId = ObjectClass.ACCOUNT;
 		}
 
-		Uid uid = conn.create(objectClassConnId, connIdAttributes, null);
+		Uid uid = conn.create(objectClassConnId, connIdAttributes, new OperationOptions(connectorConfiguration.getSystemOperationOptions()));
 		LOG.debug("Created object - ConnId ({} {}) Uid= {}", connectorInstance.getConnectorKey().toString(), attributes.toString(), uid);
 		return ConnIdIcConvertUtil.convertConnIdUid(uid);
 	}
@@ -110,7 +106,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 
 		LOG.debug("Update object - ConnId (Uid= {} {} {})", uid, connectorInstance.getConnectorKey().toString(), replaceAttributes.toString());
 
-		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
+		ConnectorFacade conn = facadeFactory.getConnectorFacade(connectorInstance, connectorConfiguration);
 		Set<Attribute> connIdAttributes = new HashSet<>(replaceAttributes.size());
 		for (IcAttribute icAttribute : replaceAttributes) {
 			connIdAttributes.add(ConnIdIcConvertUtil.convertIcAttribute(icAttribute));
@@ -121,7 +117,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		}
 
 		Uid updatedUid = conn.update(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid), connIdAttributes,
-				null);
+				new OperationOptions(connectorConfiguration.getSystemOperationOptions()));
 		LOG.debug("Updated object - ConnId ({} {}) Uid= {})", connectorInstance.getConnectorKey().toString(), replaceAttributes.toString(), updatedUid);
 		return ConnIdIcConvertUtil.convertConnIdUid(updatedUid);
 	}
@@ -135,14 +131,14 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(uid, "Uid is required.");
 		LOG.debug("Delete object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
 
-		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
+		ConnectorFacade conn = facadeFactory.getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
 			objectClassConnId = ObjectClass.ACCOUNT;
 		}
 
-		conn.delete(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid), null);
+		conn.delete(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid), new OperationOptions(connectorConfiguration.getSystemOperationOptions()));
 		LOG.debug("Deleted object - ConnId ({}) Uid= {}", connectorInstance.getConnectorKey().toString(), uid);
 	}
 
@@ -155,14 +151,15 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(uid, "Uid is required.");
 		LOG.debug("Read object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
 
-		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
+		ConnectorFacade conn = facadeFactory.getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
 			objectClassConnId = ObjectClass.ACCOUNT;
 		}
 
-		ConnectorObject connObject = conn.getObject(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid), null);
+		ConnectorObject connObject = conn.getObject(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid),
+				new OperationOptions(connectorConfiguration.getSystemOperationOptions()));
 		LOG.debug("Readed object - ConnId ({}) Uid= {}", connObject, uid);
 		return ConnIdIcConvertUtil.convertConnIdConnectorObject(connObject);
 	}
@@ -176,7 +173,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(username, "Username is required.");
 		LOG.debug("Authenticate object - ConnId (username= {} {})", username, connectorInstance.getConnectorKey().toString());
 
-		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
+		ConnectorFacade conn = facadeFactory.getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
@@ -184,7 +181,8 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		}
 		try {
 			IcUidAttribute uid = ConnIdIcConvertUtil.convertConnIdUid(conn.authenticate(objectClassConnId, username,
-					new org.identityconnectors.common.security.GuardedString(password.asString().toCharArray()), null));
+					new org.identityconnectors.common.security.GuardedString(password.asString().toCharArray()),
+					new OperationOptions(connectorConfiguration.getSystemOperationOptions())));
 			LOG.debug("Authenticated object - ConnId (Uid= {})", uid);
 			return uid;
 		} catch (InvalidCredentialException ex) {
@@ -203,7 +201,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(handler, "Handler is required.");
 		LOG.debug("Start synchronization for connector {} and objectClass {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName());
 		
-		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
+		ConnectorFacade conn = facadeFactory.getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
@@ -220,14 +218,14 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 			}
 		};
 		
-		SyncToken resultToken =  conn.sync(objectClassConnId, syncToken, handlerConnId, null);
+		SyncToken resultToken =  conn.sync(objectClassConnId, syncToken, handlerConnId, new OperationOptions(connectorConfiguration.getSystemOperationOptions()));
 		return ConnIdIcConvertUtil.convertConnIdSyncToken(resultToken);
 
 	}
-	
+
 	@Override
 	public void search(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
-			IcObjectClass objectClass, IcFilter filter, IcResultsHandler handler){
+			IcObjectClass objectClass, IcFilter filter, IcResultsHandler handler) {
 		Assert.notNull(connectorInstance, "Connector instance is required.");
 		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
 		Assert.notNull(connectorConfiguration, "Configuration is required.");
@@ -235,7 +233,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(handler, "Handler is required.");
 		
 		LOG.debug("Start search for connector {} and objectClass {} and filter {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName(), filter);
-		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
+		ConnectorFacade conn = facadeFactory.getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
@@ -257,14 +255,8 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 			}
 		};
 		Filter filterConnId = ConnIdIcConvertUtil.convertIcFilter(filter);
-		
-		// For pagination - TODO
-		Map<String, Object> searchOpt = new HashMap<String, Object>();
-	    searchOpt.put(OperationOptions.OP_PAGE_SIZE, 100);
-	    searchOpt.put(OperationOptions.OP_PAGED_RESULTS_OFFSET, 1);
-	    OperationOptions searchOptions = new OperationOptions(searchOpt);
 	    	
-		this.pageSearch(conn, objectClassConnId, filterConnId, handlerConnId, searchOptions);
+		this.pageSearch(conn, objectClassConnId, filterConnId, handlerConnId, new OperationOptions(connectorConfiguration.getSystemOperationOptions()));
 	}
 	
 	private void pageSearch(ConnectorFacade conn, ObjectClass objectClass, Filter filter,
@@ -281,22 +273,6 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 				this.pageSearch(conn, objectClass, filter, handler, options);
 			}
 		}
-	}
-
-	private ConnectorFacade getConnectorFacade(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(connectorInstance.getConnectorKey(), "Connector key is required.");
-		Assert.notNull(connectorConfiguration, "Configuration is required.");
-		ConnectorInfo connIdInfo = configurationServiceConnId.getConnIdConnectorInfo(connectorInstance);
-		Assert.notNull(connIdInfo, "ConnId connector info not found!");
-		APIConfiguration config = connIdInfo.createDefaultAPIConfiguration();
-		Assert.notNull(config.getConfigurationProperties(), "ConnId connector configuration properties not found!");
-		config = ConnIdIcConvertUtil.convertIcConnectorConfiguration(connectorConfiguration, config);
-		// Use the ConnectorFacadeFactory's newInstance() method to get a new
-		// connector.
-		ConnectorFacade conn = ConnectorFacadeFactory.getManagedInstance().newInstance(config);
-		// Make sure we have set up the Configuration properly
-		conn.validate();
-		return conn;
 	}
 
 	@Override

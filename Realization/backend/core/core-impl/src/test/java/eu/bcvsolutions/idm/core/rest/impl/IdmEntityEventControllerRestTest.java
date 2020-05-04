@@ -100,6 +100,18 @@ public class IdmEntityEventControllerRestTest extends AbstractReadWriteDtoContro
 		} else {
 			Assert.assertEquals(0, results.size()); // not found on mssql
 		}
+		//
+		parameters.set("text", ownerOne.toString());
+		parameters.set("ownerType", ownerTypeOne);
+		results = find(parameters);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(eventOne.getId())));
+		//
+		parameters.set("text", eventOne.getId().toString());
+		parameters.set("ownerType", ownerTypeOne);
+		results = find(parameters);
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(s -> s.getId().equals(eventOne.getId())));
 	}
 
 	@Test

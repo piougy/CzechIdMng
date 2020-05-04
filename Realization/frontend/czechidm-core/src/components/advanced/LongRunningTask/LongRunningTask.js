@@ -11,10 +11,8 @@ import ProgressBar from '../ProgressBar/ProgressBar';
 import * as Utils from '../../../utils';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
 import { LongRunningTaskManager, ConfigurationManager, SecurityManager } from '../../../redux';
-import { AttachmentService } from '../../../services';
 
 const manager = new LongRunningTaskManager();
-const attachmentService = new AttachmentService();
 
 /**
  * Long running task detail - progress bar.
@@ -54,7 +52,7 @@ class LongRunningTask extends Basic.AbstractContent {
       this.safelyClearInterval();
     }
 
-    this.context.store.dispatch(manager.fetchEntity(identifier, null, (task) => {
+    this.context.store.dispatch(manager.autocompleteEntity(identifier, null, (task) => {
       if (task && OperationStateEnum.findSymbolByKey(task.resultState) !== OperationStateEnum.RUNNING) {
         this.safelyClearInterval();
         if (onComplete) {
@@ -92,7 +90,7 @@ class LongRunningTask extends Basic.AbstractContent {
       const uiKey = manager.resolveUiKey(null, entityIdentifier);
       if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
           && !Utils.Ui.getError(this.context.store.getState(), uiKey)) { // show loading check has to be here - new state is needed
-        this.context.store.dispatch(manager.fetchEntity(entityIdentifier, null, (task) => {
+        this.context.store.dispatch(manager.autocompleteEntity(entityIdentifier, null, (task) => {
           this.setRefresh(task);
         }));
       }
@@ -133,7 +131,7 @@ class LongRunningTask extends Basic.AbstractContent {
    * Shows modal detail with given entity
    */
   showDetail(entity) {
-    this.context.history.push(`/scheduler/all-tasks/${encodeURIComponent(entity.id)}/detail`);
+    this.context.history.push(`/scheduler/all-tasks/${ encodeURIComponent(entity.id) }/detail`);
   }
 
   setRefresh(task) {
@@ -188,7 +186,7 @@ class LongRunningTask extends Basic.AbstractContent {
     );
   }
 
-  _getInfoComponent(value) {
+  _renderInfoComponent(value) {
     if (!value) {
       return null;
     }
@@ -200,13 +198,12 @@ class LongRunningTask extends Basic.AbstractContent {
       }
 
       return (
-        <div style={{ marginTop: '15px', marginLeft: '30px' }}>
-          <EntityInfo
-            entityType={Utils.Ui.getSimpleJavaType(parameters.ownerType)}
-            entityIdentifier={parameters.ownerId}
-            showDefaultEntityInfo={false}
-            face="full" />
-        </div>
+        <EntityInfo
+          entityType={ Utils.Ui.getSimpleJavaType(parameters.ownerType) }
+          entityIdentifier={ parameters.ownerId }
+          showDefaultEntityInfo={ false }
+          face="full"
+          style={{ maxWidth: '100%', marginTop: 15, marginBottom: 0 }}/>
       );
     }
     return null;
@@ -240,8 +237,8 @@ class LongRunningTask extends Basic.AbstractContent {
           {
             !showProperties
             ||
-            <div>
-              <div><strong>{ this.i18n('entity.LongRunningTask.taskProperties.label') }</strong></div>
+            <Basic.Div>
+              <Basic.Div><strong>{ this.i18n('entity.LongRunningTask.taskProperties.label') }</strong></Basic.Div>
               {
                 _.keys(_entity.taskProperties)
                   .map(propertyName => {
@@ -261,7 +258,7 @@ class LongRunningTask extends Basic.AbstractContent {
                   .filter(v => v !== null)
                   .join(', ')
               }
-            </div>
+            </Basic.Div>
           }
           <ProgressBar
             style={{ marginTop: 15, marginBottom: 0 }}
@@ -280,37 +277,37 @@ class LongRunningTask extends Basic.AbstractContent {
                 bsStyle: 'success'
               }]
             }/>
-          { this._getInfoComponent(_entity ? _entity.result : null)}
+          { this._renderInfoComponent(_entity ? _entity.result : null)}
         </Basic.PanelBody>
         <Basic.PanelFooter>
           { footerButtons }
           <Basic.Button
-            onClick={this.onInterrupt.bind(this, _entity)}
+            onClick={ this.onInterrupt.bind(this, _entity) }
             level="danger"
             style={{ marginRight: 5 }}
-            rendered={_entity.instanceId === instanceId && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE']) && active}
-            disabled={_showLoading}
+            rendered={ _entity.instanceId === instanceId && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE']) && active }
+            disabled={ _showLoading }
             icon="fa:bolt">
-            {this.i18n('button.interrupt')}
+            { this.i18n('button.interrupt') }
           </Basic.Button>
           <Basic.Button
             level="warning"
-            onClick={this.onCancel.bind(this, _entity)}
+            onClick={ this.onCancel.bind(this, _entity) }
             style={{ marginRight: 5 }}
-            rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE']) && active}
+            rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE']) && active }
             disabled={_showLoading}>
-            {this.i18n('button.cancel')}
+            { this.i18n('button.cancel') }
           </Basic.Button>
           <OperationResultDownloadButton
-            operationResult={_entity ? _entity.result : null}
+            operationResult={ _entity ? _entity.result : null }
             style={{ marginRight: 5 }}
             btnSize=""
           />
           <Basic.Button
-            title={this.i18n('button.detail')}
-            onClick={this.showDetail.bind(this, _entity)}
-            rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_READ'])}>
-            {this.i18n('button.detail')}
+            title={ this.i18n('button.detail') }
+            onClick={ this.showDetail.bind(this, _entity) }
+            rendered={ SecurityManager.hasAnyAuthority(['SCHEDULER_READ']) }>
+            { this.i18n('button.detail') }
           </Basic.Button>
         </Basic.PanelFooter>
       </Basic.Panel>

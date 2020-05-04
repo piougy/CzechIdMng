@@ -54,12 +54,15 @@ const DATE = 'date';
  * @type {Array}
  */
 const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
-'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'weakPass',
-'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
-'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName',
-'passwordSimilarLastName', 'maxHistorySimilar',
-'passwordSimilarUsernamePreValidate', 'passwordSimilarEmailPreValidate',
-'passwordSimilarFirstNamePreValidate', 'passwordSimilarLastNamePreValidate'];
+  'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'weakPass',
+  'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
+  'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName',
+  'passwordSimilarLastName', 'passwordSimilarTitlesAfter',
+  'passwordSimilarTitlesBefore', 'passwordSimilarExternalCode', 'maxHistorySimilar',
+  'passwordSimilarUsernamePreValidate', 'passwordSimilarEmailPreValidate',
+  'passwordSimilarFirstNamePreValidate', 'passwordSimilarLastNamePreValidate',
+  'passwordSimilarTitlesAfterPreValidate', 'passwordSimilarTitlesBeforePreValidate',
+  'passwordSimilarExternalCodePreValidate'];
 
 /**
  * @author Ondřej Kopr
@@ -197,7 +200,8 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
           }
           rules.push(this._pointList(rule));
           // to merge - pwd must not be similar to name, mail, username
-        } else if (key === 'passwordSimilarUsernamePreValidate' || key === 'passwordSimilarEmailPreValidate' || key === 'passwordSimilarFirstNamePreValidate' || key === 'passwordSimilarLastNamePreValidate') {
+        } else if (key === 'passwordSimilarUsernamePreValidate' || key === 'passwordSimilarEmailPreValidate' || key === 'passwordSimilarFirstNamePreValidate' || key === 'passwordSimilarLastNamePreValidate' ||
+          key === 'passwordSimilarTitlesBeforePreValidate' || key === 'passwordSimilarTitlesAfterPreValidate' || key === 'passwordSimilarExternalCodePreValidate') {
           similar.push(this.i18n('content.passwordPolicies.validation.' + key));
         } else if ( key !== MIN_RULES_TO_FULFILL_COUNT ) {
           // other validation messages

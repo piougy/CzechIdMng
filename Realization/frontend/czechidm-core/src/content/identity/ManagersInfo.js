@@ -12,7 +12,7 @@ import SearchParameters from '../../domain/SearchParameters';
 const uiKey = 'managers-info';
 
 /**
- * Renders all managers by identity contract
+ * Renders all managers by identity contract.
  *
  * @author Radek Tomiška
  */

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.entity;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,10 +15,10 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import javax.validation.constraints.NotEmpty;
-import java.time.ZonedDateTime;
+import org.hibernate.envers.Audited;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -41,13 +42,16 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 
 	private static final long serialVersionUID = -4665452018920201474L;
 
+	@Audited
 	@NotEmpty
 	@Column(name = "task_type", length = DefaultFieldLengths.NAME, nullable = false)
 	private String taskType;
 
+	@Audited
 	@Column(name = "task_description", length = DefaultFieldLengths.DESCRIPTION)
 	private String taskDescription;
 
+	@Audited
 	@Column(name = "task_properties", length = Integer.MAX_VALUE)
 	private Serializable taskProperties;
 
@@ -57,26 +61,33 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 	@Column(name = "task_counter")
 	private Long counter;
 
+	@Audited
 	@Column(name = "running", nullable = false)
 	private boolean running = false;
 
 	@NotNull
+	@Audited
 	@Column(name = "instance_id", length = DefaultFieldLengths.NAME, nullable = false)
 	private String instanceId;
 
+	@Audited
 	@Column(name = "thread_id", nullable = false)
 	private long threadId;
 
+	@Audited
 	@Column(name = "thread_name", length = DefaultFieldLengths.NAME)
 	private String threadName;
 
+	@Audited
 	@Column(name = "task_started")
 	private ZonedDateTime taskStarted;
 
+	@Audited
 	@NotNull
 	@Embedded
 	private OperationResult result;
 
+	@Audited
 	@SuppressWarnings("deprecation")
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "scheduled_task_id",
@@ -85,12 +96,15 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmScheduledTask scheduledTask;
 
+	@Audited
 	@Column(name = "stateful", nullable = false)
 	private boolean stateful;
 	
+	@Audited
 	@Column(name = "recoverable", nullable = false)
 	private boolean recoverable;
 
+	@Audited
 	@Column(name = "dry_run", nullable = false)
 	private boolean dryRun;
 

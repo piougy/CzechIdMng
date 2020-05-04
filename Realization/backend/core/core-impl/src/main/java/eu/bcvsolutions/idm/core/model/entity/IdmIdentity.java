@@ -115,7 +115,7 @@ public class IdmIdentity
 	@OneToMany(mappedBy = "identity")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmIdentityContract> contracts; // only for hibernate mapping - we dont want lazy lists
+	private List<IdmIdentityContract> contracts; // only for hibernate mapping - we don't want lazy lists
 	
 	@Audited
 	@NotNull

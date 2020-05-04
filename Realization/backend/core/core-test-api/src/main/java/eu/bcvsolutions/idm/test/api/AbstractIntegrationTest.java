@@ -178,4 +178,13 @@ public abstract class AbstractIntegrationTest {
 	protected TestHelper getHelper() {
 		return helper;
 	}
+	
+	/**
+	 * Provides lookup service
+	 * 
+	 * @return
+	 */
+	protected LookupService getLookupService() {
+		return lookupService;
+	}
 }

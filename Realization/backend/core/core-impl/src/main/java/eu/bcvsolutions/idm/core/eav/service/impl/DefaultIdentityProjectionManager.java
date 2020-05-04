@@ -11,7 +11,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -39,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionManager;
 import eu.bcvsolutions.idm.core.eav.api.service.IdentityProjectionManager;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
@@ -57,13 +57,13 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * 
  * @author Radek Tomiška
  * @since 10.2.0
+ * @see FormProjectionManager
  */
 public class DefaultIdentityProjectionManager implements IdentityProjectionManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdentityProjectionManager.class);
 	//
 	@Autowired private IdmIdentityService identityService;
-	@Autowired private PrivateIdentityConfiguration identityConfiguration;
 	@Autowired private IdmIdentityContractService contractService;
 	@Autowired private IdmContractPositionService contractPositionService;
 	@Autowired private IdmRoleRequestService roleRequestService;
@@ -354,22 +354,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		context.setAddEavMetadata(Boolean.TRUE);
 		context.setAddPermissions(true);
 		// evaluate access / load eavs
-		identity = identityService.get(
-				identity, 
-				context, 
-				identityConfiguration.isFormAttributesSecured() ? permission : null
-		);
-		if (!identityConfiguration.isFormAttributesSecured() && !PermissionUtils.isEmpty(permission)) {
-			try {
-				identityService.checkAccess(identity, IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			} catch (ForbiddenEntityException ex) {
-				identity.getEavs().forEach(formInstance -> {
-					formInstance.getFormDefinition().getFormAttributes().forEach(formAttribute -> {
-						formAttribute.setReadonly(true);
-					});
-				});
-			}
-		}
+		identity = identityService.get(identity, context, permission);
 		//
 		return identity;
 	}

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import EntityUtils from './EntityUtils';
 
 /**
- * Helper methods for ui state
+ * Helper methods for ui state.
  *
  * @author Radek Tomiška
  */
@@ -238,10 +238,10 @@ export default class UiUtils {
       return result;
     }
     //
-    data = data + cutChar;
+    data += cutChar;
     let result = data.replace(/<(?:.|\n)*?>/gm, '').substr(0, maxLength);
     result = result.substr(0, Math.min(result.length, result.lastIndexOf(cutChar)));
-    result = result + suffix;
+    result += suffix;
     return result;
   }
 
@@ -415,9 +415,9 @@ export default class UiUtils {
         .join(', ');
     }
     if (_.isObject(objectValue)) {
-      return JSON.stringify(objectValue);
+      return JSON.stringify(objectValue, null, 2);
     }
-    return objectValue + '';
+    return `${ objectValue }`;
   }
 
   /**

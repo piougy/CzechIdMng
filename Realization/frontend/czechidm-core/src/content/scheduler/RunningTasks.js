@@ -49,7 +49,8 @@ class RunningTasks extends Basic.AbstractContent {
       .setFilter('running', true)
       .setFilter('stateful', true)
       .setFilter('creatorId', creatorId)
-      .setSort('created', 'desc');
+      .setSort('created', 'desc')
+      .setSize(10000);
     this.context.store.dispatch(this.getManager().fetchEntities(forceSearchParameters, uiKey));
   }
 

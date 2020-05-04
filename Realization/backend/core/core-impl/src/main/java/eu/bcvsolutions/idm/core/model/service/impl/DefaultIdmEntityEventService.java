@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent_;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
@@ -150,12 +152,24 @@ public class DefaultIdmEntityEventService
 		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
 		//
 		// "fulltext"
-		if (StringUtils.isNotEmpty(filter.getText())) {
-			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmEntityEvent_.ownerType)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmEntityEvent_.ownerId).as(String.class)), "%" + filter.getText().toLowerCase() + "%"),
-					builder.like(builder.lower(root.get(IdmEntityEvent_.id).as(String.class)), "%" + filter.getText().toLowerCase() + "%"))
-					);
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			List<Predicate> textPredicates = new ArrayList<>(5);
+			//
+			text = text.toLowerCase();
+			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityEvent_.ownerType)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityEvent_.ownerId).as(String.class)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityEvent_.id).as(String.class)), "%" + text + "%"));
+			// try to add filter by uuid
+			try {
+				UUID uuid = DtoUtils.toUuid(text);
+				//
+				textPredicates.add(builder.equal(root.get(IdmEntityEvent_.ownerId), uuid));
+				textPredicates.add(builder.equal(root.get(IdmEntityEvent_.id), uuid));
+			} catch (ClassCastException ex) {
+				LOG.trace("Given text filter [{}] is not UUID, like filter will be applied only.", text);
+			}
+			predicates.add(builder.or(textPredicates.toArray(new Predicate[textPredicates.size()])));
 		}
 		// owner type
 		if (StringUtils.isNotEmpty(filter.getOwnerType())) {

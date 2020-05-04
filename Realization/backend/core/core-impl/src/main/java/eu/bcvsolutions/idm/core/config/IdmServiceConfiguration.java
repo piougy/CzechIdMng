@@ -6,6 +6,7 @@ import java.util.concurrent.Executor;
 import javax.persistence.EntityManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -62,6 +63,7 @@ import eu.bcvsolutions.idm.core.config.domain.DefaultRoleConfiguration;
 import eu.bcvsolutions.idm.core.config.domain.DefaultTreeConfiguration;
 import eu.bcvsolutions.idm.core.eav.api.service.CodeListManager;
 import eu.bcvsolutions.idm.core.eav.api.service.CommonFormService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionManager;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdentityProjectionManager;
@@ -78,6 +80,7 @@ import eu.bcvsolutions.idm.core.eav.repository.IdmFormProjectionRepository;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormRepository;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCodeListManager;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultCommonFormService;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormProjectionManager;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdentityProjectionManager;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmCodeListItemService;
@@ -150,6 +153,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultLookupService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
 import eu.bcvsolutions.idm.core.model.service.impl.LogbackLoggerManager;
 import eu.bcvsolutions.idm.core.model.service.thin.DefaultIdmIdentityRoleThinService;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
@@ -187,6 +191,7 @@ public class IdmServiceConfiguration {
 	// Spring environment
 	@Autowired private ConfigurableEnvironment environment;
 	@Autowired private ApplicationContext context;
+	@Qualifier(SchedulerConfiguration.TASK_EXECUTOR_NAME)
 	@Autowired private Executor executor;
 	@Autowired private EntityManager entityManager;
 	//
@@ -567,6 +572,18 @@ public class IdmServiceConfiguration {
 				identityRepository, 
 				formService(),
 				entityEventManager());
+	}
+	
+	/**
+	 * Common form projection manager.
+	 * 
+	 * @return manager
+	 * @since 10.3.0
+	 */
+	@Bean
+	@ConditionalOnMissingBean(FormProjectionManager.class)
+	public FormProjectionManager formProjectionManager() {
+		return new DefaultFormProjectionManager();
 	}
 	
 	/**

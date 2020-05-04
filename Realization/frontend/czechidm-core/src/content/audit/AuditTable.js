@@ -22,7 +22,10 @@ export class AuditTable extends Advanced.AbstractTableContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      transactionId: this._getTransactionId(props._searchParameters)
+      transactionId: this._getTransactionId(props._searchParameters),
+      entityType: props._searchParameters && props._searchParameters.getFilters().has('type')
+        ? props._searchParameters.getFilters().get('type')
+        : null
     };
   }
 
@@ -72,6 +75,12 @@ export class AuditTable extends Advanced.AbstractTableContent {
     }
   }
 
+  onEntityTypeChange(entityType) {
+    this.setState({
+      entityType: entityType ? entityType.value : null
+    });
+  }
+
   /**
   * Method get last string of split string by dot.
   * Used for get niceLabel for type entity.
@@ -102,6 +111,7 @@ export class AuditTable extends Advanced.AbstractTableContent {
 
   _getAdvancedFilter(auditedEntities, columns) {
     const { showTransactionId, forceSearchParameters } = this.props;
+    const { entityType } = this.state;
     let _showTransactionId = showTransactionId;
     if (forceSearchParameters && forceSearchParameters.getFilters().has('transactionId')) {
       _showTransactionId = false;
@@ -124,13 +134,14 @@ export class AuditTable extends Advanced.AbstractTableContent {
                 ref="type"
                 searchable
                 placeholder={this.i18n('entity.Audit.type')}
-                options={ auditedEntities }/>
+                options={ auditedEntities }
+                onChange={ this.onEntityTypeChange.bind(this) }/>
             </Basic.Col>
             <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'modification') }>
               <Advanced.Filter.EnumSelectBox
                 ref="modification"
-                placeholder={this.i18n('entity.Audit.modification')}
-                enum={AuditModificationEnum}/>
+                placeholder={ this.i18n('entity.Audit.modification') }
+                enum={ AuditModificationEnum }/>
             </Basic.Col>
             <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'modifier') }>
               <Advanced.Filter.TextField
@@ -144,7 +155,8 @@ export class AuditTable extends Advanced.AbstractTableContent {
             <Basic.Col lg={ 4 } rendered={ _.includes(columns, 'entityId') }>
               <Advanced.Filter.TextField
                 ref="entityId"
-                placeholder={ this.i18n('entity.Audit.entityId') }/>
+                placeholder={ entityType ? this.i18n('filter.entityId.codeable') : this.i18n('filter.entityId.placeholder') }
+                help={ this.i18n('filter.entityId.help') }/>
             </Basic.Col>
             <Basic.Col lg={ !_showTransactionId ? 8 : 4 } rendered={ _.includes(columns, 'changedAttributes') }>
               <Advanced.Filter.CreatableSelectBox

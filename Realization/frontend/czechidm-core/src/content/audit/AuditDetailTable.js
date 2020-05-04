@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Utils from '../../utils';
 import { AuditManager } from '../../redux';
 
 const auditManager = new AuditManager();
@@ -14,14 +15,9 @@ const MOD_ADD = 'ADD';
 * Table for detail audits
 *
 * @author Ondřej Kopr
+* @author Radek Tomiška
 */
 export class AuditDetailTable extends Basic.AbstractContent {
-
-  componentDidMount() {
-  }
-
-  componentWillUnmount() {
-  }
 
   getContentKey() {
     return 'content.audit';
@@ -33,7 +29,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
    * @param entityId id of revision
    */
   showDetail(entityId) {
-    this.context.history.push(`/audit/entities/${entityId}`);
+    this.context.history.push(`/audit/entities/${ entityId }`);
   }
 
   _getForceSearchParameters() {
@@ -54,12 +50,12 @@ export class AuditDetailTable extends Basic.AbstractContent {
           for (const keySec in revisionValues[key]) {
             if (revisionValues[key].hasOwnProperty(keySec)) {
               const row = {
-                'key': keySec,
-                'value': revisionValues[key][keySec]
+                key: keySec,
+                value: revisionValues[key][keySec]
               };
               transformData[index] = row;
 
-              index++;
+              index += 1;
             }
           }
         } else {
@@ -69,7 +65,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
           };
           transformData[index] = row;
 
-          index++;
+          index += 1;
         }
       }
     }
@@ -86,7 +82,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
     const transformData = this._prepareData(detail.revisionValues);
 
     return (
-      <div className={weight}>
+      <Basic.Div className={ weight }>
         <Basic.Table
           showLoading={showLoading}
           data={transformData}
@@ -95,6 +91,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
             if (diffValues && diffValues[data[rowIndex].key] !== undefined) {
               return diffRowClass;
             }
+            return null;
           }}>
           <Basic.Column
             property="key"
@@ -108,14 +105,17 @@ export class AuditDetailTable extends Basic.AbstractContent {
                 const propertyName = rowData.key;
                 const propertyValue = rowData.value;
                 //
-                if (typeof propertyValue === 'boolean') {
-                  return propertyValue ? 'true' : 'false'; // TODO? localized?
-                } else if (propertyValue === null) {
-                  return 'null';
+                if (propertyValue === null) {
+                  return Utils.Ui.toStringValue(null);
                 }
-                // reserver audit constants
-                if ((propertyName === 'modifier' || propertyName === 'creator' || propertyName === 'originalModifier' || propertyName === 'originalCreator')
-                    && propertyValue !== '[SYSTEM]' && propertyValue !== '[GUEST]') {
+                //
+                // reserved audit constants
+                if ((propertyName === 'modifier'
+                      || propertyName === 'creator'
+                      || propertyName === 'originalModifier'
+                      || propertyName === 'originalCreator')
+                    && propertyValue !== '[SYSTEM]'
+                    && propertyValue !== '[GUEST]') {
                   return (
                     <Advanced.EntityInfo entityType="identity" entityIdentifier={ propertyValue } face="popover" />
                   );
@@ -126,12 +126,12 @@ export class AuditDetailTable extends Basic.AbstractContent {
                   );
                 }
                 return (
-                  <span>{ propertyValue }</span>
+                  <span>{ Utils.Ui.toStringValue(propertyValue) }</span>
                 );
               }
             }/>
         </Basic.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

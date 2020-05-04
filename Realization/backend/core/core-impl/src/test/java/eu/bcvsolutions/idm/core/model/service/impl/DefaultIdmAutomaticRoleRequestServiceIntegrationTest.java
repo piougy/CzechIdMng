@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleAttributeRuleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
@@ -44,6 +45,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -94,6 +96,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired
 	private WorkflowTaskInstanceService workflowTaskInstanceService;
+	@Autowired
+	private IdmTreeNodeService treeNodeService;
 
 	private static final String APPROVE_ROLE_BY_GUARANTEE_KEY = "approve-role-by-guarantee";
 	private static final int APPROVE_ROLE_BY_GUARANTEE_PRIORITY = 100;
@@ -498,6 +502,36 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 			return;
 		}
 		fail("Automatic role request have to be approving by gurantee!");
+	}
+	
+	
+	@Test
+	public void testAutomaticRoleRequestReferentialIntegrity () {
+		IdmRoleDto role = prepareRole();
+		IdmTreeNodeDto nodeOne = helper.createTreeNode();
+		IdmIdentityDto guaranteeIdentity = helper.createIdentity();
+		getHelper().createRoleGuarantee(role, guaranteeIdentity);
+		
+		// Creates automatic role assigned to tree node and then delete them
+		// in order to be able to delete tree node.
+		IdmRoleTreeNodeDto automaticRole = new IdmRoleTreeNodeDto();
+		automaticRole.setRole(role.getId());
+		automaticRole.setName(role.getCode());
+		automaticRole.setTreeNode(nodeOne.getId());
+		automaticRole = automaticRoleManager.createAutomaticRoleByTree(automaticRole, true);
+		Assert.assertNotNull(automaticRole.getId());
+		automaticRoleManager.deleteAutomaticRole(automaticRole, true);
+		
+		// Check existence of some requests for roles previously assigned to tree node 
+		IdmAutomaticRoleRequestFilter requestFilter = new IdmAutomaticRoleRequestFilter();
+		requestFilter.setTreeNodeId(nodeOne.getId());
+		List<IdmAutomaticRoleRequestDto> requestDtos = roleRequestService.find(requestFilter,null).getContent();
+		Assert.assertTrue(requestDtos.size() > 0);
+		// Try to delete node 
+		treeNodeService.delete(nodeOne);
+		// Check that requests have removed reference to deleted tree node
+		requestDtos = roleRequestService.find(requestFilter,null).getContent();
+		Assert.assertEquals(requestDtos.size(), 0);
 	}
 
 	@Test(expected = RoleRequestException.class)

@@ -44,7 +44,22 @@ public class GuaranteeManagersFilterBuilderIntegrationTest extends AbstractWorki
 		List<IdmIdentity> managers = builder.find(filter, null).getContent();
 		assertTrue(contains(managers, guaranteeThree));
 		assertTrue(contains(managers, guaranteeFour));
+		assertTrue(contains(managers, guaranteeFive));
+		assertEquals(3, managers.size());
+		//
+		filter = new IdmIdentityFilter();
+		filter.setManagersFor(subordinateOne.getId());
+		filter.setIncludeGuarantees(true);
+		filter.setValidContractManagers(Boolean.TRUE);
+		managers = builder.find(filter, null).getContent();
+		assertTrue(contains(managers, guaranteeThree));
+		assertTrue(contains(managers, guaranteeFour));
 		assertEquals(2, managers.size());
+		//
+		filter.setValidContractManagers(Boolean.FALSE);
+		managers = builder.find(filter, null).getContent();
+		assertTrue(contains(managers, guaranteeFive));
+		assertEquals(1, managers.size());
 		//
 		// find contract managers
 		filter = new IdmIdentityFilter();

@@ -20,9 +20,14 @@ class AutomaticRoleAttributeRuleContent extends Basic.AbstractContent {
     return 'content.automaticRoles.attribute.rule';
   }
 
+  getNavigationKey() {
+    // FIXME: path is lost => automatic roles menu by default
+    return 'automatic-roles';
+  }
+
   componentDidMount() {
+    super.componentDidMount();
     const { ruleId, entityId } = this.props.match.params;
-    this.selectNavigationItems(['roles-menu', 'automatic-roles']);
 
     if (this._getIsNew()) {
       this.context.store.dispatch(manager.receiveEntity(ruleId, { }));

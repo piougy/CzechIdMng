@@ -10,6 +10,24 @@
 
 	<build>
 		<plugins>
+		    <plugin>
+				<groupId>org.bsc.maven</groupId>
+				<artifactId>maven-processor-plugin</artifactId>
+				<version>3.3.3</version>
+				<executions>
+					<execution>
+						<id>process</id>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<!-- source output directory -->
+							<outputDirectory>target/metamodel</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
@@ -58,7 +76,7 @@
 						</goals>
 						<phase>generate-resources</phase>
 						<configuration>
-							<arguments>build -p default -s production --max_old_space_size=8192 --max-old-space-size=8192 -max-old-space-size=8192</arguments>
+							<arguments>build -p default -s production --max_old_space_size=16384 --max-old-space-size=16384 -max-old-space-size=16384</arguments>
 							<workingDirectory>./frontend/fe-sources</workingDirectory>
 							<installDirectory>${node.home}</installDirectory>
 						</configuration>

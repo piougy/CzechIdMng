@@ -22,14 +22,14 @@ class ExampleProductRoute extends Basic.AbstractContent {
 
   render() {
     const { entity, showLoading } = this.props;
-
+    //
     return (
       <Basic.Div>
         <Advanced.DetailHeader
           showLoading={ showLoading }
           icon="link"
           entity={ entity }
-          to="/example/products">
+          back="/example/products">
           { this.i18n('example:content.example-product.detail.edit.header', { name: manager.getNiceLabel(entity), escape: false }) }
         </Advanced.DetailHeader>
 

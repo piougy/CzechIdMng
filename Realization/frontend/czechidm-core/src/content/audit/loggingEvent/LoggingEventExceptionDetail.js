@@ -104,7 +104,7 @@ class LoggingEventExceptionDetail extends Basic.AbstractContent {
           backdrop="static"
           keyboard={!showLoading}>
 
-          <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('exception.header')}/>
+          <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('exceptions')}/>
           <Basic.Modal.Body>
             <Basic.ScriptArea
               showMaximalizationBtn={false}

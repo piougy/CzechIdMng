@@ -286,8 +286,9 @@ class AbstractFormComponent extends AbstractContextComponent {
    * Help icon in label
    */
   renderHelpIcon() {
+    // FIXME: layout has wrong padding => use flexbox instead
     return (
-      <HelpIcon content={this.props.help} style={{ marginLeft: '3px' }}/>
+      <HelpIcon content={ this.props.help } style={{ marginLeft: 1 }}/>
     );
   }
 

@@ -112,44 +112,30 @@ public class PasswordGenerator {
 		String prohibited = policy.getProhibitedCharacters();
 		
 		// set bases for generating
-		String lowerBase = policy.getLowerCharBase();
-		String upperBase = policy.getUpperCharBase();
-		String specialBase = policy.getSpecialCharBase();
-		String numberBase = policy.getNumberBase();
+		String lowerBase = removeProhibited(policy.getLowerCharBase(), prohibited);
+		String upperBase = removeProhibited(policy.getUpperCharBase(), prohibited);
+		String specialBase = removeProhibited(policy.getSpecialCharBase(), prohibited);
+		String numberBase = removeProhibited(policy.getNumberBase(), prohibited);
+		base.append(lowerBase).append(upperBase).append(specialBase).append(numberBase);
 		
 		// generate minimal requirements
 		if (policy.getMinLowerChar() != null && policy.getMinLowerChar() != 0) {
-			String lower = removeProhibited(lowerBase, prohibited);
-			password.append(getRandomChars(lower, policy.getMinLowerChar(), null));
-			base.append(lower);
+			password.append(getRandomChars(lowerBase, policy.getMinLowerChar(), null));
 		}
 		if (policy.getMinUpperChar() != null && policy.getMinUpperChar() != 0) {
-			String upper = removeProhibited(upperBase, prohibited);
-			password.append(getRandomChars(upper, policy.getMinUpperChar(), null));
-			base.append(upper);
+			password.append(getRandomChars(upperBase, policy.getMinUpperChar(), null));
 		}
 		if (policy.getMinSpecialChar() != null && policy.getMinSpecialChar() != 0) {
-			String special = removeProhibited(specialBase, prohibited);
-			password.append(getRandomChars(special, policy.getMinSpecialChar(), prohibited));
-			base.append(special);
+			password.append(getRandomChars(specialBase, policy.getMinSpecialChar(), null));
 		}
 		if (policy.getMinNumber() != null && policy.getMinNumber() != 0) {
-			String number = removeProhibited(numberBase, prohibited);
-			password.append(getRandomChars(number, policy.getMinNumber(), prohibited));
-			base.append(number);
+			password.append(getRandomChars(numberBase, policy.getMinNumber(), null));
 		}
 		
 		// add final string to password 
 		int missingLength = getRandomNumber(minimumLength - password.length(), maximumLength - password.length());
 		if (missingLength > 0) {
-			if (base.length() == 0) {
-				base.append(policy.getLowerCharBase());
-				base.append(policy.getUpperCharBase());
-				base.append(policy.getSpecialCharBase());
-				base.append(policy.getNumberBase());
-				base = new StringBuilder(removeProhibited(base.toString(), policy.getProhibitedCharacters()));
-			}
-			password.append(getRandomChars(shuffle(base).toString(), missingLength, policy.getProhibitedCharacters()));
+			password.append(getRandomChars(shuffle(base).toString(), missingLength, null));
 		}
 		
 		return shuffle(password).toString();

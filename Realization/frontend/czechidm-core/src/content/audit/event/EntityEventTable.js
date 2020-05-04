@@ -30,7 +30,10 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
         show: false,
         entity: {},
         message: null
-      }
+      },
+      entityType: props._searchParameters && props._searchParameters.getFilters().has('ownerType')
+        ? props._searchParameters.getFilters().get('ownerType')
+        : null
     };
   }
 
@@ -64,6 +67,12 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs.table.cancelFilter(this.refs.filterForm);
+  }
+
+  onEntityTypeChange(entityType) {
+    this.setState({
+      entityType: entityType ? entityType.value : null
+    });
   }
 
   _refreshDetail() {
@@ -134,7 +143,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
       showTransactionId,
       auditedEntities
     } = this.props;
-    const { filterOpened, detail } = this.state;
+    const { filterOpened, detail, entityType } = this.state;
     //
     if (!rendered) {
       return null;
@@ -148,7 +157,7 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-deleteAll" level="danger"/>
 
         <Advanced.Table
@@ -210,12 +219,14 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
                       ref="ownerType"
                       searchable
                       placeholder={this.i18n('filter.ownerType.placeholder')}
-                      options={ auditedEntities }/>
+                      options={ auditedEntities }
+                      onChange={ this.onEntityTypeChange.bind(this) }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="ownerId"
-                      placeholder={ this.i18n('filter.ownerId.placeholder') }/>
+                      placeholder={ entityType ? this.i18n('filter.entityId.codeable') : this.i18n('filter.entityId.placeholder') }
+                      help={ this.i18n('filter.entityId.help') }/>
                   </Basic.Col>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -459,12 +470,12 @@ export class EntityEventTable extends Advanced.AbstractTableContent {
           <Basic.Modal.Footer>
             <Basic.Button
               level="link"
-              onClick={this.closeDetail.bind(this)}>
-              {this.i18n('button.close')}
+              onClick={ this.closeDetail.bind(this) }>
+              { this.i18n('button.close') }
             </Basic.Button>
           </Basic.Modal.Footer>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

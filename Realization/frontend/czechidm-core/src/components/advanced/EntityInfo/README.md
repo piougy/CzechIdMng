@@ -32,7 +32,8 @@ All parameters from AbstractComponent are supported. Added parameters:
 | showLink | bool | Shows link to entity's detail | true |
 | showEntityType | bool | Shows entity type, when no entity info component is found. Set to `false` when type is rendered extrnally (e.g. in different table column) | true |
 | showIcon | bool | Shows icon for 'text', 'link', 'popover' face | false |
-
+| level | oneOf(['warning', 'success', 'info']) | Directly set level. | |
+| titleStyle | object | Custom style for main title in full mode. |  |
 
 ## Public static methods
 

@@ -5,8 +5,9 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 //
 import * as Basic from '../../basic';
-import { WorkflowHistoricProcessInstanceManager } from '../../../redux/';
+import { WorkflowHistoricProcessInstanceManager } from '../../../redux';
 import UuidInfo from '../UuidInfo/UuidInfo';
+import UiUtils from '../../../utils/UiUtils';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 
 const manager = new WorkflowHistoricProcessInstanceManager();
@@ -17,10 +18,6 @@ const manager = new WorkflowHistoricProcessInstanceManager();
  * @author Švanda
  */
 export class WorkflowProcessInfo extends AbstractEntityInfo {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -50,7 +47,7 @@ export class WorkflowProcessInfo extends AbstractEntityInfo {
    * TODO: implement different face
    */
   render() {
-    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style } = this.props;
+    const { rendered, showLoading, className, entity, entityIdentifier, _showLoading, style, maxLength } = this.props;
     //
     if (!rendered) {
       return null;
@@ -76,14 +73,15 @@ export class WorkflowProcessInfo extends AbstractEntityInfo {
       return (<UuidInfo className={ classNames } value={ entityIdentifier } style={style}/>);
     }
     //
-    const niceLabel = this.getManager().localize(_entity, 'name');
+    const niceLabelFull = this.getManager().localize(_entity, 'name');
+    const niceLabel = UiUtils.substringBegin(niceLabelFull, maxLength, ' ', '...');
     if (!this.showLink()) {
       return (
-        <span className={ classNames }>{ niceLabel }</span>
+        <span title={niceLabelFull} className={ classNames }>{ niceLabel }</span>
       );
     }
     return (
-      <Link className={ classNames } to={ this.getLink() }>{ niceLabel }</Link>
+      <Link title={niceLabelFull} className={ classNames } to={ this.getLink() }>{ niceLabel }</Link>
     );
   }
 }
@@ -109,6 +107,7 @@ WorkflowProcessInfo.defaultProps = {
   entity: null,
   face: 'link',
   _showLoading: true,
+  maxLength: 100
 };
 
 function select(state, component) {

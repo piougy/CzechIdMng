@@ -448,7 +448,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 					TriggerBuilder.newTrigger()
 						.withIdentity(Key.createUniqueName(task.getId()), task.getId())
 						.forJob(manager.getKey(task.getId()))
-						.startAt(DateUtils.addMinutes(new Date(), -100))
+						.startAt(DateUtils.addMinutes(new Date(), -10))
 				        .withSchedule(
 				        		SimpleScheduleBuilder
 				        			.simpleSchedule()
@@ -469,7 +469,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 					TriggerBuilder.newTrigger()
 						.withIdentity(Key.createUniqueName(task.getId()), task.getId())
 						.forJob(manager.getKey(task.getId()))
-						.startAt(DateUtils.addMinutes(new Date(), -100))
+						.startAt(DateUtils.addMinutes(new Date(), -10))
 				        .withSchedule(
 				        		SimpleScheduleBuilder
 					        		.simpleSchedule()
@@ -487,8 +487,8 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	
 	@Test
 	public void testMisfireHandlingSimpleTrigger() {
-		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
-		identityOne = identityService.get(identityOne);
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityOne = identityService.get(identity);
 		Assert.assertNotEquals(identityOne.getUsername(), identityOne.getLastName());
 		//
 		Task createTask = new Task();
@@ -502,12 +502,12 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		Task task = manager.getTask(taskOne.getId());
 		
 		Function<String, Boolean> continueFunction = res -> {
-			return !manager.getTask(task.getId()).getTriggers().isEmpty();
+			return !identityService.get(identity.getId()).getLastName().equals(identity.getUsername());
 		};
 		
 		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
 		trigger.setTaskId(task.getId());
-		trigger.setFireTime(ZonedDateTime.now().minusMinutes(100));
+		trigger.setFireTime(ZonedDateTime.now().minusMinutes(10));
 		
 		manager.createTrigger(task.getId(), trigger);
 		//

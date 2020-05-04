@@ -33,42 +33,41 @@ export default class RoleAutomaticRoleRoutes extends Basic.AbstractContent {
     if (isRequest) {
       return (
         <Basic.Row>
-          <div className="col-lg-6">
+          <Basic.Col lg={ 6 }>
             <Basic.Alert
               level="info"
-              title={this.i18n('content.automaticRoles.universalRequestNotSupported.title')}
-              text={this.i18n('content.automaticRoles.universalRequestNotSupported.text')}
+              title={ this.i18n('content.automaticRoles.universalRequestNotSupported.title') }
+              text={ this.i18n('content.automaticRoles.universalRequestNotSupported.text') }
               buttons={[
                 <Basic.Button
                   level="primary"
                   key="gotToRequests"
                   style={{marginLeft: '5px'}}
                   onClick={ this._gotToRequests.bind(this) }
-                  titlePlacement="bottom">
-                  <Basic.Icon icon="component:automatic-role-requests"/>
-                  {' '}
+                  titlePlacement="bottom"
+                  icon="component:automatic-role-requests">
                   { this.i18n('content.automaticRoles.universalRequestNotSupported.gotToRequests.label') }
                 </Basic.Button>
               ]}/>
-            </div>
+          </Basic.Col>
         </Basic.Row>
       );
     }
     return (
-      <div>
+      <Basic.Div>
         <Basic.ContentHeader>
           <Basic.Icon value="component:automatic-roles"/>
           {' '}
-          {this.i18n('header')}
+          { this.i18n('header') }
         </Basic.ContentHeader>
 
         <Advanced.TabPanel
           position="top"
-          parentId={'role-automatic-roles'}
+          parentId="role-automatic-roles"
           match={ this.props.match }>
-          {this.getRoutes()}
+          { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }

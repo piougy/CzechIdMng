@@ -183,7 +183,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       className,
       prohibitedActions,
       showAddLoading,
-      isDefaultFormProjection
+      isDefaultFormProjection,
+      rowClass
     } = this.props;
     const { filterOpened, projections, showAddModal } = this.state;
     //
@@ -206,7 +207,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
-          prohibitedActions={prohibitedActions}
+          prohibitedActions={ prohibitedActions }
           manager={ identityManager }
           showRowSelection={ showRowSelection }
           filter={
@@ -308,7 +309,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             ]
           }
           _searchParameters={ this.getSearchParameters() }
-          className={ className }>
+          className={ className }
+          rowClass={ rowClass }>
           <Advanced.Column
             header=""
             className="detail-button"

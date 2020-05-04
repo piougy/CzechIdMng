@@ -45,6 +45,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmExportImportService;
 import eu.bcvsolutions.idm.core.api.service.ImportManager;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -82,7 +83,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_READ + "')")
 	@ApiOperation(
-			value = "Search reports (/search/quick alias)", 
+			value = "Search batchs (/search/quick alias)", 
 			nickname = "searchBatchs", 
 			tags = { IdmExportImportController.TAG }, 
 			authorizations = {
@@ -102,7 +103,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_READ + "')")
 	@ApiOperation(
-			value = "Search reports", 
+			value = "Search batchs", 
 			nickname = "searchQuickBatchs", 
 			tags = { IdmExportImportController.TAG }, 
 			authorizations = {
@@ -122,7 +123,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_AUTOCOMPLETE + "')")
 	@ApiOperation(
-			value = "Autocomplete reports (selectbox usage)", 
+			value = "Autocomplete batchs (selectbox usage)", 
 			nickname = "autocompleteBatchs", 
 			tags = { IdmExportImportController.TAG }, 
 			authorizations = { 
@@ -169,7 +170,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_CREATE + "') or hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_CREATE + "')")
 	@ApiOperation(
 			value = "Upload new import zip. New import batch will be created.", 
 			nickname = "uploadImport", 
@@ -177,16 +178,14 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 			tags = { IdmExportImportController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_CREATE, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = "")}),
+						@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_CREATE, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_CREATE, description = ""),
-						@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = "")})
+						@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_CREATE, description = "")})
 				},
 			notes = "Upload new import zip. New import batch will be created.")
 	public Resource<IdmExportImportDto> uploadImport(String name, String fileName, MultipartFile data)
 			throws IOException {
-		IdmExportImportDto batch = importManager.uploadImport(name, fileName, data.getInputStream());
+		IdmExportImportDto batch = importManager.uploadImport(name, fileName, data.getInputStream(), IdmBasePermission.CREATE);
 		Link selfLink = ControllerLinkBuilder.linkTo(this.getClass()).slash(batch.getId()).withSelfRel();
 		
 		return new Resource<IdmExportImportDto>(batch, selfLink);
@@ -197,7 +196,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_DELETE + "')")
 	@ApiOperation(
-			value = "Delete report", 
+			value = "Delete batch", 
 			nickname = "deleteBatch", 
 			tags = { IdmExportImportController.TAG }, 
 			authorizations = { 
@@ -237,6 +236,17 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/download", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_READ + "')")
+	@ApiOperation(
+			value = "Download export", 
+			nickname = "downloadExport", 
+			tags = { IdmExportImportController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_READ, description = "") })
+				})
 	public ResponseEntity<InputStreamResource> download(
 			@ApiParam(value = "Batch's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
@@ -246,7 +256,7 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		try {
-			
+			// Batch read rights check was performed above (getDto).
 			InputStream is = ((IdmExportImportService)getService()).download(batch);
 			//
 			// Generate name of ZIP from batch name.
@@ -275,30 +285,37 @@ public class IdmExportImportController extends AbstractReadWriteDtoController<Id
 	 * @return
 	 */
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_UPDATE + "')"
+			+ " or hasAuthority('" + CoreGroupPermission.EXPORTIMPORT_ADMIN + "')")
 	@RequestMapping(value = "/{backendId}/execute-import", method = RequestMethod.PUT)
 	@ApiOperation(value = "Execute import", nickname = "executeImport", response = IdmExportImportDto.class, tags = {
 			IdmExportImportController.TAG }, authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
-							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = "") }),
+							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_ADMIN, description = "")}),
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
-							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = "") }) }, notes = "Execute import")
+							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_UPDATE, description = ""),
+							@AuthorizationScope(scope = CoreGroupPermission.EXPORTIMPORT_ADMIN, description = "")}) }, 
+					notes = "Execute import. "
+							+ "UPDATE import batch permission is needed for execute import in dry run mode, "
+							+ "ADMIN import batch permission is needed for execute import otherwise.")
 	public ResponseEntity<?> executeImport(
 			@ApiParam(value = "Import batch UUID identifier.", required = true) @PathVariable @NotNull String backendId,
 			@ApiParam(value = "Import batch is executed as dry run." ) @RequestParam("dryRun") boolean dryRun) {
 
+		IdmExportImportDto batch = getDto(backendId);
+		if (batch == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		
 		return new ResponseEntity<>(
-				toResource(importManager.executeImport(this.getService().get(backendId), dryRun)),
+				toResource(importManager.executeImport(batch, dryRun, dryRun ? IdmBasePermission.UPDATE : IdmBasePermission.ADMIN)),
 				HttpStatus.OK);
 	}
-
 	
 	@Override
 	protected IdmExportImportFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmExportImportFilter filter = new IdmExportImportFilter(parameters);
-		filter.setFrom(getParameterConverter().toDateTime(parameters, "from"));
-		filter.setTill(getParameterConverter().toDateTime(parameters, "till"));
-		return filter;
+		return new IdmExportImportFilter(parameters, getParameterConverter());
 	}
 
 }

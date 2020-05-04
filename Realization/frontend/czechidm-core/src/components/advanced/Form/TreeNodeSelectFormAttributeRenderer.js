@@ -13,13 +13,6 @@ import TreeNodeSelect from '../TreeNodeSelect/TreeNodeSelect';
  */
 export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAttributeRenderer {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      ...this.state
-    };
-  }
-
   /**
    * Returns true, when confidential mode is supported
    *
@@ -31,7 +24,7 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
 
   renderSingleInput(originalValues) {
     const { attribute, values, uiKey, validationErrors, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <TreeNodeSelect
@@ -43,7 +36,13 @@ export default class TreeNodeSelectFormAttributeRenderer extends SelectBoxFormAt
         placeholder={ this.getPlaceholder() }
         helpBlock={ this.getHelpBlock() }
         showTreeType={ false }
-        value={ !attribute.multiple ? this.toInputValue(showOriginalValue ? originalValues : values) : this.toInputValues(showOriginalValue ? originalValues : values) }
+        value={
+          !attribute.multiple
+          ?
+          this.toInputValue(showOriginalValue ? originalValues : values)
+          :
+          this.toInputValues(showOriginalValue ? originalValues : values)
+        }
         readOnly={ showOriginalValue ? true : this.isReadOnly() }
         required={ this.isRequired() }
         multiSelect={ attribute.multiple }

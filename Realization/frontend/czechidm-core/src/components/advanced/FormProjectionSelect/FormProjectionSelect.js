@@ -45,5 +45,6 @@ FormProjectionSelect.defaultProps = {
   ...EntitySelectBox.defaultProps,
   optionComponent: FormProjectionOptionDecorator,
   valueComponent: FormProjectionValueDecorator,
-  manager: formProjectionManager
+  manager: formProjectionManager,
+  entityType: 'formProjection'
 };

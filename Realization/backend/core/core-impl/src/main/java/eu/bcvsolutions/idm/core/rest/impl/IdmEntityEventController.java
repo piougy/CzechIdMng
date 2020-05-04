@@ -18,14 +18,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -102,7 +107,7 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 	protected IdmEntityEventFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmEntityEventFilter filter = new IdmEntityEventFilter(parameters, getParameterConverter());
 		// owner decorator
-		String ownerId = getParameterConverter().toString(parameters, "ownerId");
+		String ownerId = getParameterConverter().toString(parameters, IdmEntityEventFilter.PARAMETER_OWNER_ID);
 		UUID ownerUuid = null;
 		if (StringUtils.isNotEmpty(filter.getOwnerType()) && StringUtils.isNotEmpty(ownerId)) {
 			// try to find entity owner by Codeable identifier
@@ -112,6 +117,12 @@ public class IdmEntityEventController extends DefaultReadWriteDtoController<IdmE
 			} else {
 				LOG.debug("Entity type [{}] with identifier [{}] does not found, raw ownerId will be used as uuid.", 
 						filter.getOwnerType(), ownerId);
+				// Better exception for FE.
+				try {
+					DtoUtils.toUuid(ownerId);
+				} catch (ClassCastException ex) {
+					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", ownerId), ex);
+				}
 			}
 		}
 		if (ownerUuid == null) {

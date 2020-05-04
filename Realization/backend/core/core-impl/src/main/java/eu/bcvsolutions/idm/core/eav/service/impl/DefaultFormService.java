@@ -1503,13 +1503,8 @@ public class DefaultFormService implements FormService {
 		return result.toString();
 	}
 	
-	/**
-	 * Prepares new owner instance
-	 * 
-	 * @param formDefinition
-	 * @return
-	 */
-	private FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition) {
+	@Override
+	public FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition) {
 		Assert.notNull(formDefinition, "Form definition is required.");
 		//
 		try {
@@ -1526,10 +1521,10 @@ public class DefaultFormService implements FormService {
 		
 		// All confidential values will be removed from the export. We don't want change
 		// confidential value on a target IdM.
-		List<IdmFormValueDto> valuesWithoutConfidentila = formInstanceDto.getValues().stream()//
+		List<IdmFormValueDto> valuesWithoutConfidential = formInstanceDto.getValues().stream()//
 				.filter(formValue -> !formValue.isConfidential())//
 				.collect(Collectors.toList());
-		formInstanceDto.setValues(valuesWithoutConfidentila);
+		formInstanceDto.setValues(valuesWithoutConfidential);
 		
 		batch.getExportedDtos().add(formInstanceDto);
 		

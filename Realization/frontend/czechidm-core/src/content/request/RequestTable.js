@@ -90,9 +90,9 @@ export class RequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     const task = {taskName: entity._embedded.wfProcessId.currentActivityName,
-                  processDefinitionKey: entity._embedded.wfProcessId.processDefinitionKey,
-                  definition: {id: entity._embedded.wfProcessId.activityId}
-                };
+      processDefinitionKey: entity._embedded.wfProcessId.processDefinitionKey,
+      definition: {id: entity._embedded.wfProcessId.activityId}
+    };
     return (
       workflowTaskInstanceManager.localize(task, 'name')
     );
@@ -104,7 +104,9 @@ export class RequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <Advanced.WorkflowProcessInfo entity={entity._embedded.wfProcessId}/>
+      <Advanced.WorkflowProcessInfo
+        maxLength={100}
+        entity={entity._embedded.wfProcessId}/>
     );
   }
 

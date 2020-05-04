@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyGenerateType;
+import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyIdentityAttributes;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordPolicyDto;
@@ -947,6 +948,29 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
+		
+		// Compound username
+		identity.setUsername("Dobromila-,Josefa_\tM.");
+		identityService.save(identity);
+		validation.setPassword("joseFadobrómílá");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success compound username
+		validation.setPassword("josefmJeLidumil");
+		try {
+			passwordPolicyService.validate(validation, policy);
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
 	}
 
 	@Test
@@ -1152,6 +1176,58 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
+		
+		// Compound lastname
+		identity.setLastName("Nováková-Bláhová III.");
+		identityService.save(identity);
+		validation.setPassword("novakova");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("blahovÁ");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("novak-blahaIII");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success compound username
+		validation.setPassword("novak-blahaII");
+		try {
+			passwordPolicyService.validate(validation, policy);
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("novak-blahaI II");
+		try {
+			passwordPolicyService.validate(validation, policy);
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
 	}
 
 	@Test
@@ -1243,7 +1319,177 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
+
+		// Compound firstname
+		identity.setFirstName("Arnold,.\t-—_£J.Rimm3r");
+		identityService.save(identity);
+		validation.setPassword("ArnoldRimm3r");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("SchwarzeArnoldNegger");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success compound username
+		validation.setPassword("JJJ Rimmer");
+		try {
+			passwordPolicyService.validate(validation, policy);
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
 	}
+	
+	
+	@Test
+	public void testContainsTitleBeforeAfter() {
+		IdmIdentityDto identity = this.getHelper().createIdentity((GuardedString) null);
+		identity.setTitleBefore("Judr. MUDr, MvDr. , Prof.,Doc. Bc. Ing. Arch. Dr.");
+		identity.setTitleAfter("CSc.,DrSc. Ph.D.");
+		identity = identityService.save(identity);
+
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setEnchancedControl(true);
+		policy.setIdentityAttributeCheck(IdmPasswordPolicyIdentityAttributes.TITLESAFTER.name() + ", "
+				+ IdmPasswordPolicyIdentityAttributes.TITLESBEFORE.name());
+
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword("IngKarelVomacka");
+
+		// Titles before only
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("noemovaarcha");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("youAreDoingWell");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success titles before only
+		validation.setPassword("DrVostepJeOkBoJeKratky");
+		try {
+			passwordPolicyService.validate(validation, policy);
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Titles after
+		validation.setPassword("PhdMitfaktNikdyNebudu");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testContainsPersonalNumber() {
+		IdmIdentityDto identity = this.getHelper().createIdentity((GuardedString) null);
+		identity.setExternalCode("123-456-789-0_EEE");
+		identity = identityService.save(identity);
+
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setEnchancedControl(true);
+		policy.setIdentityAttributeCheck(IdmPasswordPolicyIdentityAttributes.EXTERNALCODE.name());
+
+		IdmPasswordValidationDto validation = new IdmPasswordValidationDto();
+		validation.setIdentity(identity);
+		validation.setPassword("123456789");
+
+		// Numbers only
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("jenda123");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Works with letters
+		validation.setPassword("999999999ĚÉE");
+		try {
+			passwordPolicyService.validate(validation, policy);
+			fail("Password pass.");
+		} catch (ResultCodeException e) {
+			// Success
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		// Success
+		validation.setPassword("XXXXXX0");
+		try {
+			passwordPolicyService.validate(validation, policy);
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		validation.setPassword("987-654-321");
+		try {
+			passwordPolicyService.validate(validation, policy);
+		} catch (ResultCodeException e) {
+			fail("Password not pass.");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+	}
+	
 
 	@Test
 	public void testContainsCombination() {

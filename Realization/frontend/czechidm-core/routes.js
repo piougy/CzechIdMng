@@ -916,7 +916,7 @@ module.exports = {
     {
       path: 'audit',
       component: require('./src/content/audit/AuditRoutes'),
-      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORDPOLICY_READ'] } ]
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
     },
     {
       path: 'audit/entities/:entityId/diff/:revID',

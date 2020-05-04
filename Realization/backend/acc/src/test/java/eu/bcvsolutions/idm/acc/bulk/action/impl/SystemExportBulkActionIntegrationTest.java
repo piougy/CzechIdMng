@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.acc.bulk.action.impl;
 
 import java.util.List;
+import java.util.Map;
 
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,7 +11,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
@@ -29,7 +30,6 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
@@ -39,31 +39,25 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ExportImportType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmExportImportFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.IdmExportImportService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ImportManager;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
-import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
-import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
-import eu.bcvsolutions.idm.core.model.entity.IdmExportImport;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ImportTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
-import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
+import eu.bcvsolutions.idm.test.api.AbstractExportBulkActionTest;
 
 /**
  * Export system integration test
@@ -71,7 +65,7 @@ import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
  * @author Vít Švanda
  *
  */
-public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTest {
+public class SystemExportBulkActionIntegrationTest extends AbstractExportBulkActionTest {
 
 	@Autowired
 	private IdmRoleService roleService;
@@ -98,10 +92,6 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 	@Autowired
 	private TestHelper helper;
 	@Autowired
-	private IdmExportImportService exportImportService;
-	@Autowired
-	private AttachmentManager attachmentManager;
-	@Autowired
 	private ImportManager importManager;
 
 	@Before
@@ -123,7 +113,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		Assert.assertFalse(system.isDisabled());
 
 		// Make export, upload and import
-		executeExportAndImport(system);
+		executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -142,7 +132,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		Assert.assertFalse(system.isDisabled());
 
 		// Make export, upload, delete system and import
-		executeExportAndImport(system);
+		executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -162,7 +152,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		Assert.assertTrue(originalConnectorConfiguration.getConfigurationProperties().getProperties().size() > 0);
 
 		// Make export, upload, delete system and import
-		executeExportAndImport(system);
+		executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -266,7 +256,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		Assert.assertEquals(555, poolConfiguration.getMinEvictableIdleTimeMillis());
 
 		// Make export, upload, delete system and import
-		executeExportAndImport(system);
+		executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -284,6 +274,57 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		Assert.assertEquals(444, poolConfiguration.getMaxWait());
 		Assert.assertEquals(555, poolConfiguration.getMinEvictableIdleTimeMillis());
 	}
+	
+	@Test
+	public void testExportAndImportConnectorOperationOptions() {
+		final Integer testPageSizeVal = new Integer(123456);
+		final String testAttrsToGetVal = "testVAlue1";
+		SysSystemDto system = createSystem();
+
+		IcConnectorInstance connectorInstance = systemService.getConnectorInstance(system);
+		Assert.assertNotNull(connectorInstance);
+		IdmFormDefinitionDto formDefinition = systemService.getOperationOptionsConnectorFormDefinition(connectorInstance);
+		Assert.assertNotNull(formDefinition);
+		systemService.save(system);
+		
+		List<IdmFormValueDto> values = formService.getValues(system, formDefinition);
+		Assert.assertNotNull(values);
+		Assert.assertEquals(0, values.size());
+		values = Lists.newArrayList();
+		
+		IdmFormValueDto formValueDto = new IdmFormValueDto(
+				formService.getAttribute(formDefinition, OperationOptions.OP_PAGE_SIZE));
+		// Change value
+		formValueDto.setValue(testPageSizeVal);
+		values.add(formValueDto);
+		
+		formValueDto = new IdmFormValueDto(
+				formService.getAttribute(formDefinition, OperationOptions.OP_ATTRIBUTES_TO_GET));
+		// Change value
+		formValueDto.setValue(testAttrsToGetVal);
+		values.add(formValueDto);
+		
+		// Save all values
+		formService.saveValues(system, formDefinition, values);
+		
+		IcConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(system);
+		Assert.assertNotNull(connectorConfiguration);
+		Map<String, Object> optionMap  = connectorConfiguration.getSystemOperationOptions();
+		Assert.assertEquals(testPageSizeVal, (Integer)optionMap.get(OperationOptions.OP_PAGE_SIZE));
+		Assert.assertEquals(testAttrsToGetVal, (String)optionMap.get(OperationOptions.OP_ATTRIBUTES_TO_GET));
+		
+		// Make export, upload, delete system and import
+		executeExportAndImport(system, SystemExportBulkAction.NAME);
+		
+		system = systemService.get(system.getId());
+		Assert.assertNotNull(system);
+		connectorConfiguration = systemService.getConnectorConfiguration(system);
+		Assert.assertNotNull(connectorConfiguration);
+		
+		optionMap  = connectorConfiguration.getSystemOperationOptions();
+		Assert.assertEquals(testPageSizeVal, (Integer)optionMap.get(OperationOptions.OP_PAGE_SIZE));
+		Assert.assertEquals(testAttrsToGetVal, (String)optionMap.get(OperationOptions.OP_ATTRIBUTES_TO_GET));
+	}
 
 	@Test
 	public void testExportAndImportMapping() {
@@ -294,7 +335,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		SysSystemMappingDto originalMapping = mappings.get(0);
 
 		// Make export, upload, delete system and import
-		IdmExportImportDto importBatch = executeExportAndImport(system);
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -332,7 +373,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		List<SysSystemAttributeMappingDto> originalAttributes = findAttributeMappings(system);
 
 		// Make export, upload, delete system and import
-		IdmExportImportDto importBatch = executeExportAndImport(system);
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -370,7 +411,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		SysSchemaObjectClassDto originalSchema = schemas.get(0);
 
 		// Make export, upload and import
-		IdmExportImportDto importBatch = executeExportAndImport(system);
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -414,7 +455,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		originalSync = (SysSyncConfigDto) synchronizationConfigService.save(originalSync);
 
 		// Make export, upload, delete system and import
-		IdmExportImportDto importBatch = executeExportAndImport(system);
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -454,7 +495,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		originalBreak = provisioningBreakService.save(originalBreak);
 
 		// Make export, upload, delete system and import
-		IdmExportImportDto importBatch = executeExportAndImport(system);
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -498,7 +539,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		breakRecipient = provisioningBreakRecipientService.save(breakRecipient);
 
 		// Make export, upload, delete system and import.
-		IdmExportImportDto importBatch = executeExportAndImport(system);
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -561,7 +602,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		breakRecipient = provisioningBreakRecipientService.save(breakRecipient);
 
 		// Make export, upload, delete system and import
-		IdmExportImportDto importBatch = executeExportAndImport(system);
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -607,7 +648,7 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		helper.createRoleSystem(originalRoleTwo, system);
 
 		// Make export, upload, delete system and import
-		IdmExportImportDto importBatch = executeExportAndImport(system);
+		IdmExportImportDto importBatch = executeExportAndImport(system, SystemExportBulkAction.NAME);
 
 		system = systemService.get(system.getId());
 		Assert.assertNotNull(system);
@@ -643,48 +684,6 @@ public class SystemExportBulkActionIntegrationTest extends AbstractBulkActionTes
 		systemMappingService.save(mapping);
 
 		return system;
-	}
-
-	private IdmExportImportDto executeExportAndImport(SysSystemDto system) {
-		String batchName = getHelper().createName();
-		IdmBulkActionDto bulkAction = findBulkAction(SysSystem.class, SystemExportBulkAction.NAME);
-		bulkAction.setIdentifiers(Sets.newHashSet(system.getId()));
-		bulkAction.getProperties().put(SystemExportBulkAction.PROPERTY_NAME, batchName);
-		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-
-		checkResultLrt(processAction, 1l, null, null);
-
-		IdmExportImportFilter exportImportFilter = new IdmExportImportFilter();
-		exportImportFilter.setText(batchName);
-		List<IdmExportImportDto> batches = exportImportService.find(exportImportFilter, null).getContent();
-		Assert.assertEquals(1, batches.size());
-		IdmExportImportDto batch = batches.get(0);
-		Assert.assertEquals(OperationState.EXECUTED, batch.getResult().getState());
-		Assert.assertNotNull(batch.getData());
-
-		List<IdmAttachmentDto> attachments = attachmentManager//
-				.getAttachments(batch.getId(), IdmExportImport.class.getCanonicalName(), null)//
-				.getContent();//
-		Assert.assertEquals(1, attachments.size());
-		IdmAttachmentDto attachment = attachments.get(0);
-
-		// Upload import
-		IdmExportImportDto importBatch = importManager.uploadImport(attachment.getName(), attachment.getName(),
-				attachmentManager.getAttachmentData(attachment.getId()));
-		Assert.assertNotNull(importBatch);
-		Assert.assertEquals(batch.getName(), importBatch.getName());
-		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());
-
-		systemService.delete(system);
-		Assert.assertNull(systemService.get(system.getId()));
-
-		// Execute import
-		importBatch = importManager.executeImport(importBatch, false);
-		Assert.assertNotNull(importBatch);
-		Assert.assertEquals(batch.getName(), importBatch.getName());
-		Assert.assertEquals(ExportImportType.IMPORT, importBatch.getType());
-		Assert.assertEquals(OperationState.EXECUTED, importBatch.getResult().getState());
-		return importBatch;
 	}
 
 	private List<SysProvisioningBreakConfigDto> findBreaks(SysSystemDto system) {

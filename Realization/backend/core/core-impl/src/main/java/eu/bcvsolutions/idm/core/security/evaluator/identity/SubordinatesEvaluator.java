@@ -24,6 +24,10 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
 /**
  * Permissions to subordinates.
  * 
+ * Lookout: Prevent to combine with {@link SubordinateContractEvaluator} - configure one of them.
+ * {@link SubordinateContractEvaluator} is more flexibile - contracts can be secured by manager (by tree structure or by guarantee).
+ * If {@link IdentityRoleByContractEvaluator} is configured, then logged identity can see / edit roles assigned to managed contracts.
+ * 
  * @author Radek Tomiška
  *
  */
@@ -48,7 +52,6 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		//
 		return filterManager
 				.getBuilder(IdmIdentity.class, IdmIdentityFilter.PARAMETER_SUBORDINATES_FOR)
-				// TODO: deprecated in 9.7.0, but fix this after original method will be removed => all custom filters can use original
 				.getPredicate(root, query, builder, filter);
 	}
 	

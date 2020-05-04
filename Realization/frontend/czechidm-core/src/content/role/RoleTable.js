@@ -131,7 +131,7 @@ class RoleTable extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.history.push(`/role/${uuidId}/new?new=1`);
     } else {
-      this.context.history.push(`/role/${entity.id}/detail`);
+      this.context.history.push(`/role/${ encodeURIComponent(entity.id) }/detail`);
     }
   }
 

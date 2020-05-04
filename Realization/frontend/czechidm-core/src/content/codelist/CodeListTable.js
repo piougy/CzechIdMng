@@ -26,10 +26,6 @@ export class CodeListTable extends Advanced.AbstractTableContent {
     };
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-  }
-
   getContentKey() {
     return 'content.code-lists';
   }
@@ -116,8 +112,9 @@ export class CodeListTable extends Advanced.AbstractTableContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="code" sort/>
-          <Advanced.Column property="name" sort/>
+          <Advanced.Column property="code" width={ 250 } sort/>
+          <Advanced.Column property="name" width={ 250 } sort/>
+          <Advanced.Column property="description" sort face="text" maxLength={ 30 }/>
         </Advanced.Table>
       </Basic.Div>
     );

@@ -39,12 +39,13 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * - by guarantee and tree structure - finds parent tree node by code in eav attribute value
  * 
  * @author Radek Tomiška
- * @Deprecated @since 9.7.0 use EavCodeContractByManagerFilter
+ * @Deprecated @since 9.7.0 use defaut DefaultSubordinatesFilter (for identity) + EavCodeContractByManagerFilter (for contract) in combination.
  */
 @Deprecated
 @Component("eavCodeSubordinatesFilter")
-@Description("Deprecated - use EavCodeContractByManagerFilter. Filter for find subordinates for given identity."
-		+ "Supports subordinates by guarantee and tree structure - finds parent tree node by code in eav attribute value.")
+@Description("Deprecated - use default DefaultSubordinatesFilter (for identity) + EavCodeContractByManagerFilter (for contract) in combination."
+		+ " Filter for find subordinates for given identity."
+		+ " Supports subordinates by guarantee and tree structure - finds parent tree node by code in eav attribute value.")
 public class EavCodeSubordinatesFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	
@@ -116,7 +117,7 @@ public class EavCodeSubordinatesFilter
 		Path<IdmTreeNode> wp = subqueryWpRoot.get(IdmIdentityContract_.workPosition);
 		subqueryWp.where(builder.and(
 				// valid contract only
-				RepositoryUtils.getValidPredicate(subqueryWpRoot, builder),
+				RepositoryUtils.getValidNowOrInFuturePredicate(subqueryWpRoot, builder),
         		builder.equal(subqueryWpRoot.get(IdmIdentityContract_.disabled), Boolean.FALSE),
 				//
 				(filter.getSubordinatesByTreeType() == null) 

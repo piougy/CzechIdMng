@@ -125,7 +125,7 @@
       "help": {
         "header": "Filtrování",
         "body": "<div>Hodnoty filtru se vyhodnocují operátorem <strong>like</strong>:<br /><ul><li>hledá se libovolný výskyt zadaného řetězce,</li><li>jsou dostupné výrazy se speciálním znakem:<ul><li><strong>%</strong> - zastupuje několik libovolných znaků,</li><li><strong>_</strong> - zastupuje jeden libovolný znak.</li></ul></li></ul>Pokud chcete hledat samotné speciální znaky, přidejte zpětné lomítko <strong>\\%,\\_</strong></div>",
-        "uuid": "<div>Zadané <strong>uuid</strong> identifikátory nesmí obsahovat pomlčky (lze zadat krátký tvar identifikátoru nebo odebrat pomlčky).</div>"
+        "uuid": "<div>Zadané <strong>uuid</strong> identifikátory s využitím krátkého tvaru nesmí obsahovat pomlčky (pomlčky je třeba odebrat nebo zadat celý uuid identifikátor).</div>"
       }
     },
     "module": {
@@ -134,6 +134,11 @@
     },
     "transactionId": {
       "placeholder": "$t(entity.transactionId.label) (uuid)"
+    },
+    "entityId": {
+      "placeholder": "Identifikátor entity (uuid)",
+      "codeable": "Identifikátor entity (uuid či kód)",
+      "help": "Pokud <strong>je vybrán typ entity</strong> a entita má unikátní kód, lze zadat místo uuid i kód entity.<br /> Například lze zadat <strong>kód role</strong> (pro typ IdmRole), <strong>uživatelské jméno</strong> (pro typ IdmIdentity) apod."
     }
   },
   "action": {
@@ -602,6 +607,8 @@
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
           "CAN-BE-REQUESTED-ROLE-SELECT": "Výběr rolí dostupných pro žádost (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
+          "FORM-PROJECTION-SELECT": "Výběr projekce formuláře (SelectBox)",
+          "CODE-LIST-SELECT": "Výběr číselníku (SelectBox)",
           "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
           "TREE-TYPE-SELECT": "Výběr typu stromu (SelectBox)",
           "SCRIPT-SELECT": "Výběr skriptu (SelectBox)",
@@ -789,7 +796,10 @@
       "USERNAME": "Uživatelské jméno",
       "LASTNAME": "Jméno",
       "FIRSTNAME": "Příjmení",
-      "EMAIL": "Email"
+      "EMAIL": "Email",
+      "TITLESBEFORE": "Titul před",
+      "TITLESAFTER": "Titul za",
+      "EXTERNALCODE": "Osobní číslo"
     },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
@@ -924,7 +934,7 @@
       "PASSWORD": "Heslo (GuardedString)",
       "ASSIGNED_ROLES": "Přiřazené role uživatele",
       "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento systém)",
-      "FORM_PROJECTION": "Typ uživatele (UUID)",
+      "FORM_PROJECTION": "Typ uživatele (IdmFormProjectionDto)",
       "helpBlock": {
         "USERNAME": "",
         "EXTERNAL_CODE": "",
@@ -940,7 +950,7 @@
         "PASSWORD": "",
         "ASSIGNED_ROLES": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
         "ASSIGNED_ROLES_FOR_SYSTEM": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele, které přiřazují <strong>tento systém</strong> (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
-        "FORM_PROJECTION": ""
+        "FORM_PROJECTION": "<strong>Synchronizace - </strong> Pro dohledání konkrétního typu uživatele (projekce) v rámci synchronizace, můžete použít identifikátor nebo <strong>kód projekce</strong>.<br/><strong>Provisioning - </strong> Vstupem transformace do systému (<strong>attributeValue</strong>) je celý objet typu-uživatele (IdmFormProjectionDto)."
       }
     },
     "ContractAttributeEnum": {
@@ -1069,7 +1079,13 @@
       "MANUALLYDISABLE": "Manuální deaktivace uživatele",
       "MANUALLYENABLE": "Manuální aktivace uživatele",
       "CANBEREQUESTED": "O roli lze žádat",
-      "CHANGEPROJECTION": "Změna typu uživatele (projekce)"
+      "CHANGEPROJECTION": "Změna typu uživatele (projekce)",
+      "CHANGEUSERNAME": "Změna uživatelského jména",
+      "CHANGENAME": "Změna jména, příjmení a titulů",
+      "CHANGEPHONE": "Změna telefonu",
+      "CHANGEEMAIL": "Změna emailu",
+      "CHANGEEXTERNALCODE": "Změna osobního čísla",
+      "CHANGEDESCRIPTION": "Změna popisu"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -1110,8 +1126,7 @@
       "ROLEREQUEST": "Agenda žádostí pro změnu rolí",
       "REQUEST": "Agenda žádostí (univerzální)",
       "REQUESTITEM": "Agenda žádostí - položky žádosti (univerzální)",
-      "SCHEDULER": "Nastavení plánovače",
-      "LONGRUNNINGTASK": "Proběhlé dlouhotrvající úlohy",
+      "SCHEDULER": "Nastavení plánovače a dlouhotrvajících úloh",
       "WORKFLOWDEFINITION": "Workflow - definice",
       "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah",
       "WORKFLOWTASK": "Workflow - úkoly",
@@ -1316,13 +1331,19 @@
         "passwordSimilarEmail": "Heslo je příliš podobné emailu: {{0}}",
         "passwordSimilarFirstName": "Heslo je příliš podobné jménu: {{0}}",
         "passwordSimilarLastName": "Heslo je příliš podobné příjmení: {{0}}",
+        "passwordSimilarTitlesBefore": "Heslo je příliš podobné titulu: {{0}}",
+        "passwordSimilarTitlesAfter": "Heslo je příliš podobné titulu: {{0}}",
+        "passwordSimilarExternalCode": "Heslo je příliš podobné osobnímu číslu: {{0}}",
         "date": "Heslo není možné nyní změnit, zkuste to znovu: {{0}}",
         "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politiku.",
         "specialCharacterBase": "Seznam speciálních znaků pro politiky hesel: {{0}}",
-        "passwordSimilarUsernamePreValidate": "Heslo nesmí být podobné uživatelskému jménu.",
-        "passwordSimilarEmailPreValidate": "Heslo nesmí být podobné emailu.",
-        "passwordSimilarFirstNamePreValidate": "Heslo nesmí být podobné jménu.",
-        "passwordSimilarLastNamePreValidate": "Heslo nesmí být podobné příjmení.",
+        "passwordSimilarUsernamePreValidate": "uživatelskému jménu",
+        "passwordSimilarEmailPreValidate": "emailu",
+        "passwordSimilarFirstNamePreValidate": "jménu",
+        "passwordSimilarLastNamePreValidate": "příjmení",
+        "passwordSimilarTitlesBeforePreValidate": "titulu před jménem",
+        "passwordSimilarTitlesAfterPreValidate": "titulu za jménem",
+        "passwordSimilarExternalCodePreValidate": "osobnímu číslu",
         "maxHistorySimilar": "Heslo se musí lišit od posledních {{0}} hesel.",
         "advancedControlValidateType": "Rozšířená kontrola hesel je dostupná pouze pro validační politku.",
         "specialCharacterBase":{
@@ -1488,6 +1509,13 @@
           "currentRoles": "Aktuálně přiřazené role",
           "conceptIdentityRoles": "Role žadatele"
         }
+      },
+      "historicInstance": {
+        "name": "<strong>Tento úkol byl již vyřešen.</strong>",
+        "assignee": "Vyřešeno uživatelem",
+        "endTime": "Datum vyřešení",
+        "result": "Způsob vyřešení",
+        "process": "Úkol je součástí procesu"
       },
       "DefaultTaskDetail": {
         "applicant": "Žádost pro",
@@ -1666,7 +1694,7 @@
           "message_2": "Opravdu chcete manuálně deaktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně deaktivovaní uživatelé můžou být opět aktiovováni pouze manuálně.",
           "message_5": "$t(content.identities.action.deactivate.message_2)",
           "error": "Při deaktivaci uživatele {{username}} nastala chyba",
-          "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni"
+          "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni."
         },
         "activate": {
           "action": "Aktivovat - manuálně",
@@ -1678,7 +1706,7 @@
           "message_2": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
           "message_5": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybraných uživatelů? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
           "error": "Při aktivaci uživatele {{username}} nastala chyba",
-          "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní"
+          "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní."
         },
         "remove": {
           "action": "Odebrat"
@@ -2774,6 +2802,12 @@
         "button": {
           "close": {
             "label": "Zpět na seznam uživatelů"
+          },
+          "formProjection": {
+            "label": "Upravit projekci formuláře"
+          },
+          "editContract": {
+            "label": "Přidat kontrakt pro tuto organizaci"
           }
         },
         "identity": {
@@ -2791,6 +2825,15 @@
           "workPosition": {
             "label": "Organizační zařazení"
           }
+        },
+        "primeContract": {
+          "label": "Hlavní kontrakt"
+        },
+        "otherContracts": {
+          "label": "Další kontrakty"
+        },
+        "allContracts": {
+          "label": "Kontrakty"
         },
         "otherPosition": {
           "workPosition": {
@@ -3062,11 +3105,17 @@
         },
         "create": {
           "title": "Nový garant",
-          "header": "Nový garant"
+          "header": "Nový garant",
+          "endedContract": "Nového garanta lze přidat pouze pro aktuálně nebo v budoucnu platný kontrakt"
         },
         "action": {
           "save": {
             "success": "Pro pracovní pozici byl úspěšně uložen vedoucí (odpovědná osoba) [{{record}}]"
+          }
+        },
+        "endedContract": {
+          "warning": {
+            "message": "Platnost kontraktu vypršela. Je možné pouze odebrat předešle nastaveného vedoucího (odpovědnou osobu)."
           }
         }
       },
@@ -3531,7 +3580,7 @@
           "endTime": "$t(entity.WorkflowHistoricProcessInstance.endTime)",
           "deleteReason": "$t(entity.WorkflowHistoricProcessInstance.deleteReason)",
           "processVariables": "$t(entity.WorkflowHistoricProcessInstance.processVariables)",
-          "name": "$t(entity.WorkflowHistoricProcessInstance.name)",
+          "name": "Název procesu",
           "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
           "processDefinitionKey": "$t(entity.WorkflowHistoricProcessInstance.processDefinitionKey)",
@@ -3539,6 +3588,7 @@
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "Uživatelské úkoly procesu",
           "subprocesses": "Podřízené procesy",
+          "nextProcessOptions": "Další vlastnosti procesu",
           "filter": {
             "processDefinition":{
               "label": "Definice",
@@ -3887,6 +3937,10 @@
       "guarantee": {
         "label": "Garant - identita",
         "help": "Vybraná identita se stane garantem role."
+      },
+      "type": {
+        "label": "Typ garanta",
+        "help": ""
       }
     },
     "RoleGuaranteeRole": {
@@ -3897,6 +3951,10 @@
       "guaranteeRole": {
         "label": "Garant - role",
         "help": "Identity mající vybranou roli se stanou garanty dané role."
+      },
+      "type": {
+        "label": "Typ garanta",
+        "help": ""
       }
     },
     "ConfidentialStorageValue": {
@@ -4284,7 +4342,7 @@
       "main": {
         "short": "H",
         "label": "Hlavní pozice",
-        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele.",
+        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele.",
         "title": "Hlavní pozice"
       },
       "state": {
@@ -5305,32 +5363,38 @@
       "approve": {
         "label" : "Schválit",
         "tooltip": "Provede schválení tohoto úkolu.",
-        "warning": "Opravdu chcete provést schválení?"
+        "warning": "Opravdu chcete provést schválení?",
+        "resultLabel": "Schváleno"
       },
       "disapprove": {
         "label" : "Zamítnout",
         "tooltip": "Zamítnout úkol.",
-        "warning": "Opravdu chcete zamítnout úkol?"
+        "warning": "Opravdu chcete zamítnout úkol?",
+        "resultLabel": "Zamítnuto"
       },
       "backToApplicant": {
         "label" : "Vrátit žadateli",
         "tooltip": "Vrátí žádost žadateli.",
-        "warning": "Opravdu chcete vrátit žádost žadateli?"
+        "warning": "Opravdu chcete vrátit žádost žadateli?",
+        "resultLabel": "Vráceno žadateli."
       },
       "createRequest": {
         "label" : "Vytvořit žádost",
         "tooltip": "Vytvoří žádost.",
-        "warning": "Opravdu chcete vytvořit žádost?"
+        "warning": "Opravdu chcete vytvořit žádost?",
+        "resultLabel": "Žádost vytvořena."
       },
       "cancelRequest": {
         "label" : "Smazat žádost",
         "tooltip": "Zruší tuto žádost.",
-        "warning": "Opravdu chcete zrušit tuto žádost?"
+        "warning": "Opravdu chcete zrušit tuto žádost?",
+        "resultLabel": "Žádost smazána."
       },
       "repairedRequest": {
         "label" : "Žádost opravena",
         "tooltip": "Žádost byla opravena/doplněna dle připomínek.",
-        "warning": "Opravdu chcete žádost vrátit ke schválení?"
+        "warning": "Opravdu chcete žádost vrátit ke schválení?",
+        "resultLabel": "Žádost opravena."
       }
     },
     "formData" : {
@@ -5497,6 +5561,23 @@
             "help": ""
           }
         }
+      },
+      "form-definition-export-bulk-action": {
+        "icon": "export",
+        "label": "Exportovat definici formuláře",
+        "title": "Definice formuláře",
+        "help": "Vytvoří exportní dávku obsahující definice formulářů. Výsledný export bude uložen v agendě <strong>Export/Import</strong>.",
+        "attributes": {
+          "name": {
+              "label": "Popis exportu",
+            "help": ""
+          }
+        }
+      },
+      "form-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) definice formuláře",
+        "help": "Smaže vybrané definice formuláře.",
+        "icon": "$t(action.delete.icon)"
       },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) konfigurace",
@@ -5668,6 +5749,31 @@
           "can-be-requested-only": {
             "label": "Pouze pro žádosti o role",
             "help": "Přiřadí pouze oprávnění pro možnost žádat o přiřazenou stejnou roli. Použitelné například při kopírování rolí od jiného uživatele."
+          }
+        }
+      },
+      "core-codelist-item-by-code-evaluator": {
+        "help": "Oprávnění pro položky číselníku. Oprávnění je možné přidat pouze pro vybraný číselník a vybrané položky (všechny položky jsou použity jako výchozí).",
+        "attributes": {
+          "codelist": {
+            "label": "Číselník",
+            "help": "Vyberte číselník, která obsahuje položky, kterým bude nastaveno oprávnění.",
+            "placeholder": "Vyberte číselník ..."
+          },
+          "item-codes": {
+            "label": "Položky číselníku",
+            "help": "Položky, kterým bude nastaveno oprávnění. Pokud ponecháte položky prázdné, bude oprávnění nastaveno pro všechny položky daného číselníku.",
+            "placeholder": "Všechny položky daného číselníku nebo zadejte kódy položek oddělené čárkou"
+          }
+        }
+      },
+      "core-identity-by-form-projection-evaluator": {
+        "help": "Oprávnění pro uživatele dle typu. Oprávnění je možné přidat pro vybraný typ uživatele nebo pro výchozí (uživatelé bez vyplněného typu).",
+        "attributes": {
+          "form-projection": {
+            "label": "Typ uživatele",
+            "help": "Vyberte typ uživatele, kterému bude nastaveno oprávnění.",
+            "placeholder": "Defaultní typ uživatele nebo vyberte ..."
           }
         }
       }
@@ -6056,6 +6162,28 @@
         "icon": "fa:user",
         "level": "success"
       }
+    },
+    "form-projection-route": {
+      "form-identity-projection": {
+        "attributes": {
+          "prime-contract": {
+            "label": "Zobrazit hlavní kontrakt",
+            "help": "Zobrazit (a editovat) pouze hlavní kontrakt uživatele."
+          },
+          "all-contracts": {
+            "label": "Zobrazit všechny kontrakty uživatele",
+            "help": "Zobrazit (a editovat) všechny kontrakty uživatele. Vyžaduje definici číselníku <strong>contract-position</strong> - číselník řídí dostupné typy kontraktů dle typu organizace."
+          },
+          "other-position": {
+            "label": "Zobrazit další pozici kontraktu uživatele",
+            "help": "Zobrazit (a editovat) jednu další pozici kontraktu uživatele."
+          },
+          "assigned-roles": {
+            "label": "Zobrazit přiřazené role",
+            "help": "Zobrazit možnost přiřadit role pro nového uživatele a zažádat o změnu rolí pro stávajícího."
+          }
+        }
+      }
     }
   },
   "error": {
@@ -6077,7 +6205,11 @@
     },
     "FORBIDDEN_ENTITY": {
       "title": "Nedostatečná oprávnění",
-      "message": "Na požadovaný záznam [{{entity}}] nemáte dostatečná oprávnění [{{permission}}]."
+      "message": "Na požadovaný záznam [{{entity}}] [typ: {{type}}] nemáte dostatečná oprávnění [{{permission}}]."
+    },
+    "FORBIDDEN_CODEABLE_ENTITY": {
+      "title": "Nedostatečná oprávnění",
+      "message": "Na požadovaný záznam [{{code}}] [typ: {{type}}] nemáte dostatečná oprávnění [{{permission}}]."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Změna hesla neproběhla",
@@ -6362,12 +6494,16 @@
       "message": "Šablona notifikací [{{template}}] musí být nejprve odstraněna z [{{usage}}] notifikací."
     },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
-      "title": "Definice formuláře nelze smazat",
-      "message": "Definice [{{name}}] nelze smazat, protože je označená jako systémová."
+      "title": "Definici formuláře nelze smazat",
+      "message": "Definici [{{name}}] nelze smazat, protože je označená jako systémová."
     },
     "FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE": {
       "title": "Atribut formuláře nelze smazat",
       "message": "Atribut [{{name}}] nelze smazat, protože je označený jako systémový."
+    },
+    "FORM_DEFINITION_DELETE_FAILED_MAIN_FORM": {
+      "title": "Definici formuláře nelze smazat",
+      "message": "Definici [{{code}}] nelze smazat, protože je označena jako hlavní. Označte nejprve jinou definici jako hlavní."
     },
     "FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES": {
       "title": "Atribut formuláře nelze smazat",
@@ -6665,6 +6801,10 @@
       "title": "Služba není přístupná",
       "message": "Služba [{{service}}] není přístupná!"
     },
+    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
+      "title": "Transformační sktipt selhal",
+      "message": "Transformační sktipt selhal z důvodu: [{{origMessage}}] IdM lokace: [{{idmPath}}] Lokace skriptu: [{{scriptPath}}]."
+    },
     "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
       "title": "Úloha má více instancí",
       "message": "Úloha [{{task}}] má jinou instanci {{instance}}], proto není dostupná z této instance {{thisInstance}}]."
@@ -6719,7 +6859,7 @@
     },
     "ATTACHMENT_SIZE_LIMIT_EXCEEDED": {
       "title": "Velikost přílohy překročila limit",
-      "message": "Limit pro velikost přílohy je [{{actualSize}}] bytů."
+      "message": "Limit pro velikost přílohy je [{{actualSize}}]."
     },
     "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
       "title": "Šablona nebyla nalezena",
@@ -7056,6 +7196,50 @@
     "IMPORT_IS_ALREADY_RUNNING": {
       "title": "Tento import je již spuštěn!",
       "message": "Stejnou importní úlohu nelze spustit dvakrát!"
+    },
+    "EXPORT_ZIP_FAILED": {
+      "title": "Export selhal!",
+      "message": "Export ZIP souboru selhal!"
+    },
+    "IMPORT_ZIP_EXTRACTION_FAILED": {
+      "title": "Import selhal!",
+      "message": "Import ZIP souboru selhal!"
+    },
+    "IMPORT_VALIDATION_FAILED_NO_MANIFEST": {
+      "title": "Import selhal!",
+      "message": "Importovaná dávka neobsahuje manifest [{{manifest}}]!"
+    },
+    "IMPORT_FIELD_MUST_CONTAINS_UUID": {
+      "title": "Import selhal!",
+      "message": "Importovaná položka musí mít datový typ UUID, ale má [{{type}}]!"
+    },
+    "IMPORT_CONVERT_TO_DTO_FAILED": {
+      "title": "Import selhal!",
+      "message": "Nepodařilo se provést transformaci souboru [{{file}}] do objektu [{{dto}}]!"
+    },
+    "IMPORT_FIELD_EMBEDDED_ANNOTATION_MISSING": {
+      "title": "Import selhal!",
+      "message": "Nepodařilo se najít anotaci Embedded pro položku [{{field}}]!"
+    },
+    "IMPORT_FAILED_ROOT_NOT_FOUND": {
+      "title": "Import selhal!",
+      "message": "Nepodařilo se nalézt kořen pro objekt [{{dto}}]!"
+    },
+    "EXPORT_GENERATE_JSON_FAILED": {
+      "title": "Export selhal!",
+      "message": "Generování JSON souboru pro DTO [{{dto}}] selhalo!"
+    },
+    "EXPORT_IMPORT_IO_FAILED": {
+      "title": "Export/Import selhal!",
+      "message": "Nastala IO chyba!"
+    },
+    "EXPORT_IMPORT_REFLECTION_FAILED": {
+      "title": "Export/Import selhal!",
+      "message": "Nastala neočekávaná chyba!"
+    },
+    "EXPORT_IMPORT_FILTER_PARENT_FIELD_MUST_BE_UUID": {
+      "title": "Export/Import selhal!",
+      "message": "Rodičovská položka [{{field}}] musí mít datový typ UUID!"
     }
   },
   "validationError": {

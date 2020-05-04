@@ -29,7 +29,7 @@ public class IdmFormProjectionDto
 	@Size(max = DefaultFieldLengths.NAME)
 	private String module;
 	@Size(max = DefaultFieldLengths.NAME)
-	private String route;
+	private String route; // route type
 	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	private boolean disabled;
@@ -102,7 +102,7 @@ public class IdmFormProjectionDto
 	 * Enabled form definitions and attributes.
 	 * Json representation - [{ definition: uuid,  attributes: [ uuid, uuid ] }].
 	 * 
-	 * @param formDefinitons
+	 * @param formDefinitions
 	 */
 	public void setFormDefinitions(String formDefinitions) {
 		this.formDefinitions = formDefinitions;

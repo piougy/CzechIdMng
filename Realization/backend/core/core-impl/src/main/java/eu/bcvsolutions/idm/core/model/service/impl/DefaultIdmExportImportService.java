@@ -117,12 +117,6 @@ public class DefaultIdmExportImportService
 		if (StringUtils.isNotEmpty(filter.getText())) {
 			predicates.add(builder.like(builder.lower(root.get(IdmExportImport_.name)), "%" + filter.getText().toLowerCase() + "%"));
 		}
-		if (filter.getFrom() != null) {
-			predicates.add(builder.greaterThanOrEqualTo(root.get(IdmExportImport_.created), filter.getFrom()));
-		}
-		if (filter.getTill() != null) {
-			predicates.add(builder.lessThanOrEqualTo(root.get(IdmExportImport_.created), filter.getTill().plusDays(1)));
-		}
 		UUID longRunningTaskId = filter.getLongRunningTaskId();
 		if (longRunningTaskId != null) {
 			predicates.add(builder.equal(root.get(IdmExportImport_.longRunningTask).get(IdmLongRunningTask_.id), longRunningTaskId));

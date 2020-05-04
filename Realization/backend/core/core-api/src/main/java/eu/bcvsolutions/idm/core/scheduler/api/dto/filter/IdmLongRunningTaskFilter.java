@@ -21,8 +21,8 @@ public class IdmLongRunningTaskFilter extends DataFilter {
 
 	public static final String PARAMETER_OPERATION_STATE = "operationState";
 	public static final String PARAMETER_TASK_TYPE = "taskType";
-	public static final String PARAMETER_FROM = "from"; // created from
-	public static final String PARAMETER_TILL = "till"; // created till
+	public static final String PARAMETER_FROM = "from"; // => created from
+	public static final String PARAMETER_TILL = "till"; // => created till
 	public static final String PARAMETER_RUNNING = "running";
 	public static final String PARAMETER_STATEFUL = "stateful";
 	public static final String PARAMETER_INSTANCE_ID = "instanceId";

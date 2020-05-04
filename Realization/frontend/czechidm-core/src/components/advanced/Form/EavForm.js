@@ -138,7 +138,11 @@ export default class EavForm extends Basic.AbstractContextComponent {
     }
     if (formInstance.getAttributes().size === 0) {
       return (
-        <Basic.Alert level="info" text={ this.i18n('attributes.empty') } className="no-margin"/>
+        <Basic.Alert
+          level="info"
+          text={ this.i18n('attributes.empty') }
+          className="no-margin"
+          rendered={ !showAttributes }/>
       );
     }
 
@@ -176,7 +180,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 useDefaultValue={ useDefaultValue }
                 manager={ ManagerType ? new ManagerType() : null }
                 validationErrors={ this.getInvalidFormAttributes(validationErrors || formInstance.validationErrors, attribute.code) }
-                className={ formInstance.getAttributes().last().id === attribute.id ? 'last' : '' }
+                className={ !showAttributes && formInstance.getAttributes().last().id === attribute.id ? 'last' : '' }
                 formableManager={ formableManager }
                 component={ component }/>
             );

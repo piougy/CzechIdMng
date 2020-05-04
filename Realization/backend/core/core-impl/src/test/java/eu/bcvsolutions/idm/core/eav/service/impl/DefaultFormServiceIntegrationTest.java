@@ -37,7 +37,6 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
@@ -1258,7 +1257,6 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		String updatedValue = "updated";
 		try {
-			getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, true);
 			getHelper().login(owner);
 
 			IdmIdentityDto updateOwner = identityService.get(owner, IdmBasePermission.READ);
@@ -1274,7 +1272,6 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 			Assert.assertNull(FORM_VALUE_TWO, m.get(attributeSecuredName)); // not readable
 		} finally {
 			logout();
-			getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, false);
 		}
 		//
 		// check secured attribute is untouched as admin

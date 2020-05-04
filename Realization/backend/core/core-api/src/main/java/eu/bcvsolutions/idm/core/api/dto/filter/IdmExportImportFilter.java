@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import org.springframework.util.LinkedMultiValueMap;
@@ -8,7 +7,7 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ExportImportType;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for export and import data
@@ -20,8 +19,6 @@ public class IdmExportImportFilter extends DataFilter {
 	
 	public final static String PARAMETER_LONG_RUNNING_TASK_ID = "longRunningTaskId"; 
 	//
-	private ZonedDateTime from;
-	private ZonedDateTime till;
 	private ExportImportType type;
 
 	public IdmExportImportFilter() {
@@ -29,23 +26,11 @@ public class IdmExportImportFilter extends DataFilter {
 	}
 	
 	public IdmExportImportFilter(MultiValueMap<String, Object> data) {
-		super(IdmExportImportDto.class, data);
+		this(data, null);
 	}
 	
-	public ZonedDateTime getFrom() {
-		return from;
-	}
-
-	public void setFrom(ZonedDateTime from) {
-		this.from = from;
-	}
-
-	public ZonedDateTime getTill() {
-		return till;
-	}
-
-	public void setTill(ZonedDateTime till) {
-		this.till = till;
+	public IdmExportImportFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmExportImportDto.class, data, parameterConverter);
 	}
 	
 	public ExportImportType getType() {
@@ -57,10 +42,10 @@ public class IdmExportImportFilter extends DataFilter {
 	}
 
 	public UUID getLongRunningTaskId() {
-		return DtoUtils.toUuid(data.getFirst(PARAMETER_LONG_RUNNING_TASK_ID));
+		return getParameterConverter().toUuid(getData(), PARAMETER_LONG_RUNNING_TASK_ID);
 	}
 	
 	public void setLongRunningTaskId(UUID longRunningTaskId) {
-		data.set(PARAMETER_LONG_RUNNING_TASK_ID, longRunningTaskId);
+		set(PARAMETER_LONG_RUNNING_TASK_ID, longRunningTaskId);
 	}
 }

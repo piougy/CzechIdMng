@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.security.evaluator.eav;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -62,6 +64,7 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 	@Autowired private IdmFormDefinitionService formDefinitionService;
 	@Autowired private SecurityService securityService;
 	@Autowired private AuthorizationManager authorizationManager;
+	@Autowired private LookupService lookupService;
 	
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -149,8 +152,20 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 		//
 		// owner update
 		if (isOwnerUpdate(policy)) {
-			if (!PermissionUtils.hasPermission(authorizationManager.getPermissions(getOwner(entity)), IdmBasePermission.UPDATE)) {
-				return permissions;
+			FormableEntity owner = getOwner(entity); // Owner instance is required (type is needed to resolve configured policies).
+			Serializable ownerId = owner.getId();
+			if (ownerId == null || lookupService.lookupEntity(owner.getClass(), ownerId) == null) { // ~ is newly created owner
+				// newly created owner together with extended values
+				if (!PermissionUtils.hasAnyPermission(
+						authorizationManager.getPermissions(owner), 
+						IdmBasePermission.CREATE, 
+						IdmBasePermission.UPDATE)) { // UPDATE - backward compatible for create.
+					return permissions;
+				}
+			} else {
+				if (!PermissionUtils.hasPermission(authorizationManager.getPermissions(owner), IdmBasePermission.UPDATE)) {
+					return permissions;
+				}
 			}
 		}
 		//

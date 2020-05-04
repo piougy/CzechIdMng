@@ -470,8 +470,31 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 		//
 		return new ResponseEntity<>(new Resource<>(formDefinition), HttpStatus.OK);
 	}
-	
-	
+
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/operation-options-connector-form-definition", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "Operation options connector configuration - form definition",
+			nickname = "getOperationOptionsConnectorFormDefinition",
+			tags = { SysSystemController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
+			})
+	public ResponseEntity<?> getOperationOptionsConnectorFormDefinition(
+			@ApiParam(value = "System's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		SysSystemDto system = getDto(backendId);
+		if (system == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormDefinitionDto formDefinition = getOperationOptionsConnectorFormDefinition(system);
+		//
+		return new ResponseEntity<>(new Resource<>(formDefinition), HttpStatus.OK);
+	}
 	
 	/**
 	 * Returns filled connector configuration
@@ -533,6 +556,37 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		IdmFormDefinitionDto formDefinition = getPoolingConnectorFormDefinition(entity);
+		return formDefinitionController.getFormValues(entity, formDefinition);
+	}
+
+	/**
+	 * Returns filled pooling connector configuration
+	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+	 *
+	 * @param backendId
+	 * @return
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/operation-options-connector-form-values", method = RequestMethod.GET)
+	@ApiOperation(
+			value = "Connector configuration - read values",
+			nickname = "getOperationOptionsConnectorFormValues",
+			tags = { SysSystemController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "") })
+			})
+	public Resource<?> getOperationOptionsConnectorFormValues(
+			@ApiParam(value = "System's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId) {
+		SysSystemDto entity = getDto(backendId);
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormDefinitionDto formDefinition = getOperationOptionsConnectorFormDefinition(entity);
 		return formDefinitionController.getFormValues(entity, formDefinition);
 	}
 	
@@ -601,6 +655,39 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
 		IdmFormDefinitionDto formDefinition = getPoolingConnectorFormDefinition(entity);
+		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
+	}
+
+
+	/**
+	 * Saves operation options connector configuration form values
+	 *
+	 * @param backendId
+	 * @param formValues
+	 * @return
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
+	@RequestMapping(value = "/{backendId}/operation-options-connector-form-values", method = RequestMethod.POST)
+	@ApiOperation(
+			value = "Operation options connector configuration - save values",
+			nickname = "postOperationOptionsConnectorFormValues",
+			tags = { SysSystemController.TAG },
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") })
+			})
+	public Resource<?> saveOperationOptionsConnectorFormValues(
+			@ApiParam(value = "System's uuid identifier or code.", required = true)
+			@PathVariable @NotNull String backendId,
+			@RequestBody @Valid List<IdmFormValueDto> formValues) {
+		SysSystemDto entity = getDto(backendId);
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormDefinitionDto formDefinition = getOperationOptionsConnectorFormDefinition(entity);
 		return formDefinitionController.saveFormValues(entity, formDefinition, formValues);
 	}
 	
@@ -909,9 +996,23 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 		//
 		return systemService.getPoolingConnectorFormDefinition(system.getConnectorInstance());
 	}
+
+	private synchronized IdmFormDefinitionDto getOperationOptionsConnectorFormDefinition(SysSystemDto system) {
+		Assert.notNull(system, "System is required.");
+		//
+		// connector key can't be null
+		if (system.getConnectorKey() == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_FORM_DEFINITION_NOT_FOUND, ImmutableMap.of("system", system.getId()));
+		}
+		//
+		return systemService.getOperationOptionsConnectorFormDefinition(system.getConnectorInstance());
+	}
 	
 	@Override
 	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
-		return new SysSystemFilter(parameters, getParameterConverter());
+		SysSystemFilter filter = new SysSystemFilter(parameters, getParameterConverter());
+		// Context property only
+		filter.setContainsRemoteServerPasswordProxyChars(true);
+		return filter;
 	}
 }

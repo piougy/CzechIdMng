@@ -136,9 +136,10 @@ class LoggingEventDetail extends Basic.AbstractContent {
               ref="formattedMessage"
               label={this.i18n('entity.LoggingEvent.formattedMessage')}/>
 
-            <Basic.ContentHeader style={{ marginBottom: 0 }} className="marginable">
-              <Basic.Icon value="warning-sign"/>
-              {' '}
+            <Basic.ContentHeader
+              icon="warning-sign"
+              style={{ marginBottom: 0 }}
+              className="marginable">
               { this.i18n('exceptions', { escape: false }) }
             </Basic.ContentHeader>
           </Basic.AbstractForm>

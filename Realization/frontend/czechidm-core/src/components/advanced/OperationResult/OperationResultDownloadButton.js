@@ -4,15 +4,14 @@ import PropTypes from 'prop-types';
 import * as Basic from '../../basic';
 import { AttachmentService } from '../../../services';
 
+const attachmentService = new AttachmentService();
+
 /**
 * Download button component for operation result.
 *
 * @author Vít Švanda
 *
 */
-
-const attachmentService = new AttachmentService();
-
 export default class OperationResultDownloadButton extends Basic.AbstractContextComponent {
 
   render() {

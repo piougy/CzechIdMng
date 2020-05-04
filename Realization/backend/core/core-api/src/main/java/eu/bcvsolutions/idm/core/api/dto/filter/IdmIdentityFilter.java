@@ -52,6 +52,13 @@ public class IdmIdentityFilter
 	 */
 	public static final String PARAMETER_MANAGERS_BY_CONTRACT = "managersByContract";
 	/**
+	 * Returns managers for valid now or in future contracts. Can be combined with PARAMETER_MANAGERS_FOR only.
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @since 10.3.0
+	 */
+	public static final String PARAMETER_VALID_CONTRACT_MANAGERS = "validContractManagers";
+	/**
 	 * Identity state.
 	 */
 	public static final String PARAMETER_STATE = "state";
@@ -300,5 +307,33 @@ public class IdmIdentityFilter
 	 */
 	public void setFormProjection(UUID formProjection) {
 		set(PARAMETER_FORM_PROJECTION, formProjection);
+	}
+	
+	/**
+	 * Filter managers for valid now or in future contracts.
+	 * - true: valid now or in future
+	 * - false: ended contracts
+	 * 
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @return filter value
+	 * @since 10.3.0
+	 */
+	public Boolean getValidContractManagers() {
+    	return getParameterConverter().toBoolean(getData(), PARAMETER_VALID_CONTRACT_MANAGERS);
+	}
+	
+	/**
+	 * Filter managers for valid now or in future contracts.
+	 * - true: valid now or in future
+	 * - false: ended contracts
+	 * 
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @param filter value
+	 * @since 10.3.0
+	 */
+	public void setValidContractManagers(Boolean validContractManagers) {
+		set(PARAMETER_VALID_CONTRACT_MANAGERS, validContractManagers);
 	}
 }

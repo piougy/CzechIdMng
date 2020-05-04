@@ -449,6 +449,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	
 	/**
 	 * Apply context on given dto.
+	 * Lookout: {@link #supportsToDtoWithFilter()} is required to return {@code true}.
 	 * 
 	 * @param dto
 	 * @param context
@@ -482,7 +483,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		// Workaround - I need to use BLANK UUID (UUID no exists in DB), because I have
 		// to ensure add all DTO types (in full deep) in correct order (even when no child entity
 		// exists (no schema, no sync ...)).
-		if (UUID.fromString(ExportManager.BLANK_UUID).equals(id)) {
+		if (ExportManager.BLANK_UUID.equals(id)) {
 			exportDescriptorDto = new ExportDescriptorDto(this.getDtoClass());
 		} else {
 			DTO export = internalExport(id);
@@ -699,7 +700,7 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 			if (authorizableType != null && authorizableType.getType() != null) {
 				BasePermission[] permissions = PermissionUtils.trimNull(permission);
 				if (!ObjectUtils.isEmpty(permissions) && !getAuthorizationManager().evaluate(entity, permissions)) {
-					throw new ForbiddenEntityException(entity.getId(), permissions);
+					throw new ForbiddenEntityException((BaseEntity)entity, permissions);
 				}
 			}
 		}

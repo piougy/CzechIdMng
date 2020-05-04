@@ -58,6 +58,8 @@ public abstract class AbstractEventableDtoService<DTO extends BaseDto, E extends
 		Assert.notNull(event.getContent(), "Content (dto) in event must be not null!");
 		//
 		checkAccess(toEntity(event.getContent(), null), permission);
+		// Set permission into event, if some processor needs additional checks.
+		event.setPermission(permission);
 		//
 		return entityEventManager.process(event, parentEvent);
 	}

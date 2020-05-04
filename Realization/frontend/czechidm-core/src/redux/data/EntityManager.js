@@ -1111,35 +1111,11 @@ export default class EntityManager {
    */
   autocompleteEntityIfNeeded(id, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey, id);
+    //
     return (dispatch, getState) => {
       if (this.fetchEntityIsNeeded(getState(), id, uiKey, cb)) {
         if (this.supportsAuthorization()) {
-          // autocomplete search by id
-          let searchParameters = this.getDefaultSearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE);
-          if (!this.getIdentifierAlias()) {
-            searchParameters = searchParameters.setFilter(SearchParameters.FILTER_PROPERTY_ID, id);
-          } else {
-            // code or id alias
-            searchParameters = searchParameters.setFilter(SearchParameters.FILTER_PROPERTY_CODEABLE_IDENTIFIER, id);
-          }
-          dispatch(this.fetchEntities(searchParameters, uiKey, (json, error) => {
-            if (!error) {
-              const data = json._embedded[this.getCollectionType()] || [];
-              const entity = data.length > 0 ? data[0] : null;
-              if (entity) {
-                /* Commented: automatic perrmission loading was moved into info components
-                dispatch(this.fetchPermissions(id, uiKey, () => {
-                  dispatch(this.receiveEntity(id, entity, uiKey, cb));
-                }));*/
-                dispatch(this.receiveEntity(id, entity, uiKey, cb));
-              } else {
-                // entity not found
-                dispatch(this.receiveError({ id }, uiKey, { module: 'core', statusCode: 404, statusEnum: 'NOT_FOUND', parameters: { entity: id } }, cb));
-              }
-            } else {
-              dispatch(this.receiveError({ id }, uiKey, error, cb));
-            }
-          }));
+          dispatch(this.autocompleteEntity(id, uiKey, cb));
         } else {
           // autocomplete method cannot be implemented
           dispatch(this.fetchEntity(id, uiKey, cb));
@@ -1147,6 +1123,47 @@ export default class EntityManager {
       } else if (cb) {
         cb(this.getEntity(getState(), id), null);
       }
+    };
+  }
+
+  /**
+   * Autocomplete requested entity by given id from BE
+   *
+   * @param  {store}  store - application store
+   * @param  {string|number} id - entity identifier
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @since 10.3.0
+   */
+  autocompleteEntity(id, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey, id);
+    //
+    return (dispatch) => {
+      let searchParameters = this.getDefaultSearchParameters().setName(SearchParameters.NAME_AUTOCOMPLETE);
+      if (!this.getIdentifierAlias()) {
+        searchParameters = searchParameters.setFilter(SearchParameters.FILTER_PROPERTY_ID, id);
+      } else {
+        // code or id alias
+        searchParameters = searchParameters.setFilter(SearchParameters.FILTER_PROPERTY_CODEABLE_IDENTIFIER, id);
+      }
+      dispatch(this.fetchEntities(searchParameters, uiKey, (json, error) => {
+        if (!error) {
+          const data = json._embedded[this.getCollectionType()] || [];
+          const entity = data.length > 0 ? data[0] : null;
+          if (entity) {
+            dispatch(this.receiveEntity(id, entity, uiKey, cb));
+          } else {
+            // entity not found
+            dispatch(this.receiveError(
+              { id },
+              uiKey,
+              { module: 'core', statusCode: 404, statusEnum: 'NOT_FOUND', parameters: { entity: id } },
+              cb
+            ));
+          }
+        } else {
+          dispatch(this.receiveError({ id }, uiKey, error, cb));
+        }
+      }));
     };
   }
 

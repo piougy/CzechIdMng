@@ -5,7 +5,7 @@ import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
 /**
- * Role's granted authorities
+ * Role granted authorities.
  *
  * @author Radek Tomiška
  */
@@ -26,13 +26,13 @@ export default class AuthorizationPolicyService extends AbstractRequestService {
     }
 
     if (!entity._embedded.role && !entity.authorizableType) {
-      return `${Utils.Ui.getSimpleJavaType(entity.evaluatorType)}`;
+      return `${ Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
     }
 
     if (!entity._embedded.role && entity.authorizableType) {
-      return `${Utils.Ui.getSimpleJavaType(entity.authorizableType)} - ${Utils.Ui.getSimpleJavaType(entity.evaluatorType)}`;
+      return `${ Utils.Ui.getSimpleJavaType(entity.authorizableType)} - ${Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
     }
-    return `${this.roleService.getNiceLabel(entity._embedded.role)} - ${Utils.Ui.getSimpleJavaType(entity.evaluatorType)}`;
+    return `${ this.roleService.getNiceLabel(entity._embedded.role)} - ${Utils.Ui.getSimpleJavaType(entity.evaluatorType) }`;
   }
 
   supportsPatch() {
@@ -49,7 +49,14 @@ export default class AuthorizationPolicyService extends AbstractRequestService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('seq', 'asc').setSort('groupPermission').setSize(50);
+    return super.getDefaultSearchParameters()
+      .setName(SearchParameters.NAME_QUICK)
+      .clearSort()
+      .setSort('seq')
+      .setSort('groupPermission')
+      .setSort('authorizableType')
+      .setSort('evaluatorType')
+      .setSize(50);
   }
 
   /**
@@ -59,16 +66,16 @@ export default class AuthorizationPolicyService extends AbstractRequestService {
    */
   getSupportedEvaluators() {
     return RestApiService
-    .get(this.getApiPath() + '/search/supported')
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/search/supported`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**
@@ -78,15 +85,15 @@ export default class AuthorizationPolicyService extends AbstractRequestService {
    */
   getAuthorizableTypes() {
     return RestApiService
-    .get(this.getApiPath() + '/search/authorizable-types')
-    .then(response => {
-      return response.json();
-    })
-    .then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
-      }
-      return json;
-    });
+      .get(`${ this.getApiPath() }/search/authorizable-types`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }

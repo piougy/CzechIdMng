@@ -307,6 +307,18 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     });
   }
 
+  _onChangeCustomFilterEnable(event) {
+    this.setState({
+      customFilterUsed: event.currentTarget.checked
+    });
+  }
+
+  _onChangeReconciliation(event) {
+    this.setState({
+      reconciliationEnabled: event.currentTarget.checked
+    });
+  }
+
   _getEntityType(synchronizationConfig, entityType) {
     if (entityType !== undefined) {
       return entityType;
@@ -344,6 +356,16 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping : null;
     const forceSearchCorrelationAttribute = new Domain.SearchParameters()
       .setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
+
+    let customFilterUsed = this.state.customFilterUsed;
+    let reconciliationEnabled = this.state.reconciliationEnabled;
+    if (customFilterUsed === undefined) {
+      customFilterUsed = synchronizationConfig ? synchronizationConfig.customFilter : undefined;
+    }
+    if (reconciliationEnabled === undefined) {
+      reconciliationEnabled = synchronizationConfig ? synchronizationConfig.reconciliation : undefined;
+    }
+
     let isSelectedTree = false;
     let specificConfiguration = null;
     const finalEntityType = this._getEntityType(synchronizationConfig, entityType);
@@ -405,7 +427,16 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     ref="reconciliation"
                     readOnly={isSelectedTree}
                     label={this.i18n('acc:entity.SynchronizationConfig.reconciliation.label')}
-                    helpBlock={this.i18n('acc:entity.SynchronizationConfig.reconciliation.help')}/>
+                    helpBlock={this.i18n('acc:entity.SynchronizationConfig.reconciliation.help')}
+                    onChange={this._onChangeReconciliation.bind(this)}/>
+                  <Basic.LabelWrapper
+                    hidden={!customFilterUsed || !reconciliationEnabled}>
+                    <Basic.Alert
+                      level="warning"
+                      icon="exclamation-sign"
+                      className="no-margin"
+                      text={this.i18n(`acc:content.system.systemSynchronizationConfigDetail.customFilterWithReconciliation`)}/>
+                  </Basic.LabelWrapper>
                   <Basic.Checkbox
                     ref="differentialSync"
                     label={this.i18n('acc:entity.SynchronizationConfig.differentialSync.label')}
@@ -599,8 +630,17 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                 <Basic.AbstractForm ref="formFilter" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
                   <Basic.Checkbox
                     ref="customFilter"
+                    onChange={this._onChangeCustomFilterEnable.bind(this)}
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilter.label')}
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilter.help')}/>
+                  <Basic.LabelWrapper
+                    hidden={!customFilterUsed || !reconciliationEnabled}>
+                    <Basic.Alert
+                      level="warning"
+                      icon="exclamation-sign"
+                      className="no-margin"
+                      text={this.i18n(`acc:content.system.systemSynchronizationConfigDetail.customFilterWithReconciliation`)}/>
+                  </Basic.LabelWrapper>
                   <Basic.LabelWrapper label=" ">
                     <Basic.Alert
                       key="customFilterInfo"
@@ -614,25 +654,29 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
                     forceSearchParameters={forceSearchCorrelationAttribute}
                     label={this.i18n('acc:entity.SynchronizationConfig.filterAttribute.label')}
                     onChange={this._onChangeFilterAttribute.bind(this)}
-                    tooltip={this.i18n('acc:entity.SynchronizationConfig.filterAttribute.help')}/>
+                    tooltip={this.i18n('acc:entity.SynchronizationConfig.filterAttribute.help')}
+                    readOnly={!customFilterUsed}/>
                   <Basic.EnumSelectBox
                     ref="filterOperation"
                     enum={IcFilterOperationTypeEnum}
                     label={this.i18n('acc:entity.SynchronizationConfig.filterOperation')}
                     required
-                    clearable={ false }/>
+                    clearable={ false }
+                    readOnly={!customFilterUsed}/>
                   <Basic.SelectBox
                     ref="tokenAttribute"
                     manager={systemAttributeMappingManager}
                     forceSearchParameters={forceSearchCorrelationAttribute}
                     label={this.i18n('acc:entity.SynchronizationConfig.tokenAttribute.label')}
-                    helpBlock={this.i18n('acc:entity.SynchronizationConfig.tokenAttribute.help')}/>
+                    helpBlock={this.i18n('acc:entity.SynchronizationConfig.tokenAttribute.help')}
+                    readOnly={!customFilterUsed}/>
                   <Basic.ScriptArea
                     ref="customFilterScript"
                     height="20em"
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}
-                    help={ this.getHelp() }/>
+                    help={ this.getHelp() }
+                    readOnly={!customFilterUsed}/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
                   <Basic.Button

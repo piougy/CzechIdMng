@@ -54,10 +54,19 @@ export default class Filter extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showloading } = this.props;
-    if (!rendered || showloading) {
+    const { rendered, showLoading, embedded } = this.props;
+    if (!rendered || showLoading) {
       return null;
     }
+    // embedded filter without form wrapper
+    if (embedded) {
+      return (
+        <Basic.Div className="advanced-filter">
+          { this.props.children }
+        </Basic.Div>
+      );
+    }
+    // standalone filter
     return (
       <form onSubmit={ this.useFilter.bind(this) } className="advanced-filter">
         { this.props.children }
@@ -66,7 +75,8 @@ export default class Filter extends Basic.AbstractContextComponent {
   }
 
   /**
-   * Return "like" operator help
+   * Return "like" operator help.
+   * Lookout: static method => static i18n without escape feature.
    *
    * @return {HelpContent} help can be given to input help props or to the help icon itself
    */
@@ -78,17 +88,17 @@ export default class Filter extends Basic.AbstractContextComponent {
       </span>
     );
     const content = [];
-    content.push(
-      <span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.body') }}/>
-    );
     if (includeUuidHelp) {
       content.push(
         <span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.uuid') }}/>
       );
+      content.push(<br />);
     }
-    helpContent = helpContent.setBody(content);
+    content.push(
+      <span dangerouslySetInnerHTML={{__html: i18n('filter.text.help.body') }}/>
+    );
     //
-    return helpContent;
+    return helpContent.setBody(content);
   }
 }
 
@@ -97,10 +107,15 @@ Filter.propTypes = {
   /**
    * Submit function
    */
-  onSubmit: PropTypes.func.isRequired
+  onSubmit: PropTypes.func,
+  /**
+   * Embedded filter (inside another form or filter).
+   */
+  embedded: PropTypes.bool
 };
 Filter.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
+  embedded: false
 };
 
 Filter.ToogleButton = FilterToogleButton;

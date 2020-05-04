@@ -76,17 +76,13 @@ public class DefaultIdmLongRunningTaskService
 	}
 	
 	@Override
-	protected IdmLongRunningTaskDto toDto(IdmLongRunningTask entity, IdmLongRunningTaskDto dto, IdmLongRunningTaskFilter filter) {
-		IdmLongRunningTaskDto longRunningTaskDto = super.toDto(entity, dto, filter);
+	protected IdmLongRunningTaskDto applyContext(IdmLongRunningTaskDto dto, IdmLongRunningTaskFilter context, BasePermission... permission) {
+		dto = super.applyContext(dto, context, permission);
 		//
-		if (filter == null) {
-			return longRunningTaskDto;
+		if (context != null && context.isIncludeItemCounts()) {
+			dto = setFailedAndSuccessItems(dto);
 		}
-		//
-		if (filter.isIncludeItemCounts()) {
-			longRunningTaskDto = setFailedAndSuccessItems(longRunningTaskDto);
-		}
-		return longRunningTaskDto;
+		return dto;
 	}
 	
 	@Override

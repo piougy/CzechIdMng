@@ -516,7 +516,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 					// run under original transaction id - asynchronous processing continue the "user" transaction
 					TransactionContextHolder.setContext(new TransactionContext(event.getTransactionId()));
 					//
-					LOG.trace("Executing event under user [{}] (admin authorities) and transaction [{}]", 
+					LOG.debug("Executing event under user [{}] (admin authorities) and transaction [{}]", 
 							securityService.getUsername(),
 							TransactionContextHolder.getContext().getTransactionId());
 					//

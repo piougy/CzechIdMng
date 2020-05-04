@@ -34,7 +34,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import eu.bcvsolutions.idm.core.api.bulk.action.AbstractExportBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -78,7 +77,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ImportTaskExecutor;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Import manager
@@ -106,14 +105,12 @@ public class DefaultImportManager implements ImportManager {
 	private LongRunningTaskManager longRunningTaskManager;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private SecurityService securityService;
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultImportManager.class);
 
 	@Override
 	@Transactional
-	public IdmExportImportDto uploadImport(String name, String fileName, InputStream inputStream) {
+	public IdmExportImportDto uploadImport(String name, String fileName, InputStream inputStream, BasePermission... permission) {
 		Assert.notNull(name, "Name cannot be null!");
 		Assert.notNull(fileName, "File name cannot be null!");
 		Assert.notNull(inputStream, "Input stream cannot be null!");
@@ -122,13 +119,13 @@ public class DefaultImportManager implements ImportManager {
 		IdmExportImportDto batch = new IdmExportImportDto();
 		batch.setName(name);
 		batch.setType(ExportImportType.IMPORT);
-		batch = exportImportService.save(batch);
+		batch = exportImportService.save(batch, permission);
 
 		IdmAttachmentDto attachment = new IdmAttachmentDto();
 		attachment.setName(fileName);
 		attachment.setMimetype(ExportManager.APPLICATION_ZIP);
 		attachment.setInputData(inputStream);
-		attachment.setOwnerType(AbstractExportBulkAction.OWNER_TYPE);
+		attachment.setOwnerType(lookupService.getOwnerType(IdmExportImportDto.class));
 
 		attachment = attachmentManager.saveAttachment(batch, attachment);
 
@@ -140,7 +137,7 @@ public class DefaultImportManager implements ImportManager {
 			batch.setName(manifest.getName());
 			batch.setExecutorName(manifest.getExecutorName());
 			batch.setData(attachment.getId());
-			batch = exportImportService.save(batch);
+			batch = exportImportService.save(batch, permission);
 		} finally {
 			// Delete temp files.
 			try {
@@ -159,15 +156,13 @@ public class DefaultImportManager implements ImportManager {
 
 	@Override
 	@Transactional
-	public IdmExportImportDto executeImport(IdmExportImportDto importBatch, boolean dryRun) {		
+	public IdmExportImportDto executeImport(IdmExportImportDto importBatch, boolean dryRun, BasePermission... permission) {		
 		Assert.notNull(importBatch, "Batch cannot be null!");
 		Assert.notNull(importBatch.getId(), "Id of batch cannot be null!");
 		LOG.info("Import [{}, dry-run: {}] starts ...", importBatch.toString(), dryRun);
 
-		if (!dryRun && !securityService.isAdmin()) {
-			// Only super-admin can execute import!
-			throw new ResultCodeException(CoreResultCode.IMPORT_CAN_EXECUTE_ONLY_ADMIN);
-		}
+		// Check permissions (if given) before LRT is executed (dry run updates batch too => permissions have to be evaluated).
+		exportImportService.checkAccess(importBatch, permission);
 
 		OperationResult operationResult = importBatch.getResult();
 		if (operationResult != null && OperationState.RUNNING == operationResult.getState()) {
@@ -181,7 +176,7 @@ public class DefaultImportManager implements ImportManager {
 		UUID taskId = result.getExecutor().getLongRunningTaskId();
 		importBatch.setLongRunningTask(taskId);
 
-		return exportImportService.save(importBatch);
+		return exportImportService.save(importBatch, permission);
 	}
 
 	@Override
@@ -214,12 +209,12 @@ public class DefaultImportManager implements ImportManager {
 					.setExportDescriptors(manifest.getExportOrder())//
 					.setDryRun(dryRun)//
 					.setBatch(batch)//
-					.setImportLRT(importTaskExecutor);
+					.setImportTaskExecutor(importTaskExecutor);
 
 			// Set count of all files in the batch (minus manifest)
 			long countOfFiles = countOfFiles(tempDirectory);
-			context.getImportLRT().setCounter(0L);
-			context.getImportLRT().setCount(countOfFiles - 1);
+			context.getImportTaskExecutor().setCounter(0L);
+			context.getImportTaskExecutor().setCount(countOfFiles - 1);
 
 			// Import new and update exist DTOs.
 			manifest.getExportOrder().forEach(descriptor -> {
@@ -278,8 +273,8 @@ public class DefaultImportManager implements ImportManager {
 			dtos.forEach(dto -> {
 
 				// Increase counter and update state of import LRT.
-				context.getImportLRT().increaseCounter();
-				context.getImportLRT().updateState();
+				context.getImportTaskExecutor().increaseCounter();
+				context.getImportTaskExecutor().updateState();
 
 				BaseDto parentDto = getParentDtoFromBatch(dto, context);
 				if (parentDto == null) {

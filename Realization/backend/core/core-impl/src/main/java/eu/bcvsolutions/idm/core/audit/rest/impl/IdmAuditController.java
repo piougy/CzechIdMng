@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.audit.dto.filter.IdmAuditFilter;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -63,8 +64,8 @@ import io.swagger.annotations.AuthorizationScope;
  * IdM audit endpoint 
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  */
-
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/audits")
 @Api(
@@ -390,15 +391,39 @@ public class IdmAuditController extends AbstractReadWriteDtoController<IdmAuditD
 
 	@Override
 	protected IdmAuditFilter toFilter(MultiValueMap<String, Object> parameters) {
-		// We must check if map contains list of chnged attributes, because mapped doesnt works with list and zero values
+		// We must check if map contains list of changed attributes, because mapped doesn't works with list and zero values.
 		List<String> changedAttributesList = null;
 		if (parameters.containsKey("changedAttributesList")) {
 			List<Object> remove = parameters.remove("changedAttributesList");
 			changedAttributesList = remove.stream().map(o -> Objects.toString(o.toString())).collect(Collectors.toList());
 		}
-
+		// entity id decorator
+		String entityId = getParameterConverter().toString(parameters, "entityId");
+		String entityType = getParameterConverter().toString(parameters, "type");
+		UUID entityUuid = null;
+		if (StringUtils.isNotEmpty(entityType) && StringUtils.isNotEmpty(entityId)) {
+			// try to find entity by Codeable identifier
+			AbstractDto entity = getLookupService().lookupDto(entityType, entityId);
+			if (entity != null) {
+				entityUuid = entity.getId();
+				parameters.remove("entityId");
+			} else {
+				LOG.debug("Entity type [{}] with identifier [{}] does not found, raw entityId will be used as uuid.", 
+						entityType, entityId);
+				// Better exception for FE.
+				try {
+					DtoUtils.toUuid(entityId);
+				} catch (ClassCastException ex) {
+					throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", entityId), ex);
+				}
+			}
+		}
 		IdmAuditFilter filter = super.toFilter(parameters);
 		filter.setChangedAttributesList(changedAttributesList);
+		if (entityUuid != null) {
+			filter.setEntityId(entityUuid);
+		}
+		//
 		return filter;
 	}
 }

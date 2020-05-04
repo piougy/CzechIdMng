@@ -51,7 +51,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.audit.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
@@ -69,9 +68,9 @@ import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmProfileFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
-import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -134,7 +133,6 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmAuditService auditService;
 	@Autowired private IdmTreeNodeService treeNodeService;
-	@Autowired private PrivateIdentityConfiguration identityConfiguration;
 	@Autowired private IdmProfileService profileService;
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private IdmIncompatibleRoleService incompatibleRoleService;
@@ -710,9 +708,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return formDefinitionController.getDefinitions(
-				IdmIdentity.class, 
-				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.AUTOCOMPLETE : null);
+		return formDefinitionController.getDefinitions(IdmIdentity.class, IdmBasePermission.AUTOCOMPLETE);
 	}
 	
 	/**
@@ -742,42 +738,25 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
 				IdmIdentity.class, 
 				definitionCode, 
-				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.AUTOCOMPLETE : null);
+				IdmBasePermission.AUTOCOMPLETE);
 		//
 		IdmIdentityDto dto = getDto(backendId);
 		if (dto == null) {		
 			// empty form instance with filled form definition
 			IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
 			formInstance.setFormDefinition(formDefinition);
+			formInstance.setOwnerType(IdmIdentity.class);
 			// secure attributes
-			if (identityConfiguration.isFormAttributesSecured()) {
-				formDefinitionController.secureAttributes(formInstance);
-			}
+			formDefinitionController.secureAttributes(formInstance);
 			//
 			return new Resource<>(formInstance);
 		}
 		//
-		Resource<IdmFormInstanceDto> formValues = formDefinitionController.getFormValues(
-				dto,
-				formDefinition,
-				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.READ : null);	
-		//
-		if (!identityConfiguration.isFormAttributesSecured()) {
-			// we need to iterate through attributes and make them read only, if identity cannot be updated
-			try {
-				checkAccess(dto, IdmBasePermission.UPDATE);
-			} catch (ForbiddenEntityException ex) {
-				formValues.getContent().getFormDefinition().getFormAttributes().forEach(formAttribute -> {
-					formAttribute.setReadonly(true);
-				});
-			}
-		}
-		//
-		return formValues;
+		return formDefinitionController.getFormValues(dto, formDefinition, IdmBasePermission.READ);
 	}
 	
 	/**
-	 * Saves connector configuration form values
+	 * Save form values.
 	 * 
 	 * @param backendId
 	 * @param formValues
@@ -811,21 +790,13 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		if (!identityConfiguration.isFormAttributesSecured()) {
-			// if eav form value are not secured by authorization policies => check security by identity
-			checkAccess(dto, IdmBasePermission.UPDATE);
-		}
 		//
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
 				IdmIdentity.class, 
 				definitionCode, 
-				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.AUTOCOMPLETE : null);
+				IdmBasePermission.AUTOCOMPLETE);
 		//
-		return formDefinitionController.saveFormValues(
-				dto, 
-				formDefinition, 
-				formValues, 
-				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.UPDATE : null);
+		return formDefinitionController.saveFormValues(dto, formDefinition, formValues, IdmBasePermission.UPDATE);
 	}
 	
 	/**
@@ -860,15 +831,8 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		if (!identityConfiguration.isFormAttributesSecured()) {
-			// if eav form value are not secured by authorization policies => check security by identity
-			checkAccess(dto, IdmBasePermission.UPDATE);
-		}
 		//
-		return formDefinitionController.saveFormValue(
-				dto,
-				formValue,
-				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.UPDATE : null);
+		return formDefinitionController.saveFormValue(dto, formValue, IdmBasePermission.UPDATE);
 	}
 	
 	/**
@@ -902,10 +866,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormValueDto value = formService.getValue(
-				dto, 
-				DtoUtils.toUuid(formValueId), 
-				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.READ : null);
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId), IdmBasePermission.READ);
 		if (value == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
 		}
@@ -943,10 +904,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		if (dto == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormValueDto value = formService.getValue(
-				dto, 
-				DtoUtils.toUuid(formValueId), 
-				identityConfiguration.isFormAttributesSecured() ? IdmBasePermission.READ : null);
+		IdmFormValueDto value = formService.getValue(dto, DtoUtils.toUuid(formValueId), IdmBasePermission.READ);
 		if (value == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, formValueId);
 		}
@@ -1095,8 +1053,12 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		IdmProfileDto profile = profileService.findOrCreateByIdentity(backendId, IdmBasePermission.READ, IdmBasePermission.CREATE);
 		//
 		profile = profileService.uploadImage(profile, data, fileName, IdmBasePermission.UPDATE);
-		// refresh
-		return profileController.get(profile.getId().toString());
+		// refresh with permissions are needed
+		IdmProfileFilter context = new IdmProfileFilter();
+		context.setAddPermissions(true);
+		profile = profileController.getService().get(profile, context, IdmBasePermission.READ);
+		//
+		return new ResponseEntity<>(profileController.toResource(profile), HttpStatus.OK);
 	}
 	
 	/**
@@ -1125,8 +1087,12 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		IdmProfileDto profile = profileService.findOneByIdentity(backendId, IdmBasePermission.READ, IdmBasePermission.UPDATE);
 		//
 		profile = profileService.deleteImage(profile, IdmBasePermission.UPDATE);
-		// refresh
-		return profileController.get(profile.getId().toString());
+		// refresh with permissions are needed
+		IdmProfileFilter context = new IdmProfileFilter();
+		context.setAddPermissions(true);
+		profile = profileController.getService().get(profile, context, IdmBasePermission.READ);
+		//
+		return new ResponseEntity<>(profileController.toResource(profile), HttpStatus.OK);
 	}
 	
 	/**

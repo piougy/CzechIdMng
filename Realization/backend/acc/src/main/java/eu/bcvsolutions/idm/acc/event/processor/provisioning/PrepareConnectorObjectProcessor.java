@@ -82,14 +82,14 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  * @author Radek Tomiška
  *
  */
-@Component
+@Component(PrepareConnectorObjectProcessor.PROCESSOR_NAME)
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("Prepares connector object from account properties. Resolves create or update provisioning operation (reads object from target system).")
 public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcessor<SysProvisioningOperationDto> {
 
 	public static final String PROCESSOR_NAME = "prepare-connector-object-processor";
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
-			.getLogger(PrepareConnectorObjectProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PrepareConnectorObjectProcessor.class);
+	//
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemAttributeMappingService attributeMappingService;
 	private final IcConnectorFacade connectorFacade;

@@ -68,7 +68,7 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		
 		createIdentityContract(user, quarantee2, null);
 		
-		List<IdmIdentityDto> result = identityService.findAllManagers(user.getId(), null);
+		List<IdmIdentityDto> result = identityService.findAllManagers(user.getId(), null, null);
 		
 		assertEquals(2, result.size());
 	}
@@ -120,7 +120,7 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		IdmIdentityDto manager = managersList.get(0);
 		assertEquals(user.getId(), manager.getId());
 		
-		managersList = identityService.findAllManagers(user4.getId(), treeTypeFirst.getId());
+		managersList = identityService.findAllManagers(user4.getId(), treeTypeFirst.getId(), Boolean.TRUE);
 		assertEquals(2, managersList.size());
 		
 		managersList = identityService.findAllManagers(user.getId(), treeTypeFirst.getId());

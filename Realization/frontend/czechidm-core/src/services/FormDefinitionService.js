@@ -35,6 +35,10 @@ class FormDefinitionService extends AbstractService {
     return 'FORMDEFINITION';
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   /**
    * Returns default searchParameters for current entity type
    *

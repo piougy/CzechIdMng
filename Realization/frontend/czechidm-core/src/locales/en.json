@@ -125,7 +125,7 @@
       "help": {
         "header": "Filtering",
         "body": "<div>Filter is using <strong>like</strong> operator:<br /><ul><li>looking for any occurrence of the specified string,</li><li>available wildcard characters:<ul><li><strong>%</strong> - matches zero or more characters,</li><li><strong>_</strong> - single character.</li></ul></li></ul>If we want to look for special characters, we add a backslash <strong>\\%,\\_</strong></div>",
-        "uuid": "<div>Given <strong>uuid</strong> identifiers cannot contain dashes (short identifier can be given or dashes can be removed).</div>"
+        "uuid": "<div>Given <strong>uuid</strong> short dentifiers cannot contain dashes (dashes can be removed or whole uuid identifier can be given).</div>"
       }
     },
     "module": {
@@ -134,6 +134,11 @@
     },
     "transactionId": {
       "placeholder": "$t(entity.transactionId.label) (uuid)"
+    },
+    "entityId": {
+      "placeholder": "Entity identifier (uuid)",
+      "codeable": "Entity identifier (uuid or code)",
+      "help": "If <strong>entity type</strong> is selected and entity has unique code, then this code can be used instead uuid identifier. For example <strong>role code</strong> (for type IdmRole), <strong>username</strong> (for type IdmIdentity) could be used etc."
     }
   },
   "action": {
@@ -569,6 +574,8 @@
           "ROLE-SELECT": "Select role (SelectBox)",
           "CAN-BE-REQUESTED-ROLE-SELECT": "Select role available for request (SelectBox)",
           "FORM-DEFINITION-SELECT": "Select form definition (SelectBox)",
+          "FORM-PROJECTION-SELECT": "Select form projection (SelectBox)",
+          "CODE-LIST-SELECT": "Select codelist (SelectBox)",
           "TREE-NODE-SELECT": "Select tree node (SelectBox)",
           "TREE-TYPE-SELECT": "Select tree type (SelectBox)",
           "SCRIPT-SELECT": "Select script (SelectBox)",
@@ -756,7 +763,10 @@
       "USERNAME": "User name",
       "LASTNAME": "Last name",
       "FIRSTNAME": "First Name",
-      "EMAIL": "E-mail"
+      "EMAIL": "E-mail",
+      "TITLESBEFORE": "Titles before",
+      "TITLESAFTER": "Titles after",
+      "EXTERNALCODE": "Personal number"
     },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
@@ -891,7 +901,7 @@
       "PASSWORD": "Password (GuardedString)",
       "ASSIGNED_ROLES": "User assigned roles",
       "ASSIGNED_ROLES_FOR_SYSTEM": "User assigned roles (for this system)",
-      "FORM_PROJECTION": "User type (UUID)",
+      "FORM_PROJECTION": "User type (IdmFormProjectionDto)",
       "helpBlock": {
         "USERNAME": "",
         "EXTERNAL_CODE": "",
@@ -907,7 +917,7 @@
         "PASSWORD": "",
         "ASSIGNED_ROLES": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
         "ASSIGNED_ROLES_FOR_SYSTEM": "Input for transforming into the system (<strong>attributeValue</strong>) is a list of all <strong>valid</strong> user roles which <strong>assigned this system</strong> (list of AssignedRoleDto). This attribute is only for <strong>provisioning</strong> and for default strategy (SET).",
-        "FORM_PROJECTION": ""
+        "FORM_PROJECTION": "<strong>Sync - </strong> You can use an identifier or <strong>projection code</strong> to get a user-type (projection).<br/><strong>Provisioning - </strong> Input value in transformation to the system (<strong> attributeValue </strong>) is the entire user-type object (IdmFormProjectionDto)."
       }
     },
     "ContractAttributeEnum": {
@@ -1036,7 +1046,13 @@
       "MANUALLYDISABLE": "Deactivate user manually",
       "MANUALLYENABLE": "Activate user manually",
       "CANBEREQUESTED": "Can be requested",
-      "CHANGEPROJECTION": "Change user type (projection)"
+      "CHANGEPROJECTION": "Change user type (projection)",
+      "CHANGEUSERNAME": "Change login",
+      "CHANGENAME": "Change first name, surname and titles",
+      "CHANGEPHONE": "Change phone",
+      "CHANGEEMAIL": "Change email",
+      "CHANGEEXTERNALCODE": "Change personal number",
+      "CHANGEDESCRIPTION": "Change note"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",
@@ -1077,8 +1093,7 @@
       "ROLEREQUEST": "Requests for change roles",
       "REQUEST": "Requests (universal)",
       "REQUESTITEM": "Requests - items (universal)",
-      "SCHEDULER": "Scheduler",
-      "LONGRUNNINGTASK": "Long running tasks",
+      "SCHEDULER": "Scheduler and long running tasks",
       "WORKFLOWDEFINITION": "Workflow - definitions",
       "CONFIDENTIALSTORAGEVALUE": "Confidential storage",
       "WORKFLOWTASK": "Workflow - tasks",
@@ -1283,6 +1298,9 @@
         "passwordSimilarEmail": "Password cannot be similar to email: {{0}}",
         "passwordSimilarFirstName": "Password cannot be similar to first name: {{0}}",
         "passwordSimilarLastName": "Password cannot be similar to surname: {{0}}",
+        "passwordSimilarTitlesBefore": "Password cannot be similar to title: {{0}}",
+        "passwordSimilarTitlesAfter": "Password cannot be similar to title: {{0}}",
+        "passwordSimilarExternalCode": "Password cannot be similar to personal number: {{0}}",
         "date": "Password can not be change now, try again: {{0}}",
         "advancedControlValidateType": "Enhanced control is available only for validate policies.",
         "specialCharacterBase":{
@@ -1297,6 +1315,9 @@
         "passwordSimilarEmailPreValidate": "email",
         "passwordSimilarFirstNamePreValidate": "first name",
         "passwordSimilarLastNamePreValidate": "surname",
+        "passwordSimilarTitlesBeforePreValidate": "title before name",
+        "passwordSimilarTitlesAfterPreValidate": "title after name",
+        "passwordSimilarExternalCodePreValidate": "personal number",
         "passwordSimilarPreValidate": "Password cannot be similar to",
         "passwordHintPreValidate": "Hint for a ",
         "passwordHintPreValidatePwd": "new password",
@@ -1442,6 +1463,13 @@
           "currentRoles": "Currently assigned roles",
           "conceptIdentityRoles": "Applicant's roles"
         }
+      },
+      "historicInstance": {
+        "name": "<strong>This task has already been solved.</strong>",
+        "assignee": "Resolved by",
+        "endTime": "Date of resolution",
+        "result": "Result",
+        "process": "The task is part of the process"
       },
       "DefaultTaskDetail": {
         "applicant": "Requested for",
@@ -2721,6 +2749,12 @@
         "button": {
           "close": {
             "label": "Back to list of users"
+          },
+          "formProjection": {
+            "label": "Edit form projection"
+          },
+          "editContract": {
+            "label": "Add contract for this organization unit"
           }
         },
         "identity": {
@@ -2738,6 +2772,15 @@
           "workPosition": {
             "label": "Organizational positon"
           }
+        },
+        "primeContract": {
+          "label": "Prime contract"
+        },
+        "otherContracts": {
+          "label": "Other contracts"
+        },
+        "allContracts": {
+          "label": "Contracts"
         },
         "otherPosition": {
           "workPosition": {
@@ -3009,11 +3052,17 @@
         },
         "create": {
           "title": "Add guarantee",
-          "header": "Add guarantee"
+          "header": "Add guarantee",
+          "endedContract": "New guarantee can be added to valid or future valid contact"
         },
         "action": {
           "save": {
             "success": "For contracted position was successfully saved authorizer [{{record}}]"
+          }
+        },
+        "endedContract": {
+          "warning": {
+            "message": "Contract ended in the past. Is possible to remove previously defined direct guarantees only."
           }
         }
       },
@@ -3486,6 +3535,7 @@
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "User tasks in  process",
           "subprocesses": "Sub-processes",
+          "nextProcessOptions": "Next process options",
           "filter": {
             "processDefinition":{
               "label": "Definition",
@@ -3834,6 +3884,10 @@
       "guarantee": {
         "label": "Authorizer - identity",
         "help": "Selected identity will be the role authorizer."
+      },
+      "type": {
+        "label": "Authorizer type",
+        "help": ""
       }
     },
     "RoleGuaranteeRole": {
@@ -3844,6 +3898,10 @@
       "guaranteeRole": {
         "label": "Authorizer - role",
         "help": "Identities with the selected role assigned will be the role authorizers."
+      },
+      "type": {
+        "label": "Authorizer type",
+        "help": ""
       }
     },
     "ConfidentialStorageValue": {
@@ -4231,7 +4289,7 @@
       "main": {
         "short": "M",
         "label": "Main position",
-        "help": "Main / prime work position. It's created automatically when the user is created.",
+        "help": "Main / prime work position.",
         "title": "Main position"
       },
       "state": {
@@ -5253,32 +5311,38 @@
       "approve": {
         "label" : "Accept",
         "tooltip": "Executes approval of the task.",
-        "warning": "Do you want to approve the request?"
+        "warning": "Do you want to approve the request?",
+        "resultLabel": "Approved"
       },
       "disapprove": {
         "label" : "Reject",
         "tooltip": "Reject task.",
-        "warning": "Do you want to reject the request?"
+        "warning": "Do you want to reject the request?",
+        "resultLabel": "Rejected"
       },
       "backToApplicant": {
         "label" : "Return to applicant",
         "tooltip": "Returns request to requester.",
-        "warning": "Do you want to return the request?"
+        "warning": "Do you want to return the request?",
+        "resultLabel": "Returned to requester."
       },
       "createRequest": {
         "label" : "Submit request",
         "tooltip": "Submit request.",
-        "warning": "Do you want to submit the request?"
+        "warning": "Do you want to submit the request?",
+        "resultLabel": "Request submitted."
       },
       "cancelRequest": {
         "label" : "Delete request",
         "tooltip": "Delete this request.",
-        "warning": "Do you want to delete the request?"
+        "warning": "Do you want to delete the request?",
+        "resultLabel": "Request canceled."
       },
       "repairedRequest": {
         "label" : "Request repaired",
         "tooltip": "Request was repaired by comments.",
-        "warning": "Do you want return request to approve?"
+        "warning": "Do you want return request to approve?",
+        "resultLabel": "Request repaired."
       }
     },
     "formData" : {
@@ -5445,6 +5509,23 @@
             "help": ""
           }
         }
+      },
+      "form-definition-export-bulk-action": {
+        "icon": "export",
+        "label": "Export form definition",
+        "title": "Form definition",
+        "help": "Creates an export batch containing selected form definitions. The export result will be saved in the <strong>Export/Import</strong> agenda.",
+        "attributes": {
+          "name": {
+              "label": "Description of export",
+            "help": ""
+          }
+        }
+      },
+      "form-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) form definitions",
+        "help": "$t(action.delete.action) selected form definitions.",
+        "icon": "$t(action.delete.icon)"
       },
       "configuration-delete-bulk-action": {
         "label": "$t(action.delete.action) configuration items",
@@ -5616,6 +5697,31 @@
           "can-be-requested-only": {
             "label": "Can be requested only",
             "help": "Add permission for role requests only (can be requested). Usable, when assigned roles need to be copied from another user."
+          }
+        }
+      },
+      "core-codelist-item-by-code-evaluator": {
+        "help": "Permissions to codelist items. By code list and item codes (all if not specified).",
+        "attributes": {
+          "codelist": {
+            "label": "Code list",
+            "help": "Select code list, which contains items.",
+            "placeholder": "Select code list ..."
+          },
+          "item-codes": {
+            "label": "Items",
+            "help": "Add permission to code list items. All items from selected code list will be used as default.",
+              "placeholder": "All items or items codes (use comma as separator)"
+          }
+        }
+      },
+      "core-identity-by-form-projection-evaluator": {
+        "help": "Permissions to user by type. Add permisson by selected user type or by default type (user without type is specified).",
+        "attributes": {
+          "form-projection": {
+            "label": "User type",
+            "help": "Add permission to selected user type or to default type (user without type is specified).",
+            "placeholder": "Default (empty) user type or select ..."
           }
         }
       }
@@ -6004,6 +6110,28 @@
         "icon": "fa:user",
         "level": "success"
       }
+    },
+    "form-projection-route": {
+      "form-identity-projection": {
+        "attributes": {
+          "prime-contract": {
+            "label": "Show prime contract",
+            "help": "Show (and update) prime user contract only."
+          },
+          "all-contracts": {
+            "label": "Show all user contracts",
+            "help": "Show (and update) all user contracts. Code list <strong>contract-position</strong> s required - available contract types are controlled by organization types."
+          },
+          "other-position": {
+            "label": "Show other contract position",
+            "help": "Show (and update) one other contract position."
+          },
+          "assigned-roles": {
+            "label": "Show assigned roles",
+            "help": "Add assigned roles for newly created user and show assigned roles updated user."
+          }
+        }
+      }
     }
   },
   "error": {
@@ -6025,7 +6153,11 @@
     },
     "FORBIDDEN_ENTITY": {
       "title": "Insufficient permissions",
-      "message": "You do not have insufficient permission [{{permission}}] for selected record [{{entity}}]."
+      "message": "You do not have insufficient permission [{{permission}}] for selected record [{{entity}}] [type: {{type}}]."
+    },
+    "FORBIDDEN_CODEABLE_ENTITY": {
+      "title": "Insufficient permissions",
+      "message": "You do not have insufficient permission [{{permission}}] for selected record [{{code}}] [typ: {{type}}]."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Password change failed",
@@ -6311,11 +6443,15 @@
     },
     "FORM_DEFINITION_DELETE_FAILED_SYSTEM_DEFINITION": {
       "title": "Form definition can not be deleted",
-      "message": "Definition [{{name}}] it can't be deleted, because is flagged as system."
+      "message": "Definition [{{name}}] can't be deleted, because it is flagged as system."
     },
     "FORM_ATTRIBUTE_DELETE_FAILED_SYSTEM_ATTRIBUTE": {
       "title": "Attribute definition can not be deleted",
       "message": "Attribute [{{name}}] it can't be deleted, because is flagged as system."
+    },
+    "FORM_DEFINITION_DELETE_FAILED_MAIN_FORM": {
+      "title": "Form definition can not be deleted",
+      "message": "Definition [{{code}}] can't be deleted, because it is flagged as main. Flag another definition as main before its deletion."
     },
     "FORM_ATTRIBUTE_DELETE_FAILED_HAS_VALUES": {
       "title": "Form attribute can not be deleted",
@@ -6613,6 +6749,10 @@
       "title": "Service is not accessible",
       "message": "Service [{{service}}] is not accessible!"
     },
+    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
+      "title": "Transformation script failed",
+      "message": "Transformation script failed because of: [{{origMessage}}] IdM location: [{{idmPath}}] Script location: [{{scriptPath}}]."
+    },
     "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
       "title": "Task has multiple instances",
       "message": "Task [{{task}}] has other instance {{instance}}], because of it, it's not accessible from this one{{thisInstance}}]."
@@ -6667,7 +6807,7 @@
     },
     "ATTACHMENT_SIZE_LIMIT_EXCEEDED": {
       "title": "Attachment size limit exceeded",
-      "message": "Attachment size limit is [{{actualSize}}] bytes."
+      "message": "Attachment size limit is [{{actualSize}}]."
     },
     "NOTIFICATION_TEMPLATE_XML_FILE_NOT_FOUND": {
       "title": "Template not found",
@@ -7004,6 +7144,50 @@
     "IMPORT_IS_ALREADY_RUNNING": {
       "title": "This import is already running!",
       "message": "The same import task cannot be run twice!"
+    },
+    "EXPORT_ZIP_FAILED": {
+      "title": "Export failed!",
+      "message": "Exporting ZIP file failed!"
+    },
+    "IMPORT_ZIP_EXTRACTION_FAILED": {
+      "title": "Import failed!",
+      "message": "Import ZIP souboru selhal!"
+    },
+    "IMPORT_VALIDATION_FAILED_NO_MANIFEST": {
+      "title": "Import failed!",
+      "message": "The imported batch does not contain the [{{manifest}}] manifest!"
+    },
+    "IMPORT_FIELD_MUST_CONTAINS_UUID": {
+      "title": "Import failed!",
+      "message": "The imported item must have a UUID data type but have [{{type}}]!"
+    },
+    "IMPORT_CONVERT_TO_DTO_FAILED": {
+      "title": "Import failed!",
+      "message": "Failed to transform file [{{file}}] into object [{{dto}}]!!"
+    },
+    "IMPORT_FIELD_EMBEDDED_ANNOTATION_MISSING": {
+      "title": "Import failed!",
+      "message": "Embedded annotation for [{{field}}] was not found!"
+    },
+    "IMPORT_FAILED_ROOT_NOT_FOUND": {
+      "title": "Import failed!",
+      "message": "Root for object [{{dto}}] was not found!"
+    },
+    "EXPORT_GENERATE_JSON_FAILED": {
+      "title": "Export selhal!",
+      "message": "Generating JSON file for DTO [{{dto}}] failed!"
+    },
+    "EXPORT_IMPORT_IO_FAILED": {
+      "title": "Export/Import failed!",
+      "message": "An IO error has occurred!"
+    },
+    "EXPORT_IMPORT_REFLECTION_FAILED": {
+      "title": "Export/Import failed!",
+      "message": "An unexpected error has occurred!"
+    },
+    "EXPORT_IMPORT_FILTER_PARENT_FIELD_MUST_BE_UUID": {
+      "title": "Export/Import failed!",
+      "message": "Parent field [{{field}}] must have a UUID data type!"
     }
   },
   "validationError": {

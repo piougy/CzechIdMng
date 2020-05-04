@@ -31,7 +31,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
@@ -81,7 +80,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
 public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmIdentityDto> {
 
 	@Autowired private IdmIdentityController controller;
-	@Autowired private PrivateIdentityConfiguration identityConfiguration;
 	@Autowired private FormService formService;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private AttachmentManager attachmentManager;
@@ -197,311 +195,224 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	}
 	
 	@Test
-	public void testSaveFormValuesWithDisabledAuthorizationPoliciesSupport() throws Exception {
-		// disabled by default - legacy support
-		Assert.assertFalse(identityConfiguration.isFormAttributesSecured());
+	public void testSaveFormValuesWithAuthorizationPoliciesSupport() throws Exception {
 		//
-		// create some form definition
-		IdmFormAttributeDto formAttribute = new IdmFormAttributeDto(getHelper().createName());
-		IdmFormDefinitionDto formDefinition = formService.createDefinition(prepareDto().getClass(), getHelper().createName(), Lists.newArrayList(formAttribute));
-		formAttribute = formDefinition.getFormAttributes().get(0);
+		// create definition with two attributes
+		IdmFormAttributeDto formAttributeOne = new IdmFormAttributeDto("one");
+		IdmFormAttributeDto formAttributeTwo = new IdmFormAttributeDto("two");
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(
+				prepareDto().getClass(), 
+				getHelper().createName(), 
+				Lists.newArrayList(formAttributeOne, formAttributeTwo));
+		formAttributeOne = formDefinition.getMappedAttributeByCode(formAttributeOne.getCode());
+		formAttributeTwo = formDefinition.getMappedAttributeByCode(formAttributeTwo.getCode());
 		//
-		IdmIdentityDto identity = getHelper().createIdentity(); // password is needed
+		IdmIdentityDto identityOne = getHelper().createIdentity(); // password is needed
+		IdmIdentityDto identityTwo = getHelper().createIdentity(); // password is needed
+		IdmIdentityDto identityOther = getHelper().createIdentity((GuardedString) null);
 		//
-		// 403 by default
-		getMockMvc().perform(get(getDetailUrl(identity.getUsername()))
-        		.with(authentication(getAuthentication(identity.getUsername())))
-                .contentType(TestHelper.HAL_CONTENT_TYPE))
-                .andExpect(status().isForbidden());
-		getMockMvc().perform(get(getFormDefinitionsUrl(identity.getUsername()))
-        		.with(authentication(getAuthentication(identity.getUsername())))
-                .contentType(TestHelper.HAL_CONTENT_TYPE))
-                .andExpect(status().isForbidden());
-		getMockMvc().perform(get(getFormValuesUrl(identity.getUsername()))
-        		.with(authentication(getAuthentication(identity.getUsername())))
-                .contentType(TestHelper.HAL_CONTENT_TYPE))
-                .andExpect(status().isForbidden());
-		//
-		// assign self identity authorization policy
-		IdmRoleDto role = getHelper().createRole();		
+		// assign self identity authorization policy - READ - to identityOne
+		IdmRoleDto roleReadIdentity = getHelper().createRole();		
 		getHelper().createAuthorizationPolicy(
-				role.getId(), 
+				roleReadIdentity.getId(), 
 				CoreGroupPermission.IDENTITY, 
 				IdmIdentity.class, 
 				SelfIdentityEvaluator.class, 
 				IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
-		getHelper().createIdentityRole(identity, role);
+		getHelper().createUuidPolicy( // and other
+				roleReadIdentity.getId(), 
+				identityOther.getId(), 
+				IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
+		getHelper().createIdentityRole(identityOne, roleReadIdentity);
 		//
-		// form definition is available automatically for identity witf self read permission
-		List<IdmFormDefinitionDto> formDefinitions = getFormDefinitions(identity.getId(), identity.getUsername());
+		// assign self identity authorization policy - UPDATE - to identityOne
+		IdmRoleDto roleUpdateIdentity = getHelper().createRole();		
+		getHelper().createAuthorizationPolicy(
+				roleUpdateIdentity.getId(), 
+				CoreGroupPermission.IDENTITY, 
+				IdmIdentity.class, 
+				SelfIdentityEvaluator.class, // self
+				IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
+		getHelper().createUuidPolicy( // and other
+				roleUpdateIdentity.getId(), 
+				identityOther.getId(), 
+				IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identityTwo, roleUpdateIdentity);
 		//
-		// form definition was found
-		Assert.assertTrue(formDefinitions.stream().anyMatch(d -> d.getId().equals(formDefinition.getId())));
+		// form definition cannot be still read - authorization policies are supported
+		List<IdmFormDefinitionDto> formDefinitions = getFormDefinitions(identityOne.getId(), identityOne.getUsername());
+		Assert.assertTrue(formDefinitions.isEmpty());
+		formDefinitions = getFormDefinitions(identityTwo.getId(), identityTwo.getUsername());
+		Assert.assertTrue(formDefinitions.isEmpty());
 		//
-		// test get values - empty
-		IdmFormInstanceDto formInstance = getFormInstance(identity.getId(), identity.getUsername(), formDefinition.getCode());
-		Assert.assertEquals(identity.getId().toString(), formInstance.getOwnerId());
-		Assert.assertEquals(formDefinition.getId().toString(), formInstance.getFormDefinition().getId().toString());
-		Assert.assertEquals(formDefinition.getFormAttributes().get(0).getId().toString(), formInstance.getFormDefinition().getFormAttributes().get(0).getId().toString());
+		// assign autocomplete to form definition 
+		getHelper().createUuidPolicy( 
+				roleReadIdentity.getId(), 
+				formDefinition.getId(), 
+				IdmBasePermission.AUTOCOMPLETE);
+		getHelper().createUuidPolicy( // and other
+				roleUpdateIdentity.getId(), 
+				formDefinition.getId(), 
+				IdmBasePermission.AUTOCOMPLETE);
+		//
+		// form definition can be read - look out form definitions in list are trimmed
+		formDefinitions = getFormDefinitions(identityOne.getId(), identityOne.getUsername());
+		Assert.assertTrue(formDefinitions.stream().anyMatch(d -> d.getCode().equals(formDefinition.getCode())));
+		formDefinitions = getFormDefinitions(identityTwo.getId(), identityTwo.getUsername());
+		Assert.assertTrue(formDefinitions.stream().anyMatch(d -> d.getCode().equals(formDefinition.getCode())));
+		//
+		// save some values as admin to identity one
+		IdmFormValueDto formValueOne = new IdmFormValueDto(formAttributeOne);
+		formValueOne.setValue(getHelper().createName());
+		IdmFormValueDto formValueTwo = new IdmFormValueDto(formAttributeTwo);
+		formValueTwo.setValue(getHelper().createName());
+		List<IdmFormValueDto> formValues = Lists.newArrayList(formValueOne, formValueTwo);
+		saveFormValues(identityOne.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode(), formValues);
+		//
+		// values cannot be read as identity one 
+		IdmFormInstanceDto formInstance = getFormInstance(identityOne.getId(), identityOne.getUsername(), formDefinition.getCode());
 		Assert.assertTrue(formInstance.getValues().isEmpty());
+		Assert.assertEquals(0, formInstance.getFormDefinition().getFormAttributes().size());
+		formInstance = getFormInstance(identityOther.getId(), identityTwo.getUsername(), formDefinition.getCode());
+		Assert.assertTrue(formInstance.getValues().isEmpty());
+		Assert.assertEquals(0, formInstance.getFormDefinition().getFormAttributes().size());
 		//
-		// save value - expect forbidden - self policy does not contain UPDATE
-		IdmFormValueDto formValue = new IdmFormValueDto(formAttribute);
-		formValue.setValue(getHelper().createName());
-		List<IdmFormValueDto> formValues = Lists.newArrayList(formValue);
-		getMockMvc().perform(patch(getFormValuesUrl(identity.getUsername()))
-        		.with(authentication(getAuthentication(identity.getUsername())))
+		// configure authorization policy to read attribute one and edit attribute two - for self
+		ConfigurationMap properties = new ConfigurationMap();
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeOne.getCode());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_SELF_ONLY, true);
+		getHelper().createAuthorizationPolicy(
+				roleReadIdentity.getId(), 
+				CoreGroupPermission.FORMVALUE, 
+				IdmIdentityFormValue.class, 
+				IdentityFormValueEvaluator.class,
+				properties,
+				IdmBasePermission.READ);
+		//
+		// read self attribute one
+		formInstance = getFormInstance(identityOne.getId(), identityOne.getUsername(), formDefinition.getCode());
+		Assert.assertEquals(1, formInstance.getValues().size());
+		Assert.assertEquals(formValueOne.getShortTextValue(), formInstance.getValues().get(0).getShortTextValue());
+		Assert.assertEquals(1, formInstance.getFormDefinition().getFormAttributes().size());
+		Assert.assertEquals(formAttributeOne.getCode(), formInstance.getFormDefinition().getFormAttributes().get(0).getCode());
+		//
+		// update is forbidden
+		getMockMvc().perform(patch(getFormValuesUrl(identityOne.getId()))
+        		.with(authentication(getAuthentication(identityOne.getUsername())))
         		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
-        		.content(getMapper().writeValueAsString(formValues))
+        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne)))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isForbidden());
+		getMockMvc().perform(patch(getFormValuesUrl(identityTwo.getId()))
+        		.with(authentication(getAuthentication(identityOne.getUsername())))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne)))
                 .contentType(TestHelper.HAL_CONTENT_TYPE))
                 .andExpect(status().isForbidden());
 		//
-		// add UPDATE permission
+		// add policy to edit attribute two for identity one
+		properties = new ConfigurationMap();
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeTwo.getCode());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_SELF_ONLY, true);
 		getHelper().createAuthorizationPolicy(
-				role.getId(), 
-				CoreGroupPermission.IDENTITY, 
-				IdmIdentity.class, 
-				SelfIdentityEvaluator.class, 
-				IdmBasePermission.UPDATE);
+				roleReadIdentity.getId(), 
+				CoreGroupPermission.FORMVALUE, 
+				IdmIdentityFormValue.class, 
+				IdentityFormValueEvaluator.class,
+				properties,
+				IdmBasePermission.READ, IdmBasePermission.UPDATE);
 		//
-		// save values
-		saveFormValues(identity.getId(), identity.getUsername(), formDefinition.getCode(), formValues);
+		String updatedValue = getHelper().createName();
+		formValueTwo.setValue(updatedValue);
+		saveFormValues(identityOne.getId(), identityOne.getUsername(), formDefinition.getCode(), Lists.newArrayList(formValueTwo));
+		formInstance = getFormInstance(identityOne.getId(), identityOne.getUsername(), formDefinition.getCode());
+		Assert.assertEquals(2, formInstance.getValues().size());
+		Assert.assertEquals(formValueOne.getShortTextValue(), formInstance.toSinglePersistentValue(formAttributeOne.getCode()));
+		Assert.assertEquals(updatedValue, formInstance.toSinglePersistentValue(formAttributeTwo.getCode()));
+		getMockMvc().perform(patch(getFormValuesUrl(identityTwo.getId()))
+        		.with(authentication(getAuthentication(identityOne.getUsername())))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueTwo)))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isForbidden());
+		formValueOne.setValue(updatedValue);
+		getMockMvc().perform(patch(getFormValuesUrl(identityOne.getId()))
+        		.with(authentication(getAuthentication(identityOne.getUsername())))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne, formValueTwo)))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isForbidden());
+		getMockMvc().perform(patch(getFormValuesUrl(identityOther.getId()))
+        		.with(authentication(getAuthentication(identityOne.getUsername())))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueTwo)))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isForbidden());
 		//
-		// get saved value
-		formInstance = getFormInstance(identity.getId(), identity.getUsername(), formDefinition.getCode());
-		Assert.assertEquals(identity.getId().toString(), formInstance.getOwnerId());
-		Assert.assertEquals(formDefinition.getId().toString(), formInstance.getFormDefinition().getId().toString());
-		Assert.assertEquals(formDefinition.getFormAttributes().get(0).getId().toString(), formInstance.getFormDefinition().getFormAttributes().get(0).getId().toString());
-		Assert.assertEquals(1, formInstance.getValues().size());
-		Assert.assertEquals(formValue.getShortTextValue(), formInstance.getValues().get(0).getShortTextValue());
-	}
-	
-	@Test
-	public void testSaveFormValuesWithAuthorizationPoliciesSupport() throws Exception {
-		getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, true);
-		try {
-			Assert.assertTrue(identityConfiguration.isFormAttributesSecured());
-			//
-			// create definition with two attributes
-			IdmFormAttributeDto formAttributeOne = new IdmFormAttributeDto("one");
-			IdmFormAttributeDto formAttributeTwo = new IdmFormAttributeDto("two");
-			IdmFormDefinitionDto formDefinition = formService.createDefinition(
-					prepareDto().getClass(), 
-					getHelper().createName(), 
-					Lists.newArrayList(formAttributeOne, formAttributeTwo));
-			formAttributeOne = formDefinition.getMappedAttributeByCode(formAttributeOne.getCode());
-			formAttributeTwo = formDefinition.getMappedAttributeByCode(formAttributeTwo.getCode());
-			//
-			IdmIdentityDto identityOne = getHelper().createIdentity(); // password is needed
-			IdmIdentityDto identityTwo = getHelper().createIdentity(); // password is needed
-			IdmIdentityDto identityOther = getHelper().createIdentity((GuardedString) null);
-			//
-			// assign self identity authorization policy - READ - to identityOne
-			IdmRoleDto roleReadIdentity = getHelper().createRole();		
-			getHelper().createAuthorizationPolicy(
-					roleReadIdentity.getId(), 
-					CoreGroupPermission.IDENTITY, 
-					IdmIdentity.class, 
-					SelfIdentityEvaluator.class, 
-					IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
-			getHelper().createUuidPolicy( // and other
-					roleReadIdentity.getId(), 
-					identityOther.getId(), 
-					IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
-			getHelper().createIdentityRole(identityOne, roleReadIdentity);
-			//
-			// assign self identity authorization policy - UPDATE - to identityOne
-			IdmRoleDto roleUpdateIdentity = getHelper().createRole();		
-			getHelper().createAuthorizationPolicy(
-					roleUpdateIdentity.getId(), 
-					CoreGroupPermission.IDENTITY, 
-					IdmIdentity.class, 
-					SelfIdentityEvaluator.class, // self
-					IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			getHelper().createUuidPolicy( // and other
-					roleUpdateIdentity.getId(), 
-					identityOther.getId(), 
-					IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			getHelper().createIdentityRole(identityTwo, roleUpdateIdentity);
-			//
-			// form definition cannot be still read - authorization policies are supported
-			List<IdmFormDefinitionDto> formDefinitions = getFormDefinitions(identityOne.getId(), identityOne.getUsername());
-			Assert.assertTrue(formDefinitions.isEmpty());
-			formDefinitions = getFormDefinitions(identityTwo.getId(), identityTwo.getUsername());
-			Assert.assertTrue(formDefinitions.isEmpty());
-			//
-			// assign autocomplete to form definition 
-			getHelper().createUuidPolicy( 
-					roleReadIdentity.getId(), 
-					formDefinition.getId(), 
-					IdmBasePermission.AUTOCOMPLETE);
-			getHelper().createUuidPolicy( // and other
-					roleUpdateIdentity.getId(), 
-					formDefinition.getId(), 
-					IdmBasePermission.AUTOCOMPLETE);
-			//
-			// form definition can be read - look out form definitions in list are trimmed
-			formDefinitions = getFormDefinitions(identityOne.getId(), identityOne.getUsername());
-			Assert.assertTrue(formDefinitions.stream().anyMatch(d -> d.getCode().equals(formDefinition.getCode())));
-			formDefinitions = getFormDefinitions(identityTwo.getId(), identityTwo.getUsername());
-			Assert.assertTrue(formDefinitions.stream().anyMatch(d -> d.getCode().equals(formDefinition.getCode())));
-			//
-			// save some values as admin to identity one
-			IdmFormValueDto formValueOne = new IdmFormValueDto(formAttributeOne);
-			formValueOne.setValue(getHelper().createName());
-			IdmFormValueDto formValueTwo = new IdmFormValueDto(formAttributeTwo);
-			formValueTwo.setValue(getHelper().createName());
-			List<IdmFormValueDto> formValues = Lists.newArrayList(formValueOne, formValueTwo);
-			saveFormValues(identityOne.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode(), formValues);
-			//
-			// values cannot be read as identity one 
-			IdmFormInstanceDto formInstance = getFormInstance(identityOne.getId(), identityOne.getUsername(), formDefinition.getCode());
-			Assert.assertTrue(formInstance.getValues().isEmpty());
-			Assert.assertEquals(0, formInstance.getFormDefinition().getFormAttributes().size());
-			formInstance = getFormInstance(identityOther.getId(), identityTwo.getUsername(), formDefinition.getCode());
-			Assert.assertTrue(formInstance.getValues().isEmpty());
-			Assert.assertEquals(0, formInstance.getFormDefinition().getFormAttributes().size());
-			//
-			// configure authorization policy to read attribute one and edit attribute two - for self
-			ConfigurationMap properties = new ConfigurationMap();
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeOne.getCode());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_SELF_ONLY, true);
-			getHelper().createAuthorizationPolicy(
-					roleReadIdentity.getId(), 
-					CoreGroupPermission.FORMVALUE, 
-					IdmIdentityFormValue.class, 
-					IdentityFormValueEvaluator.class,
-					properties,
-					IdmBasePermission.READ);
-			//
-			// read self attribute one
-			formInstance = getFormInstance(identityOne.getId(), identityOne.getUsername(), formDefinition.getCode());
-			Assert.assertEquals(1, formInstance.getValues().size());
-			Assert.assertEquals(formValueOne.getShortTextValue(), formInstance.getValues().get(0).getShortTextValue());
-			Assert.assertEquals(1, formInstance.getFormDefinition().getFormAttributes().size());
-			Assert.assertEquals(formAttributeOne.getCode(), formInstance.getFormDefinition().getFormAttributes().get(0).getCode());
-			//
-			// update is forbidden
-			getMockMvc().perform(patch(getFormValuesUrl(identityOne.getId()))
-	        		.with(authentication(getAuthentication(identityOne.getUsername())))
-	        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
-	        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne)))
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andExpect(status().isForbidden());
-			getMockMvc().perform(patch(getFormValuesUrl(identityTwo.getId()))
-	        		.with(authentication(getAuthentication(identityOne.getUsername())))
-	        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
-	        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne)))
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andExpect(status().isForbidden());
-			//
-			// add policy to edit attribute two for identity one
-			properties = new ConfigurationMap();
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeTwo.getCode());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_SELF_ONLY, true);
-			getHelper().createAuthorizationPolicy(
-					roleReadIdentity.getId(), 
-					CoreGroupPermission.FORMVALUE, 
-					IdmIdentityFormValue.class, 
-					IdentityFormValueEvaluator.class,
-					properties,
-					IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			//
-			String updatedValue = getHelper().createName();
-			formValueTwo.setValue(updatedValue);
-			saveFormValues(identityOne.getId(), identityOne.getUsername(), formDefinition.getCode(), Lists.newArrayList(formValueTwo));
-			formInstance = getFormInstance(identityOne.getId(), identityOne.getUsername(), formDefinition.getCode());
-			Assert.assertEquals(2, formInstance.getValues().size());
-			Assert.assertEquals(formValueOne.getShortTextValue(), formInstance.toSinglePersistentValue(formAttributeOne.getCode()));
-			Assert.assertEquals(updatedValue, formInstance.toSinglePersistentValue(formAttributeTwo.getCode()));
-			getMockMvc().perform(patch(getFormValuesUrl(identityTwo.getId()))
-	        		.with(authentication(getAuthentication(identityOne.getUsername())))
-	        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
-	        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueTwo)))
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andExpect(status().isForbidden());
-			formValueOne.setValue(updatedValue);
-			getMockMvc().perform(patch(getFormValuesUrl(identityOne.getId()))
-	        		.with(authentication(getAuthentication(identityOne.getUsername())))
-	        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
-	        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne, formValueTwo)))
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andExpect(status().isForbidden());
-			getMockMvc().perform(patch(getFormValuesUrl(identityOther.getId()))
-	        		.with(authentication(getAuthentication(identityOne.getUsername())))
-	        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
-	        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueTwo)))
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andExpect(status().isForbidden());
-			//
-			// add policy to edit attribute two for identity two
-			properties = new ConfigurationMap();
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeTwo.getCode());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_OWNER_UPDATE, true);
-			getHelper().createAuthorizationPolicy(
-					roleUpdateIdentity.getId(), 
-					CoreGroupPermission.FORMVALUE, 
-					IdmIdentityFormValue.class, 
-					IdentityFormValueEvaluator.class,
-					properties,
-					IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			//
-			// create new values under identity two
-			// identity two can now update values of attribute two for self and other (no for identity one)
-			updatedValue = getHelper().createName();
-			formValueOne.setValue(updatedValue);
-			formValueTwo.setValue(updatedValue);
-			getMockMvc().perform(patch(getFormValuesUrl(identityOne.getId()))
-	        		.with(authentication(getAuthentication(identityTwo.getUsername())))
-	        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
-	        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueTwo)))
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andExpect(status().isForbidden());
-			saveFormValues(identityTwo.getId(), identityTwo.getUsername(), formDefinition.getCode(), Lists.newArrayList(formValueTwo));
-			formInstance = getFormInstance(identityTwo.getId(), identityTwo.getUsername(), formDefinition.getCode());
-			Assert.assertEquals(updatedValue, formInstance.toSinglePersistentValue(formAttributeTwo.getCode()));
-			saveFormValues(identityOther.getId(), identityTwo.getUsername(), formDefinition.getCode(), Lists.newArrayList(formValueTwo));
-			formInstance = getFormInstance(identityOther.getId(), identityTwo.getUsername(), formDefinition.getCode());
-			Assert.assertEquals(updatedValue, formInstance.toSinglePersistentValue(formAttributeTwo.getCode()));
-			getMockMvc().perform(patch(getFormValuesUrl(identityOther.getId()))
-	        		.with(authentication(getAuthentication(identityTwo.getUsername())))
-	        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
-	        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne)))
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andExpect(status().isForbidden());
-			//
-			// add permission to update attributes of other identity
-			properties = new ConfigurationMap();
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeTwo.getCode());
-			properties.put(IdentityFormValueEvaluator.PARAMETER_OWNER_READ, true);
-			getHelper().createAuthorizationPolicy(
-					roleReadIdentity.getId(), 
-					CoreGroupPermission.FORMVALUE, 
-					IdmIdentityFormValue.class, 
-					IdentityFormValueEvaluator.class,
-					properties,
-					IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			//
-			updatedValue = getHelper().createName();
-			formValueOne.setValue(updatedValue);
-			formValueTwo.setValue(updatedValue);
-			saveFormValues(identityOther.getId(), identityOne.getUsername(), formDefinition.getCode(), Lists.newArrayList(formValueTwo));
-			formInstance = getFormInstance(identityOther.getId(), identityTwo.getUsername(), formDefinition.getCode());
-			Assert.assertEquals(updatedValue, formInstance.toSinglePersistentValue(formAttributeTwo.getCode()));
-			getMockMvc().perform(patch(getFormValuesUrl(identityOther.getId()))
-	        		.with(authentication(getAuthentication(identityOne.getUsername())))
-	        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
-	        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne)))
-	                .contentType(TestHelper.HAL_CONTENT_TYPE))
-	                .andExpect(status().isForbidden());
-		} finally {
-			getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, false);
-			Assert.assertFalse(identityConfiguration.isFormAttributesSecured());
-		}
+		// add policy to edit attribute two for identity two
+		properties = new ConfigurationMap();
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeTwo.getCode());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_OWNER_UPDATE, true);
+		getHelper().createAuthorizationPolicy(
+				roleUpdateIdentity.getId(), 
+				CoreGroupPermission.FORMVALUE, 
+				IdmIdentityFormValue.class, 
+				IdentityFormValueEvaluator.class,
+				properties,
+				IdmBasePermission.READ, IdmBasePermission.UPDATE);
+		//
+		// create new values under identity two
+		// identity two can now update values of attribute two for self and other (no for identity one)
+		updatedValue = getHelper().createName();
+		formValueOne.setValue(updatedValue);
+		formValueTwo.setValue(updatedValue);
+		getMockMvc().perform(patch(getFormValuesUrl(identityOne.getId()))
+        		.with(authentication(getAuthentication(identityTwo.getUsername())))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueTwo)))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isForbidden());
+		saveFormValues(identityTwo.getId(), identityTwo.getUsername(), formDefinition.getCode(), Lists.newArrayList(formValueTwo));
+		formInstance = getFormInstance(identityTwo.getId(), identityTwo.getUsername(), formDefinition.getCode());
+		Assert.assertEquals(updatedValue, formInstance.toSinglePersistentValue(formAttributeTwo.getCode()));
+		saveFormValues(identityOther.getId(), identityTwo.getUsername(), formDefinition.getCode(), Lists.newArrayList(formValueTwo));
+		formInstance = getFormInstance(identityOther.getId(), identityTwo.getUsername(), formDefinition.getCode());
+		Assert.assertEquals(updatedValue, formInstance.toSinglePersistentValue(formAttributeTwo.getCode()));
+		getMockMvc().perform(patch(getFormValuesUrl(identityOther.getId()))
+        		.with(authentication(getAuthentication(identityTwo.getUsername())))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne)))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isForbidden());
+		//
+		// add permission to update attributes of other identity
+		properties = new ConfigurationMap();
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_DEFINITION, formDefinition.getId());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_FORM_ATTRIBUTES, formAttributeTwo.getCode());
+		properties.put(IdentityFormValueEvaluator.PARAMETER_OWNER_READ, true);
+		getHelper().createAuthorizationPolicy(
+				roleReadIdentity.getId(), 
+				CoreGroupPermission.FORMVALUE, 
+				IdmIdentityFormValue.class, 
+				IdentityFormValueEvaluator.class,
+				properties,
+				IdmBasePermission.READ, IdmBasePermission.UPDATE);
+		//
+		updatedValue = getHelper().createName();
+		formValueOne.setValue(updatedValue);
+		formValueTwo.setValue(updatedValue);
+		saveFormValues(identityOther.getId(), identityOne.getUsername(), formDefinition.getCode(), Lists.newArrayList(formValueTwo));
+		formInstance = getFormInstance(identityOther.getId(), identityTwo.getUsername(), formDefinition.getCode());
+		Assert.assertEquals(updatedValue, formInstance.toSinglePersistentValue(formAttributeTwo.getCode()));
+		getMockMvc().perform(patch(getFormValuesUrl(identityOther.getId()))
+        		.with(authentication(getAuthentication(identityOne.getUsername())))
+        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+        		.content(getMapper().writeValueAsString(Lists.newArrayList(formValueOne)))
+                .contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andExpect(status().isForbidden());
 	}
 	
 	@Test

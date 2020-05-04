@@ -12,12 +12,9 @@ const manager = new AutomaticRoleAttributeManager();
  * Automatic role detail, update automatic role isn't currently allowed
  *
  * @author Ondrej Kopr
+ * @author Radek Tomiška
  */
 class AutomaticRoleAttributeContent extends Basic.AbstractContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.automaticRoles.attribute';
@@ -25,13 +22,8 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
 
   componentDidMount() {
     super.componentDidMount();
-    const { automaticRoleId, entityId } = this.props.match.params;
-    if (entityId) { // We are on the role
-      this.selectNavigationItems(['roles-menu', 'roles', 'role-automatic-roles', 'role-automatic-role-attribute', 'role-automatic-role-attribute-detail']);
-    } else {
-      this.selectNavigationItems(['roles-menu', 'automatic-roles', 'automatic-role-attribute-detail']);
-    }
-
+    //
+    const { automaticRoleId } = this.props.match.params;
     if (this._getIsNew()) {
       this.context.store.dispatch(manager.receiveEntity(automaticRoleId, { }));
     } else {
@@ -52,18 +44,18 @@ class AutomaticRoleAttributeContent extends Basic.AbstractContent {
     const { entity} = this.props;
     const { entityId } = this.props.match.params;
     return (
-      <div className={entityId ? 'panel-body' : ''}>
+      <Basic.Div className={ entityId ? 'panel-body' : '' }>
         {
           this._getIsNew()
           ?
-          <Helmet title={this.i18n('create.title')} />
+          <Helmet title={ this.i18n('create.title') } />
           :
-          <Helmet title={this.i18n('edit.title')} />
+          <Helmet title={ this.i18n('edit.title') } />
         }
 
-        <AutomaticRoleAttributeDetail entity={entity} manager={manager} />
+        <AutomaticRoleAttributeDetail entity={ entity } manager={ manager } match={ this.props.match } />
 
-      </div>
+      </Basic.Div>
     );
   }
 }

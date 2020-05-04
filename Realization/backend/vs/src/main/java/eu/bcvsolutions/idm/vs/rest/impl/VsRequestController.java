@@ -325,7 +325,7 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 
 	@Override
 	protected VsRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		VsRequestFilter filter = new VsRequestFilter(parameters);
+		VsRequestFilter filter = new VsRequestFilter(parameters, getParameterConverter());
 		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", VsRequestState.class));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
@@ -335,6 +335,8 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 		filter.setModifiedAfter(getParameterConverter().toDateTime(parameters, "modifiedAfter"));
 		filter.setModifiedBefore(getParameterConverter().toDateTime(parameters, "modifiedBefore"));
 		filter.setOnlyArchived(getParameterConverter().toBoolean(parameters, "onlyArchived"));
+		// Context property for load and set owner to the request dto.
+		filter.setIncludeOwner(true);
 
 		return filter;
 	}

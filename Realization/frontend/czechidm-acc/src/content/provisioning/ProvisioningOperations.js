@@ -110,15 +110,14 @@ class ProvisioningOperations extends Basic.AbstractContent {
     }
     //
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
 
         <Basic.Tabs activeKey={ activeKey } onSelect={ this._onChangeSelectTabs.bind(this) }>
           <Basic.Tab
             eventKey={ 1 }
             title={ this.i18n('tabs.active.label') }
-            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGOPERATION_READ']) }
-          >
+            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGOPERATION_READ']) }>
             <ProvisioningOperationTableComponent
               ref="table"
               key="table"
@@ -135,8 +134,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
           <Basic.Tab
             eventKey={ 2 }
             title={ this.i18n('tabs.archive.label') }
-            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGARCHIVE_READ']) }
-          >
+            rendered={ Managers.SecurityManager.hasAnyAuthority(['PROVISIONINGARCHIVE_READ']) }>
             <ProvisioningOperationTableComponent
               ref="archiveTable"
               key="archiveTable"
@@ -300,7 +298,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
             </Basic.Button>
           </Basic.Modal.Footer>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -11,6 +11,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -50,6 +51,7 @@ import eu.bcvsolutions.idm.core.scheduler.exception.TaskNotRecoverableException;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
+import java.io.Serializable;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
@@ -71,6 +73,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Autowired
 	public DefaultLongRunningTaskManager(
 			IdmLongRunningTaskService service,
+			@Qualifier(SchedulerConfiguration.TASK_EXECUTOR_NAME)
 			Executor executor,
 			EntityEventManager entityEventManager,
 			ConfigurationService configurationService,
@@ -272,7 +275,8 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		markTaskAsRunning(getValidTask(taskExecutor));
 		UUID longRunningTaskId = taskExecutor.getLongRunningTaskId();
 		//
-		LOG.debug("Execute task [{}] asynchronously", longRunningTaskId);
+		LOG.debug("Execute task [{}] asynchronously, logged user [{}], transaction: [{}].",
+				longRunningTaskId, securityService.getUsername(), TransactionContextHolder.getContext().getTransactionId());
 		try {
 			executor.execute(futureTask.getFutureTask());
 		} catch (RejectedExecutionException ex) {
@@ -447,7 +451,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		}
 
 		if (!ObjectUtils.isEmpty(PermissionUtils.trimNull(permission)) && !attachmentDto.getOwnerId().equals(longRunningTaskDto.getId())) {
-			throw new ForbiddenEntityException(attachmentId, PermissionUtils.trimNull(permission));
+			throw new ForbiddenEntityException((Serializable)attachmentId, PermissionUtils.trimNull(permission));
 		}
 		//
 		return attachmentDto;

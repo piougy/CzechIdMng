@@ -71,7 +71,6 @@ export class FormDefinitionTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={ uiKey }
           manager={ definitionManager }
-          showRowSelection={ SecurityManager.hasAuthority('FORMDEFINITION_READ') }
           rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
           filter={
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>

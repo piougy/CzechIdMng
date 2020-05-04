@@ -16,17 +16,24 @@ import org.springframework.http.MediaType;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
+import java.text.MessageFormat;
 
 /**
  * Base implementation for reporting dto attributes to json. It uses standard bulk action interface to provide this functionality
@@ -109,7 +116,7 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 		return service;
 	}
 
-	private void finishReport(OperationResult result) throws FileNotFoundException {
+	private RptReportDto finishReport(OperationResult result) throws FileNotFoundException {
 		RptReportDto report = reportService.get(relatedReport);
 		//
 		FileInputStream fis = new FileInputStream(tempFile);
@@ -117,7 +124,7 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 		report.setData(attachment.getId());
 		report.setResult(result);
 		//
-		reportService.save(report);
+		return reportService.save(report);
 	}
 
 	protected void createReport() {
@@ -170,7 +177,10 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 		}
 		//
 		try {
-			finishReport(superResult);
+			RptReportDto report = finishReport(superResult);
+			// Adds attachment metadata to the operation result (for download attachment
+			// directly from bulk action modal dialog).
+			addAttachmentMetadata(result, report);
 		} catch (FileNotFoundException e) {
 			superResult.setState(OperationState.EXCEPTION);
 			superResult.setCause(e.getMessage());
@@ -178,6 +188,32 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 		//
 		return superResult;
 	}
+	
+	/**
+	 * Adds attachment metadata to the operation result (for download attachment
+	 * directly from bulk action modal dialog).
+	 * 
+	 * @param result
+	 */
+	private void addAttachmentMetadata(OperationResult result, RptReportDto report) {
+
+		IdmLongRunningTaskDto task = getLongRunningTaskService().get(getLongRunningTaskId());
+		OperationResult taskResult = task.getResult();
+
+		if (OperationState.EXECUTED == taskResult.getState()) {
+			ResultModel model = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_PARTITIAL_DOWNLOAD,
+					ImmutableMap.of(//
+							AttachableEntity.PARAMETER_DOWNLOAD_URL,
+							MessageFormat.format("rpt/reports/{0}/render?renderer=formable-entity-xlsx-renderer", report.getId()),
+							AttachableEntity.PARAMETER_OWNER_ID, report.getId(), //
+							AttachableEntity.PARAMETER_OWNER_TYPE, report.getClass().getName()//
+					));//
+
+			taskResult.setModel(model);
+			getLongRunningTaskService().save(task);
+		}
+	}
+
 
 	@Override
 	public String getName() {

@@ -284,9 +284,10 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		}
 		// For user-type (projection) will be attribute value IdmFormProjectionDto.
 		if (attribute != null
-				&& IdmIdentity_.formProjection.getName().equals(attribute.getIdmPropertyName())
 				&& dto != null
-				&& dto.getFormProjection() != null) {
+				&& dto.getFormProjection() != null
+				&& IdmIdentity_.formProjection.getName().equals(attribute.getIdmPropertyName())
+				) {
 			
 			BaseDto projection = lookupService.lookupEmbeddedDto(dto, IdmIdentity_.formProjection);
 			return attributeMappingService.transformValueToResource(uid, projection, attribute, dto);

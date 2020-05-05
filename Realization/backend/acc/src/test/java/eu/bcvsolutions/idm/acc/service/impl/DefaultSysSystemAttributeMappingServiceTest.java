@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.junit.After;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -31,12 +34,14 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -375,6 +380,70 @@ public class DefaultSysSystemAttributeMappingServiceTest extends AbstractIntegra
 		assertEquals(false, formAttributeDto.isUnique());
 		assertEquals(PersistentType.SHORTTEXT, formAttributeDto.getPersistentType());
 
+	}
+	
+	@Test
+	public void transformationFromScriptFailure() {
+		SysSystemDto system = createSystem();
+		SysSchemaObjectClassDto objClass = createObjectClass(system);
+		SysSchemaAttributeDto schemaAttr = createSchemaAttribute(objClass);
+		SysSystemMappingDto systemMapping = testHelper.createMappingSystem(SystemEntityType.IDENTITY, objClass);
+		SysSystemAttributeMappingDto attrMapping = createAttributeMappingSystem(systemMapping,
+				AttributeMappingStrategyType.CREATE, schemaAttr.getId());
+		
+		// script consists of just one missing symbol,
+		// which is supposed to be part of error message 
+		String script = "xxxxx";
+		attrMapping.setTransformFromResourceScript(script);
+		systemMapping = mappingService.save(systemMapping);
+		
+		try {
+			attributeMappingService.transformValueFromResource("testValue", attrMapping, new ArrayList<IcAttribute>());
+			fail();
+		} catch (ResultCodeException ex) {
+			ErrorModel errModel = ex.getError().getError();
+			String message = (String)errModel.getParameters().get(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_MESSAGE_KEY);
+			String idmPath = (String)errModel.getParameters().get(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_IDM_PATH_KEY);
+			assertEquals(errModel.getStatusEnum(), AccResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED.getCode());
+			assertTrue(message.contains(script));
+			assertTrue(idmPath.contains(system.getCode()));
+			assertTrue(idmPath.contains(systemMapping.getName()));
+			assertTrue(idmPath.contains(attrMapping.getName()));
+		} catch (Exception e) {
+			fail();
+		}
+	}
+	
+	@Test
+	public void transformationToScriptFailure() {
+		SysSystemDto system = createSystem();
+		SysSchemaObjectClassDto objClass = createObjectClass(system);
+		SysSchemaAttributeDto schemaAttr = createSchemaAttribute(objClass);
+		SysSystemMappingDto systemMapping = testHelper.createMappingSystem(SystemEntityType.IDENTITY, objClass);
+		SysSystemAttributeMappingDto attrMapping = createAttributeMappingSystem(systemMapping,
+				AttributeMappingStrategyType.CREATE, schemaAttr.getId());
+		
+		// script consists of just one missing symbol,
+		// which is supposed to be part of error message
+		String script = "xxxxx";
+		attrMapping.setTransformToResourceScript(script);
+		systemMapping = mappingService.save(systemMapping);
+		
+		try {
+			attributeMappingService.transformValueToResource(null, "testValue", attrMapping, new IdmIdentityDto());
+			fail();
+		} catch (ResultCodeException ex) {
+			ErrorModel errModel = ex.getError().getError();
+			String message = (String)errModel.getParameters().get(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_MESSAGE_KEY);
+			String idmPath = (String)errModel.getParameters().get(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_IDM_PATH_KEY);
+			assertEquals(errModel.getStatusEnum(), AccResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED.getCode());
+			assertTrue(message.contains(script));
+			assertTrue(idmPath.contains(system.getCode()));
+			assertTrue(idmPath.contains(systemMapping.getName()));
+			assertTrue(idmPath.contains(attrMapping.getName()));
+		} catch (Exception e) {
+			fail();
+		}
 	}
 
 	private SysSystemDto createSystem() {

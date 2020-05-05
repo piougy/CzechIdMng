@@ -11,13 +11,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.plugin.core.Plugin;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmScriptAuthorityFilter;
-import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
 import eu.bcvsolutions.idm.core.model.repository.IdmScriptRepository;
-import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 
 
 /**
@@ -40,6 +39,7 @@ import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategory>, ScriptEnabled {
 	
 	public static final String SCRIPT_EVALUATOR = "scriptEvaluator";
+	public static final String SCRIPT_NAME_KEY = "scriptName"; 
 	
 	@Autowired
 	private GroovyScriptService groovyScriptService;
@@ -101,20 +101,9 @@ public abstract class AbstractScriptEvaluator implements Plugin<IdmScriptCategor
 		//
 		try {
 			return groovyScriptService.evaluate(script.getScript(), parameters, extraAllowedClasses);
-		} catch (SecurityException | IdmSecurityException ex) {
-			LOG.error("SecurityException [{}]. Script code: [{}], name: [{}], category: [{}]", ex.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
-			if (ex instanceof SecurityException) {
-				throw new IdmSecurityException(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage(), "scriptCode", script.getCode()), ex); 
-			}
-			((IdmSecurityException) ex).getError().addError(new DefaultErrorModel(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("scriptCode", script.getCode())));
-			throw ex;
-		} catch (Exception e) {
-			LOG.error("Exception [{}]. Script code: [{}], name: [{}], category: [{}]", e.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
-			if (e instanceof ResultCodeException) {
-				((ResultCodeException) e).getError().addError(new DefaultErrorModel(CoreResultCode.GROOVY_SCRIPT_EXCEPTION, ImmutableMap.of("scriptCode", script.getCode())));
-				throw e;
-			}
-			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_EXCEPTION, ImmutableMap.of("message", e.getLocalizedMessage(), "scriptCode", script.getCode()), e);
+		} catch (Exception ex) {
+			LOG.error("Script exception: [{}]. Script code: [{}], name: [{}], category: [{}]", ex.getLocalizedMessage(), script.getCode(), script.getName(), script.getCategory().name());
+			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_EXCEPTION, ImmutableMap.of(SCRIPT_NAME_KEY, script.getCode()), ex); 
 		}
 	}
 	

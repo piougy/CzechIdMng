@@ -48,8 +48,6 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 
 	public static final String  REPORT_NAME = "generic-entity-report";
 
-	private final ReadWriteDtoService<D, F> service;
-
 	private final RptReportService reportService;
 	private final AttachmentManager attachmentManager;
 	private final ObjectMapper mapper;
@@ -58,9 +56,8 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 	private JsonGenerator jsonGenerator;
 	private UUID relatedReport;
 
-	public AbstractEntityExport(ReadWriteDtoService<D, F> service, RptReportService reportService,
+	public AbstractEntityExport(RptReportService reportService,
 								AttachmentManager attachmentManager, ObjectMapper mapper) {
-		this.service = service;
 		this.reportService = reportService;
 		this.attachmentManager = attachmentManager;
 		this.mapper = mapper;
@@ -113,7 +110,7 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 
 	@Override
 	public ReadWriteDtoService<D, F> getService() {
-		return service;
+		return null;
 	}
 
 	private RptReportDto finishReport(OperationResult result) throws FileNotFoundException {

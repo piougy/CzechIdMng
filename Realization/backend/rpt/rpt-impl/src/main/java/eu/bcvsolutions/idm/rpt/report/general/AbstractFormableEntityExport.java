@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -35,9 +34,9 @@ public abstract class AbstractFormableEntityExport<D extends FormableDto, F exte
 
 	private final FormService formService;
 
-	public AbstractFormableEntityExport(ReadWriteDtoService<D, F> service, RptReportService reportService,
+	public AbstractFormableEntityExport(RptReportService reportService,
 										AttachmentManager attachmentManager, ObjectMapper mapper, FormService formService) {
-		super(service, reportService, attachmentManager, mapper);
+		super(reportService, attachmentManager, mapper);
 		this.formService = formService;
 	}
 

@@ -45,6 +45,11 @@ import eu.bcvsolutions.idm.rpt.api.service.ReportManager;
 import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
+/**
+ * General formable entity export tests
+ * 
+ * @author Peter
+ */
 public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired

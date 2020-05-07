@@ -5726,6 +5726,16 @@
           }
         }
       },
+      "identity-by-tree-node-evaluator": {
+        "help": "Permissions for identtiy that have one or more relationships on a selected organizational structure.",
+        "attributes": {
+          "tree-node": {
+            "label": "Organizational structure element",
+            "help": "Select the element to which the selected rights will apply. The rights will also apply to all elements with a downward spread.",
+            "placeholder": "Organizational structure element ..."
+          }
+        }
+      },
       "core-contract-by-identity-evaluator": {
         "help": "Permissions to contracts by pemissions to user.",
         "attributes": {

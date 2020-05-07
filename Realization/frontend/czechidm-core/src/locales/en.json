@@ -5735,6 +5735,16 @@
             "placeholder": "Same permissions as to user or select ..."
           }
         }
+      },
+      "role-by-role-catalogue-evaluator": {
+        "help": "Permissions for roles that are in the selected catalog.",
+        "attributes": {
+          "role-catalogue": {
+            "label": "Catalog",
+            "help": "Select the catalog that contains the roles to which will be apply given permissions. The rights will also apply to all roles with a downward spread.",
+            "placeholder": "Catalog ..."
+          }
+        }
       }
     },
     "value-generator": {

@@ -2756,6 +2756,9 @@
           },
           "editContract": {
             "label": "Add contract for this organization unit"
+          },
+          "cancelContract": {
+            "label": "Cancel creating contract for this organization unit"
           }
         },
         "identity": {

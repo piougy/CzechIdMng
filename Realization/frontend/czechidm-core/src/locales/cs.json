@@ -2809,6 +2809,9 @@
           },
           "editContract": {
             "label": "Přidat kontrakt pro tuto organizaci"
+          },
+          "cancelContract": {
+            "label": "Zrušit přidání kontraktu pro tuto organizaci"
           }
         },
         "identity": {

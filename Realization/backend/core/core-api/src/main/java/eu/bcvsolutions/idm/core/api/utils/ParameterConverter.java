@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -7,8 +8,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -179,7 +180,6 @@ public class ParameterConverter {
 		return null;
 	}
 	
-	
 	/**
 	 * Converts parameter to {@code Long} from given parameters.
 	 * 
@@ -202,9 +202,54 @@ public class ParameterConverter {
 	 */
 	public Long toLong(Map<String, Object> parameters, String parameterName) {
 		String valueAsString = toString(parameters, parameterName);
-		if(StringUtils.isNotEmpty(valueAsString)) {
+		if (StringUtils.isNotEmpty(valueAsString)) {
 			try {
 				return Long.valueOf(valueAsString);
+			} catch (NumberFormatException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
+			}		
+		}
+		return null;
+	}
+	
+	/**
+	 * Converts parameter to {@code BigDecimal} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 * @since 10.3.0
+	 */
+	public BigDecimal toBigDecimal(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters, "Input parameters are required.");
+		//
+		return toBigDecimal(toSingleValueMap(parameters), parameterName);
+	}
+	
+	/**
+	 * Converts parameter to {@code Double} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 * @since 10.3.0
+	 */
+	public BigDecimal toBigDecimal(Map<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters, "Input parameters are required.");
+	    Assert.notNull(parameterName, "Parameter name is required.");
+	    //
+	    Object value = parameters.get(parameterName);
+	    if (value == null) {
+			return null;
+		}
+	    if (value instanceof BigDecimal) {
+			return (BigDecimal) value;
+		}
+		//
+		String valueAsString = toString(value);
+		if (StringUtils.isNotEmpty(valueAsString)) {
+			try {
+				return new BigDecimal((String) valueAsString);
 			} catch (NumberFormatException ex) {
 				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
 			}		

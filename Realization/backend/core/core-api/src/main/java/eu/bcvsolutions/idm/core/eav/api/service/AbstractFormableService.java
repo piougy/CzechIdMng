@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.eav.api.service;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -131,11 +132,13 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 		if (!(context instanceof FormableFilter)) {
 			return dto;
 		}
-		if (BooleanUtils.isNotTrue(((FormableFilter) context).getAddEavMetadata())) {
+		FormableFilter formableContext = (FormableFilter) context;
+		if (BooleanUtils.isNotTrue(formableContext.getAddEavMetadata())
+				&& CollectionUtils.isEmpty(formableContext.getFormDefinitionAttributes())) {
 			return dto;
 		}
 		// load all form instances
-		dto.setEavs(this.getFormInstances(dto, permission));
+		dto.setEavs(this.findFormInstances(dto, formableContext, permission));
 		//
 		return dto;
 	}
@@ -145,9 +148,21 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 	 * 
 	 * @param dto
 	 * @return
+	 * @deprecated @since 10.3.0 => override {@link #findFormInstances(FormableDto, FormableFilter, BasePermission...)} instead.
 	 */
 	protected List<IdmFormInstanceDto> getFormInstances(DTO dto, BasePermission... permission) {
-		return formService.getFormInstances(dto, permission);
+		return this.findFormInstances(dto, null, permission);
+	}
+	
+	/**
+	 * Finds form instances for given DTO.
+	 * 
+	 * @param dto
+	 * @return
+	 * @since 10.3.0
+	 */
+	protected List<IdmFormInstanceDto> findFormInstances(DTO dto, FormableFilter formableContext, BasePermission... permission) {
+		return formService.findFormInstances(dto, formableContext, permission);
 	}
 	
 	/**

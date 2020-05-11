@@ -29,6 +29,7 @@ import IdentityAttributeEnum from './src/enums/IdentityAttributeEnum';
 import ContractAttributeEnum from './src/enums/ContractAttributeEnum';
 import ContractSliceAttributeEnum from './src/enums/ContractSliceAttributeEnum';
 import ConceptRoleRequestOperationEnum from './src/enums/ConceptRoleRequestOperationEnum';
+import IdentityStateEnum from './src/enums/IdentityStateEnum';
 //
 import ValidationMessage from './src/components/advanced/ValidationMessage/ValidationMessage';
 //
@@ -61,6 +62,7 @@ const ModuleRoot = {
     ScriptCategoryEnum,
     ApiOperationTypeEnum,
     IdentityAttributeEnum,
+    IdentityStateEnum,
     ContractAttributeEnum,
     ContractSliceAttributeEnum,
     ConceptRoleRequestOperationEnum
@@ -76,5 +78,5 @@ const ModuleRoot = {
     IdentityRoleTable: IdentityRoleTableComponent
   }
 };
-ModuleRoot.version = '0.0.1';
+ModuleRoot.version = '10.3.0';
 module.exports = ModuleRoot;

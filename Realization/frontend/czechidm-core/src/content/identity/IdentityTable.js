@@ -267,7 +267,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.FormProjectionSelect
                       ref="formProjection"
                       placeholder={ this.i18n('filter.formProjection.placeholder') }
-                      manager={ projectionManager }/>
+                      manager={ projectionManager }
+                      forceSearchParameters={ new SearchParameters().setFilter('disabled', 'false') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox

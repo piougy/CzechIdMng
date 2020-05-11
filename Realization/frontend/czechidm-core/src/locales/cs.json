@@ -361,6 +361,7 @@
       },
       "messages": "Hlášení",
       "configuration": "Konfigurace aplikace",
+      "monitoring": "Monitoring",
       "userLabel": "{{loggedUsername}}",
       "login": "$t(content.login.header)",
       "logout": "Odhlásit",
@@ -1413,6 +1414,15 @@
         "message": "Konfigurovatelná položka [<strong>{{name}}</strong>] již existuje s hodnotou [<strong>{{value}}</strong>]. Chcete ji přepsat?"
       }
     },
+    "monitoring": {
+      "header": "Monitoring",
+      "title": "Monitoring",
+      "type": {
+        "monitoring-database": {
+          "name": "Počet záznamů ve vybraných databázových tabulkách"
+          }
+        }
+      },
     "tasks-summary": {
       "summary": "Přehled úkolů",
       "approvalTasks": "Schvalované úkoly",
@@ -4593,6 +4603,14 @@
       "secured": "Systémové",
       "public": "Veřejné",
       "confidential": "Tajné"
+    },
+    "IdmMonitoringType": {
+      "_type": "Monitoring",
+      "name": "Název",
+      "value": "Hodnota",
+      "module": "Modul",
+      "level": "Stav",
+      "threshold": "Limitní hodnota"
     },
     "Audit": {
       "label": "Audit",

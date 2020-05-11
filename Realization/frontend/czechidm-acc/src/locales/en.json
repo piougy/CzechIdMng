@@ -659,7 +659,14 @@
       "tab": "Systems",
       "title": "Systems utilizing this policy"
     }
-  }
+  },
+   "monitoring": {
+     "type": {
+       "monitoring-sync": {
+         "name": "Status of all active synchronizations"
+         }
+       }
+     }
   },
   "entity": {
     "System": {

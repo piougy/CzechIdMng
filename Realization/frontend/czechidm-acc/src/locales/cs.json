@@ -660,7 +660,14 @@
         "tab": "Navázané systémy",
         "title": "Navázané systémy na tuto politiku"
       }
-    }
+    },
+    "monitoring": {
+      "type": {
+        "monitoring-sync": {
+          "name": "Stav všech aktivních synchronizací"
+          }
+        }
+      }
   },
   "entity": {
     "System": {

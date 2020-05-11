@@ -577,6 +577,11 @@ module.exports = {
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
     },
     {
+      path: 'monitorings',
+      component: require('./src/content/monitoring/Monitorings'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
+    },
+    {
       path: 'export-imports',
       component: require('./src/content/exportimport/ExportImports'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['EXPORTIMPORT_READ'] } ]

@@ -329,6 +329,7 @@
       },
       "messages": "Messages history",
       "configuration": "Configuration",
+      "monitoring": "Monitoring",
       "userLabel": "{{loggedUsername}}",
       "login": "$t(content.login.header)",
       "logout": "Log Out",
@@ -1373,6 +1374,15 @@
         "message": "Configurable item [<strong>{{name}}</strong>] is already existing with value [<strong>{{value}}</strong>]. Do you want to overwrite it?"
       }
     },
+    "monitoring": {
+      "header": "Monitoring",
+      "title": "Monitoring",
+      "type": {
+        "monitoring-database": {
+          "name": "Number of records in selected database tables"
+          }
+        }
+      },
     "tasks-summary": {
       "summary": "Tasks list",
       "approvalTasks": "Approved tasks",
@@ -4541,6 +4551,14 @@
       "secured": "System",
       "public": "Public",
       "confidential": "Confidential"
+    },
+    "IdmMonitoringType": {
+      "_type": "Monitoring",
+      "name": "Name",
+      "value": "Value",
+      "module": "Module",
+      "level": "State",
+      "threshold": "Threshold value"
     },
     "Audit": {
       "label": "Audit",

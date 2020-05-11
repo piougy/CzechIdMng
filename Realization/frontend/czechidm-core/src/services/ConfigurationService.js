@@ -81,6 +81,32 @@ export default class ConfigurationService extends AbstractService {
   }
 
   /**
+   * @Beta
+   * Return monitoring results for given type.
+   *
+   * @return Promise
+   */
+  getMonitoringType(monitoringType) {
+    return RestApiService
+      .get(`${this.getApiPath()}/monitoring-types/${monitoringType}`)
+      .then(response => {
+        if (response.status === 204) {
+          return null;
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (!json) {
+          return null;
+        }
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
    * Returns all configurations from property files
    *
    * @return Promise

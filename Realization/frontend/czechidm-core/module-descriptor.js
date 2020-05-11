@@ -959,6 +959,14 @@ module.exports = {
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
           },
           {
+            id: 'monitoring',
+            labelKey: 'navigation.menu.monitoring',
+            icon: 'fa:heartbeat',
+            order: 12,
+            path: '/monitorings',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
+          },
+          {
             id: 'modules',
             labelKey: 'content.system.modules.title',
             order: 50,

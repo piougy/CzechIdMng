@@ -73,7 +73,7 @@
     "invariant": "2.2.0",
     "isomorphic-fetch": "2.2.1",
     "joi": "6.10.0",
-    "jquery": "3.4.0",
+    "jquery": "3.5.0",
     "js-sha256": "0.9.0",
     "jwt-decode": "2.1.0",
     "lodash": "4.17.15",

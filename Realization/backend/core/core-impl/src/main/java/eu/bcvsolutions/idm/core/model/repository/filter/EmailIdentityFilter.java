@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  *
  */
 @Component
-@Description("Filter by identity's email")
+@Description("Filter by identity email")
 public class EmailIdentityFilter extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 
 	@Autowired
@@ -37,7 +38,7 @@ public class EmailIdentityFilter extends AbstractFilterBuilder<IdmIdentity, IdmI
 	}
 
 	@Override
-	public javax.persistence.criteria.Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query,
+	public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query,
 			CriteriaBuilder builder, IdmIdentityFilter filter) {
 		String email = filter.getEmail();
 		if (StringUtils.isEmpty(email)) {

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.AbstractFilterBuilder;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -17,31 +18,31 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
- * Filter by identity username.
- * 
- * @author Radek Tomiška
+ * Phone filter for {@link IdmIdentityDto}.
  *
+ * @author Radek Tomiška
+ * @since 10.3.0
  */
 @Component
-@Description("Filter by identity username")
-public class UsernameIdentityFilter extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
-	
+@Description("Filter by identity phone")
+public class PhoneIdentityFilter extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
+
 	@Autowired
-	public UsernameIdentityFilter(IdmIdentityRepository repository) {
+	public PhoneIdentityFilter(IdmIdentityRepository repository) {
 		super(repository);
 	}
-	
+
 	@Override
 	public String getName() {
-		return IdmIdentityFilter.PARAMETER_USERNAME;
+		return IdmIdentityFilter.PARAMETER_PHONE;
 	}
-	
+
 	@Override
 	public Predicate getPredicate(Root<IdmIdentity> root, AbstractQuery<?> query, CriteriaBuilder builder, IdmIdentityFilter filter) {
-		String username = filter.getUsername();
-		if (StringUtils.isEmpty(username)) {
+		String phone = filter.getPhone();
+		if (StringUtils.isEmpty(phone)) {
 			return null;
 		}
-		return builder.equal(root.get(IdmIdentity_.username), username);
+		return builder.equal(root.get(IdmIdentity_.phone), phone);
 	}
 }

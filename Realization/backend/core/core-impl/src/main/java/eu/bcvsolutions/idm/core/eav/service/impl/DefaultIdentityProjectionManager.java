@@ -435,7 +435,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 			return;
 		}
 		//
-		IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(identity, IdmIdentity_.FORM_PROJECTION);
+		IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(identity, IdmIdentity_.formProjection);
 		String formDefinitions = formProjection.getFormDefinitions();
 		if (StringUtils.isEmpty(formDefinitions)) {
 			// form instances are not needed - not configured in this projection

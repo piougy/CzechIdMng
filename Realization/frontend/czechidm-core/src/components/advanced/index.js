@@ -134,5 +134,5 @@ const Components = {
   CronGenerator
 };
 
-Components.version = '10.2.0';
+Components.version = '10.3.0';
 module.exports = Components;

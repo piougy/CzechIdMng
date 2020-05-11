@@ -2819,6 +2819,9 @@
           },
           "editContract": {
             "label": "Přidat kontrakt pro tuto organizaci"
+          },
+          "cancelContract": {
+            "label": "Zrušit přidání kontraktu pro tuto organizaci"
           }
         },
         "identity": {
@@ -6193,7 +6196,11 @@
       }
     },
     "form-projection-route": {
+      "form-identity": {
+        "help": "Výchozí produktová projekce. Projekce nenabízí další konfiguraci, provádí pouze přeměrování na výchozí formuláře pro založení a editaci uživatele."
+      },
       "form-identity-projection": {
+        "help": "Konfigurovatelná produktová projekce.",
         "attributes": {
           "prime-contract": {
             "label": "Zobrazit hlavní kontrakt",
@@ -6829,10 +6836,6 @@
     "GROOVY_SCRIPT_NOT_ACCESSIBLE_SERVICE": {
       "title": "Služba není přístupná",
       "message": "Služba [{{service}}] není přístupná!"
-    },
-    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
-      "title": "Transformační sktipt selhal",
-      "message": "Transformační sktipt selhal z důvodu: [{{origMessage}}] IdM lokace: [{{idmPath}}] Lokace skriptu: [{{scriptPath}}]."
     },
     "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
       "title": "Úloha má více instancí",

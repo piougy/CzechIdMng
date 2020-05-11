@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import java.util.List;
+
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
@@ -27,6 +29,24 @@ public interface BaseDataFilter extends BaseFilter {
 	 * @param propertyValue
 	 */
 	void set(String propertyName, Object propertyValue);
+	
+	/**
+	 * Put all property values.
+	 * If values are empty (null or empty list), then paremater is removed form filter.
+	 * 
+	 * @param propertyName
+	 * @param propertyValues
+	 * @since 10.3.0
+	 */
+	void put(String propertyName, List<Object> propertyValues);
+	
+	/**
+	 * Remove all property values.
+	 * 
+	 * @param propertyName
+	 * @since 10.3.0
+	 */
+	void remove(String propertyName);
 	
 	/**
 	 * Puts filter parameters into underlying filter data.

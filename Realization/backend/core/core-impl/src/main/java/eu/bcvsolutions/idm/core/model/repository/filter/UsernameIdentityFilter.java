@@ -17,13 +17,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 
 /**
- * Filter by identity's username
+ * Filter by identity username.
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-@Description("Filter by identity's username")
+@Description("Filter by identity username")
 public class UsernameIdentityFilter extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
 	
 	@Autowired

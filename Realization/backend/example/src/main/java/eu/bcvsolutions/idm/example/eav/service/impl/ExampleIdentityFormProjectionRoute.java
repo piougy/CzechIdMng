@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormProjectionRoute;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.example.ExampleModuleDescriptor;
 
 /**
  * Example identity form projection.
@@ -11,6 +13,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška
  * @since 10.3.0
  */
+@Enabled(ExampleModuleDescriptor.MODULE_ID)
 @Component(ExampleIdentityFormProjectionRoute.PROJECTION_NAME)
 public class ExampleIdentityFormProjectionRoute extends AbstractFormProjectionRoute<IdmIdentity> {
 	

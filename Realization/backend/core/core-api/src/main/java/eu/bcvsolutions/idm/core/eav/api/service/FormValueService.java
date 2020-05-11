@@ -49,10 +49,10 @@ public interface FormValueService<O extends FormableEntity> extends
 	 * Returns values by given owner and definition (optional). If no definition is given, then all values from given owner are returned.
 	 *
 	 * @param owner
-	 * @param definiton [optional] If no definition is given, then all values from given owner are returned.
+	 * @param formDefinition [optional] If no definition is given, then all values from given owner are returned.
 	 * @param permission base permissions to evaluate (AND)
 	 */
-	List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefiniton, BasePermission... permission);
+	List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefinition, BasePermission... permission);
 	
 	/**
 	 * Returns values by given owner and attribute (required). If no attribute is given, then {@link IllegalArgumentException} is thrown.
@@ -67,11 +67,11 @@ public interface FormValueService<O extends FormableEntity> extends
 	 * Deletes values by given owner and definition. If no definition is given, then all values from given owner are deleted.
 	 *
 	 * @param owner
-	 * @param definiton
+	 * @param formDefinition
 	 * @param permission base permissions to evaluate (AND)
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
-	void deleteValues(O owner, IdmFormDefinitionDto formDefiniton, BasePermission... permission);
+	void deleteValues(O owner, IdmFormDefinitionDto formDefinition, BasePermission... permission);
 	
 	/**
 	 * Deletes values by given owner and attribute. If no attribute is given, then {@link IllegalArgumentException} is thrown.

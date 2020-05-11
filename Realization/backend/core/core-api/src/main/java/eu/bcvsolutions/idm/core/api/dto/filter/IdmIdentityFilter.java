@@ -79,6 +79,12 @@ public class IdmIdentityFilter
 	 */
 	public static final String PARAMETER_EMAIL = "email";
 	/**
+	 * Identities by phone.
+	 * 
+	 * @since 10.3.0
+	 */
+	public static final String PARAMETER_PHONE = "phone";
+	/**
 	 * role - multiple, OR.
 	 */
 	public static final String PARAMETER_ROLE = "role";
@@ -287,6 +293,26 @@ public class IdmIdentityFilter
 	 */
 	public void setEmail(String email) {
 		set(PARAMETER_EMAIL, email);
+	}
+	
+	/**
+	 * Identity phone.
+	 * 
+	 * @since 10.3.0
+	 * @return filter value
+	 */
+	public String getPhone() {
+		return getParameterConverter().toString(getData(), PARAMETER_PHONE);
+	}
+	
+	/**
+	 * Identity phone.
+	 * 
+	 * @since 10.3.0
+	 * @param phone filter value
+	 */
+	public void setPhone(String phone) {
+		set(PARAMETER_PHONE, phone);
 	}
 	
 	/**

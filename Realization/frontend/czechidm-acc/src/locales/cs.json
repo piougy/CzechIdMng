@@ -2550,6 +2550,10 @@
       "message": "Mapování <strong>{{mapping}}</strong> je použito v <strong class=\"highlight\">{{count}}</strong> nastavení synchronizace nebo provisioningu!",
       "title": ""
     },
+    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
+      "title": "Transformační sktipt selhal",
+      "message": "Transformační sktipt selhal z důvodu: [{{origMessage}}] IdM lokace: [{{idmPath}}] Lokace skriptu: [{{scriptPath}}]."
+    },
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Transformace hesla pro uid {{uid}} nevrací GuardedString nebo null. Název mapovaného atributu {{mappedAttribute}}.",
       "title": "Transformace hesla selhala"

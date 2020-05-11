@@ -85,7 +85,11 @@ export default class AttachmentService extends AbstractRequestService {
     } else {
       downloadUrl = `/${ DEFAULT_DOWNLOAD_LINK_PREFIX }/${ encodeURIComponent(attachmentId) }/${ DEFAULT_DOWNLOAD_LINK_SUFFIX }`;
     }
-    downloadUrl = `${ downloadUrl }?cidmst=${ AuthenticateService.getTokenCIDMST() }`;
+    if (downloadUrl.includes('?')) {
+      downloadUrl = `${ downloadUrl }&cidmst=${ AuthenticateService.getTokenCIDMST() }`;
+    } else {
+      downloadUrl = `${ downloadUrl }?cidmst=${ AuthenticateService.getTokenCIDMST() }`;
+    }
     return RestApiService.getUrl(downloadUrl);
   }
 }

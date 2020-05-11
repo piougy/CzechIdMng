@@ -2766,6 +2766,9 @@
           },
           "editContract": {
             "label": "Add contract for this organization unit"
+          },
+          "cancelContract": {
+            "label": "Cancel creating contract for this organization unit"
           }
         },
         "identity": {
@@ -6141,7 +6144,11 @@
       }
     },
     "form-projection-route": {
+      "form-identity": {
+        "help": "Default product projection. Not configurable product projection - redirect to default user detail only."
+      },
       "form-identity-projection": {
+        "help": "Configurable product projection.",
         "attributes": {
           "prime-contract": {
             "label": "Show prime contract",
@@ -6777,10 +6784,6 @@
     "GROOVY_SCRIPT_NOT_ACCESSIBLE_SERVICE": {
       "title": "Service is not accessible",
       "message": "Service [{{service}}] is not accessible!"
-    },
-    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
-      "title": "Transformation script failed",
-      "message": "Transformation script failed because of: [{{origMessage}}] IdM location: [{{idmPath}}] Script location: [{{scriptPath}}]."
     },
     "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
       "title": "Task has multiple instances",

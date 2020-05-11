@@ -2548,6 +2548,10 @@
       "message": "Mapping <strong>{{mapping}}</strong> is used in <strong class=\"highlight\">{{count}}</strong> synchronization or provisioning settings!",
       "title": ""
     },
+    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
+      "title": "Transformation script failed",
+      "message": "Transformation script failed because of: [{{origMessage}}] IdM location: [{{idmPath}}] Script location: [{{scriptPath}}]."
+    },
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Password transformation for uid {{uid}} doesn't return GuardedString or null. Mapped attribute name {{mappedAttribute}}.",
       "title": "Password transformation failed"

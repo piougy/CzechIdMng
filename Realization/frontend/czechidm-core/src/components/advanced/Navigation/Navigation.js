@@ -13,6 +13,7 @@ import {
   ConfigurationManager,
   SecurityManager,
   IdentityManager,
+  RoleManager,
   DataManager
 } from '../../../redux';
 import {
@@ -27,6 +28,7 @@ import NavigationSeparator from './NavigationSeparator';
 
 const componentService = new ComponentService();
 const identityManager = new IdentityManager();
+const roleManager = new RoleManager();
 
 /**
  * Top navigation
@@ -329,7 +331,7 @@ export class Navigation extends Basic.AbstractContent {
   }
 
   render() {
-    const { environment, userContext, navigationCollapsed, rendered, i18nReady } = this.props;
+    const { environment, userContext, navigationCollapsed, rendered, i18nReady, searchShowLoading } = this.props;
     //
     if (!rendered) {
       return false;
@@ -344,12 +346,12 @@ export class Navigation extends Basic.AbstractContent {
         { hidden: environment === 'production'}
       );
       environmentLabel = (
-        <div className="navbar-text hidden-xs" title={ this.i18n(`environment.${ environment }.title`, { defaultValue: environment }) }>
+        <Basic.Div className="navbar-text hidden-xs" title={ this.i18n(`environment.${ environment }.title`, { defaultValue: environment }) }>
           <span className={ environmentClassName }>
             <span className="hidden-sm">{ this.i18n(`environment.${ environment }.label`, { defaultValue: environment }) }</span>
             <span className="visible-sm-inline">{ this.i18n(`environment.${ environment }.short`, { defaultValue: environment }) }</span>
           </span>
-        </div>
+        </Basic.Div>
       );
     }
 
@@ -357,9 +359,9 @@ export class Navigation extends Basic.AbstractContent {
     let flags = null;
     if (supportedLanguages && supportedLanguages.length > 1) {
       flags = (
-        <div className="navbar-text hidden-xs">
-          <div className="flags-container">
-            <div className="flags">
+        <Basic.Div className="navbar-text hidden-xs">
+          <Basic.Div className="flags-container">
+            <Basic.Div className="flags">
               {
                 [...supportedLanguages.map((lng, i) => {
                   const lgnClassName = classnames(
@@ -379,9 +381,9 @@ export class Navigation extends Basic.AbstractContent {
                   );
                 }).values()]
               }
-            </div>
-          </div>
-        </div>
+            </Basic.Div>
+          </Basic.Div>
+        </Basic.Div>
       );
     }
     //
@@ -480,10 +482,10 @@ export class Navigation extends Basic.AbstractContent {
     );
     //
     return (
-      <div>
+      <Basic.Div>
         <header>
           <nav className="navbar navbar-default navbar-static-top" style={{ marginBottom: 0 }}>
-            <div className="navbar-header">
+            <Basic.Div className="navbar-header">
               <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
                 <span className="sr-only">{ this.i18n('navigation.toogle') }</span>
                 <span className="icon-bar"/>
@@ -493,8 +495,8 @@ export class Navigation extends Basic.AbstractContent {
               <Link to="/" title={ this.i18n('navigation.menu.home') } className="home">
                 {' '}
               </Link>
-            </div>
-            <div id="navbar" className="navbar-collapse">
+            </Basic.Div>
+            <Basic.Div id="navbar" className="navbar-collapse">
               {
                 !userContext.isExpired && !SecurityManager.isAuthenticated(userContext)
                 ?
@@ -504,7 +506,56 @@ export class Navigation extends Basic.AbstractContent {
                 :
                 null
               }
-              <div className="navbar-right">
+              <Basic.Div className="navbar-right">
+                {
+                  environment !== 'development' || userContext.isExpired || !SecurityManager.isAuthenticated(userContext)
+                  ||
+                  <form
+                    className="navbar-form navbar-left"
+                    onSubmit={
+                      (event) => {
+                        event.preventDefault();
+                        const identifier = this.refs['input-search'].getValue();
+                        if (identifier) {
+                          //
+                          this.context.store.dispatch(identityManager.fetchEntity(identifier, 'search', (identity, e1) => {
+                            if (e1 && e1.statusCode === 404) {
+                              this.context.store.dispatch(roleManager.fetchEntity(identifier, 'search2', (role, e2) => {
+                                if (e2) {
+                                  this.addError(e2);
+                                } else {
+                                  this.context.history.push(`/role/${ encodeURIComponent(role.id) }/detail`);
+                                  this.refs['input-search'].setValue(null);
+                                }
+                              }));
+                            } else if (e1) {
+                              this.addError(e1);
+                            } else {
+                              this.context.history.push(identityManager.getDetailLink(identity));
+                              this.refs['input-search'].setValue(null);
+                            }
+                          }));
+                        }
+                      }
+                    }>
+                    <Basic.Div className="input-group">
+                      <Basic.TextField
+                        label={ null }
+                        ref="input-search"
+                        placeholder="Search"
+                        style={{ borderRadius: '4px 0px 0px 4px' }}/>
+                      <span className="input-group-btn">
+                        <Basic.Button
+                          showLoading={ searchShowLoading }
+                          showLoadingIcon
+                          level="default"
+                          type="submit"
+                          icon="search"
+                          style={{ borderRadius: '0px 4px 4px 0px', borderLeft: 0 }}/>
+                      </span>
+                    </Basic.Div>
+                  </form>
+                }
                 { environmentLabel }
                 { flags }
                 <ul className="nav navbar-nav">
@@ -519,22 +570,22 @@ export class Navigation extends Basic.AbstractContent {
                     systemItems
                   }
                 </ul>
-              </div>
-            </div>
+              </Basic.Div>
+            </Basic.Div>
             {
               !userContext.isExpired && SecurityManager.isAuthenticated(userContext)
               ?
-              <div className={sidebarClassName} role="navigation">
-                <div className="sidebar-nav navbar-collapse">
+              <Basic.Div className={sidebarClassName} role="navigation">
+                <Basic.Div className="sidebar-nav navbar-collapse">
                   { sidebarItems }
-                </div>
-              </div>
+                </Basic.Div>
+              </Basic.Div>
               :
               null
             }
           </nav>
         </header>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -573,6 +624,7 @@ function select(state) {
     i18nReady: state.config.get('i18nReady'),
     identity: identityManager.getEntity(state, identifier),
     _imageUrl: profile ? profile.imageUrl : null,
+    searchShowLoading: DataManager.isShowLoading(state, 'search') || DataManager.isShowLoading(state, 'search2')
   };
 }
 

@@ -45,7 +45,10 @@ public abstract class AbstractFormableEntityExport<D extends FormableDto, F exte
 		Map<String, String> map = super.tramsformToMap(dto);
 		//
 		List<IdmFormDefinitionDto> definitions = formService.getDefinitions(dto, IdmBasePermission.AUTOCOMPLETE);
-		List<IdmFormInstanceDto> formInstances = definitions.stream().map(d -> formService.getFormInstance(dto, d, IdmBasePermission.READ)).collect(Collectors.toList());
+		List<IdmFormInstanceDto> formInstances = definitions
+				.stream()
+				.map(d -> formService.getFormInstance(dto, d, IdmBasePermission.READ))
+				.collect(Collectors.toList());
 		//
 		formInstances.forEach(formInstance -> processFormInstance(map, formInstance, dto.getEavs().size() > 1));
 		return map;
@@ -55,7 +58,8 @@ public abstract class AbstractFormableEntityExport<D extends FormableDto, F exte
 		Map<String, List<Serializable>> eavsWithValues = new HashMap<>();
 		// fill existing values
 		formInstance.getValues().forEach(val -> {
-			final String eavName = getEavName(formInstance.getMappedAttribute(val.getFormAttribute()), formInstance, prefixEavsWithDefinitionCode);
+			final String eavName = getEavName(formInstance
+					.getMappedAttribute(val.getFormAttribute()), formInstance, prefixEavsWithDefinitionCode);
 			if (eavName == null) {
 				return;
 			}
@@ -87,7 +91,7 @@ public abstract class AbstractFormableEntityExport<D extends FormableDto, F exte
 		StringBuilder sb = new StringBuilder();
 		if (prefixEavsWithDefinitionCode) {
 			sb.append(formInstance.getFormDefinition().getCode());
-			sb.append("_");
+			sb.append('_');
 		}
 		return sb.append(mappedAttribute.getCode()).toString();
 	}

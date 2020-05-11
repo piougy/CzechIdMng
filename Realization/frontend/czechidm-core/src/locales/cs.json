@@ -6178,7 +6178,11 @@
       }
     },
     "form-projection-route": {
+      "form-identity": {
+        "help": "Výchozí produktová projekce. Projekce nenabízí další konfiguraci, provádí pouze přeměrování na výchozí formuláře pro založení a editaci uživatele."
+      },
       "form-identity-projection": {
+        "help": "Konfigurovatelná produktová projekce.",
         "attributes": {
           "prime-contract": {
             "label": "Zobrazit hlavní kontrakt",

@@ -6126,6 +6126,11 @@
       }
     },
     "form-projection-route": {
+      "form-identity": {
+        "help": "Default product projection. Not configurable product projection - redirect to default user detail only."
+      },
+      "form-identity-projection": {
+        "help": "Configurable product projection.",
       "form-identity-projection": {
         "attributes": {
           "prime-contract": {

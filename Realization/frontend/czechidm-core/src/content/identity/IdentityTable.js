@@ -33,7 +33,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     super(props, context);
     this.state = {
       filterOpened: props.filterOpened,
-      showAddModal: false
+      showAddModal: false,
+      projections: []
     };
   }
 
@@ -202,6 +203,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     const roleDisabled = _forceSearchParameters.getFilters().has('role');
     const treeNodeDisabled = _forceSearchParameters.getFilters().has('treeNodeId');
     //
+    const canCreateIdentity = showAddButton && this.getManager().canSave() && (isDefaultFormProjection || projections.length > 0);
+    //
     return (
       <Basic.Div>
         <Advanced.Table
@@ -303,7 +306,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                 type="submit"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, {}) }
-                rendered={ showAddButton && this.getManager().canSave() }
+                rendered={ canCreateIdentity }
                 icon="fa:user-plus">
                 { this.i18n('content.identity.create.button.add') }
               </Basic.Button>

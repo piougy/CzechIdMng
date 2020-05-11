@@ -130,6 +130,11 @@ module.exports = {
       ]
     },
     {
+      path: 'form/identity/:entityId',
+      component: require('./src/content/identity/projection/DefaultIdentityDetail'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]
+    },
+    {
       path: 'form/identity-projection/:entityId',
       component: require('./src/content/identity/projection/IdentityProjection'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]

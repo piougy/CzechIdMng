@@ -47,8 +47,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.DefaultFormableFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
@@ -1162,7 +1162,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		
 		//
 		// find saved values with filter
-		IdmIdentityFilter filter = new IdmIdentityFilter();
+		DefaultFormableFilter filter = new DefaultFormableFilter();
 		FormDefinitionAttributes attributes = new FormDefinitionAttributes();
 		attributes.setDefinition(formDefinition.getId());
 		attributes.getAttributes().add(attributeOne.getId());

@@ -6819,10 +6819,6 @@
       "title": "Služba není přístupná",
       "message": "Služba [{{service}}] není přístupná!"
     },
-    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
-      "title": "Transformační sktipt selhal",
-      "message": "Transformační sktipt selhal z důvodu: [{{origMessage}}] IdM lokace: [{{idmPath}}] Lokace skriptu: [{{scriptPath}}]."
-    },
     "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
       "title": "Úloha má více instancí",
       "message": "Úloha [{{task}}] má jinou instanci {{instance}}], proto není dostupná z této instance {{thisInstance}}]."

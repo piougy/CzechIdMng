@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 //
+import _ from 'lodash';
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import { ConfigurationManager } from '../../../redux';
@@ -368,7 +369,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
       { 'panel-info': level === 'info' },
       className
     );
-    let _titleStyle = titleStyle;
+    let _titleStyle = _.clone(titleStyle, true);
     if (!_titleStyle) {
       _titleStyle = {};
     }

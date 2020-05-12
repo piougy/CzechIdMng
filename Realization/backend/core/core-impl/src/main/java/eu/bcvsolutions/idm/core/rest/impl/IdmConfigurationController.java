@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.StringReader;
@@ -47,7 +48,6 @@ import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.LoggerManager;
 import eu.bcvsolutions.idm.core.api.service.MonitoringManager;
-import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionRoute;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
@@ -56,9 +56,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
-import java.util.Collections;
 import java.util.Comparator;
-import org.springframework.hateoas.Resource;
+import org.springframework.context.annotation.Bean;
 
 /**
  * Configuration controller - add custom methods to configuration repository
@@ -123,6 +122,7 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") })
 				})
+	@Override
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
@@ -294,8 +294,11 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				.collect(Collectors.toList());
 	}
 	
+	@Beta
 	/**
-	 * Returns configurations from property files 
+	 * Returns monitoring results - BETA.
+	 * 
+	 * TODO: Will be removed from this controller.
 	 * 
 	 * @param monitoringType
 	 * @return
@@ -313,6 +316,7 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.CONFIGURATION_READ, description = "") })
 				})
+	
 	public ResponseEntity<IdmMonitoringTypeDto> getMonitoringType(@PathVariable @NotNull String monitoringType) {
 
 		IdmMonitoringTypeDto dto = monitoringManager.check(monitoringType);
@@ -324,7 +328,7 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				.collect(Collectors.toList());
 		dto.setResults(Lists.reverse(results));
 
-		return new ResponseEntity(new Resource(dto), HttpStatus.OK);
+		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 	
 	/**
@@ -354,9 +358,7 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	/**
 	 * Bulk configuration save
 	 * 
-	 * @param configuration
-	 * @return
-	 * @throws IOException 
+	 * @param configuration 
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")

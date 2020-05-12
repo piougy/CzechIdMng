@@ -29,6 +29,7 @@ public class MonitoringIntegrationTest extends AbstractIntegrationTest {
 	}
 
 	@After
+	@Override
 	public void logout() {
 		super.logout();
 	}

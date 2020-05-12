@@ -17,12 +17,10 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.event.processor.MonitoringSyncProcessor;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.MonitoringLevel;
 import java.util.List;
 
@@ -35,7 +33,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringResultDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringTypeDto;
 import eu.bcvsolutions.idm.core.api.service.MonitoringManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import java.util.UUID;
 
 /**
  * Monitoring integration test
@@ -50,13 +47,9 @@ public class MonitoringIntegrationTest extends AbstractIntegrationTest {
 	@Autowired
 	private TestHelper helper;
 	@Autowired
-	private SysSystemService systemService;
-	@Autowired
 	private SysSystemMappingService systemMappingService;
 	@Autowired
 	private SysSystemAttributeMappingService schemaAttributeMappingService;
-	@Autowired
-	private SysSchemaAttributeService schemaAttributeService;
 	@Autowired
 	private SysSyncConfigService syncConfigService;
 	@Autowired
@@ -68,6 +61,7 @@ public class MonitoringIntegrationTest extends AbstractIntegrationTest {
 	}
 
 	@After
+	@Override
 	public void logout() {
 		super.logout();
 	}

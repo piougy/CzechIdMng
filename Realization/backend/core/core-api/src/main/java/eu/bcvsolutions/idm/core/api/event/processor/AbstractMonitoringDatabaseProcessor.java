@@ -25,20 +25,20 @@ public abstract class AbstractMonitoringDatabaseProcessor<DTO extends AbstractDt
 		super(type);
 	}
 
-	protected String getTableName(BaseDtoService service) {
-		Class entityClass = service.getEntityClass();
+	protected String getTableName(BaseDtoService<?> service) {
+		Class<?> entityClass = service.getEntityClass();
 		if (entityClass == null) {
 			return null;
 		}
-		Table table = (Table) entityClass.getAnnotation(Table.class);
+		Table table = entityClass.getAnnotation(Table.class);
 		if (table != null) {
 			return table.name();
 		}
 		return service.getEntityClass().getSimpleName();
 	}
 	
-	protected String getDtoName(BaseDtoService service) {
-		Class dtoClass = service.getDtoClass();
+	protected String getDtoName(BaseDtoService<?> service) {
+		Class<?> dtoClass = service.getDtoClass();
 		if (dtoClass == null) {
 			return null;
 		}
@@ -46,7 +46,14 @@ public abstract class AbstractMonitoringDatabaseProcessor<DTO extends AbstractDt
 		return dtoClass.getSimpleName();
 	}
 
-	protected IdmMonitoringResultDto countToResult(ReadDtoService service) {
+	/**
+	 * Create monitoring result.
+	 * 
+	 * @param service
+	 * @return
+	 */
+	protected IdmMonitoringResultDto countToResult(ReadDtoService<?,?> service) {
+		@SuppressWarnings("unchecked")
 		long count = service.count(null);
 		long threshold = 500;
 		MonitoringLevel level = MonitoringLevel.OK;

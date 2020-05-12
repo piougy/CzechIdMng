@@ -2,22 +2,16 @@ package eu.bcvsolutions.idm.acc.event.processor;
 
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
-import eu.bcvsolutions.idm.core.api.domain.MonitoringLevel;
-import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringResultDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringTypeDto;
-import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.AbstractMonitoringDatabaseProcessor;
-import eu.bcvsolutions.idm.core.api.service.BaseDtoService;
 import eu.bcvsolutions.idm.core.api.service.MonitoringManager;
-import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.model.event.MonitoringEvent;
-import javax.persistence.Table;
 
 /**
  * Monitoring of ACC database processor (count).

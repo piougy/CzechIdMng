@@ -5809,7 +5809,7 @@
           }
         }
       },
-      "role-by-role-catalogue-evaluator": {
+      "core-role-by-role-catalogue-evaluator": {
         "help": "Oprávnění pro role, které jsou zařazeny ve vybraném katalogu.",
         "attributes": {
           "role-catalogue": {

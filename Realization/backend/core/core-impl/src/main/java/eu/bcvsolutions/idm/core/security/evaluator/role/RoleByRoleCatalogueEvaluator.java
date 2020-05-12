@@ -41,14 +41,13 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
  * @since 10.3.0
  *
  */
-
-@Component
+@Component(RoleByRoleCatalogueEvaluator.EVALUATOR_NAME)
 @Description("Permissions for roler by role catalogue.")
 public class RoleByRoleCatalogueEvaluator extends AbstractAuthorizationEvaluator<IdmRole> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RoleByRoleCatalogueEvaluator.class);
 	public static final String PARAMETER_ROLE_CATALOGUE = "role-catalogue";
-	public static final String EVALUATOR_NAME = "role-by-role-catalogue-evaluator";
+	public static final String EVALUATOR_NAME = "core-role-by-role-catalogue-evaluator";
 
 	@Autowired
 	private IdmRoleCatalogueService roleCatalogueService;

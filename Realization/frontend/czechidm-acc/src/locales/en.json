@@ -718,6 +718,12 @@
         "active": {
           "label": "System is <strong>active</strong>"
         }
+      },
+      "systemType": {
+        "label": "System type",
+        "virtual": "Virtual only",
+        "notVirtual": "Except virtual",
+        "all": "All systems"
       }
     },
     "ConnectorServer": {

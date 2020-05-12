@@ -719,6 +719,12 @@
         "active": {
           "label": "Systém je <strong>aktivní</strong>"
         }
+      },
+      "systemType": {
+        "label": "Typ systému",
+        "virtual": "Pouze virtuální",
+        "notVirtual": "Bez virtuálních",
+        "all": "Všechny systémy"
       }
     },
     "ConnectorServer": {

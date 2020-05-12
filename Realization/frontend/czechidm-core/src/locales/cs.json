@@ -5550,6 +5550,16 @@
           }
         }
       },
+      "identity-change-user-type-bulk-action": {
+        "label": "Změnit typ uživatele",
+        "icon": "component:identity-projection",
+        "attributes": {
+          "usertype": {
+            "label": "Typ uživatele",
+            "help": ""
+          }
+        }
+      },
       "identity-save-bulk-action": {
         "label": "Přeuložit uživatele",
         "help": "Akce provede to samé, jako tlačítko pro uložení na detailu uživatele.",

@@ -57,7 +57,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import java.util.Comparator;
-import org.springframework.context.annotation.Bean;
 
 /**
  * Configuration controller - add custom methods to configuration repository

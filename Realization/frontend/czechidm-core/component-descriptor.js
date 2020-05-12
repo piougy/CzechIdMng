@@ -601,6 +601,12 @@ module.exports = {
       component: 'fa:user-slash'
     },
     {
+      id: 'identity-projection-icon',
+      type: 'icon',
+      entityType: ['identity-projection'],
+      component: 'fa:user-tag'
+    },
+    {
       id: 'scheduled-task-icon',
       type: 'icon',
       entityType: ['scheduled-task', 'scheduled-tasks'],

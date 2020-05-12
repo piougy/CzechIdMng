@@ -53,7 +53,6 @@ public abstract class AbstractMonitoringDatabaseProcessor<DTO extends AbstractDt
 	 * @return
 	 */
 	protected IdmMonitoringResultDto countToResult(ReadDtoService<?,?> service) {
-		@SuppressWarnings("unchecked")
 		long count = service.count(null);
 		long threshold = 500000;
 		MonitoringLevel level = MonitoringLevel.OK;

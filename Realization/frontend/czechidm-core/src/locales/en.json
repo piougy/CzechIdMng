@@ -5480,6 +5480,16 @@
           }
         }
       },
+      "identity-change-user-type-bulk-action": {
+        "label": "Change user type",
+        "icon": "component:identity-projection",
+        "attributes": {
+          "usertype": {
+            "label": "User type",
+            "help": ""
+          }
+        }
+      },
       "identity-remove-role-bulk-action": {
         "label": "Role removing",
         "icon": "fa:minus-square",

@@ -158,6 +158,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
   render() {
     const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection } = this.props;
     const { filterOpened } = this.state;
+    const showFilterVirtual = !forceSearchParameters.filters.get('virtual');
 
     return (
       <Basic.Div>
@@ -185,6 +186,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.BooleanSelectBox
                       ref="virtual"
                       placeholder={ this.i18n('acc:entity.System.systemType.label') }
+                      rendered={showFilterVirtual}
                       options={ [
                         { value: 'true', niceLabel: this.i18n('acc:entity.System.systemType.virtual') },
                         { value: 'false', niceLabel: this.i18n('acc:entity.System.systemType.notVirtual') }

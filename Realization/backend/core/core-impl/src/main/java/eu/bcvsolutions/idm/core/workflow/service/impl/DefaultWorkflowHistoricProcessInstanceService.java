@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -190,19 +189,19 @@ public class DefaultWorkflowHistoricProcessInstanceService
 		return query;
 	}
 	
-	@Override
 	/**
 	 * Beware, rights on involeved user are evolved here, but given permissions are not used!
 	 */
+	@Override
 	public WorkflowHistoricProcessInstanceDto get(Serializable id, BasePermission... permission) {
 		Assert.notNull(id, "Identifier is required.");
 		return this.get(String.valueOf(id));
 	}
 
-	@Override
 	/**
 	 * Rights on involved user are evolved here!
 	 */
+	@Override
 	public WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(historicProcessInstanceId);

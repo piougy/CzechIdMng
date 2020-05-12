@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @since 10.3.0
  *
  */
-public class RoleByRoleCatalogueEvaluatorTest extends AbstractIntegrationTest {
+public class RoleByRoleCatalogueEvaluatorIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmRoleService roleService;

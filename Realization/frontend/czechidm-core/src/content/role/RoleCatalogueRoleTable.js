@@ -17,10 +17,6 @@ let roleManager = new RoleManager();
 */
 export class RoleCatalogueRoleTable extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.role.catalogues';
   }

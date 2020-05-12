@@ -106,7 +106,13 @@ class BasicModalHeader extends AbstractComponent {
             ?
             <h2>
               <Icon value={ icon } showLoading={ showLoading } style={{ marginRight: 5 }}/>
-              <span dangerouslySetInnerHTML={{__html: text}}/>
+              {
+                React.isValidElement(text)
+                ?
+                text
+                :
+                <span dangerouslySetInnerHTML={{__html: text}}/>
+              }
             </h2>
             :
             null

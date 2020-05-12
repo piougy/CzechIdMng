@@ -151,7 +151,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
 
   renderSingleInput(originalValues) {
     const { attribute, values, validationErrors, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <Basic.TextField
@@ -174,7 +174,7 @@ export default class TextFormAttributeRenderer extends AbstractFormAttributeRend
 
   renderMultipleInput(originalValues) {
     const { attribute, values, validationErrors, className, style } = this.props;
-    const showOriginalValue = originalValues ? true : false;
+    const showOriginalValue = !!originalValues;
     //
     return (
       <Basic.TextArea

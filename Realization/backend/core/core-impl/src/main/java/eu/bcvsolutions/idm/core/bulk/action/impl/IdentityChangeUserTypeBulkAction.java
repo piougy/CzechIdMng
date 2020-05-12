@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -33,8 +34,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 @Component(IdentityChangeUserTypeBulkAction.NAME)
 @Description("Change user type of the idetity bulk action.")
 public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {
-
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityChangeUserTypeBulkAction.class);
 
 	public static final String NAME = "core-identity-change-user-type-bulk-action";
 	public static final String PROPERTY_USER_TYPE = "user-type";
@@ -59,12 +58,7 @@ public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIden
 		UUID newProjectionId = getUserType();
 		UUID oldProjectionId = identity.getFormProjection();
 
-		if (newProjectionId == null && oldProjectionId == null) {
-			// no change - there is nothing to save
-		} else if (newProjectionId != null && oldProjectionId != null
-				&& oldProjectionId.compareTo(newProjectionId) == 0) {
-			// no change - there is nothing to save
-		} else {
+		if (!Objects.equals(newProjectionId, oldProjectionId)) {
 			identity.setFormProjection(newProjectionId);
 			identity = identityService.save(identity);
 		}
@@ -85,12 +79,7 @@ public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIden
 	 */
 	private UUID getUserType() {
 		Object userTypeObj = this.getProperties().get(PROPERTY_USER_TYPE);
-		try {
-			return EntityUtils.toUuid(userTypeObj);
-		} catch (ClassCastException e) {
-			LOG.warn("Selected user type of projection Id is not valid UUID", e);
-			return null;
-		}
+		return DtoUtils.toUuid(userTypeObj);
 	}
 	
 	/**
@@ -104,6 +93,7 @@ public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIden
 				PROPERTY_USER_TYPE, 
 				PersistentType.UUID);
 		type.setFaceType(BaseFaceType.FORM_PROJECTION_SELECT);
+		type.setRequired(true);
 		return type;
 	}
 

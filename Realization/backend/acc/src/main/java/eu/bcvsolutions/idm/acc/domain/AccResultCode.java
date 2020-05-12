@@ -147,7 +147,9 @@ public enum AccResultCode implements ResultCode {
 	ROLE_REQUEST_OPERATION_FAILED(HttpStatus.BAD_REQUEST, "Operation for system [%s] failed!"),
 	ROLE_REQUEST_OPERATION_CANCELED(HttpStatus.NOT_MODIFIED, "Operation for system [%s] canceled!"),
 	// System mapping
-	SYSTEM_MAPPING_DELETE_BULK_ACTION_MAPPING_IN_USE(HttpStatus.FOUND, "Mapping [%s] is used in [%s] synchronization or provisioning settings!");
+	SYSTEM_MAPPING_DELETE_BULK_ACTION_MAPPING_IN_USE(HttpStatus.FOUND, "Mapping [%s] is used in [%s] synchronization or provisioning settings!"),
+	// Groovy script
+	GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED(HttpStatus.BAD_REQUEST, "Attribute transformation script failed! Reason: [%s] IdM location: [%s] Script location: [%s]");
 
 	private final HttpStatus status;
 	private final String message;

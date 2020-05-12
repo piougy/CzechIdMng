@@ -92,6 +92,7 @@ public class IdmFormProjectionDto
 	 * Enabled form definitions and attributes.
 	 * Json representation - [{ definition: uuid,  attributes: [ uuid, uuid ] }].
 	 * 
+	 * @see FormDefinitionAttributes
 	 * @return
 	 */
 	public String getFormDefinitions() {

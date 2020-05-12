@@ -130,6 +130,11 @@ module.exports = {
       ]
     },
     {
+      path: 'form/identity/:entityId',
+      component: require('./src/content/identity/projection/DefaultIdentityDetail'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]
+    },
+    {
       path: 'form/identity-projection/:entityId',
       component: require('./src/content/identity/projection/IdentityProjection'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]
@@ -574,6 +579,11 @@ module.exports = {
     {
       path: 'configurations',
       component: require('./src/content/Configurations'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
+    },
+    {
+      path: 'monitorings',
+      component: require('./src/content/monitoring/Monitorings'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
     },
     {

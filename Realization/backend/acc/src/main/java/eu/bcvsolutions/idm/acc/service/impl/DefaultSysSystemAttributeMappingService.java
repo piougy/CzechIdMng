@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -193,9 +194,9 @@ public class DefaultSysSystemAttributeMappingService
 		try {
 			return transformValueToResource(uid, value, attributeMapping.getTransformToResourceScript(), entity,
 					getSystemFromAttributeMapping(attributeMapping));
-		} catch (ResultCodeException e) {
+		} catch (Exception e) {
 			Map<String, Object> logParams = createTransformationScriptFailureParams(e, attributeMapping);
-			ResultCodeException ex = new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED,
+			ResultCodeException ex = new ResultCodeException(AccResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED,
 					logParams, e);
 			ExceptionUtils.log(log, ex);
 			throw ex;
@@ -240,9 +241,9 @@ public class DefaultSysSystemAttributeMappingService
 		try {
 			return transformValueFromResource(value, attributeMapping.getTransformFromResourceScript(), icAttributes,
 					getSystemFromAttributeMapping(attributeMapping));
-		} catch (ResultCodeException e) {
+		} catch (Exception e) {
 			Map<String, Object> logParams = createTransformationScriptFailureParams(e, attributeMapping);
-			ResultCodeException ex = new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED,
+			ResultCodeException ex = new ResultCodeException(AccResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED,
 					logParams, e);
 			ExceptionUtils.log(log, ex);
 			throw ex;
@@ -979,7 +980,7 @@ public class DefaultSysSystemAttributeMappingService
 	private List<String> createMappingIdmPath(AttributeMapping attributeMapping) {
 		List<String> path = new ArrayList<>();
 		// attribute name
-		path.add(String.format("%s: %s", "Attr", attributeMapping.getName()));
+		path.add(String.format("Attr: %s", attributeMapping.getName()));
 
 		// role and system mapping name
 		SysSystemAttributeMappingDto sysMapping = null;
@@ -990,7 +991,7 @@ public class DefaultSysSystemAttributeMappingService
 			// mapping name and role name are not be available in case of script pre-evaluation during saving
 			if (roleSystem != null) {
 			IdmRoleDto roleDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.role, IdmRoleDto.class);
-			path.add(String.format("%s: %s", "Role", roleDto.getCode()));
+			path.add(String.format("Role: %s", roleDto.getCode()));
 			sysMapping = DtoUtils.getEmbedded(mapping, SysRoleSystemAttribute_.systemAttributeMapping,
 					SysSystemAttributeMappingDto.class, null);
 			}
@@ -1002,11 +1003,11 @@ public class DefaultSysSystemAttributeMappingService
 			String mappingName = DtoUtils
 					.getEmbedded(sysMapping, SysSystemAttributeMapping_.systemMapping, SysSystemMappingDto.class)
 					.getName();
-			path.add(String.format("%s: %s", "Mapping", mappingName));
+			path.add(String.format("Mapping: %s", mappingName));
 		}
 		
 		// system name
-		path.add(String.format("%s: %s", "System", getSystemFromAttributeMapping(attributeMapping).getCode()));
+		path.add(String.format("System: %s", getSystemFromAttributeMapping(attributeMapping).getCode()));
 		return path;
 	}
 	
@@ -1018,15 +1019,14 @@ public class DefaultSysSystemAttributeMappingService
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> createTransformationScriptFailureParams(ResultCodeException ex, AttributeMapping attributeMapping) {
+	private Map<String, Object> createTransformationScriptFailureParams(Throwable ex, AttributeMapping attributeMapping) {
 		Map<String, Object> result = new LinkedHashMap<String, Object>(3);
 		List<String> idmPath = createMappingIdmPath(attributeMapping);
-		List<String> codePath = (List<String>) (List<?>) ExceptionUtils.getParameterChainByKey("scriptCode",
-				ex.getError().getErrors());
+		List<String> codePath = (List<String>) (List<?>) ExceptionUtils.getParameterChainByKey(ex,
+				AbstractScriptEvaluator.SCRIPT_NAME_KEY, CoreResultCode.GROOVY_SCRIPT_EXCEPTION);
 
-		String message = (String) ex.getError().getErrors().get(0).getParameters().getOrDefault("message",
-				ex.getLocalizedMessage());
-		result.put("origMessage", message);
+		String message = Throwables.getRootCause(ex).getLocalizedMessage();
+		result.put(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_MESSAGE_KEY, message);
 
 		StringBuilder sb = new StringBuilder();
 		for (int i = idmPath.size() - 1; i >= 0; i--) {
@@ -1035,16 +1035,16 @@ public class DefaultSysSystemAttributeMappingService
 				sb.append(" / ");
 			}
 		}
-		result.put("idmPath", sb.toString());
+		result.put(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_IDM_PATH_KEY, sb.toString());
 
 		sb.setLength(0);
-		for (int i = codePath.size() - 1; i >= 0; i--) {
+		for (int i = 0; i < codePath.size(); i++) {
 			sb.append(codePath.get(i));
-			if (i > 0) {
+			if (i < codePath.size() - 1) {
 				sb.append(" / ");
 			}
 		}
-		result.put("scriptPath", sb.toString());
+		result.put(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_SCRIPT_PATH_KEY, sb.toString());
 		return result;
 	}
 }

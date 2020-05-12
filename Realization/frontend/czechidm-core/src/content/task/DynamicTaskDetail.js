@@ -130,7 +130,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
       const type = UiUtils.getSimpleJavaType(task._dtotype);
       const isHistoricTask = type === 'WorkflowHistoricTaskInstanceDto';
       return (
-        <div>
+        <Basic.Div>
           <Basic.Div>
             <TaskHistoricInfo
               rendered={isHistoricTask}
@@ -148,7 +148,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               showLoading={!task}
               className="no-margin"/>
           </Basic.LabelWrapper>
-        </div>
+        </Basic.Div>
       );
     }
     return null;

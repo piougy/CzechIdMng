@@ -1425,16 +1425,19 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				synchronizationActionType, uid);
 		log.setContainsError(true);
 		logItem.setMessage(message);
-		// prefer IdM exception message on the top  
+		// prefer IdM exception on the top
+		Throwable ex = e;
 		if (!(e instanceof CoreException)) {
 			Throwable idmEx = ExceptionUtils.resolveException(e);
 			if (idmEx != e) {
-				addToItemLog(logItem, idmEx.toString());
+				addToItemLog(logItem, Throwables.getStackTraceAsString(idmEx));
+				ex = idmEx;
 			}
+		} else {
+			addToItemLog(logItem, Throwables.getStackTraceAsString(e));
 		}
-		addToItemLog(logItem, Throwables.getStackTraceAsString(e));
 		initSyncActionLog(synchronizationActionType, OperationResultType.ERROR, logItem, log, actionLogs);
-		LOG.error(message, e);
+		LOG.error(message, ex);
 	}
 
 	/**

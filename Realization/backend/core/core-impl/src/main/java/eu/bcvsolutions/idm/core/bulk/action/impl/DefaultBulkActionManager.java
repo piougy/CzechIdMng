@@ -128,8 +128,8 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	private IdmBulkActionDto toDto(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action) {
 		IdmBulkActionDto actionDto = new IdmBulkActionDto();
 		actionDto.setId(action.getName()); // FIXME: spring bean name 
-		actionDto.setEntityClass(action.getService().getEntityClass().getName());
-		actionDto.setFilterClass(action.getService().getFilterClass().getName());
+		actionDto.setEntityClass(action.getService() != null ? action.getService().getEntityClass().getName() : null);
+		actionDto.setFilterClass(action.getService() != null ? action.getService().getFilterClass().getName() : null);
 		actionDto.setModule(action.getModule());
 		actionDto.setName(action.getName());
 		actionDto.setDescription(action.getDescription());

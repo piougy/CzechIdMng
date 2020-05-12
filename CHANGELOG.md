@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - [#2163](https://redmine.czechidm.com/issues/2156) - DTO for history of workflow tasks was redesigned. Since this version is  DTO **WorkflowHistoricTaskInstanceDto** extended by workflow task DTO **WorkflowTaskInstanceDto**. Some of a fields in **WorkflowHistoricTaskInstanceDto** were removed or renamed (candicateUsers, taskVariables)!
 - [#2163](https://redmine.czechidm.com/issues/2156) - Workflow history task service was changed. Interface is same, but implementation of the **toResource** method was changed.
 - [#2229](https://redmine.czechidm.com/issues/2229) - **Frontend component definition for identity form projection was removed** and replaced by backend registrable component. **See updated [documentation](https://wiki.czechidm.com/devel/documentation/identities/dev/user-type), how to register new identity form projection in you custom module**.
+- [#1719](https://redmine.czechidm.com/issues/1719) - **IdmSecurityException** thrown as consequence of transformation script security failure is now caught and **enveloped** as cause **into ResultCodeException** of the **GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED** type, which is newly propagated to UI.
 
 
 ## [10.2.0]

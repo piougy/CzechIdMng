@@ -80,7 +80,7 @@ public class IdentityChangeUserTypeBulkActionTest extends AbstractBulkActionTest
 
 		// set created form projection to all identities
 		Map<String, Object> properties = new HashMap<>();
-		properties.put(IdentityChangeUserTypeBulkAction.USER_TYPE, projection.getId().toString());
+		properties.put(IdentityChangeUserTypeBulkAction.PROPERTY_USER_TYPE, projection.getId().toString());
 		bulkAction.setProperties(properties);
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, 5l, null, null);
@@ -91,7 +91,7 @@ public class IdentityChangeUserTypeBulkActionTest extends AbstractBulkActionTest
 		}
 		
 		// change form projection to another type
-		properties.put(IdentityChangeUserTypeBulkAction.USER_TYPE, projection2.getId().toString());
+		properties.put(IdentityChangeUserTypeBulkAction.PROPERTY_USER_TYPE, projection2.getId().toString());
 		bulkAction.setProperties(properties);
 		processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, 5l, null, null);
@@ -102,7 +102,7 @@ public class IdentityChangeUserTypeBulkActionTest extends AbstractBulkActionTest
 		}
 
 		// remove projection from all identities
-		properties.put(IdentityChangeUserTypeBulkAction.USER_TYPE, null);
+		properties.put(IdentityChangeUserTypeBulkAction.PROPERTY_USER_TYPE, null);
 		bulkAction.setProperties(properties);
 		processAction = bulkActionManager.processAction(bulkAction);
 		checkResultLrt(processAction, 5l, null, null);

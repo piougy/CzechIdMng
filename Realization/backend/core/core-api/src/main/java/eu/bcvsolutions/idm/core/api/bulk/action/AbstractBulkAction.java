@@ -442,6 +442,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	 *
 	 * @return
 	 */
+	@Override
 	public boolean isGeneric() {
 		return false;
 	}

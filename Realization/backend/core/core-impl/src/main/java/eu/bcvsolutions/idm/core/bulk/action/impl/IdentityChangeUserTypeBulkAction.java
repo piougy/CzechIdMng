@@ -29,17 +29,15 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  * @author Ondrej Husnik
  *
  */
-
 @Enabled(CoreModuleDescriptor.MODULE_ID)
-@Component("identityChangeUserTypeBulkAction")
+@Component(IdentityChangeUserTypeBulkAction.NAME)
 @Description("Change user type of the idetity bulk action.")
 public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityChangeUserTypeBulkAction.class);
 
-	public static final String NAME = "identity-change-user-type-bulk-action";
-
-	public static final String USER_TYPE = "userType";
+	public static final String NAME = "core-identity-change-user-type-bulk-action";
+	public static final String PROPERTY_USER_TYPE = "user-type";
 
 	@Autowired
 	private IdmIdentityService identityService;
@@ -86,7 +84,7 @@ public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIden
 	 * @return
 	 */
 	private UUID getUserType() {
-		Object userTypeObj = this.getProperties().get(USER_TYPE);
+		Object userTypeObj = this.getProperties().get(PROPERTY_USER_TYPE);
 		try {
 			return EntityUtils.toUuid(userTypeObj);
 		} catch (ClassCastException e) {
@@ -102,12 +100,10 @@ public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIden
 	 */
 	private IdmFormAttributeDto getUserTypeFormDef() {
 		IdmFormAttributeDto type = new IdmFormAttributeDto(
-				USER_TYPE, 
-				USER_TYPE, 
+				PROPERTY_USER_TYPE, 
+				PROPERTY_USER_TYPE, 
 				PersistentType.UUID);
 		type.setFaceType(BaseFaceType.FORM_PROJECTION_SELECT);
-		type.setRequired(false);
-		type.setMultiple(false);
 		return type;
 	}
 

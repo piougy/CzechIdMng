@@ -9,8 +9,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
-import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -88,6 +86,7 @@ public class GeneralEntityExport extends AbstractFormableEntityExport<FormableDt
 	
 	/**
 	 * Get service dynamically by action.
+	 * @return 
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -95,23 +94,24 @@ public class GeneralEntityExport extends AbstractFormableEntityExport<FormableDt
 		if (localService != null) {
 			return localService;
 		}
-		
-		IdmBulkActionDto action = getAction();
-		if (action == null) {
+
+		Class<? extends BaseEntity> localEntityClass = this.getEntityClass();
+		if (localEntityClass == null) {
 			return null;
 		}
-		
-		try {
-			localService = (ReadWriteDtoService<FormableDto, BaseFilter>) lookupService
-					.getDtoService((Class<? extends Identifiable>) Class.forName(action.getEntityClass()));
-		} catch (ClassNotFoundException ex) {
-			LOG.error("Service for entity type [{}] is not registered in lookup.", action.getEntityClass(), ex);
-		}
+
+		localService = (ReadWriteDtoService<FormableDto, BaseFilter>) lookupService
+				.getDtoService((Class<? extends BaseEntity>) localEntityClass);
 		return localService;
 	}
 
 	@Override
 	public boolean supports(Class<? extends BaseEntity> clazz) {
 		return FormableEntity.class.isAssignableFrom(clazz);
+	}
+
+	@Override
+	public boolean isGeneric() {
+		return true;
 	}
 }

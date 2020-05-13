@@ -26,7 +26,10 @@ public interface BulkActionManager {
 	 * Process bulk action in new long running task
 	 *
 	 * @param actionDto action configuration.
-	 * @return processing bulk action with long running tastk identifier is filled. Action is processed asynchronously - process can be get by long running task identifier in LRT agenda.
+	 *
+	 * @return processing bulk action with long running tastk identifier is filled.
+	 *         Action is processed asynchronously - process can be get by long
+	 *         running task identifier in LRT agenda.
 	 */
 	IdmBulkActionDto processAction(IdmBulkActionDto actionDto);
 

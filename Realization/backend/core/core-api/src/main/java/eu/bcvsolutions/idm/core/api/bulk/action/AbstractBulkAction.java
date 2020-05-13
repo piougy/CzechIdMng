@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +50,7 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  * @param <DTO>
+ * @param <F>
  */
 public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 		extends AbstractLongRunningTaskExecutor<OperationResult>
@@ -59,6 +59,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractBulkAction.class);
 	
 	private IdmBulkActionDto action;
+	public Class<? extends BaseEntity> entityClass;
 	@Autowired
 	private NotificationManager notificationManager;
 	@Autowired
@@ -161,7 +162,6 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setIncludeItemCounts(true);
 		IdmLongRunningTaskDto task = getLongRunningTaskService().get(getLongRunningTaskId(), filter);
-		IdmBulkActionDto action = getAction();
 		//
 		if (task.getCreatorId() != null) {
 			IdmIdentityDto identityDto = identityService.get(task.getCreatorId());
@@ -169,7 +169,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 				// TODO: coreModuleDescriptor is in impl
 				notificationManager.send("core:bulkActionEnd",
 						new IdmMessageDto.Builder()
-						.addParameter("action", action)
+						.addParameter("action", getAction())
 						.addParameter("task", task)
 						.addParameter("owner", identityDto)
 						.addParameter("result", end)
@@ -186,23 +186,23 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	@Override
 	@SuppressWarnings("unchecked")
 	public OperationResult process() {
-		IdmBulkActionDto action = this.getAction();
-		if (action == null) {
+		IdmBulkActionDto localAction = this.getAction();
+		if (localAction == null) {
 			// try to load bulk action from LRT persisted properties
-			action = (IdmBulkActionDto) super.getProperties().get(PARAMETER_BULK_ACTION);
+			localAction = (IdmBulkActionDto) super.getProperties().get(PARAMETER_BULK_ACTION);
 			// transform filter is needed
-			if (action.getFilter() != null) {
+			if (localAction.getFilter() != null) {
 				MultiValueMap<String, Object> multivaluedMap = new LinkedMultiValueMap<>();
-				Map<String, Object> properties = action.getFilter();
+				Map<String, Object> properties = localAction.getFilter();
 				//
-				for (Entry<String, Object> entry : properties.entrySet()) {
+				properties.entrySet().forEach((entry) -> {
 					Object value = entry.getValue();
 					if(value instanceof List<?>) {
 						multivaluedMap.put(entry.getKey(), (List<Object>) value);
 					}else {
 						multivaluedMap.add(entry.getKey(), entry.getValue());
 					}
-				}
+				});
 				//
 				Class<F> filterClass = getService().getFilterClass();
 				F filter;
@@ -239,16 +239,16 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 				} else {
 					filter = mapper.convertValue(multivaluedMap, filterClass);
 				}
-				action.setTransformedFilter(filter);
+				localAction.setTransformedFilter(filter);
 			}
 		}
-		Assert.notNull(action, "Bulk action is required.");
+		Assert.notNull(localAction, "Bulk action is required.");
 		//
 		StringBuilder description = new StringBuilder();
 		IdmLongRunningTaskDto longRunningTask = this.getLongRunningTaskService().get(this.getLongRunningTaskId());
 		description.append(longRunningTask.getTaskDescription());
 		//
-		List<UUID> entities = getEntities(action, description);
+		List<UUID> entities = getEntities(localAction, description);
 		//
 		this.count = Long.valueOf(entities.size());
 		this.counter = 0l;
@@ -272,7 +272,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	protected List<UUID> getEntities(IdmBulkActionDto action, StringBuilder description) {
 		List<UUID> entities = null;
 		if (!action.getIdentifiers().isEmpty()) {
-			entities = new ArrayList<UUID>(action.getIdentifiers());
+			entities = new ArrayList<>(action.getIdentifiers());
 			//
 			if (description != null) {
 				description.append(System.lineSeparator());
@@ -284,7 +284,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 					getPermissionForEntity()).getContent();
 
 			// it is necessary create new arraylist because return list form find is unmodifiable
-			entities = new ArrayList<UUID>(content);
+			entities = new ArrayList<>(content);
 			//
 			if (description != null) {
 				description.append(System.lineSeparator());
@@ -323,7 +323,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	/**
 	 * Process all identities by given list of ID's
 	 *
-	 * @param identitiesId
+	 * @param entitiesId
 	 * @return
 	 */
 	protected OperationResult processEntities(Collection<UUID> entitiesId) {
@@ -361,7 +361,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	/**
 	 * Create success log for given identity
 	 *
-	 * @param identity
+	 * @param dto
 	 */
 	protected void createSuccessLog(DTO dto) {
 		this.logItemProcessed(dto, new OperationResult.Builder(OperationState.EXECUTED).build());
@@ -371,7 +371,6 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	 * Create failed log for given dto with exception for insufficient permission
 	 *
 	 * @param dto
-	 * @param cause
 	 */
 	protected void createPermissionFailedLog(DTO dto) {
 		String entityCode = "";
@@ -401,9 +400,8 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	}
 
 	/**
-	 * Check permission for given entity. Permission for check is get by service.
-	 * Required permission is given by method {@link #getPermissionForEntity}
-	 * @param identity
+	 * Check permission for given entity.Permission for check is get by service.Required permission is given by method {@link #getPermissionForEntity}
+	 * @param entity
 	 * @return
 	 */
 	protected boolean checkPermissionForEntity(BaseDto entity) {
@@ -432,4 +430,27 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	 * @return return operation result for current processed DTO
 	 */
 	protected abstract OperationResult processDto(DTO dto);
+	
+	/**
+	 * Generic action.
+	 *
+	 * If is action generic, then we need to create new instance and set entity
+	 * class to it in every case (includes getAvailableActions too). Stateful actions
+	 * are typically generic actions (uses for more than one entity type). That
+	 * action doesn't have knowledge about entity type by default. And this is a way
+	 * how we can propagete entity type to it.
+	 *
+	 * @return
+	 */
+	public boolean isGeneric() {
+		return false;
+	}
+
+	public Class<? extends BaseEntity> getEntityClass() {
+		return entityClass;
+	}
+
+	public void setEntityClass(Class<? extends BaseEntity> entityClass) {
+		this.entityClass = entityClass;
+	}
 }

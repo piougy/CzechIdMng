@@ -39,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 //import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -142,9 +143,9 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			if (backendId instanceof UUID) {
 				// BackendId is UUID, we try to load DTO by service.get method (with context).
 				dto = service.get((UUID) backendId, context);
-			} else if (backendId instanceof String) {
+			} else {
 				try {
-					UUID id = UUID.fromString((String) backendId);
+					UUID id = DtoUtils.toUuid(backendId);
 					// BackendId is UUID, we try to load DTO by service.get method (with context).
 					dto = service.get(id, context);
 					if (dto == null) {
@@ -156,7 +157,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 							dto = service.get(dto.getId(), context);
 						}
 					}
-				} catch (IllegalArgumentException ex) {
+				} catch (ClassCastException ex) {
 					// Ok, backendId is not UUID, so we can try to lookupSerivce.
 					dto = lookupService.lookupDto(getDtoClass(), backendId);
 					if (dto != null) {

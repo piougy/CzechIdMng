@@ -1537,6 +1537,7 @@ module.exports = {
         id: 'identity-menu-logout-separator',
         section: 'identity-menu',
         type: 'SEPARATOR',
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PROFILE_READ', 'IDENTITY_PASSWORDCHANGE', 'IDENTITY_READ'] } ],
         order: 990
       },
       {

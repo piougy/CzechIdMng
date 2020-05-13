@@ -8,6 +8,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -60,7 +61,7 @@ public class IdentityGuaranteesForRoleFilter extends AbstractFilterBuilder<IdmId
 		Root<IdmRoleGuarantee> subRootIdentity = subqueryIdentity.from(IdmRoleGuarantee.class);
 		subqueryIdentity.select(subRootIdentity);
 		subqueryIdentity.where(
-				guaranteeType != null
+				StringUtils.isNotEmpty(guaranteeType)
 						? builder.and(
 								builder.equal(subRootIdentity.get(IdmRoleGuarantee_.role).get(IdmRole_.id), guaranteesForRole),
 								builder.equal(subRootIdentity.get(IdmRoleGuarantee_.type), guaranteeType),
@@ -78,7 +79,7 @@ public class IdentityGuaranteesForRoleFilter extends AbstractFilterBuilder<IdmId
 		Root<IdmRoleGuaranteeRole> subRootRole = subqueryRole.from(IdmRoleGuaranteeRole.class);
 		subqueryRole.select(subRootRole.get(IdmRoleGuaranteeRole_.guaranteeRole).get(IdmRole_.id));
 		subqueryRole.where(
-				guaranteeType != null
+				StringUtils.isNotEmpty(guaranteeType)
 						? builder.and(
 								builder.equal(subRootRole.get(IdmRoleGuaranteeRole_.role).get(IdmRole_.id), guaranteesForRole),
 								builder.equal(subRootRole.get(IdmRoleGuaranteeRole_.type), guaranteeType)

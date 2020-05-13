@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -104,7 +105,7 @@ public class DefaultIdmRoleGuaranteeService
 		}	
 		// type
 		String type = filter.getType();
-		if (type != null) {
+		if (StringUtils.isNotEmpty(type)) {
 			predicates.add(builder.equal(root.get(IdmRoleGuarantee_.type), type));
 		}	
 		//

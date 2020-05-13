@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -22,7 +23,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole_;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -94,7 +94,7 @@ public class DefaultIdmRoleGuaranteeRoleService
 		//
 		// type
 		String type = filter.getType();
-		if (type != null) {
+		if (StringUtils.isNotEmpty(type)) {
 			predicates.add(builder.equal(root.get(IdmRoleGuaranteeRole_.type), type));
 		}	
 		return predicates;

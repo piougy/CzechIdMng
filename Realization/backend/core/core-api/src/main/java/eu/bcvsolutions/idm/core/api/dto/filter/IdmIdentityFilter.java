@@ -77,6 +77,8 @@ public class IdmIdentityFilter
 	/**
 	 * Guarantees for given role and guarantees type.
 	 * This parameter will be use only if PARAMETER_GUARANTEES_FOR_ROLE is sets!
+	 * 
+	 * @since 10.3.0
 	 */
 	public static final String PARAMETER_GUARANTEE_TYPE = "guaranteesType";
 	/**
@@ -254,12 +256,9 @@ public class IdmIdentityFilter
 		set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void setIdentifiers(List<String> identifiers) {
-		if (CollectionUtils.isEmpty(identifiers)) {
-    		data.remove(PARAMETER_IDENTIFIERS);
-    	} else {
-    		data.put(PARAMETER_IDENTIFIERS, new ArrayList<Object>(identifiers));
-    	}
+		put(PARAMETER_IDENTIFIERS, (List<Object>) (Object) identifiers);
 	}
 
 	public List<String> getIdentifiers() {
@@ -284,6 +283,13 @@ public class IdmIdentityFilter
 		set(PARAMETER_GUARANTEES_FOR_ROLE, guaranteesForRole);
 	}
 	
+	/**
+	 * Guarantees for given role and guarantees type.
+	 * This parameter will be use in filter only if the setGuaranteesForRole parameter will be set!
+	 * 
+	 * @return
+	 * @since 10.3.0
+	 */
 	public String getGuaranteeType() {
 		return getParameterConverter().toString(getData(), PARAMETER_GUARANTEE_TYPE);
 	}
@@ -292,7 +298,8 @@ public class IdmIdentityFilter
 	 * Guarantees for given role and guarantees type.
 	 * This parameter will be use in filter only if the setGuaranteesForRole parameter will be set!
 	 * 
-	 * @param type 
+	 * @param type
+	 * @since 10.3.0
 	 */
 	public void setGuaranteeType(String type) {
 		set(PARAMETER_GUARANTEE_TYPE, type);
@@ -303,7 +310,7 @@ public class IdmIdentityFilter
 	 * @return
 	 */
 	public String getEmail() {
-		return (String) data.getFirst(PARAMETER_EMAIL);
+		return getParameterConverter().toString(getData(), PARAMETER_EMAIL);
 	}
 	
 	/**

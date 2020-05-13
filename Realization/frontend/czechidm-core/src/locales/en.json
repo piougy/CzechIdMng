@@ -5480,13 +5480,13 @@
           }
         }
       },
-      "identity-change-user-type-bulk-action": {
+      "core-identity-change-user-type-bulk-action": {
         "label": "Change user type",
         "icon": "component:identity-projection",
         "attributes": {
-          "usertype": {
+          "user-type": {
             "label": "User type",
-            "help": ""
+            "help": "New user type."
           }
         }
       },

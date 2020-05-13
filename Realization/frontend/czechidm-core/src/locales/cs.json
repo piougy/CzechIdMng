@@ -5550,13 +5550,13 @@
           }
         }
       },
-      "identity-change-user-type-bulk-action": {
+      "core-identity-change-user-type-bulk-action": {
         "label": "Změnit typ uživatele",
         "icon": "component:identity-projection",
         "attributes": {
-          "usertype": {
+          "user-type": {
             "label": "Typ uživatele",
-            "help": ""
+            "help": "Nový typ uživatele."
           }
         }
       },

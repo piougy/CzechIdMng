@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
-import eu.bcvsolutions.idm.core.api.service.MonitoringManager;
 import eu.bcvsolutions.idm.core.model.event.MonitoringEvent;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import java.text.MessageFormat;
@@ -75,7 +74,7 @@ public class MonitoringDatabaseProcessor
 		if (!result) {
 			return false;
 		}
-		return MonitoringManager.MONITORING_TYPE_DATABASE.equals(event.getContent().getType());
+		return MONITORING_TYPE_DATABASE.equals(event.getContent().getType());
 	}
 
 	@Override

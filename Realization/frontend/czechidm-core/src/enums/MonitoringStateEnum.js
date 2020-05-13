@@ -1,7 +1,8 @@
 import AbstractEnum from './AbstractEnum';
 
 /**
- * Basic state of a monitoring.
+ * Basic level of a monitoring.
+ * This enumeration is same as NotificationLevelEnum, but in this case I want to different translation and icon.
  *
  * @author Vít Švanda
  */
@@ -28,7 +29,7 @@ export default class MonitoringStateEnum extends AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.OK: {
+      case this.SUCCESS: {
         return 'success';
       }
       case this.ERROR: {
@@ -51,7 +52,7 @@ export default class MonitoringStateEnum extends AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.OK: {
+      case this.SUCCESS: {
         return 'fa:check';
       }
       case this.WARNING: {
@@ -67,6 +68,6 @@ export default class MonitoringStateEnum extends AbstractEnum {
   }
 }
 
-MonitoringStateEnum.OK = Symbol('OK');
+MonitoringStateEnum.SUCCESS = Symbol('SUCCESS');
 MonitoringStateEnum.WARNING = Symbol('WARNING');
 MonitoringStateEnum.ERROR = Symbol('ERROR');

@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringResultDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringTypeDto;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractMonitoringDatabaseProcessor;
 import eu.bcvsolutions.idm.core.api.service.MonitoringManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -39,7 +40,7 @@ public class MonitoringIntegrationTest extends AbstractIntegrationTest {
 	 */
 	@Test
 	public void testDatabaseCount() {
-		IdmMonitoringTypeDto monitoringType = monitoringManager.check(MonitoringManager.MONITORING_TYPE_DATABASE);
+		IdmMonitoringTypeDto monitoringType = monitoringManager.check(AbstractMonitoringDatabaseProcessor.MONITORING_TYPE_DATABASE);
 		Assert.assertNotNull(monitoringType);
 		List<IdmMonitoringResultDto> results = monitoringType.getResults();
 		

@@ -9,7 +9,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.domain.MonitoringLevel;
 import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringResultDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -21,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.event.MonitoringEvent;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import java.text.MessageFormat;
 
 /**
@@ -91,9 +91,9 @@ public class MonitoringSyncProcessor
 		result.setDto(sync);
 		result.setName(MessageFormat.format("{0} ({1})", system.getName(), sync.getName()));
 		result.setModule(getModule());
-		MonitoringLevel level = MonitoringLevel.OK;
+		NotificationLevel level = NotificationLevel.SUCCESS;
 		if (sync.getLastSyncLog() != null && sync.getLastSyncLog().isContainsError()) {
-			level = MonitoringLevel.ERROR;
+			level = NotificationLevel.ERROR;
 		}
 		result.setLevel(level);
 

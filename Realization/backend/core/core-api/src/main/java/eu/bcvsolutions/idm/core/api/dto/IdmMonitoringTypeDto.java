@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.hateoas.core.Relation;
 
 
-@Beta
 /**
  * Monitoring type DTO
  *
@@ -14,7 +13,8 @@ import org.springframework.hateoas.core.Relation;
  * @since 10.4.0
  *
  */
-@Relation(collectionRelation = "monitoring-types")
+@Beta
+@Relation(collectionRelation = "monitoringTypes")
 public class IdmMonitoringTypeDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;

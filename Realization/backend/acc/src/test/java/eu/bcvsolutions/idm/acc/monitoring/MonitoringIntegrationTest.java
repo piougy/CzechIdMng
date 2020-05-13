@@ -21,7 +21,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.core.api.domain.MonitoringLevel;
 import java.util.List;
 
 import org.junit.After;
@@ -31,7 +30,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringResultDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringTypeDto;
+import eu.bcvsolutions.idm.core.api.event.processor.AbstractMonitoringDatabaseProcessor;
 import eu.bcvsolutions.idm.core.api.service.MonitoringManager;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -71,7 +72,7 @@ public class MonitoringIntegrationTest extends AbstractIntegrationTest {
 	 */
 	@Test
 	public void testDatabaseCount() {
-		IdmMonitoringTypeDto monitoringType = monitoringManager.check(MonitoringManager.MONITORING_TYPE_DATABASE);
+		IdmMonitoringTypeDto monitoringType = monitoringManager.check(AbstractMonitoringDatabaseProcessor.MONITORING_TYPE_DATABASE);
 		Assert.assertNotNull(monitoringType);
 		List<IdmMonitoringResultDto> results = monitoringType.getResults();
 
@@ -115,7 +116,7 @@ public class MonitoringIntegrationTest extends AbstractIntegrationTest {
 				.filter(result -> syncConfig.getId().equals(result.getDto().getId()))
 				.findFirst().get();
 		
-		Assert.assertEquals(MonitoringLevel.ERROR, resultWithSync.getLevel());
+		Assert.assertEquals(NotificationLevel.ERROR, resultWithSync.getLevel());
 		
 	}
 

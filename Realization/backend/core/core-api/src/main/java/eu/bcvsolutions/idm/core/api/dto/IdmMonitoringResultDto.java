@@ -3,10 +3,9 @@ package eu.bcvsolutions.idm.core.api.dto;
 import com.google.common.annotations.Beta;
 import org.springframework.hateoas.core.Relation;
 
-import eu.bcvsolutions.idm.core.api.domain.MonitoringLevel;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import java.util.UUID;
 
-@Beta
 /**
  * Monitoring DTO
  *
@@ -14,6 +13,7 @@ import java.util.UUID;
  * @since 10.4.0
  *
  */
+@Beta
 @Relation(collectionRelation = "monitorings")
 public class IdmMonitoringResultDto extends AbstractDto {
 
@@ -21,7 +21,7 @@ public class IdmMonitoringResultDto extends AbstractDto {
 	//
 	private String type;
 	private int order;
-	private MonitoringLevel level;
+	private NotificationLevel level;
 	private String module;
 	private String value;
 	private String name;
@@ -47,11 +47,11 @@ public class IdmMonitoringResultDto extends AbstractDto {
 		this.order = order;
 	}
 
-	public MonitoringLevel getLevel() {
+	public NotificationLevel getLevel() {
 		return level;
 	}
 
-	public void setLevel(MonitoringLevel level) {
+	public void setLevel(NotificationLevel level) {
 		this.level = level;
 	}
 

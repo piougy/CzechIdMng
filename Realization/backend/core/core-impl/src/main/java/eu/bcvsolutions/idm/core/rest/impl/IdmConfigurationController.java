@@ -293,7 +293,6 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 				.collect(Collectors.toList());
 	}
 	
-	@Beta
 	/**
 	 * Returns monitoring results - BETA.
 	 * 
@@ -302,6 +301,7 @@ public class IdmConfigurationController extends AbstractReadWriteDtoController<I
 	 * @param monitoringType
 	 * @return
 	 */
+	@Beta
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.CONFIGURATION_READ + "')")
 	@RequestMapping(path = "/monitoring-types/{monitoringType}", method = RequestMethod.GET)

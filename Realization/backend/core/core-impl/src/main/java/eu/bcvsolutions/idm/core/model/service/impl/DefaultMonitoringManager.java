@@ -9,7 +9,6 @@ import eu.bcvsolutions.idm.core.model.event.MonitoringEvent;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Beta
 /**
  * Monitoring manager
  * 
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @since 10.3.0
  *
  */
+@Beta
 @Service("monitoringManager")
 public class DefaultMonitoringManager implements MonitoringManager {
 	

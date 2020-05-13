@@ -1,14 +1,13 @@
 package eu.bcvsolutions.idm.core.api.event.processor;
 
 import com.google.common.annotations.Beta;
-import eu.bcvsolutions.idm.core.api.domain.MonitoringLevel;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmMonitoringResultDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.api.service.BaseDtoService;
-import eu.bcvsolutions.idm.core.api.service.MonitoringManager;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import java.text.MessageFormat;
 import javax.persistence.Table;
 
@@ -20,7 +19,9 @@ import javax.persistence.Table;
  */
 @Beta
 public abstract class AbstractMonitoringDatabaseProcessor<DTO extends AbstractDto> extends CoreEventProcessor<DTO> {
-
+	
+	public static String MONITORING_TYPE_DATABASE = "monitoring-database";
+	
 	public AbstractMonitoringDatabaseProcessor(EventType... type) {
 		super(type);
 	}
@@ -55,14 +56,14 @@ public abstract class AbstractMonitoringDatabaseProcessor<DTO extends AbstractDt
 	protected IdmMonitoringResultDto countToResult(ReadDtoService<?,?> service) {
 		long count = service.count(null);
 		long threshold = 500000;
-		MonitoringLevel level = MonitoringLevel.OK;
+		NotificationLevel level = NotificationLevel.SUCCESS;
 		if (count > threshold) {
-			level = MonitoringLevel.WARNING;
+			level = NotificationLevel.WARNING;
 		}
 
 		IdmMonitoringResultDto result = new IdmMonitoringResultDto();
 		result.setModule(getModule());
-		result.setType(MonitoringManager.MONITORING_TYPE_DATABASE);
+		result.setType(MONITORING_TYPE_DATABASE);
 		result.setName(MessageFormat.format("{0} ({1})", getDtoName(service), getTableName(service)));
 		result.setValue(String.valueOf(count));
 		result.setThreshold(String.valueOf(threshold));

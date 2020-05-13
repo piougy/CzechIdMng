@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import org.hibernate.envers.internal.tools.Triple;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 
+import com.google.common.base.Throwables;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
@@ -36,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
 import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmScriptAuthority;
@@ -168,7 +173,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		script2 = scriptService.saveInternal(script2);
 	}
 	
-	@Test(expected = IdmSecurityException.class)
+	@Test
 	public void testEvaluateScriptWithoutAuth() {
 		IdmScriptDto script = new IdmScriptDto();
 		script.setCategory(IdmScriptCategory.DEFAULT);
@@ -188,7 +193,13 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		//
 		script2 = scriptService.saveInternal(script2);
 		//
-		groovyScriptService.evaluate(script.getScript(), createParametersWithEvaluator(IdmScriptCategory.DEFAULT), createExtraAllowedClass());
+		try {
+			groovyScriptService.evaluate(script.getScript(), createParametersWithEvaluator(IdmScriptCategory.DEFAULT), createExtraAllowedClass());
+			fail();
+		} catch (Throwable e) {
+			assertTrue(Throwables.getRootCause(e) instanceof SecurityException);
+			containsScriptNamesWhenNestedScript(e, script.getCode());
+		}
 	}
 	
 	@Test
@@ -355,7 +366,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		defaultScriptEvaluator.evaluate(first.getCode());
 	}
 	
-	@Test(expected = IdmSecurityException.class)
+	@Test
 	public void testThreeScriptAuthorityFailSecond() {
 		IdmScriptDto third = new IdmScriptDto();
 		third.setCategory(IdmScriptCategory.DEFAULT);
@@ -388,11 +399,17 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		createAuthority(first.getId(), ScriptAuthorityType.CLASS_NAME, IdmIdentity.class.getName(), null);
 		//
 		//
-		defaultScriptEvaluator.evaluate(first.getCode());
-		fail();
+		try {
+			defaultScriptEvaluator.evaluate(first.getCode());
+			fail();
+		} catch (Exception e) {
+			List<ResultCodeException> exChain = ExceptionUtils.getConsecutiveResultCodeExceptions(e, CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION);
+			Assert.assertFalse(exChain.isEmpty());
+			containsScriptNamesWhenNestedScript(e, first.getCode(), second.getCode());
+		}
 	}
 	
-	@Test(expected = IdmSecurityException.class)
+	@Test
 	public void testThreeScriptAuthorityThirdScriptUseAnotherAuth() {
 		IdmScriptDto third = new IdmScriptDto();
 		third.setCategory(IdmScriptCategory.DEFAULT);
@@ -426,8 +443,13 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		createAuthority(first.getId(), ScriptAuthorityType.CLASS_NAME, IdmIdentity.class.getName(), null);
 		//
 		//
-		defaultScriptEvaluator.evaluate(first.getCode());
-		fail();
+		try {
+			defaultScriptEvaluator.evaluate(first.getCode());
+			fail();
+		} catch (Throwable e) {
+			assertTrue(Throwables.getRootCause(e) instanceof SecurityException);
+			containsScriptNamesWhenNestedScript(e, first.getCode(), second.getCode(), third.getCode());
+		}
 	}
 	
 	@Test
@@ -534,7 +556,7 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		}
 	}
 	
-	@Test(expected = IdmSecurityException.class)
+	@Test
 	public void testScriptSecurityExceptionWithCatchSecurityException() {
 		String testString = getHelper().createName();
 		//
@@ -558,9 +580,14 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		script1 = this.scriptService.save(script1);
 		script2 = this.scriptService.save(script2);
 		script3 = this.scriptService.save(script3);
+		try {
 		// must throw exception
 		defaultScriptEvaluator.evaluate(script1.getCode());
 		fail();
+		} catch (Throwable e) {
+			Assert.assertTrue(Throwables.getRootCause(e) instanceof SecurityException);
+			containsScriptNamesWhenNestedScript(e, script1.getCode(), script2.getCode(), script3.getCode());
+		}
 	}
 	
 	@Test
@@ -619,8 +646,9 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 			defaultScriptEvaluator.evaluate(script1.getCode());
 			fail();
 		} catch (Throwable e) {
-			assertTrue(e instanceof ResultCodeException);
-			assertTrue(e.getMessage().contains(testString));
+			Throwable ex = Throwables.getRootCause(e);
+			assertTrue(ex instanceof Exception);
+			assertTrue(ex.getMessage().contains(testString));
 		}
 	}
 	
@@ -671,12 +699,13 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 			defaultScriptEvaluator.evaluate(script1.getCode());
 			fail();
 		} catch (Throwable e) {
-			assertTrue(e instanceof RuntimeException);
-			assertTrue(e.getMessage().contains(testString));
+			Throwable ex = Throwables.getRootCause(e);
+			assertTrue(ex instanceof RuntimeException);
+			assertTrue(ex.getMessage().contains(testString));
 		}
 	}
 	
-	@Test(expected = IdmSecurityException.class)
+	@Test
 	public void testScriptSecurityExceptionWithoutCatch() {
 		String testString = getHelper().createName();
 		//
@@ -692,9 +721,15 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		script1 = this.scriptService.save(script1);
 		script2 = this.scriptService.save(script2);
 		script3 = this.scriptService.save(script3);
+		try {
 		// must throw exception
 		defaultScriptEvaluator.evaluate(script1.getCode());
 		fail();
+		} catch (Exception e) {
+			containsScriptNamesWhenNestedScript(e, script1.getCode(), script2.getCode(), script3.getCode());
+			assertTrue(Throwables.getRootCause(e) instanceof SecurityException);
+		}
+		
 	}
 	
 	/**
@@ -905,5 +940,12 @@ public class ScriptEvaluatorTest extends AbstractIntegrationTest {
 		treeType.append("import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;\n");
 		treeType.append("IdmTreeTypeDto treeType_" + System.currentTimeMillis() + " = new IdmTreeTypeDto();\n");
 		return treeType.toString();
+	}
+
+	private void containsScriptNamesWhenNestedScript (Throwable e, String...scriptNames) {
+		List<Object> collectedNames = ExceptionUtils.getParameterChainByKey(e, AbstractScriptEvaluator.SCRIPT_NAME_KEY, CoreResultCode.GROOVY_SCRIPT_EXCEPTION);
+		for (String name : scriptNames) {
+			assertTrue(collectedNames.contains(name));
+		}
 	}
 }

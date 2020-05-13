@@ -6,10 +6,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 
 import eu.bcvsolutions.idm.core.eav.api.dto.FormProjectionRouteDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionManager;
 import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionRoute;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Provides supported form projections.
@@ -20,6 +22,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionRoute;
 public class DefaultFormProjectionManager implements FormProjectionManager {
 	
 	@Autowired private ApplicationContext context;
+	@Autowired @Lazy private EnabledEvaluator enabledEvaluator;
 	
 	@Override
 	public List<FormProjectionRouteDto> getSupportedRoutes() {
@@ -27,6 +30,7 @@ public class DefaultFormProjectionManager implements FormProjectionManager {
 			.getBeansOfType(FormProjectionRoute.class)
 			.values()
 			.stream()
+			.filter(enabledEvaluator::isEnabled)
 			.sorted(Comparator.comparing(FormProjectionRoute::getOrder))
 			.map(route -> {
 				FormProjectionRouteDto routeDto = new FormProjectionRouteDto();

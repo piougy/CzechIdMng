@@ -361,6 +361,7 @@
       },
       "messages": "Hlášení",
       "configuration": "Konfigurace aplikace",
+      "monitoring": "Monitoring",
       "userLabel": "{{loggedUsername}}",
       "login": "$t(content.login.header)",
       "logout": "Odhlásit",
@@ -1413,6 +1414,15 @@
         "message": "Konfigurovatelná položka [<strong>{{name}}</strong>] již existuje s hodnotou [<strong>{{value}}</strong>]. Chcete ji přepsat?"
       }
     },
+    "monitoring": {
+      "header": "Monitoring",
+      "title": "Monitoring",
+      "type": {
+        "monitoring-database": {
+          "name": "Počet záznamů ve vybraných databázových tabulkách"
+          }
+        }
+      },
     "tasks-summary": {
       "summary": "Přehled úkolů",
       "approvalTasks": "Schvalované úkoly",
@@ -2809,6 +2819,9 @@
           },
           "editContract": {
             "label": "Přidat kontrakt pro tuto organizaci"
+          },
+          "cancelContract": {
+            "label": "Zrušit přidání kontraktu pro tuto organizaci"
           }
         },
         "identity": {
@@ -4594,6 +4607,14 @@
       "public": "Veřejné",
       "confidential": "Tajné"
     },
+    "IdmMonitoringType": {
+      "_type": "Monitoring",
+      "name": "Název",
+      "value": "Hodnota",
+      "module": "Modul",
+      "level": "Stav",
+      "threshold": "Limitní hodnota"
+    },
     "Audit": {
       "label": "Audit",
       "id": "Id revize",
@@ -6185,7 +6206,11 @@
       }
     },
     "form-projection-route": {
+      "form-identity": {
+        "help": "Výchozí produktová projekce. Projekce nenabízí další konfiguraci, provádí pouze přeměrování na výchozí formuláře pro založení a editaci uživatele."
+      },
       "form-identity-projection": {
+        "help": "Konfigurovatelná produktová projekce.",
         "attributes": {
           "prime-contract": {
             "label": "Zobrazit hlavní kontrakt",
@@ -6821,10 +6846,6 @@
     "GROOVY_SCRIPT_NOT_ACCESSIBLE_SERVICE": {
       "title": "Služba není přístupná",
       "message": "Služba [{{service}}] není přístupná!"
-    },
-    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
-      "title": "Transformační sktipt selhal",
-      "message": "Transformační sktipt selhal z důvodu: [{{origMessage}}] IdM lokace: [{{idmPath}}] Lokace skriptu: [{{scriptPath}}]."
     },
     "LONG_RUNNING_TASK_DIFFERENT_INSTANCE": {
       "title": "Úloha má více instancí",

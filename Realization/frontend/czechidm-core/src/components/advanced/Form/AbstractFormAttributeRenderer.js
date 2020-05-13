@@ -295,7 +295,7 @@ export default class AbstractFormAttributeRenderer extends Basic.AbstractContext
     const label = this._getLocalization('label', attribute.name || attribute.code || defaultValue);
     if (!showOriginalValue && !hasOriginalValue) {
       if (this.isDevelopment()) {
-        // dev tool: code in localization
+        // dev tool: code in localization - only in main eav form
         return (
           <span title={ FormAttributeManager.getLocalizationPrefix(formDefinition, attribute, false) }>
             { label }

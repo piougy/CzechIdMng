@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -74,13 +73,12 @@ public class DefaultWorkflowHistoricProcessInstanceService
 	@Override
 	public Page<WorkflowHistoricProcessInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
-		String processDefinitionId = filter.getProcessDefinitionId();
+	
+		HistoricProcessInstanceQuery query = this.getQuery(filter, pageable, permission);
+		long count = query.count();
+		List<HistoricProcessInstance> processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
+		
 		String processInstanceId = filter.getProcessInstanceId();
-
-		Map<String, Object> equalsVariables = filter.getEqualsVariables();
-
-		HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
-
 		boolean trimmed = true;
 		if (processInstanceId != null) {
 			// Process variables will be included only for get by instance ID
@@ -88,26 +86,59 @@ public class DefaultWorkflowHistoricProcessInstanceService
 			query.includeProcessVariables();
 			query.processInstanceId(processInstanceId);
 		}
-		if (processDefinitionId != null) {
-			query.processDefinitionId(processDefinitionId);
-		}
-		if (filter.getSuperProcessInstanceId() != null) {
-			query.superProcessInstanceId(filter.getSuperProcessInstanceId());
-		}
-		if (filter.getProcessDefinitionKey() != null) {
-			// For case when we have only process id, we will convert him to key
-			query.processDefinitionKey(convertProcessIdToKey(filter.getProcessDefinitionKey()));
-		}
-		if (filter.getName() != null) {
-			// with case sensitive
-			query.variableValueLike(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME, "%" + filter.getName() + "%");
-		}
-		if (equalsVariables != null) {
-			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
-				query.variableValueEquals(entry.getKey(), entry.getValue());
+		List<WorkflowHistoricProcessInstanceDto> dtos = new ArrayList<>();
+		if (processInstances != null) {
+			for (HistoricProcessInstance instance : processInstances) {
+				dtos.add(toDto(instance, trimmed));
 			}
 		}
 		
+		return new PageImpl<>(dtos, pageable, count);
+	}
+
+	@Override
+	public long count(WorkflowFilterDto filter, BasePermission... permission) {
+		HistoricProcessInstanceQuery query = this.getQuery(filter, null, permission);
+
+		return query.count();
+	}
+	
+	protected HistoricProcessInstanceQuery getQuery(WorkflowFilterDto filter, Pageable pageable,
+			BasePermission... permission) {
+
+		HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
+		if (filter != null) {
+			String processDefinitionId = filter.getProcessDefinitionId();
+			String processInstanceId = filter.getProcessInstanceId();
+
+			Map<String, Object> equalsVariables = filter.getEqualsVariables();
+
+			if (processInstanceId != null) {
+				// Process variables will be included only for get by instance ID
+				query.includeProcessVariables();
+				query.processInstanceId(processInstanceId);
+			}
+			if (processDefinitionId != null) {
+				query.processDefinitionId(processDefinitionId);
+			}
+			if (filter.getSuperProcessInstanceId() != null) {
+				query.superProcessInstanceId(filter.getSuperProcessInstanceId());
+			}
+			if (filter.getProcessDefinitionKey() != null) {
+				// For case when we have only process id, we will convert him to key
+				query.processDefinitionKey(convertProcessIdToKey(filter.getProcessDefinitionKey()));
+			}
+			if (filter.getName() != null) {
+				// with case sensitive
+				query.variableValueLike(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME, "%" + filter.getName() + "%");
+			}
+			if (equalsVariables != null) {
+				equalsVariables.entrySet().forEach((entry) -> {
+					query.variableValueEquals(entry.getKey(), entry.getValue());
+				});
+			}
+		}
+
 		// check security ... only involved user or applicant can work with
 		// historic process instance ... admin can see all historic processes every time
 		// TODO: refactor and use username/id from filter
@@ -155,32 +186,22 @@ public class DefaultWorkflowHistoricProcessInstanceService
 		if (descSort) {
 			query.desc();
 		}
-		long count = query.count();
-		List<HistoricProcessInstance> processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
-		
-		List<WorkflowHistoricProcessInstanceDto> dtos = new ArrayList<>();
-		if (processInstances != null) {
-			for (HistoricProcessInstance instance : processInstances) {
-				dtos.add(toDto(instance, trimmed));
-			}
-		}
-		
-		return new PageImpl<WorkflowHistoricProcessInstanceDto>(dtos, pageable, count);
+		return query;
 	}
 	
-	@Override
 	/**
 	 * Beware, rights on involeved user are evolved here, but given permissions are not used!
 	 */
+	@Override
 	public WorkflowHistoricProcessInstanceDto get(Serializable id, BasePermission... permission) {
 		Assert.notNull(id, "Identifier is required.");
 		return this.get(String.valueOf(id));
 	}
 
-	@Override
 	/**
 	 * Rights on involved user are evolved here!
 	 */
+	@Override
 	public WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(historicProcessInstanceId);

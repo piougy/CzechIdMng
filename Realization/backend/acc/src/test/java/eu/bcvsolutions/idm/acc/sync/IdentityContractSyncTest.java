@@ -188,7 +188,6 @@ public class IdentityContractSyncTest extends AbstractIntegrationTest {
 
 		helper.startSynchronization(config);
 	
-
 		SysSyncLogDto log = checkSyncLog(config, SynchronizationActionType.CREATE_ENTITY, 3);
 
 		Assert.assertFalse(log.isRunning());

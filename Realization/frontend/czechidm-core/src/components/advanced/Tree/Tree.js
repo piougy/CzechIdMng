@@ -199,10 +199,8 @@ class Tree extends Basic.AbstractContextComponent {
           selected = selected.clear();
         }
         selected = selected.add(nodeId);
-      } else {
-        if (clearable) {
-          selected = selected.delete(nodeId);
-        }
+      } else if (clearable) {
+        selected = selected.delete(nodeId);
       }
     } else { // shift and multiselect
       selected = selected.add(nodeId);
@@ -384,45 +382,51 @@ class Tree extends Basic.AbstractContextComponent {
         _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination
       }
       searchParameters = this.getManager().mergeSearchParameters(searchParameters, _forceSearchParameters);
-      this.context.store.dispatch(this.getManager().fetchEntities(searchParameters, nodeId === null ? this.getUiKey() : `${this.getUiKey()}-${nodeId}`, (json, error) => {
-        let { nodes, ui } = this.state;
-        if (!error) {
-          let data = json._embedded[this.getManager().getCollectionType()] || [];
-          data = data.map(node => node.id); // only ids are stored in state; TODO: move state to redux store (e.g. Data)
-          const currentChildrenCount = json.page ? json.page.totalElements : data.length; // actual real children count
-          //
-          // check and fill parents children count, if its not defined
-          if (nodeId) { // null => roots
-            const parentNode = this._getNode(nodeId);
-            if (parentNode && (!parentNode.childrenCount || parentNode.childrenCount !== currentChildrenCount)) {
-              parentNode.childrenCount = currentChildrenCount;
+      this.context.store.dispatch(
+        this.getManager().fetchEntities(
+          searchParameters,
+          nodeId === null ? this.getUiKey() : `${this.getUiKey()}-${nodeId}`,
+          (json, error) => {
+            let { nodes, ui } = this.state;
+            if (!error) {
+              let data = json._embedded[this.getManager().getCollectionType()] || [];
+              data = data.map(node => node.id); // only ids are stored in state; TODO: move state to redux store (e.g. Data)
+              const currentChildrenCount = json.page ? json.page.totalElements : data.length; // actual real children count
+              //
+              // check and fill parents children count, if its not defined
+              if (nodeId) { // null => roots
+                const parentNode = this._getNode(nodeId);
+                if (parentNode && (!parentNode.childrenCount || parentNode.childrenCount !== currentChildrenCount)) {
+                  parentNode.childrenCount = currentChildrenCount;
+                }
+              }
+              //
+              if (nodes.has(nodeId) && searchParameters.getPage() > 0) {
+                // push at end
+                nodes = nodes.set(nodeId, nodes.get(nodeId).concat(data));
+              } else if (currentChildrenCount > 0 || nodeId === null) { // we need to know roots is null
+                nodes = nodes.set(nodeId, data); // parentId -> children
+              }
+              //
+              // set the ui state for the next page loading
+              ui = ui.set(nodeId, {
+                searchParameters,
+                total: currentChildrenCount,
+                showLoading: false
+              });
+            } else {
+              this.addErrorMessage({
+                level: 'error',
+                key: 'error-tree-load'
+              }, error);
             }
+            this.setState({
+              nodes,
+              ui
+            });
           }
-          //
-          if (nodes.has(nodeId) && searchParameters.getPage() > 0) {
-            // push at end
-            nodes = nodes.set(nodeId, nodes.get(nodeId).concat(data));
-          } else if (currentChildrenCount > 0 || nodeId === null) { // we need to know roots is null
-            nodes = nodes.set(nodeId, data); // parentId -> children
-          }
-          //
-          // set the ui state for the next page loading
-          ui = ui.set(nodeId, {
-            searchParameters,
-            total: currentChildrenCount,
-            showLoading: false
-          });
-        } else {
-          this.addErrorMessage({
-            level: 'error',
-            key: 'error-tree-load'
-          }, error);
-        }
-        this.setState({
-          nodes,
-          ui
-        });
-      }));
+        )
+      );
     });
   }
 
@@ -756,7 +760,8 @@ class Tree extends Basic.AbstractContextComponent {
               <div>
                 <div className={ nodeClassNames } style={ this._getNodeStyle(node) }>
                   {/* Expand button */}
-                  {/* - expand button is shown, when children count is higher than zero or undefinid (children is unknown and has to be loaded at first) */}
+                  {/* - expand button is shown, when children count is higher than zero */}
+                  {/* - or undefined (children is unknown and has to be loaded at first) */}
                   <Basic.Icon
                     rendered={ !traverse && !allRootLeafs }
                     value={
@@ -812,7 +817,7 @@ class Tree extends Basic.AbstractContextComponent {
             showLoadingIcon
             onClick={ this.onNextPage.bind(this, parentId) }>
             <small>
-              { this.i18n('component.advanced.Tree.moreRecords', { counter: levelNodeIds.length, total: parentUiState.total, escape: false } ) }
+              { this.i18n('component.advanced.Tree.moreRecords', { counter: levelNodeIds.length, total: parentUiState.total, escape: false }) }
             </small>
           </Basic.Button>
         }

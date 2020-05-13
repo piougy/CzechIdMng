@@ -71,6 +71,7 @@ export class FormDefinitionTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={ uiKey }
           manager={ definitionManager }
+          showRowSelection
           rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
           filter={
             <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>

@@ -34,6 +34,10 @@ public interface SysSystemAttributeMappingService
 	public static final String IC_ATTRIBUTES_KEY = "icAttributes";
 	public static final String ENTITY_KEY = "entity";
 	public static final String ACCOUNT_UID = "uid";
+	public static final String MAPPING_SCRIPT_FAIL_MESSAGE_KEY = "origMessage";
+	public static final String MAPPING_SCRIPT_FAIL_IDM_PATH_KEY = "idmPath";
+	public static final String MAPPING_SCRIPT_FAIL_SCRIPT_PATH_KEY = "scriptPath";
+	
 
 	/**
 	 * All mapped attributes in given mapping

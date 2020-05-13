@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 //
+import _ from 'lodash';
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import { ConfigurationManager } from '../../../redux';
@@ -248,7 +249,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
       <span className="pull-left">
         <Basic.Icon
           value={ this.getEntityIcon(_entity) }
-          title={ <span dangerouslySetInnerHTML={{ __html: this.getPopoverTitle(_entity)}}/> }
+          title={ this.getPopoverTitle(_entity) }
           style={{ marginRight: 5 }}/>
       </span>
     );
@@ -357,7 +358,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * Renders full info card - its used ass popover content too
    */
   _renderFull(entity) {
-    const { className, style, level, titleStyle} = this.props;
+    const { className, style, level, titleStyle } = this.props;
     const { showAuditableInfo } = this.state;
     const _entity = entity || this.getEntity();
     //
@@ -368,20 +369,19 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
       { 'panel-info': level === 'info' },
       className
     );
-    let _titleStyle = titleStyle;
+    let _titleStyle = _.clone(titleStyle, true);
     if (!_titleStyle) {
       _titleStyle = {};
     }
-    _titleStyle.flex = '1';
-
+    _titleStyle.flex = 1;
     //
     return (
-      <Basic.Panel className={panelClassNames} style={style}>
+      <Basic.Panel className={ panelClassNames } style={ style }>
         <Basic.PanelHeader>
           <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
-            <Basic.Div style={_titleStyle}>
+            <Basic.Div style={ _titleStyle }>
               <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
-              { <span dangerouslySetInnerHTML={{ __html: this.getPopoverTitle(_entity)}}/> }
+              { this.getPopoverTitle(_entity) }
             </Basic.Div>
             <Basic.Div>
               {

@@ -46,7 +46,15 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
     const { task} = props;
     const _entityId = task && task.variables && task.variables.conceptRole ? task.variables.conceptRole.id : null;
     if (_entityId) {
-      this.context.store.dispatch(conceptRoleRequestManager.fetchEntity(_entityId));
+      this.context.store.dispatch(conceptRoleRequestManager.fetchEntity(_entityId, null, (entity, error) => {
+        if (error) {
+          this.setState({
+            errorOccurred: true
+          }, () => {
+            this.addError(error);
+          });
+        }
+      }));
     }
   }
 
@@ -130,8 +138,12 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
 
   render() {
     const {task, canExecute, taskManager, _entity} = this.props;
-    const { showLoading} = this.state;
-    const showLoadingInternal = task && _entity ? showLoading : true;
+    const { showLoading, errorOccurred} = this.state;
+    let showLoadingInternal = task && _entity ? showLoading : true;
+    // If some error occurred, then we want to hide the show loading.
+    if (errorOccurred) {
+      showLoadingInternal = false;
+    }
     const formDataValues = this._toFormDataValues(task.formData);
     const taskName = taskManager.localize(task, 'name');
     const entity = _entity ? _.merge({}, _entity) : null;
@@ -172,7 +184,7 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
               readOnly={!canExecute} />
           </Basic.PanelFooter>
         </Basic.Panel>
-        <Basic.Panel showLoading={showLoadingInternal}>
+        <Basic.Panel style={{ display: (errorOccurred ? 'none' : '') }} showLoading={showLoadingInternal}>
           <RoleConceptDetail
             ref="roleConceptDetail"
             identityUsername={task.applicant}

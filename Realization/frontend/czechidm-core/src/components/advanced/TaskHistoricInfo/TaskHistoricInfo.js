@@ -45,7 +45,7 @@ export class TaskHistoricInfo extends AbstractEntityInfo {
    * @param  {object} entity
    */
   getPopoverTitle() {
-    return this.i18n('content.task.historicInstance.name');
+    return this.i18n('content.task.historicInstance.name', { escape: false });
   }
 
   getTableChildren() {

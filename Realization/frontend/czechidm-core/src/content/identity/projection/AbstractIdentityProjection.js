@@ -86,7 +86,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         this.context.store.dispatch(formProjectionManager.autocompleteEntityIfNeeded(formProjectionId, null, (entity, error) => {
           if (error) {
             this.addError(error);
-          } else if (this._isTrue(entity, 'all-contracts')) {
+          } else if (this.isTrue(entity, 'all-contracts')) {
             // we need to read codelist items
             const searchParameters = new Domain.SearchParameters()
               .setFilter('codeListId', 'contract-position')
@@ -130,7 +130,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     const { location } = this.props;
     const { generatePassword } = this.state;
     const isNew = !!Utils.Ui.getUrlParameter(location, 'new');
-    const _contractPositions = contractPositions || this.props.contractPositions;
+    const _contractPositions = contractPositions || this.props.contractPositions || [];
     let activeKey = null;
     //
     // prepare form friendly projection
@@ -194,7 +194,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         _identityProjection['validFrom-0'] = moment();
       }
       // prepare contracts
-      if (this._isTrue(formProjection, 'all-contracts')) {
+      if (this.isTrue(formProjection, 'all-contracts')) {
         for (let i = 0; i < _contractPositions.length; i++) {
           _identityProjection.allContracts[i] = {
             position: _contractPositions[i].code,
@@ -220,14 +220,18 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         _identityProjection[`otherWorkPosition-${ i }`] = _identityProjection.otherPositions.get(i)[0].workPosition;
       }
     }
-
+    let editContracts = new Immutable.OrderedSet();
+    if (_identityProjection.allContracts.length > 0) {
+      editContracts = editContracts.add(0);
+    }
     //
     this.setState({
       identityProjection: _identityProjection,
       formProjection,
       attributes: this.getAttributes(formProjection),
       isNew,
-      activeKey: activeKey || 0
+      activeKey: activeKey || 0,
+      editContracts
     }, () => {
       if (this.refs.username && focusUsername) {
         this.refs.username.focus();
@@ -354,7 +358,12 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     });
   }
 
-  _isRendered(formProjection, field) {
+  /**
+   * Basic identity field is rendered.
+   *
+   * @since 10.3.0
+   */
+  isRendered(formProjection, basicField) {
     if (!formProjection || !formProjection.basicFields) {
       return true;
     }
@@ -368,7 +377,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           }
           return !f || f.toLowerCase();
         });
-      return _.includes(basicFields, field.toLowerCase());
+      return _.includes(basicFields, basicField.toLowerCase());
     } catch (syntaxError) {
       // nothing
     }
@@ -376,14 +385,32 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     return true; // rendered by default
   }
 
-  _hasPermission(identityProjection, permission) {
+  /**
+   * Basic identity field is required.
+   *
+   * @since 10.3.0
+   */
+  isRequired(formProjection, basicField) {
+    if (!this.isRendered(formProjection, basicField)) {
+      return false;
+    }
+    //
+    const { isNew } = this.state;
+    if (basicField === 'username') {
+      return !isNew;
+    }
+    // not required by default
+    return false;
+  }
+
+  hasPermission(identityProjection, permission) {
     if (!identityProjection) {
       return false;
     }
     return Utils.Permission.hasPermission(identityProjection._permissions, permission);
   }
 
-  _isTrue(formProjection, propertyName) {
+  isTrue(formProjection, propertyName) {
     if (!formProjection) {
       return null;
     }
@@ -426,7 +453,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     _identityProjection.otherContracts = [];
     _identityProjection.otherPositions = [];
     for (let i = 0; i < identityProjection.allContracts.length; i++) {
-      if (isNew && this._isTrue(formProjection, 'all-contracts') && !editContracts.has(i)) {
+      if (isNew && this.isTrue(formProjection, 'all-contracts') && !editContracts.has(i)) {
         // Contract is not edited => not saved.
         continue;
       }
@@ -436,15 +463,22 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         if (!contract.id) {
           contract.id = uuid.v1();
         }
-        contract.validFrom = data[`validFrom-${ i }`];
-        contract.validTill = data[`validTill-${ i }`];
-        contract.workPosition = data[`workPosition-${ i }`];
+        if (this.refs[`validFrom-${ i }`]) {
+          contract.validFrom = data[`validFrom-${ i }`];
+        } else if (isNew) {
+          // not shown -but preset in init => reset is needed
+          contract.validFrom = null;
+        }
+        if (this.refs[`validTill-${ i }`]) {
+          contract.validTill = data[`validTill-${ i }`];
+        }
+        if (this.refs[`workPosition-${ i }`]) {
+          contract.workPosition = data[`workPosition-${ i }`];
+        }
         if (this.refs[`contractEav-${ i }`]) {
           contract._eav = this.refs[`contractEav-${ i }`].getValues();
         }
         if (_identityProjection.contract === null) {
-          // prime contract
-          contract.main = true;
           _identityProjection.contract = contract;
         } else {
           // other contract
@@ -508,14 +542,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     }
     //
     // post => save
-    this.context.store.dispatch(identityProjectionManager.saveProjection(_identityProjection, null, this._afterSave.bind(this)));
+    this.context.store.dispatch(identityProjectionManager.saveProjection(_identityProjection, null, this.afterSave.bind(this)));
   }
 
   /**
   * Just set showloading to false and set processEnded to form.
   * Call after save/create
   */
-  _afterSave(identityProjection, error) {
+  afterSave(identityProjection, error) {
     if (error) {
       this.setState({
         validationError: error,
@@ -527,6 +561,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         }
       });
     } else {
+      const { isNew } = this.state;
       this.addMessage({
         message: this.i18n('action.save.success', { record: identityProjection.identity.username, count: 1 })
       });
@@ -535,7 +570,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         this.refs.form.processEnded();
       }
       // reload role requests, if new
-      if (this.refs.identityRolesTable) {
+      if (isNew && this.refs.identityRolesTable) {
         this.refs.identityRolesTable._refreshAll();
       }
     }
@@ -553,7 +588,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     }
     const { editContracts } = this.state;
     this.setState({
-      editContracts: editContracts.add(index)
+      editContracts: !editContracts.has(index) ? editContracts.add(index) : editContracts.remove(index)
     });
   }
 
@@ -641,79 +676,86 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           ref="username"
           label={ this.i18n('identity.username.label') }
           max={ 255 }
-          rendered={ this._isRendered(formProjection, 'username') }
-          readOnly={ readOnly || (!isNew && !this._hasPermission(identityProjection, 'CHANGEUSERNAME')) }
-          required={ !isNew && this._isRendered(formProjection, 'username') }/>
+          rendered={ this.isRendered(formProjection, 'username') }
+          readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEUSERNAME')) }
+          required={ this.isRequired(formProjection, 'username') }/>
 
         <Basic.Row>
           <Basic.Col
-            lg={ this._isRendered(formProjection, 'lastName') ? 6 : 12 }
-            rendered={ this._isRendered(formProjection, 'firstName') }>
+            lg={ this.isRendered(formProjection, 'lastName') ? 6 : 12 }
+            rendered={ this.isRendered(formProjection, 'firstName') }>
             <Basic.TextField
               ref="firstName"
               label={ this.i18n('content.identity.profile.firstName') }
               max={ 255 }
-              readOnly={ readOnly || (!isNew && !this._hasPermission(identityProjection, 'CHANGENAME')) }/>
+              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGENAME')) }
+              required={ this.isRequired(formProjection, 'firstName') }/>
           </Basic.Col>
           <Basic.Col
-            lg={ this._isRendered(formProjection, 'firstName') ? 6 : 12 }
-            rendered={ this._isRendered(formProjection, 'lastName') }>
+            lg={ this.isRendered(formProjection, 'firstName') ? 6 : 12 }
+            rendered={ this.isRendered(formProjection, 'lastName') }>
             <Basic.TextField
               ref="lastName"
               label={ this.i18n('content.identity.profile.lastName') }
               max={ 255 }
-              readOnly={ readOnly || (!isNew && !this._hasPermission(identityProjection, 'CHANGENAME')) }/>
+              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGENAME')) }
+              required={ this.isRequired(formProjection, 'lastName') }/>
           </Basic.Col>
         </Basic.Row>
 
         <Basic.TextField
           ref="externalCode"
           label={ this.i18n('content.identity.profile.externalCode') }
-          rendered={ this._isRendered(formProjection, 'externalCode') }
+          rendered={ this.isRendered(formProjection, 'externalCode') }
           max={ 255 }
-          readOnly={ readOnly || (!isNew && !this._hasPermission(identityProjection, 'CHANGEEXTERNALCODE')) }/>
+          readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEEXTERNALCODE')) }
+          required={ this.isRequired(formProjection, 'externalCode') }/>
 
         <Basic.Row>
           <Basic.Col
-            lg={ this._isRendered(formProjection, 'titleAfter') ? 6 : 12 }
-            rendered={ this._isRendered(formProjection, 'titleBefore') }>
+            lg={ this.isRendered(formProjection, 'titleAfter') ? 6 : 12 }
+            rendered={ this.isRendered(formProjection, 'titleBefore') }>
             <Basic.TextField
               ref="titleBefore"
               label={ this.i18n('entity.Identity.titleBefore') }
               max={ 100 }
-              readOnly={ readOnly || (!isNew && !this._hasPermission(identityProjection, 'CHANGENAME')) }/>
+              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGENAME')) }
+              required={ this.isRequired(formProjection, 'titleBefore') }/>
           </Basic.Col>
           <Basic.Col
-            lg={ this._isRendered(formProjection, 'titleBefore') ? 6 : 12 }
-            rendered={ this._isRendered(formProjection, 'titleAfter') }>
+            lg={ this.isRendered(formProjection, 'titleBefore') ? 6 : 12 }
+            rendered={ this.isRendered(formProjection, 'titleAfter') }>
             <Basic.TextField
               ref="titleAfter"
               label={ this.i18n('entity.Identity.titleAfter') }
               max={ 100 }
-              readOnly={ readOnly || (!isNew && !this._hasPermission(identityProjection, 'CHANGENAME')) }/>
+              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGENAME')) }
+              required={ this.isRequired(formProjection, 'titleAfter') }/>
           </Basic.Col>
         </Basic.Row>
 
         <Basic.Row>
           <Basic.Col
-            lg={ this._isRendered(formProjection, 'phone') ? 6 : 12 }
-            rendered={ this._isRendered(formProjection, 'email') }>
+            lg={ this.isRendered(formProjection, 'phone') ? 6 : 12 }
+            rendered={ this.isRendered(formProjection, 'email') }>
             <Basic.TextField
               ref="email"
               label={ this.i18n('content.identity.profile.email.label') }
               placeholder={ this.i18n('content.identity.profile.email.placeholder') }
               validation={ Joi.string().email() }
-              readOnly={ readOnly || (!isNew && !this._hasPermission(identityProjection, 'CHANGEEMAIL')) }/>
+              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEEMAIL')) }
+              required={ this.isRequired(formProjection, 'email') }/>
           </Basic.Col>
           <Basic.Col
-            lg={ this._isRendered(formProjection, 'email') ? 6 : 12 }
-            rendered={ this._isRendered(formProjection, 'phone') }>
+            lg={ this.isRendered(formProjection, 'email') ? 6 : 12 }
+            rendered={ this.isRendered(formProjection, 'phone') }>
             <Basic.TextField
               ref="phone"
               label={ this.i18n('content.identity.profile.phone.label') }
               placeholder={ this.i18n('content.identity.profile.phone.placeholder') }
               max={ 30 }
-              readOnly={ readOnly || (!isNew && !this._hasPermission(identityProjection, 'CHANGEPHONE')) }/>
+              readOnly={ readOnly || (!isNew && !this.hasPermission(identityProjection, 'CHANGEPHONE')) }
+              required={ this.isRequired(formProjection, 'phone') }/>
           </Basic.Col>
         </Basic.Row>
 
@@ -723,8 +765,9 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           placeholder={ this.i18n('content.identity.profile.description.placeholder') }
           rows={ 4 }
           max={ 1000 }
-          rendered={ this._isRendered(formProjection, 'description') }
-          readOnly={ readOnly }/>
+          rendered={ this.isRendered(formProjection, 'description') }
+          readOnly={ readOnly }
+          required={ this.isRequired(formProjection, 'description') }/>
 
         <Basic.EnumSelectBox
           ref="state"
@@ -733,14 +776,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           label={ this.i18n('entity.Identity.state.label') }
           helpBlock={ <span>{ this.i18n('entity.Identity.state.help') }</span> }
           readOnly
-          rendered={ !isNew && this._isRendered(formProjection, 'state') }/>
+          rendered={ !isNew && this.isRendered(formProjection, 'state') }/>
 
         <Basic.Checkbox
           ref="disabled"
           label={ this.i18n('entity.Identity.disabledReadonly.label') }
           helpBlock={ this.i18n('entity.Identity.disabledReadonly.help') }
           readOnly
-          rendered={ !isNew && this._isRendered(formProjection, 'disabled') } />
+          rendered={ !isNew && this.isRendered(formProjection, 'disabled') } />
 
         { this.renderIdentityAttributes(identityProjection, isNew, readOnly) }
 
@@ -786,7 +829,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       showContract = identityContractManager.canRead(primeContract);
     }
     //
-    if (!showContract || !this._isTrue(formProjection, 'prime-contract') || this._isTrue(formProjection, 'all-contracts')) {
+    if (!showContract || !this.isTrue(formProjection, 'prime-contract') || this.isTrue(formProjection, 'all-contracts')) {
       return null;
     }
     //
@@ -802,12 +845,12 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
   /**
    * Render contract by index.
    */
-  renderContract(index) {
+  renderContract(index, readOnly = false) {
     const { location } = this.props;
     const { identityProjection } = this.state;
     const contract = identityProjection.allContracts.length > index ? identityProjection.allContracts[index] : {};
     const isNew = !!Utils.Ui.getUrlParameter(location, 'new');
-    const readOnly = !identityContractManager.canSave(contract);
+    const _readOnly = readOnly || !identityContractManager.canSave(contract);
     //
     return (
       <Basic.Div>
@@ -817,14 +860,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
               mode="date"
               ref={ `validFrom-${ index }` }
               label={ this.i18n('contract.validFrom.label') }
-              readOnly={ readOnly }/>
+              readOnly={ _readOnly }/>
           </Basic.Col>
           <Basic.Col lg={ 6 }>
             <Basic.DateTimePicker
               mode="date"
               ref={ `validTill-${ index }` }
               label={ this.i18n('contract.validTill.label') }
-              readOnly={ readOnly }/>
+              readOnly={ _readOnly }/>
           </Basic.Col>
         </Basic.Row>
 
@@ -834,16 +877,16 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           header={ this.i18n('contract.workPosition.label') }
           treeNodeLabel={ this.i18n('contract.workPosition.label') }
           useFirstType
-          readOnly={ readOnly }/>
+          readOnly={ _readOnly }/>
 
-        { this.renderOtherPosition(index) }
+        { this.renderOtherPosition(index, readOnly) }
 
-        { this.renderContractAttributes(index) }
+        { this.renderContractAttributes(index, readOnly) }
 
         {
           !isNew
           ||
-          this.renderAssignedRoles(index)
+          this.renderAssignedRoles(index, readOnly)
         }
       </Basic.Div>
     );
@@ -852,7 +895,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
   /**
    * Render contract eav attributes by index.
    */
-  renderContractAttributes(index) {
+  renderContractAttributes(index, readOnly = false) {
     const { attributes, identityProjection, isNew } = this.state;
     const contract = identityProjection.allContracts[index];
     if (!contract) {
@@ -864,18 +907,18 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         ref={ `contractEav-${ index }` }
         formableManager={ identityContractManager }
         contentKey="content.identity-contract.eav"
-        showSaveButton
+        showSaveButton={ !readOnly }
         showAttributesOnly
         showDefinitions={ attributes }
         entityId={ isNew ? null : contract.id }
-        formInstances={ isNew ? null : contract._eav } />
+        formInstances={ isNew ? null : contract._eav }/>
     );
   }
 
   /**
    * Render one other contrantact position for contract by index..
    */
-  renderOtherPosition(index) {
+  renderOtherPosition(index, readOnly = false) {
     const { userContext } = this.props;
     const { identityProjection, formProjection, isNew } = this.state;
     const contract = identityProjection.allContracts.length > index ? identityProjection.allContracts[index] : {};
@@ -883,7 +926,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     ? identityProjection.otherPositions.get(index)[0]
     : {};
     //
-    if (!this._isTrue(formProjection, 'other-position')) {
+    if (!this.isTrue(formProjection, 'other-position')) {
       return null;
     }
     //
@@ -901,7 +944,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
           header={ this.i18n('otherPosition.workPosition.label') }
           treeNodeLabel={ this.i18n('otherPosition.workPosition.label') }
           useFirstType
-          readOnly={ !contractPositionManager.canSave(otherPosition) || !identityContractManager.canSave(contract) }/>
+          readOnly={ readOnly || !contractPositionManager.canSave(otherPosition) || !identityContractManager.canSave(contract) }/>
       </Basic.Div>
     );
   }
@@ -913,7 +956,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     const { formProjection, activeKey, identityProjection, isNew, editContracts } = this.state;
     //
     // not enabled
-    if (!this._isTrue(formProjection, 'all-contracts') || identityProjection.allContracts.length === 0) {
+    if (!this.isTrue(formProjection, 'all-contracts') || identityProjection.allContracts.length === 0) {
       return null;
     }
     //
@@ -933,20 +976,13 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
                     title={ <Advanced.CodeListValue value={ contract.position || 'Default' } code="contract-position"/> }
                     className="bordered">
                     <Basic.Div style={{ padding: 15 }}>
-                      <Basic.Div
-                        rendered={ isNew && !editContracts.has(index) }
-                        style={{ display: 'flex', height: 200, justifyContent: 'center', alignItems: 'center' }}>
-                        <Basic.Button
-                          buttonSize="lg"
-                          level="primary"
-                          icon="fa:plus"
-                          onClick={ this._onEdit.bind(this, index) }>
-                          { this.i18n('button.editContract.label') }
-                        </Basic.Button>
+                      <Basic.Div rendered={ isNew && identityProjection.allContracts.length > 1 }>
+                        <Basic.ToggleSwitch
+                          label={ this.i18n('button.editContract.label') }
+                          onChange={ this._onEdit.bind(this, index) }
+                          value={ editContracts.has(index) }/>
                       </Basic.Div>
-                      <Basic.Div style={ isNew && !editContracts.has(index) ? { display: 'none' } : null }>
-                        { this.renderContract(index) }
-                      </Basic.Div>
+                      { this.renderContract(index, isNew && !editContracts.has(index)) }
                     </Basic.Div>
                   </Basic.Tab>
                 );
@@ -973,7 +1009,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       validationDefinition
     } = this.state;
     //
-    if (!this._isRendered(formProjection, 'password')) {
+    if (!this.isRendered(formProjection, 'password')) {
       return null;
     }
     //
@@ -1031,14 +1067,14 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
   /**
    * Render assigned roles for contract by index (if is new) or show assigned roles + requests.
    */
-  renderAssignedRoles(index) {
+  renderAssignedRoles(index, readOnly = false) {
     const { userContext } = this.props;
     const { identityProjection, formProjection, isNew } = this.state;
     //
     if (!SecurityManager.hasAllAuthorities(['IDENTITYROLE_READ', 'IDENTITYCONTRACT_CHANGEPERMISSION'], userContext)) {
       return null;
     }
-    if (!this._isTrue(formProjection, 'assigned-roles')) {
+    if (!this.isTrue(formProjection, 'assigned-roles')) {
       return null;
     }
     //
@@ -1058,7 +1094,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
             label={ this.i18n('roles.header.new') }
             placeholder={ this.i18n('entity.Role._type') }
             header={ this.i18n('roles.header') }
-            multiSelect/>
+            multiSelect
+            readOnly={ readOnly }/>
           :
           <Basic.Div>
             <IdentityRoles

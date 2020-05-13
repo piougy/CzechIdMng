@@ -326,7 +326,6 @@ public class VsRequestController extends AbstractReadWriteDtoController<VsReques
 	@Override
 	protected VsRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
 		VsRequestFilter filter = new VsRequestFilter(parameters, getParameterConverter());
-		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", VsRequestState.class));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setUid(getParameterConverter().toString(parameters, "uid"));

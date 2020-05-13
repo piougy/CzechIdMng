@@ -4,7 +4,7 @@ import uuid from 'uuid';
 import * as Utils from '../../../utils';
 import * as Advanced from '../../../components/advanced';
 import SearchParameters from '../../../domain/SearchParameters';
-import { IdentityContractManager } from '../../../redux';
+import { IdentityContractManager, SecurityManager } from '../../../redux';
 
 const identityContractManager = new IdentityContractManager();
 
@@ -19,16 +19,18 @@ class ChangePermissionDashboardButton extends Advanced.AbstractIdentityDashboard
   componentDidMount() {
     super.componentDidMount();
     //
-    const { identity } = this.props;
-    this.context.store.dispatch(
-      identityContractManager.fetchEntities(
-        new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE)
-          .setFilter('identity', identity.id)
-          .setFilter('validNowOrInFuture', true)
-          .setFilter('addPermissions', true),
-        `role-identity-contracts-${ identity.id }`
-      )
-    );
+    if (SecurityManager.hasAuthority('IDENTITYCONTRACT_AUTOCOMPLETE')) { // has to have permission to select contract for new assigned roles
+      const { identity } = this.props;
+      this.context.store.dispatch(
+        identityContractManager.fetchEntities(
+          new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE)
+            .setFilter('identity', identity.id)
+            .setFilter('validNowOrInFuture', true)
+            .setFilter('addPermissions', true),
+          `role-identity-contracts-${ identity.id }`
+        )
+      );
+    }
   }
 
   getIcon() {

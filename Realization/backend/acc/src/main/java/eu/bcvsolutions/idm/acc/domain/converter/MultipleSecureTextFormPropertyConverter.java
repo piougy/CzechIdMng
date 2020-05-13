@@ -9,17 +9,17 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 
 /**
- * String array connector property converter
+ * GuardedString array connector property converter.
  * 
- * @author Radek Tomiška
- *
+ * @author Roman Kucera
+ * @since 10.3.0
  */
 @Component
-public class MultipleTextFormPropertyConverter extends AbstractFormPropertyConverter {
+public class MultipleSecureTextFormPropertyConverter extends AbstractFormPropertyConverter {
 
 	@Override
 	public Set<String> getConnectorPropertyTypes() {
-		return Sets.newHashSet("[Ljava.lang.String;", "java.lang.String[]");
+		return Sets.newHashSet("[Lorg.identityconnectors.common.security.GuardedString;", "org.identityconnectors.common.security.GuardedString[]");
 	}
 
 	@Override

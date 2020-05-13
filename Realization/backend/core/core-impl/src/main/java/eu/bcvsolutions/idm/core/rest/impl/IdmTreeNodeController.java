@@ -363,7 +363,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", backendId));
 		}
-		Page<IdmAuditDto> results = this.auditService.findRevisionsForEntity(IdmTreeNode.class.getSimpleName(), UUID.fromString(backendId), pageable);
+		Page<IdmAuditDto> results = this.auditService.findRevisionsForEntity(IdmTreeNode.class.getSimpleName(), DtoUtils.toUuid(backendId), pageable);
 		return toResources(results, IdmTreeNode.class);
 	}
 	
@@ -393,7 +393,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 			@PageableDefault Pageable pageable) {
 		UUID treeTypeIdentifier = null;
 		if (StringUtils.isNotEmpty(treeTypeId)) {
-			treeTypeIdentifier = UUID.fromString(treeTypeId);
+			treeTypeIdentifier = DtoUtils.toUuid(treeTypeId);
 		} else {
 			IdmTreeTypeDto defaultType = treeConfiguration.getDefaultType();
 			if (defaultType != null) {

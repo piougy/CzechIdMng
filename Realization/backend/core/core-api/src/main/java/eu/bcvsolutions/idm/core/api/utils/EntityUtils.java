@@ -154,7 +154,7 @@ public class EntityUtils {
 	 * 
 	 * @param identifier {@code string} or {@link UUID} 
 	 * @return
-     * @throws IllegalArgumentException If identifier does not conform to the string representation as
+     * @throws ClassCastException If identifier does not conform to the string representation as
      *          described in {@link #toString}
 	 */	
 	public static UUID toUuid(Object identifier) {        

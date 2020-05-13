@@ -36,8 +36,6 @@ import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
 @Component
 @Enabled(RptModuleDescriptor.MODULE_ID)
 public class GeneralEntityExport extends AbstractFormableEntityExport<FormableDto, BaseFilter> {
-
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(GeneralEntityExport.class);
 	
 	@Autowired
 	private LookupService lookupService;

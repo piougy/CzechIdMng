@@ -19,7 +19,7 @@ class IdentityContractDashboardButton extends Advanced.AbstractIdentityDashboard
   isRendered() {
     const { identity, permissions } = this.props;
     //
-    return identityManager.canRead(identity, permissions);
+    return identityManager.canRead(identity, permissions) && Managers.SecurityManager.hasAuthority('IDENTITYCONTRACT_READ');
   }
 
   getLabel() {

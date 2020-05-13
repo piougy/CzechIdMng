@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.bulk.action.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,14 +10,17 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
@@ -101,15 +103,21 @@ public class IdentityChangeUserTypeBulkActionTest extends AbstractBulkActionTest
 			assertEquals(identityDto.getFormProjection(), projection2.getId());
 		}
 
-		// remove projection from all identities
+		// removing projection in bulk action is now forbidden
 		properties.put(IdentityChangeUserTypeBulkAction.PROPERTY_USER_TYPE, null);
 		bulkAction.setProperties(properties);
-		processAction = bulkActionManager.processAction(bulkAction);
+		try {
+			processAction = bulkActionManager.processAction(bulkAction);
+			Assert.fail();
+		} catch (ResultCodeException e) {
+			assertEquals(e.getError().getError().getStatusEnum(),
+					CoreResultCode.BULK_ACTION_REQUIRED_PROPERTY.getCode());
+		}
 		checkResultLrt(processAction, 5l, null, null);
 		for (UUID id : ids) {
 			IdmIdentityDto identityDto = identityService.get(id);
 			assertNotNull(identityDto);
-			assertNull(identityDto.getFormProjection());
+			assertEquals(identityDto.getFormProjection(), projection2.getId());
 		}
 	}
 }

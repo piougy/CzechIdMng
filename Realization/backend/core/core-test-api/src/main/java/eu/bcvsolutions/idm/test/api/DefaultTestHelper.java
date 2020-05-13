@@ -351,18 +351,30 @@ public class DefaultTestHelper implements TestHelper {
 	
 	@Override
 	public IdmRoleGuaranteeDto createRoleGuarantee(IdmRoleDto role, IdmIdentityDto guarantee) {
+		return createRoleGuarantee(role, guarantee, null);
+	}
+	
+	@Override
+	public IdmRoleGuaranteeDto createRoleGuarantee(IdmRoleDto role, IdmIdentityDto guarantee, String guaranteeType) {
 		IdmRoleGuaranteeDto dto = new IdmRoleGuaranteeDto();
 		dto.setRole(role.getId());
 		dto.setGuarantee(guarantee.getId());
+		dto.setType(guaranteeType);
 		//
 		return roleGuaranteeService.save(dto);
 	}
 	
 	@Override
 	public IdmRoleGuaranteeRoleDto createRoleGuaranteeRole(IdmRoleDto role, IdmRoleDto guarantee) {
+		return createRoleGuaranteeRole(role, guarantee, null);
+	}
+	
+	@Override
+	public IdmRoleGuaranteeRoleDto createRoleGuaranteeRole(IdmRoleDto role, IdmRoleDto guarantee, String guaranteeType) {
 		IdmRoleGuaranteeRoleDto dto = new IdmRoleGuaranteeRoleDto();
 		dto.setRole(role.getId());
 		dto.setGuaranteeRole(guarantee.getId());
+		dto.setType(guaranteeType);
 		//
 		return roleGuaranteeRoleService.save(dto);
 	}

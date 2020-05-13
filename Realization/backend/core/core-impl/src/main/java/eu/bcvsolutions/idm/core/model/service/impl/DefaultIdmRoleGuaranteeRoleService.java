@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -91,6 +92,11 @@ public class DefaultIdmRoleGuaranteeRoleService
 			predicates.add(builder.equal(root.get(IdmRoleGuaranteeRole_.guaranteeRole).get(IdmRole_.id), guaranteeRole));
 		}		
 		//
+		// type
+		String type = filter.getType();
+		if (type != null) {
+			predicates.add(builder.equal(root.get(IdmRoleGuaranteeRole_.type), type));
+		}	
 		return predicates;
 	}
 }

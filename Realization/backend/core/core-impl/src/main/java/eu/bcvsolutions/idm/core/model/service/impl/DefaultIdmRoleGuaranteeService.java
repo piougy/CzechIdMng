@@ -102,6 +102,11 @@ public class DefaultIdmRoleGuaranteeService
 		if (guarantee != null) {
 			predicates.add(builder.equal(root.get(IdmRoleGuarantee_.guarantee).get(IdmIdentity_.id), guarantee));
 		}	
+		// type
+		String type = filter.getType();
+		if (type != null) {
+			predicates.add(builder.equal(root.get(IdmRoleGuarantee_.type), type));
+		}	
 		//
 		return predicates;
 	}

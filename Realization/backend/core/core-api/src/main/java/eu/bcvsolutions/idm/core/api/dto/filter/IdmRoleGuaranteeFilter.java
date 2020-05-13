@@ -26,6 +26,10 @@ public class IdmRoleGuaranteeFilter extends DataFilter implements ExternalIdenti
 	 * guarantee as identity
 	 */
 	public static final String PARAMETER_GUARANTEE = "guarantee";
+	/**
+	 * Guarantee type
+	 */
+	public static final String PARAMETER_GUARANTEE_TYPE = "guaranteetype";
 	
 	public IdmRoleGuaranteeFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -49,5 +53,13 @@ public class IdmRoleGuaranteeFilter extends DataFilter implements ExternalIdenti
 	
 	public void setGuarantee(UUID guarantee) {
 		data.set(PARAMETER_GUARANTEE, guarantee);
+	}
+	
+	public String getType() {
+		return getParameterConverter().toString(getData(), PARAMETER_GUARANTEE_TYPE);
+	}
+
+	public void setType(String type) {
+		set(PARAMETER_GUARANTEE_TYPE, type);
 	}
 }

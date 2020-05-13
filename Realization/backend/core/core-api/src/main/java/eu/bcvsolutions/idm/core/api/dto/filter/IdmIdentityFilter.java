@@ -75,6 +75,11 @@ public class IdmIdentityFilter
 	 */
 	public static final String PARAMETER_GUARANTEES_FOR_ROLE = "guaranteesForRole";
 	/**
+	 * Guarantees for given role and guarantees type.
+	 * This parameter will be use only if PARAMETER_GUARANTEES_FOR_ROLE is sets!
+	 */
+	public static final String PARAMETER_GUARANTEE_TYPE = "guaranteesType";
+	/**
 	 * Identities by email.
 	 */
 	public static final String PARAMETER_EMAIL = "email";
@@ -277,6 +282,20 @@ public class IdmIdentityFilter
 	
 	public void setGuaranteesForRole(UUID guaranteesForRole) {
 		set(PARAMETER_GUARANTEES_FOR_ROLE, guaranteesForRole);
+	}
+	
+	public String getGuaranteeType() {
+		return getParameterConverter().toString(getData(), PARAMETER_GUARANTEE_TYPE);
+	}
+
+	/**
+	 * Guarantees for given role and guarantees type.
+	 * This parameter will be use in filter only if the setGuaranteesForRole parameter will be set!
+	 * 
+	 * @param type 
+	 */
+	public void setGuaranteeType(String type) {
+		set(PARAMETER_GUARANTEE_TYPE, type);
 	}
 	
 	/**

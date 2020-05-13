@@ -52,23 +52,41 @@ public class IdentityGuaranteesForRoleFilter extends AbstractFilterBuilder<IdmId
 		if (guaranteesForRole == null) {
 			return null;
 		}
+		
+		String guaranteeType = filter.getGuaranteeType();
+		
 		// guarantee for role can be defined as identity
 		Subquery<IdmRoleGuarantee> subqueryIdentity = query.subquery(IdmRoleGuarantee.class);
 		Root<IdmRoleGuarantee> subRootIdentity = subqueryIdentity.from(IdmRoleGuarantee.class);
 		subqueryIdentity.select(subRootIdentity);
 		subqueryIdentity.where(
-                builder.and(
-                		builder.equal(subRootIdentity.get(IdmRoleGuarantee_.role).get(IdmRole_.id), guaranteesForRole),
-                		builder.equal(subRootIdentity.get(IdmRoleGuarantee_.guarantee), root) // corelation
-                		)
-        );
+				guaranteeType != null
+						? builder.and(
+								builder.equal(subRootIdentity.get(IdmRoleGuarantee_.role).get(IdmRole_.id), guaranteesForRole),
+								builder.equal(subRootIdentity.get(IdmRoleGuarantee_.type), guaranteeType),
+								builder.equal(subRootIdentity.get(IdmRoleGuarantee_.guarantee), root) // corelation
+
+						)
+						: builder.and(
+								builder.equal(subRootIdentity.get(IdmRoleGuarantee_.role).get(IdmRole_.id), guaranteesForRole),
+								builder.equal(subRootIdentity.get(IdmRoleGuarantee_.guarantee), root) // corelation
+
+						)
+		);
 		// guarantee for role can be defined as identity with role assigned
 		Subquery<UUID> subqueryRole = query.subquery(UUID.class);
 		Root<IdmRoleGuaranteeRole> subRootRole = subqueryRole.from(IdmRoleGuaranteeRole.class);
 		subqueryRole.select(subRootRole.get(IdmRoleGuaranteeRole_.guaranteeRole).get(IdmRole_.id));
 		subqueryRole.where(
-                builder.and(builder.equal(subRootRole.get(IdmRoleGuaranteeRole_.role).get(IdmRole_.id), guaranteesForRole))
-        );
+				guaranteeType != null
+						? builder.and(
+								builder.equal(subRootRole.get(IdmRoleGuaranteeRole_.role).get(IdmRole_.id), guaranteesForRole),
+								builder.equal(subRootRole.get(IdmRoleGuaranteeRole_.type), guaranteeType)
+						)
+						: builder.and(
+								builder.equal(subRootRole.get(IdmRoleGuaranteeRole_.role).get(IdmRole_.id), guaranteesForRole)
+						)
+		);
 		Subquery<UUID> subqueryIdentityRole = query.subquery(UUID.class);
 		Root<IdmIdentityRole> subRootIdentityRole = subqueryIdentityRole.from(IdmIdentityRole.class);
 		subqueryIdentityRole.select(subRootIdentityRole.get(IdmIdentityRole_.role).get(IdmRole_.id));

@@ -5799,7 +5799,7 @@
           }
         }
       },
-      "identity-by-tree-node-evaluator": {
+      "core-identity-by-tree-node-evaluator": {
         "help": "Oprávnění pro identity, které mají alespoň jeden pracovněprávní vztah na vybraném prvku organizační struktury.",
         "attributes": {
           "tree-node": {

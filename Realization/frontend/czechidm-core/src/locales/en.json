@@ -5747,7 +5747,7 @@
           }
         }
       },
-      "identity-by-tree-node-evaluator": {
+      "core-identity-by-tree-node-evaluator": {
         "help": "Permissions for identtiy that have one or more relationships on a selected organizational structure.",
         "attributes": {
           "tree-node": {

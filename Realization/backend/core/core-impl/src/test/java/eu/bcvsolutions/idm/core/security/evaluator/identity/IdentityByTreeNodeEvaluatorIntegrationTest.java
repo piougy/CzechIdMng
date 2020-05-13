@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @since 10.3.0
  *
  */
-public class IdentityByTreeNodeEvaluatorTest extends AbstractIntegrationTest {
+public class IdentityByTreeNodeEvaluatorIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmIdentityContractService identityContractService;

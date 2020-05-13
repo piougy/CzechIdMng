@@ -44,13 +44,13 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
  *
  */
 
-@Component
+@Component(IdentityByTreeNodeEvaluator.EVALUATOR_NAME)
 @Description("Permissions for identities by tree node.")
 public class IdentityByTreeNodeEvaluator extends AbstractAuthorizationEvaluator<IdmIdentity> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityByTreeNodeEvaluator.class);
 	public static final String PARAMETER_TREE_NODE = "tree-node";
-	public static final String EVALUATOR_NAME = "identity-by-tree-node-evaluator";
+	public static final String EVALUATOR_NAME = "core-identity-by-tree-node-evaluator";
 
 	@Autowired
 	private IdmTreeNodeService treeNodeService;

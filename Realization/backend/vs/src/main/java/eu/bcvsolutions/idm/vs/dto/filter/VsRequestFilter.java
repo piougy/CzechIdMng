@@ -39,7 +39,7 @@ public class VsRequestFilter extends DataFilter implements ExternalIdentifiableF
 	}
 	
 	public VsRequestFilter(MultiValueMap<String, Object> data) {
-		super(VsRequestDto.class, data);
+		this(data, null);
 	}
 	
 	public VsRequestFilter(MultiValueMap<String, Object> data,  ParameterConverter parameterConverter) {

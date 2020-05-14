@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,6 +146,30 @@ public class RoleByRoleCatalogueEvaluatorIntegrationTest extends AbstractIntegra
 		checkReadWithUser(administrator, roleOne, 3, true);
 		checkReadWithUser(administrator, roleTwo, 3, true);
 		checkReadWithUser(administrator, roleThree, 3, true);
+	}
+
+	@Test
+	public void testCheckPermission() {
+		IdmRoleCatalogueDto catalogue = getHelper().createRoleCatalogue();
+		IdmRoleDto role = prepareRoleWithEvaluator(catalogue);
+		IdmIdentityDto administrator = prepareUserWithRole(role);
+
+		IdmRoleDto roleOne = getHelper().createRole();
+		getHelper().createRoleCatalogueRole(roleOne, catalogue);
+
+		try {
+			getHelper().login(administrator);
+			List<IdmRoleDto> roles = roleService.find(null, IdmBasePermission.READ).getContent();
+			// only myself
+			assertEquals(1, roles.size());
+			isRoleInList(roleOne, roles, true);
+
+			Set<String> permissions = roleService.getPermissions(roles.get(0));
+			assertEquals(1, permissions.size());
+			assertEquals(IdmBasePermission.READ.name(), permissions.iterator().next());
+		} finally {
+			getHelper().logout();
+		}
 	}
 
 	/**

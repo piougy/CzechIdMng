@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -263,6 +265,74 @@ public class IdentityByTreeNodeEvaluatorIntegrationTest extends AbstractIntegrat
 			assertNotNull(get);
 			get = identityService.save(get, IdmBasePermission.UPDATE);
 			fail("Save identity isn't possible");
+		} finally {
+			getHelper().logout();
+		}
+	}
+
+	@Test
+	public void testMoreTreeTypeStructure() {
+		IdmTreeTypeDto typeOne = getHelper().createTreeType();
+		IdmTreeTypeDto typeTwo = getHelper().createTreeType();
+		
+		IdmTreeNodeDto parent = getHelper().createTreeNode(typeOne, null);
+		IdmTreeNodeDto subParent = getHelper().createTreeNode(typeOne, getHelper().createName(), parent);
+		IdmTreeNodeDto position = getHelper().createTreeNode(typeOne, getHelper().createName(), subParent);
+
+		IdmTreeNodeDto parentTwo = getHelper().createTreeNode(typeTwo, null);
+		IdmTreeNodeDto subParentTwo = getHelper().createTreeNode(typeTwo, getHelper().createName(), parentTwo);
+		IdmTreeNodeDto positionTwo = getHelper().createTreeNode(typeTwo, getHelper().createName(), subParentTwo);
+
+		IdmRoleDto role = prepareRoleWithEvaluator(parent); // Evaluator is on parentTwo
+		IdmIdentityDto identity = prepareIdentityOnWorkPosition(position); // Position is sub child
+
+		// New position on another tree type
+		IdmIdentityDto identityTwo = prepareIdentityOnWorkPosition(positionTwo);
+
+		IdmIdentityDto administrator = getHelper().createIdentity();
+		try {
+			getHelper().login(administrator);
+			List<IdmIdentityDto> users = identityService.find(null, IdmBasePermission.READ).getContent();
+			// only myself
+			assertEquals(0, users.size());
+			checkIdentityInList(identity, users, false);
+			checkIdentityInList(identityTwo, users, false);
+		} finally {
+			getHelper().logout();
+		}
+
+		getHelper().assignRoles(getHelper().getPrimeContract(administrator), role);
+
+		try {
+			getHelper().login(administrator);
+			List<IdmIdentityDto> users = identityService.find(null, IdmBasePermission.READ).getContent();
+			assertEquals(1, users.size());
+			checkIdentityInList(identity, users, true);
+			checkIdentityInList(identityTwo, users, false);
+		} finally {
+			getHelper().logout();
+		}
+	}
+
+	@Test
+	public void testCheckPermissions() {
+		IdmTreeNodeDto position = getHelper().createTreeNode();
+		// Only read
+		IdmRoleDto role = prepareRoleWithEvaluator(position);
+		IdmIdentityDto identity = prepareIdentityOnWorkPosition(position);
+
+		IdmIdentityDto administrator = getHelper().createIdentity();
+		getHelper().assignRoles(getHelper().getPrimeContract(administrator), role);
+
+		try {
+			getHelper().login(administrator);
+			List<IdmIdentityDto> users = identityService.find(null, IdmBasePermission.READ).getContent();
+			assertEquals(1, users.size());
+			checkIdentityInList(identity, users, true);
+
+			Set<String> permissions = identityService.getPermissions(users.get(0));
+			assertEquals(1, permissions.size());
+			assertEquals(IdmBasePermission.READ.name(), permissions.iterator().next());
 		} finally {
 			getHelper().logout();
 		}

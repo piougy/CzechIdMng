@@ -75,6 +75,9 @@ public class DefaultWorkflowHistoricProcessInstanceService
 			BasePermission... permission) {
 	
 		HistoricProcessInstanceQuery query = this.getQuery(filter, pageable, permission);
+		if (pageable == null) {
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
 		long count = query.count();
 		List<HistoricProcessInstance> processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
 		
@@ -103,6 +106,75 @@ public class DefaultWorkflowHistoricProcessInstanceService
 		return query.count();
 	}
 	
+	/**
+	 * Beware, rights on involeved user are evolved here, but given permissions are not used!
+	 */
+	@Override
+	public WorkflowHistoricProcessInstanceDto get(Serializable id, BasePermission... permission) {
+		Assert.notNull(id, "Identifier is required.");
+		return this.get(String.valueOf(id));
+	}
+
+	/**
+	 * Rights on involved user are evolved here!
+	 */
+	@Override
+	public WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId) {
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(historicProcessInstanceId);
+		
+		List<WorkflowHistoricProcessInstanceDto> resources = this
+				.find(filter, PageRequest.of(0, 1))
+				.getContent();
+		return !resources.isEmpty() ? resources.get(0) : null;
+	}
+
+	/**
+	 * Generate diagram for process instance. Highlight historic path (activity
+	 * and flows)
+	 */
+	@Override
+	public InputStream getDiagram(String processInstanceId) {
+		if (processInstanceId == null) {
+			throw new ActivitiIllegalArgumentException("No process instance id provided");
+		}
+
+		HistoricProcessInstance pi = historyService.createHistoricProcessInstanceQuery()
+				.processInstanceId(processInstanceId).singleResult();
+
+		if (pi == null) {
+			throw new ActivitiObjectNotFoundException(
+					"Process instance with id " + processInstanceId + " could not be found", ProcessInstance.class);
+		}
+
+		ProcessDefinitionEntity pde = (ProcessDefinitionEntity) ((RepositoryServiceImpl) repositoryService)
+				.getDeployedProcessDefinition(pi.getProcessDefinitionId());
+
+		if (pde != null && pde.isGraphicalNotationDefined()) {
+			BpmnModel bpmnModel = repositoryService.getBpmnModel(pde.getId());
+			List<String> historicActivityInstanceList = new ArrayList<String>();
+			List<String> highLightedFlows = new ArrayList<String>();
+			historicActivityInstanceList = getHighLightedFlows(bpmnModel, processInstanceId, historicActivityInstanceList,
+					highLightedFlows);
+
+			ProcessDiagramGenerator diagramGenerator = new DefaultProcessDiagramGenerator();
+
+			return diagramGenerator.generateDiagram(bpmnModel, "png", historicActivityInstanceList, highLightedFlows);
+
+		} else {
+			throw new ActivitiException(
+					"Process instance with id " + processInstanceId + " has no graphic description");
+		}
+	}
+	
+	/**
+	 * Get activiti query for historic processes.
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @param permission
+	 * @return 
+	 */
 	protected HistoricProcessInstanceQuery getQuery(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
 
@@ -187,67 +259,6 @@ public class DefaultWorkflowHistoricProcessInstanceService
 			query.desc();
 		}
 		return query;
-	}
-	
-	/**
-	 * Beware, rights on involeved user are evolved here, but given permissions are not used!
-	 */
-	@Override
-	public WorkflowHistoricProcessInstanceDto get(Serializable id, BasePermission... permission) {
-		Assert.notNull(id, "Identifier is required.");
-		return this.get(String.valueOf(id));
-	}
-
-	/**
-	 * Rights on involved user are evolved here!
-	 */
-	@Override
-	public WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId) {
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessInstanceId(historicProcessInstanceId);
-		
-		List<WorkflowHistoricProcessInstanceDto> resources = this
-				.find(filter, PageRequest.of(0, 1))
-				.getContent();
-		return !resources.isEmpty() ? resources.get(0) : null;
-	}
-
-	/**
-	 * Generate diagram for process instance. Highlight historic path (activity
-	 * and flows)
-	 */
-	@Override
-	public InputStream getDiagram(String processInstanceId) {
-		if (processInstanceId == null) {
-			throw new ActivitiIllegalArgumentException("No process instance id provided");
-		}
-
-		HistoricProcessInstance pi = historyService.createHistoricProcessInstanceQuery()
-				.processInstanceId(processInstanceId).singleResult();
-
-		if (pi == null) {
-			throw new ActivitiObjectNotFoundException(
-					"Process instance with id " + processInstanceId + " could not be found", ProcessInstance.class);
-		}
-
-		ProcessDefinitionEntity pde = (ProcessDefinitionEntity) ((RepositoryServiceImpl) repositoryService)
-				.getDeployedProcessDefinition(pi.getProcessDefinitionId());
-
-		if (pde != null && pde.isGraphicalNotationDefined()) {
-			BpmnModel bpmnModel = repositoryService.getBpmnModel(pde.getId());
-			List<String> historicActivityInstanceList = new ArrayList<String>();
-			List<String> highLightedFlows = new ArrayList<String>();
-			historicActivityInstanceList = getHighLightedFlows(bpmnModel, processInstanceId, historicActivityInstanceList,
-					highLightedFlows);
-
-			ProcessDiagramGenerator diagramGenerator = new DefaultProcessDiagramGenerator();
-
-			return diagramGenerator.generateDiagram(bpmnModel, "png", historicActivityInstanceList, highLightedFlows);
-
-		} else {
-			throw new ActivitiException(
-					"Process instance with id " + processInstanceId + " has no graphic description");
-		}
 	}
 
 	/**

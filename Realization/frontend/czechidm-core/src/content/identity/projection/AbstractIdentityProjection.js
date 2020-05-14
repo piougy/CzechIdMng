@@ -498,7 +498,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       if (this.refs[`otherWorkPosition-${ i }`]) {
         preserveOtherPositionOnIndex = 1;
         const otherPosition = otherPositions[0];
-        if (contractPositionManager.canSave(otherPosition) && identityContractManager.canSave(contract)) {
+        if (contractPositionManager.canSave(otherPosition) && identityContractManager.canSave(isNew ? {} : contract)) {
           otherPosition.workPosition = data[`otherWorkPosition-${ i }`];
           if (otherPosition.workPosition) {
             if (!otherPosition.identityContract) {

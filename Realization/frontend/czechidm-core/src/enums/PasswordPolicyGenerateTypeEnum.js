@@ -1,4 +1,4 @@
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
  * Password policy generate type enum,

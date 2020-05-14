@@ -1,11 +1,10 @@
-
-
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
  * OperationType for adit operation etc.
  *
  * @author Radek Tomiška
+ * @deprecated
  */
 export default class RoleTypeEnum extends AbstractEnum {
 

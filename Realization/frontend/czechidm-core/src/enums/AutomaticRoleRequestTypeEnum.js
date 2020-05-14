@@ -1,6 +1,6 @@
 
 
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
  * AutomaticRoleRequestType enumeration for automatic roles

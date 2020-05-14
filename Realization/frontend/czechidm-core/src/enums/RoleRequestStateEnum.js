@@ -1,5 +1,5 @@
 
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
  * Role request state enum

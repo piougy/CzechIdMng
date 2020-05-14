@@ -5809,6 +5809,16 @@
           }
         }
       },
+      "core-identity-by-tree-node-evaluator": {
+        "help": "Oprávnění pro identity, které mají alespoň jeden pracovněprávní vztah na vybraném prvku organizační struktury.",
+        "attributes": {
+          "tree-node": {
+            "label": "Prvek organizační struktury",
+            "help": "Vyberte prvek na který se budou vztahovat vybraná práva. Práva budou platit také na všechny prvky se šířením dolů.",
+            "placeholder": "Prvek organizační struktury ..."
+          }
+        }
+      },
       "core-contract-by-identity-evaluator": {
         "help": "Oprávnění pro kontrakty uživatele dle oprávnění na uživatele.",
         "attributes": {

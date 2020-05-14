@@ -98,6 +98,7 @@ public class IdmFormProjectionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "") })
 				})
+	@Override
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
@@ -305,6 +306,7 @@ public class IdmFormProjectionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "") })
 				})
+	@Override
 	public List<IdmBulkActionDto> getAvailableBulkActions() {
 		return super.getAvailableBulkActions();
 	}
@@ -323,6 +325,7 @@ public class IdmFormProjectionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "")})
 				})
+	@Override
 	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.bulkAction(bulkAction);
 	}
@@ -341,6 +344,7 @@ public class IdmFormProjectionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "")})
 				})
+	@Override
 	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.prevalidateBulkAction(bulkAction);
 	}

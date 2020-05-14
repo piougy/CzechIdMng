@@ -186,6 +186,22 @@
           }
         }
       }
+    },
+    "form-projection": {
+      "example": {
+        "label": "Example user",
+        "help": "Create user by example projection",
+        "icon": "fa:user-plus",
+        "level": "info"
+      }
+    },
+    "form-projection-route": {
+      "example-form-identity-projection": {
+        "help": "Example projection - create and edit user with login only."
+      },
+      "example-form-combined-identity-projection": {
+        "help": "Example projection - combines creating user with login only and full edit by default product form."
+      }
     }
   },
   "error": {

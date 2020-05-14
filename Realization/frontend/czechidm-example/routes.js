@@ -35,6 +35,11 @@ module.exports = {
       path: 'example/form/identity-projection/:entityId',
       component: require('./src/content/identity/projection/ExampleIdentityProjection'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]
+    },
+    {
+      path: 'example/form/combined-identity-projection/:entityId',
+      component: require('./src/content/identity/projection/ExampleCombinedIdentityProjection'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]
     }
   ]
 };

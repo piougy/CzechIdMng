@@ -6175,7 +6175,7 @@
     },
     "form-projection-route": {
       "form-identity": {
-        "help": "Default product projection. Not configurable product projection - redirect to default user detail only."
+        "help": "Default product projection (form). Not configurable product projection - redirect to default user detail only."
       },
       "form-identity-projection": {
         "help": "Configurable product projection.",

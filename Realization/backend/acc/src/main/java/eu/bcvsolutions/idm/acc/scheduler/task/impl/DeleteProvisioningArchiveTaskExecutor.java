@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,9 +34,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.6.3
  */
-@Component(DeleteProvisioningArchiveTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Delete archived provisioning operations.")
+@Component(DeleteProvisioningArchiveTaskExecutor.TASK_NAME)
 public class DeleteProvisioningArchiveTaskExecutor
 		extends AbstractSchedulableStatefulExecutor<SysProvisioningArchiveDto> {
 	

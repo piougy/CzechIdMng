@@ -115,7 +115,8 @@ public class DataFilter
 	}
 	
 	@Override
-	public void put(String propertyName, List<Object> propertyValues) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void put(String propertyName, List propertyValues) {
 		if (CollectionUtils.isEmpty(propertyValues)) {
 			remove(propertyName);
 		} else {

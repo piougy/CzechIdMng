@@ -60,7 +60,7 @@ public class SingleModuleReleaseManagerUnitTest extends AbstractReleaseManagerUn
 					+ "<parent>"
 					  + "<groupId>eu.bcvsolutions.idm</groupId>"
 					  + "<artifactId>idm-parent</artifactId>"
-					  + "<version>10.2.0-SNAPSHOT</version>"
+					  + "<version>10.2.0</version>"
 					+ "</parent>"
 					+ "<artifactId>idm-" + ROOT_MODULE_ID + "</artifactId>"
 					+ "<packaging>jar</packaging>"

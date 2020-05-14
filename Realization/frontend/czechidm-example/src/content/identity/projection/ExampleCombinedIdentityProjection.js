@@ -31,13 +31,8 @@ class ExampleCombinedIdentityProjection extends Content.AbstractIdentityProjecti
   }
 
   render() {
-    const {
-      location,
-      showLoading
-    } = this.props;
-    const {
-      identityProjection
-    } = this.state;
+    const { location } = this.props;
+    const { identityProjection } = this.state;
     const isNew = !!Utils.Ui.getUrlParameter(location, 'new');
     //
     return (
@@ -79,18 +74,8 @@ class ExampleCombinedIdentityProjection extends Content.AbstractIdentityProjecti
                     </Basic.AbstractForm>
                   </Basic.PanelBody>
                   <Basic.PanelFooter>
-                    <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
-                      { this.i18n('button.back') }
-                    </Basic.Button>
-                    <Basic.Button
-                      type="submit"
-                      level="success"
-                      showLoading={ showLoading }
-                      showLoadingIcon
-                      showLoadingText={ this.i18n('button.saving') }
-                      rendered={ identityProjectionManager.canSave(isNew ? null : identityProjection) }>
-                      { this.i18n('button.save') }
-                    </Basic.Button>
+                    { this.renderBackButton() }
+                    { this.renderSaveButton() }
                   </Basic.PanelFooter>
                 </Basic.Panel>
               }

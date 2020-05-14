@@ -8,11 +8,10 @@ import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
@@ -36,9 +35,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  *
  */
-@Service(RemoveOldLogsTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Delete logs from event logging tables (events, eventException and eventProperty).")
+@Component(RemoveOldLogsTaskExecutor.TASK_NAME)
 public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RemoveOldLogsTaskExecutor.class);

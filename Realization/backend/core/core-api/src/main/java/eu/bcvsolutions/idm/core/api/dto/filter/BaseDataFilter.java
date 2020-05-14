@@ -38,7 +38,8 @@ public interface BaseDataFilter extends BaseFilter {
 	 * @param propertyValues
 	 * @since 10.3.0
 	 */
-	void put(String propertyName, List<Object> propertyValues);
+	@SuppressWarnings("rawtypes")
+	void put(String propertyName, List propertyValues);
 	
 	/**
 	 * Remove all property values.

@@ -60,7 +60,7 @@ public class MultiModuleDifferentNamesReleaseManagerUnitTest extends AbstractRel
 					+ "<parent>"
 					  + "<groupId>eu.bcvsolutions.idm</groupId>"
 					  + "<artifactId>idm-parent</artifactId>"
-					  + "<version>10.2.0-SNAPSHOT</version>"
+					  + "<version>10.2.0</version>"
 					+ "</parent>"
 					+ "<artifactId>" + ModuleReleaseManager.IDM_PREFIX_BACKEND + ROOT_MODULE_ID + "</artifactId>"
 					+ "<packaging>pom</packaging>"

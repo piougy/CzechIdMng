@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -26,9 +25,8 @@ import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractE
  * @author Radek Tomiška
  * @since 7.5.1
  */
-@Component(HrEndContractProcess.TASK_NAME)
-@Description("HR process - end of contract")
 @DisallowConcurrentExecution
+@Component(HrEndContractProcess.TASK_NAME)
 public class HrEndContractProcess extends AbstractHrProcess {
 
 	public static final String TASK_NAME = "core-hr-end-contract-long-running-task";

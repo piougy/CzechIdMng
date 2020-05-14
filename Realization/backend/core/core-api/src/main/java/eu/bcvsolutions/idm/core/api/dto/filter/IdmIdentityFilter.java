@@ -256,9 +256,8 @@ public class IdmIdentityFilter
 		set(PARAMETER_AUTOMATIC_ROLE, automaticRoleId);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void setIdentifiers(List<String> identifiers) {
-		put(PARAMETER_IDENTIFIERS, (List<Object>) (Object) identifiers);
+		put(PARAMETER_IDENTIFIERS, identifiers);
 	}
 
 	public List<String> getIdentifiers() {

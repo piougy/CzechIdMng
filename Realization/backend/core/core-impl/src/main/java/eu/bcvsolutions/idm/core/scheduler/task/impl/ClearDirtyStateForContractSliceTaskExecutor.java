@@ -10,7 +10,6 @@ import javax.persistence.EntityManager;
 import org.hibernate.Session;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -44,9 +43,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Vít Švanda
  *
  */
-@Component(ClearDirtyStateForContractSliceTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Clear dirty state for contract slices. During synchronization is set dirty flag for all processed slices. This task remove the flag.")
+@Component(ClearDirtyStateForContractSliceTaskExecutor.TASK_NAME)
 public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedulableTaskExecutor<OperationResult> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ClearDirtyStateForContractSliceTaskExecutor.class);

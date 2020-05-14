@@ -7,7 +7,6 @@ import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,9 +25,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  * @since 7.3.0
  */
-@Component(AccountProtectionExpirationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Removes accounts with expired protection.")
+@Component(AccountProtectionExpirationTaskExecutor.TASK_NAME)
 public class AccountProtectionExpirationTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	public static final String TASK_NAME = "acc-account-protection-expiration-long-running-task";

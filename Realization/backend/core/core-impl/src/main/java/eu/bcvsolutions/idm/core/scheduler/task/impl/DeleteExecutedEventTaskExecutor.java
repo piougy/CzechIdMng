@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,9 +31,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.6.3
  */
-@Component(DeleteExecutedEventTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Delete executed events.")
+@Component(DeleteExecutedEventTaskExecutor.TASK_NAME)
 public class DeleteExecutedEventTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmEntityEventDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteExecutedEventTaskExecutor.class);

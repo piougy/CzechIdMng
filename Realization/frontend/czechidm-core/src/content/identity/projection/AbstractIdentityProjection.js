@@ -1116,10 +1116,84 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     );
   }
 
-  render() {
+  /**
+   * Render back button (browser history is used).
+   */
+  renderBackButton() {
+    return (
+      <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
+        { this.i18n('button.back') }
+      </Basic.Button>
+    );
+  }
+
+  /**
+   * Render main save button.
+   */
+  renderSaveButton() {
+    const { showLoading } = this.props;
+    const { identityProjection, isNew } = this.state;
+    //
+    return (
+      <Basic.Button
+        type="submit"
+        level="success"
+        showLoading={ showLoading }
+        showLoadingIcon
+        showLoadingText={ this.i18n('button.saving') }
+        rendered={ identityProjectionManager.canSave(isNew ? null : identityProjection) }>
+        { this.i18n('button.save') }
+      </Basic.Button>
+    );
+  }
+
+  /**
+   * Render additional action buttons.
+   * Buttons Are rendered between back and save button.
+   */
+  renderAdditionalButtons() {
     const { match, showLoading, userContext } = this.props;
     const { entityId } = match.params;
     const { identityProjection, formProjection, isNew } = this.state;
+    //
+    const buttons = [];
+    if (formProjection) {
+      buttons.push(
+        <Basic.Button
+          type="button"
+          level="link"
+          rendered={ SecurityManager.hasAllAuthorities(['FORMPROJECTION_UPDATE'], userContext) && this.isDevelopment() }
+          onClick={ () => this.context.history.push(`/form-projections/${ formProjection.id }/detail`) }>
+          { this.i18n('button.formProjection.label') }
+        </Basic.Button>
+      );
+    }
+    if (!isNew) {
+      buttons.push(
+        <DisableIdentityDashboardButton
+          entityId={ identityProjection.username }
+          identity={ identityProjection }
+          permissions={ identityProjection._permissions }
+          buttonSize="default"
+          onComplete={ () => this._fetchIdentityProjection(entityId, false) }
+          showLoading={ showLoading }/>
+      );
+      buttons.push(
+        <EnableIdentityDashboardButton
+          entityId={ identityProjection.username }
+          identity={ identityProjection }
+          permissions={ identityProjection._permissions }
+          buttonSize="default"
+          onComplete={ () => this._fetchIdentityProjection(entityId, false) }
+          showLoading={ showLoading }/>
+      );
+    }
+    //
+    return buttons;
+  }
+
+  render() {
+    const { identityProjection, isNew } = this.state;
     //
     return (
       <Basic.Div>
@@ -1160,45 +1234,9 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
                     </Basic.AbstractForm>
                   </Basic.PanelBody>
                   <Basic.PanelFooter>
-                    <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
-                      { this.i18n('button.back') }
-                    </Basic.Button>
-                    {
-                      !formProjection
-                      ||
-                      <Basic.Button
-                        type="button"
-                        level="link"
-                        rendered={ SecurityManager.hasAllAuthorities(['FORMPROJECTION_UPDATE'], userContext) && this.isDevelopment() }
-                        onClick={ () => this.context.history.push(`/form-projections/${ formProjection.id }/detail`) }>
-                        { this.i18n('button.formProjection.label') }
-                      </Basic.Button>
-                    }
-                    <Basic.Div style={{ display: 'inline' }} rendered={ !isNew }>
-                      <DisableIdentityDashboardButton
-                        entityId={ identityProjection.username }
-                        identity={ identityProjection }
-                        permissions={ identityProjection._permissions }
-                        buttonSize="default"
-                        onComplete={ () => this._fetchIdentityProjection(entityId, false) }
-                        showLoading={ showLoading }/>
-                      <EnableIdentityDashboardButton
-                        entityId={ identityProjection.username }
-                        identity={ identityProjection }
-                        permissions={ identityProjection._permissions }
-                        buttonSize="default"
-                        onComplete={ () => this._fetchIdentityProjection(entityId, false) }
-                        showLoading={ showLoading }/>
-                    </Basic.Div>
-                    <Basic.Button
-                      type="submit"
-                      level="success"
-                      showLoading={ showLoading }
-                      showLoadingIcon
-                      showLoadingText={ this.i18n('button.saving') }
-                      rendered={ identityProjectionManager.canSave(isNew ? null : identityProjection) }>
-                      { this.i18n('button.save') }
-                    </Basic.Button>
+                    { this.renderBackButton() }
+                    { this.renderAdditionalButtons() }
+                    { this.renderSaveButton() }
                   </Basic.PanelFooter>
                 </Basic.Panel>
               }

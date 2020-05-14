@@ -4,12 +4,12 @@ import java.util.Optional;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.acc.bulk.action.impl.ProvisioningOperationCancelBulkAction;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBatchDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
@@ -30,9 +30,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @deprecated @since 10.2.0 - not used from devstack. use {@link ProvisioningOperationCancelBulkAction}.
  */
 @Deprecated
-@Component(CancelProvisioningQueueTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Cancel all operations in provisioning queue.")
+@Component(CancelProvisioningQueueTaskExecutor.TASK_NAME)
 public class CancelProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulExecutor<SysProvisioningOperationDto> {
 
 	public static final String TASK_NAME = "acc-cancel-provisioning-queue-long-running-task";

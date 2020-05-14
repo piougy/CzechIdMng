@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -28,9 +27,8 @@ import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractE
  * @since 7.5.1
  *
  */
-@Component(HrEnableContractProcess.TASK_NAME)
-@Description("HR process - enable active contract")
 @DisallowConcurrentExecution
+@Component(HrEnableContractProcess.TASK_NAME)
 public class HrEnableContractProcess extends AbstractHrProcess {
 
 	public static final String TASK_NAME = "core-hr-enable-contract-long-running-task";

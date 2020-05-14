@@ -5,7 +5,6 @@ import java.util.List;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -23,10 +22,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Ondřej Kopr
  *
  */
-@Component(IdentityRoleValidRequestTaskExecutor.TASK_NAME)
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
-@Description("Create new account for roles that was newly valid.")
+@Component(IdentityRoleValidRequestTaskExecutor.TASK_NAME)
 public class IdentityRoleValidRequestTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleValidRequestTaskExecutor.class);

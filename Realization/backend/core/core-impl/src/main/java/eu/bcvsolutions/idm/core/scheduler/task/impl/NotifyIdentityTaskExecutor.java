@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -28,9 +27,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  *
  */
-@Component(NotifyIdentityTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Publish notify event on identities")
+@Component(NotifyIdentityTaskExecutor.TASK_NAME)
 @ConditionalOnProperty(prefix = "idm.pub.app", name = "stage", havingValue = "development")
 public class NotifyIdentityTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityDto> {
 	

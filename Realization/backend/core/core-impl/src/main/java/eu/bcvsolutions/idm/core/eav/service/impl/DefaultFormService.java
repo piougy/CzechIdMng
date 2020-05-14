@@ -134,7 +134,7 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinitionDto getDefinition(String type, String code, BasePermission... permission) {
-		IdmFormDefinitionDto formDefinition = null; 
+		IdmFormDefinitionDto formDefinition; 
 		if (StringUtils.isEmpty(code)) {
 			formDefinition = formDefinitionService.findOneByMain(type);
 		} else {
@@ -418,7 +418,7 @@ public class DefaultFormService implements FormService {
 		formDefinition = checkDefaultDefinition(ownerEntity.getClass(), formDefinition);
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(ownerEntity, formDefinition, newValues);
 		//
-		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
+		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<>(CoreEventType.UPDATE, formInstance);
 		// check permissions - check access to filled form values
 		event.setPermission(permission);
 		// publish event for save form instance - see {@link #saveFormInstance(EntityEvent<IdmFormInstanceDto>)}
@@ -666,7 +666,7 @@ public class DefaultFormService implements FormService {
 	 * Returns previous values sorted accordingly to given new values => previous(index) ~ new(index).
 	 * Returned array length is the same as size of list with new values.
 	 * if previous value is not found, then position in array will be null.
-	 * 
+	 *
 	 * Values are paired by:
 	 * - 1. by id (if new value has id)
 	 * - 2. by value
@@ -674,7 +674,7 @@ public class DefaultFormService implements FormService {
 	 * - 4. use remaining unprocessed values
 	 * 
 	 * @param unprocessedPreviousValues if value is resolved, value is removed from this map (=> processed)
-	 * @param newValue
+	 * @param newValues
 	 * @return
 	 */
 	@Override
@@ -935,7 +935,7 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(owner, "Form values owner is required.");
 		//
 		// filter form definitions and form attributes, if given
-		List<IdmFormDefinitionDto> formDefinitions = null;
+		List<IdmFormDefinitionDto> formDefinitions;
 		if (filter == null || CollectionUtils.isEmpty(filter.getFormDefinitionAttributes())) {
 			// filter is not set => all form definitions
 			formDefinitions = getDefinitions(owner, !PermissionUtils.isEmpty(permission) ? IdmBasePermission.AUTOCOMPLETE : null);

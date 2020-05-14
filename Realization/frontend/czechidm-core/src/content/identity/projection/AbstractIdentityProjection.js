@@ -424,17 +424,21 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
+    const { identityProjection, isNew, formProjection, editContracts } = this.state;
+    //
+    let isValid = true;
     if (!this.refs.form.isFormValid()
         || (this.refs.eav && !this.refs.eav.isValid())
         || (this.refs.password && !this.refs.password.validate())) {
-      return;
+      isValid = false;
     }
-    const { identityProjection, isNew, formProjection, editContracts } = this.state;
-    // set contracts data
     for (let i = 0; i < identityProjection.allContracts.length; i++) {
       if (this.refs[`contractEav-${ i }`] && !this.refs[`contractEav-${ i }`].isValid()) {
-        return;
+        isValid = false;
       }
+    }
+    if (!isValid) {
+      return;
     }
     //
     this.refs.form.processStarted();

@@ -126,10 +126,10 @@ class EavContent extends Basic.AbstractContent {
     //
     let isAllValid = true;
     _formInstances.forEach(_formInstance => {
-      const definitionCode = _formInstance.getDefinition().code;
+      const definition = _formInstance.getDefinition();
       //
-      if (!showDefinitions || showDefinitions.has(definitionCode)) {
-        const eavFormRef = this._createFormRef(definitionCode);
+      if (!showDefinitions || showDefinitions.has(definition.code) || showDefinitions.has(definition.id)) {
+        const eavFormRef = this._createFormRef(definition.code);
         if (!this.refs[eavFormRef].isValid()) {
           isAllValid = false;
         }

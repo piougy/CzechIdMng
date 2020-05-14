@@ -135,6 +135,9 @@ public class IdmFormProjectionDto
 	 * @return configured properties
 	 */
 	public ConfigurationMap getProperties() {
+		if (properties == null) {
+			properties = new ConfigurationMap();
+		}
 		return properties;
 	}
 	

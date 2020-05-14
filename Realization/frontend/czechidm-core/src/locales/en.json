@@ -5757,6 +5757,16 @@
           }
         }
       },
+      "core-identity-by-tree-node-evaluator": {
+        "help": "Permissions for identtiy that have one or more relationships on a selected organizational structure.",
+        "attributes": {
+          "tree-node": {
+            "label": "Organizational structure element",
+            "help": "Select the element to which the selected rights will apply. The rights will also apply to all elements with a downward spread.",
+            "placeholder": "Organizational structure element ..."
+          }
+        }
+      },
       "core-contract-by-identity-evaluator": {
         "help": "Permissions to contracts by pemissions to user.",
         "attributes": {
@@ -5764,6 +5774,16 @@
             "label": "Use permissions",
             "help": "Select permission, which will be used from permissions to user.",
             "placeholder": "Same permissions as to user or select ..."
+          }
+        }
+      },
+      "core-role-by-role-catalogue-evaluator": {
+        "help": "Permissions for roles that are in the selected catalog.",
+        "attributes": {
+          "role-catalogue": {
+            "label": "catalogue",
+            "help": "Select the catalogue that contains the roles to which will be apply given permissions. The rights will also apply to all roles with a downward spread.",
+            "placeholder": "Catalogue ..."
           }
         }
       }

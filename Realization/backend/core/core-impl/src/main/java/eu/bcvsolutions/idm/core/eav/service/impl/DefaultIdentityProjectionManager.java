@@ -214,6 +214,16 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		IdmIdentityProjectionDto previousProjection = event.getOriginalSource();
 		List<IdmIdentityContractDto> savedContracts = new ArrayList<>(dto.getOtherContracts().size());
 		//
+		// check all contracts has to be saved
+		IdmIdentityDto identity = dto.getIdentity();
+		if (identity.getFormProjection() != null) {
+			IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(dto.getIdentity(), IdmIdentity_.formProjection);
+			if (!formProjection.getProperties().getBooleanValue(IdentityFormProjectionRoute.PARAMETER_ALL_CONTRACTS)) {
+				LOG.debug("Projection [{}] doesn't save other contracts.", formProjection.getCode());
+				return savedContracts;
+			}
+		}
+		//
 		for (IdmIdentityContractDto contract : dto.getOtherContracts()) {			
 			IdentityContractEventType contractEventType = IdentityContractEventType.CREATE;
 			if (!contractService.isNew(contract)) {
@@ -255,6 +265,16 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		IdmIdentityProjectionDto previousProjection = event.getOriginalSource();
 		List<IdmContractPositionDto> savedPositions = new ArrayList<>(dto.getOtherPositions().size());
 		IdmIdentityContractDto contract = dto.getContract();
+		//
+		// check other contract position has to be saved
+		IdmIdentityDto identity = dto.getIdentity();
+		if (identity.getFormProjection() != null) {
+			IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(dto.getIdentity(), IdmIdentity_.formProjection);
+			if (!formProjection.getProperties().getBooleanValue(IdentityFormProjectionRoute.PARAMETER_OTHER_POSITION)) {
+				LOG.debug("Projection [{}] doesn't save other contract positions.", formProjection.getCode());
+				return savedPositions;
+			}
+		}
 		//
 		for (IdmContractPositionDto otherPosition : dto.getOtherPositions()) {
 			if (otherPosition.getIdentityContract() == null) {

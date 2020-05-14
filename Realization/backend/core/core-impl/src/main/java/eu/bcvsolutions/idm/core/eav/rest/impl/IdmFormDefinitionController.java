@@ -132,6 +132,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_READ, description = "") })
 				})
+	@Override
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
@@ -339,6 +340,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_READ, description = "") })
 				})
+	@Override
 	public List<IdmBulkActionDto> getAvailableBulkActions() {
 		return super.getAvailableBulkActions();
 	}
@@ -363,6 +365,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_READ, description = "")})
 				})
+	@Override
 	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.bulkAction(bulkAction);
 	}
@@ -387,6 +390,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_DEFINITION_READ, description = "")})
 				})
+	@Override
 	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.prevalidateBulkAction(bulkAction);
 	}
@@ -428,6 +432,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * Returns default definition for given ownerClass
 	 * 
 	 * @param ownerClass
+	 * @param permission
 	 * @return
 	 * @throws ForbiddenEntityException if authorization policy AUTOCOMPLETE for form definition doesn't met
 	 */
@@ -438,9 +443,11 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	}
 	
 	/**
-	 * Returns all definitions for given ownerClass. Permission will not be evaluated. 
-	 * 
-	 * @param ownerClass
+	 * Returns all definitions for given ownerClass. Permission will not be
+	 * evaluated.
+	 *
+	 * @param ownerType
+	 *
 	 * @return
 	 */
 	public ResponseEntity<?> getDefinitions(Class<? extends FormableEntity> ownerType) {
@@ -450,7 +457,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	/**
 	 * Returns all definitions for given ownerClass.
 	 * 
-	 * @param ownerClass
+	 * @param ownerType
 	 * @param permission base permissions to evaluate (AND)
 	 * @return
 	 */
@@ -534,10 +541,11 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	}
 	
 	/**
-	 * Secure form attributes by configured authorization policies.
-	 * Usable, when owner not exists (is created together with eavs).
-	 * 
-	 * @param formDefinition
+	 * Secure form attributes by configured authorization policies. Usable, when
+	 * owner not exists (is created together with eavs).
+	 *
+	 * @param formInstance
+	 *
 	 * @since 10.2.0
 	 */
 	public void secureAttributes(IdmFormInstanceDto formInstance) {
@@ -576,8 +584,8 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	/**
 	 * Returns owner's form values
 	 * 
-	 * @param owner
-	 * @param formDefinitionId 
+	 * @param owner 
+	 * @param formDefinition 
 	 * @param permission base permissions to evaluate (AND)
 	 * @return
 	 */
@@ -591,7 +599,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * Saves owner's form values.
 	 * 
 	 * @param owner
-	 * @param formDefinitionId
+	 * @param formDefinition
 	 * @param formValues
 	 * @param permission base permissions to evaluate (AND)
 	 * @return
@@ -602,7 +610,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 		// construct form instance with given values
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(owner, formDefinition, formValues);
 		// prepare event envelope
-		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
+		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<>(CoreEventType.UPDATE, formInstance);
 		// FE - high event priority
 		event.setPriority(PriorityType.HIGH);
 		// publish event for save form instance
@@ -631,7 +639,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 		// construct form instance with given values
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(owner, formDefinition, Lists.newArrayList(formValue));
 		// prepare event envelope
-		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
+		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<>(CoreEventType.UPDATE, formInstance);
 		// FE - high event priority
 		event.setPriority(PriorityType.HIGH);
 		// publish event for save form instance
@@ -730,7 +738,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 		String mimetype = attachment.getMimetype();
 		// TODO: naive check => implement better + image resize (thumbnail)
 		if (!mimetype.startsWith("image/")) {
-			return new ResponseEntity<InputStreamResource>(HttpStatus.NO_CONTENT); 
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
 		}
 		//
 		InputStream is = attachmentManager.getAttachmentData(attachment.getId());

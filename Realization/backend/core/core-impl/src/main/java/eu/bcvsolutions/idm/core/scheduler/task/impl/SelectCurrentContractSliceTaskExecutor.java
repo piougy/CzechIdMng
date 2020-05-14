@@ -10,7 +10,6 @@ import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,9 +30,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author svandav
  *
  */
-@Component(SelectCurrentContractSliceTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Recalculate current using slices as contract. Find all slices which should be for actual date using as contract and copy their values to parent contracts.")
+@Component(SelectCurrentContractSliceTaskExecutor.TASK_NAME)
 public class SelectCurrentContractSliceTaskExecutor extends AbstractSchedulableTaskExecutor<OperationResult> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SelectCurrentContractSliceTaskExecutor.class);

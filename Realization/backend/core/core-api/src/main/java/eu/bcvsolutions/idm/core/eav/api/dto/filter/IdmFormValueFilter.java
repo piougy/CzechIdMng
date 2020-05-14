@@ -84,9 +84,8 @@ public class IdmFormValueFilter<O extends FormableEntity> extends DataFilter {
 	 * @param attributeIds
 	 * @since 10.3.0
 	 */
-	@SuppressWarnings("unchecked")
 	public void setAttributeIds(List<UUID> attributeIds) {
-		put(PARAMETER_ATTRIBUTE_ID, (List<Object>)(Object) attributeIds);
+		put(PARAMETER_ATTRIBUTE_ID, attributeIds);
 	}
 
 	@SuppressWarnings("unchecked")

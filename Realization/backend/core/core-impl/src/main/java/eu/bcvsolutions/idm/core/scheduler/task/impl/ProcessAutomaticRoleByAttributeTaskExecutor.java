@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
  *
  */
 @Component(ProcessAutomaticRoleByAttributeTaskExecutor.TASK_NAME)
-@Description("Add or remove automatic role by IdmAutomaticRoleAttribute.")
 public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomaticRoleTaskExecutor {
 
 	public static final String TASK_NAME = "core-process-automatic-role-attribute-long-running-task";

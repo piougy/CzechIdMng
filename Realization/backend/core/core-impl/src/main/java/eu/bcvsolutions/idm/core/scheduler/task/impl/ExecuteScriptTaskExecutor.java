@@ -6,7 +6,6 @@ import java.util.Map;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
@@ -27,10 +26,9 @@ import eu.bcvsolutions.idm.core.script.evaluator.DefaultSystemScriptEvaluator;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  */
-@Component(ExecuteScriptTaskExecutor.TASK_NAME)
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
-@Description("Long running task for execute script by code.")
+@Component(ExecuteScriptTaskExecutor.TASK_NAME)
 public class ExecuteScriptTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ExecuteScriptTaskExecutor.class);

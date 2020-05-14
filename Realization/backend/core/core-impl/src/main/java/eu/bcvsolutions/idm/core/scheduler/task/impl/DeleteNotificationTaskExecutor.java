@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,9 +34,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.7.12
  */
-@Component(DeleteNotificationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Delete notifications.")
+@Component(DeleteNotificationTaskExecutor.TASK_NAME)
 public class DeleteNotificationTaskExecutor
 		extends AbstractSchedulableStatefulExecutor<IdmNotificationLogDto> {
 	

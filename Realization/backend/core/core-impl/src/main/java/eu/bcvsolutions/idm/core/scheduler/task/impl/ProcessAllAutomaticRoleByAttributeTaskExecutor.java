@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -44,10 +43,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Ondrej Kopr
  *
  */
-
-@Component(ProcessAllAutomaticRoleByAttributeTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Recalculate all automatic roles by attribute. Creates new request with concepts.")
+@Component(ProcessAllAutomaticRoleByAttributeTaskExecutor.TASK_NAME)
 public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	public static final String TASK_NAME = "core-process-all-automatic-role-attribute-long-running-task";

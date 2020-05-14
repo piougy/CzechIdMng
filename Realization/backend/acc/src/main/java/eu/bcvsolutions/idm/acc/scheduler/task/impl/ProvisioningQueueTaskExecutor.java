@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -30,10 +29,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  *
  */
-@Component(ProvisioningQueueTaskExecutor.TASK_NAME)
-@PersistJobDataAfterExecution
 @DisallowConcurrentExecution
-@Description("Process provisioning operations in queue periodically.")
+@PersistJobDataAfterExecution
+@Component(ProvisioningQueueTaskExecutor.TASK_NAME)
 public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulExecutor<SysProvisioningBatchDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningQueueTaskExecutor.class);

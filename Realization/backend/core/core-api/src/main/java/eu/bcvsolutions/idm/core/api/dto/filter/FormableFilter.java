@@ -59,8 +59,7 @@ public interface FormableFilter extends BaseDataFilter {
 	 * @param attributes given form definition and attributes are needed to find only
 	 * @since 10.3.0
 	 */
-    @SuppressWarnings("unchecked")
 	default void setFormDefinitionAttributes(List<FormDefinitionAttributes> attributes) {
-    	put(PARAMETER_FORM_DEFINITON_ATTRIBUTES, (List<Object>)(Object) attributes);
+    	put(PARAMETER_FORM_DEFINITON_ATTRIBUTES, attributes);
     }
 }

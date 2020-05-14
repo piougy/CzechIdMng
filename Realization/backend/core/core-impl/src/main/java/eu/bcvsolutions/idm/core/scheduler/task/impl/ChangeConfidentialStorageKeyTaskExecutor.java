@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -39,9 +38,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-@Component(ChangeConfidentialStorageKeyTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Change all crypted values in confidential storage to new. This task required start after you changed key!")
+@Component(ChangeConfidentialStorageKeyTaskExecutor.TASK_NAME)
 public class ChangeConfidentialStorageKeyTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ChangeConfidentialStorageKeyTaskExecutor.class);

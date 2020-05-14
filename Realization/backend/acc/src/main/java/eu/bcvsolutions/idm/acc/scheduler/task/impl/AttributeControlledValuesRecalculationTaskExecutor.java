@@ -9,7 +9,6 @@ import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -41,9 +40,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Vít Švanda
  * 
  */
-@Component(AttributeControlledValuesRecalculationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Merge - attribute controlled values recalculation.")
+@Component(AttributeControlledValuesRecalculationTaskExecutor.TASK_NAME)
 public class AttributeControlledValuesRecalculationTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AttributeControlledValuesRecalculationTaskExecutor.class);

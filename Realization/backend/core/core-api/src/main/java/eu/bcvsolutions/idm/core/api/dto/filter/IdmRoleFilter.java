@@ -93,9 +93,8 @@ public class IdmRoleFilter
 		return getParameterConverter().toStrings(getData(), PARAMETER_ENVIRONMENT);
 	}
 
-    @SuppressWarnings("unchecked")
 	public void setEnvironments(List<String> environments) {
-    	put(PARAMETER_ENVIRONMENT, (List<Object>)(Object) environments);
+    	put(PARAMETER_ENVIRONMENT, environments);
 	}
 
 	public String getBaseCode() {

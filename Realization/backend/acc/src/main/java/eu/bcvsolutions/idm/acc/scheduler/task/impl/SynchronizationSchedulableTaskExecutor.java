@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
@@ -30,7 +29,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  *
  */
 @Component(SynchronizationSchedulableTaskExecutor.TASK_NAME)
-@Description("Synchronization scheduling - publishes start event only")
 public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	public static final String TASK_NAME = "acc-synchronization-long-running-task";

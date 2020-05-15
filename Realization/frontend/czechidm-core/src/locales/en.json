@@ -649,6 +649,10 @@
           "notFound": {
             "title": "Not found",
             "message": "Record by given text [{{text}}] not found."
+          },
+          "foundMore": {
+            "title": "More records found",
+            "message": "More records [{{counter}}] by given text [{{text}}] found. Expand the entered text to show record detail."
           }
         }
       }

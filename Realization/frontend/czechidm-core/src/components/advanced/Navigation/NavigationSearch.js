@@ -55,6 +55,7 @@ class NavigationSearch extends Basic.AbstractContextComponent {
     this.setState({
       searchShowLoading: true
     }, () => {
+      let counter = 0;
       this.context.store.dispatch(identityManager.fetchEntity(text, 'search', (identity, e1) => {
         if (e1 && e1.statusCode === 404) {
           this.context.store.dispatch(roleManager.fetchEntity(text, 'search2', (role, e2) => {
@@ -65,23 +66,34 @@ class NavigationSearch extends Basic.AbstractContextComponent {
                 .then(json => {
                   // ok
                   const entities = json._embedded[identityManager.getCollectionType()] || [];
-                  if (entities.length > 0) {
+                  if (entities.length === 1) {
                     this.context.history.push(identityManager.getDetailLink(entities[0]));
                     this.setState({
                       searchShowLoading: false
                     });
                   } else {
+                    counter += entities.length;
                     roleManager.getService()
                       .search(new SearchParameters().setFilter('text', text).setSort('disabled', true).setSort('code', true))
                       .then(json2 => {
                         // ok
                         const entities2 = json2._embedded[roleManager.getCollectionType()] || [];
-                        if (entities2.length > 0) {
+                        if (entities2.length === 1) {
                           this.context.history.push(`/role/${ encodeURIComponent(entities2[0].id) }/detail`);
                           this.refs['input-search'].setValue(null);
+                        } else if (entities2.length > 1) {
+                          counter += entities2.length;
+                          // find more
+                          this.addMessage({
+                            key: 'search-result',
+                            level: 'info',
+                            title: this.i18n('message.foundMore.title'),
+                            message: this.i18n('message.foundMore.message', { counter, text })
+                          });
                         } else {
                           // not found message
                           this.addMessage({
+                            key: 'search-result',
                             level: 'info',
                             title: this.i18n('message.notFound.title'),
                             message: this.i18n('message.notFound.message', { text })

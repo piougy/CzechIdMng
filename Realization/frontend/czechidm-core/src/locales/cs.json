@@ -682,6 +682,10 @@
           "notFound": {
             "title": "Nenalezeno",
             "message": "Záznam dle zadaného textu [{{text}}] nebyl nalezen."
+          },
+          "foundMore": {
+            "title": "Nalezeno více zázamů",
+            "message": "Bylo nalezeno více záznamů [{{counter}}] dle zadaného textu [{{text}}]. Rozšiřte zadaný text pro zobrazení detailu záznamu."
           }
         }
       }

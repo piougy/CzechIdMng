@@ -104,7 +104,9 @@ class TextArea extends AbstractFormComponent {
    * Focus input field
    */
   focus() {
-    this.refs.input.focus();
+    if (this.refs.input) {
+      this.refs.input.focus();
+    }
   }
 
   getBody(feedback) {

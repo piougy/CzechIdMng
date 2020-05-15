@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
 
 /**
  *
- * Evaluator which does not allow user to see roles which are not available for request.
+ * Evaluator which does allow user to see roles which are available for request.
  *
  * @author Peter Sourek
  */

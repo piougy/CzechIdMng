@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.util.Assert;
 
@@ -164,6 +165,15 @@ public abstract class RepositoryUtils {
 			Path<? extends UUID> path, 
 			CriteriaBuilder builder, 
 			String uuidAsText) {
+		Assert.notNull(predicates, "Result predicates are required.");
+		Assert.notNull(path, "Path to construct uuid predicate is required.");
+		Assert.notNull(builder, "Initialized criteria builder is required to get predicate.");
+		//
+		if (StringUtils.isEmpty(uuidAsText)) {
+			// no value to append
+			return;
+		}
+		//
 		try {
 			UUID uuid = DtoUtils.toUuid(uuidAsText);
 			//

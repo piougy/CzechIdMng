@@ -637,6 +637,20 @@
       },
       "CloseButton": {
         "title": "Close detail"
+      },
+      "NavigationSearch": {
+        "search": {
+          "placeholder": "Seach user or role"
+        },
+        "button": {
+          "title": "Search"
+        },
+        "message": {
+          "notFound": {
+            "title": "Not found",
+            "message": "Record by given text [{{text}}] not found."
+          }
+        }
       }
     }
   },

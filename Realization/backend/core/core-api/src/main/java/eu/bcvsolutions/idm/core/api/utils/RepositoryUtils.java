@@ -15,6 +15,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
@@ -23,6 +24,8 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  * @author Radek Tomiška
  */
 public abstract class RepositoryUtils {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RepositoryUtils.class);
 
 	/**
 	 * Return collection of entity ids usable in repository query. 
@@ -130,4 +133,43 @@ public abstract class RepositoryUtils {
 				);
 	}
 	
+	/**
+	 * Append uuid identifier predicate is given text is valid uuid, nothing is appended otherwise (silently).
+	 * 
+	 * @param predicates result predicates
+	 * @param path abstract entity is supported 
+	 * @param builder criteria builder
+	 * @param uuidAsText text - is converted to uuid
+	 * @since 10.3.0
+	 */
+	public static void appendUuidIdentifierPredicate(
+			List<Predicate> predicates, 
+			Path<? extends AbstractEntity> path, 
+			CriteriaBuilder builder, 
+			String uuidAsText) {
+		appendUuidPredicate(predicates, path.get(AbstractEntity_.id), builder, uuidAsText);
+	}
+	
+	/**
+	 * Append uuid predicate is given text is valid uuid, nothing is appended otherwise (silently).
+	 * 
+	 * @param predicates result predicates
+	 * @param path path to uuid identifier
+	 * @param builder criteria builder
+	 * @param uuidAsText text - is converted to uuid
+	 * @since 10.3.0
+	 */
+	public static void appendUuidPredicate(
+			List<Predicate> predicates, 
+			Path<? extends UUID> path, 
+			CriteriaBuilder builder, 
+			String uuidAsText) {
+		try {
+			UUID uuid = DtoUtils.toUuid(uuidAsText);
+			//
+			predicates.add(builder.equal(path, uuid));
+		} catch (ClassCastException ex) {
+			LOG.trace("Given text filter [{}] is not UUID, like filter will be applied only.", uuidAsText);
+		}
+	}
 }

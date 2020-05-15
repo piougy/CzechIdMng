@@ -160,14 +160,17 @@ public class DefaultIdmIdentityService
 		String text = filter.getText();
 		if (StringUtils.isNotEmpty(text)) {
 			text = text.toLowerCase();
-			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmIdentity_.username)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.firstName)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.lastName)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.email)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.externalCode)), "%" + text + "%")
-					));
+			List<Predicate> textPredicates = new ArrayList<>(7);
+			//
+			RepositoryUtils.appendUuidIdentifierPredicate(textPredicates, root, builder, text);
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.username)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.firstName)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.lastName)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.email)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.externalCode)), "%" + text + "%"));
+			//
+			predicates.add(builder.or(textPredicates.toArray(new Predicate[textPredicates.size()])));
 		}
 		// Identity first name
 		if (StringUtils.isNotEmpty(filter.getFirstName())) {

@@ -13,7 +13,6 @@ import {
   ConfigurationManager,
   SecurityManager,
   IdentityManager,
-  RoleManager,
   DataManager
 } from '../../../redux';
 import {
@@ -25,10 +24,10 @@ import {
 } from '../../../redux/config/actions';
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
+import NavigationSearch from './NavigationSearch';
 
 const componentService = new ComponentService();
 const identityManager = new IdentityManager();
-const roleManager = new RoleManager();
 
 /**
  * Top navigation
@@ -331,7 +330,7 @@ export class Navigation extends Basic.AbstractContent {
   }
 
   render() {
-    const { environment, userContext, navigationCollapsed, rendered, i18nReady, searchShowLoading } = this.props;
+    const { environment, userContext, navigationCollapsed, rendered, i18nReady } = this.props;
     //
     if (!rendered) {
       return false;
@@ -507,55 +506,9 @@ export class Navigation extends Basic.AbstractContent {
                 null
               }
               <Basic.Div className="navbar-right">
-                {
-                  environment !== 'development' || userContext.isExpired || !SecurityManager.isAuthenticated(userContext)
-                  ||
-                  <form
-                    className="navbar-form navbar-left"
-                    onSubmit={
-                      (event) => {
-                        event.preventDefault();
-                        const identifier = this.refs['input-search'].getValue();
-                        if (identifier) {
-                          //
-                          this.context.store.dispatch(identityManager.fetchEntity(identifier, 'search', (identity, e1) => {
-                            if (e1 && e1.statusCode === 404) {
-                              this.context.store.dispatch(roleManager.fetchEntity(identifier, 'search2', (role, e2) => {
-                                if (e2) {
-                                  this.addError(e2);
-                                } else {
-                                  this.context.history.push(`/role/${ encodeURIComponent(role.id) }/detail`);
-                                  this.refs['input-search'].setValue(null);
-                                }
-                              }));
-                            } else if (e1) {
-                              this.addError(e1);
-                            } else {
-                              this.context.history.push(identityManager.getDetailLink(identity));
-                              this.refs['input-search'].setValue(null);
-                            }
-                          }));
-                        }
-                      }
-                    }>
-                    <Basic.Div className="input-group">
-                      <Basic.TextField
-                        label={ null }
-                        ref="input-search"
-                        placeholder="Search"
-                        style={{ borderRadius: '4px 0px 0px 4px' }}/>
-                      <span className="input-group-btn">
-                        <Basic.Button
-                          showLoading={ searchShowLoading }
-                          showLoadingIcon
-                          level="default"
-                          type="submit"
-                          icon="search"
-                          style={{ borderRadius: '0px 4px 4px 0px', borderLeft: 0 }}/>
-                      </span>
-                    </Basic.Div>
-                  </form>
-                }
+                <NavigationSearch
+                  className="navbar-form navbar-left"
+                  rendered={ !userContext.isExpired && SecurityManager.isAuthenticated(userContext) }/>
                 { environmentLabel }
                 { flags }
                 <ul className="nav navbar-nav">

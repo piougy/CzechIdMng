@@ -670,6 +670,20 @@
       },
       "CloseButton": {
         "title": "Zavřít detail"
+      },
+      "NavigationSearch": {
+        "search": {
+          "placeholder": "Najít uživatele nebo roli"
+        },
+        "button": {
+          "title": "Hledat"
+        },
+        "message": {
+          "notFound": {
+            "title": "Nenalezeno",
+            "message": "Záznam dle zadaného textu [{{text}}] nebyl nalezen."
+          }
+        }
       }
     }
   },

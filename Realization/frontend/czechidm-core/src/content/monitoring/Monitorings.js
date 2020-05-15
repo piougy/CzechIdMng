@@ -32,6 +32,7 @@ class Monitorings extends Advanced.AbstractTableContent {
   componentDidMount() {
     super.componentDidMount();
     this.initData();
+    this.selectNavigationItem('monitoring');
   }
 
   initData() {

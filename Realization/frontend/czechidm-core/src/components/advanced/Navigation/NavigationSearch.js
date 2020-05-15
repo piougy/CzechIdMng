@@ -60,9 +60,8 @@ class NavigationSearch extends Basic.AbstractContextComponent {
           this.context.store.dispatch(roleManager.fetchEntity(text, 'search2', (role, e2) => {
             if (e2 && e2.statusCode === 404) {
               // text search is used => when at least record is found, then first detial is shown. Warning message is shown otherwise.
-              const searchParameters = new SearchParameters().setFilter('text', text);
               identityManager.getService()
-                .search(searchParameters)
+                .search(new SearchParameters().setFilter('text', text).setSort('disabled', true).setSort('username', true))
                 .then(json => {
                   // ok
                   const entities = json._embedded[identityManager.getCollectionType()] || [];
@@ -73,7 +72,7 @@ class NavigationSearch extends Basic.AbstractContextComponent {
                     });
                   } else {
                     roleManager.getService()
-                      .search(searchParameters)
+                      .search(new SearchParameters().setFilter('text', text).setSort('disabled', true).setSort('code', true))
                       .then(json2 => {
                         // ok
                         const entities2 = json2._embedded[roleManager.getCollectionType()] || [];

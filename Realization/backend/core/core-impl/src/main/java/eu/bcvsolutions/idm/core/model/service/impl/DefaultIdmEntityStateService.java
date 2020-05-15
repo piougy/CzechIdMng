@@ -56,7 +56,7 @@ public class DefaultIdmEntityStateService
 			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityState_.ownerType)), "%" + text + "%"));
 			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityState_.ownerId).as(String.class)), "%" + text + "%"));
 			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityState_.result).get(OperationResult_.code)), "%" + text + "%"));
-			RepositoryUtils.appendUuidIdentifierPredicate(textPredicates, root, builder, text);
+			RepositoryUtils.appendUuidPredicate(textPredicates, root.get(IdmEntityState_.ownerId), builder, text);
 			//
 			predicates.add(builder.or(textPredicates.toArray(new Predicate[textPredicates.size()])));
 		}

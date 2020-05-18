@@ -52,6 +52,13 @@ public class IdmIdentityFilter
 	 */
 	public static final String PARAMETER_MANAGERS_BY_CONTRACT = "managersByContract";
 	/**
+	 * Returns managers for valid now or in future contracts. Can be combined with PARAMETER_MANAGERS_FOR only.
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @since 10.3.0
+	 */
+	public static final String PARAMETER_VALID_CONTRACT_MANAGERS = "validContractManagers";
+	/**
 	 * Identity state.
 	 */
 	public static final String PARAMETER_STATE = "state";
@@ -68,9 +75,22 @@ public class IdmIdentityFilter
 	 */
 	public static final String PARAMETER_GUARANTEES_FOR_ROLE = "guaranteesForRole";
 	/**
+	 * Guarantees for given role and guarantees type.
+	 * This parameter will be use only if PARAMETER_GUARANTEES_FOR_ROLE is sets!
+	 * 
+	 * @since 10.3.0
+	 */
+	public static final String PARAMETER_GUARANTEE_TYPE = "guaranteesType";
+	/**
 	 * Identities by email.
 	 */
 	public static final String PARAMETER_EMAIL = "email";
+	/**
+	 * Identities by phone.
+	 * 
+	 * @since 10.3.0
+	 */
+	public static final String PARAMETER_PHONE = "phone";
 	/**
 	 * role - multiple, OR.
 	 */
@@ -237,11 +257,7 @@ public class IdmIdentityFilter
 	}
 	
 	public void setIdentifiers(List<String> identifiers) {
-		if (CollectionUtils.isEmpty(identifiers)) {
-    		data.remove(PARAMETER_IDENTIFIERS);
-    	} else {
-    		data.put(PARAMETER_IDENTIFIERS, new ArrayList<Object>(identifiers));
-    	}
+		put(PARAMETER_IDENTIFIERS, identifiers);
 	}
 
 	public List<String> getIdentifiers() {
@@ -267,11 +283,33 @@ public class IdmIdentityFilter
 	}
 	
 	/**
+	 * Guarantees for given role and guarantees type.
+	 * This parameter will be use in filter only if the setGuaranteesForRole parameter will be set!
+	 * 
+	 * @return
+	 * @since 10.3.0
+	 */
+	public String getGuaranteeType() {
+		return getParameterConverter().toString(getData(), PARAMETER_GUARANTEE_TYPE);
+	}
+
+	/**
+	 * Guarantees for given role and guarantees type.
+	 * This parameter will be use in filter only if the setGuaranteesForRole parameter will be set!
+	 * 
+	 * @param type
+	 * @since 10.3.0
+	 */
+	public void setGuaranteeType(String type) {
+		set(PARAMETER_GUARANTEE_TYPE, type);
+	}
+	
+	/**
 	 * @since 9.3.0
 	 * @return
 	 */
 	public String getEmail() {
-		return (String) data.getFirst(PARAMETER_EMAIL);
+		return getParameterConverter().toString(getData(), PARAMETER_EMAIL);
 	}
 	
 	/**
@@ -280,6 +318,26 @@ public class IdmIdentityFilter
 	 */
 	public void setEmail(String email) {
 		set(PARAMETER_EMAIL, email);
+	}
+	
+	/**
+	 * Identity phone.
+	 * 
+	 * @since 10.3.0
+	 * @return filter value
+	 */
+	public String getPhone() {
+		return getParameterConverter().toString(getData(), PARAMETER_PHONE);
+	}
+	
+	/**
+	 * Identity phone.
+	 * 
+	 * @since 10.3.0
+	 * @param phone filter value
+	 */
+	public void setPhone(String phone) {
+		set(PARAMETER_PHONE, phone);
 	}
 	
 	/**
@@ -300,5 +358,33 @@ public class IdmIdentityFilter
 	 */
 	public void setFormProjection(UUID formProjection) {
 		set(PARAMETER_FORM_PROJECTION, formProjection);
+	}
+	
+	/**
+	 * Filter managers for valid now or in future contracts.
+	 * - true: valid now or in future
+	 * - false: ended contracts
+	 * 
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @return filter value
+	 * @since 10.3.0
+	 */
+	public Boolean getValidContractManagers() {
+    	return getParameterConverter().toBoolean(getData(), PARAMETER_VALID_CONTRACT_MANAGERS);
+	}
+	
+	/**
+	 * Filter managers for valid now or in future contracts.
+	 * - true: valid now or in future
+	 * - false: ended contracts
+	 * 
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @param filter value
+	 * @since 10.3.0
+	 */
+	public void setValidContractManagers(Boolean validContractManagers) {
+		set(PARAMETER_VALID_CONTRACT_MANAGERS, validContractManagers);
 	}
 }

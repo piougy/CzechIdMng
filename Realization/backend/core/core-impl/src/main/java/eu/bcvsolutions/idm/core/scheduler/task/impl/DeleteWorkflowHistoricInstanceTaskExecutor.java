@@ -9,7 +9,6 @@ import org.activiti.engine.history.HistoricProcessInstanceQuery;
 import org.joda.time.DateTime;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -35,9 +34,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  * @since 9.7.12 
  */
-@Component(DeleteWorkflowHistoricInstanceTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Delete historic workflow process instances.")
+@Component(DeleteWorkflowHistoricInstanceTaskExecutor.TASK_NAME)
 public class DeleteWorkflowHistoricInstanceTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory .getLogger(DeleteWorkflowHistoricInstanceTaskExecutor.class);

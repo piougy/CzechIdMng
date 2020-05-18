@@ -45,6 +45,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -58,6 +59,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -65,6 +67,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormValue_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -88,6 +91,8 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
+	@Autowired
+	private LookupService lookupService;
 
 	@Autowired
 	public IdentityProvisioningExecutor(SysSystemMappingService systemMappingService,
@@ -117,6 +122,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 		this.accountManagementService = accountManagementService;
 	}
 
+	@Override
 	public void doProvisioning(AccAccountDto account) {
 		Assert.notNull(account, "Account is required.");
 		//
@@ -141,10 +147,10 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 	/**
 	 * Return list of all overloading attributes for given identity, system and uid
 	 * 
-	 * @param identityAccount
-	 * @param idenityAccoutnList
-	 * @param operationType
+	 * @param entity
+	 * @param system
 	 * @param entityType
+	 * @param account
 	 * @return
 	 */
 	@Override
@@ -237,7 +243,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 					.find(identityRoleFilter,
 							PageRequest.of(0, Integer.MAX_VALUE, Sort.by(IdmIdentityRole_.created.getName())))
 					.getContent();
-			List<IdmIdentityRoleDto> identityRolesToProcess = Lists.newArrayList();
+			List<IdmIdentityRoleDto> identityRolesToProcess;
 
 			if (ASSIGNED_ROLES_FOR_SYSTEM_FIELD.equals(attribute.getIdmPropertyName())) {
 				// For ASSIGNED_ROLES_FOR_SYSTEM_FIELD we will convert only identity-roles for
@@ -275,6 +281,16 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			});
 
 			return attributeMappingService.transformValueToResource(uid, assignedRoles, attribute, dto);
+		}
+		// For user-type (projection) will be attribute value IdmFormProjectionDto.
+		if (attribute != null
+				&& dto != null
+				&& dto.getFormProjection() != null
+				&& IdmIdentity_.formProjection.getName().equals(attribute.getIdmPropertyName())
+				) {
+			
+			BaseDto projection = lookupService.lookupEmbeddedDto(dto, IdmIdentity_.formProjection);
+			return attributeMappingService.transformValueToResource(uid, projection, attribute, dto);
 		}
 		return super.getAttributeValue(uid, dto, attribute, system);
 	}

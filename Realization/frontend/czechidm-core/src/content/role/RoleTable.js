@@ -131,7 +131,7 @@ class RoleTable extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.history.push(`/role/${uuidId}/new?new=1`);
     } else {
-      this.context.history.push(`/role/${entity.id}/detail`);
+      this.context.history.push(`/role/${ encodeURIComponent(entity.id) }/detail`);
     }
   }
 
@@ -324,7 +324,13 @@ class RoleTable extends Advanced.AbstractTableContent {
                 }
               }
             />
-            <Advanced.Column property="roleType" width={ 75 } sort face="enum" enumClass={ RoleTypeEnum } rendered={ false && _.includes(columns, 'roleType') }/>
+            <Advanced.Column
+              property="roleType"
+              width={ 75 }
+              sort
+              face="enum"
+              enumClass={ RoleTypeEnum }
+              rendered={ false && _.includes(columns, 'roleType') }/>
             <Advanced.Column property="roleCatalogue.name" width={ 75 } face="text" rendered={ _.includes(columns, 'roleCatalogue') }/>
             <Advanced.Column
               property="description"

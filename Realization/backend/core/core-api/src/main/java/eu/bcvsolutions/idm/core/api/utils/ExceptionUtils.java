@@ -1,12 +1,16 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Throwables;
 
+import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -94,4 +98,59 @@ public abstract class ExceptionUtils {
 		}
 	}
 	
+	/**
+	 * Extracts a list of parameters according to the paramKey from the chain of
+	 * ResultCodeExceptions with given resultCodes. Exceptions other than
+	 * ResultCodeExceptions are skipped. Values in the result list are sorted from
+	 * the latest to the earliest exception.
+	 * 
+	 * @param <T>
+	 * @param ex
+	 * @param resultCode
+	 * @param paramKey
+	 * @return
+	 */
+	public static List<Object> getParameterChainByKey(Throwable ex, String paramKey, ResultCode... resultCode) {
+		Assert.notNull(paramKey, "Parameter key is required.");
+		Assert.notNull(ex, "Exeption is required.");
+
+		return getConsecutiveResultCodeExceptions(ex, resultCode).stream()
+				.map(e -> {
+					if (e.getError() == null || e.getError().getError() == null) {
+						return null;
+					} else {
+						return e.getError().getError().getParameters().getOrDefault(paramKey, null);
+					}
+				})
+				.filter(p -> p != null)
+				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Extract list of ResultCodeExceptions from the chain of causal exceptions
+	 * Returns only those with {@link resultCode} if argument set. 
+	 * 
+	 * @param ex
+	 * @param resultCode
+	 * @return
+	 */
+	public static List<ResultCodeException> getConsecutiveResultCodeExceptions(Throwable ex, ResultCode... resultCode) {
+		Assert.notNull(ex, "Exeption is required.");
+		Set<String> rcSet = Arrays.asList(resultCode).stream()
+				.map(rc -> rc.getCode())
+				.collect(Collectors.toSet());
+
+		return Throwables.getCausalChain(ex).stream()
+				.filter(e -> e instanceof ResultCodeException)
+				.map(e -> (ResultCodeException) e)
+				.filter(e -> {
+					if (rcSet.isEmpty()) {
+						return true;
+					}
+					if (e.getError() == null || e.getError().getError() == null) {
+						return false;
+					}
+					return rcSet.contains(e.getError().getError().getStatusEnum());})
+				.collect(Collectors.toList());
+	}
 }

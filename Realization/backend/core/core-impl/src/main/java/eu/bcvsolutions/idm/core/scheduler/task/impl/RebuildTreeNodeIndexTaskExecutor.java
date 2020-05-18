@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -39,7 +38,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  *
  */
 @Component(RebuildTreeNodeIndexTaskExecutor.TASK_NAME)
-@Description("Rebuild tree node forest index.")
 public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RebuildTreeNodeIndexTaskExecutor.class);

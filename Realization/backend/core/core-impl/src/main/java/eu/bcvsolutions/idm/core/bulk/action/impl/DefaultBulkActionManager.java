@@ -57,7 +57,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	public IdmBulkActionDto processAction(IdmBulkActionDto action) {
 		AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> executor = getOperationForDto(action);
 		//
-		executor = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(AutowireHelper.getTargetClass(executor));
+		executor = createNewActionInstance(executor, action);
 		//
 		executor.setAction(action);
 		//
@@ -75,10 +75,11 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		return action;
 	}
 	
+	@Override
 	public ResultModels prevalidate(IdmBulkActionDto action) {
 		AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> executor = getOperationForDto(action);
 		//
-		executor = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(AutowireHelper.getTargetClass(executor));
+		executor = createNewActionInstance(executor, action);
 		//
 		executor.setAction(action);
 		//
@@ -88,10 +89,64 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	
 	@Override
 	public List<IdmBulkActionDto> getAvailableActions(Class<? extends BaseEntity> entity) {
-		return getEnabledActions(entity)
-				.stream()
+
+		List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> enabledActions = getEnabledActions(entity);
+		return enabledActions.stream()
+				.map(action -> {
+					/*
+					 * If is action generic, then we need to create new instance
+					 * and set entity class to it in every case (includes
+					 * getAvailableActions too). Stateful actions are typically
+					 * generic actions (uses for more than one entity type). That
+					 * action doesn't have knowledge about entity type in stateless
+					 * mode.
+					 */
+					if (action.isGeneric()) {
+						return createNewActionInstance(action, entity);
+					}
+					return action;
+				})
 				.map(this::toDto)
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Create new instance of a bulk action bean.
+	 * 
+	 * @param action
+	 * @param actionDto
+	 * @return 
+	 */
+	@SuppressWarnings("unchecked")
+	private AbstractBulkAction<?, ?> createNewActionInstance(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action, IdmBulkActionDto actionDto) {
+		if (!action.isGeneric()) {
+			// Entity class will be set only for generic actions (performance reason, prevents useless loading a class from string).
+			return createNewActionInstance(action, (Class<? extends BaseEntity>) null);
+		}
+		try {
+			Class<?> forName = Class.forName(actionDto.getEntityClass());
+			if (AbstractEntity.class.isAssignableFrom(forName)) {
+				return createNewActionInstance(action, (Class<? extends BaseEntity>) forName);
+			}
+		} catch (ClassNotFoundException e) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionClass", actionDto.getEntityClass()), e);
+		}
+		throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionName", actionDto.getName()));
+	}
+	
+	/**
+	 * Create new instance of a bulk action bean.
+	 * 
+	 * @param action
+	 * @param entity
+	 * @return 
+	 */
+	private AbstractBulkAction<?, ?> createNewActionInstance(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action, Class<? extends BaseEntity> entity) {
+		AbstractBulkAction<?, ?> statefulAction = (AbstractBulkAction<?, ?>) AutowireHelper.createBean(AutowireHelper.getTargetClass(action));
+		if (statefulAction.getEntityClass() == null) {
+			statefulAction.setEntityClass(entity);
+		}
+		return statefulAction;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -128,8 +183,8 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	private IdmBulkActionDto toDto(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action) {
 		IdmBulkActionDto actionDto = new IdmBulkActionDto();
 		actionDto.setId(action.getName()); // FIXME: spring bean name 
-		actionDto.setEntityClass(action.getService().getEntityClass().getName());
-		actionDto.setFilterClass(action.getService().getFilterClass().getName());
+		actionDto.setEntityClass(action.getService() != null ? action.getService().getEntityClass().getName() : null);
+		actionDto.setFilterClass(action.getService() != null ? action.getService().getFilterClass().getName() : null);
 		actionDto.setModule(action.getModule());
 		actionDto.setName(action.getName());
 		actionDto.setDescription(action.getDescription());

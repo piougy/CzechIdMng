@@ -18,7 +18,7 @@ let roleManager = null;
 let manager = null;
 
 /**
-* Table of role's granted permissions
+* Table of role's granted permissions.
 *
 * @author Radek Tomiška
 */
@@ -65,8 +65,8 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     if (nextProps.match.params) {
       // Init managers - evaluates if we want to use standard (original) manager or
       // universal request manager (depends on existing of 'requestId' param)
-      manager = this.getRequestManager(nextProps.match.params, manager ? manager : new AuthorizationPolicyManager());
-      roleManager = this.getRequestManager(nextProps.match.params, roleManager ? roleManager : new RoleManager());
+      manager = this.getRequestManager(nextProps.match.params, manager || new AuthorizationPolicyManager());
+      roleManager = this.getRequestManager(nextProps.match.params, roleManager || new RoleManager());
     }
   }
 
@@ -98,15 +98,18 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     //
     const entityFormData = _.merge({}, entity, {
       role: entity._embedded && entity._embedded.role ? entity._embedded.role : roleId,
-      basePermissions: entity.basePermissions ? entity.basePermissions.split(',') : null
+      basePermissions: entity.basePermissions ? entity.basePermissions.split(',') : null,
+      groupPermission: entity.groupPermission ? `${ entity.groupPermission }${ entity.authorizableType ? '-' : '' }${ entity.authorizableType}` : null
     });
     //
     let authorizableType = null;
-    const _authorizableType = !entity.groupPermission ? null : authorizableTypes.find(type => { return type.group === entity.groupPermission; });
+    const _authorizableType = !entity.groupPermission
+      ? null
+      : authorizableTypes.find(type => { return type.group === entity.groupPermission && type.type === entity.authorizableType; });
     if (_authorizableType) {
       authorizableType = {
         niceLabel: this._getAuthorizableTypeNiceLabel(_authorizableType._authorizableType, _authorizableType.type),
-        value: _authorizableType.group,
+        value: _authorizableType.id,
         group: _authorizableType.group,
         type: _authorizableType.type
       };
@@ -226,11 +229,17 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       return permission;
     }
     //
-    return this.i18n(`${_permission.module ? _permission.module : 'core'}:permission.base.${_permission.name}`, { defaultValue: _permission.name });
+    return this.i18n(
+      `${ _permission.module ? _permission.module : 'core' }:permission.base.${ _permission.name }`,
+      { defaultValue: _permission.name }
+    );
   }
 
   _getGroupPermissionNiceLabel(groupPermission) {
-    return this.i18n(`${groupPermission.module ? groupPermission.module : 'core'}:permission.group.${groupPermission.name}`, { defaultValue: groupPermission.name});
+    return this.i18n(
+      `${ groupPermission.module ? groupPermission.module : 'core' }:permission.group.${ groupPermission.name }`,
+      { defaultValue: groupPermission.name}
+    );
   }
 
   _getAuthorizableTypeNiceLabel(groupName, authorizableType) {
@@ -247,7 +256,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     }
     //
     const label = this._getGroupPermissionNiceLabel(groupPermission);
-    return `${label}${!authorizableType ? '' : (' (' + Utils.Ui.getSimpleJavaType(authorizableType) + ')')}`;
+    return `${ label }${ !authorizableType ? '' : ` (${ Utils.Ui.getSimpleJavaType(authorizableType) })` }`;
   }
 
   _getUniqueBasePermissions(allAuthorities, authorizableType = null) {
@@ -274,8 +283,12 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     //
     supportedEvaluators.forEach(evaluator => {
       // TODO: add filter to BE and evaluate all superclasses
-      if ((!authorizableType && (Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable') && (Utils.Ui.getSimpleJavaType(evaluator.evaluatorType) !== 'CodeableEvaluator'))
-          || (authorizableType && (authorizableType.type === evaluator.entityType || Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable'))) {
+      if ((!authorizableType
+              && (Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable')
+              && (Utils.Ui.getSimpleJavaType(evaluator.evaluatorType) !== 'CodeableEvaluator'))
+          ||
+          (authorizableType
+              && (authorizableType.type === evaluator.entityType || Utils.Ui.getSimpleJavaType(evaluator.entityType) === 'Identifiable'))) {
         _supportedEvaluators.push(this._toEvaluatorOption(evaluator));
       }
     });
@@ -323,7 +336,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       authorizableTypes.forEach(type => {
         _authorizableTypes.push({
           niceLabel: this._getAuthorizableTypeNiceLabel(type.group, type.type),
-          value: type.group,
+          value: type.id,
           type: type.type,
           group: type.group
         });
@@ -343,7 +356,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     });
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -355,6 +368,9 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
           filterOpened
           rowClass={
             ({rowIndex, data}) => {
+              if (!data[rowIndex].groupPermission) { // wildcard permission
+                return Utils.Ui.getDisabledRowClass(data[rowIndex]);
+              }
               // installed vs. available authorities - authority from disabled module
               if (availableAuthorities && !availableAuthorities.find(p => { return p.name === data[rowIndex].groupPermission; })) {
                 return 'disabled';
@@ -407,7 +423,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             header={ this.i18n('entity.AuthorizationPolicy.authorizableType.label') }
             sort
             sortProperty="groupPermission"
-            rendered={_.includes(columns, 'authorizableType')}
+            rendered={ _.includes(columns, 'authorizableType') }
             width={ 175 }
             cell={
               /* eslint-disable react/no-multi-comp */
@@ -483,15 +499,20 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                     return null;
                   }
                   if (Utils.Ui.isEmpty(entity.evaluatorProperties[parameterName])) {
-                      // not filled (false is needed to render)
+                    // not filled (false is needed to render)
                     return null;
                   }
                   return (
-                    <div>
-                      { _evaluatorType ? formAttributeManager.getLocalization(_evaluatorType.formDefinition, { code: parameterName }, 'label', parameterName) : parameterName }
+                    <Basic.Div>
+                      {
+                        _evaluatorType
+                        ?
+                        formAttributeManager.getLocalization(_evaluatorType.formDefinition, { code: parameterName }, 'label', parameterName)
+                        : parameterName
+                      }
                       :
                       { Utils.Ui.toStringValue(entity.evaluatorProperties[parameterName]) }
-                    </div>
+                    </Basic.Div>
                   );
                 }).values()];
               }
@@ -518,14 +539,20 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
 
         <Basic.Modal
           bsSize="large"
-          show={detail.show}
-          onHide={this.closeDetail.bind(this)}
+          show={ detail.show }
+          onHide={ this.closeDetail.bind(this) }
           backdrop="static"
-          keyboard={!_showLoading}>
+          keyboard={ !_showLoading }>
 
-          <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
+          <form onSubmit={ this.save.bind(this, {}) }>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('create.header') }
+              rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('edit.header', { name: detail.entity.name }) }
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
@@ -561,7 +588,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       required={ (evaluatorType && evaluatorType.supportsPermissions !== undefined) ? evaluatorType.supportsPermissions : false }/>
                     <Basic.TextField
                       ref="seq"
-                      validation={Joi.number().integer().min(0).max(9999).allow(null)}
+                      validation={ Joi.number().integer().min(0).max(9999).allow(null) }
                       label={ this.i18n('entity.AuthorizationPolicy.seq.label') }
                       help={ this.i18n('entity.AuthorizationPolicy.seq.help') }/>
                     <Basic.TextArea
@@ -586,13 +613,13 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       text={ this.i18n('evaluator.default') }
                       rendered={ authorizableType ? authorizableType.type === null : false }/>
 
-                    <div style={ showProperties ? {} : { display: 'none' }}>
+                    <Basic.Div style={ showProperties ? {} : { display: 'none' }}>
                       <Basic.ContentHeader text={ this.i18n('entity.AuthorizationPolicy.evaluatorProperties.title') }/>
                       <Advanced.EavForm
                         ref="formInstance"
                         formInstance={ formInstance }
                         useDefaultValue={ Utils.Entity.isNew(detail.entity) }/>
-                    </div>
+                    </Basic.Div>
 
                   </Basic.Col>
                 </Basic.Row>
@@ -619,7 +646,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -697,6 +724,6 @@ class Filter extends Advanced.Filter {
           </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>
-      );
+    );
   }
 }

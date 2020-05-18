@@ -28,9 +28,9 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
@@ -171,14 +171,7 @@ public class IdmFormValueController extends AbstractReadWriteDtoController<IdmFo
 	}
 	
 	@Override
-	@SuppressWarnings({ "rawtypes" })
 	protected IdmFormValueFilter<?> toFilter(MultiValueMap<String, Object> parameters) {	
-		IdmFormValueFilter filter = getParameterConverter().toFilter(parameters, IdmFormValueFilter.class);
-		//
-		filter.setAttributeId(getParameterConverter().toUuid(parameters, "attributeId"));
-		filter.setDefinitionId(getParameterConverter().toUuid(parameters, "definitionId"));
-		filter.setPersistentType(getParameterConverter().toEnum(parameters, "persistentType", PersistentType.class));
-		//
-		return filter;
+		return new IdmFormValueFilter<FormableEntity>(parameters, getParameterConverter());
 	}
 }

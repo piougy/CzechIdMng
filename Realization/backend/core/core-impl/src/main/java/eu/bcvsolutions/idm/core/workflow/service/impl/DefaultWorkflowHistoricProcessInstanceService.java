@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -74,13 +73,15 @@ public class DefaultWorkflowHistoricProcessInstanceService
 	@Override
 	public Page<WorkflowHistoricProcessInstanceDto> find(WorkflowFilterDto filter, Pageable pageable,
 			BasePermission... permission) {
-		String processDefinitionId = filter.getProcessDefinitionId();
+	
+		HistoricProcessInstanceQuery query = this.getQuery(filter, pageable, permission);
+		if (pageable == null) {
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
+		long count = query.count();
+		List<HistoricProcessInstance> processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
+		
 		String processInstanceId = filter.getProcessInstanceId();
-
-		Map<String, Object> equalsVariables = filter.getEqualsVariables();
-
-		HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
-
 		boolean trimmed = true;
 		if (processInstanceId != null) {
 			// Process variables will be included only for get by instance ID
@@ -88,76 +89,6 @@ public class DefaultWorkflowHistoricProcessInstanceService
 			query.includeProcessVariables();
 			query.processInstanceId(processInstanceId);
 		}
-		if (processDefinitionId != null) {
-			query.processDefinitionId(processDefinitionId);
-		}
-		if (filter.getSuperProcessInstanceId() != null) {
-			query.superProcessInstanceId(filter.getSuperProcessInstanceId());
-		}
-		if (filter.getProcessDefinitionKey() != null) {
-			// For case when we have only process id, we will convert him to key
-			query.processDefinitionKey(convertProcessIdToKey(filter.getProcessDefinitionKey()));
-		}
-		if (filter.getName() != null) {
-			// with case sensitive
-			query.variableValueLike(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME, "%" + filter.getName() + "%");
-		}
-		if (equalsVariables != null) {
-			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
-				query.variableValueEquals(entry.getKey(), entry.getValue());
-			}
-		}
-		
-		// check security ... only involved user or applicant can work with
-		// historic process instance ... admin can see all historic processes every time
-		// TODO: refactor and use username/id from filter
-		if (!securityService.isAdmin()) {
-			// Applicant and Implementer is added to involved user after process
-			// (subprocess) started. This modification allow not use OR clause.
-			query.involvedUser(securityService.getCurrentId() == null ? UUID.randomUUID().toString() : securityService.getCurrentId().toString());
-		}
-
-		String fieldForSort = null;
-		boolean ascSort = false;
-		boolean descSort = false;
-		//
-		if (pageable == null) {
-			pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		}
-		Sort sort = pageable.getSort();
-		if (sort != null) {
-			for (Order order : sort) {
-				if (!StringUtils.isEmpty(order.getProperty())) {
-					// TODO: now is implemented only one property sort 
-					fieldForSort = order.getProperty();
-					if (order.getDirection() == Direction.ASC) {
-						ascSort = true;
-					} else if (order.getDirection() == Direction.DESC) {
-						descSort = true;
-					}
-					break;
-				}
-			}
-		}
-
-		if (WorkflowHistoricProcessInstanceService.SORT_BY_START_TIME.equals(fieldForSort)) {
-			query.orderByProcessInstanceStartTime();
-		} else if (WorkflowHistoricProcessInstanceService.SORT_BY_END_TIME.equals(fieldForSort)) {
-			query.orderByProcessInstanceEndTime();
-		} else {
-			query.orderByProcessDefinitionId();
-			// there must be default order
-			query.asc();
-		}
-		if (ascSort) {
-			query.asc();
-		}
-		if (descSort) {
-			query.desc();
-		}
-		long count = query.count();
-		List<HistoricProcessInstance> processInstances = query.listPage((pageable.getPageNumber()) * pageable.getPageSize(), pageable.getPageSize());
-		
 		List<WorkflowHistoricProcessInstanceDto> dtos = new ArrayList<>();
 		if (processInstances != null) {
 			for (HistoricProcessInstance instance : processInstances) {
@@ -165,15 +96,28 @@ public class DefaultWorkflowHistoricProcessInstanceService
 			}
 		}
 		
-		return new PageImpl<WorkflowHistoricProcessInstanceDto>(dtos, pageable, count);
+		return new PageImpl<>(dtos, pageable, count);
+	}
+
+	@Override
+	public long count(WorkflowFilterDto filter, BasePermission... permission) {
+		HistoricProcessInstanceQuery query = this.getQuery(filter, null, permission);
+
+		return query.count();
 	}
 	
+	/**
+	 * Beware, rights on involeved user are evolved here, but given permissions are not used!
+	 */
 	@Override
 	public WorkflowHistoricProcessInstanceDto get(Serializable id, BasePermission... permission) {
 		Assert.notNull(id, "Identifier is required.");
 		return this.get(String.valueOf(id));
 	}
 
+	/**
+	 * Rights on involved user are evolved here!
+	 */
 	@Override
 	public WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
@@ -221,6 +165,100 @@ public class DefaultWorkflowHistoricProcessInstanceService
 			throw new ActivitiException(
 					"Process instance with id " + processInstanceId + " has no graphic description");
 		}
+	}
+	
+	/**
+	 * Get activiti query for historic processes.
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @param permission
+	 * @return 
+	 */
+	protected HistoricProcessInstanceQuery getQuery(WorkflowFilterDto filter, Pageable pageable,
+			BasePermission... permission) {
+
+		HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
+		if (filter != null) {
+			String processDefinitionId = filter.getProcessDefinitionId();
+			String processInstanceId = filter.getProcessInstanceId();
+
+			Map<String, Object> equalsVariables = filter.getEqualsVariables();
+
+			if (processInstanceId != null) {
+				// Process variables will be included only for get by instance ID
+				query.includeProcessVariables();
+				query.processInstanceId(processInstanceId);
+			}
+			if (processDefinitionId != null) {
+				query.processDefinitionId(processDefinitionId);
+			}
+			if (filter.getSuperProcessInstanceId() != null) {
+				query.superProcessInstanceId(filter.getSuperProcessInstanceId());
+			}
+			if (filter.getProcessDefinitionKey() != null) {
+				// For case when we have only process id, we will convert him to key
+				query.processDefinitionKey(convertProcessIdToKey(filter.getProcessDefinitionKey()));
+			}
+			if (filter.getName() != null) {
+				// with case sensitive
+				query.variableValueLike(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME, "%" + filter.getName() + "%");
+			}
+			if (equalsVariables != null) {
+				equalsVariables.entrySet().forEach((entry) -> {
+					query.variableValueEquals(entry.getKey(), entry.getValue());
+				});
+			}
+		}
+
+		// check security ... only involved user or applicant can work with
+		// historic process instance ... admin can see all historic processes every time
+		// TODO: refactor and use username/id from filter
+		if (!securityService.isAdmin()) {
+			// Applicant and Implementer is added to involved user after process
+			// (subprocess) started. This modification allow not use OR clause.
+			query.involvedUser(securityService.getCurrentId() == null ? UUID.randomUUID().toString() : securityService.getCurrentId().toString());
+		}
+
+		String fieldForSort = null;
+		boolean ascSort = false;
+		boolean descSort = false;
+		//
+		if (pageable == null) {
+			pageable = PageRequest.of(0, Integer.MAX_VALUE);
+		}
+		Sort sort = pageable.getSort();
+		if (sort != null) {
+			for (Order order : sort) {
+				if (!StringUtils.isEmpty(order.getProperty())) {
+					// TODO: now is implemented only one property sort 
+					fieldForSort = order.getProperty();
+					if (order.getDirection() == Direction.ASC) {
+						ascSort = true;
+					} else if (order.getDirection() == Direction.DESC) {
+						descSort = true;
+					}
+					break;
+				}
+			}
+		}
+
+		if (WorkflowHistoricProcessInstanceService.SORT_BY_START_TIME.equals(fieldForSort)) {
+			query.orderByProcessInstanceStartTime();
+		} else if (WorkflowHistoricProcessInstanceService.SORT_BY_END_TIME.equals(fieldForSort)) {
+			query.orderByProcessInstanceEndTime();
+		} else {
+			query.orderByProcessDefinitionId();
+			// there must be default order
+			query.asc();
+		}
+		if (ascSort) {
+			query.asc();
+		}
+		if (descSort) {
+			query.desc();
+		}
+		return query;
 	}
 
 	/**

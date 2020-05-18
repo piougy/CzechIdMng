@@ -109,16 +109,24 @@ public class DataFilter
 		this.data.putAll(data);
 	}
 	
-	/**
-	 * Set parameter value.
-	 * 
-	 * @param propertyName key
-	 * @param propertyValue value
-	 * @since 10.2.0
-	 */
 	@Override
 	public void set(String propertyName, Object propertyValue) {
 		data.set(propertyName, propertyValue);
+	}
+	
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void put(String propertyName, List propertyValues) {
+		if (CollectionUtils.isEmpty(propertyValues)) {
+			remove(propertyName);
+		} else {
+			data.put(propertyName, propertyValues);
+		}
+	}
+	
+	@Override
+	public void remove(String propertyName) {
+		data.remove(propertyName);
 	}
 	
 	/**

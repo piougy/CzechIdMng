@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -42,8 +41,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @since 9.0.0
  */
 @Component(AddNewRoleCompositionTaskExecutor.TASK_NAME)
-@Description("Long running task for assign sub roles defined by this composition to identities having superior role."
-		+ " Can be executed repetitively to assign unprocessed roles to identities, after process was stopped or interrupted (e.g. by server restart).")
 public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmRoleDto> {
 
 	public static final String TASK_NAME = "core-add-new-role-composition-long-running-task";

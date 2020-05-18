@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent_;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityState;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityState_;
@@ -34,8 +34,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmEntityStateRepository;
 public class DefaultIdmEntityStateService 
 		extends AbstractEventableDtoService<IdmEntityStateDto, IdmEntityState, IdmEntityStateFilter> 
 		implements IdmEntityStateService {
-	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmEntityStateService.class);
 
 	@Autowired
 	public DefaultIdmEntityStateService(
@@ -58,14 +56,8 @@ public class DefaultIdmEntityStateService
 			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityState_.ownerType)), "%" + text + "%"));
 			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityState_.ownerId).as(String.class)), "%" + text + "%"));
 			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityState_.result).get(OperationResult_.code)), "%" + text + "%"));
-			// try to add filter by uuid
-			try {
-				UUID uuid = DtoUtils.toUuid(text);
-				//
-				textPredicates.add(builder.equal(root.get(IdmEntityState_.ownerId), uuid));
-			} catch (ClassCastException ex) {
-				LOG.trace("Given text filter [{}] is not UUID, like filter will be applied only.", text);
-			}
+			RepositoryUtils.appendUuidPredicate(textPredicates, root.get(IdmEntityState_.ownerId), builder, text);
+			//
 			predicates.add(builder.or(textPredicates.toArray(new Predicate[textPredicates.size()])));
 		}
 		//

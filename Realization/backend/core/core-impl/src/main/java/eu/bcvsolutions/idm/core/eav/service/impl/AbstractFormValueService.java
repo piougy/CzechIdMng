@@ -12,6 +12,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -112,9 +113,9 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	protected E toEntity(IdmFormValueDto dto, E entity) {
 		entity = super.toEntity(dto, entity);
 		// If DTO does not contains a owner entity, then we try to find it by owner type and ID.
-		if(dto.getOwner() == null && dto.getOwnerId() != null && dto.getOwnerType() != null) {
+		if (dto.getOwner() == null && dto.getOwnerId() != null && dto.getOwnerType() != null) {
 			entity.setOwner((O) this.getOwnerEntity((UUID) dto.getOwnerId(), dto.getOwnerType()));
-		}else {
+		} else {
 			entity.setOwner((O) dto.getOwner());
 		}
 		return entity;
@@ -224,9 +225,9 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.formDefinition).get(IdmFormDefinition_.id), definitionId));
 		}
 		//
-		UUID attributeId = filter.getAttributeId();
-		if (attributeId != null) {
-			predicates.add(builder.equal(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.id), attributeId));
+		List<UUID> attributeIds = filter.getAttributeIds();
+		if (CollectionUtils.isNotEmpty(attributeIds)) {
+			predicates.add(root.get(AbstractFormValue_.formAttribute).get(IdmFormAttribute_.id).in(attributeIds));
 		}
 		//
 		O owner = filter.getOwner();
@@ -278,14 +279,14 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefiniton, BasePermission... permission) {
+	public List<IdmFormValueDto> getValues(O owner, IdmFormDefinitionDto formDefinition, BasePermission... permission) {
 		Assert.notNull(owner, "Owner is required to get form values.");
 		Assert.notNull(owner.getId(), "Owner identifier is required to get form values.");
 		//
 		IdmFormValueFilter<O> filter = new IdmFormValueFilter<>();
 		filter.setOwner(owner);
-		if (formDefiniton != null) {
-			filter.setDefinitionId(formDefiniton.getId());
+		if (formDefinition != null) {
+			filter.setDefinitionId(formDefinition.getId());
 		}
 		return find(filter, PageRequest.of(0, Integer.MAX_VALUE, Sort.by(AbstractFormValue_.seq.getName())), permission).getContent();
 	}
@@ -311,8 +312,8 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	}
 
 	@Transactional
-	public void deleteValues(O owner, IdmFormDefinitionDto formDefiniton, BasePermission... permission) {
-		getValues(owner, formDefiniton).forEach(formValue -> {
+	public void deleteValues(O owner, IdmFormDefinitionDto formDefinition, BasePermission... permission) {
+		getValues(owner, formDefinition).forEach(formValue -> {
 			delete(formValue, permission);
 		});
 	}

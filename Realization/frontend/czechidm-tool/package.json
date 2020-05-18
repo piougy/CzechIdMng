@@ -1,16 +1,20 @@
 {
-  "name" : "czechidm-tool",
-  "version" : "10.3.0-snapshot",
-  "description" : "Tool module for CzechIdM devstack.",
-  "main" : "index.js",
-  "scripts" : {
-    "lint" : "eslint ./",
-    "test" : "echo \"Error: no test specified\" && exit 1"
+  "name": "czechidm-tool",
+  "version": "10.4.0-snapshot",
+  "description": "Tool module for CzechIdM devstack.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint ./",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords" : [ "CzechIdM", "tool", "IdM" ],
-  "publishConfig" : {
-    "registry" : "http://nexus.bcvsolutions.eu/repository/npm-private/"
+  "keywords": [
+    "CzechIdM",
+    "tool",
+    "IdM"
+  ],
+  "publishConfig": {
+    "registry": "http://nexus.bcvsolutions.eu/repository/npm-private/"
   },
-  "author" : "BCV solutions s.r.o",
-  "license" : "MIT"
+  "author": "BCV solutions s.r.o",
+  "license": "MIT"
 }

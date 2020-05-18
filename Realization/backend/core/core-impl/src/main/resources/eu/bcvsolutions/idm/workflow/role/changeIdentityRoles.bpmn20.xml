@@ -287,7 +287,7 @@ if(configResult &amp;&amp; configResult.equals("false")){
 
 if(!skip){
   //Find all managers for applicant
-  managers = identityService.findAllManagers(applicantIdentifier);
+  managers = identityService.findAllManagers(applicantIdentifier, null, true);
   if(managers.isEmpty()){
     managers.add(identityService.getByUsername("admin"));
   }

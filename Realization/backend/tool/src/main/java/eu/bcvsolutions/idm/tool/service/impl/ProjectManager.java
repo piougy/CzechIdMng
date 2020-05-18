@@ -22,6 +22,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Maps;
 
 import eu.bcvsolutions.idm.core.api.utils.ZipUtils;
@@ -43,6 +44,12 @@ public class ProjectManager {
 	private String nodeHome;
 	//
 	private MavenManager mavenManager;
+	private ObjectMapper mapper;
+	
+	public ProjectManager() {
+		mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+	}
 	
 	public void init() {
 		this.mavenManager = new MavenManager(mavenHome);
@@ -238,17 +245,13 @@ public class ProjectManager {
 			//
 			// build FE - create new maven task and build
 			LOG.info("Compile frontend application, this can take several minutes ...");
-			FileUtils.copyInputStreamToFile(
-					new ClassPathResource("eu/bcvsolutions/idm/build/fe-pom.xml").getInputStream(),
-					new File(targetFolder, "pom.xml"));
+			prepareFrontendMavenProject(extractedFrontendFolder, targetFolder);
 			mavenManager.command(targetFolder, "clean", "package", String.format("-Dnode.home=%s", nodeHome));
 			LOG.info("Frontend successfully compiled.");
 			//
 			// create new idm.war
 			LOG.info("Build backend application with frontend included ...");
-			FileUtils.copyInputStreamToFile(
-					new ClassPathResource("eu/bcvsolutions/idm/build/war-pom.xml").getInputStream(),
-					new File(targetFolder, "pom.xml"));
+			prepareBackendMavenProject(targetFolder);
 			mavenManager.command(
 					targetFolder, 
 					"clean", 
@@ -296,5 +299,36 @@ public class ProjectManager {
 			//
 			return manifest.getMainAttributes().getValue("Implementation-Version");
 		}
+	}
+	
+	/**
+	 * FE - resolve node version used for build -> Node version 12 required additional package.json configuration
+	 * => Node version 10 will be used as fallback (product <= 10.3.x and LTS can be build).
+	 * 
+	 * @param extractedFrontendFolder
+	 */
+	private void prepareFrontendMavenProject(File extractedFrontendFolder, File targetFolder) throws IOException {
+		String frontendMavenProject = "eu/bcvsolutions/idm/build/fe-pom.xml";
+		File appModulePackage = new File(extractedFrontendFolder, "package.json");
+		
+		try (InputStream is = new FileInputStream(appModulePackage)) {
+			JsonNode json = mapper.readTree(IOUtils.toString(is, AttachableEntity.DEFAULT_CHARSET));
+			//
+			if (json.get("resolutions") == null) {
+				LOG.warn("Frontend product will be built under old Node version 10. "
+						+ "Node version 12 is availble for CzechIdM >= 10.4.0.");
+				frontendMavenProject = "eu/bcvsolutions/idm/build/fe-pom-node-10.xml";
+			}
+		}
+		//
+		FileUtils.copyInputStreamToFile(
+				new ClassPathResource(frontendMavenProject).getInputStream(),
+				new File(targetFolder, "pom.xml"));
+	}
+	
+	private void prepareBackendMavenProject(File targetFolder) throws IOException {
+		FileUtils.copyInputStreamToFile(
+				new ClassPathResource("eu/bcvsolutions/idm/build/war-pom.xml").getInputStream(),
+				new File(targetFolder, "pom.xml"));
 	}
 }

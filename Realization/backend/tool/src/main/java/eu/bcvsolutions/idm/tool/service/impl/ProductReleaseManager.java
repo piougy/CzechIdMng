@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * - deploy into nexus
  * - https://stackoverflow.com/questions/20496084/git-status-ignore-line-endings-identical-files-windows-linux-environment
  *
- * Manager is not thread safe, construct new manager before every usage.
+ * Manager is not thread safe, construct new manager before every usage or use a synchronized block.
  *
  * @author Radek Tomiška
  *

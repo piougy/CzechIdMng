@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * IdentityGuaranteesForRoleFilter test
  * 
  * @author Radek Tomiška
+ * @author Vít Švanda
  *
  */
 @Transactional
@@ -48,7 +49,132 @@ public class IdentityGuaranteesForRoleFilterIntegrationTest extends AbstractInte
 		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityOne.getId())));
 		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityThree.getId())));
 	}
-	
+
+	@Test
+	public void testFindWithGuaranteeType() {
+		// prepare data
+		String guaranteeType = getHelper().createName();
+
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityThree = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleDto roleGuarantee = getHelper().createRole();
+		getHelper().createRoleGuarantee(role, identityOne, guaranteeType);
+		getHelper().createRoleGuaranteeRole(role, roleGuarantee, guaranteeType);
+		getHelper().createIdentityRole(identityThree, roleGuarantee);
+		getHelper().createIdentityRole(identityTwo, role);
+		//
+		IdmIdentityFilter dataFilter = new IdmIdentityFilter();
+		dataFilter.setGuaranteesForRole(role.getId());
+		List<IdmIdentity> identities = filter.find(dataFilter, null).getContent();
+		//
+		Assert.assertEquals(2, identities.size());
+		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityOne.getId())));
+		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityThree.getId())));
+	}
+
+	@Test
+	public void testFindGuaranteesByTypeInRole() {
+		// prepare data
+		String guaranteeType = getHelper().createName();
+
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityThree = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleDto roleGuarantee = getHelper().createRole();
+		getHelper().createRoleGuarantee(role, identityOne, guaranteeType);
+		getHelper().createRoleGuaranteeRole(role, roleGuarantee);
+		getHelper().createIdentityRole(identityThree, roleGuarantee);
+		getHelper().createIdentityRole(identityTwo, role);
+		//
+		IdmIdentityFilter dataFilter = new IdmIdentityFilter();
+		dataFilter.setGuaranteesForRole(role.getId());
+		dataFilter.setGuaranteeType(guaranteeType);
+
+		List<IdmIdentity> identities = filter.find(dataFilter, null).getContent();
+		//
+		Assert.assertEquals(1, identities.size());
+		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityOne.getId())));
+	}
+
+	@Test
+	public void testFindGuaranteesByTypeInIdentity() {
+		// prepare data
+		String guaranteeType = getHelper().createName();
+
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityThree = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleDto roleGuarantee = getHelper().createRole();
+		getHelper().createRoleGuarantee(role, identityOne);
+		getHelper().createRoleGuaranteeRole(role, roleGuarantee, guaranteeType);
+		getHelper().createIdentityRole(identityThree, roleGuarantee);
+		getHelper().createIdentityRole(identityTwo, role);
+		//
+		IdmIdentityFilter dataFilter = new IdmIdentityFilter();
+		dataFilter.setGuaranteesForRole(role.getId());
+		dataFilter.setGuaranteeType(guaranteeType);
+
+		List<IdmIdentity> identities = filter.find(dataFilter, null).getContent();
+		//
+		Assert.assertEquals(1, identities.size());
+		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityThree.getId())));
+	}
+
+	@Test
+	public void testFindGuaranteesByTypeInIdentityAndRole() {
+		// prepare data
+		String guaranteeType = getHelper().createName();
+
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityThree = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleDto roleGuarantee = getHelper().createRole();
+		getHelper().createRoleGuarantee(role, identityOne, guaranteeType);
+		getHelper().createRoleGuaranteeRole(role, roleGuarantee, guaranteeType);
+		getHelper().createIdentityRole(identityThree, roleGuarantee);
+		getHelper().createIdentityRole(identityTwo, role);
+		//
+		IdmIdentityFilter dataFilter = new IdmIdentityFilter();
+		dataFilter.setGuaranteesForRole(role.getId());
+		dataFilter.setGuaranteeType(guaranteeType);
+
+		List<IdmIdentity> identities = filter.find(dataFilter, null).getContent();
+		//
+		Assert.assertEquals(2, identities.size());
+		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityOne.getId())));
+		Assert.assertTrue(identities.stream().anyMatch(i -> i.getId().equals(identityThree.getId())));
+	}
+
+	@Test
+	public void testFindGuaranteesByWrongTypeInIdentityAndRole() {
+		// prepare data
+		String guaranteeType = getHelper().createName();
+
+		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto identityThree = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleDto roleGuarantee = getHelper().createRole();
+		getHelper().createRoleGuarantee(role, identityOne, guaranteeType);
+		getHelper().createRoleGuaranteeRole(role, roleGuarantee, guaranteeType);
+		getHelper().createIdentityRole(identityThree, roleGuarantee);
+		getHelper().createIdentityRole(identityTwo, role);
+		//
+		IdmIdentityFilter dataFilter = new IdmIdentityFilter();
+		dataFilter.setGuaranteesForRole(role.getId());
+		// Set no exists guarantee type
+		dataFilter.setGuaranteeType(getHelper().createName());
+
+		List<IdmIdentity> identities = filter.find(dataFilter, null).getContent();
+		//
+		Assert.assertEquals(0, identities.size());
+	}
+
 	@Test
 	public void testFindByServiceAlias() {
 		// prepare data

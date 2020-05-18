@@ -8,9 +8,15 @@ import org.apache.commons.lang3.StringUtils;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 
+/**
+ * Authorization policy dto / entity.
+ * 
+ * @author Radek Tomiška
+ *
+ */
 public interface AuthorizationPolicy extends Identifiable {
 	
-	static final String PERMISSION_SEPARATOR = ",";
+	String PERMISSION_SEPARATOR = ",";
 	
 	/**
 	 * Policy for group (agenda)

@@ -659,7 +659,14 @@
       "tab": "Systems",
       "title": "Systems utilizing this policy"
     }
-  }
+  },
+   "monitoring": {
+     "type": {
+       "monitoring-sync": {
+         "name": "Status of all active synchronizations"
+         }
+       }
+     }
   },
   "entity": {
     "System": {
@@ -711,6 +718,12 @@
         "active": {
           "label": "System is <strong>active</strong>"
         }
+      },
+      "systemType": {
+        "label": "System type",
+        "virtual": "Virtual only",
+        "notVirtual": "Except virtual",
+        "all": "All systems"
       }
     },
     "ConnectorServer": {
@@ -2540,6 +2553,10 @@
     "SYSTEM_MAPPING_DELETE_BULK_ACTION_MAPPING_IN_USE": {
       "message": "Mapping <strong>{{mapping}}</strong> is used in <strong class=\"highlight\">{{count}}</strong> synchronization or provisioning settings!",
       "title": ""
+    },
+    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
+      "title": "Transformation script failed",
+      "message": "Transformation script failed because of: [{{origMessage}}] IdM location: [{{idmPath}}] Script location: [{{scriptPath}}]."
     },
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Password transformation for uid {{uid}} doesn't return GuardedString or null. Mapped attribute name {{mappedAttribute}}.",

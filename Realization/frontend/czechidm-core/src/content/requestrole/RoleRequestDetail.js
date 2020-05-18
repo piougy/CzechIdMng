@@ -73,8 +73,17 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
         }
       });
     } else {
-      this.context.store.dispatch(roleRequestManager.fetchEntity(_entityId));
-      this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(_entityId, `${ uiKeyIncompatibleRoles }${ _entityId }`));
+      this.context.store.dispatch(roleRequestManager.fetchEntity(_entityId, null, (entity, error) => {
+        if (error) {
+          this.setState({
+            errorOccurred: true
+          }, () => {
+            this.addError(error);
+          });
+        } else {
+          this.context.store.dispatch(roleRequestManager.fetchIncompatibleRoles(_entityId, `${ uiKeyIncompatibleRoles }${ _entityId }`));
+        }
+      }));
     }
   }
 
@@ -291,6 +300,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
       canExecute,
       showEnvironment
     } = this.props;
+    const {errorOccurred} = this.state;
     //
     const isNew = this._getIsNew();
     let request = isNew ? this.state.request : _request;
@@ -305,7 +315,11 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
     // We want show audit fields only for Admin, but not in concept state.
     const hasAdminRights = Utils.Permission.hasPermission(_permissions, 'ADMIN');
     const _adminMode = hasAdminRights && request.state !== RoleRequestStateEnum.findKeyBySymbol(RoleRequestStateEnum.CONCEPT);
-    const showLoading = !request || (_showLoading && !isNew) || this.state.showLoading || this.props.showLoading;
+    let showLoading = !request || (_showLoading && !isNew) || this.state.showLoading || this.props.showLoading;
+    // If some error occurred, then we want to hide the show loading.
+    if (errorOccurred) {
+      showLoading = false;
+    }
     const isEditable = request && _.includes(editableInStates, request.state);
     const canExecuteTheRequest = isEditable && _.includes(['CONCEPT', 'EXCEPTION'], request.state);
     const systemStateLog = request && request.systemState ? request.systemState.stackTrace : null;
@@ -319,7 +333,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
             <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
           </Basic.ContentHeader>
           <Basic.PanelBody>
-            <Basic.Loading show isStatic style={{marginTop: '300px', marginBottom: '300px'}} />
+            <Basic.Loading show={!errorOccurred} isStatic style={{marginTop: '300px', marginBottom: '300px'}} />
           </Basic.PanelBody>
         </div>);
     }
@@ -387,6 +401,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
                 label={this.i18n('entity.RoleRequest.wfProcessId')}>
                 <Advanced.WorkflowProcessInfo
                   entityIdentifier={ request.wfProcessId }
+                  maxLength={100}
                   entity={ request._embedded ? request._embedded.wfProcessId : null }/>
               </Basic.LabelWrapper>
               <Basic.TextField

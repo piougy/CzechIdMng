@@ -1,6 +1,4 @@
-
-
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
  * OperationType for audit operation etc.

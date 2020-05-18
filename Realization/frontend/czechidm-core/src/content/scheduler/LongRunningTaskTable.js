@@ -170,7 +170,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
           ref="table"
           uiKey={ this.getUiKey() }
           manager={ this.getManager() }
-          showRowSelection={ showRowSelection && SecurityManager.hasAnyAuthority(['SCHEDULER_UPDATE', 'SCHEDULER_EXECUTE']) }
+          showRowSelection={ showRowSelection }
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">

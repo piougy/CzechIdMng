@@ -186,6 +186,22 @@
           }
         }
       }
+    },
+    "form-projection": {
+      "example": {
+        "label": "Ukázkový uživatel",
+        "help": "Založit uživatele prostřednictvím ukázkové projekce",
+        "icon": "fa:user-plus",
+        "level": "info"
+      }
+    },
+    "form-projection-route": {
+      "example-form-identity-projection": {
+        "help": "Ukázka projekce pro založení a editaci uživatele pouze se zadáním uživaleského jména."
+      },
+      "example-form-combined-identity-projection": {
+        "help": "Ukázka projekce pro založení uživatele pouze se zadáným uživaleským jménem a plnou editací."
+      }
     }
   },
   "error": {

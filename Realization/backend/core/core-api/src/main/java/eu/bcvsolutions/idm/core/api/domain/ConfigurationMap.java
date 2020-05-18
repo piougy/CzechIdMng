@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import org.quartz.JobDataMap;
 
-import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Common configuration properties.
@@ -21,7 +21,6 @@ public class ConfigurationMap extends JobDataMap {
 
 	private static final long serialVersionUID = 7431983283346202466L;
 
-	
 	public ConfigurationMap() {
 	}
 	
@@ -37,7 +36,7 @@ public class ConfigurationMap extends JobDataMap {
      * @throws ClassCastException if the identified object is not an UUID.
      */
 	public UUID getUuid(String key) {
-        return EntityUtils.toUuid(get(key));
+        return DtoUtils.toUuid(get(key));
     }
 	
 	/**

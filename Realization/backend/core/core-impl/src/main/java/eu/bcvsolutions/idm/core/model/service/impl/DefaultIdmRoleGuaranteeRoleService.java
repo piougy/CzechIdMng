@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -91,6 +92,11 @@ public class DefaultIdmRoleGuaranteeRoleService
 			predicates.add(builder.equal(root.get(IdmRoleGuaranteeRole_.guaranteeRole).get(IdmRole_.id), guaranteeRole));
 		}		
 		//
+		// type
+		String type = filter.getType();
+		if (StringUtils.isNotEmpty(type)) {
+			predicates.add(builder.equal(root.get(IdmRoleGuaranteeRole_.type), type));
+		}	
 		return predicates;
 	}
 }

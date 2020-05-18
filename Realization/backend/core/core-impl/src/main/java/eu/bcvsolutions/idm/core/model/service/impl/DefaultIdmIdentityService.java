@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -159,14 +160,17 @@ public class DefaultIdmIdentityService
 		String text = filter.getText();
 		if (StringUtils.isNotEmpty(text)) {
 			text = text.toLowerCase();
-			predicates.add(builder.or(
-					builder.like(builder.lower(root.get(IdmIdentity_.username)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.firstName)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.lastName)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.email)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + text + "%"),
-					builder.like(builder.lower(root.get(IdmIdentity_.externalCode)), "%" + text + "%")
-					));
+			List<Predicate> textPredicates = new ArrayList<>(7);
+			//
+			RepositoryUtils.appendUuidIdentifierPredicate(textPredicates, root, builder, text);
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.username)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.firstName)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.lastName)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.email)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.description)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmIdentity_.externalCode)), "%" + text + "%"));
+			//
+			predicates.add(builder.or(textPredicates.toArray(new Predicate[textPredicates.size()])));
 		}
 		// Identity first name
 		if (StringUtils.isNotEmpty(filter.getFirstName())) {
@@ -385,34 +389,27 @@ public class DefaultIdmIdentityService
 		return toDtoPage(getRepository().findAll(criteria, pageable));
 	}
 
-
-	/**
-	 * Method find all managers by identity contract and return manager's
-	 * 
-	 * @param forIdentity
-	 * @return String - usernames separate by commas
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllManagers(UUID forIdentity) {
 		return this.findAllManagers(forIdentity, null);
 	}
-
-	/**
-	 * Method finds all identity's managers by identity contract (guarantee or by assigned tree structure).
-	 * 
-	 * @param forIdentity
-	 * @param byTreeType If optional tree type is given, then only managers defined with this type is returned
-	 * @return
-	 */
+	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityDto> findAllManagers(UUID forIdentity, UUID byTreeType) {
+		return this.findAllManagers(forIdentity, byTreeType, null);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentityDto> findAllManagers(UUID forIdentity, UUID byTreeType, Boolean validContractManagers) {
 		Assert.notNull(forIdentity, "Identity id is required.");
 		//		
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setManagersFor(forIdentity);
 		filter.setManagersByTreeType(byTreeType);
+		filter.setValidContractManagers(validContractManagers);
 		//
 		List<IdmIdentityDto> results = new ArrayList<>();
 		Page<IdmIdentityDto> managers = find(filter, PageRequest.of(0, 50, Sort.Direction.ASC, IdmIdentity_.username.getName()));
@@ -494,7 +491,12 @@ public class DefaultIdmIdentityService
 					IdmIdentity_.state.getName(), identity.getState()));
 		}
 		identity.setState(evaluateState(identity));
-		return save(identity, permission);
+		//
+		// enable identity is important operation => HIGH priority by default
+		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
+		event.setPriority(PriorityType.HIGH);
+		//
+		return publish(event, permission).getContent();
 	}
 	
 	@Override
@@ -513,7 +515,12 @@ public class DefaultIdmIdentityService
 			
 		}
 		identity.setState(IdentityState.DISABLED_MANUALLY);
-		return save(identity, permission);
+		//
+		// disable identity is important operation => HIGH priority by default
+		IdentityEvent event = new IdentityEvent(IdentityEventType.UPDATE, identity);
+		event.setPriority(PriorityType.HIGH);
+		//
+		return publish(event, permission).getContent();
 	}
 	
 	@Override

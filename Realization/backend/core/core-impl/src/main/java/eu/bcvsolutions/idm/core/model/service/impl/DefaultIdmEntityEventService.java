@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +12,6 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityStateService;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent;
 import eu.bcvsolutions.idm.core.model.entity.IdmEntityEvent_;
 import eu.bcvsolutions.idm.core.model.repository.IdmEntityEventRepository;
@@ -161,14 +161,9 @@ public class DefaultIdmEntityEventService
 			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityEvent_.ownerId).as(String.class)), "%" + text + "%"));
 			textPredicates.add(builder.like(builder.lower(root.get(IdmEntityEvent_.id).as(String.class)), "%" + text + "%"));
 			// try to add filter by uuid
-			try {
-				UUID uuid = DtoUtils.toUuid(text);
-				//
-				textPredicates.add(builder.equal(root.get(IdmEntityEvent_.ownerId), uuid));
-				textPredicates.add(builder.equal(root.get(IdmEntityEvent_.id), uuid));
-			} catch (ClassCastException ex) {
-				LOG.trace("Given text filter [{}] is not UUID, like filter will be applied only.", text);
-			}
+			RepositoryUtils.appendUuidIdentifierPredicate(textPredicates, root, builder, text);
+			RepositoryUtils.appendUuidPredicate(textPredicates, root.get(IdmEntityEvent_.ownerId), builder, text);
+			//
 			predicates.add(builder.or(textPredicates.toArray(new Predicate[textPredicates.size()])));
 		}
 		// owner type

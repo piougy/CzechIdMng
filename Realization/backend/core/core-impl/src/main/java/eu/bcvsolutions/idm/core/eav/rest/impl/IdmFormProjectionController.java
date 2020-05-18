@@ -29,8 +29,10 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.eav.api.dto.FormProjectionRouteDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormProjectionFilter;
+import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionManager;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import io.swagger.annotations.Api;
@@ -55,6 +57,8 @@ import io.swagger.annotations.AuthorizationScope;
 public class IdmFormProjectionController extends AbstractReadWriteDtoController<IdmFormProjectionDto, IdmFormProjectionFilter>  {
 
 	protected static final String TAG = "Form projections";
+	//
+	@Autowired private FormProjectionManager projectionManager;
 	
 	@Autowired
 	public IdmFormProjectionController(IdmFormProjectionService service) {
@@ -94,6 +98,7 @@ public class IdmFormProjectionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "") })
 				})
+	@Override
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
@@ -265,6 +270,29 @@ public class IdmFormProjectionController extends AbstractReadWriteDtoController<
 		return super.getPermissions(backendId);
 	}
 	
+	/**
+	 * Returns all registered routes.
+	 * 
+	 * @return routes
+	 * @since 10.3.0
+	 */
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET, value = "/search/supported")
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_PROJECTION_READ + "')")
+	@ApiOperation(
+			value = "Get all supported routes", 
+			nickname = "getSupportedFormProjectionRoutes", 
+			tags = { IdmFormProjectionController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "") })
+				})
+	public Resources<FormProjectionRouteDto> getSupportedRoutes() {
+		return new Resources<>(projectionManager.getSupportedRoutes());
+	}
+	
 	@ResponseBody
 	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.FORM_PROJECTION_READ + "')")
@@ -278,6 +306,7 @@ public class IdmFormProjectionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "") })
 				})
+	@Override
 	public List<IdmBulkActionDto> getAvailableBulkActions() {
 		return super.getAvailableBulkActions();
 	}
@@ -296,6 +325,7 @@ public class IdmFormProjectionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "")})
 				})
+	@Override
 	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.bulkAction(bulkAction);
 	}
@@ -314,6 +344,7 @@ public class IdmFormProjectionController extends AbstractReadWriteDtoController<
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.FORM_PROJECTION_READ, description = "")})
 				})
+	@Override
 	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
 		return super.prevalidateBulkAction(bulkAction);
 	}

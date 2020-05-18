@@ -1,42 +1,9 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.beans.IntrospectionException;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.text.MessageFormat;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.delegate.VariableScope;
-import org.activiti.engine.runtime.ProcessInstance;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.config.domain.ProvisioningConfiguration;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
@@ -99,6 +66,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -107,6 +75,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
@@ -133,14 +102,43 @@ import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
 import eu.bcvsolutions.idm.ic.impl.IcSyncTokenImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
+import java.beans.IntrospectionException;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.delegate.VariableScope;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Abstract executor for do synchronization and reconciliation
  *
  * @author svandav
+ * @param <DTO>
  *
  */
-
 public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		implements SynchronizationEntityExecutor {
 
@@ -300,7 +298,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		} finally {
 			log.setRunning(false);
 			log.setEnded(ZonedDateTime.now());
-			log = synchronizationLogService.save(log);
+			synchronizationLogService.save(log);
 			//
 			longRunningTaskExecutor.setCount(longRunningTaskExecutor.getCounter());
 			longRunningTaskExecutor.updateState();
@@ -312,9 +310,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Method called after sync started.
-	 * 
+	 *
 	 * @param log
 	 * @param context
+	 * @return
 	 */
 	protected SysSyncLogDto syncStarted(SysSyncLogDto log, SynchronizationContext context) {
 		log.addToLog(MessageFormat.format("Synchronization was started in [{0}].", log.getStarted()));
@@ -326,6 +325,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 *
 	 * @param log
 	 * @param context
+	 * @return
 	 */
 	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
 		log.addToLog(MessageFormat.format("Synchronization was correctly ended in [{0}].", ZonedDateTime.now()));
@@ -451,7 +451,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param context
 	 * @param systemEntity
 	 * @param icAttributes
-	 * @return
 	 */
 	protected void resolveAccountNotExistSituation(SynchronizationContext context, SysSystemEntityDto systemEntity,
 			List<IcAttribute> icAttributes) {
@@ -533,7 +532,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		// order of returned (searched) objects is random. We
 		// have to do !!STRING!! compare and save only
 		// grater token to config and log.
-
 		if (token != null && config.getToken() != null && token.compareTo(config.getToken()) <= -1) {
 			token = config.getToken();
 		}
@@ -578,8 +576,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			// Do synchronization for one item (produces item)
 			// Start in new Transaction
-
-			CoreEvent<SysSyncItemLogDto> event = new CoreEvent<SysSyncItemLogDto>(SynchronizationEventType.START_ITEM,
+			CoreEvent<SysSyncItemLogDto> event = new CoreEvent<>(SynchronizationEventType.START_ITEM,
 					itemLog);
 			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemContext);
 			EventResult<SysSyncItemLogDto> lastResult = entityEventManager.process(event).getLastResult();
@@ -605,7 +602,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			}
 			return true;
 		} finally {
-			config = synchronizationConfigService.save(config);
+			synchronizationConfigService.save(config);
 			boolean existingItemLog = existItemLogInActions(actionsLog, itemLog);
 			actionsLog = saveActionLogs(actionsLog, log.getId());
 			//
@@ -613,7 +610,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID [{0}]!", uid));
 				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);
-				itemLog = syncItemLogService.save(itemLog);
+				syncItemLogService.save(itemLog);
 			}
 		}
 	}
@@ -661,7 +658,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 							.addEntityType(entityType).addAccount(account).addLog(log).addLogItem(itemLog)
 							.addActionLogs(actionsLog);
 
-					CoreEvent<SysSyncItemLogDto> event = new CoreEvent<SysSyncItemLogDto>(
+					CoreEvent<SysSyncItemLogDto> event = new CoreEvent<>(
 							SynchronizationEventType.START_ITEM, itemLog);
 					event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, builder);
 					EventResult<SysSyncItemLogDto> lastResult = entityEventManager.process(event).getLastResult();
@@ -690,7 +687,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 						addToItemLog(itemLog, MessageFormat.format("Missing action log for UID [{0}]!", uid));
 						initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 								actionsLog);
-						itemLog = syncItemLogService.save(itemLog);
+						syncItemLogService.save(itemLog);
 					}
 				}
 			}
@@ -734,7 +731,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 			// Do export for one item (produces event)
 			// Start in new Transaction
-
 			context.addUid(uid) //
 					.addConfig(config) //
 					.addSystem(system) //
@@ -744,7 +740,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 					.addActionLogs(actionsLog) //
 					.addExportAction(true);
 
-			CoreEvent<SysSyncItemLogDto> event = new CoreEvent<SysSyncItemLogDto>(SynchronizationEventType.START_ITEM,
+			CoreEvent<SysSyncItemLogDto> event = new CoreEvent<>(SynchronizationEventType.START_ITEM,
 					itemLog);
 			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, context);
 			EventResult<SysSyncItemLogDto> lastResult = entityEventManager.process(event).getLastResult();
@@ -764,7 +760,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			log.addToLog(Throwables.getStackTraceAsString(ex));
 			LOG.error(message, ex);
 		} finally {
-			config = synchronizationConfigService.save(config);
+			synchronizationConfigService.save(config);
 			boolean existingItemLog = existItemLogInActions(actionsLog, itemLog);
 			actionsLog = (List<SysSyncActionLogDto>) syncActionLogService.saveAll(actionsLog);
 			//
@@ -772,7 +768,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				addToItemLog(itemLog, MessageFormat.format("Missing action log for entity [{0}]!", entity.getId()));
 				initSyncActionLog(SynchronizationActionType.UNKNOWN, OperationResultType.ERROR, itemLog, log,
 						actionsLog);
-				itemLog = syncItemLogService.save(itemLog);
+				syncItemLogService.save(itemLog);
 			}
 		}
 	}
@@ -936,6 +932,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Method for resolve linked situation for one item.
+	 *
+	 * @param action
+	 * @param context
 	 */
 	@Override
 	public void resolveLinkedSituation(SynchronizationLinkedActionType action, SynchronizationContext context) {
@@ -991,7 +990,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			doUpdateAccount(account, entityType, log, logItem, actionLogs);
 			initSyncActionLog(SynchronizationActionType.UPDATE_ACCOUNT, OperationResultType.SUCCESS, logItem, log,
 					actionLogs);
-			return;
 		default:
 			break;
 		}
@@ -999,6 +997,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Method for resolve missing entity situation for one item.
+	 *
+	 * @param actionType
+	 * @param context
 	 */
 	@Override
 	public void resolveMissingEntitySituation(SynchronizationMissingEntityActionType actionType,
@@ -1049,12 +1050,14 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			doCreateEntity(entityType, mappedAttributes, logItem, uid, icAttributes, account, context);
 			initSyncActionLog(SynchronizationActionType.CREATE_ENTITY, OperationResultType.SUCCESS, logItem, log,
 					actionLogs);
-			return;
 		}
 	}
 
 	/**
 	 * Method for resolve unlinked situation for one item.
+	 *
+	 * @param action
+	 * @param context
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1101,13 +1104,15 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			doCreateLink(entity, true, context);
 			initSyncActionLog(SynchronizationActionType.LINK_AND_UPDATE_ENTITY, OperationResultType.SUCCESS, logItem,
 					log, actionLogs);
-			return;
 
 		}
 	}
 
 	/**
 	 * Method for resolve missing account situation for one item.
+	 *
+	 * @param action
+	 * @param context
 	 */
 	@Override
 	public void resolveMissingAccountSituation(ReconciliationMissingAccountActionType action,
@@ -1146,7 +1151,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			doUnlink(account, true, log, logItem, actionLogs);
 			initSyncActionLog(SynchronizationActionType.UNLINK_AND_REMOVE_ROLE, OperationResultType.SUCCESS, logItem,
 					log, actionLogs);
-			return;
 
 		}
 	}
@@ -1187,10 +1191,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @return
 	 */
 	protected boolean isProvisioningImplemented(SystemEntityType entityType, SysSyncItemLogDto logItem) {
-		if (entityType != null && entityType.isSupportsProvisioning()) {
-			return true;
-		}
-		return false;
+		return entityType != null && entityType.isSupportsProvisioning();
 
 	}
 
@@ -1339,12 +1340,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			}
 			// Add updated entity to the context
 			context.addEntityDto(entity);
-			return;
 		} else {
 			addToItemLog(logItem, "Warning! - Entity-account relation (with ownership = true) was not found!");
 			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 					actionLogs);
-			return;
 		}
 	}
 
@@ -1378,7 +1377,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * Operation remove entity account relations and linked roles
 	 *
 	 * @param account
-	 * @param removeIdentityRole
+	 * @param removeRoleRole
 	 * @param log
 	 * @param logItem
 	 * @param actionLogs
@@ -1408,7 +1407,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 							entityAccount.getEntity(), entityAccount.getId()));
 
 		});
-		return;
 	}
 
 	/**
@@ -1427,16 +1425,25 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				synchronizationActionType, uid);
 		log.setContainsError(true);
 		logItem.setMessage(message);
-		addToItemLog(logItem, Throwables.getStackTraceAsString(e));
+		// prefer IdM exception on the top
+		Throwable ex = e;
+		if (!(e instanceof CoreException)) {
+			Throwable idmEx = ExceptionUtils.resolveException(e);
+			if (idmEx != e) {
+				addToItemLog(logItem, Throwables.getStackTraceAsString(idmEx));
+				ex = idmEx;
+			}
+		} else {
+			addToItemLog(logItem, Throwables.getStackTraceAsString(e));
+		}
 		initSyncActionLog(synchronizationActionType, OperationResultType.ERROR, logItem, log, actionLogs);
-		LOG.error(message, e);
+		LOG.error(message, ex);
 	}
 
 	/**
 	 * Find entity by correlation attribute
 	 *
 	 * @param attribute
-	 * @param entityType
 	 * @param icAttributes
 	 * @param context
 	 * @return
@@ -1482,6 +1489,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Return specific correlation filter
 	 *
+	 * @param context
 	 * @return
 	 */
 	protected abstract CorrelationFilter getEntityFilter(SynchronizationContext context);
@@ -1552,8 +1560,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param mappedAttributes
 	 * @param uid
 	 * @param icAttributes
-	 * @param entity
-	 * @param create           (is create or update entity situation)
+	 * @param dto
+	 * @param create (is create or update entity situation)
 	 * @param context
 	 * @return
 	 */
@@ -1584,7 +1592,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	/**
 	 * Set attribute's value to the entity with check difference between old and new
 	 * value.
-	 * 
+	 *
 	 * @param uid
 	 * @param dto
 	 * @param context
@@ -1626,7 +1634,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param uid
 	 * @param icAttributes
 	 * @param dto
-	 * @param create           (is create or update entity situation)
+	 * @param create (is create or update entity situation)
 	 * @param context
 	 * @return
 	 */
@@ -1666,7 +1674,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 						ImmutableMap.of("uid", uid, "message", message));
 			}
 
-			List<Serializable> values = null;
+			List<Serializable> values;
 			if (transformedValue instanceof List<?>) {
 				// TODO: Convert List GuardedStrings to Strings!
 				((List<?>) transformedValue).stream().forEach(value -> {
@@ -1720,15 +1728,15 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * @deprecated since 10.1.0
-	 * 
-	 *             Update confidential attribute for given entity. Entity must be
-	 *             persisted first.
+	 *
+	 * Update confidential attribute for given entity. Entity must be persisted
+	 * first.
 	 *
 	 * @param mappedAttributes
 	 * @param uid
 	 * @param icAttributes
 	 * @param dto
-	 * @param create           (is create or update entity situation)
+	 * @param create (is create or update entity situation)
 	 * @param context
 	 * @return
 	 */
@@ -1768,7 +1776,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param uid
 	 * @param attribute
 	 * @param dto
-	 * @param create    (create or update entity situation)
+	 * @param create (create or update entity situation)
 	 * @return
 	 */
 	protected boolean canSetValue(String uid, SysSystemAttributeMappingDto attribute, DTO dto, boolean create) {
@@ -1784,7 +1792,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		case WRITE_IF_NULL: {
 			Object value = systemAttributeMappingService.getAttributeValue(uid, dto, attribute);
-			return value == null ? true : false;
+			return value == null;
 		}
 		default: {
 			return false;
@@ -1825,7 +1833,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 	/**
 	 * Are input EAV values same
-	 * 
+	 *
 	 * @param newValues
 	 * @param previousValues
 	 * @return
@@ -1843,20 +1851,30 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			previousValues = Lists.newArrayList();
 		}
 
-		if (newValues.size() == 0 && previousValues.size() == 0) {
+		if (newValues != null && newValues.isEmpty() && previousValues != null && previousValues.isEmpty()) {
 			return true;
 		}
 
-		if (newValues.size() != previousValues.size()) {
+		if (newValues != null && previousValues != null && newValues.size() != previousValues.size()) {
 			return false;
 		}
 
 		final List<IdmFormValueDto> previousValuesFinal = previousValues;
-		long countOfChangedValues = newValues.stream().filter(value -> {
-			return previousValuesFinal.stream().filter(previousValue -> {
-				return previousValue.isEquals(value);
-			}).count() == 0;
-		}).count();
+		if (newValues == null) {
+			return false;
+		}
+		if (previousValuesFinal == null) {
+			return false;
+		}
+		long countOfChangedValues = newValues.stream()
+				.filter(value -> {
+					return previousValuesFinal.stream()
+							.filter(previousValue -> {
+								return previousValue.isEquals(value);
+							})
+							.count() == 0;
+				})
+				.count();
 
 		return countOfChangedValues == 0;
 	}
@@ -1895,10 +1913,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			accountFilter.setSystemEntityId(null);
 			accounts = accountService.find(accountFilter, null).getContent();
 		}
-		if (accounts.size() > 1) {
+		if (accounts != null && accounts.size() > 1) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT, uid);
 		}
-		if (!accounts.isEmpty()) {
+		if (accounts != null && !accounts.isEmpty()) {
 			return accounts.get(0);
 		}
 		return null;
@@ -1967,7 +1985,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 *
 	 * @param systemEntity The system entity which will be processed
 	 * @param existingLink If the link (AccAccount) already exists for this system
-	 *                     entity
+	 * entity
 	 * @param context
 	 * @return Updated system entity
 	 */
@@ -1983,9 +2001,9 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		if (existingLink && !provisioningConfiguration.isAllowedAutoMappingOnExistingAccount()) {
 			addToItemLog(logItem, MessageFormat.format(
 					"WARNING: Existing system entity ({0}) has the flag Wish, which means it was neither created by IdM nor linked by synchronization. "
-							+ "But account for this entity already exists and it is linked to IdM entity [{1}]."
-							+ "Auto mapping of existing accounts is not allowed by property [{2}]. "
-							+ "We will not remove the flag Wish, because that would effectively complete the auto mapping.",
+					+ "But account for this entity already exists and it is linked to IdM entity [{1}]."
+					+ "Auto mapping of existing accounts is not allowed by property [{2}]. "
+					+ "We will not remove the flag Wish, because that would effectively complete the auto mapping.",
 					systemEntity.getUid(), context.getEntityId(),
 					ProvisioningConfiguration.PROPERTY_ALLOW_AUTO_MAPPING_ON_EXISTING_ACCOUNT));
 			initSyncActionLog(context.getActionType(), OperationResultType.WARNING, logItem, context.getLog(),
@@ -2047,7 +2065,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			}
 
 		}
-		if (processInstance.isEnded()) {
+		if (processInstance != null && processInstance.isEnded()) {
 			addToItemLog(logItem, MessageFormat.format("Workflow (with id [{0}]) for missing entity situation ended.",
 					processInstance.getId()));
 			initSyncActionLog(situation.getAction(), OperationResultType.WF, logItem, log, actionLogs);
@@ -2061,7 +2079,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// If workflow not ended, then the history will be not deleted!
 			addToItemLog(logItem, MessageFormat.format(
 					"Workflow (with id [{0}]) for missing entity situation not ended (will be ended asynchronously).",
-					processInstance.getId()));
+					processInstance != null ? processInstance.getId() : null));
 			initSyncActionLog(situation.getAction(), OperationResultType.WF, logItem, log, actionLogs);
 		}
 	}
@@ -2092,6 +2110,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param logItem
 	 * @param log
 	 * @param actionLogs
+	 * @param interateCount
 	 */
 	protected void initSyncActionLog(SynchronizationActionType actionType, OperationResultType resultType,
 			SysSyncItemLogDto logItem, SysSyncLogDto log, List<SysSyncActionLogDto> actionLogs, boolean interateCount) {
@@ -2105,7 +2124,6 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 
 		// Log is already initialized, but if is new result type ERROR or
 		// WARNING, then have priority
-
 		if (this.existItemLogInActions(actionLogs, logItem)) {
 			if (OperationResultType.ERROR != resultType && OperationResultType.WARNING != resultType) {
 				return;
@@ -2121,10 +2139,12 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				return;
 			}
 		}
-		SysSyncActionLogDto actionLog = null;
-		Optional<SysSyncActionLogDto> optionalActionLog = actionLogs.stream().filter(al -> {
-			return actionType == al.getSyncAction() && resultType == al.getOperationResult();
-		}).findFirst();
+		SysSyncActionLogDto actionLog;
+		Optional<SysSyncActionLogDto> optionalActionLog = actionLogs.stream()
+				.filter(al -> {
+					return actionType == al.getSyncAction() && resultType == al.getOperationResult();
+				})
+				.findFirst();
 		if (optionalActionLog.isPresent()) {
 			actionLog = optionalActionLog.get();
 		} else {
@@ -2164,12 +2184,12 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			return entityAccounts.get(0).getEntity();
 		}
 	}
-	
+
 	@Override
 	public DTO getDtoByAccount(UUID entityId, AccAccountDto account) {
 		if (entityId == null && account != null) {
 			Assert.notNull(account.getId(), "Account ID cannot be null!");
-			
+
 			EntityAccountFilter entityAccountFilter = createEntityAccountFilter();
 			entityAccountFilter.setAccountId(account.getId());
 			entityAccountFilter.setOwnership(Boolean.TRUE);
@@ -2184,7 +2204,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 				if (entityAccountDto instanceof AbstractDto && entityAccountDto.getEntity() != null) {
 					UUID entityIdLocal = entityAccountDto.getEntity();
 					AbstractDto entityAccount = (AbstractDto) entityAccountDto;
-					
+
 					// Try to find target entity in embedded by entityId.
 					BaseDto targetDto = entityAccount.getEmbedded().values()//
 							.stream()//
@@ -2271,7 +2291,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			// Identity account won't be created
 			addToItemLog(logItem, MessageFormat.format(
 					"Link between uid [{0}] and entity [{1}] will not be created due to specific settings of synchronization. "
-							+ "Processing of this item is finished.",
+					+ "Processing of this item is finished.",
 					uid, entityIdentification));
 			return;
 		}
@@ -2302,12 +2322,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
-	 * Apply settings that are specific to this type of entity. Default
+	 * Apply settings that are specific to this type of entity.Default
 	 * implementation does nothing to the account.
-	 * 
+	 *
 	 * @param account
 	 * @param entity
 	 * @param context
+	 * @return
 	 */
 	protected AccAccountDto applySpecificSettingsBeforeLink(AccAccountDto account, DTO entity,
 			SynchronizationContext context) {
@@ -2335,7 +2356,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	protected void doDeleteEntity(AccAccountDto account, SystemEntityType entityType, SysSyncLogDto log,
 			SysSyncItemLogDto logItem, List<SysSyncActionLogDto> actionLogs) {
-		DTO dto =  this.getDtoByAccount(null, account);
+		DTO dto = this.getDtoByAccount(null, account);
 		if (dto == null) {
 			addToItemLog(logItem, MessageFormat.format("Warning! - Entity for account [{0}] was not found!", account.getUid()));
 			initSyncActionLog(SynchronizationActionType.DELETE_ENTITY, OperationResultType.WARNING, logItem, log,
@@ -2406,8 +2427,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	private class DefaultResultHandler implements IcResultsHandler {
 
-		private SynchronizationContext context;
-		private Set<String> systemAccountsList;
+		private final SynchronizationContext context;
+		private final Set<String> systemAccountsList;
 
 		public DefaultResultHandler(final SynchronizationContext context, final Set<String> systemAccountsList) {
 			this.context = context;
@@ -2442,8 +2463,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 */
 	private class DefalutSyncResultHandler implements IcSyncResultsHandler {
 
-		private SynchronizationContext context;
-		private Set<String> systemAccountsList;
+		private final SynchronizationContext context;
+		private final Set<String> systemAccountsList;
 
 		public DefalutSyncResultHandler(final SynchronizationContext context, final Set<String> systemAccountsList) {
 			this.context = context;
@@ -2519,7 +2540,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			addToItemLog(logItem, MessageFormat.format("IdM Account UID [{0}] is different [{1}]. We will update it.",
 					account.getUid(), attributeUid));
 			account.setUid(attributeUid);
-			account = accountService.save(account);
+			accountService.save(account);
 		}
 	}
 
@@ -2537,7 +2558,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		for (SysSyncActionLogDto actionLog : actionsLog) {
 			for (SysSyncItemLogDto item : actionLog.getLogItems()) {
 				if (item.equals(itemLog)) {
-					return new ImmutablePair<SysSyncActionLogDto, SysSyncItemLogDto>(actionLog, item);
+					return new ImmutablePair<>(actionLog, item);
 				}
 			}
 		}
@@ -2553,14 +2574,10 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @return
 	 */
 	private boolean existItemLogInActions(List<SysSyncActionLogDto> actionsLog, SysSyncItemLogDto itemLog) {
-		for (SysSyncActionLogDto actionLog : actionsLog) {
-			for (SysSyncItemLogDto item : actionLog.getLogItems()) {
-				if (item.equals(itemLog)) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return actionsLog.stream()
+				.anyMatch((actionLog) -> (actionLog.getLogItems()
+				.stream()
+				.anyMatch((item) -> (item.equals(itemLog)))));
 	}
 
 	/**

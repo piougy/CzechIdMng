@@ -24,6 +24,7 @@ import {
 } from '../../../redux/config/actions';
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
+import NavigationSearch from './NavigationSearch';
 
 const componentService = new ComponentService();
 const identityManager = new IdentityManager();
@@ -344,12 +345,12 @@ export class Navigation extends Basic.AbstractContent {
         { hidden: environment === 'production'}
       );
       environmentLabel = (
-        <div className="navbar-text hidden-xs" title={ this.i18n(`environment.${ environment }.title`, { defaultValue: environment }) }>
+        <Basic.Div className="navbar-text hidden-xs" title={ this.i18n(`environment.${ environment }.title`, { defaultValue: environment }) }>
           <span className={ environmentClassName }>
             <span className="hidden-sm">{ this.i18n(`environment.${ environment }.label`, { defaultValue: environment }) }</span>
             <span className="visible-sm-inline">{ this.i18n(`environment.${ environment }.short`, { defaultValue: environment }) }</span>
           </span>
-        </div>
+        </Basic.Div>
       );
     }
 
@@ -357,9 +358,9 @@ export class Navigation extends Basic.AbstractContent {
     let flags = null;
     if (supportedLanguages && supportedLanguages.length > 1) {
       flags = (
-        <div className="navbar-text hidden-xs">
-          <div className="flags-container">
-            <div className="flags">
+        <Basic.Div className="navbar-text hidden-xs">
+          <Basic.Div className="flags-container">
+            <Basic.Div className="flags">
               {
                 [...supportedLanguages.map((lng, i) => {
                   const lgnClassName = classnames(
@@ -379,9 +380,9 @@ export class Navigation extends Basic.AbstractContent {
                   );
                 }).values()]
               }
-            </div>
-          </div>
-        </div>
+            </Basic.Div>
+          </Basic.Div>
+        </Basic.Div>
       );
     }
     //
@@ -480,10 +481,10 @@ export class Navigation extends Basic.AbstractContent {
     );
     //
     return (
-      <div>
+      <Basic.Div>
         <header>
           <nav className="navbar navbar-default navbar-static-top" style={{ marginBottom: 0 }}>
-            <div className="navbar-header">
+            <Basic.Div className="navbar-header">
               <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
                 <span className="sr-only">{ this.i18n('navigation.toogle') }</span>
                 <span className="icon-bar"/>
@@ -493,8 +494,8 @@ export class Navigation extends Basic.AbstractContent {
               <Link to="/" title={ this.i18n('navigation.menu.home') } className="home">
                 {' '}
               </Link>
-            </div>
-            <div id="navbar" className="navbar-collapse">
+            </Basic.Div>
+            <Basic.Div id="navbar" className="navbar-collapse">
               {
                 !userContext.isExpired && !SecurityManager.isAuthenticated(userContext)
                 ?
@@ -504,7 +505,10 @@ export class Navigation extends Basic.AbstractContent {
                 :
                 null
               }
-              <div className="navbar-right">
+              <Basic.Div className="navbar-right">
+                <NavigationSearch
+                  className="navbar-form navbar-left"
+                  rendered={ !userContext.isExpired && SecurityManager.isAuthenticated(userContext) }/>
                 { environmentLabel }
                 { flags }
                 <ul className="nav navbar-nav">
@@ -519,22 +523,22 @@ export class Navigation extends Basic.AbstractContent {
                     systemItems
                   }
                 </ul>
-              </div>
-            </div>
+              </Basic.Div>
+            </Basic.Div>
             {
               !userContext.isExpired && SecurityManager.isAuthenticated(userContext)
               ?
-              <div className={sidebarClassName} role="navigation">
-                <div className="sidebar-nav navbar-collapse">
+              <Basic.Div className={sidebarClassName} role="navigation">
+                <Basic.Div className="sidebar-nav navbar-collapse">
                   { sidebarItems }
-                </div>
-              </div>
+                </Basic.Div>
+              </Basic.Div>
               :
               null
             }
           </nav>
         </header>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -573,6 +577,7 @@ function select(state) {
     i18nReady: state.config.get('i18nReady'),
     identity: identityManager.getEntity(state, identifier),
     _imageUrl: profile ? profile.imageUrl : null,
+    searchShowLoading: DataManager.isShowLoading(state, 'search') || DataManager.isShowLoading(state, 'search2')
   };
 }
 

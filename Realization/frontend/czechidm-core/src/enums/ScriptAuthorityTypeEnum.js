@@ -1,7 +1,7 @@
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
- * Script authority type enum
+ * Script authority type enum.
  */
 export default class ScriptAuthorityTypeEnum extends AbstractEnum {
 

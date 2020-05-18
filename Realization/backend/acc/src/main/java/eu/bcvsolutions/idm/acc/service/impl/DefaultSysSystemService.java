@@ -164,8 +164,8 @@ public class DefaultSysSystemService
 	}
 
 	@Override
-	public SysSystemDto get(Serializable id, BasePermission... permission) {
-		SysSystemDto entity = super.get(id, permission);
+	public SysSystemDto get(Serializable id, SysSystemFilter filter, BasePermission... permission) {
+		SysSystemDto entity = super.get(id, filter, permission);
 		if (entity == null) {
 			return null;
 		}
@@ -173,10 +173,12 @@ public class DefaultSysSystemService
 		// found if entity has filled password
 		if (entity.isRemote()) {
 			try {
-				Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
-						SysSystemService.REMOTE_SERVER_PASSWORD);
-				if (password != null && entity.getConnectorServer() != null) {
-					entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+				if (filter != null && filter.isContainsRemoteServerPasswordProxyChars()) {
+					Object password = confidentialStorage.get(entity.getId(), SysSystem.class,
+							SysSystemService.REMOTE_SERVER_PASSWORD);
+					if (password != null && entity.getConnectorServer() != null) {
+						entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+					}
 				}
 			} catch (ResultCodeException ex) {
 				// decorator only - we has to log exception, because is not possible to change password, if error occurs in get ....
@@ -203,6 +205,11 @@ public class DefaultSysSystemService
 	@Transactional(readOnly = true)
 	public SysSystemDto getByCode(String name) {
 		return toDto(systemRepository.findOneByName(name));
+	}
+	
+	@Override
+	public boolean supportsToDtoWithFilter() {
+		return true;
 	}
 
 	@Override

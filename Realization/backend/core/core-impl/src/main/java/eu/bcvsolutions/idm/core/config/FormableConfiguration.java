@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.core.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.eav.entity.IdmCodeListItem;
 import eu.bcvsolutions.idm.core.eav.entity.IdmCodeListItemValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmForm;
@@ -50,16 +48,11 @@ public class FormableConfiguration {
 		
 		return new AbstractFormValueService<IdmIdentity, IdmIdentityFormValue>(repository) {
 			
-			@Autowired private PrivateIdentityConfiguration identityConfiguration;
-			
 			/**
 			 * Identity form values supports authorization policies
 			 */
 			@Override
 			public AuthorizableType getAuthorizableType() {
-				if (!identityConfiguration.isFormAttributesSecured()) {
-					return null;
-				}
 				return new AuthorizableType(CoreGroupPermission.FORMVALUE, getEntityClass());
 			}
 		};

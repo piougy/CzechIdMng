@@ -37,7 +37,6 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
@@ -48,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.DefaultFormableFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityEventFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -58,6 +58,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.FormDefinitionAttributes;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -1123,6 +1124,53 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, prepareDataAndFind(IdmTreeNode.class, ownerTreeNode));
 		Assert.assertEquals(1, prepareDataAndFind(IdmIdentityContract.class, ownerIdentityContract));
 	}
+	
+	@Test
+	public void testFindFormInstances() {
+		IdmFormAttributeDto attributeOne = new IdmFormAttributeDto(getHelper().createName(), getHelper().createName(), PersistentType.SHORTTEXT);
+		IdmFormAttributeDto attributeTwo = new IdmFormAttributeDto(getHelper().createName(), getHelper().createName(), PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinition = formService.createDefinition(
+				IdmIdentity.class,
+				getHelper().createName(),
+				Lists.newArrayList(attributeOne, attributeTwo));
+		attributeOne = formDefinition.getMappedAttributeByCode(attributeOne.getCode());
+		attributeTwo = formDefinition.getMappedAttributeByCode(attributeTwo.getCode());		
+		// create owner
+		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);
+		// fill values
+		IdmFormValueDto valueOne = new IdmFormValueDto(attributeOne);
+		valueOne.setValue(FORM_VALUE_ONE);
+		IdmFormValueDto valueTwo = new IdmFormValueDto(attributeTwo);
+		valueTwo.setValue(FORM_VALUE_TWO);
+		owner.getEavs().add(new IdmFormInstanceDto(owner, formDefinition, Lists.newArrayList(valueOne, valueTwo)));
+		identityService.save(owner);
+		//
+		// find saved values without filter
+		Map<String, List<IdmFormValueDto>> m = formService.findFormInstance(owner, formDefinition, null).toValueMap();
+		Assert.assertEquals(FORM_VALUE_ONE, (m.get(attributeOne.getCode()).get(0)).getValue());
+		Assert.assertEquals(FORM_VALUE_TWO, (m.get(attributeTwo.getCode()).get(0)).getValue());
+		//
+		m = formService
+				.findFormInstances(owner, null)
+				.stream()
+				.filter(fi -> fi.getFormDefinition().equals(formDefinition))
+				.findFirst()
+				.get()
+				.toValueMap();
+		Assert.assertEquals(FORM_VALUE_ONE, (m.get(attributeOne.getCode()).get(0)).getValue());
+		Assert.assertEquals(FORM_VALUE_TWO, (m.get(attributeTwo.getCode()).get(0)).getValue());
+		
+		//
+		// find saved values with filter
+		DefaultFormableFilter filter = new DefaultFormableFilter();
+		FormDefinitionAttributes attributes = new FormDefinitionAttributes();
+		attributes.setDefinition(formDefinition.getId());
+		attributes.getAttributes().add(attributeOne.getId());
+		filter.setFormDefinitionAttributes(Lists.newArrayList(attributes));
+		List<IdmFormValueDto> values = formService.findFormInstances(owner, filter).get(0).getValues();
+		Assert.assertEquals(1, values.size());
+		Assert.assertEquals(FORM_VALUE_ONE, values.get(0).getValue());
+	}
 
 	@Test
 	public void testSaveEavWithIdentityTogether() {
@@ -1258,7 +1306,6 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		//
 		String updatedValue = "updated";
 		try {
-			getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, true);
 			getHelper().login(owner);
 
 			IdmIdentityDto updateOwner = identityService.get(owner, IdmBasePermission.READ);
@@ -1274,7 +1321,6 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 			Assert.assertNull(FORM_VALUE_TWO, m.get(attributeSecuredName)); // not readable
 		} finally {
 			logout();
-			getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, false);
 		}
 		//
 		// check secured attribute is untouched as admin

@@ -7,9 +7,7 @@ import Icon from '../Icon/Icon';
 import Tooltip from '../Tooltip/Tooltip';
 
 /**
- * TODO: Improvent:
- * - add button size (className is abused now)
- * - to link
+ * Basic button.
  *
  * @author Radek Tomiška
  */
@@ -22,6 +20,7 @@ class Button extends AbstractComponent {
   render() {
     const {
       level,
+      buttonSize,
       text,
       className,
       children,
@@ -49,6 +48,7 @@ class Button extends AbstractComponent {
     const classNames = classnames(
       'btn',
       `btn-${ (level === 'error' ? 'danger' : level) }`,
+      { [`btn-${ buttonSize }`]: buttonSize !== 'default' },
       { hidden },
       className
     );
@@ -141,12 +141,19 @@ Button.propTypes = {
   /**
    * On double click node callback
    */
-  onDoubleClick: PropTypes.func
+  onDoubleClick: PropTypes.func,
+  /**
+   * Button size (by bootstrap).
+   *
+   * @since 10.3.0
+   */
+  buttonSize: PropTypes.oneOf(['default', 'xs', 'sm', 'lg'])
 };
 Button.defaultProps = {
   ...AbstractComponent.defaultProps,
   type: 'button',
   level: 'default',
+  buttonSize: 'default',
   hidden: false,
   showLoadingIcon: false,
   showLoadingText: null,

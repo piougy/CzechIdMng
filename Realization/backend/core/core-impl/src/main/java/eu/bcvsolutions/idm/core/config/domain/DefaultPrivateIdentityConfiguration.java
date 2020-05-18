@@ -22,9 +22,4 @@ public class DefaultPrivateIdentityConfiguration extends AbstractConfiguration i
 	public IdentityConfiguration getPublicConfiguration() {
 		return publicConfiguration;
 	}
-	
-	@Override
-	public boolean isFormAttributesSecured() {
-		return getConfigurationService().getBooleanValue(PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, DEFAULT_IDENTITY_FORM_ATTRIBUTES_SECURED);
-	}
 }

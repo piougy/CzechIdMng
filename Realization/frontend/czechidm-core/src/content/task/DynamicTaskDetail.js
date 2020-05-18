@@ -7,7 +7,9 @@ import Helmet from 'react-helmet';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
+import UiUtils from '../../utils/UiUtils';
 import IdentityInfo from '../../components/advanced/IdentityInfo/IdentityInfo';
+import TaskHistoricInfo from '../../components/advanced/TaskHistoricInfo/TaskHistoricInfo';
 import WorkflowTaskInfo from '../../components/advanced/WorkflowTaskInfo/WorkflowTaskInfo';
 import DecisionButtons from './DecisionButtons';
 
@@ -59,12 +61,14 @@ class DynamicTaskDetail extends Basic.AbstractContent {
       }
     }
     if (decision.showWarning) {
-      this.refs.confirm.show(this.i18n(decision.warningMessage ? decision.warningMessage : 'completeTaskConfirmDetail'), this.i18n('completeTaskConfirmTitle'))
-      .then(() => {
-        this._completeTask(decision);
-      }, () => {
-        // Rejected
-      });
+      this.refs.confirm.show(
+        this.i18n(decision.warningMessage ? decision.warningMessage : 'completeTaskConfirmDetail'), this.i18n('completeTaskConfirmTitle')
+      )
+        .then(() => {
+          this._completeTask(decision);
+        }, () => {
+          // Rejected
+        });
     } else {
       this._completeTask(decision);
     }
@@ -73,7 +77,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   _completeTask(decision) {
     const formDataValues = this.refs.formData ? this.refs.formData.getData() : {};
     const task = this.refs.form.getData();
-    const formData = {'decision': decision.id, 'formData': this._toFormData(formDataValues, task.formData)};
+    const formData = {decision: decision.id, formData: this._toFormData(formDataValues, task.formData)};
     this.setState({
       showLoading: true
     }, () => {
@@ -108,24 +112,46 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
             <IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
           </Basic.LabelWrapper>
-          <Basic.LabelWrapper rendered={task.variables.implementerIdentifier} readOnly ref="implementerIdentifier" label={this.i18n('implementerIdentifier')}>
-            <IdentityInfo entityIdentifier ={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="popover"/>
+          <Basic.LabelWrapper
+            rendered={task.variables.implementerIdentifier}
+            readOnly
+            ref="implementerIdentifier"
+            label={this.i18n('implementerIdentifier')}>
+            <IdentityInfo entityIdentifier={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="popover"/>
           </Basic.LabelWrapper>
         </div>
       );
     }
+    return null;
   }
 
   _getTaskInfo(task) {
     if (task) {
+      const type = UiUtils.getSimpleJavaType(task._dtotype);
+      const isHistoricTask = type === 'WorkflowHistoricTaskInstanceDto';
       return (
-        <div>
-          <Basic.LabelWrapper readOnly ref="taskDescription" label={this.i18n('description')}>
-            <WorkflowTaskInfo entity={task} showLink={false} showLoading={!task} className="no-margin"/>
+        <Basic.Div>
+          <Basic.Div>
+            <TaskHistoricInfo
+              rendered={isHistoricTask}
+              level="info"
+              entity={task}
+              titleStyle={{fontSize: 'medium'}}/>
+          </Basic.Div>
+          <Basic.LabelWrapper
+            rendered={isHistoricTask}
+            ref="historicTaskInfo"
+            label={this.i18n('description')}>
+            <WorkflowTaskInfo
+              entity={task}
+              showLink={false}
+              showLoading={!task}
+              className="no-margin"/>
           </Basic.LabelWrapper>
-        </div>
+        </Basic.Div>
       );
     }
+    return null;
   }
 
   _getFormDataComponents(task) {
@@ -214,34 +240,38 @@ class DynamicTaskDetail extends Basic.AbstractContent {
         case 'taskHistory': {
           const history = JSON.parse(formData.value);
           formDataComponents.push(
-              <Basic.Panel>
-                <Basic.PanelHeader text={this._getLocalization('name', formData)}/>
-                <Basic.Table
-                    uiKey={formData.id}
-                    data={history}
-                    rendered
-                    noData={this.i18n('component.basic.Table.noData')}
-                    rowClass={({rowIndex, data}) => {
-                      return (data[rowIndex].changed) ? 'warning' : '';
-                    }}>
-                  <Basic.Column property="name" header={this.i18n('wf.formData.history.taskName')}/>
-                  <Basic.Column property="endTime" header={this.i18n('wf.formData.history.completeDate')}
-                    cell={
-                      ({rowIndex, data}) => {
-                        return (<Basic.DateCell format={this.i18n('format.datetime')} rowIndex={rowIndex} data={data} property="endTime"/>);
-                      }
+            <Basic.Panel>
+              <Basic.PanelHeader text={this._getLocalization('name', formData)}/>
+              <Basic.Table
+                uiKey={formData.id}
+                data={history}
+                rendered
+                noData={this.i18n('component.basic.Table.noData')}
+                rowClass={({rowIndex, data}) => {
+                  return (data[rowIndex].changed) ? 'warning' : '';
+                }}>
+                <Basic.Column property="name" header={this.i18n('wf.formData.history.taskName')}/>
+                <Basic.Column
+                  property="endTime"
+                  header={this.i18n('wf.formData.history.completeDate')}
+                  cell={
+                    ({rowIndex, data}) => {
+                      return (<Basic.DateCell format={this.i18n('format.datetime')} rowIndex={rowIndex} data={data} property="endTime"/>);
                     }
-                  />
-                  <Basic.Column property="assignee" header={this.i18n('wf.formData.history.assignee')}
+                  }
+                />
+                <Basic.Column
+                  property="assignee"
+                  header={this.i18n('wf.formData.history.assignee')}
                   cell={({rowIndex, data}) => {
                     return (<IdentityInfo
                       entityIdentifier={ data[rowIndex].assignee }
                       face="popover" />);
                   }
                   }/>
-                  <Basic.Column property="completeTaskMessage" header={this.i18n('wf.formData.history.message')}/>
-                </Basic.Table>
-              </Basic.Panel>
+                <Basic.Column property="completeTaskMessage" header={this.i18n('wf.formData.history.message')}/>
+              </Basic.Table>
+            </Basic.Panel>
           );
           break;
         }
@@ -275,7 +305,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
         <Basic.PageHeader>{taskName}
           <small> {this.i18n('header')}</small>
         </Basic.PageHeader>
-        <Basic.Panel showLoading = {showLoadingInternal}>
+        <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             {this._getTaskInfo(task)}
             {this._getApplicantAndRequester(task)}

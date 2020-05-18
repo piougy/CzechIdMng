@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -51,9 +50,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  *
  */
 @Component(AddNewAutomaticRoleForPositionTaskExecutor.TASK_NAME)
-@Description("Add new automatic role by tree structure for existing other contact positions. "
-		+ "Can be executed repetitively to assign role to unprocessed identities, "
-		+ "after process was stopped or interrupted (e.g. by server restart).")
 public class AddNewAutomaticRoleForPositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmContractPositionDto> {
 
 	public static final String TASK_NAME = "core-add-new-automatic-role-position-long-running-task";

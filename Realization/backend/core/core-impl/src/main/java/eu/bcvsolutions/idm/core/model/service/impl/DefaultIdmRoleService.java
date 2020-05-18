@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleFormAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
@@ -170,12 +171,14 @@ public class DefaultIdmRoleService
 		String text = filter.getText();
 		if (StringUtils.isNotEmpty(text)) {
 			text = text.toLowerCase();
-			predicates.add(
-					builder.or(
-							builder.like(builder.lower(root.get(IdmRole_.code)), "%" + text + "%"),
-							builder.like(builder.lower(root.get(IdmRole_.name)), "%" + text + "%"),
-							builder.like(builder.lower(root.get(IdmRole_.description)), "%" + text + "%")
-							));
+			List<Predicate> textPredicates = new ArrayList<>(4);
+			//
+			RepositoryUtils.appendUuidIdentifierPredicate(textPredicates, root, builder, text);
+			textPredicates.add(builder.like(builder.lower(root.get(IdmRole_.code)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmRole_.name)), "%" + text + "%"));
+			textPredicates.add(builder.like(builder.lower(root.get(IdmRole_.description)), "%" + text + "%"));
+			//
+			predicates.add(builder.or(textPredicates.toArray(new Predicate[textPredicates.size()])));
 		}
 		// role type
 		@SuppressWarnings("deprecation")

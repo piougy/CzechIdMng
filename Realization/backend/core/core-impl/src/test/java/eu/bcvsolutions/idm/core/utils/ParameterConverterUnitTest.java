@@ -6,16 +6,21 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import java.time.ZonedDateTime;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -124,5 +129,30 @@ public class ParameterConverterUnitTest extends AbstractVerifiableUnitTest {
 		assertEquals(identity, parameterConverter.toEntity(parameters, PARAMETER_NAME, IdmIdentity.class));
 		//
 		verify(entityLookupService).lookupEntity(IdmIdentity.class, value);
+	}
+	
+	@Test
+	public void testBigDecimalParameter() {
+		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<String, Object>();
+		Assert.assertNull(parameterConverter.toBigDecimal(parameters, PARAMETER_NAME));
+		//
+		parameters.set(PARAMETER_NAME, "");
+		Assert.assertNull(parameterConverter.toBigDecimal(parameters, PARAMETER_NAME));
+		//
+		BigDecimal value = new BigDecimal("10.1");
+		parameters.set(PARAMETER_NAME, value.toString());
+		//
+		Assert.assertEquals(value, parameterConverter.toBigDecimal(parameters, PARAMETER_NAME));
+		//
+		parameters.set(PARAMETER_NAME, value);
+		Assert.assertEquals(value, parameterConverter.toBigDecimal(parameters, PARAMETER_NAME));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testBigDecimalWrongParameter() {
+		MultiValueMap<String, Object> parameters = new LinkedMultiValueMap<String, Object>();
+		//
+		parameters.set(PARAMETER_NAME, "wrong");
+		parameterConverter.toBigDecimal(parameters, PARAMETER_NAME);
 	}
 }

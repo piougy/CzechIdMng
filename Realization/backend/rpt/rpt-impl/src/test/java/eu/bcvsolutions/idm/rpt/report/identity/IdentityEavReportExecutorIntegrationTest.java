@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -32,14 +31,17 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.eav.IdentityFormValueEvaluator;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 import eu.bcvsolutions.idm.rpt.dto.RptIdentityWithFormValueDto;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -55,8 +57,6 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 
 	@Autowired
 	private IdentityEavReportExecutor reportExecutor;
-	@Autowired
-	private PrivateIdentityConfiguration identityConfiguration;
 	@Autowired
 	private IdentityEavReportXlsxRenderer xlsxRenderer;
 	@Autowired
@@ -206,9 +206,7 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 
 	@Test
 	public void testAuthorizationPolicies() throws IOException {
-		getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED, true);
 		try {
-			Assert.assertTrue(identityConfiguration.isFormAttributesSecured());
 			//
 			GuardedString pwdOne = new GuardedString("check");
 			GuardedString pwdTwo = new GuardedString("check2");
@@ -285,11 +283,20 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 			assertEquals(0, identities.size());
 
 			loginService.logout();
+			
+			getHelper().createBasePolicy(
+					roleRead.getId(), 
+					CoreGroupPermission.FORMDEFINITION, 
+					IdmFormDefinition.class, 
+					IdmBasePermission.AUTOCOMPLETE);
+			getHelper().createAuthorizationPolicy(
+					roleRead.getId(), 
+					CoreGroupPermission.FORMVALUE, 
+					IdmIdentityFormValue.class, 
+					IdentityFormValueEvaluator.class,
+					IdmBasePermission.READ);
+			
 			loginService.login(new LoginDto(identityTwo.getUsername(), pwdTwo));
-
-			getHelper().setConfigurationValue(PrivateIdentityConfiguration.PROPERTY_IDENTITY_FORM_ATTRIBUTES_SECURED,
-					false);
-			Assert.assertFalse(identityConfiguration.isFormAttributesSecured());
 
 			report = reportExecutor.generate(report);
 

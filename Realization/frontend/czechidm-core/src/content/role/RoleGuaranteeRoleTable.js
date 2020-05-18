@@ -5,10 +5,11 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleGuaranteeRoleManager, RoleManager } from '../../redux';
+import { RoleGuaranteeRoleManager, RoleManager, CodeListManager } from '../../redux';
 
 let manager = new RoleGuaranteeRoleManager();
 let roleManager = new RoleManager();
+const codeListManager = new CodeListManager();
 
 /**
 * Table of role guarantees - by roles
@@ -58,12 +59,12 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, forceSearchParameters, _showLoading, _permissions, className } = this.props;
+    const { uiKey, forceSearchParameters, _showLoading, _permissions, className, guaranteeTypes } = this.props;
     const { detail } = this.state;
     const role = forceSearchParameters.getFilters().get('role');
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -132,6 +133,20 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
+          <Advanced.Column
+            property="type"
+            width={ 125 }
+            face="text"
+            sort
+            rendered={ guaranteeTypes.length > 0 }
+            cell={
+              ({ rowIndex, data, property }) => {
+                return (
+                  <Advanced.CodeListValue code="guarantee-type" value={ data[rowIndex][property] }/>
+                );
+              }
+            }
+          />
         </Advanced.Table>
 
         <Basic.Modal
@@ -143,7 +158,10 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
 
           <form onSubmit={this.save.bind(this, {})}>
             <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
-            <Basic.Modal.Header closeButton={ !_showLoading } text={ this.i18n('edit.header', { name: manager.getNiceLabel(detail.entity) }) } rendered={ !Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header
+              closeButton={ !_showLoading }
+              text={ this.i18n('edit.header', { name: manager.getNiceLabel(detail.entity) }) }
+              rendered={ !Utils.Entity.isNew(detail.entity) }/>
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
@@ -162,6 +180,13 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.RoleGuaranteeRole.guaranteeRole.label') }
                   helpBlock={ this.i18n('entity.RoleGuaranteeRole.guaranteeRole.help') }
                   required/>
+                <Advanced.CodeListSelect
+                  ref="type"
+                  code="guarantee-type"
+                  showOnlyIfOptionsExists
+                  label={ this.i18n('entity.RoleGuaranteeRole.type.label') }
+                  helpBlock={ this.i18n(`entity.RoleGuaranteeRole.type.help`) }
+                  max={ 255 }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -184,7 +209,7 @@ export class RoleGuaranteeRoleTable extends Advanced.AbstractTableContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -208,7 +233,8 @@ function select(state, component) {
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`),
     _permissions: Utils.Permission.getPermissions(state, `${component.uiKey}-detail`),
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    guaranteeTypes: codeListManager.getCodeList(state, 'guarantee-type') || []
   };
 }
 

@@ -8,6 +8,7 @@ import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.ExternalIdentifiableFilter;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
@@ -31,13 +32,18 @@ public class VsRequestFilter extends DataFilter implements ExternalIdentifiableF
 	private UUID roleRequestId;
 	private ZonedDateTime modifiedAfter; // TODO: modifiedFrom alias
 	private ZonedDateTime modifiedBefore; // TODO: modifiedTill alias
+	private boolean includeOwner; // Context property - if true, then entity owns this request will be load and setts to a request DTO.
 	
 	public VsRequestFilter() {
 		this(new LinkedMultiValueMap<>());
 	}
 	
 	public VsRequestFilter(MultiValueMap<String, Object> data) {
-		super(VsRequestDto.class, data);
+		this(data, null);
+	}
+	
+	public VsRequestFilter(MultiValueMap<String, Object> data,  ParameterConverter parameterConverter) {
+		super(VsRequestDto.class, data, parameterConverter);
 	}
 	
 	public Boolean getOnlyArchived() {
@@ -126,5 +132,13 @@ public class VsRequestFilter extends DataFilter implements ExternalIdentifiableF
 
 	public void setRoleRequestId(UUID roleRequestId) {
 		this.roleRequestId = roleRequestId;
+	}
+
+	public boolean isIncludeOwner() {
+		return includeOwner;
+	}
+
+	public void setIncludeOwner(boolean includeOwner) {
+		this.includeOwner = includeOwner;
 	}
 }

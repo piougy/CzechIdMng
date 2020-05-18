@@ -5,11 +5,12 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { RoleGuaranteeManager, IdentityManager, RoleManager } from '../../redux';
+import { RoleGuaranteeManager, IdentityManager, RoleManager, CodeListManager } from '../../redux';
 
 let manager = new RoleGuaranteeManager();
 let roleManager = new RoleManager();
 const identityManager = new IdentityManager();
+const codeListManager = new CodeListManager();
 
 /**
 * Table of role guarantees - by identity
@@ -55,7 +56,7 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { forceSearchParameters, _showLoading, _permissions, className } = this.props;
+    const { forceSearchParameters, _showLoading, _permissions, className, guaranteeTypes } = this.props;
     const { detail } = this.state;
     const role = forceSearchParameters.getFilters().get('role');
     //
@@ -129,6 +130,20 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
+          <Advanced.Column
+            property="type"
+            width={ 125 }
+            face="text"
+            sort
+            rendered={ guaranteeTypes.length > 0 }
+            cell={
+              ({ rowIndex, data, property }) => {
+                return (
+                  <Advanced.CodeListValue code="guarantee-type" value={ data[rowIndex][property] }/>
+                );
+              }
+            }
+          />
         </Advanced.Table>
 
         <Basic.Modal
@@ -162,6 +177,13 @@ export class RoleGuaranteeTable extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.RoleGuarantee.guarantee.label') }
                   helpBlock={ this.i18n('entity.RoleGuarantee.guarantee.help') }
                   required/>
+                <Advanced.CodeListSelect
+                  ref="type"
+                  code="guarantee-type"
+                  showOnlyIfOptionsExists
+                  label={ this.i18n('entity.RoleGuarantee.type.label') }
+                  helpBlock={ this.i18n(`entity.RoleGuarantee.type.help`) }
+                  max={ 255 }/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -208,7 +230,8 @@ function select(state, component) {
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`),
     _permissions: Utils.Permission.getPermissions(state, `${component.uiKey}-detail`),
-    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey)
+    _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
+    guaranteeTypes: codeListManager.getCodeList(state, 'guarantee-type') || []
   };
 }
 

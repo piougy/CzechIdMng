@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,9 +32,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  *
  */
-@Component(RebuildRoleCatalogueIndexTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Rebuild role catalogue forest index.")
+@Component(RebuildRoleCatalogueIndexTaskExecutor.TASK_NAME)
 public class RebuildRoleCatalogueIndexTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RebuildRoleCatalogueIndexTaskExecutor.class);

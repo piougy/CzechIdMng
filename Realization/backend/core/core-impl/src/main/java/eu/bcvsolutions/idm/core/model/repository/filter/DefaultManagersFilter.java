@@ -32,6 +32,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
  * - by guarantee and tree structure - finds parent tree node standardly by tree structure
  * - manager from tree structure - only direct managers are supported now
  * - only "valid" identity can be manager
+ * - only valid or valid in future contracts can have managers
+ * - additional filter parameter - IdmIdentityFilter.PARAMETER_VALID_CONTRACT_MANAGERS
  * 
  * @author Radek Tomiška
  *
@@ -78,6 +80,8 @@ public class DefaultManagersFilter
 		Root<IdmIdentityContract> subqueryWpRoot = subqueryWp.from(IdmIdentityContract.class);
 		subqueryWp.select(subqueryWpRoot.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.parent));			
 		subqueryWp.where(builder.and(
+				// future valid contracts
+				guaranteeManagersFilter.getValidNowOrInFuturePredicate(subqueryWpRoot, builder, filter),
 				builder.equal(
 						subqueryWpRoot.get(IdmIdentityContract_.identity).get(IdmIdentity_.id), 
 						filter.getManagersFor()),
@@ -105,8 +109,8 @@ public class DefaultManagersFilter
 				// valid identity only
 				builder.equal(root.get(IdmIdentity_.disabled), Boolean.FALSE),
 				//
-        		// valid contract only
-				RepositoryUtils.getValidPredicate(subRoot, builder),
+        		// future valid contract only
+				RepositoryUtils.getValidNowOrInFuturePredicate(subRoot, builder),
 				//
         		// not disabled, not excluded contract
         		builder.equal(subRoot.get(IdmIdentityContract_.disabled), Boolean.FALSE),

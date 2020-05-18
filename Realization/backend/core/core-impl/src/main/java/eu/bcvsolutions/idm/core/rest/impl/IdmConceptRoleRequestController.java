@@ -142,7 +142,7 @@ public class IdmConceptRoleRequestController
 		// check access
 		if (!securityService.hasAnyAuthority(CoreGroupPermission.ROLE_REQUEST_ADMIN)) {
 			if (filter == null || filter.getRoleRequestId() == null) {
-				throw new ForbiddenEntityException(null, CoreGroupPermission.ROLEREQUEST, IdmBasePermission.ADMIN);
+				throw new ForbiddenEntityException((Serializable)null, CoreGroupPermission.ROLEREQUEST, IdmBasePermission.ADMIN);
 			}
 			IdmRoleRequestDto roleRequest = roleRequestService.get(filter.getRoleRequestId(), permission);
 			if (roleRequest == null) {

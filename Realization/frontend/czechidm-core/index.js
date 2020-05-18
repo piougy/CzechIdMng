@@ -20,6 +20,7 @@ import * as Domain from './src/domain';
 import ComponentService from './src/services/ComponentService';
 //
 import AbstractEnum from './src/enums/AbstractEnum';
+import BasePermissionEnum from './src/enums/BasePermissionEnum';
 import OperationStateEnum from './src/enums/OperationStateEnum';
 import PasswordPolicyTypeEnum from './src/enums/PasswordPolicyTypeEnum';
 import ScriptCategoryEnum from './src/enums/ScriptCategoryEnum';
@@ -28,6 +29,7 @@ import IdentityAttributeEnum from './src/enums/IdentityAttributeEnum';
 import ContractAttributeEnum from './src/enums/ContractAttributeEnum';
 import ContractSliceAttributeEnum from './src/enums/ContractSliceAttributeEnum';
 import ConceptRoleRequestOperationEnum from './src/enums/ConceptRoleRequestOperationEnum';
+import IdentityStateEnum from './src/enums/IdentityStateEnum';
 //
 import ValidationMessage from './src/components/advanced/ValidationMessage/ValidationMessage';
 //
@@ -35,6 +37,7 @@ import IdentityTableComponent from './src/content/identity/IdentityTable';
 import RoleRequestTableComponent from './src/content/requestrole/RoleRequestTable';
 import IdentityRoleTableComponent from './src/content/identity/IdentityRoleTable';
 import OrganizationPosition from './src/content/identity/OrganizationPosition';
+import AbstractIdentityProjection from './src/content/identity/projection/AbstractIdentityProjection';
 
 const ModuleRoot = {
   Basic,
@@ -53,18 +56,21 @@ const ModuleRoot = {
   Domain,
   Enums: {
     AbstractEnum,
+    BasePermissionEnum,
     OperationStateEnum,
     PasswordPolicyTypeEnum,
     ScriptCategoryEnum,
     ApiOperationTypeEnum,
     IdentityAttributeEnum,
+    IdentityStateEnum,
     ContractAttributeEnum,
     ContractSliceAttributeEnum,
     ConceptRoleRequestOperationEnum
   },
   Content: {
     ValidationMessage, // backward compatibility
-    OrganizationPosition
+    OrganizationPosition,
+    AbstractIdentityProjection
   },
   Table: {
     IdentityTable: IdentityTableComponent,
@@ -72,5 +78,5 @@ const ModuleRoot = {
     IdentityRoleTable: IdentityRoleTableComponent
   }
 };
-ModuleRoot.version = '0.0.1';
+ModuleRoot.version = '10.3.0';
 module.exports = ModuleRoot;

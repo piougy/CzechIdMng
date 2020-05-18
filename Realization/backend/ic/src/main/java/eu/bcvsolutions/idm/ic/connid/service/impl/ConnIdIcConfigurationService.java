@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConnector;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -261,12 +262,15 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 
 	private ConnectorInfoManager findRemoteConnectorManager(IcConnectorServer server) {
 		// get all saved remote connector servers
-		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(server.getHost(), server.getPort(),
-				new org.identityconnectors.common.security.GuardedString(server.getPassword().asString().toCharArray()),
-				server.isUseSsl(), null, server.getTimeout());
-
 		ConnectorInfoManager manager = null;
 		try {
+		GuardedString pass = server.getPassword();
+		if (pass == null) {
+			throw new InvalidCredentialException();
+		}
+		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(server.getHost(), server.getPort(),
+				new org.identityconnectors.common.security.GuardedString(pass.asString().toCharArray()),
+				server.isUseSsl(), null, server.getTimeout());
 			// flush remote cache
 			ConnectorInfoManagerFactory instance = ConnectorInfoManagerFactory.getInstance();
 			instance.clearRemoteCache();

@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ExportDescriptorDto;
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.FormableFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -57,6 +58,7 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.api.dto.FormDefinitionAttributes;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
@@ -70,6 +72,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmForm;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition_;
@@ -131,7 +134,7 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinitionDto getDefinition(String type, String code, BasePermission... permission) {
-		IdmFormDefinitionDto formDefinition = null; 
+		IdmFormDefinitionDto formDefinition; 
 		if (StringUtils.isEmpty(code)) {
 			formDefinition = formDefinitionService.findOneByMain(type);
 		} else {
@@ -415,7 +418,7 @@ public class DefaultFormService implements FormService {
 		formDefinition = checkDefaultDefinition(ownerEntity.getClass(), formDefinition);
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(ownerEntity, formDefinition, newValues);
 		//
-		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<IdmFormInstanceDto>(CoreEventType.UPDATE, formInstance);
+		CoreEvent<IdmFormInstanceDto> event = new CoreEvent<>(CoreEventType.UPDATE, formInstance);
 		// check permissions - check access to filled form values
 		event.setPermission(permission);
 		// publish event for save form instance - see {@link #saveFormInstance(EntityEvent<IdmFormInstanceDto>)}
@@ -663,7 +666,7 @@ public class DefaultFormService implements FormService {
 	 * Returns previous values sorted accordingly to given new values => previous(index) ~ new(index).
 	 * Returned array length is the same as size of list with new values.
 	 * if previous value is not found, then position in array will be null.
-	 * 
+	 *
 	 * Values are paired by:
 	 * - 1. by id (if new value has id)
 	 * - 2. by value
@@ -671,7 +674,7 @@ public class DefaultFormService implements FormService {
 	 * - 4. use remaining unprocessed values
 	 * 
 	 * @param unprocessedPreviousValues if value is resolved, value is removed from this map (=> processed)
-	 * @param newValue
+	 * @param newValues
 	 * @return
 	 */
 	@Override
@@ -852,10 +855,20 @@ public class DefaultFormService implements FormService {
 	public IdmFormInstanceDto getFormInstance(Identifiable owner, BasePermission... permission) {
 		return getFormInstance(owner, (IdmFormDefinitionDto) null, permission);
 	}
-
+	
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormInstanceDto getFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition, BasePermission... permission) {
+		return findFormInstance(owner, formDefinition, null, permission);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormInstanceDto findFormInstance(
+			Identifiable owner, 
+			IdmFormDefinitionDto formDefinition, 
+			FormableFilter filter,
+			BasePermission... permission) {
 		Assert.notNull(owner, "Form values owner is required.");
 		Assert.notNull(owner.getId(), "Owner id is required.");
 		//
@@ -867,7 +880,13 @@ public class DefaultFormService implements FormService {
 			formDefinition = getDefinition(formDefinition.getId()); // load => prevent to modify input definition
 		}
 		FormValueService<FormableEntity> formValueService = getFormValueService(owner);
-		List<IdmFormValueDto> values = formValueService.getValues(ownerEntity, formDefinition, permission);
+		//
+		// construct value filter
+		IdmFormValueFilter<FormableEntity> valueFilter = toValueFilter(ownerEntity, formDefinition, filter);
+		// find form values
+		List<IdmFormValueDto> values = formValueService
+				.find(valueFilter, PageRequest.of(0, Integer.MAX_VALUE, Sort.by(AbstractFormValue_.seq.getName())), permission)
+				.getContent();
 		IdmFormInstanceDto formInstance = new IdmFormInstanceDto(ownerEntity, formDefinition, values);
 		//
 		// evaluate permissions for form definition attributes by values - change attribute properties or remove attribute at all
@@ -907,10 +926,41 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormInstanceDto> getFormInstances(Identifiable owner, BasePermission... permission) {
-		return getDefinitions(owner, !PermissionUtils.isEmpty(permission) ? IdmBasePermission.AUTOCOMPLETE : null)
+		return findFormInstances(owner, null, permission);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmFormInstanceDto> findFormInstances(Identifiable owner, FormableFilter filter, BasePermission... permission) {
+		Assert.notNull(owner, "Form values owner is required.");
+		//
+		// filter form definitions and form attributes, if given
+		List<IdmFormDefinitionDto> formDefinitions;
+		if (filter == null || CollectionUtils.isEmpty(filter.getFormDefinitionAttributes())) {
+			// filter is not set => all form definitions
+			formDefinitions = getDefinitions(owner, !PermissionUtils.isEmpty(permission) ? IdmBasePermission.AUTOCOMPLETE : null);
+		} else {
+			// used filter definitions only.
+			IdmFormDefinitionFilter definitionFilter = new IdmFormDefinitionFilter();
+			definitionFilter.setType(getDefaultDefinitionType(owner.getClass()));
+			definitionFilter.setIds(filter
+					.getFormDefinitionAttributes()
+					.stream()
+					.map(FormDefinitionAttributes::getDefinition)
+					.collect(Collectors.toList()));
+			//
+			formDefinitions = formDefinitionService
+					.find(
+						definitionFilter,
+						PageRequest.of(0, Integer.MAX_VALUE, Sort.by(IdmFormDefinition_.code.getName())),
+						!PermissionUtils.isEmpty(permission) ? IdmBasePermission.AUTOCOMPLETE : null)
+					.getContent();
+		}
+		//
+		return formDefinitions
 				.stream()
 				.map(definition -> {
-					return getFormInstance(owner, definition, permission);
+					return findFormInstance(owner, definition, filter, permission);
 				})
 				.collect(Collectors.toList());
 	}
@@ -1503,13 +1553,8 @@ public class DefaultFormService implements FormService {
 		return result.toString();
 	}
 	
-	/**
-	 * Prepares new owner instance
-	 * 
-	 * @param formDefinition
-	 * @return
-	 */
-	private FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition) {
+	@Override
+	public FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition) {
 		Assert.notNull(formDefinition, "Form definition is required.");
 		//
 		try {
@@ -1537,5 +1582,55 @@ public class DefaultFormService implements FormService {
 		if (!batch.getExportOrder().contains(exportDescriptorDto)) {
 			batch.getExportOrder().add(exportDescriptorDto);
 		}
+	}
+	
+	/**
+	 * Construct value filter for find form values.
+	 * 
+	 * @param ownerEntity owner
+	 * @param formDefinition form definition
+	 * @param filter only some attributes can be found only
+	 * @return
+	 * @since 10.3.0
+	 */
+	protected IdmFormValueFilter<FormableEntity> toValueFilter(
+			FormableEntity ownerEntity, 
+			IdmFormDefinitionDto formDefinition,
+			FormableFilter filter) {
+		IdmFormValueFilter<FormableEntity> valueFilter = new IdmFormValueFilter<>();
+		valueFilter.setOwner(ownerEntity);
+		valueFilter.setDefinitionId(formDefinition.getId());
+		if (filter == null) {
+			// filter is not given => all attributes
+			return valueFilter;
+		}
+		//
+		// apply formable filter with given parameters
+		List<FormDefinitionAttributes> formDefinitionAttributes = filter.getFormDefinitionAttributes();
+		if (CollectionUtils.isEmpty(formDefinitionAttributes)) {
+			// filter is given, but empty  => all attributes
+			return valueFilter;
+		}
+		//
+		UUID formDefinitionId = formDefinition.getId();
+		FormDefinitionAttributes attributes = formDefinitionAttributes
+				.stream()
+				.filter(a -> formDefinitionId.equals(a.getDefinition()))
+				.findFirst()
+				.orElse(null);
+		if (attributes == null) {
+			// filter is given, but without processed definition  => all attributes
+			return valueFilter;
+		}
+		//
+		List<UUID> attributeIds = attributes.getAttributes();
+		if (CollectionUtils.isEmpty(attributeIds)) {
+			// filter for processed definition is given, but without attributes  => all attributes
+			return valueFilter;
+		}
+		// set attributes by filter
+		valueFilter.setAttributeIds(attributes.getAttributes());
+		//
+		return valueFilter;
 	}
 }

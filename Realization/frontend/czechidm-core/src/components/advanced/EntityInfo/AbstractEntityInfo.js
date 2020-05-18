@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 //
+import _ from 'lodash';
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import { ConfigurationManager } from '../../../redux';
@@ -246,7 +247,10 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     const _entity = entity || this.getEntity();
     return (
       <span className="pull-left">
-        <Basic.Icon value={ this.getEntityIcon(_entity) } title={ this.getPopoverTitle(_entity) } style={{ marginRight: 5 }}/>
+        <Basic.Icon
+          value={ this.getEntityIcon(_entity) }
+          title={ this.getPopoverTitle(_entity) }
+          style={{ marginRight: 5 }}/>
       </span>
     );
   }
@@ -354,22 +358,28 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    * Renders full info card - its used ass popover content too
    */
   _renderFull(entity) {
-    const { className, style } = this.props;
+    const { className, style, level, titleStyle } = this.props;
     const { showAuditableInfo } = this.state;
     const _entity = entity || this.getEntity();
     //
     const panelClassNames = classNames(
       'abstract-entity-info',
-      { 'panel-success': _entity && !this.isDisabled(_entity) },
-      { 'panel-warning': _entity && this.isDisabled(_entity) },
+      { 'panel-success': level === 'success' || (_entity && !this.isDisabled(_entity)) },
+      { 'panel-warning': level === 'warning' || (_entity && this.isDisabled(_entity)) },
+      { 'panel-info': level === 'info' },
       className
     );
+    let _titleStyle = _.clone(titleStyle, true);
+    if (!_titleStyle) {
+      _titleStyle = {};
+    }
+    _titleStyle.flex = 1;
     //
     return (
-      <Basic.Panel className={panelClassNames} style={style}>
+      <Basic.Panel className={ panelClassNames } style={ style }>
         <Basic.PanelHeader>
           <Basic.Div style={{ display: 'flex', alignItems: 'center' }}>
-            <Basic.Div style={{ flex: 1 }}>
+            <Basic.Div style={ _titleStyle }>
               <Basic.Icon value={ this.getEntityIcon(_entity) } style={{ marginRight: 5 }}/>
               { this.getPopoverTitle(_entity) }
             </Basic.Div>
@@ -488,7 +498,15 @@ AbstractEntityInfo.propTypes = {
   /**
    * Entity manager
    */
-  manager: PropTypes.object
+  manager: PropTypes.object,
+  /**
+   * Custom style for main title in full mode.
+   */
+  titleStyle: PropTypes.object,
+  /**
+   * Directly set level.
+   */
+  level: PropTypes.oneOf(['warning', 'success', 'info'])
 };
 AbstractEntityInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

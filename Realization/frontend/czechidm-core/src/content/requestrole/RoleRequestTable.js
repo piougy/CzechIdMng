@@ -100,7 +100,10 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <Advanced.WorkflowProcessInfo entityIdentifier={ entity.wfProcessId } entity={ entity._embedded ? entity._embedded.wfProcessId : null }/>
+      <Advanced.WorkflowProcessInfo
+        entityIdentifier={ entity.wfProcessId }
+        entity={ entity._embedded ? entity._embedded.wfProcessId : null }
+        maxLength={100}/>
     );
   }
 
@@ -321,9 +324,8 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
                       title={this.i18n('button.start')}
                       titlePlacement="bottom"
                       onClick={startRequestFunc && startRequestFunc.bind(this, [data[rowIndex].id])}
-                      className="btn-xs">
-                      <Basic.Icon type="fa" icon="play"/>
-                    </Basic.Button>
+                      className="btn-xs"
+                      icon="fa:play"/>
                   </span>
                 );
               }

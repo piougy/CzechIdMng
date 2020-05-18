@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -55,7 +53,7 @@ public class IdmRoleFilter
 
 	@Deprecated
 	public RoleType getRoleType() {
-		return getParameterConverter().toEnum(data, PARAMETER_ROLE_TYPE, RoleType.class);
+		return getParameterConverter().toEnum(getData(), PARAMETER_ROLE_TYPE, RoleType.class);
 	}
 
 	@Deprecated
@@ -64,7 +62,7 @@ public class IdmRoleFilter
 	}
 
 	public UUID getRoleCatalogueId() {
-		return getParameterConverter().toUuid(data, PARAMETER_ROLE_CATALOGUE);
+		return getParameterConverter().toUuid(getData(), PARAMETER_ROLE_CATALOGUE);
 	}
 
 	public void setRoleCatalogueId(UUID roleCatalogueId) {
@@ -72,7 +70,7 @@ public class IdmRoleFilter
 	}
 
 	public UUID getAttributeFormDefinitionId() {
-		return getParameterConverter().toUuid(data, PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF);
+		return getParameterConverter().toUuid(getData(), PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF);
 	}
 
 	public void setAttributeFormDefinitionId(UUID id) {
@@ -80,31 +78,27 @@ public class IdmRoleFilter
 	}
 
 	public String getEnvironment() {
-    	return getParameterConverter().toString(data, PARAMETER_ENVIRONMENT);
+    	return getParameterConverter().toString(getData(), PARAMETER_ENVIRONMENT);
 	}
 
     public void setEnvironment(String environment) {
     	if (StringUtils.isEmpty(environment)) {
-    		data.remove(PARAMETER_ENVIRONMENT);
+    		remove(PARAMETER_ENVIRONMENT);
     	} else {
-    		data.put(PARAMETER_ENVIRONMENT, Lists.newArrayList(environment));
+    		put(PARAMETER_ENVIRONMENT, Lists.newArrayList(environment));
     	}
 	}
 
     public List<String> getEnvironments() {
-		return getParameterConverter().toStrings(data, PARAMETER_ENVIRONMENT);
+		return getParameterConverter().toStrings(getData(), PARAMETER_ENVIRONMENT);
 	}
 
-    public void setEnvironments(List<String> environments) {
-    	if (CollectionUtils.isEmpty(environments)) {
-    		data.remove(PARAMETER_ENVIRONMENT);
-    	} else {
-    		data.put(PARAMETER_ENVIRONMENT, new ArrayList<Object>(environments));
-    	}
+	public void setEnvironments(List<String> environments) {
+    	put(PARAMETER_ENVIRONMENT, environments);
 	}
 
 	public String getBaseCode() {
-		return getParameterConverter().toString(data, PARAMETER_BASE_CODE);
+		return getParameterConverter().toString(getData(), PARAMETER_BASE_CODE);
 	}
 
 	public void setBaseCode(String baseCode) {
@@ -112,7 +106,7 @@ public class IdmRoleFilter
 	}
 
 	public UUID getGuaranteeId() {
-		return getParameterConverter().toUuid(data ,PARAMETER_GUARANTEE);
+		return getParameterConverter().toUuid(getData() ,PARAMETER_GUARANTEE);
 	}
 
 	public void setGuaranteeId(UUID guaranteeId) {
@@ -124,7 +118,7 @@ public class IdmRoleFilter
 	 * @return
 	 */
 	public UUID getParent() {
-		return getParameterConverter().toUuid(data, PARAMETER_PARENT);
+		return getParameterConverter().toUuid(getData(), PARAMETER_PARENT);
 	}
 
 	/**

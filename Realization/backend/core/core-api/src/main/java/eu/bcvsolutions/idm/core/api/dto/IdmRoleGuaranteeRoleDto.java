@@ -15,7 +15,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Dto for role guarantee - role
- * 
+ *
  * @author Radek Tomiška
  * @since 8.2.0
  */
@@ -33,12 +33,15 @@ public class IdmRoleGuaranteeRoleDto extends AbstractDto implements ExternalIden
 	@NotNull
 	@Embedded(dtoClass = IdmRoleDto.class)
 	private UUID guaranteeRole; // guarantee as role
+	@ApiModelProperty(notes = "Type (codelist)")
+	@Size(max = DefaultFieldLengths.NAME)
+	private String type; //Type - codelist
 	@Embedded(dtoClass = IdmRequestItemDto.class)
 	private UUID requestItem; // Isn't persist in the entity
 
 	/**
 	 * Owner
-	 * 
+	 *
 	 * @return
 	 */
 	public UUID getRole() {
@@ -47,40 +50,41 @@ public class IdmRoleGuaranteeRoleDto extends AbstractDto implements ExternalIden
 
 	/**
 	 * Owner
-	 * 
+	 *
 	 * @param role
 	 */
 	public void setRole(UUID role) {
 		this.role = role;
 	}
-	
+
 	/**
 	 * Guarantee as role
-	 * 
+	 *
 	 * @return
 	 */
 	public UUID getGuaranteeRole() {
 		return guaranteeRole;
 	}
-	
+
 	/**
 	 * Guarantee as role
-	 * 
+	 *
 	 * @param guaranteeRole
 	 */
 	public void setGuaranteeRole(UUID guaranteeRole) {
 		this.guaranteeRole = guaranteeRole;
 	}
-	
+
 	@Override
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
 	}
-	
+
 	@Override
 	public String getExternalId() {
 		return externalId;
 	}
+
 	@Override
 	public UUID getRequestItem() {
 		return requestItem;
@@ -89,5 +93,13 @@ public class IdmRoleGuaranteeRoleDto extends AbstractDto implements ExternalIden
 	@Override
 	public void setRequestItem(UUID requestItem) {
 		this.requestItem = requestItem;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

@@ -89,6 +89,19 @@ public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
 	ResultModels prevalidate();
 	
 	/**
+	 * Generic action.
+	 *
+	 * If is action generic, then we need to create new instance and set entity
+	 * class to it in every case (includes getAvailableActions too). Stateful actions
+	 * are typically generic actions (uses for more than one entity type). That
+	 * action doesn't have knowledge about entity type by default. And this is a way
+	 * how we can propagete entity type to it.
+	 *
+	 * @return
+	 */
+	public boolean isGeneric();
+	
+	/**
 	 * Returns {@code true}, when action can be executed without items are selected.
 	 * Returns {@code false} by default.
 	 * 

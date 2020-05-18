@@ -143,7 +143,7 @@ public class RoleExportBulkAction extends AbstractExportBulkAction<IdmRoleDto, I
 		});
 
 		// Set parent fields -> set authoritative mode. Here are two parent fields!
-		Set<String> parents = new LinkedHashSet<String>();
+		Set<String> parents = new LinkedHashSet<>();
 		parents.add(IdmIncompatibleRole_.superior.getName());
 		parents.add(IdmIncompatibleRole_.sub.getName());
 
@@ -167,7 +167,7 @@ public class RoleExportBulkAction extends AbstractExportBulkAction<IdmRoleDto, I
 			roleCompositionService.export(composition.getId(), this.getBatch());
 		});
 		// Set parent fields -> set authoritative mode. Here are two parent fields!
-		Set<String> parents = new LinkedHashSet<String>();
+		Set<String> parents = new LinkedHashSet<>();
 		parents.add(IdmRoleComposition_.superior.getName());
 		parents.add(IdmRoleComposition_.sub.getName());
 

@@ -568,6 +568,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		loginAsAdmin(test1.getUsername());
 		int taksCountAfter = getHistoricProcess(now).size();
 		assertEquals(taskCount + 1, taksCountAfter);
+		// Check count of historic processes
+		assertEquals(taksCountAfter, getHistoricProcessCount(now));
 
 		// HELPDESK
 		loginAsAdmin(helpdeskIdentity.getUsername());
@@ -578,6 +580,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		loginAsAdmin(test1.getUsername());
 		taksCountAfter = getHistoricProcess(now).size();
 		assertEquals(taskCount + 2, taksCountAfter);
+		// Check count of historic processes
+		assertEquals(taksCountAfter, getHistoricProcessCount(now));
 
 		// Subprocess - approve by GUARANTEE
 		loginAsAdmin(guarantee.getUsername());
@@ -594,6 +598,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		loginAsAdmin(test1.getUsername());
 		taksCountAfter = getHistoricProcess(now).size();
 		assertEquals(taskCount + 2, taksCountAfter);
+		// Check count of historic processes
+		assertEquals(taksCountAfter, getHistoricProcessCount(now));
 	}
 
 	@Test
@@ -1690,6 +1696,18 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
 		taskFilter.setCreatedAfter(from);
 		return workflowHistoricProcessInstanceService.find(taskFilter, null).getContent();
+	}
+	
+	/**
+	 * Return count of historic processes for current logged user
+	 *
+	 * @return
+	 */
+	private long getHistoricProcessCount(ZonedDateTime from) {
+		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+		taskFilter.setCandidateOrAssigned(securityService.getCurrentId().toString());
+		taskFilter.setCreatedAfter(from);
+		return workflowHistoricProcessInstanceService.count(taskFilter);
 	}
 
 	private IdmConceptRoleRequestDto createRoleConcept(IdmRoleDto adminRole, IdmIdentityContractDto contract,

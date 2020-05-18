@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
@@ -19,7 +20,6 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -113,7 +113,7 @@ public class AsynchronousAccountManagementIntegrationTest extends AbstractIntegr
 			List<IdmEntityEventDto> failedEvents = entityEventService.find(eventFilter, null).getContent();
 			//
 			Assert.assertEquals(1, failedEvents.size());
-			Assert.assertEquals(CoreResultCode.GROOVY_SCRIPT_EXCEPTION.getCode(), failedEvents.get(0).getResult().getCode());
+			Assert.assertEquals(AccResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED.getCode(), failedEvents.get(0).getResult().getCode());
 			
 		} finally {
 			identityService.delete(identity);

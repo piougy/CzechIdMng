@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Operations with IdmIdentity
+ * Operations with identities.
  * 
  * @author Radek Tomiška
  *
@@ -110,8 +110,20 @@ public interface IdmIdentityService extends
 	 * If no manager is found, then identities wit admin role (by configuration) is returned.
 	 * 
 	 * @param forIdentity
+	 * @param byTreeType [optional] If tree type is given, then only managers defined with this type is returned
+	 * @param validContractManagers [optional] filter managers for valid now or in future subordinate contracts (true => valid now or in future contract managers, false => ended contract managers, all otherwise).
+	 * @return identity managers
+	 * @since 10.3.0
+	 */
+	List<IdmIdentityDto> findAllManagers(UUID forIdentity, UUID byTreeType, Boolean validContractManagers);
+	
+	/**
+	 * Method finds all identity's managers by identity contract (guarantee or by assigned tree structure).
+	 * If no manager is found, then identities wit admin role (by configuration) is returned.
+	 * 
+	 * @param forIdentity
 	 * @param byTreeType If optional tree type is given, then only managers defined with this type is returned
-	 * @return
+	 * @return identity managers
 	 */
 	List<IdmIdentityDto> findAllManagers(UUID forIdentity, UUID byTreeType);
 
@@ -119,7 +131,7 @@ public interface IdmIdentityService extends
 	 * Method finds all identity's managers by identity contract and return managers
 	 * 
 	 * @param forIdentity
-	 * @return String - usernames separate by commas
+	 * @return identity managers
 	 */
 	List<IdmIdentityDto> findAllManagers(UUID forIdentity);
 

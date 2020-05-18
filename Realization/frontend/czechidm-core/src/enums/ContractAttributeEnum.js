@@ -1,4 +1,4 @@
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
  * Keys of contract fields

@@ -169,5 +169,5 @@ const ServiceRoot = {
   ImportLogService
 };
 
-ServiceRoot.version = '10.2.0';
+ServiceRoot.version = '10.3.0';
 module.exports = ServiceRoot;

@@ -65,6 +65,9 @@ export default class IdentityAttributeEnum extends AbstractEnum {
       case this.ASSIGNED_ROLES_FOR_SYSTEM: {
         return 'assignedRolesForSystem';
       }
+      case this.FORM_PROJECTION: {
+        return 'formProjection';
+      }
       default: {
         return null;
       }
@@ -113,6 +116,9 @@ export default class IdentityAttributeEnum extends AbstractEnum {
       case 'assignedRolesForSystem': {
         return this.ASSIGNED_ROLES_FOR_SYSTEM;
       }
+      case 'formProjection': {
+        return this.FORM_PROJECTION;
+      }
       default: {
         return null;
       }
@@ -146,3 +152,4 @@ IdentityAttributeEnum.TITLE_AFTER = Symbol('TITLE_AFTER');
 IdentityAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
 IdentityAttributeEnum.ASSIGNED_ROLES = Symbol('ASSIGNED_ROLES');
 IdentityAttributeEnum.ASSIGNED_ROLES_FOR_SYSTEM = Symbol('ASSIGNED_ROLES_FOR_SYSTEM');
+IdentityAttributeEnum.FORM_PROJECTION = Symbol('FORM_PROJECTION');

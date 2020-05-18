@@ -660,7 +660,14 @@
         "tab": "Navázané systémy",
         "title": "Navázané systémy na tuto politiku"
       }
-    }
+    },
+    "monitoring": {
+      "type": {
+        "monitoring-sync": {
+          "name": "Stav všech aktivních synchronizací"
+          }
+        }
+      }
   },
   "entity": {
     "System": {
@@ -712,6 +719,12 @@
         "active": {
           "label": "Systém je <strong>aktivní</strong>"
         }
+      },
+      "systemType": {
+        "label": "Typ systému",
+        "virtual": "Pouze virtuální",
+        "notVirtual": "Bez virtuálních",
+        "all": "Všechny systémy"
       }
     },
     "ConnectorServer": {
@@ -2542,6 +2555,10 @@
     "SYSTEM_MAPPING_DELETE_BULK_ACTION_MAPPING_IN_USE": {
       "message": "Mapování <strong>{{mapping}}</strong> je použito v <strong class=\"highlight\">{{count}}</strong> nastavení synchronizace nebo provisioningu!",
       "title": ""
+    },
+    "GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED": {
+      "title": "Transformační sktipt selhal",
+      "message": "Transformační sktipt selhal z důvodu: [{{origMessage}}] IdM lokace: [{{idmPath}}] Lokace skriptu: [{{scriptPath}}]."
     },
     "PROVISIONING_PASSWORD_TRANSFORMATION_FAILED": {
       "message": "Transformace hesla pro uid {{uid}} nevrací GuardedString nebo null. Název mapovaného atributu {{mappedAttribute}}.",

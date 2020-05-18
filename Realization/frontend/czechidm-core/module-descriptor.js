@@ -959,6 +959,14 @@ module.exports = {
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
           },
           {
+            id: 'monitoring',
+            labelKey: 'navigation.menu.monitoring',
+            icon: 'fa:heartbeat',
+            order: 12,
+            path: '/monitorings',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
+          },
+          {
             id: 'modules',
             labelKey: 'content.system.modules.title',
             order: 50,
@@ -1529,6 +1537,7 @@ module.exports = {
         id: 'identity-menu-logout-separator',
         section: 'identity-menu',
         type: 'SEPARATOR',
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PROFILE_READ', 'IDENTITY_PASSWORDCHANGE', 'IDENTITY_READ'] } ],
         order: 990
       },
       {

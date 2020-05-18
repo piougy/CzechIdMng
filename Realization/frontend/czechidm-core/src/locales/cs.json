@@ -361,6 +361,7 @@
       },
       "messages": "Hlášení",
       "configuration": "Konfigurace aplikace",
+      "monitoring": "Monitoring",
       "userLabel": "{{loggedUsername}}",
       "login": "$t(content.login.header)",
       "logout": "Odhlásit",
@@ -607,6 +608,8 @@
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
           "CAN-BE-REQUESTED-ROLE-SELECT": "Výběr rolí dostupných pro žádost (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",
+          "FORM-PROJECTION-SELECT": "Výběr projekce formuláře (SelectBox)",
+          "CODE-LIST-SELECT": "Výběr číselníku (SelectBox)",
           "TREE-NODE-SELECT": "Výběr prvku stromu (SelectBox)",
           "TREE-TYPE-SELECT": "Výběr typu stromu (SelectBox)",
           "SCRIPT-SELECT": "Výběr skriptu (SelectBox)",
@@ -617,6 +620,7 @@
           "ENUMERATION": "$t(enums.PersistentTypeEnum.ENUMERATION)",
           "AUTOMATIC-ROLE-TREE-SELECT": "Výběr automatické role dle stromové struktury (SelectBox)",
           "AUTOMATIC-ROLE-ATTRIBUTE-SELECT": "Výběr automatické role dle atributu (SelectBox)",
+          "BASE-PERMISSION-ENUM": "Základní oprávnění v IdM",
           "OPERATION-STATE-ENUM": "Stav operace",
           "WORKFLOW-DEFINITION-SELECT": "Výběr definice workflow (SelectBox)"
         },
@@ -666,6 +670,24 @@
       },
       "CloseButton": {
         "title": "Zavřít detail"
+      },
+      "NavigationSearch": {
+        "search": {
+          "placeholder": "Najít uživatele nebo roli"
+        },
+        "button": {
+          "title": "Hledat"
+        },
+        "message": {
+          "notFound": {
+            "title": "Nenalezeno",
+            "message": "Záznam dle zadaného textu [{{text}}] nebyl nalezen."
+          },
+          "foundMore": {
+            "title": "Nalezeno více záznamů",
+            "message": "Bylo nalezeno více záznamů [{{counter}}] dle zadaného textu [{{text}}]. Rozšiřte zadaný text pro zobrazení detailu záznamu."
+          }
+        }
       }
     }
   },
@@ -932,7 +954,7 @@
       "PASSWORD": "Heslo (GuardedString)",
       "ASSIGNED_ROLES": "Přiřazené role uživatele",
       "ASSIGNED_ROLES_FOR_SYSTEM": "Přiřazené role uživatele (pro tento systém)",
-      "FORM_PROJECTION": "Typ uživatele (UUID)",
+      "FORM_PROJECTION": "Typ uživatele (IdmFormProjectionDto)",
       "helpBlock": {
         "USERNAME": "",
         "EXTERNAL_CODE": "",
@@ -948,7 +970,7 @@
         "PASSWORD": "",
         "ASSIGNED_ROLES": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
         "ASSIGNED_ROLES_FOR_SYSTEM": "Vstupem transformace do systému (<strong>attributeValue</strong>) je list všech <strong>validních</strong> rolí uživatele, které přiřazují <strong>tento systém</strong> (list AssignedRoleDto). Tento atribut je určen pouze pro <strong>provisioning</strong> a pro výchozí strategii (SET).",
-        "FORM_PROJECTION": ""
+        "FORM_PROJECTION": "<strong>Synchronizace - </strong> Pro dohledání konkrétního typu uživatele (projekce) v rámci synchronizace, můžete použít identifikátor nebo <strong>kód projekce</strong>.<br/><strong>Provisioning - </strong> Vstupem transformace do systému (<strong>attributeValue</strong>) je celý objet typu-uživatele (IdmFormProjectionDto)."
       }
     },
     "ContractAttributeEnum": {
@@ -1077,7 +1099,13 @@
       "MANUALLYDISABLE": "Manuální deaktivace uživatele",
       "MANUALLYENABLE": "Manuální aktivace uživatele",
       "CANBEREQUESTED": "O roli lze žádat",
-      "CHANGEPROJECTION": "Změna typu uživatele (projekce)"
+      "CHANGEPROJECTION": "Změna typu uživatele (projekce)",
+      "CHANGEUSERNAME": "Změna uživatelského jména",
+      "CHANGENAME": "Změna jména, příjmení a titulů",
+      "CHANGEPHONE": "Změna telefonu",
+      "CHANGEEMAIL": "Změna emailu",
+      "CHANGEEXTERNALCODE": "Změna osobního čísla",
+      "CHANGEDESCRIPTION": "Změna popisu"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -1118,8 +1146,7 @@
       "ROLEREQUEST": "Agenda žádostí pro změnu rolí",
       "REQUEST": "Agenda žádostí (univerzální)",
       "REQUESTITEM": "Agenda žádostí - položky žádosti (univerzální)",
-      "SCHEDULER": "Nastavení plánovače",
-      "LONGRUNNINGTASK": "Proběhlé dlouhotrvající úlohy",
+      "SCHEDULER": "Nastavení plánovače a dlouhotrvajících úloh",
       "WORKFLOWDEFINITION": "Workflow - definice",
       "CONFIDENTIALSTORAGEVALUE": "Šifrovaný obsah",
       "WORKFLOWTASK": "Workflow - úkoly",
@@ -1405,6 +1432,15 @@
         "message": "Konfigurovatelná položka [<strong>{{name}}</strong>] již existuje s hodnotou [<strong>{{value}}</strong>]. Chcete ji přepsat?"
       }
     },
+    "monitoring": {
+      "header": "Monitoring",
+      "title": "Monitoring",
+      "type": {
+        "monitoring-database": {
+          "name": "Počet záznamů ve vybraných databázových tabulkách"
+          }
+        }
+      },
     "tasks-summary": {
       "summary": "Přehled úkolů",
       "approvalTasks": "Schvalované úkoly",
@@ -1502,6 +1538,13 @@
           "currentRoles": "Aktuálně přiřazené role",
           "conceptIdentityRoles": "Role žadatele"
         }
+      },
+      "historicInstance": {
+        "name": "<strong>Tento úkol byl již vyřešen.</strong>",
+        "assignee": "Vyřešeno uživatelem",
+        "endTime": "Datum vyřešení",
+        "result": "Způsob vyřešení",
+        "process": "Úkol je součástí procesu"
       },
       "DefaultTaskDetail": {
         "applicant": "Žádost pro",
@@ -1680,7 +1723,7 @@
           "message_2": "Opravdu chcete manuálně deaktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně deaktivovaní uživatelé můžou být opět aktiovováni pouze manuálně.",
           "message_5": "$t(content.identities.action.deactivate.message_2)",
           "error": "Při deaktivaci uživatele {{username}} nastala chyba",
-          "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni"
+          "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni."
         },
         "activate": {
           "action": "Aktivovat - manuálně",
@@ -1692,7 +1735,7 @@
           "message_2": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybrané uživatele? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
           "message_5": "Opravdu chcete manuálně aktivovat <strong>{{count}}</strong> vybraných uživatelů? Manuálně aktivovat lze pouze manuálně deaktivované uživatele.",
           "error": "Při aktivaci uživatele {{username}} nastala chyba",
-          "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní"
+          "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní."
         },
         "remove": {
           "action": "Odebrat"
@@ -2788,6 +2831,15 @@
         "button": {
           "close": {
             "label": "Zpět na seznam uživatelů"
+          },
+          "formProjection": {
+            "label": "Upravit projekci formuláře"
+          },
+          "editContract": {
+            "label": "Přidat kontrakt pro tuto organizaci"
+          },
+          "cancelContract": {
+            "label": "Zrušit přidání kontraktu pro tuto organizaci"
           }
         },
         "identity": {
@@ -2805,6 +2857,15 @@
           "workPosition": {
             "label": "Organizační zařazení"
           }
+        },
+        "primeContract": {
+          "label": "Hlavní kontrakt"
+        },
+        "otherContracts": {
+          "label": "Další kontrakty"
+        },
+        "allContracts": {
+          "label": "Kontrakty"
         },
         "otherPosition": {
           "workPosition": {
@@ -3076,11 +3137,17 @@
         },
         "create": {
           "title": "Nový garant",
-          "header": "Nový garant"
+          "header": "Nový garant",
+          "endedContract": "Nového garanta lze přidat pouze pro aktuálně nebo v budoucnu platný kontrakt"
         },
         "action": {
           "save": {
             "success": "Pro pracovní pozici byl úspěšně uložen vedoucí (odpovědná osoba) [{{record}}]"
+          }
+        },
+        "endedContract": {
+          "warning": {
+            "message": "Platnost kontraktu vypršela. Je možné pouze odebrat předešle nastaveného vedoucího (odpovědnou osobu)."
           }
         }
       },
@@ -3545,7 +3612,7 @@
           "endTime": "$t(entity.WorkflowHistoricProcessInstance.endTime)",
           "deleteReason": "$t(entity.WorkflowHistoricProcessInstance.deleteReason)",
           "processVariables": "$t(entity.WorkflowHistoricProcessInstance.processVariables)",
-          "name": "$t(entity.WorkflowHistoricProcessInstance.name)",
+          "name": "Název procesu",
           "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
           "processDefinitionKey": "$t(entity.WorkflowHistoricProcessInstance.processDefinitionKey)",
@@ -3553,6 +3620,7 @@
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "Uživatelské úkoly procesu",
           "subprocesses": "Podřízené procesy",
+          "nextProcessOptions": "Další vlastnosti procesu",
           "filter": {
             "processDefinition":{
               "label": "Definice",
@@ -3901,6 +3969,10 @@
       "guarantee": {
         "label": "Garant - identita",
         "help": "Vybraná identita se stane garantem role."
+      },
+      "type": {
+        "label": "Typ garanta",
+        "help": ""
       }
     },
     "RoleGuaranteeRole": {
@@ -3911,6 +3983,10 @@
       "guaranteeRole": {
         "label": "Garant - role",
         "help": "Identity mající vybranou roli se stanou garanty dané role."
+      },
+      "type": {
+        "label": "Typ garanta",
+        "help": ""
       }
     },
     "ConfidentialStorageValue": {
@@ -4298,7 +4374,7 @@
       "main": {
         "short": "H",
         "label": "Hlavní pozice",
-        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele. Je zakládána automaticky při vytvoření uživatele.",
+        "help": "Hlavní / primární pracovní pozice. Bude použita například pro zobrazení pozice uživatele.",
         "title": "Hlavní pozice"
       },
       "state": {
@@ -4548,6 +4624,14 @@
       "secured": "Systémové",
       "public": "Veřejné",
       "confidential": "Tajné"
+    },
+    "IdmMonitoringType": {
+      "_type": "Monitoring",
+      "name": "Název",
+      "value": "Hodnota",
+      "module": "Modul",
+      "level": "Stav",
+      "threshold": "Limitní hodnota"
     },
     "Audit": {
       "label": "Audit",
@@ -5319,32 +5403,38 @@
       "approve": {
         "label" : "Schválit",
         "tooltip": "Provede schválení tohoto úkolu.",
-        "warning": "Opravdu chcete provést schválení?"
+        "warning": "Opravdu chcete provést schválení?",
+        "resultLabel": "Schváleno"
       },
       "disapprove": {
         "label" : "Zamítnout",
         "tooltip": "Zamítnout úkol.",
-        "warning": "Opravdu chcete zamítnout úkol?"
+        "warning": "Opravdu chcete zamítnout úkol?",
+        "resultLabel": "Zamítnuto"
       },
       "backToApplicant": {
         "label" : "Vrátit žadateli",
         "tooltip": "Vrátí žádost žadateli.",
-        "warning": "Opravdu chcete vrátit žádost žadateli?"
+        "warning": "Opravdu chcete vrátit žádost žadateli?",
+        "resultLabel": "Vráceno žadateli."
       },
       "createRequest": {
         "label" : "Vytvořit žádost",
         "tooltip": "Vytvoří žádost.",
-        "warning": "Opravdu chcete vytvořit žádost?"
+        "warning": "Opravdu chcete vytvořit žádost?",
+        "resultLabel": "Žádost vytvořena."
       },
       "cancelRequest": {
         "label" : "Smazat žádost",
         "tooltip": "Zruší tuto žádost.",
-        "warning": "Opravdu chcete zrušit tuto žádost?"
+        "warning": "Opravdu chcete zrušit tuto žádost?",
+        "resultLabel": "Žádost smazána."
       },
       "repairedRequest": {
         "label" : "Žádost opravena",
         "tooltip": "Žádost byla opravena/doplněna dle připomínek.",
-        "warning": "Opravdu chcete žádost vrátit ke schválení?"
+        "warning": "Opravdu chcete žádost vrátit ke schválení?",
+        "resultLabel": "Žádost opravena."
       }
     },
     "formData" : {
@@ -5475,6 +5565,16 @@
           "maincontract": {
             "label": "Odebrat pouze z hlavního kontraktu",
             "help": "Odebrání role/í bude provedeno pouze z hlavního kontraktu."
+          }
+        }
+      },
+      "core-identity-change-user-type-bulk-action": {
+        "label": "Změnit typ uživatele",
+        "icon": "component:identity-projection",
+        "attributes": {
+          "user-type": {
+            "label": "Typ uživatele",
+            "help": "Nový typ uživatele."
           }
         }
       },
@@ -5699,6 +5799,61 @@
           "can-be-requested-only": {
             "label": "Pouze pro žádosti o role",
             "help": "Přiřadí pouze oprávnění pro možnost žádat o přiřazenou stejnou roli. Použitelné například při kopírování rolí od jiného uživatele."
+          }
+        }
+      },
+      "core-codelist-item-by-code-evaluator": {
+        "help": "Oprávnění pro položky číselníku. Oprávnění je možné přidat pouze pro vybraný číselník a vybrané položky (všechny položky jsou použity jako výchozí).",
+        "attributes": {
+          "codelist": {
+            "label": "Číselník",
+            "help": "Vyberte číselník, která obsahuje položky, kterým bude nastaveno oprávnění.",
+            "placeholder": "Vyberte číselník ..."
+          },
+          "item-codes": {
+            "label": "Položky číselníku",
+            "help": "Položky, kterým bude nastaveno oprávnění. Pokud ponecháte položky prázdné, bude oprávnění nastaveno pro všechny položky daného číselníku.",
+            "placeholder": "Všechny položky daného číselníku nebo zadejte kódy položek oddělené čárkou"
+          }
+        }
+      },
+      "core-identity-by-form-projection-evaluator": {
+        "help": "Oprávnění pro uživatele dle typu. Oprávnění je možné přidat pro vybraný typ uživatele nebo pro výchozí (uživatelé bez vyplněného typu).",
+        "attributes": {
+          "form-projection": {
+            "label": "Typ uživatele",
+            "help": "Vyberte typ uživatele, kterému bude nastaveno oprávnění.",
+            "placeholder": "Defaultní typ uživatele nebo vyberte ..."
+          }
+        }
+      },
+      "core-identity-by-tree-node-evaluator": {
+        "help": "Oprávnění pro identity, které mají alespoň jeden pracovněprávní vztah na vybraném prvku organizační struktury.",
+        "attributes": {
+          "tree-node": {
+            "label": "Prvek organizační struktury",
+            "help": "Vyberte prvek na který se budou vztahovat vybraná práva. Práva budou platit také na všechny prvky se šířením dolů.",
+            "placeholder": "Prvek organizační struktury ..."
+          }
+        }
+      },
+      "core-contract-by-identity-evaluator": {
+        "help": "Oprávnění pro kontrakty uživatele dle oprávnění na uživatele.",
+        "attributes": {
+          "include-permissions": {
+            "label": "Přenést oprávnění",
+            "help": "Vyberte oprávnění, které budou přenesena dle oprávnění na uživatele.",
+            "placeholder": "Stejná oprávnění jako na uživatele nebo vyberte ..."
+          }
+        }
+      },
+      "core-role-by-role-catalogue-evaluator": {
+        "help": "Oprávnění pro role, které jsou zařazeny ve vybraném katalogu.",
+        "attributes": {
+          "role-catalogue": {
+            "label": "Katalog",
+            "help": "Vyberte katalog ve kterém budou role na které se budou vztahovat vybraná práva. Práva budou platit také na všechny role v katalozích se šířením dolů.",
+            "placeholder": "Katalog ..."
           }
         }
       }
@@ -6087,6 +6242,32 @@
         "icon": "fa:user",
         "level": "success"
       }
+    },
+    "form-projection-route": {
+      "form-identity": {
+        "help": "Výchozí produktová projekce (formulář). Projekce nenabízí další konfiguraci, provádí pouze přeměrování na výchozí formuláře pro založení a editaci uživatele."
+      },
+      "form-identity-projection": {
+        "help": "Konfigurovatelná produktová projekce.",
+        "attributes": {
+          "prime-contract": {
+            "label": "Zobrazit hlavní kontrakt",
+            "help": "Zobrazit (a editovat) pouze hlavní kontrakt uživatele."
+          },
+          "all-contracts": {
+            "label": "Zobrazit všechny kontrakty uživatele",
+            "help": "Zobrazit (a editovat) všechny kontrakty uživatele. Vyžaduje definici číselníku <strong>contract-position</strong> - číselník řídí dostupné typy kontraktů dle typu organizace."
+          },
+          "other-position": {
+            "label": "Zobrazit další pozici kontraktu uživatele",
+            "help": "Zobrazit (a editovat) jednu další pozici kontraktu uživatele."
+          },
+          "assigned-roles": {
+            "label": "Zobrazit přiřazené role",
+            "help": "Zobrazit možnost přiřadit role pro nového uživatele a zažádat o změnu rolí pro stávajícího."
+          }
+        }
+      }
     }
   },
   "error": {
@@ -6108,7 +6289,11 @@
     },
     "FORBIDDEN_ENTITY": {
       "title": "Nedostatečná oprávnění",
-      "message": "Na požadovaný záznam [{{entity}}] nemáte dostatečná oprávnění [{{permission}}]."
+      "message": "Na požadovaný záznam [{{entity}}] [typ: {{type}}] nemáte dostatečná oprávnění [{{permission}}]."
+    },
+    "FORBIDDEN_CODEABLE_ENTITY": {
+      "title": "Nedostatečná oprávnění",
+      "message": "Na požadovaný záznam [{{code}}] [typ: {{type}}] nemáte dostatečná oprávnění [{{permission}}]."
     },
     "PASSWORD_CHANGE_NO_SYSTEM": {
       "title": "Změna hesla neproběhla",

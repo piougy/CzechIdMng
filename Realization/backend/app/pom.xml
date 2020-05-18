@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
-		<version>10.3.0-SNAPSHOT</version>
+		<version>10.4.0-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -236,8 +236,8 @@
 								</goals>
 								<phase>generate-resources</phase>
 								<configuration>
-									<nodeVersion>v10.15.3</nodeVersion>
-									<npmVersion>6.4.1</npmVersion>
+									<nodeVersion>v12.16.3</nodeVersion>
+									<npmVersion>6.14.4</npmVersion>
 								</configuration>
 							</execution>
 							<execution>

@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -36,6 +38,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysAttributeControlledValueDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -44,6 +47,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysAttributeControlledValueFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
@@ -58,10 +63,12 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -69,6 +76,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
@@ -183,8 +191,16 @@ public class DefaultSysSystemAttributeMappingService
 	public Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping,
 			AbstractDto entity) {
 		Assert.notNull(attributeMapping, "Attribute mapping is required.");
-		return transformValueToResource(uid, value, attributeMapping.getTransformToResourceScript(), entity,
-				getSystemFromAttributeMapping(attributeMapping));
+		try {
+			return transformValueToResource(uid, value, attributeMapping.getTransformToResourceScript(), entity,
+					getSystemFromAttributeMapping(attributeMapping));
+		} catch (Exception e) {
+			Map<String, Object> logParams = createTransformationScriptFailureParams(e, attributeMapping);
+			ResultCodeException ex = new ResultCodeException(AccResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED,
+					logParams, e);
+			ExceptionUtils.log(log, ex);
+			throw ex;
+		}
 	}
 
 	@Override
@@ -222,8 +238,16 @@ public class DefaultSysSystemAttributeMappingService
 			List<IcAttribute> icAttributes) {
 		Assert.notNull(attributeMapping, "Attribute mapping is required.");
 		//
-		return transformValueFromResource(value, attributeMapping.getTransformFromResourceScript(), icAttributes,
-				getSystemFromAttributeMapping(attributeMapping));
+		try {
+			return transformValueFromResource(value, attributeMapping.getTransformFromResourceScript(), icAttributes,
+					getSystemFromAttributeMapping(attributeMapping));
+		} catch (Exception e) {
+			Map<String, Object> logParams = createTransformationScriptFailureParams(e, attributeMapping);
+			ResultCodeException ex = new ResultCodeException(AccResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED,
+					logParams, e);
+			ExceptionUtils.log(log, ex);
+			throw ex;
+		}
 	}
 
 	@Override
@@ -944,5 +968,83 @@ public class DefaultSysSystemAttributeMappingService
 		filter.setSystemId(systemId);
 
 		return this.find(filter, null).getContent();
+	}
+	
+	/**
+	 * Creates a list of attribute mapping info from which an error originates
+	 * Contains: system name / mapping or role name / mapped attribute name
+	 * 
+	 * @param attributeMapping
+	 * @return
+	 */
+	private List<String> createMappingIdmPath(AttributeMapping attributeMapping) {
+		List<String> path = new ArrayList<>();
+		// attribute name
+		path.add(String.format("Attr: %s", attributeMapping.getName()));
+
+		// role and system mapping name
+		SysSystemAttributeMappingDto sysMapping = null;
+		if (attributeMapping instanceof SysRoleSystemAttributeDto) {
+			SysRoleSystemAttributeDto mapping = (SysRoleSystemAttributeDto) attributeMapping;
+			// get role name
+			SysRoleSystemDto roleSystem = DtoUtils.getEmbedded(mapping, SysRoleSystemAttribute_.roleSystem, SysRoleSystemDto.class, null);
+			// mapping name and role name are not be available in case of script pre-evaluation during saving
+			if (roleSystem != null) {
+			IdmRoleDto roleDto = DtoUtils.getEmbedded(roleSystem, SysRoleSystem_.role, IdmRoleDto.class);
+			path.add(String.format("Role: %s", roleDto.getCode()));
+			sysMapping = DtoUtils.getEmbedded(mapping, SysRoleSystemAttribute_.systemAttributeMapping,
+					SysSystemAttributeMappingDto.class, null);
+			}
+		} else if (attributeMapping instanceof SysSystemAttributeMappingDto) {
+			sysMapping = (SysSystemAttributeMappingDto) attributeMapping;
+		}
+		
+		if (sysMapping != null) {
+			String mappingName = DtoUtils
+					.getEmbedded(sysMapping, SysSystemAttributeMapping_.systemMapping, SysSystemMappingDto.class)
+					.getName();
+			path.add(String.format("Mapping: %s", mappingName));
+		}
+		
+		// system name
+		path.add(String.format("System: %s", getSystemFromAttributeMapping(attributeMapping).getCode()));
+		return path;
+	}
+	
+	/**
+	 * Composes parameters of {@linkGROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED} exception.
+	 * 
+	 * @param ex
+	 * @param attributeMapping
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> createTransformationScriptFailureParams(Throwable ex, AttributeMapping attributeMapping) {
+		Map<String, Object> result = new LinkedHashMap<String, Object>(3);
+		List<String> idmPath = createMappingIdmPath(attributeMapping);
+		List<String> codePath = (List<String>) (List<?>) ExceptionUtils.getParameterChainByKey(ex,
+				AbstractScriptEvaluator.SCRIPT_NAME_KEY, CoreResultCode.GROOVY_SCRIPT_EXCEPTION);
+
+		String message = Throwables.getRootCause(ex).getLocalizedMessage();
+		result.put(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_MESSAGE_KEY, message);
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = idmPath.size() - 1; i >= 0; i--) {
+			sb.append(idmPath.get(i));
+			if (i > 0) {
+				sb.append(" / ");
+			}
+		}
+		result.put(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_IDM_PATH_KEY, sb.toString());
+
+		sb.setLength(0);
+		for (int i = 0; i < codePath.size(); i++) {
+			sb.append(codePath.get(i));
+			if (i < codePath.size() - 1) {
+				sb.append(" / ");
+			}
+		}
+		result.put(SysSystemAttributeMappingService.MAPPING_SCRIPT_FAIL_SCRIPT_PATH_KEY, sb.toString());
+		return result;
 	}
 }

@@ -72,7 +72,7 @@ public class IdentityByContractEvaluator extends AbstractAuthorizationEvaluator<
 		if (entity == null || !securityService.isAuthenticated()) {
 			return permissions;
 		}
-		// TODO: #2002 - change repository method ... 
+		//
 		for(IdmIdentityContract contract : contractRepository.findAllByIdentity_Id(entity.getId(), null)) {
 			permissions.addAll(authorizationManager.getPermissions(contract));
 			// little optimization
@@ -80,7 +80,7 @@ public class IdentityByContractEvaluator extends AbstractAuthorizationEvaluator<
 				break;
 			}
 		}
-		
+		//
 		return permissions;
 	}
 	

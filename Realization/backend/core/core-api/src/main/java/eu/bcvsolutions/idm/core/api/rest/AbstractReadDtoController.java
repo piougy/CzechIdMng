@@ -33,19 +33,24 @@ import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.PermissionContext;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 //import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import java.util.UUID;
+import org.springframework.util.LinkedMultiValueMap;
 
 /**
  * Read operations (get, find, autocomplete)
@@ -130,7 +135,40 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 * @return
 	 */
 	public DTO getDto(Serializable backendId) {
-		DTO dto = lookupService.lookupDto(getDtoClass(), backendId);
+		DTO dto = null;
+		// If service supports context, we need to call service.get method with context/filter.
+		if (service.supportsToDtoWithFilter()) {
+			// Create mockup context/filter. We expect the logic (setting of the context) in the method toFilter.
+			F context = toFilter(new LinkedMultiValueMap<>());
+			if (backendId instanceof UUID) {
+				// BackendId is UUID, we try to load DTO by service.get method (with context).
+				dto = service.get((UUID) backendId, context);
+			} else {
+				try {
+					UUID id = DtoUtils.toUuid(backendId);
+					// BackendId is UUID, we try to load DTO by service.get method (with context).
+					dto = service.get(id, context);
+					if (dto == null) {
+						// DTO was not found by UUID. Theoretically is UUID not ID, but code (for example).
+						// We try to use lookup service now.
+						dto = lookupService.lookupDto(getDtoClass(), backendId);
+						if (dto != null) {
+							// DTO was found by lookup service. Now we need to call service.get with context.
+							dto = service.get(dto.getId(), context);
+						}
+					}
+				} catch (ClassCastException ex) {
+					// Ok, backendId is not UUID, so we can try to lookupSerivce.
+					dto = lookupService.lookupDto(getDtoClass(), backendId);
+					if (dto != null) {
+						// DTO was found by lookup service. Now we need to call service.get with context.
+						dto = service.get(dto.getId(), context);
+					}
+				}
+			}
+		} else {
+			dto = lookupService.lookupDto(getDtoClass(), backendId);
+		}
 		return checkAccess(dto, IdmBasePermission.READ);
 	}
 
@@ -159,7 +197,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.READ), getDtoClass());
+		return toResources(find(toFilter(parameters), pageable, evaluatePermission(parameters, IdmBasePermission.READ)), getDtoClass());
 	}
 	
 	/**
@@ -215,7 +253,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	public Resources<?> autocomplete(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
-		return toResources(find(toFilter(parameters), pageable, IdmBasePermission.AUTOCOMPLETE), getDtoClass());
+		return toResources(find(toFilter(parameters), pageable, evaluatePermission(parameters, IdmBasePermission.AUTOCOMPLETE)), getDtoClass());
 	}
 	
 	/**
@@ -230,7 +268,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 			@Authorization(SwaggerConfig.AUTHENTICATION_CIDMST)
 			})
 	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
-		return count(toFilter(parameters), IdmBasePermission.COUNT);
+		return count(toFilter(parameters), evaluatePermission(parameters, IdmBasePermission.COUNT));
 	}
 
 	/**
@@ -358,5 +396,14 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	 */
 	protected DTO checkAccess(DTO dto, BasePermission... permission) {
 		return getService().checkAccess(dto, permission);
+	}
+	
+	protected BasePermission evaluatePermission(MultiValueMap<String, Object> parameters, BasePermission originalPermission) {
+		// We need to use raw parameters => data filter (~PermissionContext instance) is not required now.
+		BasePermission permission = PermissionUtils.toPermission(
+				getParameterConverter().toString(parameters, PermissionContext.PARAMETER_EVALUATE_PERMISSION)
+		);
+		//
+		return permission == null ? originalPermission : permission;
 	}
 }

@@ -24,6 +24,10 @@ export default class LongRunningTaskService extends AbstractService {
     return true;
   }
 
+  getGroupPermission() {
+    return 'SCHEDULER';
+  }
+
   getNiceLabel(entity) {
     if (!entity) {
       return '';

@@ -321,6 +321,16 @@ public interface TestHelper {
 	IdmRoleGuaranteeDto createRoleGuarantee(IdmRoleDto role, IdmIdentityDto guarantee);
 	
 	/**
+	 * Create role guarantee - identity
+	 * 
+	 * @param role
+	 * @param guarantee
+	 * @param guaranteeType
+	 * @return
+	 */
+	IdmRoleGuaranteeDto createRoleGuarantee(IdmRoleDto role, IdmIdentityDto guarantee, String guaranteeType);
+	
+	/**
 	 * Create role guarantee - role
 	 * 
 	 * @param role
@@ -328,6 +338,16 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleGuaranteeRoleDto createRoleGuaranteeRole(IdmRoleDto role, IdmRoleDto guarantee);
+	
+	/**
+	 * Create role guarantee - role
+	 * 
+	 * @param role
+	 * @param guarantee
+	 * @param guaranteeType
+	 * @return
+	 */
+	IdmRoleGuaranteeRoleDto createRoleGuaranteeRole(IdmRoleDto role, IdmRoleDto guarantee, String guaranteeType);
 	
 	/**
 	 * Deletes role

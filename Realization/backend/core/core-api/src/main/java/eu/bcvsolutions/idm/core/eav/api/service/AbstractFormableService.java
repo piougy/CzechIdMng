@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.eav.api.service;
 
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.FormableFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
@@ -69,7 +73,18 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 			event.getContent().getEavs().forEach(formInstance -> {
 				formInstance.getValues().forEach(formValue -> {
 					formValue.setOwner(owner); //  set owner is needed for checking access on new values
-					formValueService.checkAccess(formValue, IdmBasePermission.UPDATE); // UPDATE is enough for all CUD
+					Set<String> availablePermissions = formValueService.getPermissions(formValue);
+					if (event.hasType(CoreEventType.CREATE)) {
+						// Create or update permission, when owner is created.
+						if (!PermissionUtils.hasAnyPermission(availablePermissions, IdmBasePermission.CREATE, IdmBasePermission.UPDATE)) {
+							throw new ForbiddenEntityException(formValue, IdmBasePermission.CREATE, IdmBasePermission.UPDATE);
+						}
+					} else {
+						// UPDATE is enough for all CUD otherwise.
+						if (!PermissionUtils.hasPermission(availablePermissions, IdmBasePermission.UPDATE)) {
+							throw new ForbiddenEntityException(formValue, IdmBasePermission.UPDATE);
+						}
+					}
 				});
 			});
 		}
@@ -77,6 +92,7 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 		return super.publish(event, parentEvent, permission);
 	}
 	
+	@Override
 	public DTO saveInternal(DTO dto) {
 		final DTO savedDto = super.saveInternal(dto);
 		//
@@ -90,7 +106,7 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 	/**
 	 * Deletes a given entity with all extended attributes
 	 * 
-	 * @param entity
+	 * @param dto
 	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
 	@Override
@@ -102,12 +118,16 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 	}
 	
 	/**
-	 * Apply context on given dto. 
-	 * If has filter sets field "Add EAV metadata" to True, then we will load the form instance for every result.
-	 * 
+	 * Apply context on given dto.
+	 *
+	 * If has filter sets field "Add EAV metadata" to True, then we will load the
+	 * form instance for every result.
+	 *
 	 * @param dto
 	 * @param context
 	 * @param permission
+	 *
+	 * @return
 	 * @since 10.2.0
 	 */
 	@Override
@@ -117,11 +137,13 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 		if (!(context instanceof FormableFilter)) {
 			return dto;
 		}
-		if (BooleanUtils.isNotTrue(((FormableFilter) context).getAddEavMetadata())) {
+		FormableFilter formableContext = (FormableFilter) context;
+		if (BooleanUtils.isNotTrue(formableContext.getAddEavMetadata())
+				&& CollectionUtils.isEmpty(formableContext.getFormDefinitionAttributes())) {
 			return dto;
 		}
 		// load all form instances
-		dto.setEavs(this.getFormInstances(dto, permission));
+		dto.setEavs(this.findFormInstances(dto, formableContext, permission));
 		//
 		return dto;
 	}
@@ -130,10 +152,25 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 	 * Returns form instances for given DTO
 	 * 
 	 * @param dto
+	 * @param permission
 	 * @return
+	 * @deprecated @since 10.3.0 => override {@link #findFormInstances(FormableDto, FormableFilter, BasePermission...)} instead.
 	 */
 	protected List<IdmFormInstanceDto> getFormInstances(DTO dto, BasePermission... permission) {
-		return formService.getFormInstances(dto, permission);
+		return this.findFormInstances(dto, null, permission);
+	}
+	
+	/**
+	 * Finds form instances for given DTO.
+	 * 
+	 * @param dto
+	 * @param formableContext
+	 * @param permission
+	 * @return
+	 * @since 10.3.0
+	 */
+	protected List<IdmFormInstanceDto> findFormInstances(DTO dto, FormableFilter formableContext, BasePermission... permission) {
+		return formService.findFormInstances(dto, formableContext, permission);
 	}
 	
 	/**

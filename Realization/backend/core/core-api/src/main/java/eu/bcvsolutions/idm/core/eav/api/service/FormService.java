@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.FormableFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
@@ -626,6 +627,23 @@ public interface FormService extends ScriptEnabled {
 	IdmFormInstanceDto getFormInstance(Identifiable owner, IdmFormDefinitionDto formDefinition, BasePermission... permission);
 	
 	/**
+	 * Find form values by given owner and form definition.
+	 * 
+	 * @param owner
+	 * @param formDefinition [optional] if form definition is not given, then return attribute values from main definition
+	 * @param filter - given attributes can be returned only. Return all attributes, if filter is empty.
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 * @throws IllegalArgumentException if form definition is not given and main definition does not exist
+	 * @since 10.3.0
+	 */
+	IdmFormInstanceDto findFormInstance(
+			Identifiable owner, 
+			IdmFormDefinitionDto formDefinition, 
+			FormableFilter filter, 
+			BasePermission... permission);
+	
+	/**
 	 * Reads form values by given owner. Return values from all form definitions.
 	 * 
 	 * @param owner
@@ -634,6 +652,17 @@ public interface FormService extends ScriptEnabled {
 	 * @since 10.2.0
 	 */
 	List<IdmFormInstanceDto> getFormInstances(Identifiable owner, BasePermission... permission);
+	
+	/**
+	 * Find form values by given owner. Return values fits given filter.
+	 * 
+	 * @param owner - values owner
+	 * @param filter - only some attributes can be returned
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 * @since 10.3.0
+	 */
+	List<IdmFormInstanceDto> findFormInstances(Identifiable owner, FormableFilter filter, BasePermission... permission);
 	
 	/**
 	 * Returns attribute values by attributeCode from given definition, or empty collection
@@ -913,4 +942,15 @@ public interface FormService extends ScriptEnabled {
 	 * @param batch
 	 */
 	void export(IdmFormInstanceDto formInstanceDto, IdmExportImportDto batch);
+	
+	
+	/**
+	 * Prepares new owner instance by form definition type.
+	 * Usable just for UC, where instance of owner has to be evaluated before owner is saved.
+	 * 
+	 * @param formDefinition
+	 * @return
+	 * @since 10.3.0
+	 */
+	FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition);
 }

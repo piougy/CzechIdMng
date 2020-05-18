@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +44,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @since 9.0.0
  */
 @Component(RemoveRoleCompositionTaskExecutor.TASK_NAME)
-@Description("Long running task for remove assigned roles by given composition from identities.")
 public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityRoleDto> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveRoleCompositionTaskExecutor.class);

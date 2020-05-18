@@ -5,6 +5,7 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.ContractBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -38,7 +39,13 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdentityBasePermission.CHANGEPERMISSION,
 			IdentityBasePermission.MANUALLYDISABLE,
 			IdentityBasePermission.MANUALLYENABLE,
-			IdentityBasePermission.CHANGEPROJECTION),
+			IdentityBasePermission.CHANGEPROJECTION,
+			IdentityBasePermission.CHANGEUSERNAME,
+			IdentityBasePermission.CHANGENAME,
+			IdentityBasePermission.CHANGEPHONE,
+			IdentityBasePermission.CHANGEEMAIL,
+			IdentityBasePermission.CHANGEEXTERNALCODE,
+			IdentityBasePermission.CHANGEDESCRIPTION),
 	PROFILE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -54,7 +61,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
 			IdmBasePermission.UPDATE,
-			IdmBasePermission.DELETE),
+			IdmBasePermission.DELETE,
+			ContractBasePermission.CHANGEPERMISSION),
 	CONTRACTSLICE(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.COUNT,
@@ -187,15 +195,14 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE),
-	SCHEDULER(
+	SCHEDULER( // ~ LONGRUNNINGTASK
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.EXECUTE, 
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE,
-			IdmBasePermission.DELETE),
-	LONGRUNNINGTASK(
 			IdmBasePermission.DELETE),
 	ROLEREQUEST(
 			IdmBasePermission.ADMIN,
@@ -381,6 +388,13 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITY_CHANGEPERMISSION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEPERMISSION";
 	public static final String IDENTITY_MANUALLYDISABLE = "IDENTITY" + BasePermission.SEPARATOR + "MANUALLYDISABLE";
 	public static final String IDENTITY_MANUALLYENABLE = "IDENTITY" + BasePermission.SEPARATOR + "MANUALLYENABLE";
+	public static final String IDENTITY_CHANGEPROJECTION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEPROJECTION";
+	public static final String IDENTITY_CHANGEUSERNAME = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEUSERNAME";
+	public static final String IDENTITY_CHANGENAME = "IDENTITY" + BasePermission.SEPARATOR + "CHANGENAME";
+	public static final String IDENTITY_CHANGEPHONE = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEPHONE";
+	public static final String IDENTITY_CHANGEEMAIL = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEEMAIL";
+	public static final String IDENTITY_CHANGEEXTERNALCODE = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEEXTERNALCODE";
+	public static final String IDENTITY_CHANGEDESCRIPTION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEDESCRIPTION";
 	//
 	public static final String PROFILE_ADMIN = "PROFILE" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String PROFILE_COUNT = "PROFILE" + BasePermission.SEPARATOR + "COUNT";
@@ -533,13 +547,12 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String MODULE_UPDATE = "MODULE" + BasePermission.SEPARATOR + "UPDATE";
 	//
 	public static final String SCHEDULER_COUNT = "SCHEDULER" + BasePermission.SEPARATOR + "COUNT";
+	public static final String SCHEDULER_AUTOCOMPLETE = "SCHEDULER" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String SCHEDULER_READ = "SCHEDULER" + BasePermission.SEPARATOR + "READ";
 	public static final String SCHEDULER_CREATE = "SCHEDULER" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SCHEDULER_UPDATE = "SCHEDULER" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SCHEDULER_DELETE = "SCHEDULER" + BasePermission.SEPARATOR + "DELETE";
 	public static final String SCHEDULER_EXECUTE = "SCHEDULER" + BasePermission.SEPARATOR + "EXECUTE";
-	//
-	public static final String LONGRUNNINGTASK_DELETE = "LONGRUNNINGTASK" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ROLE_REQUEST_ADMIN = "ROLEREQUEST" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String ROLE_REQUEST_COUNT = "ROLEREQUEST" + BasePermission.SEPARATOR + "COUNT";

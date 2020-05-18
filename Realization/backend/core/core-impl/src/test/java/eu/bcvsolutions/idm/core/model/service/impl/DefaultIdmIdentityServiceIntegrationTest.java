@@ -405,7 +405,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testFindIdsWithPageRequest() {
-		// just for sure some two identity exists
+		//
 		getHelper().createIdentity((GuardedString) null);
 		getHelper().createIdentity((GuardedString) null);
 		//
@@ -427,7 +427,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testFindIdsWithSort() {
-		// just for sure some two identity exists
+		//
 		getHelper().createIdentity((GuardedString) null);
 		getHelper().createIdentity((GuardedString) null);
 		//
@@ -495,7 +495,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testChangeProjectionWithChangePermission() {
-		// just for sure some two identity exists
+		//
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmFormProjectionDto projection = new IdmFormProjectionDto();
 		projection.setCode(getHelper().createName());
@@ -523,7 +523,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Test
 	@Transactional
 	public void testChangeProjectionWithoutCheckPermissions() {
-		// just for sure some two identity exists
+		//
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmFormProjectionDto projection = new IdmFormProjectionDto();
 		projection.setCode(getHelper().createName());
@@ -548,10 +548,10 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		}
 	}
 	
-	@Test(expected = ForbiddenEntityException.class)
 	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
 	public void testChangeProjectionWithoutChangePermission() {
-		// just for sure some two identity exists
+		//
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmFormProjectionDto projection = new IdmFormProjectionDto();
 		projection.setCode(getHelper().createName());
@@ -569,6 +569,553 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		try {
 			getHelper().login(identity);			
 			identity.setFormProjection(projection.getId());
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeNameWithChangePermission() {
+		//
+		GuardedString password = new GuardedString("password");
+		IdmIdentityDto identity = getHelper().createIdentity(password);
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE, IdentityBasePermission.CHANGENAME);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity.getUsername(), password);	
+			String value = getHelper().createName();
+			identity.setFirstName(value);
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(value, identity.getFirstName());
+	
+			value = getHelper().createName();
+			identity.setLastName(value);
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(value, identity.getLastName());
+
+			value = getHelper().createName();
+			identity.setTitleBefore(value);
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(value, identity.getTitleBefore());
+
+			value = getHelper().createName();
+			identity.setTitleAfter(value);
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(value, identity.getTitleAfter());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeNameWithoutCheckPermissions() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);	
+			String value = getHelper().createName();
+			identity.setFirstName(value);
+			identity = identityService.save(identity);	
+			Assert.assertEquals(value, identity.getFirstName());
+
+			value = getHelper().createName();
+			identity.setLastName(value);
+			identity = identityService.save(identity);	
+			Assert.assertEquals(value, identity.getLastName());
+	
+			value = getHelper().createName();
+			identity.setTitleBefore(value);
+			identity = identityService.save(identity);	
+			Assert.assertEquals(value, identity.getTitleBefore());
+
+			value = getHelper().createName();
+			identity.setTitleAfter(value);
+			identity = identityService.save(identity);	
+			Assert.assertEquals(value, identity.getTitleAfter());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
+	public void testChangeFirstNameWithoutChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setFirstName(value);
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
+		}
+	}
+	
+	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
+	public void testChangeLastNameWithoutChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setLastName(value);
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
+		}
+	}
+	
+	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
+	public void testChangeTitleBeforeWithoutChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setTitleBefore(value);
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
+		}
+	}
+	
+	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
+	public void testChangeTitleAfterWithoutChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setTitleAfter(value);
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeUsernameWithChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE, IdentityBasePermission.CHANGEUSERNAME);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);
+			String value = getHelper().createName();
+			identity.setUsername(value);
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(value, identity.getUsername());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeUsernameWithoutCheckPermissions() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setUsername(value);
+			identity = identityService.save(identity);	
+			Assert.assertEquals(value, identity.getUsername());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
+	public void testChangeUsernameWithoutChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setUsername(value);
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangePhoneWithChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE, IdentityBasePermission.CHANGEPHONE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName().substring(0, 25);
+			identity.setPhone(value);
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(value, identity.getPhone());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangePhoneWithoutCheckPermissions() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName().substring(0, 25);
+			identity.setPhone(value);
+			identity = identityService.save(identity);	
+			Assert.assertEquals(value, identity.getPhone());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
+	public void testChangePhoneWithoutChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName().substring(0, 25);
+			identity.setPhone(value);
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeEmailWithChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE, IdentityBasePermission.CHANGEEMAIL);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = "emailup@mock.cz";
+			identity.setEmail(value);
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(value, identity.getEmail());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeEmailWithoutCheckPermissions() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = "emailup@mock.cz";
+			identity.setEmail(value);
+			identity = identityService.save(identity);	
+			Assert.assertEquals(value, identity.getEmail());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
+	public void testChangeEmailWithoutChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = "emailup@mock.cz";
+			identity.setEmail(value);
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeDescriptionWithChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE, IdentityBasePermission.CHANGEDESCRIPTION);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setDescription(value);
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(value, identity.getDescription());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeDescriptionWithoutCheckPermissions() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setDescription(value);
+			identity = identityService.save(identity);	
+			Assert.assertEquals(value, identity.getDescription());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
+	public void testChangeDescriptionWithoutChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setDescription(value);
+			identityService.save(identity, IdmBasePermission.UPDATE);	
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeExternalCodeWithChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE, IdentityBasePermission.CHANGEEXTERNALCODE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setExternalCode(value);
+			identity = identityService.save(identity, IdmBasePermission.UPDATE);	
+			Assert.assertEquals(value, identity.getExternalCode());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeExternalCodeWithoutCheckPermissions() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setExternalCode(value);
+			identity = identityService.save(identity);	
+			Assert.assertEquals(value, identity.getExternalCode());
+		} finally {
+			logout();
+		}
+	}
+	
+	@Transactional
+	@Test(expected = ForbiddenEntityException.class)
+	public void testChangeExternalCodeWithoutChangePermission() {
+		//
+		IdmIdentityDto identity = getHelper().createIdentity();
+		//
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(
+				role.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.UPDATE);
+		getHelper().createIdentityRole(identity, role);
+		//
+		try {
+			getHelper().login(identity);			
+			String value = getHelper().createName();
+			identity.setExternalCode(value);
 			identityService.save(identity, IdmBasePermission.UPDATE);	
 		} finally {
 			logout();

@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.core.scheduler.exception.TaskNotRecoverableException;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
+import java.io.Serializable;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
@@ -450,7 +451,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		}
 
 		if (!ObjectUtils.isEmpty(PermissionUtils.trimNull(permission)) && !attachmentDto.getOwnerId().equals(longRunningTaskDto.getId())) {
-			throw new ForbiddenEntityException(attachmentId, PermissionUtils.trimNull(permission));
+			throw new ForbiddenEntityException((Serializable)attachmentId, PermissionUtils.trimNull(permission));
 		}
 		//
 		return attachmentDto;

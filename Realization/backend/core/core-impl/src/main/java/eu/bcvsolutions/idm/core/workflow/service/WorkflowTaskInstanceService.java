@@ -36,6 +36,7 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	 * 
 	 * @param taskId
 	 * @param decision
+	 * @param map
 	 */
 	void completeTask(String taskId, String decision, Map<String, String> map);
 
@@ -55,6 +56,7 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	 * @param dto
 	 * @return
 	 */
+	@Override
 	Set<String> getPermissions(WorkflowTaskInstanceDto dto);
 
 	/**
@@ -68,4 +70,12 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	 */
 	void completeTask(String taskId, String decision, Map<String, String> formData, Map<String, Object> variables,
 			BasePermission[] permission);
+	
+	/**
+	 * Add given variables to the DTO.
+	 * 
+	 * @param dto
+	 * @param taskVariables 
+	 */
+	public void convertToDtoVariables(WorkflowTaskInstanceDto dto, Map<String, Object> taskVariables);
 }

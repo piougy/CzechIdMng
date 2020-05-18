@@ -89,8 +89,15 @@ export default class FormInstance {
     const values = this.getValues();
     const properties = {};
     values.forEach(value => {
-      // TODO: multiple properties are not solved now ... Task on BE is map<string, string> array, some separator?
-      properties[value._embedded.formAttribute.code] = value.value;
+      const attributeCode = value._embedded.formAttribute.code;
+      //  multiple properties are joined by comma separator
+      if (properties[attributeCode]
+        && this.getAttributes().has(attributeCode)
+        && !!this.getAttributes().get(attributeCode).multiple) {
+        properties[attributeCode] += `,${ value.value }`;
+      } else {
+        properties[attributeCode] = value.value;
+      }
     });
     //
     return properties;
@@ -153,18 +160,35 @@ export default class FormInstance {
       return this.setValues(null);
     }
     // convert properties to form values
-    const formValues = _.keys(properties).map(parameterName => {
+    const formValues = [];
+    _.keys(properties).forEach(parameterName => {
       // value is used as fallback in renderers in concrete value by persistent type is not filled
       const value = properties[parameterName];
-      //
-      return {
-        _embedded: {
-          formAttribute: {
-            code: parameterName
-          }
-        },
-        value
-      };
+      // single or empty value
+      if (!value
+         || !this.getAttributes().has(parameterName)
+         || !this.getAttributes().get(parameterName).multiple) {
+        formValues.push({
+          _embedded: {
+            formAttribute: {
+              code: parameterName
+            }
+          },
+          value
+        });
+      } else {
+        // resolve multiple values
+        value.split(',').forEach(singleValue => {
+          formValues.push({
+            _embedded: {
+              formAttribute: {
+                code: parameterName
+              }
+            },
+            value: singleValue
+          });
+        });
+      }
     });
     //
     return this.setValues(formValues);

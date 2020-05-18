@@ -380,6 +380,24 @@ module.exports = {
       manager: require('./src/redux').FormDefinitionManager
     },
     {
+      id: 'form-projection-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'UUID',
+      faceType: 'FORM-PROJECTION-SELECT',
+      component: require('./src/components/advanced/Form/FormProjectionSelectFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.FORM-PROJECTION-SELECT',
+      manager: require('./src/redux').FormProjectionManager
+    },
+    {
+      id: 'code-list-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'UUID',
+      faceType: 'CODE-LIST-SELECT',
+      component: require('./src/components/advanced/Form/SelectBoxFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.CODE-LIST-SELECT',
+      manager: require('./src/redux').CodeListManager
+    },
+    {
       id: 'tree-node-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'UUID',
@@ -549,7 +567,7 @@ module.exports = {
     {
       id: 'main-contract-icon',
       type: 'icon',
-      entityType: ['main-contract'],
+      entityType: ['main-contract', 'prime-contract'],
       component: require('./src/components/advanced/Icon/MainContractIcon')
     },
     {
@@ -581,6 +599,12 @@ module.exports = {
       type: 'icon',
       entityType: ['disabled-identity'],
       component: 'fa:user-slash'
+    },
+    {
+      id: 'identity-projection-icon',
+      type: 'icon',
+      entityType: ['identity-projection'],
+      component: 'fa:user-tag'
     },
     {
       id: 'scheduled-task-icon',
@@ -655,6 +679,15 @@ module.exports = {
       enum: require('./src/enums/OperationStateEnum')
     },
     {
+      id: 'base-permission-enum-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'ENUMERATION',
+      faceType: 'BASE-PERMISSION-ENUM',
+      component: require('./src/components/advanced/Form/EnumSelectBoxFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.BASE-PERMISSION-ENUM',
+      enum: require('./src/enums/BasePermissionEnum')
+    },
+    {
       id: 'workflow-definition-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'SHORTTEXT',
@@ -667,12 +700,6 @@ module.exports = {
       id: 'profile-modal',
       type: 'modal',
       component: require('./src/content/modals/Profile')
-    },
-    {
-      id: 'identity-projection',
-      type: 'form-projection',
-      ownerType: 'IdmIdentity',
-      route: '/form/identity-projection'
     }
   ]
 };

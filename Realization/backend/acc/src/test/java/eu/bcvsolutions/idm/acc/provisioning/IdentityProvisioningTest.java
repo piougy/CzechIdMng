@@ -49,10 +49,14 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -81,6 +85,8 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 	private IdmContractPositionService contractPositionService;
 	@Autowired
 	private IdmConceptRoleRequestService conceptRoleRequestService;
+	@Autowired
+	private IdmFormProjectionService formProjectionService;
 
 	@Before
 	public void init() {
@@ -217,6 +223,56 @@ public class IdentityProvisioningTest extends AbstractIntegrationTest {
 		assertEquals(identityRole.getAutomaticRole(),
 				identityRole.getAutomaticRole() != null ? result.getRoleTreeNode().getId() : null);
 
+	}
+	
+	@Test
+	public void testUserType() {
+		SysSystemDto systemDto = helper.createTestResourceSystem(true);
+		SysSystemMappingDto defaultMapping = helper.getDefaultMapping(systemDto);
+
+		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(systemDto.getId());
+
+		List<SysSchemaAttributeDto> schemaAttributes = schemaAttributeService.find(schemaAttributeFilter, null)
+				.getContent();
+		SysSchemaAttributeDto descriptionSchemaAttribute = schemaAttributes.stream()
+				.filter(attribute -> TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION.equalsIgnoreCase(attribute.getName())).findFirst()
+				.get();
+
+		SysSystemAttributeMappingDto attributeAssignedRoles = new SysSystemAttributeMappingDto();
+		attributeAssignedRoles.setUid(false);
+		attributeAssignedRoles.setEntityAttribute(true);
+		attributeAssignedRoles.setIdmPropertyName(IdmIdentity_.formProjection.getName());
+		attributeAssignedRoles.setTransformToResourceScript("if(attributeValue != null) " + System.lineSeparator()
+				+ "{return attributeValue.getCode();}");
+		attributeAssignedRoles.setName(descriptionSchemaAttribute.getName());
+		attributeAssignedRoles.setSchemaAttribute(descriptionSchemaAttribute.getId());
+		attributeAssignedRoles.setSystemMapping(defaultMapping.getId());
+		schemaAttributeMappingService.save(attributeAssignedRoles);
+		IdmRoleDto roleWithSystem = helper.createRole();
+		helper.createRoleSystem(roleWithSystem, systemDto);
+		IdmIdentityDto identity = helper.createIdentity();
+		
+		// Create projection
+		IdmFormProjectionDto projection = new IdmFormProjectionDto();
+		projection.setOwnerType(IdmIdentity.class.getCanonicalName());
+		projection.setCode(getHelper().createName());
+		projection.setDisabled(false);
+		projection = formProjectionService.save(projection);
+		// Set projection to the identity
+		identity.setFormProjection(projection.getId());
+		identity = identityService.save(identity);
+		// Execute provisioning
+		helper.createIdentityRole(identity, roleWithSystem, null, null);
+
+		TestResource resource = helper.findResource(identity.getUsername());
+		assertNotNull(resource);
+		String valueOnResource = resource.getDescrip();
+		
+		// Code of the projection must be on target system.
+		assertEquals(projection.getCode(), valueOnResource);
+		// Delete projection.
+		formProjectionService.delete(projection);
 	}
 
 	@Test

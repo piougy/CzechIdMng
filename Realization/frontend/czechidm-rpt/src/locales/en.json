@@ -75,6 +75,15 @@
       }
     }
   },
+  "eav": {
+    "bulk-action": {
+      "generic-entity-report": {
+        "label": "Report",
+        "title": "Report selected objects to xls spreadsheet",
+        "icon": "fa:file-excel"
+      }
+    }
+  },
   "error": {
     "REPORT_GENERATE_SUCCESS": {
       "title": "Report is completed",

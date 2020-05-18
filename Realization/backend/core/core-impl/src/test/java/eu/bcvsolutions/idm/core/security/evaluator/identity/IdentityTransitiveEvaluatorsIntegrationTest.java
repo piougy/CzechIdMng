@@ -3,24 +3,35 @@ package eu.bcvsolutions.idm.core.security.evaluator.identity;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.rest.impl.PasswordChangeController;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
@@ -34,6 +45,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Radek Tomiška
  *
  */
+@Transactional
 public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private TestHelper helper;
@@ -44,28 +56,22 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 	@Autowired private LoginService loginService;
 	@Autowired private PasswordChangeController passwordChangeController;
 	
-	private IdmIdentityDto prepareIdentityProfile() {
+	private IdmIdentityDto prepareIdentityWithAssignedRole() {
 		loginAsAdmin();
-		GuardedString password = new GuardedString("heslo");
 		// get default role
 		IdmRoleDto role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
 		// prepare identity
 		IdmIdentityDto identity = helper.createIdentity();
-		identity.setPassword(password);
-		identity = identityService.save(identity);
 		// assign role
 		helper.createIdentityRole(identity, role);
 		logout();
-		//
-		// password is transient, some test except password back in identity
-		identity.setPassword(password);
 		//
 		return identity;
 	}
 	
 	@Test
-	public void testReadProfile() {
-		IdmIdentityDto identity = prepareIdentityProfile();
+	public void testReadContractAndAssignedRole() {
+		IdmIdentityDto identity = prepareIdentityWithAssignedRole();
 		//
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
@@ -77,6 +83,9 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 			assertEquals(1, contracts.size());	
 			IdmIdentityContractDto contract = contracts.get(0);
 			assertEquals(identity.getId(), contract.getIdentity());
+			Set<String> contractPermissions = identityContractService.getPermissions(contract);
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdentityBasePermission.CHANGEPERMISSION.getName())));
 			//
 			List<IdmIdentityRoleDto> roles = identityRoleService.find(null, IdmBasePermission.READ).getContent();
 			assertEquals(1, roles.size());	
@@ -86,9 +95,86 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 		}
 	}
 	
+	@Test
+	public void testTransitiveContractPermissions() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createBasePolicy(
+				role.getId(), 
+				CoreGroupPermission.IDENTITY, 
+				IdmIdentity.class, 
+				IdmBasePermission.READ, IdmBasePermission.UPDATE);
+		getHelper().createAuthorizationPolicy(
+				role.getId(), 
+				CoreGroupPermission.IDENTITYCONTRACT, 
+				IdmIdentityContract.class, 
+				IdentityContractByIdentityEvaluator.class);
+		//
+		try {			
+			getHelper().login(identity);
+			//
+			IdmIdentityDto read = identityService.get(identity.getId(), IdmBasePermission.READ);
+			assertEquals(identity, read);
+			//
+			IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+			filter.setIdentity(identity.getId());
+			List<IdmIdentityContractDto> contracts = identityContractService.find(filter, null, IdmBasePermission.READ).getContent();
+			assertEquals(1, contracts.size());	
+			IdmIdentityContractDto contract = contracts.get(0);
+			Set<String> contractPermissions = identityContractService.getPermissions(contract);
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdmBasePermission.UPDATE.getName())));
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	public void testIncludeTransitiveContractPermissions() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createBasePolicy(
+				role.getId(), 
+				CoreGroupPermission.IDENTITY, 
+				IdmIdentity.class, 
+				IdmBasePermission.READ, IdmBasePermission.UPDATE, IdmBasePermission.DELETE);
+		
+		ConfigurationMap properties = new ConfigurationMap();
+		properties.put(
+				IdentityContractByIdentityEvaluator.PARAMETER_INCLUDE_PERMISSIONS, 
+				StringUtils.join(Lists.newArrayList(IdmBasePermission.READ.getName(), IdmBasePermission.UPDATE.getName()), ","));
+		getHelper().createAuthorizationPolicy(
+				role.getId(), 
+				CoreGroupPermission.IDENTITYCONTRACT, 
+				IdmIdentityContract.class, 
+				IdentityContractByIdentityEvaluator.class,
+				properties);
+		//
+		try {			
+			getHelper().login(identity);
+			//
+			IdmIdentityDto read = identityService.get(identity.getId(), IdmBasePermission.READ);
+			assertEquals(identity, read);
+			//
+			IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+			filter.setIdentity(identity.getId());
+			List<IdmIdentityContractDto> contracts = identityContractService.find(filter, null, IdmBasePermission.READ).getContent();
+			assertEquals(1, contracts.size());	
+			IdmIdentityContractDto contract = contracts.get(0);
+			Set<String> contractPermissions = identityContractService.getPermissions(contract);
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdmBasePermission.UPDATE.getName())));
+			Assert.assertTrue(contractPermissions.stream().allMatch(p -> !p.equals(IdmBasePermission.DELETE.getName())));
+		} finally {
+			logout();
+		}
+	}
+	
 	@Test(expected = ForbiddenEntityException.class)
 	public void testReadForUpdateProfile() {
-		IdmIdentityDto identity = prepareIdentityProfile();
+		IdmIdentityDto identity = prepareIdentityWithAssignedRole();
 		//
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
@@ -101,7 +187,7 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 	
 	@Test(expected = ForbiddenEntityException.class)
 	public void testUpdateProfile() {
-		IdmIdentityDto identity = prepareIdentityProfile();
+		IdmIdentityDto identity = prepareIdentityWithAssignedRole();
 		//
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
@@ -114,7 +200,7 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 	
 	@Test(expected = ForbiddenEntityException.class)
 	public void testUpdateIdentityContract() {
-		IdmIdentityDto identity = prepareIdentityProfile();
+		IdmIdentityDto identity = prepareIdentityWithAssignedRole();
 		//
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
@@ -129,7 +215,7 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 	
 	@Test
 	public void testChangePassword() {
-		IdmIdentityDto identity = prepareIdentityProfile();
+		IdmIdentityDto identity = prepareIdentityWithAssignedRole();
 		//
 		try {			
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
@@ -147,7 +233,7 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 	
 	@Test(expected = ForbiddenEntityException.class)
 	public void testChangeForeignPassword() {
-		IdmIdentityDto identity = prepareIdentityProfile();
+		IdmIdentityDto identity = prepareIdentityWithAssignedRole();
 		//
 		try {		
 			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));

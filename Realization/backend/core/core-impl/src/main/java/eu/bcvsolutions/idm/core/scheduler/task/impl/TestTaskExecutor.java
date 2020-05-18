@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,9 +32,8 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * @author Radek Tomiška
  *
  */
-@Component(TestTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Test long running task")
+@Component(TestTaskExecutor.TASK_NAME)
 @ConditionalOnProperty(prefix = "idm.pub.app", name = "stage", havingValue = "development")
 public class TestTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityDto> {
 	

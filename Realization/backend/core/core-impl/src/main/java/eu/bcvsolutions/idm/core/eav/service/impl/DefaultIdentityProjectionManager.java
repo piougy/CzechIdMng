@@ -1,17 +1,20 @@
 package eu.bcvsolutions.idm.core.eav.service.impl;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.config.domain.PrivateIdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -22,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.FormableFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -39,7 +43,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.api.dto.FormDefinitionAttributes;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormProjectionManager;
 import eu.bcvsolutions.idm.core.eav.api.service.IdentityProjectionManager;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
@@ -57,13 +65,13 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * 
  * @author Radek Tomiška
  * @since 10.2.0
+ * @see FormProjectionManager
  */
 public class DefaultIdentityProjectionManager implements IdentityProjectionManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdentityProjectionManager.class);
 	//
 	@Autowired private IdmIdentityService identityService;
-	@Autowired private PrivateIdentityConfiguration identityConfiguration;
 	@Autowired private IdmIdentityContractService contractService;
 	@Autowired private IdmContractPositionService contractPositionService;
 	@Autowired private IdmRoleRequestService roleRequestService;
@@ -71,6 +79,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private LookupService lookupService;
 	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private ObjectMapper mapper;
 	
 	@Override
 	public IdmIdentityProjectionDto get(Serializable codeableIdentifier, BasePermission... permission) {
@@ -205,6 +214,16 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		IdmIdentityProjectionDto previousProjection = event.getOriginalSource();
 		List<IdmIdentityContractDto> savedContracts = new ArrayList<>(dto.getOtherContracts().size());
 		//
+		// check all contracts has to be saved
+		IdmIdentityDto identity = dto.getIdentity();
+		if (identity.getFormProjection() != null) {
+			IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(dto.getIdentity(), IdmIdentity_.formProjection);
+			if (!formProjection.getProperties().getBooleanValue(IdentityFormProjectionRoute.PARAMETER_ALL_CONTRACTS)) {
+				LOG.debug("Projection [{}] doesn't save other contracts.", formProjection.getCode());
+				return savedContracts;
+			}
+		}
+		//
 		for (IdmIdentityContractDto contract : dto.getOtherContracts()) {			
 			IdentityContractEventType contractEventType = IdentityContractEventType.CREATE;
 			if (!contractService.isNew(contract)) {
@@ -246,6 +265,16 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		IdmIdentityProjectionDto previousProjection = event.getOriginalSource();
 		List<IdmContractPositionDto> savedPositions = new ArrayList<>(dto.getOtherPositions().size());
 		IdmIdentityContractDto contract = dto.getContract();
+		//
+		// check other contract position has to be saved
+		IdmIdentityDto identity = dto.getIdentity();
+		if (identity.getFormProjection() != null) {
+			IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(dto.getIdentity(), IdmIdentity_.formProjection);
+			if (!formProjection.getProperties().getBooleanValue(IdentityFormProjectionRoute.PARAMETER_OTHER_POSITION)) {
+				LOG.debug("Projection [{}] doesn't save other contract positions.", formProjection.getCode());
+				return savedPositions;
+			}
+		}
 		//
 		for (IdmContractPositionDto otherPosition : dto.getOtherPositions()) {
 			if (otherPosition.getIdentityContract() == null) {
@@ -351,25 +380,11 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		}
 		//
 		IdmIdentityFilter context = new IdmIdentityFilter();
-		context.setAddEavMetadata(Boolean.TRUE);
 		context.setAddPermissions(true);
+		// load (~filter) specified form definitions and attributes only
+		setAddEavMetadata(context, identity);
 		// evaluate access / load eavs
-		identity = identityService.get(
-				identity, 
-				context, 
-				identityConfiguration.isFormAttributesSecured() ? permission : null
-		);
-		if (!identityConfiguration.isFormAttributesSecured() && !PermissionUtils.isEmpty(permission)) {
-			try {
-				identityService.checkAccess(identity, IdmBasePermission.READ, IdmBasePermission.UPDATE);
-			} catch (ForbiddenEntityException ex) {
-				identity.getEavs().forEach(formInstance -> {
-					formInstance.getFormDefinition().getFormAttributes().forEach(formAttribute -> {
-						formAttribute.setReadonly(true);
-					});
-				});
-			}
-		}
+		identity = identityService.get(identity, context, permission);
 		//
 		return identity;
 	}
@@ -382,10 +397,11 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 	 * @return
 	 */
 	protected List<IdmIdentityContractDto> getContracts(IdmIdentityProjectionDto dto, BasePermission... permission) {
+		IdmIdentityDto identity = dto.getIdentity();
 		IdmIdentityContractFilter contractFilter = new IdmIdentityContractFilter();
-		contractFilter.setAddEavMetadata(Boolean.TRUE);
 		contractFilter.setAddPermissions(true);
-		contractFilter.setIdentity(dto.getIdentity().getId());
+		contractFilter.setIdentity(identity.getId());
+		setAddEavMetadata(contractFilter, identity);
 		// eav attributes are secured automatically on this form (without configuration is needed)
 		List<IdmIdentityContractDto> contracts = Lists.newArrayList(contractService
 				.find(contractFilter, null, permission)
@@ -424,5 +440,40 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		filter.setIdentityId(dto.getIdentity().getId());
 		//
 		return Lists.newArrayList(identityRoleService.find(filter, null, permission).getContent());
+	}
+	
+	/**
+	 * Load extended attributes, if needed by projection.
+	 * 
+	 * @param context
+	 * @param identity
+	 */
+	protected void setAddEavMetadata(FormableFilter context, IdmIdentityDto identity) {
+		if (identity.getFormProjection() == null) {
+			// load all form instances => ~ full form projection as default, when no projection is specified
+			context.setAddEavMetadata(Boolean.TRUE);
+			return;
+		}
+		//
+		IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(identity, IdmIdentity_.formProjection);
+		String formDefinitions = formProjection.getFormDefinitions();
+		if (StringUtils.isEmpty(formDefinitions)) {
+			// form instances are not needed - not configured in this projection
+			return;
+		}
+		//
+		try {
+			List<FormDefinitionAttributes> attributes = mapper.readValue(formDefinitions, new TypeReference<List<FormDefinitionAttributes>>() {});
+			if (!attributes.isEmpty()) {
+				context.setFormDefinitionAttributes(attributes);
+			} else {
+				LOG.debug("Extended attribute values is not needed by form projection [{}], will not be loaded.");
+			}
+		} catch (IOException ex) {
+			LOG.warn("Form projection [{}] is wrongly configured. Fix configured form definitions. "
+					+ "All eav attributes will be loaded as default.",
+					formProjection.getCode(), ex);
+			context.setAddEavMetadata(Boolean.TRUE);
+		}
 	}
 }

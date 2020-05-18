@@ -130,6 +130,11 @@ module.exports = {
       ]
     },
     {
+      path: 'form/identity/:entityId',
+      component: require('./src/content/identity/projection/DefaultIdentityDetail'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]
+    },
+    {
       path: 'form/identity-projection/:entityId',
       component: require('./src/content/identity/projection/IdentityProjection'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ' ] } ]
@@ -577,6 +582,11 @@ module.exports = {
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
     },
     {
+      path: 'monitorings',
+      component: require('./src/content/monitoring/Monitorings'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
+    },
+    {
       path: 'export-imports',
       component: require('./src/content/exportimport/ExportImports'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['EXPORTIMPORT_READ'] } ]
@@ -916,7 +926,7 @@ module.exports = {
     {
       path: 'audit',
       component: require('./src/content/audit/AuditRoutes'),
-      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORDPOLICY_READ'] } ]
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
     },
     {
       path: 'audit/entities/:entityId/diff/:revID',

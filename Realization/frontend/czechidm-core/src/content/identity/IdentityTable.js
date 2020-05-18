@@ -43,6 +43,18 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     if (this.refs.text) {
       this.refs.text.focus();
     }
+    // load available form projections
+    const searchParameters = new SearchParameters()
+      .setName(SearchParameters.NAME_AUTOCOMPLETE)
+      .setFilter('ownerType', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity')
+      .setFilter('disabled', 'false')
+      .setSort('code', 'asc')
+      .setSize(1000); // I don't believe more projections will be defined ... :-)
+    this.context.store.dispatch(projectionManager.fetchEntities(searchParameters, 'form-projections', (json, error) => {
+      if (error && error.statusCode !== 403) {
+        this.addError(error);
+      }
+    }));
   }
 
   getContentKey() {
@@ -78,53 +90,35 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     //
-    const { skipDashboard, isDefaultFormProjection } = this.props;
+    const { skipDashboard, isDefaultFormProjection, projections } = this.props;
     const ctrlKey = !event || event.ctrlKey;
     //
     if (Utils.Entity.isNew(entity)) {
-      const searchParameters = new SearchParameters()
-        .setName(SearchParameters.NAME_AUTOCOMPLETE)
-        .setFilter('ownerType', 'eu.bcvsolutions.idm.core.model.entity.IdmIdentity')
-        .setFilter('disabled', 'false')
-        .setSort('code', 'asc')
-        .setSize(1000); // I don't believe more projections will be defined ... :-)
-      this.context.store.dispatch(projectionManager.fetchEntities(searchParameters, null, (json, error) => {
-        let projections = [];
-        if (error && error.statusCode !== 403) {
-          this.addError(error);
-          return;
-        }
-        if (!error) { // 403 is ignored => no projection
-          projections = json._embedded[projectionManager.getCollectionType()];
-        }
-        //
-        if (!projections || projections.length === 0) {
-          const newIdentity = {
-            id: uuid.v1(),
-            username: this.refs.text.getValue()
-          };
-          this.context.store.dispatch(this.getManager().receiveEntity(newIdentity.id, newIdentity));
-          this.context.history.push(`/identity/new?id=${ newIdentity.id }`);
-        } else if (!isDefaultFormProjection && projections.length === 1) {
-          const newIdentity = {
-            id: uuid.v1(),
-            username: this.refs.text.getValue(),
-            formProjection: projections[0].id
-          };
-          this.context.store.dispatch(identityProjectionManager.receiveEntity(newIdentity.id, {
-            id: newIdentity.id,
-            identity: newIdentity
-          }));
-          const route = Utils.Ui.getRouteUrl(projections[0].route);
-          this.context.history.push(`${ route }/${ newIdentity.id }?new=1&projection=${ encodeURIComponent(projections[0].id) }`);
-        } else {
-          this.setState({
-            projections,
-            showAddModal: true
-          });
-        }
-
-      }));
+      //
+      if (!projections || projections.length === 0) {
+        const newIdentity = {
+          id: uuid.v1(),
+          username: this.refs.text.getValue()
+        };
+        this.context.store.dispatch(this.getManager().receiveEntity(newIdentity.id, newIdentity));
+        this.context.history.push(`/identity/new?id=${ newIdentity.id }`);
+      } else if (!isDefaultFormProjection && projections.length === 1) {
+        const newIdentity = {
+          id: uuid.v1(),
+          username: this.refs.text.getValue(),
+          formProjection: projections[0].id
+        };
+        this.context.store.dispatch(identityProjectionManager.receiveEntity(newIdentity.id, {
+          id: newIdentity.id,
+          identity: newIdentity
+        }));
+        const route = Utils.Ui.getRouteUrl(projections[0].route);
+        this.context.history.push(`${ route }/${ newIdentity.id }?new=1&projection=${ encodeURIComponent(projections[0].id) }`);
+      } else {
+        this.setState({
+          showAddModal: true
+        });
+      }
     } else if (!skipDashboard && !ctrlKey) {
       // dashboard
       this.context.history.push(`/identity/${ encodeURIComponent(entity.username) }/dashboard`);
@@ -183,9 +177,11 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       className,
       prohibitedActions,
       showAddLoading,
-      isDefaultFormProjection
+      isDefaultFormProjection,
+      rowClass,
+      projections
     } = this.props;
-    const { filterOpened, projections, showAddModal } = this.state;
+    const { filterOpened, showAddModal } = this.state;
     //
     if (!rendered) {
       return null;
@@ -200,6 +196,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     //
     const roleDisabled = _forceSearchParameters.getFilters().has('role');
     const treeNodeDisabled = _forceSearchParameters.getFilters().has('treeNodeId');
+    const canCreateIdentity = showAddButton && this.getManager().canSave() && (isDefaultFormProjection || projections.length > 0);
     //
     return (
       <Basic.Div>
@@ -266,7 +263,8 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                     <Advanced.Filter.FormProjectionSelect
                       ref="formProjection"
                       placeholder={ this.i18n('filter.formProjection.placeholder') }
-                      manager={ projectionManager }/>
+                      manager={ projectionManager }
+                      forceSearchParameters={ new SearchParameters().setFilter('disabled', 'false') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
@@ -301,14 +299,15 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                 type="submit"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, {}) }
-                rendered={ showAddButton && this.getManager().canSave() }
+                rendered={ canCreateIdentity }
                 icon="fa:user-plus">
                 { this.i18n('content.identity.create.button.add') }
               </Basic.Button>
             ]
           }
           _searchParameters={ this.getSearchParameters() }
-          className={ className }>
+          className={ className }
+          rowClass={ rowClass }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -501,7 +500,8 @@ function select(state, component) {
       ConfigLoader.getConfig('identity.dashboard.skip', false)
     ),
     isDefaultFormProjection: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.identity.formProjection.default', true),
-    showAddLoading: projectionManager.isShowLoading(state)
+    showAddLoading: projectionManager.isShowLoading(state),
+    projections: projectionManager.getEntities(state, 'form-projections') || []
   };
 }
 

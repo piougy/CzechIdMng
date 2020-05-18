@@ -1,7 +1,9 @@
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
- * Notification status enum
+ * Notification status enum.
+ *
+ * @author Radek Tomiška
  */
 export default class NotificationStateEnum extends AbstractEnum {
 

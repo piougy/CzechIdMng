@@ -138,4 +138,55 @@ public class DefaultIdmRoleGuaranteeServiceIntegrationTest extends AbstractInteg
 		Assert.assertFalse(roles.contains(role2.getId()));
 		Assert.assertTrue(roles.contains(role3.getId()));
 	}
+	
+	@Test
+	public void testFindRoleGuaranteeByRoleGuaranteeAndType() {
+		IdmRoleDto guaranteeRole = getHelper().createRole();
+		IdmRoleDto guaranteeRoleTwo = getHelper().createRole();
+		//
+		IdmRoleDto role1 = getHelper().createRole();
+		IdmRoleDto role2 = getHelper().createRole();
+		IdmRoleDto role3 = getHelper().createRole();
+		//
+		String guarranteeType = getHelper().createName();
+		getHelper().createRoleGuaranteeRole(role1, guaranteeRole, guarranteeType);
+		//
+		getHelper().createRoleGuaranteeRole(role2, guaranteeRoleTwo, guarranteeType);
+		//
+		getHelper().createRoleGuaranteeRole(role3, guaranteeRole, null);
+		//
+		IdmRoleGuaranteeRoleFilter filter = new IdmRoleGuaranteeRoleFilter();
+		filter.setGuaranteeRole(guaranteeRole.getId());
+		filter.setType(guarranteeType);
+		List<IdmRoleGuaranteeRoleDto> list = roleGuaranteeRoleService.find(filter, null).getContent();
+		Assert.assertEquals(1, list.size());
+		//
+		List<UUID> roles = list.stream().map(IdmRoleGuaranteeRoleDto::getRole).collect(Collectors.toList());
+		IdmRoleGuaranteeRoleDto roleGuaranteeFirst = list.get(0);
+		Assert.assertEquals(guaranteeRole.getId(), roleGuaranteeFirst.getGuaranteeRole());
+		Assert.assertTrue(roles.contains(role1.getId()));
+		Assert.assertFalse(roles.contains(role2.getId()));
+		Assert.assertFalse(roles.contains(role3.getId()));
+	}
+	
+	@Test
+	public void testFindRoleGuaranteeByGuaranteeAndType() {
+		IdmRoleDto role1 = getHelper().createRole();
+		IdmRoleDto role2 = getHelper().createRole();
+		//
+		IdmIdentityDto guarantee = getHelper().createIdentity((GuardedString) null);
+		String guarranteeType = getHelper().createName();
+		
+		getHelper().createRoleGuarantee(role1, guarantee, guarranteeType);
+		getHelper().createRoleGuarantee(role2, guarantee, null);
+		//
+		IdmRoleGuaranteeFilter filter = new IdmRoleGuaranteeFilter();
+		filter.setGuarantee(guarantee.getId());
+		filter.setType(guarranteeType);
+		List<IdmRoleGuaranteeDto> list = roleGuaranteeService.find(filter, null).getContent();
+		Assert.assertEquals(1, list.size());
+		//
+		IdmRoleGuaranteeDto roleGuaranteeFirst = list.get(0);
+		Assert.assertEquals(guarantee.getId(), roleGuaranteeFirst.getGuarantee());
+	}
 }

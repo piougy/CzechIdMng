@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -42,7 +43,7 @@ public class IdentityProvisioningBulkAction extends AbstractBulkAction<IdmIdenti
 	@Override
 	protected OperationResult processDto(IdmIdentityDto dto) {
 		if (!securityService.hasAnyAuthority(AccGroupPermission.SYSTEM_ADMIN)) {
-			throw new ForbiddenEntityException(dto.getId(), AccGroupPermission.SYSTEM);
+			throw new ForbiddenEntityException((BaseDto)dto, AccGroupPermission.SYSTEM);
 		}
 		// Provisioning will be executed asynchronously by notify event
 		entityEventManager.changedEntity(dto);

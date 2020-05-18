@@ -1,7 +1,7 @@
-import AbstractEnum from '../enums/AbstractEnum';
+import AbstractEnum from './AbstractEnum';
 
 /**
- * Task / event priority
+ * Task / event priority.
  *
  * @author Radek Tomiška
  */

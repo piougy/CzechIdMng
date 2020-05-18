@@ -9,7 +9,6 @@ import org.quartz.DisallowConcurrentExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,9 +40,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Jan Helbich
  * @author Radek Tomiška
  */
-@Component(IdentityRoleExpirationTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Removes expired assigned roles from identites.")
+@Component(IdentityRoleExpirationTaskExecutor.TASK_NAME)
 public class IdentityRoleExpirationTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityRoleDto> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(IdentityRoleExpirationTaskExecutor.class);

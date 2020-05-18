@@ -4,6 +4,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { RoleCatalogueManager } from '../../redux';
 //
@@ -102,47 +103,48 @@ class RoleCatalogueDetail extends Basic.AbstractContent {
                   <Basic.Col lg={ 2 }>
                     <Basic.TextField
                       ref="code"
-                      label={this.i18n('entity.RoleCatalogue.code.name')}
-                      helpBlock={this.i18n('entity.RoleCatalogue.code.help')}
+                      label={ this.i18n('entity.RoleCatalogue.code.name') }
+                      helpBlock={ this.i18n('entity.RoleCatalogue.code.help') }
                       required
-                      min={0}
-                      max={255}/>
+                      min={ 0 }
+                      max={ 255}/>
                   </Basic.Col>
                   <Basic.Col lg={ 10 }>
                     <Basic.TextField
                       ref="name"
-                      label={this.i18n('entity.RoleCatalogue.name.name')}
-                      helpBlock={this.i18n('entity.RoleCatalogue.name.help')}
+                      label={ this.i18n('entity.RoleCatalogue.name.name') }
+                      helpBlock={ this.i18n('entity.RoleCatalogue.name.help') }
                       required
-                      min={0}
-                      max={255}/>
+                      min={ 0 }
+                      max={ 255 }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
                   <Basic.Col lg={ 4 }>
                     <Basic.TextField
                       ref="urlTitle"
-                      label={this.i18n('entity.RoleCatalogue.urlTitle')}/>
+                      label={ this.i18n('entity.RoleCatalogue.urlTitle') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 8 }>
                     <Basic.TextField
                       ref="url"
-                      label={this.i18n('entity.RoleCatalogue.url')}/>
+                      label={ this.i18n('entity.RoleCatalogue.url') }/>
                   </Basic.Col>
                 </Basic.Row>
-                <Basic.SelectBox
+                <Advanced.RoleCatalogueSelect
                   ref="parent"
-                  label={this.i18n('entity.RoleCatalogue.parent.name')}
-                  manager={manager}/>
+                  label={ this.i18n('entity.RoleCatalogue.parent.name') }
+                  header={ this.i18n('entity.RoleCatalogue.parent.name') }
+                  manager={ manager }/>
                 <Basic.TextArea
                   ref="description"
-                  label={this.i18n('entity.RoleCatalogue.description')}
-                  max={255}/>
+                  label={ this.i18n('entity.RoleCatalogue.description') }
+                  max={ 255 }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 
-            <Basic.PanelFooter showLoading={showLoading}>
-              <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.PanelFooter showLoading={ showLoading }>
+              <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>{ this.i18n('button.back') }</Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"

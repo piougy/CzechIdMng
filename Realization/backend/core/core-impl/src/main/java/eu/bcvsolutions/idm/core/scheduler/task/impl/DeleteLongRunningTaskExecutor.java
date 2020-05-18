@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,9 +31,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
  * @author Radek Tomiška
  * @since 9.7.12
  */
-@Component(DeleteLongRunningTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Delete long running tasks.")
+@Component(DeleteLongRunningTaskExecutor.TASK_NAME)
 public class DeleteLongRunningTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmLongRunningTaskDto> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DeleteLongRunningTaskExecutor.class);

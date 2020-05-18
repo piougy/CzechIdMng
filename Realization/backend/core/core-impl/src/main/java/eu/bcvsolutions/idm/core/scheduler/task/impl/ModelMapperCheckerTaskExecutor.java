@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.config.ModelMapperChecker;
@@ -15,9 +14,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * @author Radek Tomiška
  * @since 9.7.10
  */
-@Component(ModelMapperCheckerTaskExecutor.TASK_NAME)
 @DisallowConcurrentExecution
-@Description("Check model mapper is properly initialized to prevent dto mapping exceptions.")
+@Component(ModelMapperCheckerTaskExecutor.TASK_NAME)
 public class ModelMapperCheckerTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	public static final String TASK_NAME = "core-model-mapper-checker-long-running-task";

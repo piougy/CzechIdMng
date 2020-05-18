@@ -162,7 +162,7 @@ public class DefaultWorkflowTaskInstanceService extends
 			return tasks.get(0);
 
 		}
-
+		// Current task doesn't exists, we try to find historic task.
 		WorkflowHistoricTaskInstanceDto historicTask = historicTaskInstanceService.get(String.valueOf(id));
 		if (historicTask != null) {
 			return historicTask;

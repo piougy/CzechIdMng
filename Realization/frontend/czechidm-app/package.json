@@ -14,6 +14,7 @@
     "chai"
   ],
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "product-install": "npm install && gulp install",
     "modules-link": "mkdir ../node_modules && ln -s ../node_modules",
     "modules-link-or-skip": "mkdir -p ../node_modules && test -L node_modules || ln -s ../node_modules",
@@ -43,6 +44,9 @@
       ]
     },
     "minify": true
+  },
+  "resolutions": {
+    "graceful-fs": "4.2.3"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.6.3",

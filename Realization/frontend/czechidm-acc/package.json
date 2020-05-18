@@ -1,16 +1,20 @@
 {
-  "name" : "czechidm-acc",
-  "version" : "10.4.0-snapshot",
-  "description" : "Module of CzechIdM 2.0 devstack for accounts managment",
-  "main" : "index.js",
-  "scripts" : {
-    "lint" : "eslint ./",
-    "test" : "echo \"Error: no test specified\" && exit 1"
+  "name": "czechidm-acc",
+  "version": "10.4.0-snapshot",
+  "description": "Module of CzechIdM 2.0 devstack for accounts managment",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint ./",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords" : [ "CzechIdM", "provisioning", "IdM" ],
-  "author" : "BCV solutions s.r.o",
-  "license" : "MIT",
-  "publishConfig" : {
-    "registry" : "http://nexus.bcvsolutions.eu/repository/npm-private/"
+  "keywords": [
+    "CzechIdM",
+    "provisioning",
+    "IdM"
+  ],
+  "author": "BCV solutions s.r.o",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "http://nexus.bcvsolutions.eu/repository/npm-private/"
   }
 }

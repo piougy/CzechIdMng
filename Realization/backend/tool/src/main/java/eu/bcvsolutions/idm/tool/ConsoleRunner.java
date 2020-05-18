@@ -287,218 +287,218 @@ public class ConsoleRunner implements CommandLineRunner {
         options.addOption(optionHotfix);
         options.addOption(optionClean);
 		//
-			// parse arguments
-			CommandLineParser parser = new DefaultParser();
-			CommandLine commandLine = parser.parse(options, args, false);
-			// log given arguments (for bug report, without password value)
-			List<String> arguments = Arrays
-					.stream(commandLine.getOptions())
-					.map(option -> {
-						if (!option.hasArg() ) {
-							return option.getLongOpt();
-						}
-						return String.format(
-								"%s=%s", 
-								option.getLongOpt(), 
-								option.getLongOpt().equals(optionPassword.getLongOpt()) ? GuardedString.SECRED_PROXY_STRING : option.getValue() // prevent to print password into logs
-						); 
-					})
-					.collect(Collectors.toList());
-			LOG.info("Running tool with arguments {}.", arguments);
-			//
-			boolean projectBuild = commandLine.hasOption(optionProject.getLongOpt());
-			boolean releaseModule = commandLine.hasOption(optionModule.getLongOpt());
-			//
-			if (productReleaseManager == null) {
-				// Product manager will be inited by default
-				// manager's methods are used by console runner
-				productReleaseManager = new ProductReleaseManager();
+		// parse arguments
+		CommandLineParser parser = new DefaultParser();
+		CommandLine commandLine = parser.parse(options, args, false);
+		// log given arguments (for bug report, without password value)
+		List<String> arguments = Arrays
+				.stream(commandLine.getOptions())
+				.map(option -> {
+					if (!option.hasArg() ) {
+						return option.getLongOpt();
+					}
+					return String.format(
+							"%s=%s", 
+							option.getLongOpt(), 
+							option.getLongOpt().equals(optionPassword.getLongOpt()) ? GuardedString.SECRED_PROXY_STRING : option.getValue() // prevent to print password into logs
+					); 
+				})
+				.collect(Collectors.toList());
+		LOG.info("Running tool with arguments {}.", arguments);
+		//
+		boolean projectBuild = commandLine.hasOption(optionProject.getLongOpt());
+		boolean releaseModule = commandLine.hasOption(optionModule.getLongOpt());
+		//
+		if (productReleaseManager == null) {
+			// Product manager will be inited by default
+			// manager's methods are used by console runner
+			productReleaseManager = new ProductReleaseManager();
+		}
+		
+		if (releaseModule && !projectBuild && moduleReleaseManager == null) { 
+			moduleReleaseManager = new ModuleReleaseManager(commandLine.getOptionValue(optionModule.getLongOpt()));
+		} 
+		//
+		if (commandLine.hasOption(optionVersion.getLongOpt())) {
+			System.out.println(String.format("v%s", getVersion()));
+			return;
+		}
+		//
+		if (commandLine.hasOption(optionHelp.getLongOpt())) {
+			printHelp(options);
+			return;
+		}
+		//
+		String rootFolder = null;
+		if (commandLine.hasOption(optionRepositoryLocation.getLongOpt())) {
+			rootFolder = commandLine.getOptionValue(optionRepositoryLocation.getLongOpt());
+		}
+		//
+		String mavenHome = null;
+		if (commandLine.hasOption(optionMavenHome.getLongOpt())) {
+			mavenHome = commandLine.getOptionValue(optionMavenHome.getLongOpt());
+		}
+		String nodeHome = null;
+		if (commandLine.hasOption(optionNodeHome.getLongOpt())) {
+			nodeHome = commandLine.getOptionValue(optionNodeHome.getLongOpt());
+		}
+		//
+		if (projectBuild) {
+			if (!commandLine.hasOption(optionBuild.getLongOpt())) {
+				throw new BuildException("Build a project is supported only.");
 			}
+			boolean clean = commandLine.hasOption(optionClean.getLongOpt());
+			//
+			if (projectManager == null) {
+				projectManager = new ProjectManager();
+				projectManager.setMavenHome(mavenHome);
+				projectManager.setNodeHome(nodeHome);
+				projectManager.init();
+			}
+			projectManager.build(rootFolder == null ? "../" : rootFolder, clean); // /tool folder by default => project is in parent folder.
+			//
+			LOG.info("Complete!");
+			return;
+		}
+		//
+		// Release
+		ReleaseManager releaseManager = getReleaseManager(releaseModule);
+		releaseManager.setMavenHome(mavenHome);
+		//
+		if (commandLine.hasOption(optionRepositoryLocation.getLongOpt())) {
+			releaseManager.setRepositoryRoot(commandLine.getOptionValue(optionRepositoryLocation.getLongOpt()));
+		}
+		if (commandLine.hasOption(optionDevelopBranch.getLongOpt())) {
+			releaseManager.setDevelopBranch(commandLine.getOptionValue(optionDevelopBranch.getLongOpt()));
+			LOG.debug("Using develop branch [{}].", releaseManager.getDevelopBranch());
+		}
+		if (commandLine.hasOption(optionMasterBranch.getLongOpt())) {
+			String masterBranch = commandLine.getOptionValue(optionMasterBranch.getLongOpt());
+			if (masterBranch.equals("none")) {
+				masterBranch = null;
+			}
+			releaseManager.setMasterBranch(masterBranch);
+			LOG.debug("Using production branch [{}].", releaseManager.getMasterBranch());
+		}
+		if (commandLine.hasOption(optionUsername.getLongOpt())) {
+			String username = commandLine.getOptionValue(optionUsername.getLongOpt());
+			releaseManager.setUsername(username);
+			LOG.debug("Using git username [{}].", username);
+		}
+		//
+		GuardedString password = null;
+		if (commandLine.hasOption(optionPassword.getLongOpt())) {
+			password = new GuardedString(commandLine.getOptionValue(optionPassword.getLongOpt()));
 			
-			if (releaseModule && !projectBuild && moduleReleaseManager == null) { 
-				moduleReleaseManager = new ModuleReleaseManager(commandLine.getOptionValue(optionModule.getLongOpt()));
-			} 
-			//
-			if (commandLine.hasOption(optionVersion.getLongOpt())) {
-				System.out.println(String.format("v%s", getVersion()));
-				return;
-			}
-			//
-			if (commandLine.hasOption(optionHelp.getLongOpt())) {
-				printHelp(options);
-				return;
-			}
-			//
-			String rootFolder = null;
-			if (commandLine.hasOption(optionRepositoryLocation.getLongOpt())) {
-				rootFolder = commandLine.getOptionValue(optionRepositoryLocation.getLongOpt());
-			}
-			//
-			String mavenHome = null;
-			if (commandLine.hasOption(optionMavenHome.getLongOpt())) {
-				mavenHome = commandLine.getOptionValue(optionMavenHome.getLongOpt());
-			}
-			String nodeHome = null;
-			if (commandLine.hasOption(optionNodeHome.getLongOpt())) {
-				nodeHome = commandLine.getOptionValue(optionNodeHome.getLongOpt());
-			}
-			//
-			if (projectBuild) {
-				if (!commandLine.hasOption(optionBuild.getLongOpt())) {
-					throw new BuildException("Build a project is supported only.");
-				}
-				boolean clean = commandLine.hasOption(optionClean.getLongOpt());
-				//
-				if (projectManager == null) {
-					projectManager = new ProjectManager();
-					projectManager.setMavenHome(mavenHome);
-					projectManager.setNodeHome(nodeHome);
-					projectManager.init();
-				}
-				projectManager.build(rootFolder == null ? "../" : rootFolder, clean); // /tool folder by default => project is in parent folder.
-				//
-				LOG.info("Complete!");
-				return;
-			}
-			//
-			// Release
-			ReleaseManager releaseManager = getReleaseManager(releaseModule);
-			releaseManager.setMavenHome(mavenHome);
-			//
-			if (commandLine.hasOption(optionRepositoryLocation.getLongOpt())) {
-				releaseManager.setRepositoryRoot(commandLine.getOptionValue(optionRepositoryLocation.getLongOpt()));
-			}
-			if (commandLine.hasOption(optionDevelopBranch.getLongOpt())) {
-				releaseManager.setDevelopBranch(commandLine.getOptionValue(optionDevelopBranch.getLongOpt()));
-				LOG.debug("Using develop branch [{}].", releaseManager.getDevelopBranch());
-			}
-			if (commandLine.hasOption(optionMasterBranch.getLongOpt())) {
-				String masterBranch = commandLine.getOptionValue(optionMasterBranch.getLongOpt());
-				if (masterBranch.equals("none")) {
-					masterBranch = null;
-				}
-				releaseManager.setMasterBranch(masterBranch);
-				LOG.debug("Using production branch [{}].", releaseManager.getMasterBranch());
-			}
-			if (commandLine.hasOption(optionUsername.getLongOpt())) {
-				String username = commandLine.getOptionValue(optionUsername.getLongOpt());
-				releaseManager.setUsername(username);
-				LOG.debug("Using git username [{}].", username);
-			}
-			//
-			GuardedString password = null;
-			if (commandLine.hasOption(optionPassword.getLongOpt())) {
-				password = new GuardedString(commandLine.getOptionValue(optionPassword.getLongOpt()));
-				
-			} else {
-				// get password from file
-				String externalPassword = getProperty(PROPERTY_PASSWORD);
-				if (StringUtils.isNotEmpty(externalPassword)) {
-					password = new GuardedString(externalPassword);
-				} else if (commandLine.hasOption(optionRelease.getLongOpt()) 
-						|| commandLine.hasOption(optionReleaseAndPublish.getLongOpt())) {
-					// prompt when publish / release-publish command is used
-					// creates a console object
-					Console cnsl = System.console();
-			        if (cnsl != null) {
-			        	System.out.println(optionPassword.getDescription());
-						char[] pwd = cnsl.readPassword(String.format("%s: ", optionPassword.getArgName()));
-						if (pwd != null && pwd.length > 0) {
-							password = new GuardedString(new String(pwd));
-						}
-			        }
-				}
-			}
-			if (password != null) {
-				releaseManager.setPassword(password);
-				LOG.info(String.format("Password (%s) is given.", optionPassword.getArgName()));	
-			}
-			
-			//
-			if (commandLine.hasOption(optionForce.getLongOpt())) {
-				releaseManager.setForce(true);
-				LOG.debug("Force argument was given, count of files changed by release command will not be checked.");
-			}
-			// before run - check props is set
-			releaseManager.init();
-			//
-			if (commandLine.hasOption(optionBuild.getLongOpt())) {
-				String currentVersion = releaseManager.build();
-				//
-				LOG.info("Product version [{}] successfully built and installed into local maven repository.", currentVersion);
-			} else if (commandLine.hasOption(optionRelease.getLongOpt()) || commandLine.hasOption(optionReleaseAndPublish.getLongOpt())) {
-				String releaseVersion = commandLine.getOptionValue(optionReleaseVersion.getLongOpt());
-				String developVersion = commandLine.getOptionValue(optionDevelopVersion.getLongOpt());
-				String currentVersion = releaseManager.getCurrentVersion(null); // current [snapshot] develop version 
-				//
-				if (StringUtils.isEmpty(developVersion)) {
-					// prepare next development version by major / minor / patch / hotfix switch
-					ReleaseManager.VersionType versionType = null;
-					if (commandLine.hasOption(optionMajor.getLongOpt())) {
-						versionType = ReleaseManager.VersionType.MAJOR;
+		} else {
+			// get password from file
+			String externalPassword = getProperty(PROPERTY_PASSWORD);
+			if (StringUtils.isNotEmpty(externalPassword)) {
+				password = new GuardedString(externalPassword);
+			} else if (commandLine.hasOption(optionRelease.getLongOpt()) 
+					|| commandLine.hasOption(optionReleaseAndPublish.getLongOpt())) {
+				// prompt when publish / release-publish command is used
+				// creates a console object
+				Console cnsl = System.console();
+		        if (cnsl != null) {
+		        	System.out.println(optionPassword.getDescription());
+					char[] pwd = cnsl.readPassword(String.format("%s: ", optionPassword.getArgName()));
+					if (pwd != null && pwd.length > 0) {
+						password = new GuardedString(new String(pwd));
 					}
-					if (commandLine.hasOption(optionMinor.getLongOpt())) {
-						versionType = ReleaseManager.VersionType.MINOR;
-					}
-					if (commandLine.hasOption(optionPatch.getLongOpt())) {
-						versionType = ReleaseManager.VersionType.PATCH;
-					}
-					if (commandLine.hasOption(optionHotfix.getLongOpt())) {
-						versionType = ReleaseManager.VersionType.HOTFIX;
-					}
-					//
-					if (versionType == null) {
-						// minor as default
-						versionType = ReleaseManager.VersionType.MINOR;
-					}
-					developVersion = releaseManager.getNextSnapshotVersionNumber(
-							StringUtils.isEmpty(releaseVersion) ? currentVersion : releaseVersion, 
-							versionType
-					);
+		        }
+			}
+		}
+		if (password != null) {
+			releaseManager.setPassword(password);
+			LOG.info(String.format("Password (%s) is given.", optionPassword.getArgName()));	
+		}
+		
+		//
+		if (commandLine.hasOption(optionForce.getLongOpt())) {
+			releaseManager.setForce(true);
+			LOG.debug("Force argument was given, count of files changed by release command will not be checked.");
+		}
+		// before run - check props is set
+		releaseManager.init();
+		//
+		if (commandLine.hasOption(optionBuild.getLongOpt())) {
+			String currentVersion = releaseManager.build();
+			//
+			LOG.info("Product version [{}] successfully built and installed into local maven repository.", currentVersion);
+		} else if (commandLine.hasOption(optionRelease.getLongOpt()) || commandLine.hasOption(optionReleaseAndPublish.getLongOpt())) {
+			String releaseVersion = commandLine.getOptionValue(optionReleaseVersion.getLongOpt());
+			String developVersion = commandLine.getOptionValue(optionDevelopVersion.getLongOpt());
+			String currentVersion = releaseManager.getCurrentVersion(null); // current [snapshot] develop version 
+			//
+			if (StringUtils.isEmpty(developVersion)) {
+				// prepare next development version by major / minor / patch / hotfix switch
+				ReleaseManager.VersionType versionType = null;
+				if (commandLine.hasOption(optionMajor.getLongOpt())) {
+					versionType = ReleaseManager.VersionType.MAJOR;
+				}
+				if (commandLine.hasOption(optionMinor.getLongOpt())) {
+					versionType = ReleaseManager.VersionType.MINOR;
+				}
+				if (commandLine.hasOption(optionPatch.getLongOpt())) {
+					versionType = ReleaseManager.VersionType.PATCH;
+				}
+				if (commandLine.hasOption(optionHotfix.getLongOpt())) {
+					versionType = ReleaseManager.VersionType.HOTFIX;
 				}
 				//
-				String releasedVersion = releaseManager.release(releaseVersion, developVersion);
-				//
-				LOG.info("Product version released [{}]. New development version [{}].", releasedVersion, currentVersion);
-				LOG.info("Branches [{}], [{}] and tag [{}] are prepared to push into origin (use --publish command).",
-						releaseManager.getDevelopBranch(), releaseManager.getMasterBranch(), releasedVersion);
-				// publish shortcut after release
-				if (commandLine.hasOption(optionReleaseAndPublish.getLongOpt())) {
-					releaseManager.publish();
-					
-					LOG.info("Branches [{}], [{}] and prepared tags pushed into origin.",
-							releaseManager.getDevelopBranch(), releaseManager.getMasterBranch());
+				if (versionType == null) {
+					// minor as default
+					versionType = ReleaseManager.VersionType.MINOR;
 				}
-			} else if (commandLine.hasOption(optionPublish.getLongOpt())) {
-				// standalone publish
+				developVersion = releaseManager.getNextSnapshotVersionNumber(
+						StringUtils.isEmpty(releaseVersion) ? currentVersion : releaseVersion, 
+						versionType
+				);
+			}
+			//
+			String releasedVersion = releaseManager.release(releaseVersion, developVersion);
+			//
+			LOG.info("Product version released [{}]. New development version [{}].", releasedVersion, currentVersion);
+			LOG.info("Branches [{}], [{}] and tag [{}] are prepared to push into origin (use --publish command).",
+					releaseManager.getDevelopBranch(), releaseManager.getMasterBranch(), releasedVersion);
+			// publish shortcut after release
+			if (commandLine.hasOption(optionReleaseAndPublish.getLongOpt())) {
 				releaseManager.publish();
 				
 				LOG.info("Branches [{}], [{}] and prepared tags pushed into origin.",
 						releaseManager.getDevelopBranch(), releaseManager.getMasterBranch());
-				
-			} else if (commandLine.hasOption(optionRevertVersion.getLongOpt())) {
-				
-				LOG.info("Current product version [{}].", releaseManager.revertVersion());
-				
-			} else if (commandLine.hasOption(optionSetVersion.getLongOpt())) {
-				
-				String developVersion = commandLine.getOptionValue(optionDevelopVersion.getLongOpt());
-				//
-				LOG.info("Current product version [{}].", releaseManager.setVersion(developVersion));
-				
-			} else if (commandLine.hasOption(optionGetVersion.getLongOpt())) {
-				
-				String branch = null;
-				if (commandLine.hasOption(optionDevelopBranch.getLongOpt())) {
-					branch = commandLine.getOptionValue(optionDevelopBranch.getLongOpt());
-				}
-				String currentVersion = releaseManager.getCurrentVersion(branch);
-				//
-				LOG.info("Current product version [{}].", currentVersion);
-				
 			}
+		} else if (commandLine.hasOption(optionPublish.getLongOpt())) {
+			// standalone publish
+			releaseManager.publish();
+			
+			LOG.info("Branches [{}], [{}] and prepared tags pushed into origin.",
+					releaseManager.getDevelopBranch(), releaseManager.getMasterBranch());
+			
+		} else if (commandLine.hasOption(optionRevertVersion.getLongOpt())) {
+			
+			LOG.info("Current product version [{}].", releaseManager.revertVersion());
+			
+		} else if (commandLine.hasOption(optionSetVersion.getLongOpt())) {
+			
+			String developVersion = commandLine.getOptionValue(optionDevelopVersion.getLongOpt());
 			//
-			LOG.info("Complete!");
+			LOG.info("Current product version [{}].", releaseManager.setVersion(developVersion));
+			
+		} else if (commandLine.hasOption(optionGetVersion.getLongOpt())) {
+			
+			String branch = null;
+			if (commandLine.hasOption(optionDevelopBranch.getLongOpt())) {
+				branch = commandLine.getOptionValue(optionDevelopBranch.getLongOpt());
+			}
+			String currentVersion = releaseManager.getCurrentVersion(branch);
+			//
+			LOG.info("Current product version [{}].", currentVersion);
+			
+		}
+		//
+		LOG.info("Complete!");
 	}
 	
 	protected ReleaseManager getReleaseManager(boolean releaseModule) {

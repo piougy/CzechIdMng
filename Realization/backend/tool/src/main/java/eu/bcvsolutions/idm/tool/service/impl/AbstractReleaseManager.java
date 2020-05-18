@@ -35,6 +35,10 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Separators;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -78,6 +82,7 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 	private GuardedString password; // git password (for publish realese) or ssh passphrase
 	// cache
 	private Git git;
+	private PrettyPrinter prettyPrinter;
 	
 	public AbstractReleaseManager(String repositoryRoot) {
 		mapper = new ObjectMapper();
@@ -770,7 +775,7 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 				//
 				try (FileOutputStream outputStream = new FileOutputStream(modulePackage)) {
 					JsonGenerator jGenerator = getMapper().getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
-					getMapper().writerWithDefaultPrettyPrinter().writeValue(jGenerator, json);
+					getMapper().writer(getPrettyPrinter()).writeValue(jGenerator, json);
 					jGenerator.close();
 					//
 					LOG.info("Frontend module [{}] version set to [{}]", frontendModule, newVersion);
@@ -990,5 +995,39 @@ public abstract class AbstractReleaseManager implements ReleaseManager {
 		LOG.info("Version [{}] successfully deployed to nexus.", currentVersion);
 		//
 		return currentVersion;
+	}
+	
+	/**
+	 * IdM configured json {@link PrettyPrinter} - the same format as npm is needed.
+	 * 
+	 * @return configured printer
+	 * @since 10.3.0
+	 */
+	protected PrettyPrinter getPrettyPrinter() {
+		if (prettyPrinter == null) {
+			//
+			// Prevent to append leading value space.
+			DefaultPrettyPrinter defaultPrettyPrinter = new DefaultPrettyPrinter() {
+	
+				private static final long serialVersionUID = 1L;
+	
+				/**
+				 * Prevent to append leading value space.
+				 */
+				@Override
+				public DefaultPrettyPrinter withSeparators(Separators separators) {
+					_separators = separators;
+					_objectFieldValueSeparatorWithSpaces = separators.getObjectFieldValueSeparator() + " ";
+			        return this;
+				}
+			};
+			//
+			// array value on new line
+			defaultPrettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+			//
+			prettyPrinter = defaultPrettyPrinter;
+		}
+		//
+		return prettyPrinter;
 	}
 }

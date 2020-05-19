@@ -1,16 +1,20 @@
 {
-  "name" : "czechidm-rpt",
-  "version" : "10.3.0",
-  "description" : "Report module. Contains support for reports.",
-  "main" : "index.js",
-  "scripts" : {
-    "lint" : "eslint ./",
-    "test" : "echo \"Error: no test specified\" && exit 1"
+  "name": "czechidm-rpt",
+  "version": "10.3.1-snapshot",
+  "description": "Report module. Contains support for reports.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint ./",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords" : [ "CzechIdM", "report", "IdM" ],
-  "publishConfig" : {
-    "registry" : "http://nexus.bcvsolutions.eu/repository/npm-private/"
+  "keywords": [
+    "CzechIdM",
+    "report",
+    "IdM"
+  ],
+  "publishConfig": {
+    "registry": "http://nexus.bcvsolutions.eu/repository/npm-private/"
   },
-  "author" : "BCV solutions s.r.o",
-  "license" : "MIT"
+  "author": "BCV solutions s.r.o",
+  "license": "MIT"
 }

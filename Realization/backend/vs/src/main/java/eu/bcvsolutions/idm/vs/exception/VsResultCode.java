@@ -21,7 +21,8 @@ public enum VsResultCode implements ResultCode {
 	VS_REQUEST_CANCEL_WRONG_STATE(HttpStatus.BAD_REQUEST, "For cancel must be request in state: [%s], but he is in state: [%s]!"),
 	VS_SYSTEM_DELETE_FAILED_HAS_REQUEST(HttpStatus.BAD_REQUEST, "Virtual system [%s] has unresolved requests, cannot be deleted."),
 	ROLE_REQUEST_VS_REQUEST_REJECTED(HttpStatus.NOT_MODIFIED, "Request on virtual system [%s] was rejected!"),
-	ROLE_REQUEST_VS_REQUEST_IN_PROGRESS(HttpStatus.NOT_MODIFIED, "Some requests on vritual systems [%s] are not resloved!");
+	ROLE_REQUEST_VS_REQUEST_IN_PROGRESS(HttpStatus.NOT_MODIFIED, "Some requests on vritual systems [%s] are not resloved!"),
+	VS_SYSTEM_GENERATOR_INSUFFICIENT_PERMISSION(HttpStatus.BAD_REQUEST, "User needs to be admin in order to be permitted to run this task.");
 	
 	
 	private final HttpStatus status;

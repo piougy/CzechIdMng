@@ -142,8 +142,13 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 				&& CollectionUtils.isEmpty(formableContext.getFormDefinitionAttributes())) {
 			return dto;
 		}
-		// load all form instances
-		dto.setEavs(this.findFormInstances(dto, formableContext, permission));
+		// load or find form instances
+		if (CollectionUtils.isEmpty(formableContext.getFormDefinitionAttributes())) {
+			// backward compatible -> method is overriden e.g. for role attributes
+			dto.setEavs(this.getFormInstances(dto, permission));
+		} else {
+			dto.setEavs(this.findFormInstances(dto, formableContext, permission));
+		}
 		//
 		return dto;
 	}

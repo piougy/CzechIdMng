@@ -57,9 +57,9 @@ class NavigationSearch extends Basic.AbstractContextComponent {
     }, () => {
       let counter = 0;
       this.context.store.dispatch(identityManager.fetchEntity(text, 'search', (identity, e1) => {
-        if (e1 && e1.statusCode === 404) {
+        if (e1 && (e1.statusCode === 404 || e1.statusCode === 403)) {
           this.context.store.dispatch(roleManager.fetchEntity(text, 'search2', (role, e2) => {
-            if (e2 && e2.statusCode === 404) {
+            if (e2 && (e2.statusCode === 404 || e2.statusCode === 403)) {
               // text search is used => when at least record is found, then first detial is shown. Warning message is shown otherwise.
               identityManager.getService()
                 .search(new SearchParameters().setFilter('text', text).setSort('disabled', true).setSort('username', true))

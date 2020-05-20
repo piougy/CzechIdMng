@@ -16,6 +16,7 @@ import org.junit.Test;
 import eu.bcvsolutions.idm.core.api.utils.ZipUtils;
 import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.tool.exception.BuildException;
 
 /**
  * Project build test:
@@ -28,12 +29,17 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 
 	@Test
 	public void testBuildWithAtrefact() {
-		createMockProjectStructure(false);
+		createMockProjectStructure(false, false);
 	}
 	
 	@Test
 	public void testBuildWithExtractedProduct() {
-		createMockProjectStructure(true);
+		createMockProjectStructure(true, false);
+	}
+	
+	@Test(expected = BuildException.class)
+	public void testBuildWithDuplicateThirdPartyDependency() {
+		createMockProjectStructure(true, true);
 	}
 	
 	@BeforeClass
@@ -43,7 +49,7 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 	    Assume.assumeFalse(documentationOnly);
 	}
 	
-	private void createMockProjectStructure(boolean extracted) {
+	private void createMockProjectStructure(boolean extracted, boolean duplicateDependency) {
 		File targetFolder = new File("target");
 		Assert.assertTrue(targetFolder.exists());
 		//
@@ -85,6 +91,7 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 			feSourcesFolder.mkdirs();
 			File appPackage = new File(feSourcesFolder, "package.json");
 			FileUtils.copyFile(new File("../../frontend/czechidm-app/package.json"), appPackage);
+			FileUtils.copyFile(new File("../../frontend/czechidm-app/package-lock.json"), new File(feSourcesFolder, "package-lock.json"));
 			FileUtils.copyFile(new File("../../frontend/czechidm-app/gulpfile.babel.js"), new File(feSourcesFolder, "gulpfile.babel.js"));
 			FileUtils.copyFile(new File("../../frontend/czechidm-app/index.html"), new File(feSourcesFolder, "index.html"));
 			FileUtils.copyDirectory(new File("../../frontend/czechidm-app/src"), new File(feSourcesFolder, "src"));
@@ -128,7 +135,37 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 					moduleOnePackage, 
 					"{ \"version\" : \"1.0.0-snapshot\" }",
 					AttachableEntity.DEFAULT_CHARSET
-			);			
+			);
+			// prepare maven descriptor inside module with two dependencies
+			File moduleOneMavenPom = new File(String.format("%s/maven/eu.bcvsolutions.idm/czechidm-one/pom.xml", moduleOneManifestFolder.getPath()));
+			FileUtils.writeStringToFile(moduleOneMavenPom,
+					"<project>"
+					+ "<modelVersion>4.0.0</modelVersion>"
+					+ "<parent>"
+					  + "<groupId>eu.bcvsolutions.idm</groupId>"
+					  + "<artifactId>idm-parent</artifactId>"
+					  + "<version>" + AbstractReleaseManagerUnitTest.PRODUCT_VERSION + "</version>"
+					+ "</parent>"
+					+ "<artifactId>idm-module-one</artifactId>"
+					+ "<packaging>jar</packaging>"
+					+ "<properties>"
+						+ "<csv.version>1.3</csv.version>"
+					+ "</properties>"
+					+ "<dependencies>"
+						+ "<dependency>"
+							+ "<groupId>org.apache.commons</groupId>"
+							+ "<artifactId>commons-csv</artifactId>"
+							+ "<version>${csv.version}</version>"
+						+ "</dependency>"
+						+ "<dependency>"
+							+ "<groupId>org.apache.commons</groupId>"
+							+ "<artifactId>commons-csv</artifactId>"
+							+ "<version>" + (duplicateDependency ? "2.17" : "1.3") + "</version>"
+						+ "</dependency>"
+					+ "</dependencies>" +
+					"</project>",
+					AttachableEntity.DEFAULT_CHARSET);
+			//
 			ZipUtils.compress(moduleOneFolder, new File(modulesFolder, "module-one-1.0.0-SNAPSHOT.jar").getPath());
 			FileUtils.forceDelete(moduleOneFolder);
 			// two
@@ -172,6 +209,7 @@ public class ProjectManagerUnitTest extends AbstractUnitTest {
 			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/mock-lib.jar", warFolder.getPath())).exists());
 			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/module-one-1.0.0-SNAPSHOT.jar", warFolder.getPath())).exists());
 			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/module-two-1.0.0-SNAPSHOT.jar", warFolder.getPath())).exists());
+			Assert.assertTrue(new File(String.format("%s/WEB-INF/lib/commons-csv-1.3.jar", warFolder.getPath())).exists());
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}

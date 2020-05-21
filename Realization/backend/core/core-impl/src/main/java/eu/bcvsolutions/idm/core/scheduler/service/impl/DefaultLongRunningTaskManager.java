@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +53,6 @@ import eu.bcvsolutions.idm.core.scheduler.exception.TaskNotRecoverableException;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
-import java.io.Serializable;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
@@ -67,6 +68,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	private final ConfigurationService configurationService;
 	private final SecurityService securityService;
 	private final EntityEventManager entityEventManager;
+	private final Set<UUID> failedLoggedTask = new HashSet<>();
 	//
 	@Autowired private AttachmentManager attachmentManager;
 
@@ -143,21 +145,26 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
 		service.findAllByInstance(instanceId, OperationState.CREATED).forEach(task -> {
 			String taskType = task.getTaskType();
+			UUID taskId = task.getId();
 			if (!processedTaskTypes.contains(taskType)) {
 				try {
-					LongRunningFutureTask<?> futureTask = processCreated(task.getId());
+					LongRunningFutureTask<?> futureTask = processCreated(taskId);
 					if (futureTask != null) {
 						taskList.add(futureTask);
 						// prevent to persisted task starts twice
 						if (AutowireHelper.getTargetClass(futureTask.getExecutor()).isAnnotationPresent(DisallowConcurrentExecution.class)) {
 							processedTaskTypes.add(taskType);
 						}
+						failedLoggedTask.remove(taskId);
 					}
 				} catch (ResultCodeException ex) {
 					// we want to process other task, if some task fails and log just once
 					processedTaskTypes.add(taskType);
-					// we want to know in log, some scheduled task is not complete before next execution attempt
-					ExceptionUtils.log(LOG, ex);
+					if (!failedLoggedTask.contains(taskId)) {
+						// we want to know in log, some scheduled task is not complete before next execution attempt
+						ExceptionUtils.log(LOG, ex);
+						failedLoggedTask.add(taskId);
+					}
 				}
 			}
 		});
@@ -489,6 +496,16 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task = service.get(taskExecutor.getLongRunningTaskId());
 		}
 		return task;
+	}
+	
+	/**
+	 * Returns failed task identifiers.
+	 * 
+	 * @return failed task identifiers
+	 * @since 10.4.0
+	 */
+	protected Set<UUID> getFailedLoggedTask() {
+		return failedLoggedTask;
 	}
 
 	/**

@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
@@ -65,10 +66,13 @@ public class SchedulerControllerRestTest extends AbstractRestTest {
 	}
 	
 	protected List<Task> find(TaskFilter filter) {
+		MultiValueMap<String, String> queryParams = toQueryParams(filter);
+		queryParams.set("size", "10000");
+		//
 		try {
 			String response = getMockMvc().perform(get(BaseController.BASE_PATH + "/scheduler-tasks")
 	        		.with(authentication(getAdminAuthentication()))
-	        		.params(toQueryParams(filter))
+	        		.params(queryParams)
 	                .contentType(TestHelper.HAL_CONTENT_TYPE))
 					.andExpect(status().isOk())
 	                .andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))

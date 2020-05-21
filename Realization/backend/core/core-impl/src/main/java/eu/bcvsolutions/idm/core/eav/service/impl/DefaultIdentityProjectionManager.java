@@ -357,6 +357,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 				RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
 				requestEvent.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
 				requestEvent.setPriority(event.getPriority()); // frontend
+				requestEvent.setParentId(event.getId());
 				// prevent to start asynchronous event before previous update event is completed. 
 				requestEvent.setSuperOwnerId(identity.getId());
 				//

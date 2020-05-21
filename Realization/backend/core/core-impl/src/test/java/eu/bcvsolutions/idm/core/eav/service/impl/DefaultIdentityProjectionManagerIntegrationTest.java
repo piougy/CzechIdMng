@@ -22,6 +22,7 @@ import org.testng.collections.Lists;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -182,8 +183,10 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 			identityRoleTwo.setIdentityContract(otherContractTwo.getId());
 			projection.setIdentityRoles(Lists.newArrayList(identityRoleOne, identityRoleTwo));
 			//
+			IdentityProjectionEvent identityProjectionEvent = new IdentityProjectionEvent(IdentityProjectionEventType.CREATE, projection);
+			identityProjectionEvent.setPriority(PriorityType.IMMEDIATE);
 			projection = manager
-					.publish(new IdentityProjectionEvent(IdentityProjectionEventType.CREATE, projection))
+					.publish(identityProjectionEvent)
 					.getContent();
 			IdmIdentityProjectionDto createdProjection = manager.get(projection);
 			//

@@ -1308,6 +1308,8 @@
         "minNumber": "Minimum number of digits: {{0}}",
         "minUpperChar": "Minimum number uppercase characters: {{0}}",
         "prohibited": "Password contains illegal characters: {{0}}",
+        "beginProhibited": "Password starts with forbidden character: {{0}}",
+        "endProhibited": "Password ends with forbidden character: {{0}}",
         "minLowerChar": "Minimum number of lowercase characters: {{0}}",
         "minSpecialChar": "Minimum number of special characters: {{0}}",
         "policiesNames": "Password does not meet these password policies: {{0}}",
@@ -1330,6 +1332,14 @@
         "forbiddenCharacterBase": {
           "list": "List of forbidden characters for password policies: {{0}}",
           "text": "Forbidden characters: {{0}}"
+          },
+        "forbiddenBeginCharacterBase": {
+          "list": "List of characters passwrods must not start with: {{0}}",
+          "text": "Forbidden initial characters: {{0}}"
+          },
+        "forbiddenEndCharacterBase": {
+          "list": "List of characters passwrods must not end with: {{0}}",
+          "text": "Forbidden final characters: {{0}}"
           },
         "passwordSimilarUsernamePreValidate": "login",
         "passwordSimilarEmailPreValidate": "email",
@@ -4689,6 +4699,14 @@
         "label": "Forbidden characters",
         "help": "Listed characters are not allowed for generating and validating passwords. Enter characters without spaces, e.g. 1LliIo0!"
       },
+      "prohibitedBeginCharacters": {
+        "label": "Forbidden characters at the beginning",
+        "help": "Listed characters are not allowed to be used as the first character of passwords. Enter characters without spaces, e.g. 1LliIo0!"
+      },
+      "prohibitedEndCharacters": {
+        "label": "Forbidden characters at the end",
+        "help": "Listed characters are not allowed to be used as the last character of passwords. Enter characters without spaces, e.g. 1LliIo0!"
+      },
       "weakPassRequired": {
         "label": "Required weak passwords"
       },
@@ -6733,6 +6751,10 @@
     "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
       "title": "The [{{definition}}] policy does not have a user lockout timeout defined!",
       "message": "The [[{definition}}] policy defines the maximum number of logon attempts but does not have a user lockout timeout defined!"
+    },
+    "PASSWORD_POLICY_INVALID_SETTING": {
+      "title": "Invalid setting of password policy.",
+      "message": "It is impossible to generate password which meets this password policy setting!"
     },
     "PASSWORD_CHANGE_ACCOUNT_SUCCESS": {
       "title": "Password was changed",

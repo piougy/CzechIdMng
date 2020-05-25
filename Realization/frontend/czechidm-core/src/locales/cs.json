@@ -1341,6 +1341,8 @@
         "minNumber": "Minimální počet číslic: {{0}}",
         "minUpperChar": "Minimální počet velkých znaků: {{0}}",
         "prohibited": "Heslo obsahuje zakázané znaky: {{0}}",
+        "beginProhibited": "Heslo začíná zakázaným znakem: {{0}}",
+        "endProhibited": "Heslo končí zakázaným znakem: {{0}}",
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
         "policiesNames": "Heslo neprošlo přes tyto politiky: {{0}}",
@@ -1373,6 +1375,14 @@
         "forbiddenCharacterBase": {
           "list": "Seznam zakázaných znaků pro politiky hesel: {{0}}",
           "text": "Zakázané znaky: {{0}}"
+          },
+        "forbiddenBeginCharacterBase": {
+          "list": "Seznam zakázaných znaků, kterými heslo nesmí začínat: {{0}}",
+          "text": "Zakázané počáteční znaky: {{0}}"
+          },
+        "forbiddenEndCharacterBase": {
+          "list": "Seznam zakázaných znaků, kterými heslo nesmí končit: {{0}}",
+          "text": "Zakázané znaky na konci: {{0}}"
           },
         "passwordSimilarUsernamePreValidate": "uživatelskému jménu",
         "passwordSimilarEmailPreValidate": "emailu",
@@ -4741,6 +4751,14 @@
         "label": "Zakázané znaky",
         "help": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!"
       },
+      "prohibitedBeginCharacters": {
+        "label": "Počáteční zakázaný znak",
+        "help": "Uvedené znaky nesmí být použity na začátku hesla. Znaky budou kontrolovány při validaci hesla a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!"
+      },
+      "prohibitedEndCharacters": {
+        "label": "Koncový zakázaný znak",
+        "help": "Uvedené znaky nesmí být použity na konci hesla. Znaky budou kontrolovány při validaci hesla a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!"
+      },
       "weakPassRequired": {
         "label":  "Povinné slabé hesla"
       },
@@ -6785,6 +6803,10 @@
     "PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED": {
       "title": "Politika [{{definition}}] nemá definovaný interval blokování!",
       "message": "Politika [{{definition}}] definuje maximální počet pokusů přihlášení, ale nemá definovaný časový interval blokování uživatele!"
+    },
+    "PASSWORD_POLICY_INVALID_SETTING": {
+      "title": "Nastavení politiky hesel není správné.",
+      "message": "Nelze vygenerovat heslo splňující tuto politku!"
     },
     "PASSWORD_CHANGE_ACCOUNT_SUCCESS": {
       "title": "Změna hesla provedena",

@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+
 import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -68,6 +69,8 @@ public class DefaultIdmPasswordPolicyService
 	private static final String MIN_NUMBER = "minNumber";
 	private static final String MIN_SPECIAL_CHAR = "minSpecialChar";
 	private static final String COINTAIN_PROHIBITED = "prohibited";
+	private static final String BEGIN_PROHIBITED = "beginProhibited";
+	private static final String END_PROHIBITED = "endProhibited";
 	// private static final String CONTAIN_WEAK_PASS = "weakPass"; // TODO
 	private static final String MIN_RULES_TO_FULFILL = "minRulesToFulfill";
 	private static final String MIN_RULES_TO_FULFILL_COUNT = "minRulesToFulfillCount";
@@ -89,9 +92,12 @@ public class DefaultIdmPasswordPolicyService
 	private static final String POLICY_NAME_PREVALIDATION = "policiesNamesPreValidation";
 	private static final String SPECIAL_CHARACTER_BASE = "specialCharacterBase";
 	private static final String FORBIDDEN_CHARACTER_BASE = "forbiddenCharacterBase";
+	private static final String FORBIDDEN_BEGIN_CHARACTER_BASE = "forbiddenBeginCharacterBase";
+	private static final String FORBIDDEN_END_CHARACTER_BASE = "forbiddenEndCharacterBase";
 	private static final String MAX_HISTORY_SIMILAR = "maxHistorySimilar";
 	private final int MIN_CONSIDERED_ATTR_LEN = 3;
 	private final String DELIMITER_SET_REGEXP = ",\\.\\-—_£\\s";
+	private final int TEST_POLICY_CYCLES = 20;
 	
 	private PasswordGenerator passwordGenerator;
 	private final IdmPasswordPolicyRepository repository;
@@ -158,6 +164,12 @@ public class DefaultIdmPasswordPolicyService
 		if (maxAttempts != null && maxAttempts.intValue() > 0 && (blockLogin == null || blockLogin <= 0)) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED, ImmutableMap.of("definition", dto.getName()));
 		}
+		if (dto.getType().equals(IdmPasswordPolicyType.GENERATE) && dto.getGenerateType().equals(IdmPasswordPolicyGenerateType.RANDOM)) {
+			if (!this.getPasswordGenerator().testPolicySetting(dto, TEST_POLICY_CYCLES)) {
+				throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_INVALID_SETTING);
+			}
+		}
+		
 		//
 		LOG.debug("Saving entity [{}]", dto.getName());
 		if (isNew(dto)) {
@@ -327,9 +339,13 @@ public class DefaultIdmPasswordPolicyService
 
 		Map<String, Object> errors = new HashMap<>();
 		Set<Character> prohibitedChar = new HashSet<>();
+		String prohibitedBeginChar=null;
+		String prohibitedEndChar=null;
 		List<String> policyNames = new ArrayList<String>();
 		Map<String, Object> specialCharBase = new HashMap<>();
 		Map<String, Object> forbiddenCharBase = new HashMap<>();
+		Map<String, Object> forbiddenBeginCharBase = new HashMap<>();
+		Map<String, Object> forbiddenEndCharBase = new HashMap<>();
 
 		for (IdmPasswordPolicyDto passwordPolicy : passwordPolicyList) {
 			if (passwordPolicy.isDisabled()) {
@@ -386,6 +402,11 @@ public class DefaultIdmPasswordPolicyService
 				}
 				validateNotSuccess = true;
 			}
+			// check character at the beginning
+			prohibitedBeginChar = checkInitialFinalCharForbidden(password, passwordPolicy.getProhibitedBeginCharacters(), true);
+			// check character at the end
+			prohibitedEndChar = checkInitialFinalCharForbidden(password, passwordPolicy.getProhibitedEndCharacters(), false);
+			
 			// check to minimal numbers
 			if (!isNullOrZeroValue(passwordPolicy.getMinNumber()) && !password.matches("(.*["
 					+ Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
@@ -440,8 +461,16 @@ public class DefaultIdmPasswordPolicyService
 				validateNotSuccess = true;
 			}
 			
+			// building of character bases of forbidden characters in passwords for password hints 
 			if (passwordPolicy.getProhibitedCharacters() != null) {
 				forbiddenCharBase.put(passwordPolicy.getName(), passwordPolicy.getProhibitedCharacters());
+			}
+			if(!Strings.isNullOrEmpty(passwordPolicy.getProhibitedBeginCharacters())) {
+				forbiddenBeginCharBase.put(passwordPolicy.getName(), passwordPolicy.getProhibitedBeginCharacters());
+			}
+			
+			if(!Strings.isNullOrEmpty(passwordPolicy.getProhibitedEndCharacters())) {
+				forbiddenEndCharBase.put(passwordPolicy.getName(), passwordPolicy.getProhibitedEndCharacters());
 			}
 
 			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl()) {
@@ -475,6 +504,14 @@ public class DefaultIdmPasswordPolicyService
 		if (!forbiddenCharBase.isEmpty() && prevalidation) {
 			errors.put(FORBIDDEN_CHARACTER_BASE, forbiddenCharBase); 
 		}
+		
+		if (!forbiddenBeginCharBase.isEmpty() && prevalidation) {
+			errors.put(FORBIDDEN_BEGIN_CHARACTER_BASE, forbiddenBeginCharBase);
+		}
+		
+		if (!forbiddenEndCharBase.isEmpty() && prevalidation) {
+			errors.put(FORBIDDEN_END_CHARACTER_BASE, forbiddenEndCharBase);
+		}
 
 		if (!policyNames.isEmpty() && !prevalidation) {
 			String name = prevalidation ? POLICY_NAME_PREVALIDATION : POLICY_NAME;
@@ -483,6 +520,14 @@ public class DefaultIdmPasswordPolicyService
 
 		if (!prohibitedChar.isEmpty()) {
 			errors.put(COINTAIN_PROHIBITED, prohibitedChar.toString());
+		}
+		
+		if(!Strings.isNullOrEmpty(prohibitedBeginChar)) {
+			errors.put(BEGIN_PROHIBITED, prohibitedBeginChar);
+		}
+		
+		if(!Strings.isNullOrEmpty(prohibitedEndChar)) {
+			errors.put(END_PROHIBITED, prohibitedEndChar);
 		}
 		
 		// password history. Skip when doesn't exists settings, or identity isn't saved
@@ -693,6 +738,26 @@ public class DefaultIdmPasswordPolicyService
 					DELIMITER_SET_REGEXP);
 		}
 		return contains;
+	}
+	
+	/**
+	 * Check whether string starts/ends with forbidden char
+	 * 
+	 * @param checkedStr
+	 * @param forbiddenChars
+	 * @param isInitial - position toggle: true - initial char otherwise final char
+	 * @return
+	 */
+	private String checkInitialFinalCharForbidden(String checkedStr, String forbiddenChars, boolean isInitial) {
+		if (Strings.isNullOrEmpty(forbiddenChars) || Strings.isNullOrEmpty(checkedStr)) {
+			return null;
+		}
+		int index = isInitial ? 0 : checkedStr.length() - 1;
+		Character begin = checkedStr.charAt(index);
+		if (forbiddenChars.contains(begin.toString())) {
+			return begin.toString();
+		}
+		return null;
 	}
 	
 	/**

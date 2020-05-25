@@ -154,6 +154,14 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
                   ref="prohibitedCharacters"
                   helpBlock={this.i18n('entity.PasswordPolicy.prohibitedCharacters.help')}
                   label={this.i18n('entity.PasswordPolicy.prohibitedCharacters.label')} />
+                <Basic.TextField
+                ref="prohibitedBeginCharacters"
+                helpBlock={this.i18n('entity.PasswordPolicy.prohibitedBeginCharacters.help')}
+                label={this.i18n('entity.PasswordPolicy.prohibitedBeginCharacters.label')} />
+                <Basic.TextField
+                ref="prohibitedEndCharacters"
+                helpBlock={this.i18n('entity.PasswordPolicy.prohibitedEndCharacters.help')}
+                label={this.i18n('entity.PasswordPolicy.prohibitedEndCharacters.label')} />
 
                 <Basic.Checkbox
                   ref="weakPassRequired"

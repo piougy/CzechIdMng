@@ -224,6 +224,33 @@
       "DUPLICATED": "Duplicitní"
     }
   },
+  "eav": {
+    "long-running-task": {
+      "vs-system-generator-long-running-task": {
+        "label": "Vygenerovat požadované množství virtuálních systémů",
+        "help": "Vygeneruje požadované množství virtuálních systémů a rovnoměrně je přiřadí zadanému množství uživatelů.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "item-prefix": {
+            "label": "Prefix položek",
+            "help": "Prefix společný všem vygenrovaným položkám pro jejich snažší dohledání."
+          },
+          "system-count": {
+            "label": "Počet systémů",
+            "help": "Počet vygenerovaných systémů."
+          },
+          "identity-count": {
+            "label": "Počet uživatelů",
+            "help": "Počet uživatelů, kterým jsou rovnoměrně přiřazeny vygeneorvané systémy."
+          },
+          "role-count": {
+            "label": "Počet rolí",
+            "help": "Počet rolí, kterým jsou rovnoměrně přiřazeny vygeneorvaným uživatelům."
+          }
+        }
+      }
+    }
+  },
   "error": {
     "VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST": {
       "title": "Nelze smazat účet [{{uid}}] na virtuálním systému",
@@ -260,6 +287,10 @@
     "ROLE_REQUEST_VS_REQUEST_IN_PROGRESS": {
       "title": "Některé žádosti na virtuálních systémech nejsou vyřešeny.",
       "message": "Některé žádosti na těchto virtuálních systémech [{{systems}}] nejsou vyřešeny."
+    },
+    "VS_SYSTEM_GENERATOR_INSUFFICIENT_PERMISSION": {
+      "title": "Nedostatečné oprávnění.",
+      "message": "Pouze administrátor je oprávněn spustit tuto úlohu."
     }
   }
 }

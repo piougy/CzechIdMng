@@ -38,7 +38,7 @@ const codeListManager = new CodeListManager();
 const codeListItemManager = new CodeListItemManager();
 
 /**
- * Univarzal form for identity projection - generalizable super class.
+ * Univerzal form for identity projection - generalizable super class.
  * Add redux layer in your projection.
  *
  * @author Radek Tomiška

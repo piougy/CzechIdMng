@@ -6,11 +6,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
@@ -54,7 +55,7 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveAutomaticRoleTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -67,7 +68,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * - evaluate state
  * - filter - TODO: move to rest test
  * 
- * TODO: @Transactional - automatic roles are recount after original transaction ends (LRT)
+ * @Transactional cannot be added - automatic roles are recount after original transaction ends (by LRT).
  * 
  * @author Radek Tomiška
  * @author Marek Klement
@@ -145,8 +146,8 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.saveInternal(automaticRole);
 		//
 		if (withLongRunningTask) {
-			AddNewAutomaticRoleTaskExecutor task = new AddNewAutomaticRoleTaskExecutor();
-			task.setAutomaticRoleId(roleTreeNode.getId());
+			ProcessAutomaticRoleByTreeTaskExecutor task = new ProcessAutomaticRoleByTreeTaskExecutor();
+			task.setAutomaticRoles(Lists.newArrayList(roleTreeNode.getId()));
 			taskManager.executeSync(task);
 		}
 		//

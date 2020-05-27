@@ -9,6 +9,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -56,9 +58,19 @@ public class DefaultIdmContractPositionService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmContractPositionDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
-		Assert.notNull(workPositionId, "Work position is required to gen related contracts.");
+		Assert.notNull(workPositionId, "Work position is required to get related contracts.");
 		//
-		return toDtos(repository.findAllByWorkPosition(workPositionId, recursion == null ? RecursionType.NO : recursion), false);
+		return findByWorkPosition(workPositionId, recursion, null).getContent();
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmContractPositionDto> findByWorkPosition(UUID workPositionId, RecursionType recursion, Pageable pageable) {
+		Assert.notNull(workPositionId, "Work position is required to get related contracts.");
+		//
+		return toDtoPage(
+				repository.findByWorkPosition(workPositionId, recursion == null ? RecursionType.NO : recursion, pageable)
+		);
 	}
 	
 	@Override

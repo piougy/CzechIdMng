@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 
 /**
  * Common dto helpers
@@ -57,12 +58,13 @@ public abstract class DtoUtils {
 	}
 	
 	/**
-	 * Returns embedded DTO from given dto
+	 * Returns embedded DTO from given dto.
 	 * 
 	 * @throws IllegalArgumentException if embedded dto not found
 	 * @param dto
 	 * @param attribute
 	 * @return
+	 * @see LookupService#lookupEmbeddedDto(AbstractDto, SingularAttribute)
 	 */
 	public static <DTO> DTO getEmbedded(AbstractDto dto, SingularAttribute<?, ?> attribute) {
 		Assert.notNull(attribute, "Singular attribute is required to get DTO from embedded.");

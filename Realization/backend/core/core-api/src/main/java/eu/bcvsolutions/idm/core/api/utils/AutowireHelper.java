@@ -172,7 +172,7 @@ public final class AutowireHelper implements ApplicationContextAware {
 	}
 	
 	/**
-	 * Return target class string  representation.  AOP or cglib proxy is supported.
+	 * Return target class string  representation. AOP or cglib proxy is supported.
 	 * 
 	 * @param beanInstance
 	 * @return

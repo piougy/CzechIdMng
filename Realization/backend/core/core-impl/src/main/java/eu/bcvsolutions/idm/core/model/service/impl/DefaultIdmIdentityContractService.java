@@ -225,9 +225,19 @@ public class DefaultIdmIdentityContractService
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
-		Assert.notNull(workPositionId, "Work position is required to gen related contracts.");
+		Assert.notNull(workPositionId, "Work position is required to get related contracts.");
 		//
-		return toDtos(repository.findAllByWorkPosition(workPositionId, recursion == null ? RecursionType.NO : recursion), false);
+		return findByWorkPosition(workPositionId, recursion, null).getContent();
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityContractDto> findByWorkPosition(UUID workPositionId, RecursionType recursion, Pageable pageable) {
+		Assert.notNull(workPositionId, "Work position is required to get related contracts.");
+		//
+		return toDtoPage(
+				repository.findByWorkPosition(workPositionId, recursion == null ? RecursionType.NO : recursion, pageable)
+		);
 	}
 
 	@Override

@@ -23,6 +23,26 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
  */
 public interface IdmIdentityContractRepository extends AbstractEntityRepository<IdmIdentityContract> {
 	
+	String FIND_BY_WORK_PROSITION_QUERY = "select e from IdmTreeNode wp, #{#entityName} e join e.workPosition n"
+			+ " where"
+			+ " wp.id = :workPositionId"
+			+ " and"
+			+ " n.treeType = wp.treeType" // more tree types
+			+ " and"
+			+ " ("
+				+ " (n.id = wp.id)" // takes all recursion
+				+ " or"
+				+ " ("
+					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'DOWN'"
+					+ " and n.forestIndex.lft between wp.forestIndex.lft and wp.forestIndex.rgt"
+				+ " )"
+				+ " or"
+				+ " ("
+					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'UP'"
+					+ " and wp.forestIndex.lft between n.forestIndex.lft and n.forestIndex.rgt"
+				+ " )"
+			+ " )";
+	
 	/**
 	 * All contracts of given identity.
 	 * 
@@ -47,29 +67,28 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	 * @param workPositionId
 	 * @param recursionType
 	 * @return
+	 * @see #findByWorkPosition(UUID, RecursionType, Pageable)
+	 * @deprecated @since 10.4.0 use {@link #findByWorkPosition(UUID, RecursionType, Pageable)}
 	 */
-	@Query(value = "select e from IdmTreeNode wp, #{#entityName} e join e.workPosition n"
-			+ " where"
-			+ " wp.id = :workPositionId"
-			+ " and"
-			+ " n.treeType = wp.treeType" // more tree types
-			+ " and"
-			+ " ("
-				+ " (n.id = wp.id)" // takes all recursion
-				+ " or"
-				+ " ("
-					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'DOWN'"
-					+ " and n.forestIndex.lft between wp.forestIndex.lft and wp.forestIndex.rgt"
-				+ " )"
-				+ " or"
-				+ " ("
-					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'UP'"
-					+ " and wp.forestIndex.lft between n.forestIndex.lft and n.forestIndex.rgt"
-				+ " )"
-			+ " )")
+	@Query(value = FIND_BY_WORK_PROSITION_QUERY)
 	List<IdmIdentityContract> findAllByWorkPosition(
 			@Param("workPositionId") UUID workPositionId, 
 			@Param("recursionType") RecursionType recursionType);
+	
+	/**
+	 * Returns identity contracts, where fits contract work position with given work position by recursionType.
+	 * 
+	 * @param workPositionId tree node
+	 * @param recursion recursion type
+	 * @param pageable page, size, sort
+	 * @return contracts
+	 * @since 10.4.0
+	 */
+	@Query(value = FIND_BY_WORK_PROSITION_QUERY)
+	Page<IdmIdentityContract> findByWorkPosition(
+			@Param("workPositionId") UUID workPositionId, 
+			@Param("recursionType") RecursionType recursionType,
+			Pageable pageable);
 	
 	/**
 	 * Valid contracts (by given date) of given identity.

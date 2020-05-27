@@ -5999,20 +5999,9 @@
           }
         }
       },
-      "core-add-new-automatic-role-contract-long-running-task": {
-        "label": "Recalculate automatic role by tree structure for contracts",
-        "help": "Assign roles for identities with contract match selected automatic role by tree structure.",
-        "icon": "component:automatic-role",
-        "attributes": {
-          "roletreenode": {
-            "label": "Automatic role",
-            "help": "Automatic role by tree structure."
-          }
-        }
-      },
-      "core-add-new-automatic-role-position-long-running-task": {
-        "label": "Recalculate automatic role by tree structure for other contract positions",
-        "help": "Assign roles for identities with other contract position which match selected automatic role by tree structure.",
+      "core-process-automatic-role-tree-long-running-task": {
+        "label": "Recalculate automatic role by tree structure for contracts and positions",
+        "help": "Recalculate roles for identities with contract or other position match selected automatic role by tree structure. Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupted (e.g. by server restart).",
         "icon": "component:automatic-role",
         "attributes": {
           "roletreenode": {
@@ -6761,13 +6750,33 @@
       "title": "Missing attribute 'groupPermission'",
       "message": "When authorization type is filled, then attribute 'groupPermission' must be filled to."
     },
+    "AUTOMATIC_ROLE_ASSIGN_NOT_COMPLETE": {
+      "title": "Role wasn't assigned",
+      "message": "Role [{{role}}] wasn't assigned by automatic role [{{roleTreeNode}}] for some identities. More information can be found in task item detail."
+    },
     "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
       "title": "Role wasn't assigned",
-      "message": "Role [{{role}}] wasn't assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]. Check role request agenda for reason."
+      "message": "Role [{{role}}] wasn't assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]. More information can be found in task item detail."
     },
     "AUTOMATIC_ROLE_ALREADY_ASSIGNED": {
-      "title": "Role was already assigned",
+      "title": "Role is already assigned",
       "message": "Role [{{role}}] was already assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED": {
+      "title": "Role is assigned",
+      "message": "Role [{{role}}] is assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_REMOVED": {
+      "title": "Assigned role is removed",
+      "message": "Assigned Role [{{role}}] is removed by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID": {
+      "title": "Role cannot be assigned",
+      "message": "Role [{{role}}] cannot be assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]. Identity doesn't have a valid contract."
+    },
+    "AUTOMATIC_ROLE_TASK_RUNNING": {
+      "title": "Role is used by concurrent task",
+      "message": "Automatic role is processed by concurrent task [{{taskId}}], wait for task completion."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
       "title": "Role is used by concurrent task",
@@ -6804,6 +6813,10 @@
     "AUTOMATIC_ROLE_TASK_INVALID": {
       "title": "",
       "message": "Select only one of automatic role - by tree structure or by attribute."
+    },
+    "AUTOMATIC_ROLE_TREE_TASK_INVALID": {
+      "title": "",
+      "message": "Set at least one of automatic role by tree structure."
     },
     "BACKUP_FAIL": {
       "title": "Backup failed",

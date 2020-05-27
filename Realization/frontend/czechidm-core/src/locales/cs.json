@@ -6051,20 +6051,9 @@
           }
         }
       },
-      "core-add-new-automatic-role-contract-long-running-task": {
-        "label": "Přepočítat automatickou roli dle stromové struktury pro kontrakty",
-        "help": "Přiřadí role pro uživatele s kontraktem vyhovující zadané automatické roli dle stromové struktury.",
-        "icon": "component:automatic-role",
-        "attributes": {
-          "roletreenode": {
-            "label": "Automatická role",
-            "help": "Automatická role dle stromové struktury."
-          }
-        }
-      },
-      "core-add-new-automatic-role-position-long-running-task": {
-        "label": "Přepočítat automatickou roli dle stromové struktury pro další pozice kontraktu",
-        "help": "Přiřadí role pro uživatele s kontraktem a další pozicí vyhovující zadané automatické roli dle stromové struktury.",
+      "core-process-automatic-role-tree-long-running-task": {
+        "label": "Přepočítat automatickou roli dle stromové struktury pro kontrakty a další pozice",
+        "help": "Přepočítá role pro uživatele s kontraktem vyhovující zadané automatické roli dle stromové struktury. Úlohu lze pouštět opakovaně, již přiřazené role jsou přeskočeny.",
         "icon": "component:automatic-role",
         "attributes": {
           "roletreenode": {
@@ -6813,13 +6802,33 @@
       "title": "Není vyplněn atribut 'groupPermission'",
       "message": "V případě vyplnění typu autorizace musíte vyplnit i atribut 'groupPermission'."
     },
+    "AUTOMATIC_ROLE_ASSIGN_NOT_COMPLETE": {
+      "title": "Role nebyla přiřazena",
+      "message": "Automatická role [{{roleTreeNode}}] pro přiřazení role [{{role}}] byla zpracována pouze částečně. Podrobnosti naleznete na detailu zpracované položky úlohy."
+    },
     "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
       "title": "Role nebyla přiřazena",
-      "message": "Role [{{role}}] nebyla přiřazena automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
+      "message": "Role [{{role}}] nebyla přiřazena automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}]. Podrobnosti naleznete na detailu zpracované položky úlohy."
     },
     "AUTOMATIC_ROLE_ALREADY_ASSIGNED": {
       "title": "Role byla již přiřazena",
-      "message": "Role [{{role}}] byla již přiřazena automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}]."
+      "message": "Role [{{role}}] byla již přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED": {
+      "title": "Role je přiřazena",
+      "message": "Role [{{role}}] je přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_REMOVED": {
+      "title": "Přidělená role je odebrána",
+      "message": "Přidělená role [{{role}}] přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}] byla odebrána."
+    },
+    "AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID": {
+      "title": "Roli nelze přiřadit",
+      "message": "Roli [{{role}}] dle automatické role [{{roleTreeNode}}] pro uživatele [{{identity}}] nelze přiřadit. Uživatel nemá platný kontrakt."
+    },
+    "AUTOMATIC_ROLE_TASK_RUNNING": {
+      "title": "Role je využívána jiným procesem",
+      "message": "Automatická role je zpracovávána souběžně běžící úlohou [{{taskId}}], počkejte na dokončení úlohy."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
       "title": "Role je využívána jiným procesem",
@@ -6856,6 +6865,10 @@
     "AUTOMATIC_ROLE_TASK_INVALID": {
       "title": "",
       "message": "Vyberte pouze jednu z automatických rolí - dle stromové struktury nebo dle atributu."
+    },
+    "AUTOMATIC_ROLE_TREE_TASK_INVALID": {
+      "title": "",
+      "message": "Vyberte alespoň jednu automatickou roli dle stromové struktury."
     },
     "BACKUP_FAIL": {
       "title": "Záloha nebyla provedena",

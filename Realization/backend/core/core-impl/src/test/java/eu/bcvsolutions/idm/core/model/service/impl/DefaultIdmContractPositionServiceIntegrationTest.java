@@ -1,14 +1,15 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
@@ -25,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleForPositionTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -221,8 +222,8 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.saveInternal(automaticRole);
 		//
 		if (withLongRunningTask) {
-			AddNewAutomaticRoleForPositionTaskExecutor task = new AddNewAutomaticRoleForPositionTaskExecutor();
-			task.setAutomaticRoleId(roleTreeNode.getId());
+			ProcessAutomaticRoleByTreeTaskExecutor task = new ProcessAutomaticRoleByTreeTaskExecutor();
+			task.setAutomaticRoles(Lists.newArrayList(roleTreeNode.getId()));
 			taskManager.executeSync(task);
 		}
 		//

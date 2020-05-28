@@ -12,9 +12,11 @@ import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty.AccessMode;
 
 /**
  * Default DTO for audit detail.
@@ -29,6 +31,7 @@ public class IdmAuditDto implements BaseDto {
 	
 	public static final String CHANGED_COLUMNS_DELIMITER = ",";
 
+	@JsonDeserialize(as = Long.class)
 	private Long id;
 
     private UUID entityId;
@@ -62,25 +65,27 @@ public class IdmAuditDto implements BaseDto {
 	private String subOwnerType;
 	
 	@JsonProperty(value = "_embedded", access = Access.READ_ONLY)
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private Map<String, BaseDto> embedded;
 	
-	@ApiModelProperty(readOnly = true)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
 	private UUID transactionId;
+	
+	@JsonProperty(access = Access.READ_ONLY)
+	@ApiModelProperty(accessMode = AccessMode.READ_ONLY)
+    private Map<String, Object> revisionValues;
 
+    public IdmAuditDto() {
+        super();
+        revisionValues = new HashMap<>();
+    }
+    
     public UUID getModifierId() {
         return modifierId;
     }
 
     public void setModifierId(UUID modifierId) {
         this.modifierId = modifierId;
-    }
-
-    private Map<String, Object> revisionValues;
-
-    public IdmAuditDto() {
-        super();
-        revisionValues = new HashMap<>();
     }
 
     public UUID getEntityId() {

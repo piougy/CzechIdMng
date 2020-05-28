@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Ondrej Husnik
  *
  */
-public class AvailableServiceControllerRestTest extends AbstractRestTest{
+public class AvailableServiceControllerRestTest extends AbstractRestTest {
 
 	@Autowired
 	private ApplicationContext applicationContext;

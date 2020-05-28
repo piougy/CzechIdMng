@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.config.domain.ConfigurationMapToConfigurationMap
 import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.OperationResultConverter;
 import eu.bcvsolutions.idm.core.config.domain.StringToStringConverter;
+import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConditionalConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToUuidConverter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
@@ -66,7 +67,9 @@ public class ModelMapperConfig {
 		Converter<? extends BaseEntity, UUID> entityToUuid = new EntityToUuidConverter(modeler, applicationContext);
 
 		// Convert UIID to Entity
-		Converter<UUID, ? extends BaseEntity> uuidToEntity = new UuidToEntityConverter(applicationContext);
+		// Conditional converter is using here, because ModelMapper contains bug with
+		// skiping converter if source value is null. More here https://redmine.czechidm.com/issues/2271. 
+		modeler.getConfiguration().getConverters().add(new UuidToEntityConditionalConverter(applicationContext));
 
 		// This converter must be set for only one purpose... workaround fixed
 		// error in ModelMapper.
@@ -126,10 +129,10 @@ public class ModelMapperConfig {
 			TypeMap typeMapEntityToUuid = modeler.createTypeMap(entityType.getJavaType(), UUID.class);
 			typeMapEntityToUuid.setConverter(entityToUuid);
 
-			@SuppressWarnings("rawtypes")
-			TypeMap typeMapUuidToEntity = modeler.createTypeMap(UUID.class, entityType.getJavaType());
-			
-			typeMapUuidToEntity.setConverter(uuidToEntity);
+//			@SuppressWarnings("rawtypes")
+//			TypeMap typeMapUuidToEntity = modeler.createTypeMap(UUID.class, entityType.getJavaType());
+//			
+//			typeMapUuidToEntity.setConverter(uuidToEntity);
 		});
 
 		// configure default type map for entities

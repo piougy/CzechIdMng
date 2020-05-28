@@ -56,14 +56,17 @@ public class ModelMapperConfig {
 	@Bean
 	public ModelMapper modelMapper() {
 		ModelMapper modeler = new ModelMapper();
-		// We want use STRICT matching strategy ... others can be ambiguous
-		modeler.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		
+		modeler
+			.getConfiguration()
+			.setMatchingStrategy(MatchingStrategies.STRICT) // We want use STRICT matching strategy ... others can be ambiguous.
+			.setSkipNullEnabled(false); // prevent to skip null property values
 
 		// Convert BaseEntity to UIID (get ID)
-		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUuidConverter(modeler, applicationContext);
+		Converter<? extends BaseEntity, UUID> entityToUuid = new EntityToUuidConverter(modeler, applicationContext);
 
 		// Convert UIID to Entity
-		Converter<UUID, ? extends BaseEntity> uiidToEntity = new UuidToEntityConverter(applicationContext);
+		Converter<UUID, ? extends BaseEntity> uuidToEntity = new UuidToEntityConverter(applicationContext);
 
 		// This converter must be set for only one purpose... workaround fixed
 		// error in ModelMapper.
@@ -74,12 +77,12 @@ public class ModelMapperConfig {
 		// Class cast exception will be throw.
 
 		//  + Additionally this converter allows load DTO (by UUID) and put him to embedded map.
-		Converter<UUID, UUID> uuidToUiid = new UuidToUuidConverter(applicationContext);
-		modeler.createTypeMap(UUID.class, UUID.class).setConverter(uuidToUiid);
+		Converter<UUID, UUID> uuidToUuid = new UuidToUuidConverter(applicationContext);
+		modeler.createTypeMap(UUID.class, UUID.class).setConverter(uuidToUuid);
 
 		// Converter for resolve problem with 0x00 character in Postgress.
 		modeler.createTypeMap(String.class, String.class).setConverter(new StringToStringConverter());
-		// Converter OperationResult for resolve problem with 0x00 character in Postgress.
+		// Converter OperationResult for resolve problem with 0x00 character in PostgreSQL.
 		modeler.createTypeMap(OperationResult.class, OperationResult.class).setConverter(new OperationResultConverter(modeler));
 		// Simple ConfigurationMap converter - map without template is not provided by model mapper out of box.
 		modeler.createTypeMap(ConfigurationMap.class, ConfigurationMap.class).setConverter(new ConfigurationMapToConfigurationMapConverter());
@@ -120,12 +123,13 @@ public class ModelMapperConfig {
 				return;
 			}
 			@SuppressWarnings("rawtypes")
-			TypeMap typeMapEntityToUiid = modeler.createTypeMap(entityType.getJavaType(), UUID.class);
-			typeMapEntityToUiid.setConverter(entityToUiid);
+			TypeMap typeMapEntityToUuid = modeler.createTypeMap(entityType.getJavaType(), UUID.class);
+			typeMapEntityToUuid.setConverter(entityToUuid);
 
 			@SuppressWarnings("rawtypes")
-			TypeMap typeMapUiidToEntity = modeler.createTypeMap(UUID.class, entityType.getJavaType());
-			typeMapUiidToEntity.setConverter(uiidToEntity);
+			TypeMap typeMapUuidToEntity = modeler.createTypeMap(UUID.class, entityType.getJavaType());
+			
+			typeMapUuidToEntity.setConverter(uuidToEntity);
 		});
 
 		// configure default type map for entities

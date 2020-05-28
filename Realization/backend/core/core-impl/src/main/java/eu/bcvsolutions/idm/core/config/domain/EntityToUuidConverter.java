@@ -43,52 +43,53 @@ public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 
 	@Override
 	public UUID convert(MappingContext<BaseEntity, UUID> context) {
-		if (context != null && context.getSource() != null && context.getSource().getId() instanceof UUID) {
-			MappingContext<?, ?> parentContext = context.getParent();
-			if (parentContext != null && parentContext.getDestination() != null
-					&& AbstractDto.class.isAssignableFrom(parentContext.getDestinationType())
-					&& parentContext.getSource() != null
-					&& BaseEntity.class.isAssignableFrom(parentContext.getSourceType())) {
-
-				try {
-					AbstractDto parentDto = (AbstractDto) parentContext.getDestination();
-					BaseEntity entity = (BaseEntity) context.getSource();
-					Map<String, BaseDto> embedded = parentDto.getEmbedded();
-
-					PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
-					// Find name of field by property mapping
-					String field = propertyMapping.getLastDestinationProperty().getName();
-					// Find field in DTO class
-					Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getDestinationType(), field);
-					if (fieldTyp.isAnnotationPresent(Embedded.class)) {
-						Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
-						if (embeddedAnnotation.enabled()) {
-							// If has field Embedded (enabled) annotation, then
-							// we will create new
-							// instance of DTO
-							//
-							AbstractDto dto = null;
-							// If dto class is abstract get dto from lookup
-							if (Modifier.isAbstract(embeddedAnnotation.dtoClass().getModifiers())) {
-								dto = (AbstractDto) getLookupService().lookupDto(entity.getClass(), entity.getId());
-							} else {
-								dto = embeddedAnnotation.dtoClass().getDeclaredConstructor().newInstance();
-							}
-							dto.setTrimmed(true);
-							// Separate map entity to new embedded DTO
-							modeler.map(entity, dto);
-							embedded.put(field, dto);
-							// Add filled DTO to embedded map to parent DTO
-							parentDto.setEmbedded(embedded);
-						}
-					}
-				} catch (ReflectiveOperationException ex) {
-					throw new CoreException(ex);
-				}
-			}
-			return (UUID) context.getSource().getId();
+		if (context.getSource() == null || !(context.getSource().getId() instanceof UUID)) {
+			return null;
 		}
-		return null;
+		
+		MappingContext<?, ?> parentContext = context.getParent();
+		if (parentContext != null && parentContext.getDestination() != null
+				&& AbstractDto.class.isAssignableFrom(parentContext.getDestinationType())
+				&& parentContext.getSource() != null
+				&& BaseEntity.class.isAssignableFrom(parentContext.getSourceType())) {
+
+			try {
+				AbstractDto parentDto = (AbstractDto) parentContext.getDestination();
+				BaseEntity entity = (BaseEntity) context.getSource();
+				Map<String, BaseDto> embedded = parentDto.getEmbedded();
+
+				PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
+				// Find name of field by property mapping
+				String field = propertyMapping.getLastDestinationProperty().getName();
+				// Find field in DTO class
+				Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getDestinationType(), field);
+				if (fieldTyp.isAnnotationPresent(Embedded.class)) {
+					Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
+					if (embeddedAnnotation.enabled()) {
+						// If has field Embedded (enabled) annotation, then
+						// we will create new
+						// instance of DTO
+						//
+						AbstractDto dto = null;
+						// If dto class is abstract get dto from lookup
+						if (Modifier.isAbstract(embeddedAnnotation.dtoClass().getModifiers())) {
+							dto = (AbstractDto) getLookupService().lookupDto(entity.getClass(), entity.getId());
+						} else {
+							dto = embeddedAnnotation.dtoClass().getDeclaredConstructor().newInstance();
+						}
+						dto.setTrimmed(true);
+						// Separate map entity to new embedded DTO
+						modeler.map(entity, dto);
+						embedded.put(field, dto);
+						// Add filled DTO to embedded map to parent DTO
+						parentDto.setEmbedded(embedded);
+					}
+				}
+			} catch (ReflectiveOperationException ex) {
+				throw new CoreException(ex);
+			}
+		}
+		return (UUID) context.getSource().getId();
 	}
 	
 	private LookupService getLookupService() {

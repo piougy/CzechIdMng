@@ -16,7 +16,7 @@ public class ConfigurationMapToConfigurationMapConverter implements Converter<Co
 	@Override
 	public ConfigurationMap convert(MappingContext<ConfigurationMap, ConfigurationMap> context) {
 		// FIXME: create deep copy.
-		return context == null ? null : context.getSource();
+		return context.getSource();
 	}
 
 }

@@ -7,9 +7,7 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +20,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Basic role catalogue service operations
@@ -36,18 +33,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 
 	@Autowired private IdmRoleCatalogueService roleCatalogueService;
 	@Autowired private IdmRoleCatalogueRoleService roleCatalogueRoleService;
-	@Autowired private TestHelper helper;
-	
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-	
-	@After 
-	public void logout() {
-		super.logout();
-	}
-	
+
 	@Test
 	public void testReferentialIntegrity() {
 		// catalogue
@@ -161,19 +147,19 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 
 	@Test
 	public void textFilterTest(){
-		IdmRoleCatalogueDto catalogue = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue = getHelper().createRoleCatalogue();
 		catalogue.setCode("NameCat001");
 		roleCatalogueService.save(catalogue);
 
-		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue2 = getHelper().createRoleCatalogue();
 		catalogue2.setCode("NameCat002");
 		roleCatalogueService.save(catalogue2);
 
-		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue3 = getHelper().createRoleCatalogue();
 		catalogue3.setCode("NameCat103");
 		roleCatalogueService.save(catalogue3);
 
-		IdmRoleCatalogueDto catalogue4 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue4 = getHelper().createRoleCatalogue();
 		catalogue4.setName("NameCat004");
 		roleCatalogueService.save(catalogue4);
 
@@ -195,9 +181,9 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 
 	@Test
 	public void codeFilterTest(){
-		IdmRoleCatalogueDto catalogue = helper.createRoleCatalogue();
-		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
-		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue2 = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue3 = getHelper().createRoleCatalogue();
 
 		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setCode(catalogue.getCode());
@@ -218,9 +204,9 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 
 	@Test
 	public void nameFilterTest(){
-		IdmRoleCatalogueDto catalogue = helper.createRoleCatalogue();
-		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
-		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue2 = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue3 = getHelper().createRoleCatalogue();
 
 		IdmRoleCatalogueFilter filter = new IdmRoleCatalogueFilter();
 		filter.setName(catalogue.getName());
@@ -240,12 +226,12 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 	}
 
 	@Test
-	public void parentFilterTest(){
-		IdmRoleCatalogueDto catalogue = helper.createRoleCatalogue();
-		IdmRoleCatalogueDto catalogue2 = helper.createRoleCatalogue();
-		IdmRoleCatalogueDto catalogue3 = helper.createRoleCatalogue();
-		IdmRoleCatalogueDto catalogue4 = helper.createRoleCatalogue();
-		IdmRoleCatalogueDto catalogue5 = helper.createRoleCatalogue();
+	public void parentFilterTest() {
+		IdmRoleCatalogueDto catalogue = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue2 = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue3 = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue4 = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue5 = getHelper().createRoleCatalogue();
 		UUID catalogueId = catalogue.getId();
 
 		catalogue2.setParent(catalogueId);
@@ -269,5 +255,18 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		filter.setParent(catalogue5.getId());
 		result = roleCatalogueService.find(filter,null);
 		assertEquals("Wrong parent count blank", 0,result.getTotalElements());
+	}
+	
+	@Test
+	public void testChangeParentToRoot() {
+		IdmRoleCatalogueDto catalogueParent = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue = getHelper().createRoleCatalogue(null, catalogueParent.getId());
+		//
+		Assert.assertEquals(catalogueParent.getId(), catalogue.getParent());
+		// set parent as root
+		catalogue.setParent(null);
+		catalogue = roleCatalogueService.save(catalogue);
+		//
+		Assert.assertNull(catalogue.getParent());
 	}
 }

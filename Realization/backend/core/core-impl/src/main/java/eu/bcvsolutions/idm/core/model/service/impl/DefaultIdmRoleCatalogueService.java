@@ -109,16 +109,17 @@ public class DefaultIdmRoleCatalogueService
 	@Transactional
 	public IdmRoleCatalogueDto saveInternal(IdmRoleCatalogueDto roleCatalogue) {
 		if (isNew(roleCatalogue)) {
-			this.validate(toEntity(roleCatalogue));
+			this.validate(roleCatalogue, true);
 			// create new
 			roleCatalogue = super.saveInternal(roleCatalogue);
 			IdmForestIndexEntity index = forestContentService.createIndex(IdmRoleCatalogue.FOREST_TREE_TYPE, roleCatalogue.getId(), roleCatalogue.getParent());
 			return setForestIndex(roleCatalogue, index);
 		}
-		this.validate(toEntity(roleCatalogue, repository.findById(roleCatalogue.getId()).orElse(null)));
+		this.validate(roleCatalogue, false);
 		// update - we need to reindex first
 		IdmForestIndexEntity index = forestContentService.updateIndex(IdmRoleCatalogue.FOREST_TREE_TYPE, roleCatalogue.getId(), roleCatalogue.getParent());
 		roleCatalogue = super.saveInternal(roleCatalogue);
+		//
 		return setForestIndex(roleCatalogue, index);
 	}
 	
@@ -270,11 +271,12 @@ public class DefaultIdmRoleCatalogueService
 	 * 
 	 * @param roleCatalogue
 	 */
-	private void validate(IdmRoleCatalogue roleCatalogue) {
+	private void validate(IdmRoleCatalogueDto roleCatalogue, boolean isNew) {
 		Assert.notNull(roleCatalogue, "Role catalogue is required.");
 		//
 		// test role catalogue to parent and children
-		if (this.baseTreeService.validateTreeNodeParents(roleCatalogue)) {
+		if (this.baseTreeService.validateTreeNodeParents(
+				isNew ? toEntity(roleCatalogue) : toEntity(roleCatalogue, repository.findById(roleCatalogue.getId()).get()))) {
 			throw new TreeNodeException(CoreResultCode.ROLE_CATALOGUE_BAD_PARENT,  "Role catalog [" + roleCatalogue.getName() + "] have bad parent.");
 		}
 	}

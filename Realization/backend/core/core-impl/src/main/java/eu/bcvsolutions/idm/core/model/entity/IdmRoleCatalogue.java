@@ -93,6 +93,13 @@ public class IdmRoleCatalogue
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmForestIndexEntity forestIndex;
+	
+	public IdmRoleCatalogue() {
+	}
+
+	public IdmRoleCatalogue(UUID id) {
+		super(id);
+	}
 
 	@Override
 	public String getName() {

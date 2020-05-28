@@ -44,10 +44,10 @@ public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 
 	@Override
 	public BaseEntity convert(MappingContext<UUID, BaseEntity> context) {
-		if (context != null && context.getSource() != null) {
-			UUID sourceUUID = context.getSource();
-			Class<BaseEntity> entityClass = context.getDestinationType();
-
+		Class<BaseEntity> entityClass = context.getDestinationType();
+		UUID sourceUuid = context.getSource();
+		//
+		if (sourceUuid != null) {			
 			MappingContext<?, ?> parentContext = context.getParent();
 
 			PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
@@ -61,7 +61,7 @@ public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 					if (embeddedAnnotation.enabled()) {
 						EntityLookup<?> lookup = getLookupService().getEntityLookup(embeddedAnnotation.dtoClass());
 						if (lookup != null) {
-							return lookup.lookup(sourceUUID);
+							return lookup.lookup(sourceUuid);
 						}
 					}
 				}
@@ -72,7 +72,7 @@ public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 			// We do not have lookup by embedded annotation. We try load service for entity
 			EntityLookup<?> lookup = getLookupService().getEntityLookup(entityClass);
 			if (lookup != null) {
-				return lookup.lookup(sourceUUID);
+				return lookup.lookup(sourceUuid);
 			}
 		}
 		return null;

@@ -49,43 +49,45 @@ public class UuidToUuidConverter implements Converter<UUID, UUID> {
 	
 	@Override
 	public UUID convert(MappingContext<UUID, UUID> context) {
-		if (context != null && context.getSource() != null && context.getSource() instanceof UUID) {
-			MappingContext<?, ?> parentContext = context.getParent();
-			if (parentContext != null && parentContext.getDestination() != null
-					&& AbstractDto.class.isAssignableFrom(parentContext.getDestinationType())
-					&& parentContext.getSource() != null
-					&& BaseEntity.class.isAssignableFrom(parentContext.getSourceType())) {
+		if (context.getSource() == null) {
+			return null;
+		}
+		
+		MappingContext<?, ?> parentContext = context.getParent();
+		if (parentContext != null && parentContext.getDestination() != null
+				&& AbstractDto.class.isAssignableFrom(parentContext.getDestinationType())
+				&& parentContext.getSource() != null
+				&& BaseEntity.class.isAssignableFrom(parentContext.getSourceType())) {
 
-				try {
-					AbstractDto parentDto = (AbstractDto) parentContext.getDestination();
-					UUID entityId = (UUID) context.getSource();
-					Map<String, BaseDto> embedded = parentDto.getEmbedded();
+			try {
+				AbstractDto parentDto = (AbstractDto) parentContext.getDestination();
+				UUID entityId = context.getSource();
+				Map<String, BaseDto> embedded = parentDto.getEmbedded();
 
-					PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
-					// Find name of field by property mapping
-					String field = propertyMapping.getLastDestinationProperty().getName();
-					// Find field in DTO class
-					Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getDestinationType(), field);
-					if (fieldTyp.isAnnotationPresent(Embedded.class)) {
-						Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
-						if (embeddedAnnotation.enabled()) {
-							// Load DTO service by dtoClass and get DTO by UUID
-							ReadDtoService<?, ?> lookup = getLookupService().getDtoService(embeddedAnnotation.dtoClass());
-							if (lookup != null) {
-								 AbstractDto dto = (AbstractDto) lookup.get(entityId);
-								 dto.setTrimmed(true);
-								 embedded.put(field, dto);
-								 // Add filled DTO to embedded map to parent DTO
-								 parentDto.setEmbedded(embedded);
-							}
+				PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
+				// Find name of field by property mapping
+				String field = propertyMapping.getLastDestinationProperty().getName();
+				// Find field in DTO class
+				Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getDestinationType(), field);
+				if (fieldTyp.isAnnotationPresent(Embedded.class)) {
+					Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
+					if (embeddedAnnotation.enabled()) {
+						// Load DTO service by dtoClass and get DTO by UUID
+						ReadDtoService<?, ?> lookup = getLookupService().getDtoService(embeddedAnnotation.dtoClass());
+						if (lookup != null) {
+							 AbstractDto dto = (AbstractDto) lookup.get(entityId);
+							 dto.setTrimmed(true);
+							 embedded.put(field, dto);
+							 // Add filled DTO to embedded map to parent DTO
+							 parentDto.setEmbedded(embedded);
 						}
 					}
-				} catch (NoSuchFieldException | SecurityException e) {
-					throw new CoreException(e);
 				}
+			} catch (NoSuchFieldException | SecurityException e) {
+				throw new CoreException(e);
 			}
 		}
-		return context == null ? null : (UUID) context.getSource();
+		return context.getSource();
 	}
 	
 	private LookupService getLookupService() {

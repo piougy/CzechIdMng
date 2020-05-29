@@ -7,7 +7,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -40,6 +39,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 		+ "Only valid identity can be manager.")
 public class GuaranteeManagersFilter 
 		extends AbstractFilterBuilder<IdmIdentity, IdmIdentityFilter> {
+	
+	@Autowired private GuaranteeContractBySubordinateContractFilter guaranteeContractBySubordinateContractFilter;
 	
 	@Override
 	public String getName() {
@@ -86,18 +87,10 @@ public class GuaranteeManagersFilter
 	 * @since 10.3.0
 	 */
 	public Predicate getValidNowOrInFuturePredicate(Path<IdmIdentityContract> pathIc, CriteriaBuilder builder, IdmIdentityFilter filter) {
-		Boolean validContractManagers = filter.getValidContractManagers();
-		// not set => nullable filter
-		if (validContractManagers == null) {
-			return builder.conjunction();
-		}
-		// valid
-		Predicate validContractManagersPredicate = RepositoryUtils.getValidNowOrInFuturePredicate(pathIc, builder);
-		// invalid
-		if (BooleanUtils.isFalse(validContractManagers)) {
-			validContractManagersPredicate = builder.not(validContractManagersPredicate);
-		}
-		return validContractManagersPredicate;
+		return guaranteeContractBySubordinateContractFilter.getValidNowOrInFuturePredicate(
+				pathIc, 
+				builder, 
+				filter.getValidContractManagers());
 	}
 
 	@Override

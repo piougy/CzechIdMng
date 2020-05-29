@@ -31,7 +31,6 @@ import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.OperationResultConverter;
 import eu.bcvsolutions.idm.core.config.domain.StringToStringConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConditionalConverter;
-import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToUuidConverter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;

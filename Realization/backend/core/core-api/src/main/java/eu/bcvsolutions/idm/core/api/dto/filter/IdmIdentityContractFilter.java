@@ -46,6 +46,19 @@ public class IdmIdentityContractFilter
 	public static final String PARAMETER_MAIN = "main";
 	public static final String PARAMETER_STATE = "state";
 	public static final String PARAMETER_ROLE = "role";
+	/**
+	 * Returns managers' contracts by subordinate's contract.
+	 * 
+	 * @since 10.4.0
+	 */
+	public static final String PARAMETER_MANAGERS_BY_CONTRACT = IdmIdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT;
+	/**
+	 * Returns manager' contracts for valid now or in future contracts. Can be combined with PARAMETER_MANAGERS_BY_CONTRACT only.
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @since 10.4.0
+	 */
+	public static final String PARAMETER_VALID_CONTRACT_MANAGERS = "validContractManagers";
 
 	public IdmIdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -233,5 +246,53 @@ public class IdmIdentityContractFilter
 	 */
 	public void setRoleId(UUID roleId) {
 		set(PARAMETER_ROLE, roleId);
+	}
+	
+	/**
+	 * Returns managers' contracts by subordinate's contract.
+	 * 
+	 * @return subordinate contract identifier
+	 * @since 10.4.0
+	 */
+	public UUID getManagersByContract() {
+		return getParameterConverter().toUuid(getData(), PARAMETER_MANAGERS_BY_CONTRACT);
+	}
+	
+	/**
+	 * Returns managers' contracts by subordinate's contract.
+	 * 
+	 * @param managersByContract subordinate contract identifier
+	 * @since 10.4.0
+	 */
+	public void setManagersByContract(UUID managersByContract) {
+		set(PARAMETER_MANAGERS_BY_CONTRACT, managersByContract);
+	}
+	
+	/**
+	 * Filter managers' contracts for valid now or in future contracts.
+	 * - true: valid now or in future
+	 * - false: ended contracts
+	 * 
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @return filter value
+	 * @since 10.4.0
+	 */
+	public Boolean getValidContractManagers() {
+    	return getParameterConverter().toBoolean(getData(), PARAMETER_VALID_CONTRACT_MANAGERS);
+	}
+	
+	/**
+	 * Filter managers' contracts for valid now or in future contracts.
+	 * - true: valid now or in future
+	 * - false: ended contracts
+	 * 
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @param filter value
+	 * @since 10.4.0
+	 */
+	public void setValidContractManagers(Boolean validContractManagers) {
+		set(PARAMETER_VALID_CONTRACT_MANAGERS, validContractManagers);
 	}
 }

@@ -48,7 +48,7 @@ public class IdmIdentityFilter
 	 */
 	public static final String PARAMETER_MANAGERS_BY_TREE_TYPE = "managersByTreeType";
 	/**
-	 * Returns managers by identity's contract working prosition.
+	 * Returns managers by identity's contract working position.
 	 */
 	public static final String PARAMETER_MANAGERS_BY_CONTRACT = "managersByContract";
 	/**

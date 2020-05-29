@@ -42,8 +42,6 @@ public class UuidToEntityConditionalConverter implements ConditionalConverter<UU
 		this.applicationContext = applicationContext;
 	}
 	
-	
-
 	@Override
 	public BaseEntity convert(MappingContext<UUID, BaseEntity> context) {
 		Class<BaseEntity> entityClass = context.getDestinationType();

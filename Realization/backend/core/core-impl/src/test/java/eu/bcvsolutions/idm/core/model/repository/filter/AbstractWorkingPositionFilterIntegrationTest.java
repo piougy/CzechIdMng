@@ -61,6 +61,8 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	protected IdmIdentityContractDto contractSubordinateTwo;
 	protected IdmIdentityContractDto contractThree;
 	protected IdmIdentityContractDto contractFourDisabled;
+	protected IdmIdentityContractDto managerTwoContract;
+	protected IdmIdentityContractDto managerThreeContract;
 	
 	@Before
 	public void init() {
@@ -103,14 +105,14 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		disabledContract.setState(ContractState.EXCLUDED);
 		getHelper().getService(IdmIdentityContractService.class).save(disabledContract);
 		IdmTreeNodeDto managerThreePosition = getHelper().createTreeNode(structureOne, null); 
-		getHelper().createIdentityContact(managerThree, managerThreePosition);
+		managerThreeContract = getHelper().createIdentityContact(managerThree, managerThreePosition);
 		//
 		getHelper().getService(IdmIdentityService.class).disable(disabledGuarantee.getId());
 		getHelper().getService(IdmIdentityService.class).disable(invalidManagerDisabledIdentity.getId());
 		//
 		structureTwo = getHelper().createTreeType();
 		IdmTreeNodeDto managerTwoPosition = getHelper().createTreeNode(structureTwo, null); 
-		getHelper().createIdentityContact(managerTwo, managerTwoPosition);
+		managerTwoContract = getHelper().createIdentityContact(managerTwo, managerTwoPosition);
 		// subordinate one
 		IdmTreeNodeDto subordinateOnePositionOne = createPosition(structureOne, managerOnePosition);
 		contractOne = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionOne);

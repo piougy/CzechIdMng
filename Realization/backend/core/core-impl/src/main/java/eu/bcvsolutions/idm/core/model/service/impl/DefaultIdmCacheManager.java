@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -18,8 +17,8 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Maps;
 
-import eu.bcvsolutions.idm.core.api.config.cache.domain.CacheObjectWrapper;
 import eu.bcvsolutions.idm.core.api.config.cache.IdMCacheConfiguration;
+import eu.bcvsolutions.idm.core.api.config.cache.domain.CacheObjectWrapper;
 import eu.bcvsolutions.idm.core.api.config.cache.domain.SerializableCacheObjectWrapper;
 import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.dto.IdmCacheDto;
@@ -30,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
  * caches and clearing them. Internally, this manager uses jCache JSR107 {@link CacheManager}
  *
  * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
+ * @author Radek Tomiška
  */
 @Component("idmCacheManager")
 public class DefaultIdmCacheManager implements IdmCacheManager {
@@ -82,13 +82,13 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
         // We can cast here safely, because DistributedIdMCacheConfiguration only allows Serializable types
         final Object toCache = isConfigLocalOnly(configuration) ? new CacheObjectWrapper<>(value) : new SerializableCacheObjectWrapper<>((Serializable)value);
         if (cache != null) {
-                cache.put(key,  toCache);
+        	cache.put(key, toCache);
         }
         return cache != null && Objects.equals(cache.get(key), toCache);
     }
 
     @Override
-    public Optional<Object> getValue(String cacheName, Object key) {
+    public ValueWrapper getValue(String cacheName, Object key) {
         Assert.hasText(cacheName, EMPTY_NAME_MSG);
         Assert.notNull(key, EMPTY_KEY_MSG);
         //
@@ -96,11 +96,10 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
         final IdMCacheConfiguration cacheConfiguration = cacheConfigurations.get(cacheName);
         //
         if (cache == null) {
-            return Optional.empty();
+            return null;
         }
         //
-        ValueWrapper result = toValueWrapper(cacheConfiguration, cache.get(key));
-        return result == null ? Optional.empty() : Optional.ofNullable(result.get());
+        return toValueWrapper(cacheConfiguration, cache.get(key));
     }
 
     @SuppressWarnings("unchecked")

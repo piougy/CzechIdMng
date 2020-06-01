@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [10.3.2]
+
+- [#2285](https://redmine.czechidm.com/issues/2285) - ``IdmCacheManager#getValue(String, Object)`` returns ``ValueWrapper`` instead Optional. **Check cache manager usage in your module and change methor return type to ValueWrapper.** When return value is ``null``, then value is not cached.
+- [#2285](https://redmine.czechidm.com/issues/2285) -  Default cache size was changed to ``Long.MAX_VALUE`` (previous value was 2000). **Change cache size limit in your module if needed.**
+
 ## [10.3.0]
 
 - [#2002](https://redmine.czechidm.com/issues/2002) - New method ``IdmIdentityService#findAllManagers(UUID, UUID, Boolean)`` was added. **Use this method to get managers of valid contracts (as approvers) in your custom scripts and workflows**. This new method is used in product workflows. All product [filters](https://wiki.czechidm.com/devel/documentation/architecture/dev/filters) for find managers were updated and new optional parameter ``validContractManagers`` was added - **change behavior in your custom (overriden) filters if needed**. Contract state (DISABLED) is ignored by this new filter - filter works just with contract dates.

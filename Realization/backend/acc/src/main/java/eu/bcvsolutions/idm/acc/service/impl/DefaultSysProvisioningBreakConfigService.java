@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,6 +37,7 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningBreakConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakRecipientService;
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -143,9 +143,14 @@ public class DefaultSysProvisioningBreakConfigService extends
 	
 	@Override
 	public SysProvisioningBreakItems getCacheProcessedItems(UUID systemId) {
-		Optional<Object> cachedValueWrapper = this.idmCacheManager.getValue(CACHE_NAME, systemId);
-		SysProvisioningBreakItems cache = cachedValueWrapper.map(o -> (SysProvisioningBreakItems)o).orElseGet(() -> localCache.get(systemId));
-		cachedValueWrapper.ifPresent(o -> localCache.remove(systemId));
+		ValueWrapper cachedValueWrapper = this.idmCacheManager.getValue(CACHE_NAME, systemId);
+		SysProvisioningBreakItems cache;
+		if (cachedValueWrapper == null) {
+			cache = localCache.get(systemId);
+		} else {
+			cache = (SysProvisioningBreakItems) cachedValueWrapper.get();
+			localCache.remove(systemId);
+		}
 		//
 		return cache == null ? new SysProvisioningBreakItems() : cache;
 	}

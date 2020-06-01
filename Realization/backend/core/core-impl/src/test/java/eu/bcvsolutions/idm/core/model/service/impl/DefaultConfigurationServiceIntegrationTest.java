@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
+@Transactional
 public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrationTest {
 	
 	private static final String TEST_PROPERTY_KEY = "test.property";
@@ -33,75 +33,59 @@ public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrat
 	private ConfigurationService configurationService;
 	
 	@Before
-	public void login() {
-		super.loginAsAdmin();
+	public void init() {
 		configurationService = context.getAutowireCapableBeanFactory().createBean(DefaultConfigurationService.class);
 	}
 	
-	@After
-	public void logout() {
-		super.logout();
-	}
-	
 	@Test
-	@Transactional
 	public void testReadNotExists() {
-		assertNull(configurationService.getValue("not_exists"));
+		assertNull(configurationService.getValue(getHelper().createName()));
 	}
 	
 	@Test
-	@Transactional
 	public void testReadNotExistsWithDefault() {
-		assertEquals("true", configurationService.getValue("not_exists", "true"));
+		assertEquals("true", configurationService.getValue(getHelper().createName(), "true"));
 	}
 	
 	@Test
-	@Transactional
 	public void testReadBooleanNotExistsWithDefault() {
-		assertTrue(configurationService.getBooleanValue("not_exists", true));
+		assertTrue(configurationService.getBooleanValue(getHelper().createName(), true));
 	}
 	
 	@Test
-	@Transactional
 	public void testReadPropertyFromFile() {
 		assertEquals("true", configurationService.getValue(TEST_PROPERTY_KEY));
 	}
 	
 	@Test
-	@Transactional
 	public void testReadBooleanPropertyFromFile() {
 		assertTrue(configurationService.getBooleanValue(TEST_PROPERTY_KEY));
 	}
 	
 	@Test
-	@Transactional
 	public void testReadPropertyFromDb() {
 		configurationService.saveConfiguration(new IdmConfigurationDto(TEST_PROPERTY_DB_KEY, "true"));
 		assertTrue(configurationService.getBooleanValue(TEST_PROPERTY_DB_KEY));
 	}
 	
 	@Test
-	@Transactional
 	public void testReadOverridenPropertyFromDb() {
 		configurationService.saveConfiguration(new IdmConfigurationDto(TEST_PROPERTY_KEY, "false"));
 		assertEquals("false", configurationService.getValue(TEST_PROPERTY_KEY));
 	}
 	
 	@Test
-	@Transactional
 	public void testReadGuardedPropertyFromFile() {
 		assertEquals(TEST_GUARDED_PROPERTY_VALUE, configurationService.getValue(TEST_GUARDED_PROPERTY_KEY));
 	}
 	
 	@Test
-	@Transactional
 	public void testReadConfidentialPropertyFromDB() {
 		configurationService.saveConfiguration(new IdmConfigurationDto(TEST_GUARDED_PROPERTY_KEY, "secured_change"));
 		assertEquals("secured_change", configurationService.getValue(TEST_GUARDED_PROPERTY_KEY));
 	}
 	
 	@Test
-	@Transactional
 	public void testGlobalDateFormatChange() {
 		final String format = "dd.MM";
 		configurationService.setValue(ConfigurationService.PROPERTY_APP_DATE_FORMAT, format);
@@ -111,7 +95,6 @@ public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrat
 	}
 	
 	@Test
-	@Transactional
 	public void testDefaultDateTimeFormat() {
 		assertEquals(ConfigurationService.DEFAULT_APP_DATETIME_FORMAT, configurationService.getDateTimeFormat());
 	}

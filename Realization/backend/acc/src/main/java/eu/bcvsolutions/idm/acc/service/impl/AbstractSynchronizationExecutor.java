@@ -58,6 +58,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -1812,19 +1813,19 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		}
 
 		AttributeValueWrapperDto key = new AttributeValueWrapperDto(attribute, icAttributes);
-		Object value = this.getCachedValue(key);
+		ValueWrapper value = this.getCachedValue(key);
 		if (value != null) {
-			return value;
+			return value.get();
 		}
 		Object valueByMappedAttribute = systemAttributeMappingService.getValueByMappedAttribute(attribute, icAttributes);
 		this.setCachedValue(key, valueByMappedAttribute);
+		//
 		return valueByMappedAttribute;
 
 	}
 
-	protected Object getCachedValue(AttributeValueWrapperDto key) {
-		Optional<Object> value = idmCacheManager.getValue(CACHE_NAME, key);
-		return value.orElse(null);
+	protected ValueWrapper getCachedValue(AttributeValueWrapperDto key) {
+		return idmCacheManager.getValue(CACHE_NAME, key);
 	}
 
 	protected void setCachedValue(AttributeValueWrapperDto key, Object value) {

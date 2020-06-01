@@ -53,8 +53,10 @@ public class InMemoryEhCacheConfiguration {
 
 		// get CacheManager (Jcache) with above updated configuration
 		final EhcacheCachingProvider ehcacheCachingProvider = (EhcacheCachingProvider) Caching.getCachingProvider();
-		return ehcacheCachingProvider.getCacheManager(ehcacheCachingProvider.getDefaultURI(),
-				localCacheManagerBuilder.build(true).getRuntimeConfiguration());
+		return ehcacheCachingProvider.getCacheManager(
+				ehcacheCachingProvider.getDefaultURI(),
+				localCacheManagerBuilder.build(true).getRuntimeConfiguration()
+		);
 	}
 
 	private CacheConfiguration<?, ?> toConcreteConfiguration(IdMCacheConfiguration idMCacheConfiguration) {

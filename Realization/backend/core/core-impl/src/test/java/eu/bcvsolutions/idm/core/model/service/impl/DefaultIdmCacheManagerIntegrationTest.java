@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.Optional;
-
 import javax.cache.CacheManager;
 
 import org.junit.Assert;
@@ -10,6 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -52,7 +51,7 @@ public class DefaultIdmCacheManagerIntegrationTest extends AbstractIntegrationTe
 
         Assert.assertEquals("val1", cacheManager.getValue(CACHE_NAME_1, "1").get());
         Assert.assertEquals("val2", cacheManager.getValue(CACHE_NAME_1, "2").get());
-        Assert.assertFalse(cacheManager.getValue(CACHE_NAME_1, "3").isPresent());
+        Assert.assertNull(cacheManager.getValue(CACHE_NAME_1, "3"));
     }
 
     @Test
@@ -65,7 +64,7 @@ public class DefaultIdmCacheManagerIntegrationTest extends AbstractIntegrationTe
 
         cacheManager.evictValue(CACHE_NAME_2, "1");
 
-        Assert.assertFalse(cacheManager.getValue(CACHE_NAME_2, "1").isPresent());
+        Assert.assertNull(cacheManager.getValue(CACHE_NAME_2, "1"));
         Assert.assertNotNull(cacheManager.getValue(CACHE_NAME_2, "2"));
     }
 
@@ -79,8 +78,8 @@ public class DefaultIdmCacheManagerIntegrationTest extends AbstractIntegrationTe
 
         cacheManager.evictCache(CACHE_NAME_2);
 
-        Assert.assertFalse(cacheManager.getValue(CACHE_NAME_2, "1").isPresent());
-        Assert.assertFalse(cacheManager.getValue(CACHE_NAME_2, "2").isPresent());
+        Assert.assertNull(cacheManager.getValue(CACHE_NAME_2, "1"));
+        Assert.assertNull(cacheManager.getValue(CACHE_NAME_2, "2"));
     }
 
     @Test
@@ -102,17 +101,18 @@ public class DefaultIdmCacheManagerIntegrationTest extends AbstractIntegrationTe
     public void testCacheNullValue() {
         cacheManager.cacheValue(CACHE_NAME_4, "1", null);
 
-        Assert.assertFalse(cacheManager.getValue(CACHE_NAME_4, "1").isPresent());
-        Assert.assertFalse(cacheManager.getValue(CACHE_NAME_5, "1").isPresent());
+        Assert.assertNotNull(cacheManager.getValue(CACHE_NAME_4, "1"));
+        Assert.assertNull(cacheManager.getValue(CACHE_NAME_4, "1").get());
+        Assert.assertNull(cacheManager.getValue(CACHE_NAME_5, "1"));
     }
 
     // TODO: do we need this? It would slow down retrieving entries from cache
     @Ignore
     @Test
     public void testCacheGetNotCreatesCache() {
-        Optional<?> val = cacheManager.getValue(CACHE_NAME_5, "key");
+        ValueWrapper val = cacheManager.getValue(CACHE_NAME_5, "key");
 
-        Assert.assertFalse(val.isPresent());
+        Assert.assertNull(val);
         Assert.assertNull(cacheManager.getAllAvailableCaches().stream()
                 .filter(c -> CACHE_NAME_5.equals(c.getId())).findFirst().orElse(null));
     }

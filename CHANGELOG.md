@@ -1,8 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
 ## [10.4.0]
 - [#2158](https://redmine.czechidm.com/issues/2158) - ``Node version 12.16.3`` and ``Npm 6.14.4`` is used for developing and building CzechIdM.
+
+## [10.3.2]
+
+- [#2285](https://redmine.czechidm.com/issues/2285) - ``IdmCacheManager#getValue(String, Object)`` returns ``ValueWrapper`` instead Optional. **Check cache manager usage in your module and change methor return type to ValueWrapper.** When return value is ``null``, then value is not cached.
+- [#2285](https://redmine.czechidm.com/issues/2285) -  Default cache size was changed to ``Long.MAX_VALUE`` (previous value was 2000). **Change cache size limit in your module if needed.**
 
 ## [10.3.0]
 

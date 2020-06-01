@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableMap;
  */
 public abstract class AbstractIdMCacheConfiguration implements IdMCacheConfiguration {
 
-	public static final long DEFAULT_HEAP_CACHE_SIZE = 2000;
+	public static final long DEFAULT_HEAP_CACHE_SIZE = Long.MAX_VALUE; // ~ unlimited by default. Use different strategy, if needed.
 
 	private final String cacheName;
 	private final Class<?> keyType;

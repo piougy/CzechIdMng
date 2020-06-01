@@ -57,10 +57,10 @@ public class ModelMapperConfig {
 
 		// Convert BaseEntity to UIID (get ID)
 		modeler.getConfiguration().getConverters().add(new EntityToUuidConditionalConverter(modeler, applicationContext));
-		
+
 		// Convert UIID to Entity
 		// Conditional converter is using here, because ModelMapper contains bug with
-		// skiping converter if source value is null. More here https://redmine.czechidm.com/issues/2271. 
+		// skipping converter if source value is null. More here https://redmine.czechidm.com/issues/2271. 
 		modeler.getConfiguration().getConverters().add(new UuidToEntityConditionalConverter(applicationContext));
 
 		// This converter must be set for only one purpose... workaround fixed
@@ -111,7 +111,7 @@ public class ModelMapperConfig {
 		};
 
 		modeler.getConfiguration().setPropertyCondition(trimListCondition);
-
+		
 		// configure default type map for entities
 		// this behavior must be placed in this class, not in toDto methods (getEmbedded use mapper for map entity to dto)
 

@@ -41,17 +41,17 @@ public class UuidToEntityConditionalConverter implements ConditionalConverter<UU
 		Assert.notNull(applicationContext, "Application context is required!");
 		this.applicationContext = applicationContext;
 	}
-	
+
 	@Override
 	public BaseEntity convert(MappingContext<UUID, BaseEntity> context) {
 		Class<BaseEntity> entityClass = context.getDestinationType();
 		UUID sourceUuid = context.getSource();
-		
+		//
 		if (sourceUuid == null) {
 			return null;
 		}
-		
 		MappingContext<?, ?> parentContext = context.getParent();
+
 		PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
 		// Find name of field by property mapping
 		String field = propertyMapping.getLastDestinationProperty().getName();

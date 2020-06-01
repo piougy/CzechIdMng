@@ -1,9 +1,8 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.util.List;
-import java.util.Optional;
 
-
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.dto.IdmCacheDto;
 
 /**
@@ -48,15 +47,15 @@ public interface IdmCacheManager {
     boolean cacheValue(String cacheName, Object key, Object value);
 
     /**
-     * Retrieves value form cache with given name. If there is no cached record for given key, method returns empty {@link Optional}.
-     * If there is a null value stored in cache for given key, then empty {@link Optional} is returned.
+     * Retrieves value form cache with given name. If there is no cached record for given key, method returns {@code null}.
+     * If there is a null value stored in cache for given key, then {@link ValueWrapper} with null value is returned.
      *
      * @param cacheName Name of cache to search value in
      * @param key Key to search value in cache
-     * @return Optional containing stored value if any value for given key is present, {@link Optional#empty()} otherwise
+     * @return wrapper containing stored value if any value for given key is present, {@code null} otherwise
      * @throws IllegalArgumentException if cacheName or key arguments are null
      */
-    Optional<Object> getValue(String cacheName, Object key);
+    ValueWrapper getValue(String cacheName, Object key);
 
     /**
      * Removes value from cache.

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.aop.support.AopUtils;
@@ -49,6 +48,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
@@ -388,8 +388,11 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	@Override
 	public SynchronizationEntityExecutor getSyncExecutor(SystemEntityType entityType, UUID syncConfigId) {
-		Optional<Object> value = this.idmCacheManager.getValue(SYNC_EXECUTOR_CACHE_NAME, syncConfigId);
-		return value.map(o -> (SynchronizationEntityExecutor)o).orElseGet(() -> getExecutor(entityType, syncConfigId));
+		ValueWrapper value = this.idmCacheManager.getValue(SYNC_EXECUTOR_CACHE_NAME, syncConfigId);
+		if (value == null) {
+			return getExecutor(entityType, syncConfigId);
+		}
+		return (SynchronizationEntityExecutor) value.get();
 	}
 
 	private SynchronizationEntityExecutor getExecutor(SystemEntityType entityType, UUID syncConfigId) {

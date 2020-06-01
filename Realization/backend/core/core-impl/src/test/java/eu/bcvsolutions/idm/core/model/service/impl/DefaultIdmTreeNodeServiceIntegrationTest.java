@@ -526,4 +526,17 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertTrue(assignedRoles.isEmpty());
 	}
+	
+	@Test
+	public void testChangeParentToRoot() {
+		IdmTreeNodeDto parent = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode((IdmTreeTypeDto) null, parent);
+		//
+		Assert.assertEquals(parent.getId(), node.getParent());
+		// set parent as root
+		node.setParent(null);
+		node = service.save(node);
+		//
+		Assert.assertNull(node.getParent());
+	}
 }

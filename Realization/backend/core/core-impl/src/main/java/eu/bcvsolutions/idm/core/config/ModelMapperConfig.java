@@ -3,9 +3,6 @@ package eu.bcvsolutions.idm.core.config;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -24,10 +21,9 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.config.domain.ConfigurationMapToConfigurationMapConverter;
-import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
+import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConditionalConverter;
 import eu.bcvsolutions.idm.core.config.domain.OperationResultConverter;
 import eu.bcvsolutions.idm.core.config.domain.StringToStringConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConditionalConverter;
@@ -39,7 +35,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
  * Configuration for model mapper. Set specific converters ...
  *
  * @author svandav
- *
+ * @author Radek Tomiška
  */
 @Configuration(ModelMapperConfig.NAME)
 @Order(Ordered.HIGHEST_PRECEDENCE + 90)
@@ -47,12 +43,9 @@ public class ModelMapperConfig {
 
 	public static final String NAME = "modelMapperConfig";
 
-	@PersistenceContext
-	private EntityManager entityManager;
 	@Autowired
 	private ApplicationContext applicationContext;
 
-	@SuppressWarnings("unchecked")
 	@Bean
 	public ModelMapper modelMapper() {
 		ModelMapper modeler = new ModelMapper();
@@ -63,8 +56,8 @@ public class ModelMapperConfig {
 			.setSkipNullEnabled(false); // prevent to skip null property values
 
 		// Convert BaseEntity to UIID (get ID)
-		Converter<? extends BaseEntity, UUID> entityToUuid = new EntityToUuidConverter(modeler, applicationContext);
-
+		modeler.getConfiguration().getConverters().add(new EntityToUuidConditionalConverter(modeler, applicationContext));
+		
 		// Convert UIID to Entity
 		// Conditional converter is using here, because ModelMapper contains bug with
 		// skiping converter if source value is null. More here https://redmine.czechidm.com/issues/2271. 
@@ -118,21 +111,6 @@ public class ModelMapperConfig {
 		};
 
 		modeler.getConfiguration().setPropertyCondition(trimListCondition);
-
-		// entity to uuid converters will be set for all entities
-		entityManager.getMetamodel().getEntities().forEach(entityType -> {
-			if (entityType.getJavaType() == null) {
-				return;
-			}
-			@SuppressWarnings("rawtypes")
-			TypeMap typeMapEntityToUuid = modeler.createTypeMap(entityType.getJavaType(), UUID.class);
-			typeMapEntityToUuid.setConverter(entityToUuid);
-
-//			@SuppressWarnings("rawtypes")
-//			TypeMap typeMapUuidToEntity = modeler.createTypeMap(UUID.class, entityType.getJavaType());
-//			
-//			typeMapUuidToEntity.setConverter(uuidToEntity);
-		});
 
 		// configure default type map for entities
 		// this behavior must be placed in this class, not in toDto methods (getEmbedded use mapper for map entity to dto)

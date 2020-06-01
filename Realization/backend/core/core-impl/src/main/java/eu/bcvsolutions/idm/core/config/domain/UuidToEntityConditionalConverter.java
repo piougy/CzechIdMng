@@ -23,7 +23,7 @@ import org.modelmapper.spi.ConditionalConverter;
  * 
  * @author svandav
  * @author Radek Tomiška
- *
+ * @since 9.7.17, 10.3.2
  */
 public class UuidToEntityConditionalConverter implements ConditionalConverter<UUID, BaseEntity> {
 
@@ -46,35 +46,37 @@ public class UuidToEntityConditionalConverter implements ConditionalConverter<UU
 	public BaseEntity convert(MappingContext<UUID, BaseEntity> context) {
 		Class<BaseEntity> entityClass = context.getDestinationType();
 		UUID sourceUuid = context.getSource();
-		//
-		if (sourceUuid != null) {			
-			MappingContext<?, ?> parentContext = context.getParent();
-
-			PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
-			// Find name of field by property mapping
-			String field = propertyMapping.getLastDestinationProperty().getName();
-			try {
-				// Find field in DTO class
-				Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getSourceType(), field);
-				if (fieldTyp.isAnnotationPresent(Embedded.class)) {
-					Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
-					if (embeddedAnnotation.enabled()) {
-						EntityLookup<?> lookup = getLookupService().getEntityLookup(embeddedAnnotation.dtoClass());
-						if (lookup != null) {
-							return lookup.lookup(sourceUuid);
-						}
+		
+		if (sourceUuid == null) {
+			return null;
+		}
+		
+		MappingContext<?, ?> parentContext = context.getParent();
+		PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
+		// Find name of field by property mapping
+		String field = propertyMapping.getLastDestinationProperty().getName();
+		try {
+			// Find field in DTO class
+			Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getSourceType(), field);
+			if (fieldTyp.isAnnotationPresent(Embedded.class)) {
+				Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
+				if (embeddedAnnotation.enabled()) {
+					EntityLookup<?> lookup = getLookupService().getEntityLookup(embeddedAnnotation.dtoClass());
+					if (lookup != null) {
+						return lookup.lookup(sourceUuid);
 					}
 				}
-			} catch (NoSuchFieldException | SecurityException e) {
-				throw new CoreException(e);
 			}
-
-			// We do not have lookup by embedded annotation. We try load service for entity
-			EntityLookup<?> lookup = getLookupService().getEntityLookup(entityClass);
-			if (lookup != null) {
-				return lookup.lookup(sourceUuid);
-			}
+		} catch (NoSuchFieldException | SecurityException e) {
+			throw new CoreException(e);
 		}
+
+		// We do not have lookup by embedded annotation. We try load service for entity
+		EntityLookup<?> lookup = getLookupService().getEntityLookup(entityClass);
+		if (lookup != null) {
+			return lookup.lookup(sourceUuid);
+		}
+		//
 		return null;
 	}
 

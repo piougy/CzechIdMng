@@ -14,9 +14,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -24,10 +22,9 @@ import eu.bcvsolutions.idm.core.api.config.domain.TreeConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
-import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
+import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConditionalConverter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -59,13 +56,8 @@ public class DefaultIdmIdentityContractServiceUnitTest extends AbstractUnitTest 
 	private DefaultIdmIdentityContractService service;
 	
 	@Before
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void init() {
-		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUuidConverter(modelMapper, null);
-		TypeMap typeMapEntityToUiid = modelMapper.createTypeMap(IdmTreeNode.class, UUID.class);
-		typeMapEntityToUiid.setConverter(entityToUiid);
-		TypeMap typeMapEntityToUiid2 = modelMapper.createTypeMap(IdmTreeType.class, UUID.class);
-		typeMapEntityToUiid2.setConverter(entityToUiid);
+		modelMapper.getConfiguration().getConverters().add(new EntityToUuidConditionalConverter(modelMapper, null));
 	}
 	
 	@Test

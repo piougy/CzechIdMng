@@ -270,4 +270,17 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		result = roleCatalogueService.find(filter,null);
 		assertEquals("Wrong parent count blank", 0,result.getTotalElements());
 	}
+	
+	@Test
+	public void testChangeParentToRoot() {
+		IdmRoleCatalogueDto catalogueParent = getHelper().createRoleCatalogue();
+		IdmRoleCatalogueDto catalogue = getHelper().createRoleCatalogue(null, catalogueParent.getId());
+		//
+		Assert.assertEquals(catalogueParent.getId(), catalogue.getParent());
+		// set parent as root
+		catalogue.setParent(null);
+		catalogue = roleCatalogueService.save(catalogue);
+		//
+		Assert.assertNull(catalogue.getParent());
+	}
 }

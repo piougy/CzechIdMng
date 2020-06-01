@@ -23,8 +23,9 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
  * 
  * @author svandav
  * @author Radek Tomiška
- *
+ * @deprecated @since 9.7.17, 10.3.2 use UuidToEntityConditionalConverter
  */
+@Deprecated
 public class UuidToEntityConverter implements Converter<UUID, BaseEntity> {
 
 	private LookupService lookupService;

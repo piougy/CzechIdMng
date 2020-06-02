@@ -1,16 +1,20 @@
 {
-  "name" : "czechidm-vs",
-  "version" : "9.7.17-snapshot",
-  "description" : "Virtual system module for CzechIdM. Provides system connector for connecting CzechIdM systems. Virtual systems are used in situations, when connector operations (create/update/delete accounts) have to be done (implemented) manually. Basically, the virtual system creates a task for the implementer (admin of the real system) for every active connector operation.",
-  "main" : "index.js",
-  "scripts" : {
-    "lint" : "eslint ./",
-    "test" : "echo \"Error: no test specified\" && exit 1"
+  "name": "czechidm-vs",
+  "version": "9.7.17",
+  "description": "Virtual system module for CzechIdM. Provides system connector for connecting CzechIdM systems. Virtual systems are used in situations, when connector operations (create/update/delete accounts) have to be done (implemented) manually. Basically, the virtual system creates a task for the implementer (admin of the real system) for every active connector operation.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint ./",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords" : [ "CzechIdM", "Virtual", "IdM" ],
-  "publishConfig" : {
-    "registry" : "http://nexus.bcvsolutions.eu/repository/npm-private/"
+  "keywords": [
+    "CzechIdM",
+    "Virtual",
+    "IdM"
+  ],
+  "publishConfig": {
+    "registry": "http://nexus.bcvsolutions.eu/repository/npm-private/"
   },
-  "author" : "BCV solutions s.r.o",
-  "license" : "MIT"
+  "author": "BCV solutions s.r.o",
+  "license": "MIT"
 }

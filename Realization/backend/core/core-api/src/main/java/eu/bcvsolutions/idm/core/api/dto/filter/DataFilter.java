@@ -111,7 +111,11 @@ public class DataFilter
 	
 	@Override
 	public void set(String propertyName, Object propertyValue) {
-		data.set(propertyName, propertyValue);
+		if (propertyValue == null) {
+			remove(propertyName);
+		} else {
+			data.set(propertyName, propertyValue);
+		}
 	}
 	
 	@Override

@@ -20,6 +20,9 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
  * @author svandav
  */
 public class IdmRoleRequestFilter extends DataFilter {
+	
+	public static final String PARAMETER_CREATOR_ID = "creator";
+	
 	private UUID applicantId;
 	private String applicant;
 	private RoleRequestState state;

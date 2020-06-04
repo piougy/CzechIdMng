@@ -26,13 +26,13 @@ public interface BaseDataFilter extends BaseFilter {
 	 * Set property.
 	 * 
 	 * @param propertyName
-	 * @param propertyValue
+	 * @param propertyValue if value is {@code null}, then filter parameter is removed, value is set otherwise
 	 */
 	void set(String propertyName, Object propertyValue);
 	
 	/**
 	 * Put all property values.
-	 * If values are empty (null or empty list), then paremater is removed form filter.
+	 * If values are empty (null or empty list), then filter parameter is removed form filter.
 	 * 
 	 * @param propertyName
 	 * @param propertyValues

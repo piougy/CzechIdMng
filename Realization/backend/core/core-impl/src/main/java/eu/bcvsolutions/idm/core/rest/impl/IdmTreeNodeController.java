@@ -671,6 +671,7 @@ public class IdmTreeNodeController extends AbstractEventableDtoController<IdmTre
 		UUID legacyParentId = getParameterConverter().toUuid(parameters, "treeNodeId");
 		if (legacyParentId != null && filter.getParent() == null) {
 			filter.setParent(legacyParentId);
+			filter.remove("treeNodeId");
 		}
 		//
 		return filter;

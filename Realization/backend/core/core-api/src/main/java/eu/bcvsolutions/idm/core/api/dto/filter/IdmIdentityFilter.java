@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -181,11 +179,7 @@ public class IdmIdentityFilter
 	}
 	
 	public void setRoles(List<UUID> roles) {
-		if (CollectionUtils.isEmpty(roles)) {
-    		data.remove(PARAMETER_ROLE);
-    	} else {
-    		data.put(PARAMETER_ROLE, new ArrayList<Object>(roles));
-    	}
+    	put(PARAMETER_ROLE, roles);
 	}
 	
 	public List<UUID> getRoles() {

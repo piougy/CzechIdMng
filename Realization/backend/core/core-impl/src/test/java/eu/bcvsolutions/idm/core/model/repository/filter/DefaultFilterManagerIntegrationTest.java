@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.repository.filter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
@@ -7,12 +8,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
+import eu.bcvsolutions.idm.core.api.exception.FilterNotSupportedException;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -29,7 +35,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultFilterManagerIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private ApplicationContext context;
-	@Autowired private ConfigurationService configurationService;
+	@Autowired private IdmConfigurationService configurationService;
 	//
 	private DefaultFilterManager filterManager;
 	
@@ -95,5 +101,32 @@ public class DefaultFilterManagerIntegrationTest extends AbstractIntegrationTest
 			configurationService.setBooleanValue(enabledPropertyName, true);
 			configurationService.setValue(implProperty, currentFilterBeanName);
 		}
+	}
+	
+	@Test(expected = FilterNotSupportedException.class)
+	public void testFilterNotSupported() {
+		DataFilter filter = new DataFilter(IdmConfigurationDto.class);
+		filter.set("wrong", "mock");
+		configurationService.find(filter, null);
+	}
+	
+	@Test
+	public void testFilterNotSupportedWithoutValue() {
+		DataFilter filter = new DataFilter(IdmConfigurationDto.class);
+		filter.set("wrong", null);
+		//
+		Page<IdmConfigurationDto> configurations = configurationService.find(filter, PageRequest.of(0, 1));
+		//
+		Assert.assertNotNull(configurations);
+	}
+	
+	@Test
+	public void testFilterNotSupportedWithoutValues() {
+		DataFilter filter = new DataFilter(IdmConfigurationDto.class);
+		filter.put("wrong", new ArrayList<>());
+		//
+		Page<IdmConfigurationDto> configurations = configurationService.find(filter, PageRequest.of(0, 1));
+		//
+		Assert.assertNotNull(configurations);
 	}
 }

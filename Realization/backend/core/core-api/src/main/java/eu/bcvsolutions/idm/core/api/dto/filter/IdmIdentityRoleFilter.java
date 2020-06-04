@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -60,11 +58,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
     
     public void setIdentities(List<UUID> identities) {
-    	if (CollectionUtils.isEmpty(identities)) {
-    		data.remove(PARAMETER_IDENTITY_ID);
-    	} else {
-    		data.put(PARAMETER_IDENTITY_ID, new ArrayList<Object>(identities));
-    	}
+    	put(PARAMETER_IDENTITY_ID, identities);
 	}
     
     public UUID getRoleId() {
@@ -84,11 +78,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
     
     public void setRoles(List<UUID> roles) {
-    	if (CollectionUtils.isEmpty(roles)) {
-    		data.remove(PARAMETER_ROLE_ID);
-    	} else {
-    		data.put(PARAMETER_ROLE_ID, new ArrayList<Object>(roles));
-    	}
+    	put(PARAMETER_ROLE_ID, roles);
 	}
     
     public String getRoleEnvironment() {
@@ -108,11 +98,7 @@ public class IdmIdentityRoleFilter extends DataFilter implements ExternalIdentif
 	}
     
     public void setRoleEnvironments(List<String> roleEnvironments) {
-    	if (CollectionUtils.isEmpty(roleEnvironments)) {
-    		data.remove(PARAMETER_ROLE_ENVIRONMENT);
-    	} else {
-    		data.put(PARAMETER_ROLE_ENVIRONMENT, new ArrayList<Object>(roleEnvironments));
-    	}
+    	put(PARAMETER_ROLE_ENVIRONMENT, roleEnvironments);
 	}
 
 	public UUID getRoleCatalogueId() {

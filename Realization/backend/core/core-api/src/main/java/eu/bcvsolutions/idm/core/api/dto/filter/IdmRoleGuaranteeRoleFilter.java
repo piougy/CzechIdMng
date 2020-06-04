@@ -16,6 +16,11 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
  * @since 8.2.0
  */
 public class IdmRoleGuaranteeRoleFilter extends DataFilter implements ExternalIdentifiableFilter {
+	
+	/**
+	 * Owner role
+	 */
+	public static final String PARAMETER_ROLE = IdmRoleGuaranteeFilter.PARAMETER_ROLE;
 	/**
 	 * guarantee as role
 	 */
@@ -34,11 +39,11 @@ public class IdmRoleGuaranteeRoleFilter extends DataFilter implements ExternalId
 	}
 	
 	public UUID getRole() {
-		return DtoUtils.toUuid(data.getFirst(IdmRoleGuaranteeFilter.PARAMETER_ROLE));
+		return DtoUtils.toUuid(data.getFirst(PARAMETER_ROLE));
 	}
 	
 	public void setRole(UUID role) {
-		data.set(IdmRoleGuaranteeFilter.PARAMETER_ROLE, role);
+		data.set(PARAMETER_ROLE, role);
 	}
 	
 	public UUID getGuaranteeRole() {

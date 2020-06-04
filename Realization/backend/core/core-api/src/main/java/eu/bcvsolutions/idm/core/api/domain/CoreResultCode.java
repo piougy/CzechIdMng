@@ -66,6 +66,7 @@ public enum CoreResultCode implements ResultCode {
 	UNMODIFIABLE_LOCKED(HttpStatus.CONFLICT, "This entity [%s] cannot be modified (is locked)!"),
 	// filter
 	FILTER_IMPLEMENTATION_NOT_FOUND(HttpStatus.CONFLICT, "Filter implementation [%s] for property [%s] not found. Repair configuration property [%s]."),
+	FILTER_PROPERTY_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "Filter for property [%s] for entity [%s] is not supported and cannot be used."),
 	// identity
 	IDENTITY_ALREADY_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is already disabled manually, cannot be disable twice."),
 	IDENTITY_NOT_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is not disabled manually [%s], cannot be enabled."),

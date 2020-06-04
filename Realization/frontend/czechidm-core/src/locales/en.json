@@ -6940,6 +6940,10 @@
       "title": "Filter not found",
       "message": "Filter [{{implementation}}] for attribute [{{propertyName}}] not found. Fix configuration property [{{configurationProperty}}]."
     },
+    "FILTER_PROPERTY_NOT_SUPPORTED": {
+      "title": "Filter not found",
+      "message": "Filter for attribute [{{propertyName}}] not found."
+    },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Can not update form definition",
       "message": "Form definition [{{form}}][{{form1}}] can not be updated. Can not automatically update property [{{property}}] of attribute [{{attr}}]. Provide change script for updating form definition or define new form definition."

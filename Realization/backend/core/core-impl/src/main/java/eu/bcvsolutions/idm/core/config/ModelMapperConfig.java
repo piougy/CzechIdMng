@@ -3,9 +3,6 @@ package eu.bcvsolutions.idm.core.config;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -46,8 +43,6 @@ public class ModelMapperConfig {
 
 	public static final String NAME = "modelMapperConfig";
 
-	@PersistenceContext
-	private EntityManager entityManager;
 	@Autowired
 	private ApplicationContext applicationContext;
 
@@ -61,7 +56,6 @@ public class ModelMapperConfig {
 			.setSkipNullEnabled(false); // prevent to skip null property values
 
 		// Convert BaseEntity to UIID (get ID)
-		// Converter<? extends BaseEntity, UUID> entityToUuid = new EntityToUuidConverter(modeler, applicationContext);
 		modeler.getConfiguration().getConverters().add(new EntityToUuidConditionalConverter(modeler, applicationContext));
 
 		// Convert UIID to Entity
@@ -117,21 +111,6 @@ public class ModelMapperConfig {
 		};
 
 		modeler.getConfiguration().setPropertyCondition(trimListCondition);
-		
-		// entity to uuid converters will be set for all entities
-//				entityManager.getMetamodel().getEntities().forEach(entityType -> {
-//					if (entityType.getJavaType() == null) {
-//						return;
-//					}
-//					@SuppressWarnings("rawtypes")
-//					TypeMap typeMapEntityToUuid = modeler.createTypeMap(entityType.getJavaType(), UUID.class);
-//					typeMapEntityToUuid.setConverter(entityToUuid);
-//
-////					@SuppressWarnings("rawtypes")
-////					TypeMap typeMapUuidToEntity = modeler.createTypeMap(UUID.class, entityType.getJavaType());
-////					
-////					typeMapUuidToEntity.setConverter(uuidToEntity);
-//				});
 		
 		// configure default type map for entities
 		// this behavior must be placed in this class, not in toDto methods (getEmbedded use mapper for map entity to dto)

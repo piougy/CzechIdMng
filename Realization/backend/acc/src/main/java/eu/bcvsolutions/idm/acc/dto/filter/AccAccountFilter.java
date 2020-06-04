@@ -18,6 +18,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
  */
 public class AccAccountFilter extends DataFilter {
 	
+	public static final String PARAMETER_IDENTITY_ID = "identity";
+	//
 	private UUID systemEntityId;	
 	private UUID systemId;	
 	private UUID identityId;	

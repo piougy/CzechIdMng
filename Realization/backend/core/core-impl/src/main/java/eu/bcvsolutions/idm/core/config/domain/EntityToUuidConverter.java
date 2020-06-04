@@ -26,9 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
  * and add entity to embedded part main DTO.
  * 
  * @author svandav
- * @deprecated @since 10.4.0 use {@link EntityToUuidConditionalConverter}
  */
-@Deprecated
 public class EntityToUuidConverter implements Converter<BaseEntity, UUID> {
 
 	private ModelMapper modeler;

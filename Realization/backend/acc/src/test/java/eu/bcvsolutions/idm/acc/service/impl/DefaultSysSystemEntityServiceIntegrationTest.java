@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,29 +19,16 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * System entity operation tests
+ * System entity operation tests.
  * 
  * @author Radek Tomiška
  *
  */
 public class DefaultSysSystemEntityServiceIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private SysSystemService systemService;
-	@Autowired
-	private AccAccountService accountService;
-	@Autowired
-	private SysSystemEntityService systemEntityService;
-	
-	@Before
-	public void login() {
-		loginAsAdmin();
-	}
-	
-	@After 
-	public void logout() {
-		super.logout();
-	}
+	@Autowired private SysSystemService systemService;
+	@Autowired private AccAccountService accountService;
+	@Autowired private SysSystemEntityService systemEntityService;
 	
 	@Test
 	public void testReferentialIntegrity() {

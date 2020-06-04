@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
@@ -43,7 +44,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import io.swagger.annotations.Api;
@@ -416,8 +416,7 @@ public class IdmContractSliceController
 	@Override
 	protected IdmContractSliceFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmContractSliceFilter filter = new IdmContractSliceFilter(parameters, getParameterConverter());
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentity.class));
+		filter.setIdentity(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentityDto.class));
 		filter.setValid(getParameterConverter().toBoolean(parameters, "valid"));
 		filter.setExterne(getParameterConverter().toBoolean(parameters, "externe"));
 		filter.setDisabled(getParameterConverter().toBoolean(parameters, "disabled"));

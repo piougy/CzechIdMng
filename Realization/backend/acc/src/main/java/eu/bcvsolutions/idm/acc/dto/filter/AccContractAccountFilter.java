@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  */
 public class AccContractAccountFilter implements BaseFilter, EntityAccountFilter {
 
+	public static final String PARAMETER_CONTRACT_ID = "contract";
+	
 	private UUID accountId;
 	private UUID contractId;
 	private UUID systemId;

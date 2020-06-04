@@ -13,6 +13,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  */
 public class AccIdentityAccountFilter implements BaseFilter, EntityAccountFilter {
 
+	public static final String PARAMETER_IDENTITY_ID = "identity";
+	
 	private UUID accountId;
 	private UUID identityId;
 	private UUID roleId;

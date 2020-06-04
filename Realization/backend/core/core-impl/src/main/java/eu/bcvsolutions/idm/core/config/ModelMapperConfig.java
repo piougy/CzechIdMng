@@ -3,6 +3,9 @@ package eu.bcvsolutions.idm.core.config;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -21,9 +24,10 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.config.domain.ConfigurationMapToConfigurationMapConverter;
-import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConditionalConverter;
+import eu.bcvsolutions.idm.core.config.domain.EntityToUuidConverter;
 import eu.bcvsolutions.idm.core.config.domain.OperationResultConverter;
 import eu.bcvsolutions.idm.core.config.domain.StringToStringConverter;
 import eu.bcvsolutions.idm.core.config.domain.UuidToEntityConditionalConverter;
@@ -43,9 +47,12 @@ public class ModelMapperConfig {
 
 	public static final String NAME = "modelMapperConfig";
 
+	@PersistenceContext
+	private EntityManager entityManager;
 	@Autowired
 	private ApplicationContext applicationContext;
 
+	@SuppressWarnings("unchecked")
 	@Bean
 	public ModelMapper modelMapper() {
 		ModelMapper modeler = new ModelMapper();
@@ -56,7 +63,8 @@ public class ModelMapperConfig {
 			.setSkipNullEnabled(false); // prevent to skip null property values
 
 		// Convert BaseEntity to UIID (get ID)
-		modeler.getConfiguration().getConverters().add(new EntityToUuidConditionalConverter(modeler, applicationContext));
+		// FIXME: Fix EntityToUuidConditionalConverter field resolving and use conditional converter instead this.
+		Converter<? extends BaseEntity, UUID> entityToUuid = new EntityToUuidConverter(modeler, applicationContext);
 
 		// Convert UIID to Entity
 		// Conditional converter is using here, because ModelMapper contains bug with
@@ -111,6 +119,16 @@ public class ModelMapperConfig {
 		};
 
 		modeler.getConfiguration().setPropertyCondition(trimListCondition);
+		
+		// entity to uuid converters will be set for all entities
+		entityManager.getMetamodel().getEntities().forEach(entityType -> {
+			if (entityType.getJavaType() == null) {
+				return;
+			}
+			@SuppressWarnings("rawtypes")
+			TypeMap typeMapEntityToUuid = modeler.createTypeMap(entityType.getJavaType(), UUID.class);
+			typeMapEntityToUuid.setConverter(entityToUuid);
+		});
 		
 		// configure default type map for entities
 		// this behavior must be placed in this class, not in toDto methods (getEmbedded use mapper for map entity to dto)

@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  */
 public class AccRoleAccountFilter implements BaseFilter, EntityAccountFilter {
 
+	public static final String PARAMETER_ROLE_ID = "role";
+	
 	private UUID accountId;
 	private UUID roleId;
 	private UUID systemId;

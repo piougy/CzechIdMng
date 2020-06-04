@@ -13,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,7 +51,6 @@ public class ProvisioningOperationReportIntegrationTest extends AbstractIntegrat
 	@Autowired private TestHelper helper;
 	@Autowired private ProvisioningOperationReportExecutor reportExecutor;
 	@Autowired private AttachmentManager attachmentManager;
-	@Qualifier("objectMapper")
 	@Autowired private ObjectMapper mapper;
 	@Autowired private ProvisioningOperationReportXlsxRenderer xlsxRenderer;
 	@Autowired private SysSystemService systemService;

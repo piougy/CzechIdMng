@@ -30,7 +30,9 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
  * @since 10.4.0
  */
 public class EntityToUuidConditionalConverter implements ConditionalConverter<BaseEntity, UUID> {
-
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(EntityToUuidConditionalConverter.class);
+	
 	private ModelMapper modeler;
 	private LookupService lookupService;
 	private ApplicationContext applicationContext;
@@ -65,18 +67,21 @@ public class EntityToUuidConditionalConverter implements ConditionalConverter<Ba
 			return (UUID) context.getSource().getId();
 		}
 		//
+		PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
+		// Find name of field by property mapping
+		String field = propertyMapping.getLastDestinationProperty().getName();
+		// dto type
+		Class<?> destinationType = parentContext.getDestinationType();
 		try {
 			AbstractDto parentDto = (AbstractDto) parentContext.getDestination();
 			BaseEntity entity = (BaseEntity) context.getSource();
 			Map<String, BaseDto> embedded = parentDto.getEmbedded();
-
-			PropertyMapping propertyMapping = (PropertyMapping) context.getMapping();
-			// Find name of field by property mapping
-			String field = propertyMapping.getLastDestinationProperty().getName();
+			
 			// Find field in DTO class
-			Field fieldTyp = getFirstFieldInClassHierarchy(parentContext.getDestinationType(), field);
-			if (fieldTyp.isAnnotationPresent(Embedded.class)) {
-				Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
+			// FIXME: Embedded will not be set, if field name is different with getter and setter (fieldType == null when setter has different name).
+			Field fieldType = getFirstFieldInClassHierarchy(destinationType, field);
+			if (fieldType.isAnnotationPresent(Embedded.class)) {
+				Embedded embeddedAnnotation = fieldType.getAnnotation(Embedded.class);
 				if (embeddedAnnotation.enabled()) {
 					// If has field Embedded (enabled) annotation, then
 					// we will create new
@@ -97,6 +102,10 @@ public class EntityToUuidConditionalConverter implements ConditionalConverter<Ba
 					parentDto.setEmbedded(embedded);
 				}
 			}
+		} catch (NoSuchFieldException ex) {
+			// FIXME: Embedded will not be set, if field name is different with getter and setter (fieldType == null when setter has different name).
+			LOG.debug("Field [{}] in dto class [{}] not found, embedded dto cannot be filled. Different dto field name vs. getter and setter name is not supported.",
+					field, destinationType);
 		} catch (ReflectiveOperationException ex) {
 			throw new CoreException(ex);
 		}

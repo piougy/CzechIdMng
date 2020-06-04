@@ -7,11 +7,14 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.config.ModelMapperChecker;
 
 /**
- * Configuration property is disabled
+ * Check model mapper is properly initialized to prevent:
+ * org.modelmapper.MappingException: ModelMapper mapping errors: Converter org.modelmapper.internal.converter.CollectionConverter@7214dbf8 failed to convert 
  * 
  * @author Radek Tomiška
  * @see ModelMapperChecker
+ * @deprecated @since 10.4.0 ModelMapper updated to new version 2.3.7, where issue above is fixed
  */
+@Deprecated
 public class ModelMapperServiceInitException extends ResultCodeException  {
 
 	private static final long serialVersionUID = 1L;

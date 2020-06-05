@@ -274,7 +274,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 			List<IdmRoleRequestDto> roleRequests = roleRequestService.find(roleRequestFilter, null).getContent();
 			Assert.assertFalse(roleRequests.isEmpty());
 			roleRequests.forEach(r -> {
-				System.out.println(".... [" + r.getState() + "] " + r.getLog());
+				System.out.println(".... [" + r.getState() + "] ["+ r.getApprovers() +"] " + r.getLog());
 			});
 			Assert.assertTrue(roleRequests.stream().allMatch(r -> r.getState() == RoleRequestState.EXECUTED));
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(createdProjection.getIdentity().getId());

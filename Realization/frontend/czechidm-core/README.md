@@ -52,7 +52,7 @@ Single navigation item parameters:
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
 | id | string | Identifier | |
-| type | oneOf(['DYNAMIC', 'TAB']) | Rendering option. 'DYNAMIC' is rendered automatically in merged navigation. 'TAB' has to be rendered manually on some content. | 'DYNAMIC' |
+| type | oneOf(['DYNAMIC', 'TAB', 'MAIN-MENU']) | Rendering option. 'DYNAMIC' is rendered automatically in merged navigation. 'TAB' has to be rendered manually on some content. 'MAIN-MENU' is used as alias to main menu item (will be hidden in main or sidebar menu, but can have children to details) | 'DYNAMIC' |
 | section | oneOf(['main', 'system']) | Navigation is splitted to more sections (two is supported now).  | 'main' |
 | label | string | Item label | |
 | labelKey | string | Item label key to localization. If key is not found in localization, then label is shown. | |

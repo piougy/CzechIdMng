@@ -164,9 +164,15 @@ export class Navigation extends Basic.AbstractContent {
     }
   }
 
-  toogleNavigationItem(item, level, isActive, event) {
+  toogleNavigationItem(item, level, isActive, redirect = true, event) {
     if (event) {
       event.preventDefault();
+    }
+    if (!redirect) {
+      // prevent to redirect on click on arrow - toogle navigation only
+      event.stopPropagation();
+    } else if (item.to) {
+      this.context.history.push(item.to);
     }
     const { selectedNavigationItems } = this.props;
     const newNavigationState = level > 0 ? selectedNavigationItems.slice(0, level - 1) : [];
@@ -208,18 +214,29 @@ export class Navigation extends Basic.AbstractContent {
         }
       } else {
         const children = this.renderSidebarItems(levelItem.id, level);
-        const isActive = selectedNavigationItems.length >= level && selectedNavigationItems[level - 1] === levelItem.id;
+        let isActive = selectedNavigationItems.length >= level && selectedNavigationItems[level - 1] === levelItem.id;
+        // last active child exists => not active
+        if (isActive && childrenItems && selectedNavigationItems.length > level) {
+          const nextSelectedItemId = selectedNavigationItems[level];
+          const child = childrenItems.find(c => c.id === nextSelectedItemId);
+          if (child) {
+            isActive = false;
+          }
+        }
         //
         if (children && !navigationCollapsed) {
           items.push(
             <li
-              key={ `nav-item-${levelItem.id}` }
-              className={ isActive ? 'has-children active' : 'has-children' }>
+              key={ `nav-item-${ levelItem.id }` }
+              className="has-children">
               <Basic.Tooltip
-                id={ `${levelItem.id}-tooltip` }
+                id={ `${ levelItem.id }-tooltip` }
                 placement="right"
                 value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
-                <a href="#" onClick={ this.toogleNavigationItem.bind(this, levelItem, level, isActive) }>
+                <a
+                  href="#"
+                  onClick={ this.toogleNavigationItem.bind(this, levelItem, level, isActive, true) }
+                  className={ isActive ? 'active' : '' }>
                   <Basic.Icon icon={ levelItem.icon } color={ levelItem.iconColor }/>
                   {
                     navigationCollapsed
@@ -228,7 +245,10 @@ export class Navigation extends Basic.AbstractContent {
                     :
                     <span>
                       { this._resolveNavigationItemText(levelItem, userContext) }
-                      <Basic.Icon value={ `fa:angle-${ isActive ? 'down' : 'left' }` } className="arrow-icon" />
+                      <Basic.Icon
+                        onClick={ this.toogleNavigationItem.bind(this, levelItem, level, isActive, false) }
+                        value={ `fa:angle-${ isActive ? 'down' : 'left' }` }
+                        className="arrow-icon" />
                     </span>
                   }
                 </a>

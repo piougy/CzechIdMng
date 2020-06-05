@@ -54,7 +54,7 @@ module.exports = {
           },
           {
             id: 'example-components',
-            type: 'DYNAMIC',
+            type: 'TAB',
             section: 'main',
             labelKey: 'example:content.components.label',
             titleKey: 'example:content.components.title',
@@ -62,7 +62,7 @@ module.exports = {
             icon: 'fa:puzzle-piece',
             path: '/example/components',
             priority: 0
-          },
+          }
         ]
       },
       {

@@ -327,7 +327,7 @@ module.exports = {
         items: [
           {
             id: 'roles',
-            type: 'DYNAMIC',
+            type: 'MAIN-MENU',
             labelKey: 'content.roles.header',
             titleKey: 'content.roles.title',
             icon: 'component:roles',
@@ -701,6 +701,7 @@ module.exports = {
           },
           {
             id: 'audits',
+            type: 'MAIN-MENU',
             labelKey: 'content.audit.title',
             order: 40,
             path: '/audit/entities',
@@ -819,20 +820,6 @@ module.exports = {
             order: 150,
             path: '/audit/entity-states',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
-          },
-          {
-            id: 'audit-notification',
-            labelKey: 'navigation.menu.notifications.label',
-            titleKey: 'navigation.menu.notifications.title',
-            icon: 'fa:envelope',
-            order: 1910,
-            path: '/notification/notifications',
-            access: [
-              {
-                type: 'DENY_ALL', // TODO: fix issue with metis menu - collapsing different submenu is broken
-                authorities: ['NOTIFICATION_READ']
-              }
-            ],
           }
         ]
       },
@@ -852,6 +839,7 @@ module.exports = {
         items: [
           {
             id: 'notification-notifications',
+            type: 'MAIN-MENU',
             labelKey: 'content.notifications.label',
             titleKey: 'content.notifications.title',
             order: 30,
@@ -952,6 +940,7 @@ module.exports = {
         items: [
           {
             id: 'system-configuration',
+            type: 'MAIN-MENU',
             labelKey: 'navigation.menu.configuration',
             icon: 'component:setting',
             order: 10,
@@ -1138,6 +1127,7 @@ module.exports = {
             items: [
               {
                 id: 'tree-nodes',
+                type: 'MAIN-MENU',
                 labelKey: 'content.tree.nodes.title',
                 order: 15,
                 icon: 'apple',

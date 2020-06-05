@@ -58,6 +58,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  */
 public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreWorkflowIntegrationTest {
 
+	// FIXME: move to api (workflow config constant)
 	private static final String APPROVE_BY_SECURITY_ENABLE = "idm.sec.core.wf.approval.security.enabled";
 	private static final String APPROVE_BY_MANAGER_ENABLE = "idm.sec.core.wf.approval.manager.enabled";
 	private static final String APPROVE_BY_USERMANAGER_ENABLE = "idm.sec.core.wf.approval.usermanager.enabled";

@@ -21,6 +21,7 @@ import org.testng.collections.Lists;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -76,6 +77,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private EventConfiguration eventConfiguration;
 	//
 	private DefaultIdentityProjectionManager manager;
 
@@ -106,6 +108,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	@Test
 	public void testSaveAndGetFullProjectionGreenLine() {
 		loginAsAdmin(); // role request implementer is needed
+		Assert.assertFalse(eventConfiguration.isAsynchronous());
 		//
 		try {
 			// prepare eav definition
@@ -270,6 +273,9 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 			roleRequestFilter.setApplicantId(createdProjection.getIdentity().getId());
 			List<IdmRoleRequestDto> roleRequests = roleRequestService.find(roleRequestFilter, null).getContent();
 			Assert.assertFalse(roleRequests.isEmpty());
+			roleRequests.forEach(r -> {
+				System.out.println(".... [" + r.getState() + "] " + r.getLog());
+			});
 			Assert.assertTrue(roleRequests.stream().allMatch(r -> r.getState() == RoleRequestState.EXECUTED));
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(createdProjection.getIdentity().getId());
 			Assert.assertEquals(2, assignedRoles.size());

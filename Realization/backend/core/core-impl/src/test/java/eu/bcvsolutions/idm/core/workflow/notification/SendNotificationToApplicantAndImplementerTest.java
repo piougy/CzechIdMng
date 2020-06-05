@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import eu.bcvsolutions.idm.InitApplicationData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
@@ -49,8 +51,8 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
 /**
- * Test for request role notification. 
- * Testing if notification is send right with dependency on two boolean flags and if applicant == implementer.
+ * Test for request role notification. Testing if notification is send right
+ * with dependency on two boolean flags and if applicant == implementer.
  * 
  * @author Patrik Stloukal
  */
@@ -89,6 +91,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired
 	private SecurityService securityService;
+	@Autowired 
+	private EventConfiguration eventConfiguration;
 
 	@Before
 	public void login() {
@@ -113,7 +117,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestRejectedByHelpdeskApplicantImplementerSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -157,7 +161,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestRejectedByHelpdeskApplicantImplementerNotSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -211,8 +215,10 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 
 	@Test
 	public void requestRejectedByHelpdeskApplicantSameTest() {
-		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+		Assert.assertFalse(eventConfiguration.isAsynchronous());
 		
+		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
+
 		getHelper().setConfigurationValue(SENT_TO_APPLICANT, true);
 		getHelper().setConfigurationValue(SENT_TO_IMPLEMENTER, false);
 		//
@@ -256,7 +262,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestRejectedByHelpdeskApplicantNotSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -309,7 +315,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestRejectedByHelpdeskImplementerSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -353,7 +359,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestRejectedByHelpdeskImplementerNotSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -406,7 +412,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestRejectedByHelpdeskSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -448,7 +454,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestRejectedByHelpdeskNotSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -498,7 +504,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestApprovedApplicantImplementerSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -552,7 +558,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestApprovedApplicantImplementerNotSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -616,7 +622,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestApprovedApplicantSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -670,7 +676,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestApprovedApplicantNotSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -733,7 +739,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestApprovedImplementerSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -850,7 +856,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestApprovedSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -902,7 +908,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestApprovedNotSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -962,7 +968,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 	@Test
 	public void requestReturnedByHelpdeskApplicantImplementerSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -1000,13 +1006,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
 		assertEquals(1, notifications.size());
 
-		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER, notifications.get(0).getTopic());
+		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+				notifications.get(0).getTopic());
 	}
 
 	@Test
 	public void requestReturnedByHelpdeskApplicantImplementerNotSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "true");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -1055,7 +1062,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		notifications = notificationLogService.find(filter, null).getContent();
 		assertEquals(1, notifications.size());
 
-		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER, notifications.get(0).getTopic());
+		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+				notifications.get(0).getTopic());
 	}
 
 	@Test
@@ -1099,7 +1107,8 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
 		assertEquals(1, notifications.size());
 
-		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER, notifications.get(0).getTopic());
+		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+				notifications.get(0).getTopic());
 	}
 
 	@Test
@@ -1196,13 +1205,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
 		assertEquals(1, notifications.size());
 
-		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER, notifications.get(0).getTopic());
+		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+				notifications.get(0).getTopic());
 	}
 
 	@Test
 	public void requestReturnedByHelpdeskImplementerNotSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "true");
 		//
@@ -1249,13 +1259,14 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		notifications = notificationLogService.find(filter, null).getContent();
 		assertEquals(1, notifications.size());
 
-		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER, notifications.get(0).getTopic());
+		assertEquals(CoreModuleDescriptor.TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER,
+				notifications.get(0).getTopic());
 	}
 
 	@Test
 	public void requestReturnedByHelpdeskSameTest() {
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-		
+
 		configurationService.setValue(SENT_TO_APPLICANT, "false");
 		configurationService.setValue(SENT_TO_IMPLEMENTER, "false");
 		//
@@ -1336,7 +1347,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		filter.setNotificationType(IdmNotificationLog.class);
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
 		assertEquals(0, notifications.size());
-		
+
 		// test notification to implementer
 		filter = new IdmNotificationFilter();
 		filter.setRecipient(testUser3.getUsername());
@@ -1384,8 +1395,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		IdmIdentityDto identity = identityService.getByUsername(userName);
 		List<WorkflowTaskInstanceDto> tasks;
 		tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService
-				.find(taskFilter, null, IdmBasePermission.READ)
-				.getContent();
+				.find(taskFilter, null, IdmBasePermission.READ).getContent();
 		assertEquals(1, tasks.size());
 		assertEquals(identity.getId().toString(), tasks.get(0).getApplicant());
 
@@ -1431,6 +1441,7 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		contractGuaranteeService.save(contractGuarantee);
 		return testUser;
 	}
+
 	/**
 	 * Creates organization's structure and identity testUser2 as manager
 	 * 

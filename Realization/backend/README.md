@@ -84,8 +84,4 @@ All configuration properties can be found in [documentation](https://wiki.czechi
 
 ## Known issues
 
-To prevent application startup fails due to Flyway error, property **``-Djava.util.Arrays.useLegacyMergeSort=true``** has to be added into environment properties. If property is not set, then application can fail on error:
-```
-Error creating bean with name 'flywayCore' defined in class path resource [eu/bcvsolutions/idm/core/config/flyway/CoreFlywayConfig.class]:
-Initialization of bean failed; nested exception is java.lang.IllegalArgumentException: Comparison method violates its general contract!
-```
+There are no known issues.

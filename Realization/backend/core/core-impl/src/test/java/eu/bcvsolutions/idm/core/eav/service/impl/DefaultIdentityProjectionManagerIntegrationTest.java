@@ -82,10 +82,21 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	@Autowired private EventConfiguration eventConfiguration;
 	//
 	private DefaultIdentityProjectionManager manager;
+	//
+	// FIXME: move to api (workflow config constant)
+	private static final String APPROVE_BY_SECURITY_ENABLE = "idm.sec.core.wf.approval.security.enabled";
+	private static final String APPROVE_BY_MANAGER_ENABLE = "idm.sec.core.wf.approval.manager.enabled";
+	private static final String APPROVE_BY_USERMANAGER_ENABLE = "idm.sec.core.wf.approval.usermanager.enabled";
+	private static final String APPROVE_BY_HELPDESK_ENABLE = "idm.sec.core.wf.approval.helpdesk.enabled";
 
 	@Before
 	public void init() {
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultIdentityProjectionManager.class);
+		//
+		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, false);
 	}
 	
 	@Test
@@ -276,7 +287,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 			List<IdmRoleRequestDto> roleRequests = roleRequestService.find(roleRequestFilter, null).getContent();
 			Assert.assertFalse(roleRequests.isEmpty());
 			roleRequests.forEach(r -> {
-				System.out.println(".... [" + r.getState() + "] ["+ r.getApprovers() +"] ["+ r.getWfProcessId() +"] " + r.getLog());
+				System.out.println(".... [" + r.getState() + "] ["+ r.getWfProcessId() +"] " + r.getLog());
 				if (r.getWfProcessId() != null) {
 					Object p = r.getEmbedded().get(IdmRoleRequestDto.WF_PROCESS_FIELD);
 					if (p != null) {
@@ -287,6 +298,8 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 									+ process.getProcessDefinitionId() +"] ["
 									+ process.getProcessDefinitionKey() +"] ["
 									+ process.getProcessDefinitionName() +"]");
+							// task ...
+							
 						}
 						if (p instanceof WorkflowHistoricProcessInstanceDto) {
 							WorkflowHistoricProcessInstanceDto process = (WorkflowHistoricProcessInstanceDto) p;

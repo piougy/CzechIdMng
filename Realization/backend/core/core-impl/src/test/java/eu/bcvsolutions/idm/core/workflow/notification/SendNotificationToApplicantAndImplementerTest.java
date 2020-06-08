@@ -102,6 +102,11 @@ public class SendNotificationToApplicantAndImplementerTest extends AbstractCoreW
 		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, true);
 		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, true);
 		getHelper().setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, true);
+		// FIXME: set defaults on the other side 
+		getHelper().setConfigurationValue("idm.sec.core.wf.approval.security.role", "Security");
+		getHelper().setConfigurationValue("idm.sec.core.wf.approval.helpdesk.role", "Helpdesk");
+		getHelper().setConfigurationValue("idm.sec.core.wf.approval.usermanager.role", "Usermanager");
+		
 		createStructure();
 	}
 

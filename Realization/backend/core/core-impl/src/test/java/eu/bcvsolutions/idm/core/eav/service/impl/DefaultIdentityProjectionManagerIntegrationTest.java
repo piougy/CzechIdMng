@@ -93,6 +93,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	public void init() {
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultIdentityProjectionManager.class);
 		//
+		// FIXME: find the place, where is this forgotten
 		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
 		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
 		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, false);
@@ -286,33 +287,6 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 			roleRequestFilter.setApplicantId(createdProjection.getIdentity().getId());
 			List<IdmRoleRequestDto> roleRequests = roleRequestService.find(roleRequestFilter, null).getContent();
 			Assert.assertFalse(roleRequests.isEmpty());
-			roleRequests.forEach(r -> {
-				System.out.println(".... [" + r.getState() + "] ["+ r.getWfProcessId() +"] " + r.getLog());
-				if (r.getWfProcessId() != null) {
-					Object p = r.getEmbedded().get(IdmRoleRequestDto.WF_PROCESS_FIELD);
-					if (p != null) {
-						if (p instanceof WorkflowProcessInstanceDto) {
-							WorkflowProcessInstanceDto process = (WorkflowProcessInstanceDto) p;
-							System.out.println(".... process [" 
-									+ process.getName() + "] ["
-									+ process.getProcessDefinitionId() +"] ["
-									+ process.getProcessDefinitionKey() +"] ["
-									+ process.getProcessDefinitionName() +"]");
-							// task ...
-							
-						}
-						if (p instanceof WorkflowHistoricProcessInstanceDto) {
-							WorkflowHistoricProcessInstanceDto process = (WorkflowHistoricProcessInstanceDto) p;
-							System.out.println(".... history [" 
-									+ process.getName() + "] ["
-									+ process.getProcessDefinitionId() +"] ["
-									+ process.getProcessDefinitionKey() +"]");
-						}
-					} else {
-						System.out.println(".... process not found");
-					}
-				}
-			});
 			Assert.assertTrue(roleRequests.stream().allMatch(r -> r.getState() == RoleRequestState.EXECUTED));
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(createdProjection.getIdentity().getId());
 			Assert.assertEquals(2, assignedRoles.size());

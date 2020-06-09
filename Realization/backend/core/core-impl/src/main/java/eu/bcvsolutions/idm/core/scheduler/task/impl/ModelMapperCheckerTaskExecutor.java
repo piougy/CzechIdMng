@@ -13,7 +13,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
  * 
  * @author Radek Tomiška
  * @since 9.7.10
+ * @deprecated @since 10.4.0 ModelMapper updated to new version 2.3.7, where issue above is fixed
  */
+@Deprecated
 @DisallowConcurrentExecution
 @Component(ModelMapperCheckerTaskExecutor.TASK_NAME)
 public class ModelMapperCheckerTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {

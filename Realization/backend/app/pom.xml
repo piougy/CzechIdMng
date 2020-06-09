@@ -241,7 +241,7 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>app npm install</id>
+								<id>app install npm</id>
 								<goals>
 									<goal>npm</goal>
 								</goals>

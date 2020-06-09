@@ -5,8 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,27 +18,17 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Test for Entity filter 
+ * Test for Entity filter.
+ * 
+ * TODO: move to rest test
  * 
  * @author Patrik Stloukal
  *
  */
 public class DefaultSysSystemEntityServiceFilterTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private SysSystemEntityService entityService;
-	@Autowired
-	private TestHelper helper;
-
-	@Before
-	public void login() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		super.logout();
-	}
+	@Autowired private SysSystemEntityService entityService;
+	@Autowired private TestHelper helper;
 
 	@Test
 	public void testSystemId() {

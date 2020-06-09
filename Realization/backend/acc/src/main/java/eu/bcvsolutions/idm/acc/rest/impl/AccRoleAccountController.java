@@ -26,10 +26,10 @@ import eu.bcvsolutions.idm.acc.dto.AccRoleAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccRoleAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -209,7 +209,7 @@ public class AccRoleAccountController extends AbstractReadWriteDtoController<Acc
 	protected AccRoleAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		AccRoleAccountFilter filter = new AccRoleAccountFilter();
 		filter.setAccountId(getParameterConverter().toUuid(parameters, "accountId"));
-		filter.setRoleId(getParameterConverter().toEntityUuid(parameters, "role", IdmRole.class));
+		filter.setRoleId(getParameterConverter().toEntityUuid(parameters, AccRoleAccountFilter.PARAMETER_ROLE_ID, IdmRoleDto.class));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
 		return filter;

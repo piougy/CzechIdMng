@@ -43,11 +43,11 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -338,7 +338,7 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 		// for first check identityId, this attribute has bigger priority than identity parameter
 		UUID identityId = getParameterConverter().toUuid(parameters, "identityId");
 		if (identityId == null) {
-			identityId = getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentity.class);
+			identityId = getParameterConverter().toEntityUuid(parameters, AccAccountFilter.PARAMETER_IDENTITY_ID, IdmIdentityDto.class);
 		}
 		filter.setIdentityId(identityId);
 		//

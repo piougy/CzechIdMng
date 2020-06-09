@@ -1,0 +1,6 @@
+--
+-- CzechIdM 10 Flyway script 
+-- BCV solutions s.r.o.
+--
+-- Enlarge properties for propjection and long running tasks.
+-- empty on postgresql

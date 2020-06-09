@@ -25,6 +25,8 @@ import eu.bcvsolutions.idm.core.api.service.LookupService;
  * Converter for transform fields (marked with {@link Embedded} annotation) from BaseEntity to UUID 
  * and add entity to embedded part main DTO.
  * 
+ * FIXME: Embedded will not be set, if field name is different with getter and setter (fieldType == null when setter has different name).
+ * 
  * @author svandav
  * @author Radek Tomiška
  * @since 10.4.0

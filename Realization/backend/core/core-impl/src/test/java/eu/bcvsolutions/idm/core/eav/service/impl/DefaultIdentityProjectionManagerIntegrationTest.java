@@ -21,17 +21,23 @@ import org.testng.collections.Lists;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
+import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.projection.IdmIdentityProjectionDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.FormDefinitionAttributes;
@@ -51,6 +57,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.evaluator.eav.IdentityFormValueEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
@@ -69,12 +77,27 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	@Autowired private IdmFormProjectionService projectionService;
 	@Autowired private LookupService lookupService;
 	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private EventConfiguration eventConfiguration;
 	//
 	private DefaultIdentityProjectionManager manager;
+	//
+	// FIXME: move to api (workflow config constant)
+	private static final String APPROVE_BY_SECURITY_ENABLE = "idm.sec.core.wf.approval.security.enabled";
+	private static final String APPROVE_BY_MANAGER_ENABLE = "idm.sec.core.wf.approval.manager.enabled";
+	private static final String APPROVE_BY_USERMANAGER_ENABLE = "idm.sec.core.wf.approval.usermanager.enabled";
+	private static final String APPROVE_BY_HELPDESK_ENABLE = "idm.sec.core.wf.approval.helpdesk.enabled";
 
 	@Before
 	public void init() {
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultIdentityProjectionManager.class);
+		//
+		// FIXME: find the place, where is this forgotten
+		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, false);
+		getHelper().setConfigurationValue(APPROVE_BY_USERMANAGER_ENABLE, false);
 	}
 	
 	@Test
@@ -99,6 +122,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	@Test
 	public void testSaveAndGetFullProjectionGreenLine() {
 		loginAsAdmin(); // role request implementer is needed
+		Assert.assertFalse(eventConfiguration.isAsynchronous());
 		//
 		try {
 			// prepare eav definition
@@ -258,6 +282,24 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 						&& p.getIdentityContract().equals(positionTwo.getIdentityContract());
 			}));
 			// assigned roles
+			// check directly by service
+			IdmRoleRequestFilter roleRequestFilter = new IdmRoleRequestFilter();
+			roleRequestFilter.setApplicantId(createdProjection.getIdentity().getId());
+			List<IdmRoleRequestDto> roleRequests = roleRequestService.find(roleRequestFilter, null).getContent();
+			Assert.assertFalse(roleRequests.isEmpty());
+			Assert.assertTrue(roleRequests.stream().allMatch(r -> r.getState() == RoleRequestState.EXECUTED));
+			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(createdProjection.getIdentity().getId());
+			Assert.assertEquals(2, assignedRoles.size());
+			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> {
+				return ir.getRole().equals(roleOne.getId())
+						&& ir.getValidFrom().equals(identityRoleOne.getValidFrom())
+						&& ir.getIdentityContract().equals(createdPrimeContract.getId());
+			}));
+			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> {
+				return ir.getRole().equals(roleTwo.getId())
+						&& ir.getIdentityContract().equals(otherContractTwo.getId());
+			}));
+			// check by projection
 			Assert.assertEquals(2, createdProjection.getIdentityRoles().size());
 			Assert.assertTrue(createdProjection.getIdentityRoles().stream().anyMatch(ir -> {
 				return ir.getRole().equals(roleOne.getId())

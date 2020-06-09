@@ -26,10 +26,10 @@ import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -209,7 +209,7 @@ public class AccIdentityAccountController extends AbstractReadWriteDtoController
 	protected AccIdentityAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		AccIdentityAccountFilter filter = new AccIdentityAccountFilter();
 		filter.setAccountId(getParameterConverter().toUuid(parameters, "accountId"));
-		filter.setIdentityId(getParameterConverter().toEntityUuid(parameters, "identity", IdmIdentity.class));
+		filter.setIdentityId(getParameterConverter().toEntityUuid(parameters, AccIdentityAccountFilter.PARAMETER_IDENTITY_ID, IdmIdentityDto.class));
 		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
 		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));

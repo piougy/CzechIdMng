@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncContractConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncIdentityConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncTreeConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
@@ -33,6 +34,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncConfig_;
 import eu.bcvsolutions.idm.acc.entity.SysSyncContractConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncIdentityConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog_;
+import eu.bcvsolutions.idm.acc.entity.SysSyncTreeConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystem_;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
@@ -119,6 +121,9 @@ public class DefaultSysSyncConfigService
 		if (dto instanceof SysSyncIdentityConfigDto) {
 			return SysSyncIdentityConfig.class;
 		}
+		if (dto instanceof SysSyncTreeConfigDto) {
+			return SysSyncTreeConfig.class;
+		}
 		return SysSyncConfig.class;
 	}
 
@@ -129,6 +134,9 @@ public class DefaultSysSyncConfigService
 		}
 		if (entity instanceof SysSyncIdentityConfig) {
 			return SysSyncIdentityConfigDto.class;
+		}
+		if (entity instanceof SysSyncTreeConfig) {
+			return SysSyncTreeConfigDto.class;
 		}
 		return SysSyncConfigDto.class;
 	}

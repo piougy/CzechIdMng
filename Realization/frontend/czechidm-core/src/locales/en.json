@@ -6044,6 +6044,16 @@
           }
         }
       },
+      "core-process-skipped-automatic-role-by-tree-long-running-task": {
+        "label": "Recalculate skipped automatic role by tree structure",
+        "help": "Recalculate automatic roles by tree structure, which were not processed (skipped) after tree structure was changed (e.g. from synchronization).",
+        "icon": "component:automatic-role"
+      },
+      "core-process-skipped-automatic-role-by-tree-for-contract-long-running-task": {
+        "label": "Recalculate skipped automatic role by tree structure for contracts and other positions",
+        "help": "Recalculate automatic roles by tree structure for contracts and other positions, which were not processed (skipped) after work position was changed (e.g. from synchronization).",
+        "icon": "component:automatic-role"
+      },
       "core-remove-automatic-role-long-running-task": {
         "label": "Remove automatic role",
         "help": "Remove automatic role - removes all roles assigned by selected automatic role definition. $t(error.AUTOMATIC_ROLE_TASK_INVALID.message)",
@@ -6708,6 +6718,10 @@
       "title": "Not found",
       "message": "Event does not exist, processed events are deleted automatically."
     },
+    "CONTENT_DELETED": {
+      "title": "Content was deleted",
+      "message": "Operation content was deleted, operation cannot be executed anymore and will be canceled."
+    },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Wrong format",
       "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, jpeg, png, gif."
@@ -6839,6 +6853,10 @@
     "AUTOMATIC_ROLE_TREE_TASK_INVALID": {
       "title": "",
       "message": "Set at least one of automatic role by tree structure."
+    },
+    "AUTOMATIC_ROLE_SKIPPED": {
+      "title": "Recount of automatic roles was skipped",
+      "message": "Automatic roles by tree strucuture were not processed, when record was saved."
     },
     "BACKUP_FAIL": {
       "title": "Backup failed",

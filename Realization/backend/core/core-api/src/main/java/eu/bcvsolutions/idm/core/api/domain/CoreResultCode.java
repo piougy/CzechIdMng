@@ -35,6 +35,7 @@ public enum CoreResultCode implements ResultCode {
 	NULL_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Attribute '%s' is NULL."),
 	NOT_FOUND(HttpStatus.NOT_FOUND, "%s not found."),
 	ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity type [%s] with id [%s] not found."),
+	CONTENT_DELETED(HttpStatus.CONFLICT, "Content [%s] with type [%s] was deleted. Operation cannot be executed and will be canceled."),
 	WF_WARNING(HttpStatus.BAD_REQUEST, "Warning occured during workflow execution: %s"),
 	BAD_FILTER(HttpStatus.BAD_REQUEST, "The filter is wrong!"),
 	UNMODIFIABLE_ATTRIBUTE_CHANGE(HttpStatus.BAD_REQUEST, "Attribute %s for class %s can't be changed!"),
@@ -207,6 +208,7 @@ public enum CoreResultCode implements ResultCode {
 	AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN(HttpStatus.BAD_REQUEST, "Comparsion [%s] cannot be used with boolean types."),
 	AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT(HttpStatus.BAD_REQUEST, "Persistent type TEXT isn't allowed."),
 	AUTOMATIC_ROLE_PROCESS_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Automatic role [%s] was not process correctly, failed contracts add: [%s], failed contracts remove: [%s]."),
+	AUTOMATIC_ROLE_SKIPPED(HttpStatus.ACCEPTED, "Recount of automatic roles was skipped."),
 	//
 	// role tree node
 	ROLE_TREE_NODE_TYPE_EXISTS(HttpStatus.CONFLICT, "Role tree node for this role id: [%s], tree node id: [%s] and recursion type [%s] already exists"),

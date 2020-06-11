@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult_;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
@@ -166,10 +167,17 @@ public class DefaultIdmLongRunningTaskService
 	}
 	
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+	public IdmLongRunningTaskDto get(Serializable id, IdmLongRunningTaskFilter context, BasePermission... permission) {
+		return super.get(id, context, permission);
+	}
+	
+	@Override
 	@Transactional
 	public IdmLongRunningTaskDto create(IdmScheduledTaskDto scheduledTask, SchedulableTaskExecutor<?> taskExecutor, String instanceId) {
 		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto();
-		task.setTaskType(taskExecutor.getName());
+		//
+		task.setTaskType(AutowireHelper.getTargetType(taskExecutor));
 		task.setTaskDescription(taskExecutor.getDescription());	
 		task.setInstanceId(instanceId);
 		task.setResult(new OperationResult.Builder(OperationState.CREATED).build());

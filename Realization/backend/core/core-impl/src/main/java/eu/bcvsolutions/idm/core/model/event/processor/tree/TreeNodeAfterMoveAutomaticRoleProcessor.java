@@ -12,12 +12,19 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -30,13 +37,14 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTa
  * @since 10.4.0
  */
 @Component(TreeNodeAfterMoveAutomaticRoleProcessor.PROCESSOR_NAME)
-@Description("Recalculate automatic role, before tree node is moved.")
+@Description("Recalculate automatic role, after tree node is moved.")
 public class TreeNodeAfterMoveAutomaticRoleProcessor extends AbstractTreeNodeMoveAutomaticRoleProcessor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TreeNodeAfterMoveAutomaticRoleProcessor.class);
 	public static final String PROCESSOR_NAME = "core-tree-node-move-automatic-role-processor";
 	//
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private EntityStateManager entityStateManager;
 	
 	@Override
 	public String getName() {
@@ -45,11 +53,11 @@ public class TreeNodeAfterMoveAutomaticRoleProcessor extends AbstractTreeNodeMov
 	
 	@Override
 	public EventResult<IdmTreeNodeDto> process(EntityEvent<IdmTreeNodeDto> event) {
-		IdmTreeNodeDto content = event.getContent();
+		IdmTreeNodeDto treeNode = event.getContent();
 		//
 		Set<UUID> automaticRoles = new LinkedHashSet<>(); // preserve order => new automatic roles first
 		// find currently defined automatic roles
-		Set<IdmRoleTreeNodeDto> newAutomaticRoles = getRoleTreeNodeService().getAutomaticRolesByTreeNode(content.getId());
+		Set<IdmRoleTreeNodeDto> newAutomaticRoles = getRoleTreeNodeService().getAutomaticRolesByTreeNode(treeNode.getId());
 		if (CollectionUtils.isNotEmpty(newAutomaticRoles)) {
 			automaticRoles.addAll(
 					newAutomaticRoles
@@ -69,7 +77,30 @@ public class TreeNodeAfterMoveAutomaticRoleProcessor extends AbstractTreeNodeMov
 		//
 		if (CollectionUtils.isEmpty(automaticRoles)) {
 			LOG.debug("Tree node [{}] was moved under new parent node [{}]. No automatic roles are affected.",
-					content.getId(), content.getParent());
+					treeNode.getId(), treeNode.getParent());
+			//
+			return new DefaultEventResult<>(event, this);
+		}
+		//
+		// when automatic role recalculation is skipped, then flag for automatic role is created only
+		// flag can be processed afterwards
+		if (getBooleanProperty(AutomaticRoleManager.SKIP_RECALCULATION, event.getProperties())) {
+			automaticRoles.forEach(automaticRole -> {
+				LOG.debug("Automatic role [{}] recount is skipped after tree node [{}] was moved in tree structure. "
+						+ "State [AUTOMATIC_ROLE_SKIPPED] for automatic role will be created only.",
+						automaticRole, treeNode.getId());
+				// 
+				IdmEntityStateDto state = new IdmEntityStateDto();
+				state.setOwnerId(automaticRole);
+				state.setOwnerType(entityStateManager.getOwnerType(IdmRoleTreeNodeDto.class));
+				state.setResult(
+						new OperationResultDto
+							.Builder(OperationState.BLOCKED)
+							.setModel(new DefaultResultModel(CoreResultCode.AUTOMATIC_ROLE_SKIPPED))
+							.build());
+				
+				entityStateManager.saveState(null, state);
+			});
 			//
 			return new DefaultEventResult<>(event, this);
 		}

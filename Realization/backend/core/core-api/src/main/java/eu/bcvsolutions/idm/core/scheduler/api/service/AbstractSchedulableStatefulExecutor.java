@@ -297,6 +297,10 @@ public abstract class AbstractSchedulableStatefulExecutor<DTO extends AbstractDt
 		Optional<OperationResult> result;
 		if (!results.isEmpty()) {
 			result = results.get(0);
+			if (result == null) {
+				// null can be returned simply => empty result
+				result = Optional.empty();
+			}
 		} else {
 			result = Optional.empty();
 		}

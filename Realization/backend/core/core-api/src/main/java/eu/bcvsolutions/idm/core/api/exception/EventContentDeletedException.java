@@ -1,20 +1,20 @@
 package eu.bcvsolutions.idm.core.api.exception;
 
 import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityEventDto;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**
- * Task does not support dry run mode
+ * Entity content was deleted in the mean time.
  * 
  * @author Radek Tomiška
  *
  */
-public class EventContentDeletedException extends ResultCodeException {
+public class EventContentDeletedException extends ContentDeletedException {
 	
 	private static final long serialVersionUID = 1L;
-	private final IdmEntityEventDto entityEvent;	
+	private final IdmEntityEventDto entityEvent;
 	
 	public EventContentDeletedException(IdmEntityEventDto entityEvent) {
 		super(CoreResultCode.EVENT_CONTENT_DELETED, ImmutableMap.of(

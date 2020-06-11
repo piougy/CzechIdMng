@@ -3,11 +3,16 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
@@ -85,6 +90,7 @@ public interface LongRunningTaskManager {
 	
 	/**
 	 * Returns long running task by id. Authorization policies are evaluated (if given).
+	 * Item counts (success, warning etc.) are loaded.
 	 * 
 	 * @param longRunningTaskId
 	 * @param permission permissions to evaluate (AND)
@@ -95,6 +101,7 @@ public interface LongRunningTaskManager {
 	
 	/**
 	 * Returns underlying long running task for given taskExecutor. Authorization policies are evaluated (if given).
+	 * Item counts (success, warning etc.) are loaded.
 	 * 
 	 * @param taskExecutor
 	 * @param permission permissions to evaluate (AND)
@@ -105,6 +112,7 @@ public interface LongRunningTaskManager {
 	
 	/**
 	 * Returns underlying long running task for given future task. Authorization policies are evaluated (if given).
+	 * Item counts (success, warning etc.) are loaded.
 	 * 
 	 * @param futureTask
 	 * @param permission permissions to evaluate (AND)
@@ -112,6 +120,36 @@ public interface LongRunningTaskManager {
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	IdmLongRunningTaskDto getLongRunningTask(LongRunningFutureTask<?> futureTask, BasePermission... permission);
+	
+	/**
+	 * Returns page of long running tasks by given filter, authorization permission will be evaluated. 
+	 * Never throws {@link ForbiddenEntityException} - returning available dtos by given permissions (AND).
+	 * 
+	 * Alias to {@link IdmLongRunningTaskService#find(Pageable, BasePermission...)}. Manager can be used instead service.
+	 * 
+	 * @see IdmLongRunningTaskService#find(Pageable, BasePermission...)
+	 * @param filter
+	 * @param pageable
+	 * @param permission base permissions to evaluate (AND)
+	 * @return
+	 * @since 10.4.0
+	 */
+	Page<IdmLongRunningTaskDto> findLongRunningTasks(IdmLongRunningTaskFilter filter, Pageable pageable, BasePermission... permission);
+	
+	/**
+	 * Prepares [and saves] or load executor's LRT.
+	 * If executor has LRT already, then LRT loaded and returned only.
+	 *
+	 * @param taskExecutor LRT executor
+	 * @param sheduledTaskId [optional] scheduled task identifier - newly created LRT will be added for scheduled task.
+	 * @param state [optional] newly created LRT state. Sync - RUNNING, Async - CREATED (default) => prevent to execute synchronous task twice by asynchronous processing
+	 * @return LRT instance (newly created or loaded)
+	 * @since 10.4.0
+	 */
+	public IdmLongRunningTaskDto resolveLongRunningTask(
+			LongRunningTaskExecutor<?> taskExecutor, 
+			UUID sheduledTaskId,
+			OperationState state);
 	
 	/**
 	 * Returns true, if asynchronous long running task processing is enabled.

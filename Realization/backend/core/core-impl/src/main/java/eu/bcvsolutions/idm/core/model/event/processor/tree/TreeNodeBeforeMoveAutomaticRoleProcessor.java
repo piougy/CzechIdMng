@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
  * @since 10.4.0
  */
 @Component(TreeNodeBeforeMoveAutomaticRoleProcessor.PROCESSOR_NAME)
-@Description("Prepare recalculate automatic role, before tree node is moved.")
+@Description("Prepare recalculate automatic role, before tree node is moved. We need to load previously defined automatic roles, which should be recounted too.")
 public class TreeNodeBeforeMoveAutomaticRoleProcessor extends AbstractTreeNodeMoveAutomaticRoleProcessor {
 
 	public static final String PROCESSOR_NAME = "core-tree-node-before-move-automatic-role-processor";

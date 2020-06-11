@@ -33,7 +33,8 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonSubTypes({
 	@JsonSubTypes.Type(value = SysSyncConfigDto.class),
 	@JsonSubTypes.Type(value = SysSyncContractConfigDto.class),
-	@JsonSubTypes.Type(value = SysSyncIdentityConfigDto.class)
+	@JsonSubTypes.Type(value = SysSyncIdentityConfigDto.class),
+	@JsonSubTypes.Type(value = SysSyncTreeConfigDto.class)
 })
 @Relation(collectionRelation = "synchronizationConfigs")
 @Inheritable(dtoService = SysSyncConfigDto.class)

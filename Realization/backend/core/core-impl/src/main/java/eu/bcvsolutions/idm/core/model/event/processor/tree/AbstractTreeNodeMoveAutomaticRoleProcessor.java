@@ -13,6 +13,9 @@ import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 /**
  * Recalculate automatic roles, when tree node is moved under different parent.
  * 
+ * Note" automatic roles are recount for the updated node only. When new tree node is created,
+ * then recount automatic roles is not needed in this case (contract or position cannot exist before).
+ * 
  * @author Radek Tomiška
  * @since 10.4.0
  */
@@ -23,6 +26,7 @@ public abstract class AbstractTreeNodeMoveAutomaticRoleProcessor extends CoreEve
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 
 	public AbstractTreeNodeMoveAutomaticRoleProcessor() {
+		// Update only. When new tree node is created, then recount automatic roles is not needed in this case (contract or position cannot exist before).
 		super(TreeNodeEventType.UPDATE);
 	}
 	

@@ -6096,6 +6096,16 @@
           }
         }
       },
+      "core-process-skipped-automatic-role-by-tree-long-running-task": {
+        "label": "Přepočítat nezpracované automatické role dle stromové struktury",
+        "help": "Přepočítá automatické role dle stromové struktury, které nebyly zpracovány (byly přeskočeny) po změně stromové struktury (například ze synchronizace).",
+        "icon": "component:automatic-role"
+      },
+      "core-process-skipped-automatic-role-by-tree-for-contract-long-running-task": {
+        "label": "Přepočítat nezpracované automatické role dle stromové struktury pro kontrakty a další pozice",
+        "help": "Přepočítá automatické role dle stromové struktury pro kontrakty a další pozice, které nebyly zpracovány (byly přeskočeny) po změně pracovní pozice (například ze synchronizace).",
+        "icon": "component:automatic-role"
+      },
       "core-remove-automatic-role-long-running-task": {
         "label": "Odebrat automatickou roli",
         "help": "Odebrat automatickou roli - odebere všechny role přiřazené dle této definice. $t(error.AUTOMATIC_ROLE_TASK_INVALID.message)",
@@ -6760,6 +6770,10 @@
       "title": "Nenalezeno",
       "message": "Událost již neexistuje, zpracované události jsou automaticky mazány."
     },
+    "CONTENT_DELETED": {
+      "title": "Obsah byl smazán",
+      "message": "Obsah úlohy byl smazán, úloha již nemůže být vykonána."
+    },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Neplatný formát",
       "message": "Soubor má správnou příponu, ale není to obrázek. Soubor musí obsahovat obrázek v jednom z těchto formátů: jpg, jpeg, png, gif."
@@ -6891,6 +6905,10 @@
     "AUTOMATIC_ROLE_TREE_TASK_INVALID": {
       "title": "",
       "message": "Vyberte alespoň jednu automatickou roli dle stromové struktury."
+    },
+    "AUTOMATIC_ROLE_SKIPPED": {
+      "title": "Přepočet automatických rolí nebyl proveden",
+      "message": "Při ukládání záznamu nebyl proveden přepočet automatických rolí dle stromové struktury."
     },
     "BACKUP_FAIL": {
       "title": "Záloha nebyla provedena",

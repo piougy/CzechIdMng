@@ -14,6 +14,7 @@ import IcFilterOperationTypeEnum from '../../domain/IcFilterOperationTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SyncIdentityConfig from '../sync/SyncIdentityConfig';
 import SyncContractConfig from '../sync/SyncContractConfig';
+import SyncTreeConfig from '../sync/SyncTreeConfig';
 import SyncStatistic from '../sync/SyncStatistic';
 import SyncResult from '../sync/SyncResult';
 
@@ -96,7 +97,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
           filterOperation: IcFilterOperationTypeEnum.findKeyBySymbol(IcFilterOperationTypeEnum.GREATER_THAN),
           enabled: true,
           differentialSync: true,
-          name: 'Sync'
+          name: 'Sync',
+          startAutoRoleRec: true
         },
         enabled: false
       });
@@ -146,6 +148,8 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
       formEntity._type = 'SysSyncContractConfigDto';
     } else if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)) {
       formEntity._type = 'SysSyncIdentityConfigDto';
+    } else if (entityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+      formEntity._type = 'SysSyncTreeConfigDto';
     } else {
       formEntity._type = 'SysSyncConfigDto';
     }
@@ -396,6 +400,15 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
           showLoading={innerShowLoading}
           isNew={isNew}
           className="panel-body"/>;
+      } else if (finalEntityType === SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.TREE)) {
+        specificConfiguration = (
+          <SyncTreeConfig
+            ref="formSpecific"
+            synchronizationConfig={ synchronizationConfig }
+            showLoading={ innerShowLoading }
+            isNew={ isNew }
+            className="panel-body"/>
+        );
       }
     }
     return (

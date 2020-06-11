@@ -168,7 +168,7 @@
             "label": "Logy"
           }
         },
-        "contractConfigDetail":{
+        "contractConfigDetail": {
           "defaultTreeType": {
             "label": "Výchozí typ struktury",
             "helpBlock": "Vztahy budou přiřazeny (vyhledávány) na pozice v rámci vybrané stromové struktury."
@@ -187,7 +187,13 @@
           },
           "startAutoRoleRec": {
             "label": "Po dokončení spustit přepočet automatických rolí",
-            "helpBlock": "Po úspěšném dokončení synchronizace bude spuštěn přepočet všech automatických rolí podle atributu."
+            "helpBlock": "Po úspěšném dokončení synchronizace bude spuštěn přepočet všech automatických rolí podle atributu i stromové struktury."
+          }
+        },
+        "treeConfigDetail": {
+          "startAutoRoleRec": {
+            "label": "Po dokončení spustit přepočet automatických rolí",
+            "helpBlock": "Po úspěšném dokončení synchronizace bude spuštěn přepočet automatických rolí dle stromové struktury."
           }
         },
         "identityConfigDetail":{

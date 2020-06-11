@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 @SuppressWarnings("deprecation")
 @Transactional
-public class ModelMapperCheckerTaskExecutorIntegrationTest  extends AbstractIntegrationTest {
+public class ModelMapperCheckerTaskExecutorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
 	

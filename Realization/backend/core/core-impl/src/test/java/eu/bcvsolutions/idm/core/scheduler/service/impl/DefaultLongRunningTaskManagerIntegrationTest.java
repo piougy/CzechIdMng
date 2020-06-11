@@ -329,11 +329,11 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 		executorOne.setDescription(getHelper().createName());
 		executorOne.setCount(1L);
 		//
-		manager.persistTask(executorOne, OperationState.CREATED);
+		manager.resolveLongRunningTask(executorOne, null, null);
 		executorOne.setLongRunningTaskId(null);
-		manager.persistTask(executorOne, OperationState.CREATED);
+		manager.resolveLongRunningTask(executorOne, null, OperationState.CREATED);
 		executorOne.setLongRunningTaskId(null);
-		manager.persistTask(executorOne, OperationState.CREATED);
+		manager.resolveLongRunningTask(executorOne, null, OperationState.CREATED);
 		//
 		manager.processCreated();
 		//
@@ -345,7 +345,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 			return service.find(filter, null).getContent().size() != 3;
 		}, 500, 20);
 		//
-		List<IdmLongRunningTaskDto> ltrs = service.find(filter, null).getContent();
+		List<IdmLongRunningTaskDto> ltrs = manager.findLongRunningTasks(filter, null).getContent();
 		//
 		Assert.assertEquals(3, ltrs.size());
 		Assert.assertNotEquals(ltrs.get(0).getTransactionId(), ltrs.get(1).getTransactionId());
@@ -442,7 +442,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractBulkAc
 			// prepare and persist LRT
 			IdentityDeleteBulkAction identityDeleteBulkAction = new IdentityDeleteBulkAction();
 			identityDeleteBulkAction.setAction(bulkAction);
-			IdmLongRunningTaskDto task = manager.persistTask(identityDeleteBulkAction, OperationState.CREATED);
+			IdmLongRunningTaskDto task = manager.resolveLongRunningTask(identityDeleteBulkAction, null, OperationState.CREATED);
 			manager.processCreated(task.getId());
 			//
 			identities = identityService.find(filter, null).getContent();

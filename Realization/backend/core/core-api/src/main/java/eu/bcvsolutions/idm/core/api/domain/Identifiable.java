@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.api.domain;
 import java.io.Serializable;
 
 /**
- * Common object with id
+ * Common object with id.
  * 
  * @author Radek Tomiška
  */

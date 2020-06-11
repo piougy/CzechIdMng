@@ -306,7 +306,7 @@ public class ClearDirtyStateForContractSliceTaskExecutor extends AbstractSchedul
 	private Page<IdmEntityStateDto> findAllDirtyStatesForSlices(Pageable pageable) {
 		IdmEntityStateFilter filter = new IdmEntityStateFilter();
 		filter.setResultCode(CoreResultCode.DIRTY_STATE.getCode());
-		filter.setOwnerType(IdmContractSlice.class.getName());
+		filter.setOwnerType(entityStateManager.getOwnerType(IdmContractSliceDto.class));
 		return entityStateManager.findStates(filter, pageable);
 	}
 

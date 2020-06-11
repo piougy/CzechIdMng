@@ -10,16 +10,20 @@ import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 
 /**
- * Manager for automatic role by attributes
+ * Manager for automatic roles by attributes and tree structures.
  * 
  * Beware, the methods doesn't have the annotation {@link Transactional}. In some
  * cases we don't want to create transaction (for example in tests).
  * 
  * @author svandav
- *
+ * 
  */
 public interface AutomaticRoleManager {
-
+	
+	/**
+	 * Property in event. If is value TRUE, then will be recalculation of automatic roles skipped.
+	 */
+	String SKIP_RECALCULATION = "skip_recalculation";
 	
 	/**
 	 * Create automatic role by attributes. Uses automatic role request.

@@ -12,10 +12,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
-import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -108,17 +106,9 @@ public class ContractSliceSaveRecalculateProcessor extends CoreEventProcessor<Id
 	 * @return
 	 */
 	private IdmEntityStateDto createDirtyState(IdmContractSliceDto slice, Map<String, Serializable> parameters) {
-		Map<String, Object> transformedMarameters = new HashMap<String, Object>();
-		transformedMarameters.put("entityId", slice.getId());
-		transformedMarameters.putAll(parameters);
-		
-		DefaultResultModel resultModel = new DefaultResultModel(CoreResultCode.DIRTY_STATE, transformedMarameters);
-		IdmEntityStateDto dirtyState = new IdmEntityStateDto();
-		dirtyState.setResult(
-				new OperationResultDto
-					.Builder(OperationState.BLOCKED)
-					.setModel(resultModel)
-					.build());
-		return entityStateManager.saveState(slice, dirtyState);
+		Map<String, Serializable> transformedParameters = new HashMap<>(parameters);
+		transformedParameters.put("entityId", slice.getId());
+		//
+		return entityStateManager.createState(slice, OperationState.BLOCKED, CoreResultCode.DIRTY_STATE, transformedParameters);
 	}
 }

@@ -56,7 +56,7 @@ public class SysSyncContractConfig extends SysSyncConfig{
 	private IdmIdentity defaultLeader;
 	
 	/*
-	 * Start recalculation after end synchronization for automatic roles by attribute
+	 * Start recalculation after end synchronization for automatic roles
 	 */
 	@Audited
 	@NotNull

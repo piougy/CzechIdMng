@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -35,6 +36,7 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncTreeConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
@@ -54,11 +56,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessSkippedAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -70,7 +75,7 @@ import eu.bcvsolutions.idm.ic.impl.IcLoginAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 
 /**
- * Default implementation of tree sync
+ * Default implementation of tree sync.
  * 
  * @author svandav
  *
@@ -94,7 +99,9 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired
-	IdmCacheManager cacheManager;
+	private IdmCacheManager cacheManager;
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
 
 	@Override
 	public AbstractSysSyncConfigDto process(UUID synchronizationConfigId) {
@@ -147,8 +154,11 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			// Execute sync for this tree and searched accounts
 			processTreeSync(context, accountsMap);
 			log = context.getLog();
+			// Sync is correctly ends if wasn't cancelled
+			if (log.isRunning()) {
+				log = syncCorrectlyEnded(log, context);
+			}
 			//
-			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", ZonedDateTime.now()));
 			synchronizationConfigService.save(config);
 		} catch (Exception e) {
 			String message = "Error during synchronization";
@@ -204,7 +214,11 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	protected IdmTreeNodeDto save(IdmTreeNodeDto entity, boolean skipProvisioning, SynchronizationContext context) {
 		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(
 				treeNodeService.isNew(entity) ? TreeNodeEventType.CREATE : TreeNodeEventType.UPDATE, entity,
-				ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
+				ImmutableMap.of(
+						ProvisioningService.SKIP_PROVISIONING, skipProvisioning,
+						IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE
+				)
+		);
 
 		return treeNodeService.publish(event).getContent();
 	}
@@ -692,5 +706,49 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	@Override
 	protected IdmTreeNodeDto createEntityDto() {
 		return new IdmTreeNodeDto();
+	}
+	
+	@Override
+	protected SysSyncLogDto syncCorrectlyEnded(SysSyncLogDto log, SynchronizationContext context) {
+		log = super.syncCorrectlyEnded(log, context);
+		log = synchronizationLogService.save(log);
+
+		if (getConfig(context).isStartAutoRoleRec()) {
+			log = executeAutomaticRoleRecalculation(log);
+		} else {
+			log.addToLog(MessageFormat.format("Start automatic role recalculation (after sync) isn't allowed [{0}]",
+					ZonedDateTime.now()));
+		}
+
+		return log;
+	}
+	
+	private SysSyncTreeConfigDto getConfig(SynchronizationContext context) {
+		Assert.isInstanceOf(SysSyncTreeConfigDto.class, context.getConfig(), "For tree sync must be sync configuration instance of SysSyncTreeConfigDto!");
+		
+		return ((SysSyncTreeConfigDto) context.getConfig());
+	}
+	
+	/**
+	 * Start automatic roles recalculation synchronously.
+	 *
+	 * @param log
+	 * @return
+	 * @since 10.4.0
+	 */
+	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) {
+
+		log.addToLog(MessageFormat.format(
+				"After success sync have to recount automatic roles (by tree structure). We start recount automatic roles by tree structure (synchronously) now [{0}].",
+				ZonedDateTime.now()));
+		Boolean executed = longRunningTaskManager.executeSync(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
+		if (BooleanUtils.isTrue(executed)) {
+			log.addToLog(MessageFormat.format("Recalculation automatic role by tree structure ended in [{0}].",
+					ZonedDateTime.now()));
+		} else {
+			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
+		}
+		
+		return synchronizationLogService.save(log);
 	}
 }

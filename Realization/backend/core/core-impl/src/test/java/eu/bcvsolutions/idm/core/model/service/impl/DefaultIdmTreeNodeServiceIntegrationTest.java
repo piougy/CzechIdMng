@@ -13,7 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testng.collections.Lists;
 
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -21,16 +25,26 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
+import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeForestContentService;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessSkippedAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -49,6 +63,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 	@Autowired private ForestIndexService<IdmForestIndexEntity, UUID> forestIndexService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private EntityStateManager entityStateManager;
 	//
 	private DefaultIdmTreeNodeService service;
 	
@@ -528,6 +543,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 	}
 	
 	@Test
+	@Transactional
 	public void testChangeParentToRoot() {
 		IdmTreeNodeDto parent = getHelper().createTreeNode();
 		IdmTreeNodeDto node = getHelper().createTreeNode((IdmTreeTypeDto) null, parent);
@@ -538,5 +554,122 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		node = service.save(node);
 		//
 		Assert.assertNull(node.getParent());
+	}
+	
+	@Test
+	public void testSkipAndAssignAutomaticRoleAfterNodeIsMovedWithUpRecursion() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentityContact(identity, parentNode);
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(TreeNodeEventType.UPDATE, node);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
+		node = service.publish(event).getContent();
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		// recount skipped automatic roles
+		longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		IdmTreeNodeDto otherNode = getHelper().createTreeNode(null, null, node);
+		IdmRoleDto roleOther = getHelper().createRole();
+		IdmRoleTreeNodeDto otherAutomaticRole = getHelper().createRoleTreeNode(roleOther, otherNode, RecursionType.UP, false);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> automaticRole.getId().equals(ir.getAutomaticRole())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> otherAutomaticRole.getId().equals(ir.getAutomaticRole())));
+	}
+	
+	@Test
+	public void testSkipAndAssignAutomaticRoleOnPositionAfterNodeIsMovedWithUpRecursion() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		getHelper().createContractPosition(getHelper().getPrimeContract(identity), parentNode);
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(TreeNodeEventType.UPDATE, node);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
+		node = service.publish(event).getContent();
+		IdmEntityStateFilter filter = new IdmEntityStateFilter();
+		filter.setStates(Lists.newArrayList(OperationState.BLOCKED));
+		filter.setResultCode(CoreResultCode.AUTOMATIC_ROLE_SKIPPED.getCode());
+		filter.setOwnerType(entityStateManager.getOwnerType(IdmRoleTreeNodeDto.class));
+		List<IdmEntityStateDto> skippedStates = entityStateManager.findStates(filter, null).getContent();
+		Assert.assertTrue(skippedStates.stream().anyMatch(s -> s.getOwnerId().equals(automaticRole.getId())));
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		// recount skipped automatic roles
+		longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
+		skippedStates = entityStateManager.findStates(filter, null).getContent();
+		Assert.assertFalse(skippedStates.stream().anyMatch(s -> s.getOwnerId().equals(automaticRole.getId())));
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		IdmTreeNodeDto otherNode = getHelper().createTreeNode(null, null, node);
+		IdmRoleDto roleOther = getHelper().createRole();
+		IdmRoleTreeNodeDto otherAutomaticRole = getHelper().createRoleTreeNode(roleOther, otherNode, RecursionType.UP, false);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> automaticRole.getId().equals(ir.getAutomaticRole())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> otherAutomaticRole.getId().equals(ir.getAutomaticRole())));
+	}
+	
+	@Test
+	@Transactional
+	public void testRecountAutomaticRoleWithMissingContent() {
+		// create state with missing content
+		IdmEntityStateDto state = new IdmEntityStateDto();
+		UUID stateId = UUID.randomUUID();
+		state.setOwnerId(stateId);
+		state.setOwnerType(entityStateManager.getOwnerType(IdmRoleTreeNodeDto.class));
+		state.setResult(
+				new OperationResultDto
+					.Builder(OperationState.BLOCKED)
+					.setModel(new DefaultResultModel(CoreResultCode.AUTOMATIC_ROLE_SKIPPED))
+					.build());
+		entityStateManager.saveState(null, state);
+		//
+		state = new IdmEntityStateDto();
+		state.setOwnerId(stateId);
+		state.setOwnerType(entityStateManager.getOwnerType(IdmRoleTreeNodeDto.class));
+		state.setResult(
+				new OperationResultDto
+					.Builder(OperationState.BLOCKED)
+					.setModel(new DefaultResultModel(CoreResultCode.AUTOMATIC_ROLE_SKIPPED))
+					.build());
+		entityStateManager.saveState(null, state);
+		//
+		// recount skipped automatic roles
+		LongRunningFutureTask<Boolean> executor = longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
+		IdmLongRunningTaskDto longRunningTask = longRunningTaskManager.getLongRunningTask(executor);
+		Assert.assertTrue(longRunningTask.getWarningItemCount() > 0);
 	}
 }

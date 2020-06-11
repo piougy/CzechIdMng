@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [10.4.0]
 - [#2158](https://redmine.czechidm.com/issues/2158) - ``Node version 12.16.3``, ``Npm 6.14.4``, ``Npx 6.14.4`` is used for developing and building CzechIdM.
 - [#2282](https://redmine.czechidm.com/issues/22828) - ``FilterNotSupportedException`` exception was added. Exception is thrown, when unsupported filter is used from REST or on service layer. Make sure **all used filters are [registered properly](https://wiki.czechidm.com/devel/documentation/architecture/dev/filters) in your custom module!**. Unsupported filter usage is not possible now - exception will be thrown instead of skipping filter usage silently.
+- [#1043](https://redmine.czechidm.com/issues/1043) - Automatic roles by tree structure were improved. Automatic roles by tree structure are recalculated after tree structure is changed (after node is moved in structure). Skipping recalculation of automatic roles by tree structure was added too and new tree synchronization configuration is available - recalculation of automatic roles can be turned off in synchronization (now it works the same way as automatic roles by attributes).
 
 ## [10.3.2]
 

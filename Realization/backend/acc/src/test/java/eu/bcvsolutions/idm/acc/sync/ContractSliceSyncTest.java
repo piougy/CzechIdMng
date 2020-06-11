@@ -18,7 +18,6 @@ import javax.transaction.Transactional;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -152,11 +151,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 	@Autowired
 	private SysSyncActionLogService syncActionLogService;
 
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-
 	@After
 	public void logout() {
 		if (identityService.getByUsername(CONTRACT_OWNER_ONE) != null) {
@@ -168,7 +162,6 @@ public class ContractSliceSyncTest extends AbstractIntegrationTest {
 		if (identityService.getByUsername(CONTRACT_LEADER_ONE) != null) {
 			identityService.delete(identityService.getByUsername(CONTRACT_LEADER_ONE));
 		}
-		super.logout();
 	}
 
 	@Test

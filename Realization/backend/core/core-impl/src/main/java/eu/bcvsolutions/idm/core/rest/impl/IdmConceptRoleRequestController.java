@@ -358,8 +358,8 @@ public class IdmConceptRoleRequestController
 
 	@Override
 	protected IdmConceptRoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmConceptRoleRequestFilter filter = new IdmConceptRoleRequestFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
+		IdmConceptRoleRequestFilter filter = new IdmConceptRoleRequestFilter(parameters);
+		
 		filter.setRoleRequestId(getParameterConverter().toUuid(parameters, "roleRequestId"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
 		return filter;

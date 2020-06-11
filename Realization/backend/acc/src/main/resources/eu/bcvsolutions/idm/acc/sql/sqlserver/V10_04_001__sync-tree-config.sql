@@ -21,7 +21,7 @@ CREATE TABLE sys_sync_tree_config_a (
 );
 
 INSERT INTO sys_sync_tree_config (id, start_auto_role_rec)
-  SELECT c.id, true  FROM sys_sync_config c WHERE c.id IN (
+  SELECT c.id, 1  FROM sys_sync_config c WHERE c.id IN (
     SELECT conf.id FROM sys_sync_config conf JOIN sys_system_mapping sm ON(conf.system_mapping_id = sm.id)
     WHERE sm.entity_type = 'TREE'
   );

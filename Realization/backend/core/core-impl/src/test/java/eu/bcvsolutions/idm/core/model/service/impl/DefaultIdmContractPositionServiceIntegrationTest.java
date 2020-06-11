@@ -398,4 +398,22 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		assignedRoles = identityRoleService.find(filter, null).getContent();
 		Assert.assertTrue(assignedRoles.isEmpty());
 	}
+	
+	@Test
+	public void testAssignSameAutomaticRoleAsContract() {
+		// create automatic role on tree node
+		IdmRoleDto role = getHelper().createRole();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		IdmRoleTreeNodeDto automaticRoleTwo = getHelper().createAutomaticRole(role, node);
+		// create identity
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, node);
+		getHelper().createContractPosition(contract, node);
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identity.getId());
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.find(filter, null).getContent();
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().allMatch(ir -> ir.getAutomaticRole().equals(automaticRoleTwo.getId())));
+	}
 }

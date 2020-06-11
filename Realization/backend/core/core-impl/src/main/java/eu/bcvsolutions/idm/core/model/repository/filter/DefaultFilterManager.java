@@ -30,6 +30,7 @@ import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractComponentDto;
 import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.FilterBuilderFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -43,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
@@ -146,9 +148,20 @@ public class DefaultFilterManager implements FilterManager {
 					continue;
 				}
 				// check property is processed by service
-				if (!getRegisteredServiceFilters().containsKey(key)) {
-					// throw exception otherwise => unrecognized filter is not supported
-					throw new FilterNotSupportedException(key);	
+				if (!getRegisteredServiceFilters().containsKey(key) // by service definition
+						&& !getRegisteredFilters(entityClass, filter.getClass()).containsKey(key)) { // by filter instance
+					FilterNotSupportedException ex = new FilterNotSupportedException(key);
+					//
+					if (configurationService.getBooleanValue(
+							PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED, 
+							DEFAULT_CHECK_SUPPORTED_FILTER_ENABLED)) {
+						// throw exception otherwise => unrecognized filter is not supported
+						throw ex;
+					} else {
+						// log exception only
+						ExceptionUtils.log(LOG, ex);
+					}
+					
 				}
 				LOG.trace("Filter property [{}] for entity [{}] will by processed directly by service predicates.", filterProperty, entityClass.getSimpleName());
 				continue;
@@ -351,70 +364,95 @@ public class DefaultFilterManager implements FilterManager {
 			// find field by recursion from registered services and filter dtos
 			Map<String, ReadDtoService> services = context.getBeansOfType(ReadDtoService.class);
 			services.forEach((beanName, service) -> {
-				if (service.getEntityClass() == null) {
-					LOG.trace("Service [{}], [{}] does not define controller entity, skip to resolve available filter criteria.",
-							beanName, service.getClass());
+				Class<? extends BaseEntity> entityClass = service.getEntityClass();
+				Class<? extends BaseFilter> filterClass = service.getFilterClass();
+				if (entityClass == null || filterClass == null) {
+					LOG.trace("Service [{}], [{}] does not define controlled entity [{}] or filter[{}], skip to resolve available filter criteria.",
+							beanName, service.getClass(), entityClass, filterClass);
 				} else {
-					Class<?> filterClass = service.getFilterClass();
-					//
-					while (!filterClass.equals(Object.class)) {
-						Stream
-							.of(filterClass.getDeclaredFields(), filterClass.getFields()) // both static and private field from interfaces and super classes
-							.flatMap(Stream::of)
-							.forEach(declaredField -> {
-								Class<? extends BaseEntity> entityClass = service.getEntityClass();
-								String propertyName = declaredField.getName();
-								if (Modifier.isStatic(declaredField.getModifiers())) {
-									try {
-										Object propertyValue = declaredField.get(null);
-										if (propertyValue instanceof String) {
-											propertyName = (String) propertyValue;
-										} else {
-											LOG.trace("Value of static property [{}] for class [{}] is not string, skip to resolve available filter criteria.",
-													propertyName, entityClass);
-											return;
+					registeredServiceFilters.putAll(
+							getRegisteredFilters(entityClass, filterClass)
+								.entrySet()
+								.stream()
+								.collect(Collectors.toMap(
+										e -> e.getKey(),
+										e -> {
+											FilterBuilderDto dto = e.getValue();
+											// service and property is unique combination
+											dto.setId(String.format("%s-%s", beanName, dto.getName()));
+											// service - can be overriden - https://wiki.czechidm.com/tutorial/dev/override_service
+											dto.setModule(EntityUtils.getModule(service.getClass()));
+											//
+											if (service instanceof AbstractFormValueService<?, ?>) { // eav value services are constructed dynamically (prevent to show cglib class)
+												dto.setFilterBuilderClass(AbstractFormValueService.class);
+											} else {
+												dto.setFilterBuilderClass(AutowireHelper.getTargetClass(service));
+											}
+											return dto;
 										}
-									} catch (IllegalArgumentException | IllegalAccessException e) {
-										LOG.warn("Get value of static property [{}] for class [{}] failed, skip to resolve available filter criteria.",
-												propertyName, entityClass);
-										return;
-									}
-								}
-								if (ignoredFilterProperties.contains(propertyName)) {
-									LOG.trace("Pageable or internal property [{}] will be ignored by filters.", propertyName);
-									return;
-								}
-								FilterKey filterKey = new FilterKey(entityClass, propertyName);
-								if (registeredServiceFilters.containsKey(filterKey)) {
-									// already resolved e.g. by interface
-									return;
-								}
-								//
-								FilterBuilderDto dto = new FilterBuilderDto();
-								// service and property is unique combination
-								dto.setId(String.format("%s-%s", beanName, propertyName));
-								dto.setName(propertyName);
-								// service - can be overriden - https://wiki.czechidm.com/tutorial/dev/override_service
-								dto.setModule(EntityUtils.getModule(service.getClass()));
-								dto.setDescription("Internal service implementation (toPredicates).");
-								dto.setEntityClass(entityClass);
-								dto.setFilterClass(service.getFilterClass());
-								if (service instanceof AbstractFormValueService<?, ?>) { // eav value services are constructed dynamically (prevent to show cglib class)
-									dto.setFilterBuilderClass(AbstractFormValueService.class);
-								} else {
-									dto.setFilterBuilderClass(AutowireHelper.getTargetClass(service));
-								}
-								dto.setDisabled(false); // service is always effective filter
-								//
-								registeredServiceFilters.put(filterKey, dto);
-							});
-						//
-						filterClass = filterClass.getSuperclass();
-					}					
+						        ))
+							);					
 				}
 			});
 		}
 		//
 		return registeredServiceFilters;
 	}
+	
+	private Map<FilterKey, FilterBuilderDto> getRegisteredFilters(Class<? extends BaseEntity> entityClass, Class<? extends BaseFilter> filterClass) {
+		Assert.notNull(entityClass, "Entity class is required to resolve registered filters.");
+		Assert.notNull(filterClass, "Filter class is required to resolve filter properties.");
+		//
+		Map<FilterKey, FilterBuilderDto> registeredServiceFilters = new HashMap<>();
+		
+		Class<?> processFilterClass = filterClass;
+		while (!processFilterClass.equals(Object.class)) {
+			Stream
+				.of(processFilterClass.getDeclaredFields(), processFilterClass.getFields()) // both static and private field from interfaces and super classes
+				.flatMap(Stream::of)
+				.forEach(declaredField -> {
+					
+					String propertyName = declaredField.getName();
+					if (Modifier.isStatic(declaredField.getModifiers())) {
+						try {
+							Object propertyValue = declaredField.get(null);
+							if (propertyValue instanceof String) {
+								propertyName = (String) propertyValue;
+							} else {
+								LOG.trace("Value of static property [{}] for class [{}] is not string, skip to resolve available filter criteria.",
+										propertyName, filterClass);
+								return;
+							}
+						} catch (IllegalArgumentException | IllegalAccessException e) {
+							LOG.warn("Get value of static property [{}] for class [{}] failed, skip to resolve available filter criteria.",
+									propertyName, filterClass);
+							return;
+						}
+					}
+					if (ignoredFilterProperties.contains(propertyName)) {
+						LOG.trace("Pageable or internal property [{}] will be ignored by filters.", propertyName);
+						return;
+					}
+					FilterKey filterKey = new FilterKey(entityClass, propertyName);
+					if (registeredServiceFilters.containsKey(filterKey)) {
+						// already resolved e.g. by interface
+						return;
+					}
+					//
+					FilterBuilderDto dto = new FilterBuilderDto();
+					dto.setName(propertyName);
+					dto.setDescription("Internal service implementation (toPredicates).");
+					dto.setEntityClass(entityClass);
+					dto.setFilterClass(filterClass);
+					dto.setDisabled(false); // service is always effective filter
+					//
+					registeredServiceFilters.put(filterKey, dto);
+				});
+			//
+			processFilterClass = processFilterClass.getSuperclass();
+		}
+		//
+		return registeredServiceFilters;
+	}
+	
 }

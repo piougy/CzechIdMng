@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
  * Builds filters for domain types.
@@ -18,6 +19,15 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * @author Radek Tomiška
  */
 public interface FilterManager {
+	
+	/**
+	 * Enable / disable check filter is properly registered, when filter is used (by entity and property name). Throw exeption, when unrecognised filter is used.
+	 * 
+	 * @since 10.4.0
+	 */
+	String PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED = 
+			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.filter.check.supported.enabled";
+	boolean DEFAULT_CHECK_SUPPORTED_FILTER_ENABLED = true;
 	
 	/**
 	 * Return filter registered / configured for given property name

@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.exception.FilterNotSupportedException;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -105,9 +106,57 @@ public class DefaultFilterManagerIntegrationTest extends AbstractIntegrationTest
 	
 	@Test(expected = FilterNotSupportedException.class)
 	public void testFilterNotSupported() {
-		DataFilter filter = new DataFilter(IdmConfigurationDto.class);
-		filter.set("wrong", "mock");
-		configurationService.find(filter, null);
+		try {
+			configurationService.setBooleanValue(
+					FilterManager.PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED, 
+					true);
+			DataFilter filter = new DataFilter(IdmConfigurationDto.class);
+			filter.set("wrong", "mock");
+			configurationService.find(filter, null);
+		} finally {
+			configurationService.setBooleanValue(
+					FilterManager.PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED, 
+					FilterManager.DEFAULT_CHECK_SUPPORTED_FILTER_ENABLED);
+		}
+	}
+	
+	@Test
+	public void testFilterSupportedByFilterInstance() {
+		try {
+			configurationService.setBooleanValue(
+					FilterManager.PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED, 
+					true);
+			DataFilter filter = new DataFilter(IdmConfigurationDto.class) {
+				@SuppressWarnings("unused")
+				private String wrong;
+			};
+			filter.set("wrong", "mock");
+			Page<IdmConfigurationDto> configurations = configurationService.find(filter, null);
+			//
+			Assert.assertNotNull(configurations);
+		} finally {
+			configurationService.setBooleanValue(
+					FilterManager.PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED, 
+					FilterManager.DEFAULT_CHECK_SUPPORTED_FILTER_ENABLED);
+		}
+	}
+	
+	@Test
+	public void testFilterNotSupportedCheckDisabled() {
+		try {
+			configurationService.setBooleanValue(
+					FilterManager.PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED, 
+					false);
+			DataFilter filter = new DataFilter(IdmConfigurationDto.class);
+			filter.set("wrong", "mock");
+			Page<IdmConfigurationDto> configurations = configurationService.find(filter, null);
+			//
+			Assert.assertNotNull(configurations);
+		} finally {
+			configurationService.setBooleanValue(
+					FilterManager.PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED, 
+					FilterManager.DEFAULT_CHECK_SUPPORTED_FILTER_ENABLED);
+		}
 	}
 	
 	@Test

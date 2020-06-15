@@ -189,6 +189,10 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     }
     //
     if (isNew) {
+      // reset prefilled username, if username is not rendered => will be generated on backend
+      if (!this.isRendered(formProjection, 'username')) {
+        _identityProjection.username = null;
+      }
       // prepare new prime contract
       if (!_identityProjection['validFrom-0']) {
         _identityProjection['validFrom-0'] = moment();

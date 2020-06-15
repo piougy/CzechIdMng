@@ -61,6 +61,28 @@ export default class FormableEntityService extends AbstractService {
   }
 
   /**
+   * Prepare form values for newly created entity together with defined eav values.
+   * Since 10.3.0 version entity can be created with eav in one call => values have to be prepared.
+   *
+   * @param  {string} form definition code
+   * @return {promise}
+   * @since 10.3.3
+   */
+  prepareFormValues(definitionCode) {
+    return RestApiService
+      .get(`${ this.getApiPath() }/form-values/prepare?definitionCode=${ encodeURIComponent(definitionCode) }`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
    * Saves form values
    *
    * @param  {string} id identity identifier

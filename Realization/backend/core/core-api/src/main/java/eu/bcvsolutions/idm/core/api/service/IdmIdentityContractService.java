@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.eav.api.service.FormableDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
@@ -21,7 +22,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmIdentityContractService extends
-		EventableDtoService<IdmIdentityContractDto, IdmIdentityContractFilter>,
+		FormableDtoService<IdmIdentityContractDto, IdmIdentityContractFilter>,
 		AuthorizableService<IdmIdentityContractDto>,
 		ScriptEnabled {
 	

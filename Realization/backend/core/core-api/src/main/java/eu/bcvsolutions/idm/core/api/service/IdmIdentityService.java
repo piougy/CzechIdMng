@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
+import eu.bcvsolutions.idm.core.eav.api.service.FormableDtoService;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
@@ -26,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  *
  */
 public interface IdmIdentityService extends 
-		EventableDtoService<IdmIdentityDto, IdmIdentityFilter>,
+		FormableDtoService<IdmIdentityDto, IdmIdentityFilter>,
 		AuthorizableService<IdmIdentityDto>,
 		CodeableService<IdmIdentityDto>,
 		ScriptEnabled {

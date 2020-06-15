@@ -53,8 +53,13 @@ export default class FormableEntityManager extends EntityManager {
         .then(json => {
           let formInstances = new Immutable.Map();
           // get trimmed definitions
-          const formValuesPromises = json._embedded.formDefinitions.map(formDefinition => {
-            return this.getService().getFormValues(id, formDefinition.code);
+          const formValuesPromises = [];
+          json._embedded.formDefinitions.forEach(formDefinition => {
+            if (!id) {
+              formValuesPromises.push(this.getService().prepareFormValues(formDefinition.code));
+            } else {
+              formValuesPromises.push(this.getService().getFormValues(id, formDefinition.code));
+            }
           });
           // load form instances
           Promise.all(formValuesPromises)

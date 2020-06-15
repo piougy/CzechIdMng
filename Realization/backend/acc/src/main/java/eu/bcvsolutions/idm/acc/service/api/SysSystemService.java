@@ -8,8 +8,8 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.core.api.service.CloneableService;
 import eu.bcvsolutions.idm.core.api.service.CodeableService;
-import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormableDtoService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
  *
  */
 public interface SysSystemService extends 
-		EventableDtoService<SysSystemDto, SysSystemFilter>,
+		FormableDtoService<SysSystemDto, SysSystemFilter>,
 		CodeableService<SysSystemDto>, 
 		CloneableService<SysSystemDto>, 
 		AuthorizableService<SysSystemDto> {

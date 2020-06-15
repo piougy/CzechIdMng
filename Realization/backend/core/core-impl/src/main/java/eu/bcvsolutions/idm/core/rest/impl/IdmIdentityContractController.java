@@ -35,7 +35,6 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -44,7 +43,9 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.rest.impl.AbstractFormableDtoController;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -69,7 +70,7 @@ import io.swagger.annotations.AuthorizationScope;
 		tags = { IdmIdentityContractController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmIdentityContractController extends AbstractEventableDtoController<IdmIdentityContractDto, IdmIdentityContractFilter> {
+public class IdmIdentityContractController extends AbstractFormableDtoController<IdmIdentityContractDto, IdmIdentityContractFilter> {
 	
 	protected static final String TAG = "Contracts";
 	private final IdmFormDefinitionController formDefinitionController;
@@ -322,12 +323,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 		return super.prevalidateBulkAction(bulkAction);
 	}
 	
-	/**
-	 * Returns form definition to given entity.
-	 * 
-	 * @param backendId
-	 * @return
-	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_READ + "')")
@@ -344,7 +340,27 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Contract's uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return formDefinitionController.getDefinitions(IdmIdentityContract.class, IdmBasePermission.AUTOCOMPLETE);
+		return super.getFormDefinitions(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/form-values/prepare", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITYCONTRACT_READ + "')")
+	@ApiOperation(
+			value = "Identity contract form definition - prepare available values", 
+			nickname = "prepareIdentityContractFormValues", 
+			tags = { IdmIdentityContractController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITYCONTRACT_READ, description = "")})
+				})
+	public Resource<?> prepareFormValues(
+			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@RequestParam(name = IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, required = false) String definitionCode) {
+		return super.prepareFormValues(definitionCode);
 	}
 	
 	/**
@@ -371,21 +387,14 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = "definitionCode", required = false) String definitionCode) {
+		IdmIdentityContractDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
 				IdmIdentityContract.class,
 				definitionCode,
 				IdmBasePermission.AUTOCOMPLETE);
-		
-		IdmIdentityContractDto dto = getDto(backendId);
-		if (dto == null) {
-			// empty form instance with filled form definition
-			IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
-			formInstance.setFormDefinition(formDefinition);
-			formInstance.setOwnerType(IdmIdentityContract.class);
-			formDefinitionController.secureAttributes(formInstance);
-			//
-			return new Resource<>(formInstance);
-		}
 		//
 		IdmFormInstanceDto formInstance = formService.getFormInstance(dto, formDefinition, IdmBasePermission.READ);
 		//
@@ -399,6 +408,7 @@ public class IdmIdentityContractController extends AbstractEventableDtoControlle
 						attribute.setReadonly(true);
 					});
 		}
+		//
 		return new Resource<>(formInstance);
 	}
 	

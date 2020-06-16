@@ -51,6 +51,7 @@ import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
  * Component for authenticate over system
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Roman Kucera
  *
  */
 
@@ -81,7 +82,7 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 	private final SysSchemaAttributeService schemaAttributeService;
 	
 	private final SysSystemEntityService systemEntityService;
-	
+
 	@Autowired
 	public DefaultAccAuthenticator(ConfigurationService configurationService,
 			SysSystemService systemService,
@@ -174,26 +175,29 @@ public class DefaultAccAuthenticator extends AbstractAuthenticator implements Au
 			SysSchemaObjectClassDto schemaObjectClassDto = DtoUtils.getEmbedded(schemaAttribute, SysSchemaAttribute_.objectClass);
 			SysSystemEntityDto systemEntityDto = systemEntityService.get(account.getSystemEntity());
 			IcObjectClass objectClass = new IcObjectClassImpl(schemaObjectClassDto.getObjectClassName());
-			
-			IcConnectorObject connectorObject = systemService.readConnectorObject(system.getId(), systemEntityDto.getUid(), objectClass);
-			//
-			if (connectorObject == null) {
-				continue;
-			}
-			//
-			String transformUsername = null;
-			// iterate over all attributes to find authentication attribute
-			for (IcAttribute icAttribute : connectorObject.getAttributes()) {
 
-				if (icAttribute.getName().equals(schemaAttributeService.get(attribute.getSchemaAttribute()).getName())) {
-					transformUsername = String.valueOf(icAttribute.getValue());
-					break;
+			String transformUsername = null;
+			if (!attribute.isUid()) {
+				IcConnectorObject connectorObject = systemService.readConnectorObject(system.getId(), systemEntityDto.getUid(), objectClass);
+				//
+				if (connectorObject == null) {
+					continue;
 				}
+				// iterate over all attributes to find authentication attribute
+				for (IcAttribute icAttribute : connectorObject.getAttributes()) {
+
+					if (icAttribute.getName().equals(schemaAttributeService.get(attribute.getSchemaAttribute()).getName())) {
+						transformUsername = String.valueOf(icAttribute.getValue());
+						break;
+					}
+				}
+				if (transformUsername == null) {
+					throw new ResultCodeException(AccResultCode.AUTHENTICATION_USERNAME_DONT_EXISTS,  ImmutableMap.of("username", loginDto.getUsername() ,"name", system.getName()));
+				}
+			} else {
+				transformUsername = systemEntityDto.getUid();
 			}
-			if (transformUsername == null) {
-				throw new ResultCodeException(AccResultCode.AUTHENTICATION_USERNAME_DONT_EXISTS,  ImmutableMap.of("username", loginDto.getUsername() ,"name", system.getName()));
-			}
-			// other method to get username for system: String.valueOf(systemAttributeMappingService.transformValueToResource(loginDto.getUsername(), attribute, identity));
+
 			//
 			// authentication over system, when password or username not exist or bad credentials - throw error
 			try {

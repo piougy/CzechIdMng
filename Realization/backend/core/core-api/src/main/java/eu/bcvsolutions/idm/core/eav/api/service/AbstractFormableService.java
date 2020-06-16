@@ -43,7 +43,8 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * @param <F> {@link BaseFilter} type
  */
 public abstract class AbstractFormableService<DTO extends FormableDto, E extends FormableEntity, F extends BaseFilter> 
-		extends AbstractEventableDtoService<DTO, E, F> {
+		extends AbstractEventableDtoService<DTO, E, F>
+		implements FormableDtoService<DTO, F> {
 
 	private final FormService formService;
 	//

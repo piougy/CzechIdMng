@@ -62,6 +62,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
+import eu.bcvsolutions.idm.core.eav.api.rest.FormableDtoController;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
@@ -651,7 +652,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	
 	@Test
 	public void testSaveFormDefinition() throws Exception {
-		if(!supportsFormValues()) {
+		if (!supportsFormValues()) {
 			LOG.info("Controller [{}] doesn't support extended attributes. Method will not be tested.", getController().getClass());
 			return;
 		}
@@ -664,6 +665,23 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		// form definition is available
 		List<IdmFormDefinitionDto> formDefinitions = getFormDefinitions(owner.getId(), TestHelper.ADMIN_USERNAME);
 		Assert.assertTrue(formDefinitions.stream().anyMatch(d -> d.getId().equals(formDefinition.getId())));
+		//
+		// test prepare values
+		if (getController() instanceof FormableDtoController) {
+			String response = getMockMvc().perform(get(getPrepareFormValuesUrl())
+	        		.with(authentication(getAuthentication(TestHelper.ADMIN_USERNAME)))
+	        		.param(IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, formDefinition.getCode())
+	                .contentType(TestHelper.HAL_CONTENT_TYPE))
+	                .andExpect(status().isOk())
+	                .andReturn()
+	                .getResponse()
+	                .getContentAsString();
+			IdmFormInstanceDto formInstance = toFormInstance(response);
+			//
+			Assert.assertEquals(formDefinition.getId().toString(), formInstance.getFormDefinition().getId().toString());
+			Assert.assertEquals(formDefinition.getFormAttributes().get(0).getId().toString(), formInstance.getFormDefinition().getFormAttributes().get(0).getId().toString());
+			Assert.assertTrue(formInstance.getValues().isEmpty());
+		}
 		//
 		// test get values - empty
 		IdmFormInstanceDto formInstance = getFormInstance(owner.getId(), TestHelper.ADMIN_USERNAME, formDefinition.getCode());
@@ -1083,6 +1101,10 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 		return backendId.toString();
 	}
 	
+	protected String getPrepareFormValuesUrl() {
+		return String.format("%s/form-values/prepare", getBaseUrl());
+	}
+	
 	protected String getFormValuesUrl(Serializable backendId) {
 		return String.format("%s/%s/form-values", getBaseUrl(), getBackendId(backendId));
 	}
@@ -1168,7 +1190,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 	}
 	
 	/**
-	 * Find dtos - "quick" is alias to standard find method. Required by all controllers
+	 * Find dtos - "quick" is alias to standard find method. Required by all controllers.
 	 * 
 	 * @param parameters
 	 * @return

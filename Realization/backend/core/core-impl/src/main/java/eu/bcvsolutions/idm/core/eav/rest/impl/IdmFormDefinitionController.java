@@ -461,7 +461,7 @@ public class IdmFormDefinitionController extends AbstractReadWriteDtoController<
 	 * @param permission base permissions to evaluate (AND)
 	 * @return
 	 */
-	public ResponseEntity<?> getDefinitions(Class<? extends FormableEntity> ownerType, BasePermission permission) {
+	public ResponseEntity<?> getDefinitions(Class<? extends Identifiable> ownerType, BasePermission permission) {
 		IdmFormDefinitionFilter filter = new IdmFormDefinitionFilter();
 		filter.setType(formService.getDefaultDefinitionType(ownerType));
 		//

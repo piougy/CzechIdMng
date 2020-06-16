@@ -54,7 +54,7 @@ module.exports = {
           },
           {
             id: 'example-components',
-            type: 'TAB',
+            type: 'MAIN-MENU',
             section: 'main',
             labelKey: 'example:content.components.label',
             titleKey: 'example:content.components.title',

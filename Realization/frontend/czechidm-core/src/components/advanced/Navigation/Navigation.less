@@ -217,6 +217,16 @@ header {
       border-bottom: none;
     }
   }
+
+  &.has-children {
+    &.expanded {
+      border-bottom: none;
+
+      > a {
+        border-bottom: 1px solid #e7e7e7;
+      }
+    }
+  }
 }
 
 .sidebar ul li a {

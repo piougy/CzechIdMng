@@ -8,6 +8,7 @@ import Immutable from 'immutable';
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
 import ComponentService from '../../../services/ComponentService';
+import ConfigLoader from '../../../utils/ConfigLoader';
 import { LocalizationService } from '../../../services';
 import {
   ConfigurationManager,
@@ -215,6 +216,7 @@ export class Navigation extends Basic.AbstractContent {
       } else {
         const children = this.renderSidebarItems(levelItem.id, level);
         let isActive = selectedNavigationItems.length >= level && selectedNavigationItems[level - 1] === levelItem.id;
+        const isExpanded = isActive;
         // last active child exists => not active
         if (isActive && childrenItems && selectedNavigationItems.length > level) {
           const nextSelectedItemId = selectedNavigationItems[level];
@@ -223,20 +225,37 @@ export class Navigation extends Basic.AbstractContent {
             isActive = false;
           }
         }
+        let parentRedirect = false; // show content, when menu is expanded
+        if (navigation.get(ConfigLoader.NAVIGATION_BY_PARENT).has(levelItem.id)) {
+          const childAlias = navigation.get(ConfigLoader.NAVIGATION_BY_PARENT).get(levelItem.id).toArray()
+            .find(c => c.path === levelItem.path); // childer by the same path
+          //
+          if (childAlias && childAlias.type === 'MAIN-MENU') {
+            parentRedirect = !childAlias.access || SecurityManager.hasAccess(childAlias.access);
+          }
+        }
         //
         if (children && !navigationCollapsed) {
           items.push(
             <li
               key={ `nav-item-${ levelItem.id }` }
-              className="has-children">
+              className={ isExpanded ? 'has-children expanded' : 'has-children'}>
               <Basic.Tooltip
                 id={ `${ levelItem.id }-tooltip` }
                 placement="right"
                 value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) }>
                 <a
                   href="#"
-                  onClick={ this.toogleNavigationItem.bind(this, levelItem, level, isActive, true) }
-                  className={ isActive ? 'active' : '' }>
+                  onClick={
+                    this.toogleNavigationItem.bind(
+                      this,
+                      levelItem,
+                      level,
+                      isActive,
+                      parentRedirect
+                    )
+                  }
+                  className={ isActive && parentRedirect ? 'active' : '' }>
                   <Basic.Icon icon={ levelItem.icon } color={ levelItem.iconColor }/>
                   {
                     navigationCollapsed

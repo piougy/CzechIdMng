@@ -147,8 +147,7 @@ function i18nInit(cb) {
         } else {
           dispatch(i18nReady(LocalizationService.getCurrentLanguage(), cb, true));
         }
-      }
-    );
+      });
   };
 }
 
@@ -170,8 +169,7 @@ export function i18nChange(lng, cb = () => {}) {
         } else {
           dispatch(i18nReady(LocalizationService.getCurrentLanguage(), cb, false));
         }
-      }
-    );
+      });
   };
 }
 

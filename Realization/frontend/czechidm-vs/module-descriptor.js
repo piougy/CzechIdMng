@@ -26,7 +26,7 @@ module.exports = {
         items: [
           {
             id: 'vs-systems',
-            type: 'TAB',
+            type: 'MAIN-MENU',
             section: 'main',
             labelKey: 'vs:content.vs-systems.label',
             titleKey: 'vs:content.vs-systems.title',

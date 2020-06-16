@@ -701,7 +701,6 @@ module.exports = {
           },
           {
             id: 'audits',
-            type: 'MAIN-MENU',
             labelKey: 'content.audit.title',
             order: 40,
             path: '/audit/entities',
@@ -839,7 +838,6 @@ module.exports = {
         items: [
           {
             id: 'notification-notifications',
-            type: 'MAIN-MENU',
             labelKey: 'content.notifications.label',
             titleKey: 'content.notifications.title',
             order: 30,
@@ -940,7 +938,6 @@ module.exports = {
         items: [
           {
             id: 'system-configuration',
-            type: 'MAIN-MENU',
             labelKey: 'navigation.menu.configuration',
             icon: 'component:setting',
             order: 10,

@@ -4,6 +4,7 @@ import Helmet from 'react-helmet';
 //
 import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import DecisionButtons from '../DecisionButtons';
 import DynamicTaskDetail from '../DynamicTaskDetail';
 import RoleRequestDetail from '../../requestrole/RoleRequestDetail';
@@ -37,30 +38,25 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
   }
 
   render() {
-    const {task, canExecute, taskManager} = this.props;
+    const {task, canExecute} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
     const formDataValues = this._toFormDataValues(task.formData);
-    const taskName = taskManager.localize(task, 'name');
 
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
-
-        <Basic.PageHeader>
-          {taskName}
-          <small>
-            {' '}
-            {this.i18n('header')}
-          </small>
-        </Basic.PageHeader>
-
+        {this.renderHeader(task)}
         <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             {this._getTaskInfo(task)}
             {this._getApplicantAndRequester(task)}
-            <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
+            <Basic.LabelWrapper
+              ref="taskCreated"
+              label={this.i18n('createdDate')}>
+              <Advanced.DateValue value={task ? task.taskCreated : null} showTime/>
+            </Basic.LabelWrapper>
           </Basic.AbstractForm>
           <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>
             {this._getFormDataComponents(task)}

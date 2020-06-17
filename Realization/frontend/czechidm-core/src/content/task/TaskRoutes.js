@@ -21,7 +21,7 @@ export default class TaskRoutes extends Basic.AbstractContent {
     return (
       <div>
         <Basic.PageHeader>
-          <Basic.Icon value="tasks"/>
+          <Basic.Icon value="fa:tasks"/>
           {' '}
           {this.i18n('navigation.menu.tasks.label')}
         </Basic.PageHeader>

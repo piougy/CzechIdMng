@@ -2,7 +2,7 @@
 
 Component for search (autocomplete) and select item any entity type. Extended from AbstractFormComponent.
 Component supported single select and multi select mode.
-Inner component is descibe by component-descriptor.js (see component with type 'entity-select-box')
+Inner component is describe by component-descriptor.js (see component with type 'entity-select-box')
 
 ## Requirements
 

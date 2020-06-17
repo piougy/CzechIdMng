@@ -70,6 +70,27 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
     );
   }
 
+  _renderDefinitionColumn({rowIndex, data}) {
+    const value = data[rowIndex];
+    if (!value) {
+      return null;
+    }
+    const delegation = value.delegationDefinition;
+    if (!delegation) {
+      return null;
+    }
+    return (
+      <Advanced.EntityInfo
+        entityType="DelegationDefinitionDto"
+        entityIdentifier={ delegation.id}
+        face="popover"
+        entity={delegation}
+        showEntityType
+        showLink
+        showIcon/>
+    );
+  }
+
   render() {
     const { uiKey, taskInstanceManager, columns, searchParameters, showFilter, showToolbar, username, userContext } = this.props;
     const { filterOpened} = this.state;
@@ -150,15 +171,24 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
           width={ 175 }
           cell={ ({rowIndex, data}) => {
             const identityIds = [];
-            for (const index in data[rowIndex].identityLinks) {
-              if (data[rowIndex].identityLinks.hasOwnProperty(index)) {
-                identityIds.push(data[rowIndex].identityLinks[index].userId);
-              }
+            const identityLinks = data[rowIndex].identityLinks;
+            if (identityLinks) {
+              identityLinks.forEach((identityLink) => {
+                if (identityLink.type === 'candidate' || identityLink.type === 'assignee') {
+                  identityIds.push(identityLink.userId);
+                }
+              });
             }
             return (
               <Advanced.IdentitiesInfo identities={identityIds} maxEntry={5} />
             );
           }}/>
+        <Advanced.Column
+          property="delegationDefinition"
+          header={ this.i18n('content.task.instance.delegation.header') }
+          width={ 200 }
+          rendered={ _.includes(columns, 'delegation') }
+          cell={this._renderDefinitionColumn.bind(this)}/>
       </Advanced.Table>
     );
   }
@@ -175,7 +205,7 @@ TaskInstanceTable.propTypes = {
 };
 
 TaskInstanceTable.defaultProps = {
-  columns: ['created', 'description', 'id'],
+  columns: ['created', 'description', 'id', 'delegation'],
   filterOpened: false,
   _showLoading: false,
   searchParameters: null,

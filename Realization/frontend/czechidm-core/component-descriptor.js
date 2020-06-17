@@ -224,6 +224,13 @@ module.exports = {
       manager: require('./src/redux').RoleFormAttributeManager
     },
     {
+      id: 'workflow-process-info',
+      type: 'entity-info',
+      entityType: ['workflowProcessInstance', 'WorkflowProcessInstanceDto', 'WorkflowProcessInstance'],
+      component: require('./src/components/advanced/WorkflowProcessInfo/WorkflowProcessInfo').default,
+      manager: require('./src/redux').WorkflowHistoricProcessInstanceManager
+    },
+    {
       id: 'export-import-info',
       type: 'entity-info',
       entityType: ['IdmExportImport', 'IdmExportImportDto'],
@@ -618,6 +625,20 @@ module.exports = {
       entityType: ['roleRequest', 'IdmRoleRequest', 'IdmRoleRequestDto'],
       component: require('./src/components/advanced/RoleRequestInfo/RoleRequestInfo').default,
       manager: require('./src/redux').RoleRequestManager
+    },
+    {
+      id: 'workflow-task-info',
+      type: 'entity-info',
+      entityType: ['workflowTaskInstance', 'WorkflowTaskInstance', 'WorkflowTaskInstanceDto'],
+      component: require('./src/components/advanced/WorkflowTaskInfo/WorkflowTaskInfo').default,
+      manager: require('./src/redux').WorkflowTaskInstanceManager
+    },
+    {
+      id: 'delegation-definition-info',
+      type: 'entity-info',
+      entityType: ['delegationDefinition', 'DelegationDefinition', 'DelegationDefinitionDto'],
+      component: require('./src/components/advanced/DelegationDefinitionInfo/DelegationDefinitionInfo').default,
+      manager: require('./src/redux').DelegationDefinitionManager
     },
     {
       id: 'password-info',

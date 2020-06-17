@@ -42,7 +42,7 @@ class TaskInstancesView extends Basic.AbstractContent {
           filterOpened={false}
           showFilter
           showToolbar
-          columns={['created', 'description', 'id', 'taskAssignee']}
+          columns={['created', 'description', 'id', 'taskAssignee', 'delegation']}
           searchParameters={searchParameters} />
       </div>
     );

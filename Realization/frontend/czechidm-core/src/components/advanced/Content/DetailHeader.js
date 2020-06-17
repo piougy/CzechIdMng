@@ -26,7 +26,8 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
       back,
       children,
       buttons,
-      small
+      small,
+      additionalOptions
     } = this.props;
     //
     if (!rendered) {
@@ -44,7 +45,7 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
           </Basic.Div>
           <Basic.Div style={{ fontSize: '0.85em' }}>
             { buttons }
-            <AuditableInfo entity={ entity }/>
+            <AuditableInfo entity={ entity } additionalOptions={additionalOptions}/>
             <CloseButton to={ back } />
           </Basic.Div>
         </Basic.Div>

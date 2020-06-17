@@ -82,6 +82,8 @@ import LongPollingManager from './LongPollingManager';
 import ExportImportManager from './ExportImportManager';
 import AvailableServiceManager from './AvailableServiceManager';
 import ImportLogManager from './ImportLogManager';
+import DelegationDefinitionManager from './DelegationDefinitionManager';
+import DelegationManager from './DelegationManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -160,8 +162,10 @@ const ManagerRoot = {
   LongPollingManager,
   ExportImportManager,
   AvailableServiceManager,
-  ImportLogManager
+  ImportLogManager,
+  DelegationDefinitionManager,
+  DelegationManager
 };
 
-ManagerRoot.version = '10.2.0';
+ManagerRoot.version = '10.4.0';
 module.exports = ManagerRoot;

@@ -42,6 +42,7 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     if (this.refs.selectComponent) {
       return this.refs.selectComponent.isValid();
     }
+    return true;
   }
 
   onChange(event) {
@@ -54,12 +55,14 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     if (this.refs.selectComponent) {
       return this.refs.selectComponent.validate(showValidationError, cb);
     }
+    return true;
   }
 
   getValue() {
     if (this.refs.selectComponent) {
       return this.refs.selectComponent.getValue();
     }
+    return null;
   }
 
   setValue(value, cb) {
@@ -72,7 +75,9 @@ export default class EntitySelectBox extends Basic.AbstractFormComponent {
     super.setState(json, () => {
       // FIXME: abstract form component everride standard state to show validations => we need to propage this state into component
       if (json && json.showValidationError !== undefined) {
-        this.refs.selectComponent.setState({ showValidationError: json.showValidationError}, cb);
+        if (this.refs.selectComponent) {
+          this.refs.selectComponent.setState({ showValidationError: json.showValidationError}, cb);
+        }
       } else if (cb) {
         cb();
       }

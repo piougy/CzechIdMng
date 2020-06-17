@@ -19,10 +19,17 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
+    const {collapse, collapsable, face} = props;
+
+    let expandInfo = true;
+    if (collapsable && face === 'full') {
+      expandInfo = !collapse;
+    }
     //
     this.state = {
       error: null,
       showAuditableInfo: false,
+      expandInfo,
       showSystemInformation: !context.store ? false : ConfigurationManager.showSystemInformation(context.store.getState())
     };
   }
@@ -140,7 +147,9 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    */
   showLink() {
     const { showLink } = this.props;
-    if (!showLink) {
+    const { expandInfo } = this.state;
+
+    if (!showLink || !expandInfo) {
       // disabled by props
       return false;
     }
@@ -176,6 +185,16 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     //
     this.setState({
       showAuditableInfo: show
+    });
+  }
+
+  onExpandInfo(show, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    this.setState({
+      expandInfo: show
     });
   }
 
@@ -272,6 +291,23 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     );
   }
 
+  _renderSystemCollapsIcon() {
+    const { expandInfo } = this.state;
+    const { collapsable, face } = this.props;
+    //
+    return (
+      <Basic.Icon
+        value={expandInfo ? 'fa:angle-down arrow-icon' : 'fa:angle-left arrow-icon'}
+        style={{
+          color: '#000',
+          marginLeft: 10,
+          cursor: 'pointer'
+        }}
+        onClick={ this.onExpandInfo.bind(this, !expandInfo) }
+        rendered={ collapsable && face === 'full'}/>
+    );
+  }
+
   /**
    * Renders nicelabel used in text and link face
    */
@@ -359,7 +395,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
    */
   _renderFull(entity) {
     const { className, style, level, titleStyle } = this.props;
-    const { showAuditableInfo } = this.state;
+    const { showAuditableInfo, expandInfo } = this.state;
     const _entity = entity || this.getEntity();
     //
     const panelClassNames = classNames(
@@ -390,6 +426,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
                 <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
               }
               { this._renderSystemInformationIcon() }
+              { this._renderSystemCollapsIcon() }
             </Basic.Div>
           </Basic.Div>
         </Basic.PanelHeader>
@@ -402,6 +439,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
           <Basic.Table
             condensed
             hover={ false }
+            rendered={ expandInfo }
             noHeader
             data={ this.getPopoverContent(_entity) }>
             { this.getTableChildren() }
@@ -496,6 +534,16 @@ AbstractEntityInfo.propTypes = {
    */
   showIcon: PropTypes.bool,
   /**
+   * Allow collapsing of this info.
+   */
+  collapsable: PropTypes.bool,
+  /**
+   * Collapse content of this info.
+   *
+   * Collapseable property must be true and face = "full"!
+   */
+  collapse: PropTypes.bool,
+  /**
    * Entity manager
    */
   manager: PropTypes.object,
@@ -512,5 +560,7 @@ AbstractEntityInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   face: 'full',
   showLink: true,
-  showIcon: false
+  showIcon: false,
+  collapsable: false,
+  collapse: false
 };

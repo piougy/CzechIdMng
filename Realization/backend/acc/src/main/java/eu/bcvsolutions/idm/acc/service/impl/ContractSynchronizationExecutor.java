@@ -673,7 +673,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 						ContractPositionEventType.DELETE, position,
 						ImmutableMap.of(
 								ProvisioningService.SKIP_PROVISIONING, skipProvisioning,
-								IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, true
+								IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE
 						));
 				contractPositionService.publish(positionEvent);
 			});
@@ -688,7 +688,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 						ContractPositionEventType.CREATE, contractPosition,
 						ImmutableMap.of(
 								ProvisioningService.SKIP_PROVISIONING, skipProvisioning,
-								IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, true
+								IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE
 						));
 				contractPositionService.publish(positionEvent);
 			});

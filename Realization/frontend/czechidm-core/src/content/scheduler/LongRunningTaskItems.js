@@ -75,13 +75,13 @@ class LongRunningTaskItems extends Advanced.AbstractTableContent {
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="operationState"
-                      placeholder={this.i18n('entity.LongRunningTaskItem.result.state')}
-                      enum={OperationStateEnum}/>
+                      placeholder={ this.i18n('entity.LongRunningTaskItem.result.state') }
+                      enum={ OperationStateEnum }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="referencedEntityId"
-                      placeholder={this.i18n('entity.LongRunningTaskItem.referencedEntityId.placeholder')}/>
+                      placeholder={ this.i18n('entity.LongRunningTaskItem.referencedEntityId.placeholder') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 } className="text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -90,7 +90,7 @@ class LongRunningTaskItems extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={filterOpened}
+          filterOpened={ filterOpened }
           _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             className="detail-button"
@@ -105,8 +105,8 @@ class LongRunningTaskItems extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="operationResult.state"
-            header={this.i18n('entity.LongRunningTaskItem.result.state')}
-            width={75}
+            header={ this.i18n('entity.LongRunningTaskItem.result.state') }
+            width={ 75 }
             sort
             cell={
               ({ data, rowIndex }) => {
@@ -119,7 +119,7 @@ class LongRunningTaskItems extends Advanced.AbstractTableContent {
           />
           <Advanced.Column
             property="referencedEntityId"
-            header={this.i18n('entity.LongRunningTaskItem.referencedEntityId')}
+            header={ this.i18n('entity.LongRunningTaskItem.referencedEntityId.label') }
             cell={
               ({ rowIndex, data, property }) => {
                 if (!data[rowIndex]._embedded || !data[rowIndex]._embedded[property]) {
@@ -144,8 +144,8 @@ class LongRunningTaskItems extends Advanced.AbstractTableContent {
           />
           <Advanced.Column
             property="referencedDtoType"
-            header={this.i18n('entity.LongRunningTaskItem.referencedDtoType')}
-            width={75}
+            header={ this.i18n('entity.LongRunningTaskItem.referencedEntityType.label') }
+            width={ 75 }
             face="text"
             cell={
               ({ rowIndex, data, property }) => {
@@ -158,8 +158,8 @@ class LongRunningTaskItems extends Advanced.AbstractTableContent {
           />
           <Advanced.Column
             property="created"
-            header={this.i18n('entity.created')}
-            width={75}
+            header={ this.i18n('entity.created') }
+            width={ 75 }
             sort
             face="datetime"
           />
@@ -178,8 +178,8 @@ class LongRunningTaskItems extends Advanced.AbstractTableContent {
           <Basic.Modal.Footer>
             <Basic.Button
               level="link"
-              onClick={this.closeDetail.bind(this)}>
-              {this.i18n('button.close')}
+              onClick={ this.closeDetail.bind(this) }>
+              { this.i18n('button.close') }
             </Basic.Button>
           </Basic.Modal.Footer>
 
@@ -196,4 +196,4 @@ function select(state) {
   };
 }
 
-export default connect(select)(LongRunningTaskItems);
+export default connect(select, null, null, { forwardRef: true })(LongRunningTaskItems);

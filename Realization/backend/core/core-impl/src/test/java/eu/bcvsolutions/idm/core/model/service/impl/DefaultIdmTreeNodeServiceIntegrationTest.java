@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeForestContentServic
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessSkippedAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -671,5 +672,40 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		LongRunningFutureTask<Boolean> executor = longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
 		IdmLongRunningTaskDto longRunningTask = longRunningTaskManager.getLongRunningTask(executor);
 		Assert.assertTrue(longRunningTask.getWarningItemCount() > 0);
+	}
+	
+	@Test
+	public void testRecalculateAllAutomaticRoles() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, parentNode);
+		entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+		Assert.assertEquals(1, entityStateManager.findStates(contract, null).getTotalElements());
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(TreeNodeEventType.UPDATE, node);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
+		node = service.publish(event).getContent();
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		// recount skipped automatic roles
+		ProcessAllAutomaticRoleByTreeTaskExecutor taskExecutor = AutowireHelper.createBean(ProcessAllAutomaticRoleByTreeTaskExecutor.class);
+		taskExecutor.init(null);
+		longRunningTaskManager.execute(taskExecutor);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		Assert.assertEquals(0, entityStateManager.findStates(contract, null).getTotalElements());
 	}
 }

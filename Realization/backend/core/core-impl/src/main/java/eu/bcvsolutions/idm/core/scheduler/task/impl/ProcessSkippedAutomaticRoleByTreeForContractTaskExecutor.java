@@ -12,7 +12,10 @@ import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
@@ -29,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.entity.IdmEntityState_;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
@@ -57,7 +61,7 @@ public class ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor extends Ab
 	@Autowired private ContractPositionAutomaticRoleProcessor positionProcessor;
 	//
 	private Set<UUID> processedOwnerIds = new HashSet<>(); // distinct owners will be processed
-	
+
 	@Override
 	public String getName() {
 		return TASK_NAME;
@@ -95,14 +99,15 @@ public class ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor extends Ab
 		List<IdmEntityStateDto> states = new ArrayList<>();
 		// find all states for flag
 		IdmEntityStateFilter filter = new IdmEntityStateFilter();
+		pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Direction.ASC, IdmEntityState_.created.getName()));
 		filter.setStates(Lists.newArrayList(OperationState.BLOCKED));
 		filter.setResultCode(CoreResultCode.AUTOMATIC_ROLE_SKIPPED.getCode());
 		// for contract
 		filter.setOwnerType(entityStateManager.getOwnerType(IdmIdentityContractDto.class));
-		states.addAll(entityStateManager.findStates(filter, null).getContent());
+		states.addAll(entityStateManager.findStates(filter, pageable).getContent());
 		// for position
 		filter.setOwnerType(entityStateManager.getOwnerType(IdmContractPositionDto.class));
-		states.addAll(entityStateManager.findStates(filter, null).getContent());
+		states.addAll(entityStateManager.findStates(filter, pageable).getContent());
 		//
 		return new PageImpl<>(states);
 	}
@@ -175,6 +180,8 @@ public class ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor extends Ab
 		entityStateManager.deleteState(state);
 		//
 		// Log added manually above - log processed contract / position instead of deleted entity state.
-		return null;
+		return Optional.empty();
 	}
+	
+	
 }

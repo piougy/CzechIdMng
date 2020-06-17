@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import java.util.UUID;
 import javax.validation.constraints.NotEmpty;
+
 import org.springframework.hateoas.core.Relation;
 
 

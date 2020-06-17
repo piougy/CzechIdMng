@@ -57,18 +57,6 @@ public class PasswordGenerator {
 
 	private Map<Integer, Long> filePosition;
 	
-	/**
-	 * Local container of character bases  
-	 */
-	private class CharBaseCont {
-		public String base;
-		public Set<Character> baseSet;
-		// min necessary chars
-		public Integer minCount = new Integer(0);
-		// currently allocated chars
-		public Integer allocCount = new Integer(0);
-	}
-	
 	public String generatePassphrase(PasswordGenerate policy) {
 		Assert.notNull(policy, "Password policy can't be null.");
 		
@@ -86,7 +74,6 @@ public class PasswordGenerator {
 		
 		return String.join(DEFAULT_DELIMITER, password);
 	}
-	
 	
 	/**
 	 * Method create password by given password policy that implements interface PasswordGenerate
@@ -730,11 +717,7 @@ public class PasswordGenerator {
 	 * @return
 	 */
 	private Set<Character> fromStringToCharSet(String chars) {
-		Set<Character> result = new HashSet<Character>();
-		for (Character ch : chars.toCharArray()) {
-			result.add(ch);
-		}
-		return result;
+		return chars.chars().mapToObj(e -> (char) e).collect(Collectors.toSet());
 	}
 	
 	/**
@@ -754,7 +737,7 @@ public class PasswordGenerator {
 	 * @param val
 	 * @return
 	 */
-	private Integer intNullToZero(Integer val) {
+	private int intNullToZero(Integer val) {
 		return val == null ? 0 : val;
 	}
 	
@@ -764,7 +747,19 @@ public class PasswordGenerator {
 	 * @param val
 	 * @return
 	 */
-	private Integer intNullToMax(Integer val) {
+	private int intNullToMax(Integer val) {
 		return val == null ? Integer.MAX_VALUE : val;
+	}
+	
+	/**
+	 * Local container of character bases.
+	 */
+	private static class CharBaseCont {
+		public String base;
+		public Set<Character> baseSet;
+		// min necessary chars
+		public int minCount = 0;
+		// currently allocated chars
+		public int allocCount = 0;
 	}
 }

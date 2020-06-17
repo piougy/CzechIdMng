@@ -76,17 +76,17 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 
 	private static final String APPROVE_ROLE_BY_GUARANTEE_KEY = "approve-role-by-guarantee";
 	private static final String APPROVE_ROLE_BY_SECURITY_KEY = "approve-role-by-guarantee-security";
-	private static final String APPROVE_ROLE_BY_MANAGER_KEY = "approve-role-by-manager";
+	public static final String APPROVE_ROLE_BY_MANAGER_KEY = "approve-role-by-manager";
 	private static final String APPROVE_REMOVE_ROLE_BY_MANAGER_KEY = "approve-remove-role-by-manager";
 	private static final String SECURITY_ROLE_TEST = "securityRoleTest";
 	// FIXME: move to api (workflow config constant)
 	private static final String APPROVE_BY_HELPDESK_ROLE = "idm.sec.core.wf.approval.helpdesk.role";
-	private static final String APPROVE_BY_SECURITY_ENABLE = "idm.sec.core.wf.approval.security.enabled";
-	private static final String APPROVE_BY_MANAGER_ENABLE = "idm.sec.core.wf.approval.manager.enabled";
-	private static final String APPROVE_BY_USERMANAGER_ENABLE = "idm.sec.core.wf.approval.usermanager.enabled";
-	private static final String APPROVE_BY_HELPDESK_ENABLE = "idm.sec.core.wf.approval.helpdesk.enabled";
+	public static final String APPROVE_BY_SECURITY_ENABLE = "idm.sec.core.wf.approval.security.enabled";
+	public static final String APPROVE_BY_MANAGER_ENABLE = "idm.sec.core.wf.approval.manager.enabled";
+	public static final String APPROVE_BY_USERMANAGER_ENABLE = "idm.sec.core.wf.approval.usermanager.enabled";
+	public static final String APPROVE_BY_HELPDESK_ENABLE = "idm.sec.core.wf.approval.helpdesk.enabled";
 	private static final String APPROVE_BY_SECURITY_ROLE = "idm.sec.core.wf.approval.security.role";
-	private static final String APPROVE_INCOMPATIBLE_ENABLE = "idm.sec.core.wf.approval.incompatibility.enabled";
+	public static final String APPROVE_INCOMPATIBLE_ENABLE = "idm.sec.core.wf.approval.incompatibility.enabled";
 	private static final String APPROVE_INCOMPATIBLE_ROLE = "idm.sec.core.wf.approval.incompatibility.role";
 	private static final String INCOMPATIBILITY_ROLE_TEST = "IncompatibilityRoleTest";
 	//

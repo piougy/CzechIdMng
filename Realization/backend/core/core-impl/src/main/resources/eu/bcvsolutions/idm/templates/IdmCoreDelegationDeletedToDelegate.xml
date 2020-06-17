@@ -1,0 +1,101 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+@author Vít Švanda
+
+Notification informs the delegate about the deleted delegation.
+
+parameters:
+    - delegation
+    - delegator
+    - delegate
+    - url
+    - from
+    - till
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>delegationDeletedToDelegate</code>
+	<name>Notification informs the delegate about the deleted delegation.</name>
+	<subject>CzechIdM - delegace úkolů od uživatel $delegator.Username na Vás byla odstraněna.</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+	<body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+		<!-- Macros for Apache velocity -->
+		#macro( printType $state $loc )
+			#if($loc == "cs")
+			#if( $state == "default-delegation-type" )
+			Výchozí delegace pro všechny úkoly
+				#elseif( $state == "approve-role-by-manager-delegation-type" )
+			Delegace pro úkoly schvalující přiřazení rolí dle vedoucího
+				#elseif( $state == "approving-role-request-delegation-type" )
+			Delegace pro úkoly schvalující změnu oprávnění (celá žádost)
+				#else
+				#end
+				#else
+					#if( $state == "default-delegation-type" )
+				Default delegation for all tasks
+					#elseif( $state == "approve-role-by-manager-delegation-type" )
+				Delegation for tasks approving role assignments by a manager
+					#elseif( $state == "approving-role-request-delegation-type" )
+				Delegation for tasks approves change of authorization (whole request)
+					#else
+				#end
+			#end
+		#end
+   
+		
+		Dobrý den,<br />
+		delegace úkolů od uživatel <strong>$delegator.Username</strong> na Vás byla odstraněna.<br />
+		<br />
+
+		<br />
+		Platnost této delegace byla od <strong>$from</strong> do <strong>$till</strong>.
+		<br />
+        #set( $loc = "cs" )
+        Type delegace: <strong>#printType( $delegation.type $loc )</strong>
+        <br />
+        Delegaci vytvořil uživatel: <strong>$delegation.OriginalCreator</strong>
+		<br />
+        Poznámka u delegace: <strong>$!delegation.Description</strong>
+		<br />
+		<br />
+
+		<div style="display: block; margin: 30px auto; max-width: 400px; text-align: center;">
+			CzechIdM © 2020&nbsp;BCV Solutions s.r.o.&nbsp;
+		</div>
+
+		<div style="display: block; margin: 30px auto; max-width: 800px; text-align: center;">
+				----------------------------------------- English version -----------------------------------------
+		</div>
+
+		Hello,<br/>
+		tasks delegation from <strong>$delegator.Username</strong> to you has been removed.<br/>
+		<br/>
+
+        <br />
+		This delegation was valid from <strong>$from</strong> to <strong>$till</strong>.
+		<br />
+        #set( $loc = "en" )
+        Delegation type: <strong>#printType( $delegation.type $loc )</strong>
+        <br />
+        Delegation was created by user: <strong>$delegation.OriginalCreator</strong>
+		<br />
+        Delegation description: <strong>$!delegation.Description</strong>
+		<br />
+		<br />
+
+		<div style="display: block; margin: 30px auto; max-width: 400px; text-align: center;">
+			CzechIdM © 2020&nbsp;BCV Solutions s.r.o.&nbsp;
+		</div>
+	</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>delegation, url, from, till</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

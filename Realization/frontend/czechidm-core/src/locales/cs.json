@@ -1157,7 +1157,8 @@
       "TOKEN": "Token",
       "GENERATEVALUE": "Generování hodnot",
       "PASSWORD": "Uživatelská hesla",
-      "EXPORTIMPORT": "Export/Import"
+      "EXPORTIMPORT": "Export/Import",
+      "DELEGATIONDEFINITION": "Delegace"
     }
   },
   "content": {
@@ -1547,6 +1548,10 @@
         "role": {
           "currentRoles": "Aktuálně přiřazené role",
           "conceptIdentityRoles": "Role žadatele"
+        },
+        "delegation": {
+          "header": "Delegovaný úkol",
+          "text": "Tento úkol na Vás byl delegován."
         }
       },
       "historicInstance": {
@@ -2047,6 +2052,78 @@
         "how-to": {
           "header": "How to",
           "message": "Lokalizaci pro projekci je možné definovat v modulu <strong class=\"highlight\">{{name}}</strong> (v sekci <strong>eav</strong>):"
+        }
+      }
+    },
+    "delegation-definitions": {
+      "header": "Delegace",
+      "title": "Definice delegací",
+      "label": "Delegace",
+      "detailHeader": "Delegace <small>({{delegator}} 🡆 {{delegate}})</small>",
+      "edit": {
+        "title": "Detail definice delegace"
+      },
+      "create": {
+        "title": "Nová definice delegace",
+        "header": "Nová definice delegace"
+      },
+      "filter": {
+        "delegator": {
+          "placeholder": "Delegující"
+        },
+        "delegate": {
+          "placeholder": "Delegát"
+        }
+      },
+      "detail": {
+        "title": "Základní informace"
+      },
+      "save": {
+        "success": "Definice delegace byla úspěšně uložena"
+      },
+      "delegations": {
+        "label": "Delegované úkoly",
+        "header": "Delegované úkoly",
+        "title": "Delegované úkoly",
+        "filter": {
+          "delegator": {
+            "placeholder": "Delegující"
+          },
+          "delegate": {
+            "placeholder": "Delegát"
+          }
+        }
+      },
+      "types": {
+        "default-delegation-type": {
+          "label": "Výchozí delegace pro všechny úkoly",
+          "info": {
+            "header": "Výchozí delegace pro všechny úkoly",
+            "text": "Bude použita pro všechny úkoly, pro které není definovaná jiná delegace (s konkrétnějším typem)."
+          }
+        },
+        "approve-role-by-manager-delegation-type": {
+          "label": "Úkoly schvalující přiřazení rolí dle vedoucího",
+          "info": {
+            "header": "Delegace pro přiřazení role dle vedoucího",
+            "text": "Úkoly navázané na kontrakt."
+          }
+        },
+        "approving-role-request-delegation-type": {
+          "label": "Delegace pro úkoly schvalující změnu oprávnění (celá žádost)"
+        }
+      },
+      "identity-is-delegator": "Na koho deleguji",
+      "identity-is-delegate": "Kdo na mě deleguje",
+      "button": {
+        "add-delegation": {
+          "label": "Vytvořit delegaci",
+          "header": "Nová delegace",
+          "text": "Vytvoří nové pravidlo pro delegaci Vašich úkolů na někoho jiného.",
+          "title": {
+            "disabled": "Nemáte oprávnění vytvářet delegace.",
+            "tooltip": "Vytvoří nové pravidlo pro delegaci Vašich úkolů na někoho jiného."
+          }
         }
       }
     },
@@ -3045,37 +3122,6 @@
         },
         "message": {
           "success": "Uživatel [{{username}}] byl úspěšně vytvořen."
-        }
-      },
-      "delegates": {
-        "header": "Delegace úkolů",
-        "title": "$t(content.identity.delegates.header)",
-        "empty": "Nenalezeny žádné nastavené delegace.",
-        "message": {
-          "save": {
-            "success": "Uložení delegace na uživatele [{{delegate}}] úspěšně proběhlo."
-          },
-          "delete": {
-            "confirm": {
-              "title": "Odebrání delegace",
-              "message": "Opravdu chcete odebrat delegaci na uživatele <strong>{{delegate}}</strong>?"
-            },
-            "success": "Odebrání delegace na uživatele [{{delegate}}] proběhlo úspěšně."
-          }
-        },
-        "button": {
-          "add": "Přidat delegaci",
-          "delete": "Odebrat delegaci na uživatele {{delegate}}"
-        },
-        "create": {
-          "header": "Nová delegace",
-          "button": {
-            "save": "Uložit delegaci",
-            "saving": "Ukládám delegaci ..."
-          }
-        },
-        "delete": {
-          "header": "Probíhá odebírání delegace"
         }
       },
       "subordinates": {
@@ -4099,6 +4145,46 @@
       "properties": {
         "label": "Nastavení",
         "help": "Další konfigurační položky."
+      }
+    },
+    "DelegationDefinition" : {
+      "_type": "Definice delegace",
+      "type": {
+        "label": "Typ delegace",
+        "help": "Definuje, v jaké situaci bude tato delegace použita."
+      },
+      "validFrom": {
+        "label": "$t(entity.validFrom)"
+      },
+      "validTill": {
+        "label": "$t(entity.validTill)"
+      },
+      "delegator": {
+        "label": "Delegováno od koho"
+      },
+      "delegatorContract": {
+        "label": "Kontrakt delegujícího"
+      },
+      "delegate": {
+        "label": "Delegováno na koho"
+      },
+      "description": {
+        "label": "Popis"
+      }
+    },
+    "Delegation" : {
+      "_type": "Delegované úkoly",
+      "definition": {
+        "label": "Definice delegace"
+      },
+      "ownerId": {
+        "label": "Delegovaný úkol"
+      },
+      "ownerType": {
+        "label": "Type cíle delegace"
+      },
+      "ownerState": {
+        "label": "Stav úkolu"
       }
     },
     "FormAttribute" : {
@@ -5739,6 +5825,11 @@
         "label": "$t(action.delete.action) projekce",
         "help": "Smaže vybrané projekce. Uživatelé s mazanou projekcí budou přepnuty na výchozí projekci.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-delegation-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) definic delegací",
+        "help": "Smaže vybrané definice.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {
@@ -7377,6 +7468,18 @@
     "EXPORT_IMPORT_FILTER_PARENT_FIELD_MUST_BE_UUID": {
       "title": "Export/Import selhal!",
       "message": "Rodičovská položka [{{field}}] musí mít datový typ UUID!"
+    },
+    "DELEGATION_UNSUPPORTED_TYPE": {
+      "title": "Type delegace není podporován!",
+      "message": "Typ delegace [{{type}}] není podporován!"
+    },
+    "DELEGATION_DEFINITION_CANNOT_BE_UPDATED": {
+      "title": "Delegace nemůže být upravena!",
+      "message": "Definice delegace nemůže být modifikována. Můžete zkusit odstranit existující a vytvořte novou."
+    },
+    "DELEGATION_DEFINITION_DELEGATOR_AND_DELEGATE_ARE_SAME": {
+      "title": "Delegující a delegovaný nemohou být stejní!",
+      "message": "Delegující a delegovaný nemohou být stejní v rámci stejné delegace!"
     }
   },
   "validationError": {

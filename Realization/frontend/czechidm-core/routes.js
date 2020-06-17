@@ -126,6 +126,28 @@ module.exports = {
           path: 'events',
           component: require('./src/content/identity/IdentityEvents'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN' ] } ]
+        },
+        {
+          path: 'delegation-definitions/',
+          component: require('./src/content/identity/IdentityDelegations'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ' ] } ]
+        },
+        {
+          path: 'delegation-definitions/:delegationId',
+          component: require('./src/content/identity/IdentityDelegationDefinitionRoutes'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ],
+          childRoutes: [
+            {
+              path: 'detail',
+              component: require('./src/content/delegation/DelegationDefinitionDetail'),
+              access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ]
+            },
+            {
+              path: 'delegations',
+              component: require('./src/content/delegation/Delegations'),
+              access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ]
+            }
+          ]
         }
       ]
     },
@@ -856,6 +878,28 @@ module.exports = {
           path: ':entityId/localization',
           component: require('./src/content/form/FormProjectionLocalization'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
+        }
+      ]
+    },
+    {
+      path: '/delegation-definitions',
+      component: require('./src/content/delegation/DelegationDefinitions'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ]
+    },
+    {
+      path: '/delegation-definitions/:delegationId',
+      component: require('./src/content/delegation/DelegationDefinitionRoutes'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/delegation/DelegationDefinitionDetail'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ]
+        },
+        {
+          path: 'delegations',
+          component: require('./src/content/delegation/Delegations'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ]
         }
       ]
     },

@@ -20,10 +20,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
+import eu.bcvsolutions.idm.core.api.service.DelegationManager;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmDelegation_;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataWrapperDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -34,28 +40,32 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
+import java.util.List;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.data.domain.Page;
 
 /**
  * Rest controller for workflow instance tasks
- * 
+ *
  * TODO: secure endpoints
- * 
+ *
  * @author svandav
  *
  */
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/workflow-tasks")
 @Api(
-		value = WorkflowTaskInstanceController.TAG,  
-		tags = { WorkflowTaskInstanceController.TAG }, 
+		value = WorkflowTaskInstanceController.TAG,
+		tags = {WorkflowTaskInstanceController.TAG},
 		description = "Running WF tasks",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class WorkflowTaskInstanceController extends AbstractReadDtoController<WorkflowTaskInstanceDto, WorkflowFilterDto> {
 
-
 	protected static final String TAG = "Workflow - task instances";
-	//
+
+	@Autowired
+	private DelegationManager delegationManager;
 	private final WorkflowTaskInstanceService workflowTaskInstanceService;
 
 	@Autowired
@@ -65,33 +75,33 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 		//
 		this.workflowTaskInstanceService = entityService;
 	}
-	
+
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.WORKFLOW_TASK_READ + "')")
 	@ApiOperation(
-			value = "Search task instances", 
-			nickname = "searchTaskInstances", 
-			tags = { WorkflowTaskInstanceController.TAG }, 
+			value = "Search task instances",
+			nickname = "searchTaskInstances",
+			tags = {WorkflowTaskInstanceController.TAG},
 			authorizations = {
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "") }),
-				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "") })
-				})
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+			@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+			@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "")})
+			})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable) {
 		return super.find(parameters, pageable);
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, value = "/{backendId}")
 	@ApiOperation(
-			value = "Historic task instance detail", 
-			nickname = "getHistoricTaskInstance", 
-			response = WorkflowTaskInstanceDto.class, 
-			tags = { WorkflowTaskInstanceController.TAG })
+			value = "Historic task instance detail",
+			nickname = "getHistoricTaskInstance",
+			response = WorkflowTaskInstanceDto.class,
+			tags = {WorkflowTaskInstanceController.TAG})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Task instance id.", required = true)
 			@PathVariable String backendId) {
@@ -100,13 +110,13 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/complete")
 	@ApiOperation(
-			value = "Complete task instance", 
+			value = "Complete task instance",
 			nickname = "completeTaskInstance",
-			tags = { WorkflowTaskInstanceController.TAG },
+			tags = {WorkflowTaskInstanceController.TAG},
 			notes = "Complete task with given decision.")
 	public void completeTask(
 			@ApiParam(value = "Task instance id.", required = true)
-			@PathVariable String backendId, 
+			@PathVariable String backendId,
 			@ApiParam(value = "Complete decision, variables etc.", required = true)
 			@RequestBody FormDataWrapperDto formData) {
 		workflowTaskInstanceService.completeTask(backendId, formData.getDecision(), formData.getFormData(), formData.getVariables());
@@ -117,23 +127,59 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{backendId}/permissions")
 	@ApiOperation(
-			value = "Historic task instance detail", 
-			nickname = "getHistoricTaskInstance", 
-			response = WorkflowTaskInstanceDto.class, 
-			tags = { WorkflowTaskInstanceController.TAG })
+			value = "Historic task instance detail",
+			nickname = "getHistoricTaskInstance",
+			response = WorkflowTaskInstanceDto.class,
+			tags = {WorkflowTaskInstanceController.TAG})
+	@Override
 	public Set<String> getPermissions(
 			@ApiParam(value = "Task instance id.", required = true)
 			@PathVariable String backendId) {
 		WorkflowTaskInstanceDto taskInstanceDto = workflowTaskInstanceService.get(backendId);
 		return workflowTaskInstanceService.getPermissions(taskInstanceDto);
 	}
-	
+
 	@Override
 	// We need override that method (#1320). Parent using lookup service for get DTO. Lookup
 	// service get DTO without permissions and after that check permission on READ.
 	// Without permissions is loaded Task with all buttons (canExecute is true). We
 	// need call direct service with Permission.READ!
 	public WorkflowTaskInstanceDto getDto(Serializable backendId) {
-		return getService().get(backendId, IdmBasePermission.READ);
+		WorkflowTaskInstanceDto dto = getService().get(backendId, IdmBasePermission.READ);
+		// Add delegation to a task.
+		addDelegationToTask(dto, IdmBasePermission.READ);
+
+		return dto;
+	}
+
+	@Override
+	public Page<WorkflowTaskInstanceDto> find(WorkflowFilterDto filter, Pageable pageable, BasePermission permission) {
+		Page<WorkflowTaskInstanceDto> results = super.find(filter, pageable, permission);
+		// Add delegation to a tasks.
+		results.getContent()
+				.forEach(task -> addDelegationToTask(task, permission));
+
+		return results;
+	}
+
+	/**
+	 * Find and add definition of the delegation connected with this task.
+	 *
+	 * @param dto
+	 */
+	private void addDelegationToTask(WorkflowTaskInstanceDto dto, BasePermission... permission) {
+		if (dto != null && dto.getId() != null) {
+			// We need to create mock task, because DTO can be instance of historic task here.
+			WorkflowTaskInstanceDto mockTask = new WorkflowTaskInstanceDto();
+			mockTask.setId(dto.getId());
+			List<IdmDelegationDto> delegations = delegationManager.findDelegationForOwner(mockTask, permission);
+			// TODO: ONLY first delegation definition is sets to the task!
+			if (!CollectionUtils.isEmpty(delegations)) {
+				IdmDelegationDto delegation = delegations.get(0);
+				IdmDelegationDefinitionDto definition = DtoUtils.getEmbedded(delegation,
+						IdmDelegation_.definition.getName(), IdmDelegationDefinitionDto.class);
+				dto.setDelegationDefinition(definition);
+			}
+		}
 	}
 }

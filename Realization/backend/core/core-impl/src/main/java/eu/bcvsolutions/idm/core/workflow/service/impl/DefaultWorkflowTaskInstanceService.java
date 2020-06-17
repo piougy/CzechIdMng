@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -127,7 +126,7 @@ public class DefaultWorkflowTaskInstanceService extends
 			taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE,
 					formData.get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE));
 		}
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(WorkflowTaskInstanceService.WORKFLOW_DECISION, decision);
 		if (formData != null) {
 			properties.putAll(formData);
@@ -218,8 +217,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		// Add applicant username to task dto (for easier work)
 		if (processVariables != null
 				&& processVariables.containsKey(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER)) {
-			dto.setApplicant(
-					(String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER).toString());
+			dto.setApplicant(processVariables.get(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER).toString());
 		}
 
 		dto.setVariables(processVariables);
@@ -327,6 +325,11 @@ public class DefaultWorkflowTaskInstanceService extends
 			});
 		}
 	}
+	
+	@Override
+	public Object getProcessVariable(String taskId, String key) {
+		return taskService.getVariableInstance(taskId, key);
+	}
 
 	private FormDataDto historyToResource(FormProperty property, List<WorkflowHistoricTaskInstanceDto> history) {
 		FormDataDto dto = new FormDataDto();
@@ -391,10 +394,7 @@ public class DefaultWorkflowTaskInstanceService extends
 	 */
 	private boolean canReadAllTask(BasePermission... permission) {
 		// TODO: Implement check on permission (READ, UPDATE ...). Permissions are uses only for skip rights check now!
-		if (permission == null || securityService.isAdmin() || securityService.hasAnyAuthority(CoreGroupPermission.WORKFLOW_TASK_ADMIN)) {
-			return true;
-		}
-		return false;
+		return permission == null || securityService.isAdmin() || securityService.hasAnyAuthority(CoreGroupPermission.WORKFLOW_TASK_ADMIN);
 	}
 
 	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable, BasePermission... permission) {
@@ -443,9 +443,9 @@ public class DefaultWorkflowTaskInstanceService extends
 			query.taskCreatedBefore(Date.from(filter.getCreatedBefore().toInstant()));
 		}
 		if (equalsVariables != null) {
-			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
+			equalsVariables.entrySet().forEach((entry) -> {
 				query.processVariableValueEquals(entry.getKey(), entry.getValue());
-			}
+			});
 		}
 
 		if (filter.getCandidateOrAssigned() != null) {
@@ -475,10 +475,10 @@ public class DefaultWorkflowTaskInstanceService extends
 
 		List<WorkflowTaskInstanceDto> dtos = new ArrayList<>();
 		if (tasks != null) {
-			for (Task task : tasks) {
+			tasks.forEach((task) -> {
 				dtos.add(toResource(task, permission));
-			}
+			});
 		}
-		return new PageImpl<WorkflowTaskInstanceDto>(dtos, pageable, count);
+		return new PageImpl<>(dtos, pageable, count);
 	}
 }

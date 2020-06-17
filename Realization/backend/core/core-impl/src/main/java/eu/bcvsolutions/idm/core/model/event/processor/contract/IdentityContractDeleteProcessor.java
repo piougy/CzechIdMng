@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmDelegationDefinitionFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -30,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
+import eu.bcvsolutions.idm.core.api.service.IdmDelegationDefinitionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -56,6 +58,7 @@ public class IdentityContractDeleteProcessor
 	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired private IdmContractPositionService contractPositionService;
 	@Autowired private IdmContractSliceService contractSliceService;
+	@Autowired private IdmDelegationDefinitionService delegationDefinitionService;
 	
 	public IdentityContractDeleteProcessor() {
 		super(IdentityContractEventType.DELETE);
@@ -129,10 +132,16 @@ public class IdentityContractDeleteProcessor
 			// This contract is controlled by some slice -> cannot be deleted
 			throw new ResultCodeException(CoreResultCode.CONTRACT_IS_CONTROLLED_CANNOT_BE_DELETED, ImmutableMap.of("contractId", contract.getId()));
 		}
+		//
+		// delete all contract's delegations 
+		IdmDelegationDefinitionFilter delegationFilter = new IdmDelegationDefinitionFilter();
+		delegationFilter.setDelegatorContractId(contract.getId());
+		delegationDefinitionService.find(delegationFilter,  null).forEach(delegation -> {
+			delegationDefinitionService.delete(delegation);
+		});
 		
 		// delete identity contract
 		service.deleteInternal(contract);
-		//
 		return new DefaultEventResult<>(event, this);
 	}
 }

@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import DecisionButtons from '../DecisionButtons';
 import DynamicTaskDetail from '../DynamicTaskDetail';
 import { RoleManager, TreeNodeManager } from '../../../redux';
@@ -37,16 +38,18 @@ class AutomaticRoleTaskDetail extends DynamicTaskDetail {
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
 
-        <Basic.PageHeader>{task.taskName}
-          <small> {this.i18n('header')}</small>
-        </Basic.PageHeader>
+        {this.renderHeader(task)}
 
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden"/>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
             {this._getApplicantAndRequester(task)}
-            <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
+            <Basic.LabelWrapper
+              ref="taskCreated"
+              label={this.i18n('createdDate')}>
+              <Advanced.DateValue value={task ? task.taskCreated : null} showTime/>
+            </Basic.LabelWrapper>
           </Basic.AbstractForm>
         </Basic.Panel>
         <Basic.Panel showLoading = {showLoadingInternal}>

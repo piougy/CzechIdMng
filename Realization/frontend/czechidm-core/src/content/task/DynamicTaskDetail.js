@@ -1,5 +1,4 @@
 
-
 import PropTypes from 'prop-types';
 
 import React from 'react';
@@ -9,8 +8,12 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import UiUtils from '../../utils/UiUtils';
 import IdentityInfo from '../../components/advanced/IdentityInfo/IdentityInfo';
+import EntityInfo from '../../components/advanced/EntityInfo/EntityInfo';
+import DetailHeader from '../../components/advanced/Content/DetailHeader';
 import TaskHistoricInfo from '../../components/advanced/TaskHistoricInfo/TaskHistoricInfo';
 import WorkflowTaskInfo from '../../components/advanced/WorkflowTaskInfo/WorkflowTaskInfo';
+import WorkflowProcessInfo from '../../components/advanced/WorkflowProcessInfo/WorkflowProcessInfo';
+import DateValue from '../../components/advanced/DateValue/DateValue';
 import DecisionButtons from './DecisionButtons';
 
 /**
@@ -107,19 +110,44 @@ class DynamicTaskDetail extends Basic.AbstractContent {
 
   _getApplicantAndRequester(task) {
     if (task) {
+      const delegation = task.delegationDefinition;
+      const type = UiUtils.getSimpleJavaType(task._dtotype);
+      const isHistoricTask = type === 'WorkflowHistoricTaskInstanceDto';
+
       return (
-        <div>
-          <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
-            <IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
-          </Basic.LabelWrapper>
-          <Basic.LabelWrapper
-            rendered={task.variables.implementerIdentifier}
-            readOnly
-            ref="implementerIdentifier"
-            label={this.i18n('implementerIdentifier')}>
-            <IdentityInfo entityIdentifier={task.variables.implementerIdentifier} showLoading={!task} className="no-margin" face="popover"/>
-          </Basic.LabelWrapper>
-        </div>
+        <Basic.Row>
+          <Basic.Col lg={ 8 }>
+            <div>
+              <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
+                <IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
+              </Basic.LabelWrapper>
+              <Basic.LabelWrapper
+                rendered={task.variables.implementerIdentifier}
+                readOnly
+                ref="implementerIdentifier"
+                label={this.i18n('implementerIdentifier')}>
+                <IdentityInfo
+                  entityIdentifier={task.variables.implementerIdentifier}
+                  showLoading={!task}
+                  className="no-margin"
+                  face="popover"/>
+              </Basic.LabelWrapper>
+            </div>
+          </Basic.Col>
+          <Basic.Col lg={ 4 } rendered={!!delegation} style={{paddingTop: 23}}>
+            <EntityInfo
+              entityType="DelegationDefinitionDto"
+              entityIdentifier={delegation ? delegation.id : null}
+              face="full"
+              level="info"
+              entity={delegation}
+              showEntityType
+              showLink
+              collapse={!isHistoricTask}
+              collapsable
+              showIcon/>
+          </Basic.Col>
+        </Basic.Row>
       );
     }
     return null;
@@ -129,12 +157,15 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     if (task) {
       const type = UiUtils.getSimpleJavaType(task._dtotype);
       const isHistoricTask = type === 'WorkflowHistoricTaskInstanceDto';
+
       return (
         <Basic.Div>
           <Basic.Div>
             <TaskHistoricInfo
               rendered={isHistoricTask}
               level="info"
+              collapse
+              collapsable
               entity={task}
               titleStyle={{fontSize: 'medium'}}/>
           </Basic.Div>
@@ -292,23 +323,53 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     return formDataComponents;
   }
 
+  renderHeader(task) {
+    const {taskManager} = this.props;
+
+    const taskName = taskManager.localize(task, 'name');
+    const options = [];
+    options.push(
+      {
+        label: this.i18n('content.task.historicInstance.process'),
+        value: (
+          <WorkflowProcessInfo entityIdentifier={task.processInstanceId} maxLength={50}/>
+        )
+      }
+    );
+
+    return (
+      <DetailHeader
+        entity={ task }
+        additionalOptions={options}>
+        {taskName}
+        <small>
+          {' '}
+          {this.i18n('header')}
+        </small>
+      </DetailHeader>
+    );
+  }
+
   render() {
-    const {task, canExecute, taskManager} = this.props;
+    const {task, canExecute} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
     const formDataValues = this._toFormDataValues(task.formData);
-    const taskName = taskManager.localize(task, 'name');
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
-        <Basic.PageHeader>{taskName}
-          <small> {this.i18n('header')}</small>
-        </Basic.PageHeader>
+        {this.renderHeader(task)}
         <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             {this._getTaskInfo(task)}
             {this._getApplicantAndRequester(task)}
+            <Basic.LabelWrapper
+              ref="taskCreated"
+              label={this.i18n('createdDate')}>
+              <DateValue value={task ? task.taskCreated : null} showTime/>
+            </Basic.LabelWrapper>
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
           <Basic.AbstractForm ref="formData" data={formDataValues} className="panel-body">

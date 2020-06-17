@@ -1124,7 +1124,8 @@
       "TOKEN": "Token",
       "GENERATEVALUE": "Value generate",
       "PASSWORD": "Users passwords",
-      "EXPORTIMPORT": "Export/Import"
+      "EXPORTIMPORT": "Export/Import",
+      "DELEGATIONDEFINITION": "Delegation"
     }
   },
   "content": {
@@ -1501,6 +1502,10 @@
         "role": {
           "currentRoles": "Currently assigned roles",
           "conceptIdentityRoles": "Applicant's roles"
+        },
+        "delegation": {
+          "header": "Delegated task",
+          "text": "This task was delegated to you."
         }
       },
       "historicInstance": {
@@ -1997,6 +2002,78 @@
         "how-to": {
           "header": "How to",
           "message": "Form projection localization can be defined in module <strong class=\"highlight\">{{name}}</strong> (in the <strong>eav</strong> section):"
+        }
+      }
+    },
+    "delegation-definitions": {
+      "header": "Delegations",
+      "title": "Definitions of delegation",
+      "label": "Delegations",
+      "detailHeader": "Delegation <small>({{delegator}} -> {{delegate}})</small>",
+      "edit": {
+        "title": "Detail for definition of delegation"
+      },
+      "create": {
+        "title": "New definition of delegation",
+        "header": "New definition of delegation"
+      },
+      "filter": {
+        "delegator": {
+          "placeholder": "Delegator"
+        },
+        "delegate": {
+          "placeholder": "Delegate"
+        }
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "save": {
+        "success": "Definition of delegation was successfully saved"
+      },
+      "delegations": {
+        "label": "Delegated tasks",
+        "header": "Delegated tasks",
+        "title": "Delegated tasks",
+        "filter": {
+          "delegator": {
+            "placeholder": "Delegator"
+          },
+          "delegate": {
+            "placeholder": "Delegate"
+          }
+        }
+      },
+      "types": {
+        "default-delegation-type": {
+          "label": "Default delegation for all tasks",
+          "info": {
+            "header": "Default delegation for all tasks",
+            "text": "It will be used for all tasks for which no other delegation is defined (with a more specific type)."
+          }
+        },
+        "approve-role-by-manager-delegation-type": {
+          "label": "Tasks approving role assignments by a manager",
+          "info": {
+            "header": "Delegation for role assignment according to the manager",
+            "text": "Tasks related to the contract."
+          }
+        },
+        "approving-role-request-delegation-type": {
+          "label": "Delegation for tasks approves change of authorization (whole request)"
+        }
+      },
+      "identity-is-delegator": "Who am I delegating to",
+      "identity-is-delegate": "Who delegates to me",
+      "button": {
+        "add-delegation": {
+          "label": "Create a delegation",
+          "header": "New delegation",
+          "text": "Creates a new rule for delegating your tasks to someone else.",
+          "title": {
+            "disabled": "You do not have permission to create delegations.",
+            "tooltip": "Creates a new rule for delegating your tasks to someone else."
+          }
         }
       }
     },
@@ -2992,37 +3069,6 @@
         },
         "message": {
           "success": "User [{{username}}] successfully created."
-        }
-      },
-      "delegates": {
-        "header": "Delegate tasks",
-        "title": "$t(content.identity.delegates.header)",
-        "empty": "No set delegations found.",
-        "message": {
-          "save": {
-            "success": "Delegation to user [{{delegate}}] was successful."
-          },
-          "delete": {
-            "confirm": {
-              "title": "Remove delegation",
-              "message": "Do you really want to remove delegation on user <strong>{{delegate}}</strong>?"
-            },
-            "success": "Delegation on user [{{delegate}}] successfully removed."
-          }
-        },
-        "button": {
-          "add": "Add delegation",
-          "delete": "Remove delegation from user {{delegate}}"
-        },
-        "create": {
-          "header": "New delegation",
-          "button": {
-            "save": "Save delegation",
-            "saving": "Saving delegation ..."
-          }
-        },
-        "delete": {
-          "header": "Processing removing delegation"
         }
       },
       "subordinates": {
@@ -4046,6 +4092,46 @@
       "properties": {
         "label": "Properties",
         "help": "Additional projection properties."
+      }
+    },
+    "DelegationDefinition" : {
+      "_type": "Definition of delegation",
+      "type": {
+        "label": "Delegation type",
+        "help": "Defines in which situation this delegation will be used."
+      },
+      "validFrom": {
+        "label": "$t(entity.validFrom)"
+      },
+      "validTill": {
+        "label": "$t(entity.validTill)"
+      },
+      "delegator": {
+        "label": "Delegator"
+      },
+      "delegatorContract": {
+        "label": "Delegator's contract"
+      },
+      "delegate": {
+        "label": "Delegate"
+      },
+      "description": {
+        "label": "Description"
+      }
+    },
+    "Delegation" : {
+      "_type": "Delegation",
+      "definition": {
+        "label": "Definition of the delegation"
+      },
+      "ownerId": {
+        "label": "Task"
+      },
+      "ownerType": {
+        "label": "Delegation target type"
+      },
+      "ownerState": {
+        "label": "Task state"
       }
     },
     "FormAttribute" : {
@@ -5687,6 +5773,11 @@
         "label": "$t(action.delete.action) projections",
         "help": "$t(action.delete.action) selected projections. Users with deleted projection will be switched to default projection.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-delegation-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) definitions of delegations",
+        "help": "$t(action.delete.action) selected definitions.",
+        "icon": "$t(action.delete.icon)"
       }
     },
     "authorization-evaluator": {
@@ -7325,6 +7416,18 @@
     "EXPORT_IMPORT_FILTER_PARENT_FIELD_MUST_BE_UUID": {
       "title": "Export/Import failed!",
       "message": "Parent field [{{field}}] must have a UUID data type!"
+    },
+    "DELEGATION_UNSUPPORTED_TYPE": {
+      "title": "Delegation type is not supported!",
+      "message": "Delegation type [{{type}}] is not supported!"
+    },
+    "DELEGATION_DEFINITION_CANNOT_BE_UPDATED": {
+      "title": "The delegation cannot be modified!",
+      "message": "The definition of delegation cannot be modified. You can try delete the existing one and create a new one."
+    },
+    "DELEGATION_DEFINITION_DELEGATOR_AND_DELEGATE_ARE_SAME": {
+      "title": "The delegator and the delegate cannot be the same!",
+      "message": "Delegator and delegate cannot be the same within the same delegation!"
     }
   },
   "validationError": {

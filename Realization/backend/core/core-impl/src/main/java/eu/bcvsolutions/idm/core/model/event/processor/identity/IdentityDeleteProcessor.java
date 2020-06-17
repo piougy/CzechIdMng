@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleValidRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmDelegationDefinitionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmProfileFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
@@ -28,6 +29,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.IdentityProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
+import eu.bcvsolutions.idm.core.api.service.IdmDelegationDefinitionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleValidRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -66,6 +68,8 @@ public class IdentityDeleteProcessor
 	@Autowired private IdmContractSliceService contractSliceService;
 	@Autowired private IdmContractSliceGuaranteeService contractSliceGuaranteeService;
 	@Autowired private IdmProfileService profileService;
+	@Autowired private IdmDelegationDefinitionService delegationDefinitionService;
+	
 
 	public IdentityDeleteProcessor() {
 		super(IdentityEventType.DELETE);
@@ -138,9 +142,23 @@ public class IdentityDeleteProcessor
 		// remove all IdentityRoleValidRequest for this identity
 		List<IdmIdentityRoleValidRequestDto> validRequests = identityRoleValidRequestService.findAllValidRequestForIdentityId(identity.getId());
 		identityRoleValidRequestService.deleteAll(validRequests);
+		//
+		// delete all identity's delegations - delegate
+		IdmDelegationDefinitionFilter delegationFilter = new IdmDelegationDefinitionFilter();
+		delegationFilter.setDelegateId(identity.getId());
+		delegationDefinitionService.find(delegationFilter,  null).forEach(delegation -> {
+			delegationDefinitionService.delete(delegation);
+		});
+		//
+		// delete all identity's delegations - delegator
+		delegationFilter = new IdmDelegationDefinitionFilter();
+		delegationFilter.setDelegatorId(identity.getId());
+		delegationDefinitionService.find(delegationFilter,  null).forEach(delegation -> {
+			delegationDefinitionService.delete(delegation);
+		});
 		// deletes identity
 		service.deleteInternal(identity);
-		//
+		
 		return new DefaultEventResult<>(event, this);
 	}
 

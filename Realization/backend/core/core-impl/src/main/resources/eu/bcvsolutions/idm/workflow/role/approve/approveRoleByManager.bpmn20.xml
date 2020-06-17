@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL ../../BPMN20.xsd" targetNamespace="eu.bcvsolutions.role.approve.add">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.approve.add" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL ../../BPMN20.xsd">
   <process id="approve-role-by-manager" name="Assign role idenity.  Approvers are all managers for given applicant." isExecutable="true">
     <documentation>Approval workflow for assign new role to identity or change validity dates on assigned role. Approvers are all managers for given applicant.
 
@@ -209,6 +209,11 @@ if(!skip){
         <activiti:value>false</activiti:value>
       </extensionElements>
     </dataObject>
+    <dataObject id="delegationType" name="delegationType" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>approve-role-by-manager-delegation-type</activiti:value>
+      </extensionElements>
+    </dataObject>
     <textAnnotation id="textannotation1">
       <text>Assign role to identity</text>
     </textAnnotation>
@@ -313,7 +318,7 @@ if(!skip){
         <omgdi:waypoint x="980.0" y="366.0"></omgdi:waypoint>
         <omgdi:waypoint x="981.0" y="418.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="61.0" x="1001.0" y="381.0"></omgdc:Bounds>
+          <omgdc:Bounds height="48.0" width="61.0" x="1001.0" y="381.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
@@ -329,7 +334,7 @@ if(!skip){
         <omgdi:waypoint x="1247.0" y="366.0"></omgdi:waypoint>
         <omgdi:waypoint x="1248.0" y="413.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="99.0" x="1252.0" y="390.0"></omgdc:Bounds>
+          <omgdc:Bounds height="48.0" width="99.0" x="1252.0" y="390.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">

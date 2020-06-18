@@ -146,7 +146,9 @@ public class DefaultImportManager implements ImportManager {
 			batch = exportImportService.save(batch, permission);
 		} finally {
 			// Delete temp files.
-			FileSystemUtils.deleteRecursively(tempDirectory.toFile());
+			if (tempDirectory != null) {
+				FileSystemUtils.deleteRecursively(tempDirectory.toFile());
+			}
 		}
 
 		return batch;
@@ -227,8 +229,9 @@ public class DefaultImportManager implements ImportManager {
 			return context;
 		} finally {
 			// Delete temp files.
-			FileSystemUtils.deleteRecursively(tempDirectory.toFile());
-			
+			if (tempDirectory != null) {
+				FileSystemUtils.deleteRecursively(tempDirectory.toFile());
+			}
 			LOG.info("Internal import [{}, dry-run: {}] ended", batch.toString(), dryRun);
 		}
 	}

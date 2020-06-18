@@ -3284,7 +3284,7 @@
     "organizations": {
       "header": "Organizační struktura",
       "title": "Organizační struktura",
-      "label": "Organizace",
+      "label": "Organizační struktura",
       "defaultTreeType": {
         "empty": {
           "message": "Výchozí organizační struktura není nakonfigurována.",

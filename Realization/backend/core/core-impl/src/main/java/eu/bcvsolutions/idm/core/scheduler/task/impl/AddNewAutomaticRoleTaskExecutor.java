@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import com.google.common.collect.ImmutableMap;
@@ -81,11 +82,9 @@ public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	
 	@Override
 	public Page<IdmIdentityContractDto> getItemsToProcess(Pageable pageable) {
-		return identityContractService.findByWorkPosition(
-				getRoleTreeNode().getTreeNode(), 
-				getRoleTreeNode().getRecursionType(), 
-				pageable
-		);
+		List<IdmIdentityContractDto> contracts = identityContractService
+				.findAllByWorkPosition(getRoleTreeNode().getTreeNode(), getRoleTreeNode().getRecursionType());
+		return new PageImpl<>(contracts);
 	}
 	
 	@Override

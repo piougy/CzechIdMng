@@ -46,6 +46,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -265,19 +267,21 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	private Set<UUID> processContracts(IdmRoleTreeNodeDto automaticRole) {
 		Set<UUID> processedIdentityRoles = new HashSet<>();
 		//
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+		filter.setWorkPosition(automaticRole.getTreeNode());
+		filter.setRecursionType(automaticRole.getRecursionType());
+		filter.setValidNowOrInFuture(Boolean.TRUE);
+		//
 		Pageable pageable = PageRequest.of(
 				0, 
 				getPageSize(),
 				new Sort(Direction.ASC, BaseEntity.PROPERTY_ID)
 		);
+		//
 		boolean canContinue = true;
 		//
 		do {
-			Page<IdmIdentityContractDto> contracts = identityContractService.findByWorkPosition(
-					automaticRole.getTreeNode(), 
-					automaticRole.getRecursionType(),
-					pageable
-			);
+			Page<IdmIdentityContractDto> contracts = identityContractService.find(filter, pageable);
 			//
 			for (Iterator<IdmIdentityContractDto> i = contracts.iterator(); i.hasNext() && canContinue;) {
 				IdmIdentityContractDto contract = i.next();
@@ -321,6 +325,10 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	private Set<UUID> processPositions(IdmRoleTreeNodeDto automaticRole) {
 		Set<UUID> processedIdentityRoles = new HashSet<>();
 		//
+		IdmContractPositionFilter filter = new IdmContractPositionFilter();
+		filter.setWorkPosition(automaticRole.getTreeNode());
+		filter.setRecursionType(automaticRole.getRecursionType());
+		filter.setValidNowOrInFuture(Boolean.TRUE);
 		Pageable pageable = PageRequest.of(
 				0, 
 				getPageSize(),
@@ -329,11 +337,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		boolean canContinue = true;
 		//
 		do {
-			Page<IdmContractPositionDto> positions = contractPositionService.findByWorkPosition(
-					automaticRole.getTreeNode(), 
-					automaticRole.getRecursionType(),
-					pageable
-			);
+			Page<IdmContractPositionDto> positions = contractPositionService.find(filter, pageable);
 			//
 			for (Iterator<IdmContractPositionDto> i = positions.iterator(); i.hasNext() && canContinue;) {
 				IdmContractPositionDto position = i.next();
@@ -439,19 +443,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		IdmIdentityDto identity = getLookupService().lookupEmbeddedDto(contract, IdmIdentityContract_.identity);
 		IdmRoleDto role = getLookupService().lookupEmbeddedDto(automaticRole, IdmRoleTreeNode_.role);
 		//
-		try {	
-			if (!contract.isValidNowOrInFuture()) {
-				ResultModel resultModel = new DefaultResultModel(
-						CoreResultCode.AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID,
-						ImmutableMap.of(
-								"role", role.getCode(),
-								"roleTreeNode", automaticRoleId,
-								"identity", identity.getUsername()));
-				saveItemResult(contract, OperationState.NOT_EXECUTED, resultModel, null);
-				//
-				return processedIdentityRoles;
-			}
-			//
+		try {
 			List<IdmIdentityRoleDto> allByContract = identityRoleService.findAllByContract(contractId);
 			//
 			// skip already assigned automatic roles
@@ -529,18 +521,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		IdmIdentityDto identity = getLookupService().lookupEmbeddedDto(contract, IdmIdentityContract_.identity);
 		IdmRoleDto role = getLookupService().lookupEmbeddedDto(automaticRole, IdmRoleTreeNode_.role);
 		//
-		try {		
-			if (!contract.isValidNowOrInFuture()) {
-				ResultModel resultModel = new DefaultResultModel(
-						CoreResultCode.AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID,
-						ImmutableMap.of(
-								"role", role.getCode(),
-								"roleTreeNode", automaticRoleId,
-								"identity", identity.getUsername()));
-				saveItemResult(position, OperationState.NOT_EXECUTED, resultModel, null);
-				//
-				return processedIdentityRoles;
-			}
+		try {
 			List<IdmIdentityRoleDto> allByPosition = identityRoleService.findAllByContractPosition(positionId);
 			//
 			// skip already assigned automatic roles

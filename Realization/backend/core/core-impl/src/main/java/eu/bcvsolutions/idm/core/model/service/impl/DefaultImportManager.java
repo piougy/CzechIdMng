@@ -12,19 +12,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityManager;
 
 import org.apache.logging.log4j.util.Strings;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.FileSystemUtils;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -78,9 +82,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExe
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ImportTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
-import java.util.stream.Stream;
-import javax.persistence.EntityManager;
-import org.hibernate.Session;
 
 /**
  * Import manager
@@ -145,17 +146,7 @@ public class DefaultImportManager implements ImportManager {
 			batch = exportImportService.save(batch, permission);
 		} finally {
 			// Delete temp files.
-			try {
-				try (Stream<Path> paths = Files.walk(tempDirectory)) {
-					paths
-							.sorted(Comparator.reverseOrder())//
-							.map(Path::toFile)//
-							.forEach(File::delete);
-				}
-			} catch (IOException ex) {
-				// Only log a error.
-				LOG.error(ex.getLocalizedMessage(), ex);
-			}
+			FileSystemUtils.deleteRecursively(tempDirectory.toFile());
 		}
 
 		return batch;
@@ -236,17 +227,8 @@ public class DefaultImportManager implements ImportManager {
 			return context;
 		} finally {
 			// Delete temp files.
-			try {
-				try (Stream<Path> paths = Files.walk(tempDirectory)) {
-					paths//
-						.sorted(Comparator.reverseOrder())//
-						.map(Path::toFile)//
-						.forEach(File::delete);
-				}
-			} catch (IOException ex) {
-				// Only log a error.
-				LOG.error(ex.getLocalizedMessage(), ex);
-			}
+			FileSystemUtils.deleteRecursively(tempDirectory.toFile());
+			
 			LOG.info("Internal import [{}, dry-run: {}] ended", batch.toString(), dryRun);
 		}
 	}

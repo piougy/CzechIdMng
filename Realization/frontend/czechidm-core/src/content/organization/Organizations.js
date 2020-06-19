@@ -1,14 +1,14 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
-import { TreeTypeManager, TreeNodeManager, DataManager, SecurityManager } from '../../redux';
-import NodeTable from '../tree/node/NodeTable';
+import { TreeTypeManager, TreeNodeManager, DataManager } from '../../redux';
 
 /**
- * List of organizations
+ * Preselect default organizations for list of organizations.
  *
  * @author Radek Tomiška
  */
@@ -16,6 +16,7 @@ class Organizations extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    //
     this.treeTypeManager = new TreeTypeManager();
     this.treeNodeManager = new TreeNodeManager();
   }
@@ -29,12 +30,44 @@ class Organizations extends Basic.AbstractContent {
   }
 
   getManager() {
+    return this.treeNodeManager;
+  }
+
+  getTypeManager() {
     return this.treeTypeManager;
   }
 
   componentDidMount() {
     super.componentDidMount();
-    this.context.store.dispatch(this.getManager().fetchDefaultTreeType());
+    //
+    const selectedTypeId = this._getTypeIdFromParam();
+    if (selectedTypeId) {
+      this.context.history.push(`/tree/nodes?type=${ selectedTypeId }`);
+    } else {
+      this.context.store.dispatch(this.getTypeManager().fetchDefaultTreeType((defaultTreeType, error) => {
+        if (error) {
+          this.addError(error);
+        } else if (defaultTreeType) {
+          this.context.history.push(`/tree/nodes?type=${ defaultTreeType.id }`);
+        } else {
+          this.context.history.push('/tree/nodes');
+        }
+      }));
+    }
+  }
+
+  _getTypeIdFromParam() {
+    const { query } = this.props.location;
+    return (query) ? query.type : null;
+  }
+
+  onCreateType(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    const uuidId = uuid.v1();
+    this.context.history.push(`/tree/types/${ uuidId }?new=1`);
   }
 
   showTreeTypes() {
@@ -42,47 +75,14 @@ class Organizations extends Basic.AbstractContent {
   }
 
   render() {
-    const { defaultTreeType, showLoading } = this.props;
-    //
-    if (showLoading) {
-      return (
-        <div>
-          { this.renderPageHeader() }
-
-          <Basic.Panel>
-            <Basic.Loading isStatic show/>
-          </Basic.Panel>
-        </div>
-      );
-    }
-    //
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader() }
 
-        {
-          !defaultTreeType
-          ?
-          <Basic.Alert
-            text={this.i18n('defaultTreeType.empty.message')}
-            buttons={[
-              <Basic.Button
-                level="info"
-                rendered={ SecurityManager.hasAuthority('TREETYPE_CREATE') }
-                onClick={ this.showTreeTypes.bind(this) }>
-                { this.i18n('defaultTreeType.empty.button') }
-              </Basic.Button>
-            ]}>
-          </Basic.Alert>
-          :
-          <NodeTable
-            uiKey="organization-table"
-            type={ defaultTreeType }
-            treeNodeManager={ this.treeNodeManager }
-            showTreeTypeSelect={ false }/>
-        }
-
-      </div>
+        <Basic.Panel>
+          <Basic.Loading isStatic show/>
+        </Basic.Panel>
+      </Basic.Div>
     );
   }
 }

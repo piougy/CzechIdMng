@@ -53,20 +53,9 @@ public interface IdmIdentityContractService extends
 	 * @param recursion
 	 * @return
 	 * @see #findByWorkPosition(UUID, RecursionType, Pageable)
-	 * @deprecated @since 10.4.0 use {@link #findByWorkPosition(UUID, RecursionType, Pageable)}
+	 * @deprecated @since 10.4.0 use {@link IdmIdentityContractFilter#PARAMETER_RECURSION_TYPE}
 	 */
 	List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion);
-	
-	/**
-	 * Returns identity contracts, where fits contract work position with given work position by recursionType.
-	 * 
-	 * @param workPositionId tree node
-	 * @param recursion recursion type
-	 * @param pageable page, size, sort
-	 * @return contracts
-	 * @since 10.4.0
-	 */
-	Page<IdmIdentityContractDto> findByWorkPosition(UUID workPositionId, RecursionType recursion, Pageable pageable);
 	
 	/**
 	 * Returns expired contracts

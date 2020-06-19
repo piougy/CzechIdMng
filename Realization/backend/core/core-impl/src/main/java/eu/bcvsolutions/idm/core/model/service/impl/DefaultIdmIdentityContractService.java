@@ -42,6 +42,7 @@ import eu.bcvsolutions.idm.core.api.utils.RepositoryUtils;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -161,8 +162,9 @@ public class DefaultIdmIdentityContractService
 						);
 			}
 		}
-		if (filter.getValidNowOrInFuture() != null) {
-			if (filter.getValidNowOrInFuture()) {
+		Boolean validNowOrInFuture = filter.getValidNowOrInFuture();
+		if (validNowOrInFuture != null) {
+			if (validNowOrInFuture) {
 				predicates.add(
 						builder.and(
 								builder.or(
@@ -181,8 +183,44 @@ public class DefaultIdmIdentityContractService
 		if (StringUtils.isNotEmpty(filter.getPosition())) {
 			predicates.add(builder.equal(root.get(IdmIdentityContract_.position), filter.getPosition()));
 		}
-		if (filter.getWorkPosition() != null) {
-			predicates.add(builder.equal(root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.id), filter.getWorkPosition()));
+		UUID workPosition = filter.getWorkPosition();
+		if (workPosition != null) {
+			RecursionType recursionType = filter.getRecursionType();
+			if (recursionType == RecursionType.NO) {
+				// NO recursion => equals on work position only.
+				predicates.add(builder.equal(root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.id), filter.getWorkPosition()));
+			} else {
+				// prepare subquery for tree nodes and index
+				Subquery<IdmTreeNode> subqueryTreeNode = query.subquery(IdmTreeNode.class);
+				Root<IdmTreeNode> subqueryTreeNodeRoot = subqueryTreeNode.from(IdmTreeNode.class);
+				subqueryTreeNode.select(subqueryTreeNodeRoot);
+				//
+				if (recursionType == RecursionType.DOWN) {
+					subqueryTreeNode.where(
+							builder.and(
+									builder.equal(subqueryTreeNodeRoot.get(IdmTreeNode_.id), workPosition),
+									builder.equal(root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType), subqueryTreeNodeRoot.get(IdmTreeNode_.treeType)),
+									builder.between(
+											root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft), 
+		                    				subqueryTreeNodeRoot.get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft),
+		                    				subqueryTreeNodeRoot.get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.rgt)
+		                    		)
+							));
+				} else { // UP
+					subqueryTreeNode.where(
+							builder.and(
+									builder.equal(subqueryTreeNodeRoot.get(IdmTreeNode_.id), workPosition),
+									builder.equal(root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.treeType), subqueryTreeNodeRoot.get(IdmTreeNode_.treeType)),
+									builder.between(
+											subqueryTreeNodeRoot.get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft), 
+											root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft),
+											root.get(IdmIdentityContract_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.rgt)
+		                    		)
+							));
+				}
+				//
+				predicates.add(builder.exists(subqueryTreeNode));
+			}
 		}
 		Boolean excluded = filter.getExcluded();
 		if (excluded != null) {
@@ -224,20 +262,14 @@ public class DefaultIdmIdentityContractService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
+	public List<IdmIdentityContractDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursionType) {
 		Assert.notNull(workPositionId, "Work position is required to get related contracts.");
 		//
-		return findByWorkPosition(workPositionId, recursion, null).getContent();
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmIdentityContractDto> findByWorkPosition(UUID workPositionId, RecursionType recursion, Pageable pageable) {
-		Assert.notNull(workPositionId, "Work position is required to get related contracts.");
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+		filter.setWorkPosition(workPositionId);
+		filter.setRecursionType(recursionType);
 		//
-		return toDtoPage(
-				repository.findByWorkPosition(workPositionId, recursion == null ? RecursionType.NO : recursion, pageable)
-		);
+		return find(filter, null).getContent();
 	}
 
 	@Override

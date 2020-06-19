@@ -393,7 +393,70 @@ module.exports = {
         order: 1020,
         iconColor: '#419641',
         path: '/organizations',
-        access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREETYPE_AUTOCOMPLETE', 'TREENODE_READ'] } ]
+        access: [
+          { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREETYPE_AUTOCOMPLETE'] },
+          { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ', 'TREETYPE_READ'] }
+        ],
+        items: [
+          {
+            id: 'tree-nodes',
+            type: 'MAIN-MENU',
+            labelKey: 'content.organizations.label',
+            titleKey: 'content.organizations.title',
+            order: 100,
+            icon: 'fa:folder-open',
+            path: '/organizations',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ'] } ],
+            items: [
+              {
+                id: 'tree-node-detail',
+                type: 'TAB',
+                labelKey: 'content.tree.node.detail.label',
+                order: 10,
+                path: '/tree/nodes/:entityId/detail',
+                icon: 'fa:newspaper-o',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ'] } ]
+              },
+              {
+                id: 'tree-node-eav',
+                type: 'TAB',
+                labelKey: 'content.tree.node.eav.title',
+                order: 20,
+                path: '/tree/nodes/:entityId/eav',
+                access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREENODE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
+              },
+              {
+                id: 'tree-node-roles',
+                type: 'TAB',
+                labelKey: 'content.tree.node.roles.label',
+                titleKey: 'content.tree.node.roles.title',
+                order: 30,
+                icon: 'component:roles',
+                path: '/tree/nodes/:entityId/roles',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLETREENODE_READ'] } ]
+              },
+              {
+                id: 'tree-node-identities',
+                type: 'TAB',
+                labelKey: 'content.tree.node.identities.label',
+                titleKey: 'content.tree.node.identities.title',
+                order: 40,
+                icon: 'fa:group',
+                path: '/tree/nodes/:entityId/identities',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
+              }
+            ]
+          },
+          {
+            id: 'tree-types',
+            labelKey: 'content.tree.types.title',
+            titleKey: 'content.tree.types.title',
+            order: 200,
+            icon: 'fa:folder-open',
+            path: '/tree/types',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREETYPE_READ'] } ]
+          }
+        ]
       },
       {
         id: 'roles-menu',
@@ -404,7 +467,7 @@ module.exports = {
         iconColor: '#eb9316',
         order: 1030,
         path: '/roles',
-        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ'] } ],
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ', 'ROLECATALOGUE_READ'] } ],
         items: [
           {
             id: 'roles',
@@ -732,6 +795,27 @@ module.exports = {
                 ]
               }
             ]
+          },
+          {
+            id: 'role-catalogues',
+            labelKey: 'content.roleCatalogues.header',
+            titleKey: 'content.roleCatalogues.title',
+            icon: 'fa:list-alt',
+            iconColor: '#dad727',
+            order: 100,
+            path: '/role-catalogues',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ],
+            items: [
+              {
+                id: 'role-catalogue-detail',
+                type: 'TAB',
+                labelKey: 'content.roles.tabs.basic',
+                order: 200,
+                path: '/role-catalogue/:entityId/detail',
+                icon: 'fa:newspaper-o',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ]
+              }
+            ]
           }
         ]
       },
@@ -1010,8 +1094,8 @@ module.exports = {
           {
             type: 'HAS_ANY_AUTHORITY',
             authorities: [
-              'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ', 'GENERATEVALUE_READ',
-              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'FORMPROJECTION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ',
+              'CONFIGURATION_READ', 'MODULE_READ', 'GENERATEVALUE_READ',
+              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'FORMPROJECTION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ',
               'CONFIDENTIALSTORAGEVALUE_READ', 'CODELIST_READ', 'EXPORTIMPORT_READ'
             ]
           }
@@ -1192,96 +1276,6 @@ module.exports = {
             iconColor: '#428BCA',
             path: '/workflow/definitions',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
-          },
-          {
-            id: 'tree',
-            labelKey: 'content.tree.header',
-            titleKey: 'content.tree.title',
-            icon: 'fa:folder-open',
-            order: 80,
-            iconColor: '#419641',
-            path: '/tree/nodes',
-            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREETYPE_READ', 'TREENODE_READ'] } ],
-            items: [
-              {
-                id: 'tree-nodes',
-                type: 'MAIN-MENU',
-                labelKey: 'content.tree.nodes.title',
-                order: 15,
-                icon: 'apple',
-                path: '/tree/nodes',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ'] } ],
-                items: [
-                  {
-                    id: 'tree-node-detail',
-                    type: 'TAB',
-                    labelKey: 'content.tree.node.detail.label',
-                    order: 10,
-                    path: '/tree/nodes/:entityId/detail',
-                    icon: 'fa:newspaper-o',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ'] } ]
-                  },
-                  {
-                    id: 'tree-node-eav',
-                    type: 'TAB',
-                    labelKey: 'content.tree.node.eav.title',
-                    order: 20,
-                    path: '/tree/nodes/:entityId/eav',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
-                  },
-                  {
-                    id: 'tree-node-roles',
-                    type: 'TAB',
-                    labelKey: 'content.tree.node.roles.label',
-                    titleKey: 'content.tree.node.roles.title',
-                    order: 30,
-                    icon: 'component:roles',
-                    path: '/tree/nodes/:entityId/roles',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLETREENODE_READ'] } ]
-                  },
-                  {
-                    id: 'tree-node-identities',
-                    type: 'TAB',
-                    labelKey: 'content.tree.node.identities.label',
-                    titleKey: 'content.tree.node.identities.title',
-                    order: 40,
-                    icon: 'fa:group',
-                    path: '/tree/nodes/:entityId/identities',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
-                  }
-                ]
-              },
-              {
-                id: 'tree-types',
-                labelKey: 'content.tree.types.title',
-                titleKey: 'content.tree.types.title',
-                order: 10,
-                icon: 'fa:folder-open',
-                path: '/tree/types',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREETYPE_READ'] } ]
-              }
-            ]
-          },
-          {
-            id: 'role-catalogues',
-            labelKey: 'content.roleCatalogues.header',
-            titleKey: 'content.roleCatalogues.title',
-            icon: 'fa:list-alt',
-            iconColor: '#dad727',
-            order: 100,
-            path: '/role-catalogues',
-            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ],
-            items: [
-              {
-                id: 'role-catalogue-detail',
-                type: 'TAB',
-                labelKey: 'content.roles.tabs.basic',
-                order: 200,
-                path: '/role-catalogue/:entityId/detail',
-                icon: 'fa:newspaper-o',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ]
-              }
-            ]
           },
           {
             id: 'password-policies',

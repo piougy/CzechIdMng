@@ -164,7 +164,7 @@ public class DefaultIdmPasswordPolicyService
 		if (maxAttempts != null && maxAttempts.intValue() > 0 && (blockLogin == null || blockLogin <= 0)) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED, ImmutableMap.of("definition", dto.getName()));
 		}
-		if (dto.getType().equals(IdmPasswordPolicyType.GENERATE) && dto.getGenerateType().equals(IdmPasswordPolicyGenerateType.RANDOM)) {
+		if (dto.getType() == IdmPasswordPolicyType.GENERATE && dto.getGenerateType() == IdmPasswordPolicyGenerateType.RANDOM) {
 			if (!this.getPasswordGenerator().testPolicySetting(dto, TEST_POLICY_CYCLES)) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_INVALID_SETTING);
 			}

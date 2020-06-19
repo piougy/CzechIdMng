@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
@@ -30,18 +29,7 @@ public interface IdmContractPositionService extends
 	 * @param recursion
 	 * @return
 	 * @see #findByWorkPosition(UUID, RecursionType, Pageable)
-	 * @deprecated @since 10.4.0 use {@link #findByWorkPosition(UUID, RecursionType, Pageable)}
+	 * @deprecated @since 10.4.0 use {@link IdmContractPositionFilter#PARAMETER_RECURSION_TYPE}
 	 */
 	List<IdmContractPositionDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion);
-	
-	/**
-	 * Returns contract positions, where fits work position with given work position by recursionType.
-	 * 
-	 * @param workPositionId tree node
-	 * @param recursion recursion type
-	 * @param pageable page, size, sort
-	 * @return contracts
-	 * @since 10.4.0
-	 */
-	Page<IdmContractPositionDto> findByWorkPosition(UUID workPositionId, RecursionType recursion, Pageable pageable);
 }

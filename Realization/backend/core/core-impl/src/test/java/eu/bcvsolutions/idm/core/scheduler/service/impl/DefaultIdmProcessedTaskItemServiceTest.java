@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Processed tasks service test.
  * 
  * TODO: transactional
+ * TODO: move test filter to rest test
  * 
  * @author Jan Helbich
  * @author Radek Tomiška
@@ -195,6 +196,25 @@ public class DefaultIdmProcessedTaskItemServiceTest extends AbstractIntegrationT
 		assertEquals("Wrong number of items!",1,result.getTotalElements());
 		assertTrue(result.getContent().contains(item2));
 		assertFalse(result.getContent().contains(item));
+	}
+	
+	@Test
+	public void referencedEntityTypeFilter(){
+		IdmScheduledTaskDto d = getHelper().createSchedulableTask();
+		IdmProcessedTaskItemDto item = service.saveInternal(getHelper().prepareProcessedItem(d));
+		IdmProcessedTaskItemDto item2 = service.saveInternal(getHelper().prepareProcessedItem(d));
+		//
+		IdmProcessedTaskItemFilter filter = new IdmProcessedTaskItemFilter();
+		filter.setReferencedEntityId(item.getReferencedEntityId());
+		filter.setReferencedEntityType(item.getReferencedDtoType());
+		Page<IdmProcessedTaskItemDto> result = service.find(filter,null);
+		Assert.assertEquals(1, result.getTotalElements());
+		Assert.assertTrue(result.getContent().contains(item));
+		//
+		filter.setReferencedEntityId(item2.getReferencedEntityId());
+		result = service.find(filter,null);
+		Assert.assertEquals(1, result.getTotalElements());
+		Assert.assertTrue(result.getContent().contains(item2));
 	}
 
 	@Test

@@ -1,11 +1,14 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,6 +48,8 @@ public class ProcessSkippedAutomaticRoleByTreeTaskExecutor extends AbstractSched
 	@Autowired private EntityStateManager entityStateManager;
 	//
 	private Set<UUID> processedOwnerIds = new HashSet<>(); // distinct owners will be processed
+	private List<UUID> processedAutomaticRoles = new ArrayList<>(); // distinct processed automatic roles
+	private Set<UUID> processedIdentityRoles = new HashSet<>(); // all processed identity roles - invalid role removal is solved, after all automatic roles are assigned (prevent drop and create target account)
 	
 	@Override
 	public String getName() {
@@ -115,10 +120,16 @@ public class ProcessSkippedAutomaticRoleByTreeTaskExecutor extends AbstractSched
 						.build(), 
 					this.getLongRunningTaskId()
 			);
+			// delete state only
+			entityStateManager.deleteState(state);
 		} else {	
 			ProcessAutomaticRoleByTreeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByTreeTaskExecutor.class);
 			automaticRoleTask.setAutomaticRoles(Lists.newArrayList(automaticRole.getId()));
+			automaticRoleTask.setRemoveNotProcessedIdentityRoles(false); // invalid roles will be removed, after LRT end (prevent drop and create target account)
+			automaticRoleTask.setRequireNewTransaction(true);
 			longRunningTaskManager.executeSync(automaticRoleTask); // exception is thrown and logged otherwise
+			processedIdentityRoles.addAll(automaticRoleTask.getProcessedIdentityRoles());
+			processedAutomaticRoles.add(ownerId);
 			//
 			getItemService().createLogItem(
 					automaticRole, 
@@ -128,9 +139,27 @@ public class ProcessSkippedAutomaticRoleByTreeTaskExecutor extends AbstractSched
 		}
 		//
 		processedOwnerIds.add(ownerId);
-		entityStateManager.deleteState(state);
 		//
 		// Log added manually above - log processed contract / position instead of deleted entity state.
-		return null;
+		return Optional.empty();
+	}
+	
+	@Override
+	protected Boolean end(Boolean result, Exception ex) {
+		Boolean ended = super.end(result, ex);
+		//
+		if (BooleanUtils.isTrue(ended)) {
+			// remove previously assigned role, which was not processed by any automatic role
+			ProcessAutomaticRoleByTreeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByTreeTaskExecutor.class);
+			automaticRoleTask.setAutomaticRoles(processedAutomaticRoles);
+			automaticRoleTask.setProcessedIdentityRoles(processedIdentityRoles);
+			automaticRoleTask.setRemoveNotProcessedIdentityRoles(true);
+			automaticRoleTask.setRequireNewTransaction(true);
+			automaticRoleTask.setLongRunningTaskId(getLongRunningTaskId()); // support to cancel task, when roles are removed
+			//
+			automaticRoleTask.end(Boolean.TRUE, null);
+		}
+		//
+		return ended;
 	}
 }

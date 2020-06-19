@@ -55,7 +55,7 @@ class NodeTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     const data = {
-      ... this.refs.filterForm.getData(),
+      ...this.refs.filterForm.getData(),
       treeNodeId: this.refs.filterForm.getData().treeNodeId,
       treeTypeId: type.id
     };
@@ -158,7 +158,7 @@ class NodeTable extends Advanced.AbstractTableContent {
       //
       const { showTreeTypeSelect } = this.props;
       if (showTreeTypeSelect) {
-        this.context.history.push('/tree/nodes/?type=' + entity.id);
+        this.context.history.push(`/tree/nodes/?type=${ entity.id }`);
       }
     });
   }
@@ -169,9 +169,9 @@ class NodeTable extends Advanced.AbstractTableContent {
     }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.history.push(`/tree/types/${uuidId}?new=1&b=nodes`);
+      this.context.history.push(`/tree/types/${ uuidId }?new=1&b=nodes`);
     } else {
-      this.context.history.push('/tree/types/' + entity.id);
+      this.context.history.push(`/tree/types/${ entity.id }`);
     }
   }
 
@@ -225,8 +225,8 @@ class NodeTable extends Advanced.AbstractTableContent {
     }
     //
     return (
-      <div>
-        <TypeConfiguration treeTypeId={type.id}/>
+      <Basic.Div>
+        <TypeConfiguration treeTypeId={ type.id }/>
 
         <Basic.Panel>
           <Basic.Row>{/* FIXME: resposive design - wrong wrapping on mobile */}
@@ -251,9 +251,10 @@ class NodeTable extends Advanced.AbstractTableContent {
                     onChange={ this._changeTree.bind(this) }
                     clearable={ false }
                     className="small"
-                    style={{ marginBottom: 0 }}/>
+                    style={{ marginBottom: 0 }}
+                    tooltip={ this.i18n('entity.TreeNode.treeType.label') }/>
                 }
-                />
+              />
             </Basic.Col>
             <Basic.Col lg={ 9 } style={{ paddingLeft: 0 }}>
               <Basic.Confirm ref="confirm-delete" level="danger"/>
@@ -278,7 +279,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                             <Basic.Col lg={ 6 }>
                               <Advanced.Filter.TextField
                                 ref="text"
-                                placeholder={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }
+                                placeholder={ `${ this.i18n('entity.TreeNode.code') } / ${ this.i18n('entity.TreeNode.name') }` }
                                 help={ Advanced.Filter.getTextHelp() }/>
                             </Basic.Col>
                             <Basic.Col lg={ 6 } className="text-right">
@@ -316,9 +317,13 @@ class NodeTable extends Advanced.AbstractTableContent {
                     }
                     buttons={
                       [
-                        <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREENODE_CREATE')}>
-                          <Basic.Icon type="fa" icon="plus"/>
-                          {' '}
+                        <Basic.Button
+                          level="success"
+                          key="add_button"
+                          className="btn-xs"
+                          onClick={ this.showDetail.bind(this, {}) }
+                          rendered={ SecurityManager.hasAuthority('TREENODE_CREATE') }
+                          icon="fa:plus">
                           {this.i18n('button.add')}
                         </Basic.Button>
                       ]
@@ -346,10 +351,10 @@ class NodeTable extends Advanced.AbstractTableContent {
                       property="_embedded.parent.name"
                       sort
                       sortProperty="parent.name"/>
-                    <Advanced.Column property="treeType.name" sort rendered={false}/>
+                    <Advanced.Column property="treeType.name" sort rendered={ false }/>
                     <Advanced.Column property="disabled" sort face="bool"/>
-                    <Advanced.Column property="shortName" sort rendered={false}/>
-                    <Advanced.Column property="parentId" sort rendered={false}/>
+                    <Advanced.Column property="shortName" sort rendered={ false }/>
+                    <Advanced.Column property="parentId" sort rendered={ false }/>
                   </Advanced.Table>
                 </Basic.Tab>
 
@@ -367,7 +372,7 @@ class NodeTable extends Advanced.AbstractTableContent {
             </Basic.Col>
           </Basic.Row>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

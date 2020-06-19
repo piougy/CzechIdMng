@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
+//
+import uuid from 'uuid';
 import * as Basic from '../../../components/basic';
 import { TreeNodeManager, TreeTypeManager, SecurityManager } from '../../../redux';
 import NodeTable from './NodeTable';
-import uuid from 'uuid';
 
 // Table uiKey
 const uiKey = 'tree-node-content';
@@ -39,7 +40,7 @@ class Nodes extends Basic.AbstractContent {
     } else {
       const searchParameters = this.getTypeManager().getDefaultSearchParameters().setName('autocomplete');
       this.context.store.dispatch(this.getTypeManager().fetchEntities(searchParameters, uiKey, (types) => {
-        const isNoType = !types || types._embedded.treeTypes.length === 0 ? true : false;
+        const isNoType = !!(!types || types._embedded.treeTypes.length === 0);
 
         if (types && !isNoType) {
           this.context.history.push('/tree/nodes/', { type: types._embedded.treeTypes[0].id });
@@ -55,7 +56,7 @@ class Nodes extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.tree.nodes';
+    return 'content.organizations';
   }
 
   getNavigationKey() {
@@ -81,14 +82,14 @@ class Nodes extends Basic.AbstractContent {
     }
     //
     const uuidId = uuid.v1();
-    this.context.history.push(`/tree/types/${uuidId}?new=1`);
+    this.context.history.push(`/tree/types/${ uuidId }?new=1`);
   }
 
   render() {
     const { showLoading, type, isNoType } = this.state;
     //
     return (
-      <div>
+      <Basic.Div>
         { this.renderPageHeader() }
         {
           showLoading
@@ -117,7 +118,7 @@ class Nodes extends Basic.AbstractContent {
             </Basic.Alert>
           </span>
         }
-      </div>
+      </Basic.Div>
     );
   }
 }

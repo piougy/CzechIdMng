@@ -4958,6 +4958,10 @@
         "label": "Entity",
         "placeholder": "Entity identifier"
       },
+      "referencedEntityType": {
+        "label": "Entity type",
+        "placeholder": "Entity type"
+      },
       "result": {
         "state": "State"
       },
@@ -6122,6 +6126,11 @@
       "core-process-all-automatic-role-attribute-long-running-task": {
         "label": "Recalculate all automatic roles by attribute",
         "help": "Recalculate all automatic roles by attribute. Creates new request with concepts.",
+        "icon": "component:automatic-role"
+      },
+      "core-process-all-automatic-role-tree-long-running-task": {
+        "label": "Recalculate all automatic roles by tree structure for contracts and positions",
+        "help": "Recalculate all roles for identities with contract or other position assigned by automatic role by tree structure. Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupted (e.g. by server restart).",
         "icon": "component:automatic-role"
       },
       "core-process-automatic-role-attribute-long-running-task": {

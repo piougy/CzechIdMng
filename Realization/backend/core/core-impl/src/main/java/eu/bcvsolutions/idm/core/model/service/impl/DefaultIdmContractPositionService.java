@@ -1,16 +1,17 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -23,8 +24,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode_;
 import eu.bcvsolutions.idm.core.model.repository.IdmContractPositionRepository;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
@@ -39,15 +43,11 @@ public class DefaultIdmContractPositionService
 		extends AbstractEventableDtoService<IdmContractPositionDto, IdmContractPosition, IdmContractPositionFilter> 
 		implements IdmContractPositionService {
 	
-	private final IdmContractPositionRepository repository;
-	
 	@Autowired
 	public DefaultIdmContractPositionService(
 			IdmContractPositionRepository repository,
 			EntityEventManager entityEventManager) {
 		super(repository, entityEventManager);
-		//
-		this.repository = repository;
 	}
 	
 	@Override
@@ -57,20 +57,14 @@ public class DefaultIdmContractPositionService
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmContractPositionDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursion) {
+	public List<IdmContractPositionDto> findAllByWorkPosition(UUID workPositionId, RecursionType recursionType) {
 		Assert.notNull(workPositionId, "Work position is required to get related contracts.");
 		//
-		return findByWorkPosition(workPositionId, recursion, null).getContent();
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmContractPositionDto> findByWorkPosition(UUID workPositionId, RecursionType recursion, Pageable pageable) {
-		Assert.notNull(workPositionId, "Work position is required to get related contracts.");
+		IdmContractPositionFilter filter = new IdmContractPositionFilter();
+		filter.setWorkPosition(workPositionId);
+		filter.setRecursionType(recursionType);
 		//
-		return toDtoPage(
-				repository.findByWorkPosition(workPositionId, recursion == null ? RecursionType.NO : recursion, pageable)
-		);
+		return find(filter, null).getContent();
 	}
 	
 	@Override
@@ -84,7 +78,42 @@ public class DefaultIdmContractPositionService
 		// tree node id
 		UUID workPosition = filter.getWorkPosition();
 		if (workPosition != null) {
-			predicates.add(builder.equal(root.get(IdmContractPosition_.workPosition).get(IdmTreeNode_.id), workPosition));
+			RecursionType recursionType = filter.getRecursionType();
+			if (recursionType == RecursionType.NO) {
+				// NO recursion => equals on work position only.
+				predicates.add(builder.equal(root.get(IdmContractPosition_.workPosition).get(IdmTreeNode_.id), workPosition));
+			} else {
+				// prepare subquery for tree nodes and index
+				Subquery<IdmTreeNode> subqueryTreeNode = query.subquery(IdmTreeNode.class);
+				Root<IdmTreeNode> subqueryTreeNodeRoot = subqueryTreeNode.from(IdmTreeNode.class);
+				subqueryTreeNode.select(subqueryTreeNodeRoot);
+				//
+				if (recursionType == RecursionType.DOWN) {
+					subqueryTreeNode.where(
+							builder.and(
+									builder.equal(subqueryTreeNodeRoot.get(IdmTreeNode_.id), workPosition),
+									builder.equal(root.get(IdmContractPosition_.workPosition).get(IdmTreeNode_.treeType), subqueryTreeNodeRoot.get(IdmTreeNode_.treeType)),
+									builder.between(
+											root.get(IdmContractPosition_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft), 
+		                    				subqueryTreeNodeRoot.get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft),
+		                    				subqueryTreeNodeRoot.get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.rgt)
+		                    		)
+							));
+				} else { // UP
+					subqueryTreeNode.where(
+							builder.and(
+									builder.equal(subqueryTreeNodeRoot.get(IdmTreeNode_.id), workPosition),
+									builder.equal(root.get(IdmContractPosition_.workPosition).get(IdmTreeNode_.treeType), subqueryTreeNodeRoot.get(IdmTreeNode_.treeType)),
+									builder.between(
+											subqueryTreeNodeRoot.get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft), 
+											root.get(IdmContractPosition_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.lft),
+											root.get(IdmContractPosition_.workPosition).get(IdmTreeNode_.forestIndex).get(IdmForestIndexEntity_.rgt)
+		                    		)
+							));
+				}
+				//
+				predicates.add(builder.exists(subqueryTreeNode));
+			}
 		}
 		UUID identity = filter.getIdentity();
 		if (identity != null) {
@@ -96,6 +125,24 @@ public class DefaultIdmContractPositionService
 					identity)
 			);
 		}
+		Boolean validNowOrInFuture = filter.getValidNowOrInFuture();
+		if (validNowOrInFuture != null) {
+			Path<IdmIdentityContract> pathContract = root.get(IdmContractPosition_.identityContract);
+			//
+			if (validNowOrInFuture) {
+				predicates.add(
+						builder.and(
+								builder.or(
+										builder.greaterThanOrEqualTo(pathContract.get(IdmIdentityContract_.validTill), LocalDate.now()),
+										builder.isNull(pathContract.get(IdmIdentityContract_.validTill))
+										),
+								builder.equal(pathContract.get(IdmIdentityContract_.disabled), Boolean.FALSE)
+							));
+			} else {
+				predicates.add(builder.lessThan(pathContract.get(IdmIdentityContract_.validTill), LocalDate.now()));
+			}
+		}
+		//
 		return predicates;
 	}
 }

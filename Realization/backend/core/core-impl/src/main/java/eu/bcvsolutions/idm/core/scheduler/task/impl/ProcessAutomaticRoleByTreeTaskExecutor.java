@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,11 +46,14 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -94,9 +98,13 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmConceptRoleRequestService conceptRoleRequestService;
 	@Autowired private PlatformTransactionManager platformTransactionManager;
+	@Autowired private EntityStateManager entityStateManager;
 	//
 	private List<UUID> automaticRoles = null;
 	private boolean continueOnException = true; // change default to true
+	private Set<UUID> processedIdentityRoles = new HashSet<>(); // all processed identity roles - invalid role removal is solved, after all automatic roles are assigned (prevent drop and create target account)
+	private boolean removeNotProcessedIdentityRoles = true; // true - invalid role removal is solved, after all automatic roles are assigned (prevent drop and create target account)
+	
 	
 	@Override
 	public String getName() {
@@ -104,8 +112,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	}
 	
 	@Override
-	public boolean isInProcessedQueue(IdmRoleTreeNodeDto dto) {
-		// we want to log items, but we want to execute them every times
+	public boolean supportsQueue() {
 		return false;
 	}
 	
@@ -122,6 +129,35 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	@Override
 	public void setContinueOnException(boolean continueOnException) {
 		this.continueOnException = continueOnException;
+	}
+	
+	/**
+	 * Invalid role removal is solved, after all automatic roles are assigned (prevent drop and create target account).
+	 * 
+	 * @param removeNotProcessedIdentityRoles true - removed, false - not removed (newly assigned roles are persisted only)
+	 */
+	protected void setRemoveNotProcessedIdentityRoles(boolean removeNotProcessedIdentityRoles) {
+		this.removeNotProcessedIdentityRoles = removeNotProcessedIdentityRoles;
+	}
+	
+	/**
+	 * Processed assigned roles by automatic roles.
+	 * Available after LRT ends - if {@link #removeNotProcessedIdentityRoles} is set to false, then invalid assigned roles has to be removed by caller.
+	 * 
+	 * @return properly assigned roles by automatic roles definition
+	 */
+	protected Set<UUID> getProcessedIdentityRoles() {
+		return processedIdentityRoles;
+	}
+	
+	/**
+	 * Processed assigned roles by automatic roles.
+	 * Available after LRT ends - if {@link #removeNotProcessedIdentityRoles} is set to false, then invalid assigned roles has to be removed by caller.
+	 * 
+	 * @param processedIdentityRoles properly assigned roles by automatic roles definition
+	 */
+	protected void setProcessedIdentityRoles(Set<UUID> processedIdentityRoles) {
+		this.processedIdentityRoles = processedIdentityRoles;
 	}
 
 	@Override
@@ -178,11 +214,12 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	public Optional<OperationResult> processItem(IdmRoleTreeNodeDto automaticRole) {
 		try {
 			// process contracts
-			Set<UUID> processedIdentityRoles = processContracts(automaticRole);
-			if (processedIdentityRoles == null) {
+			Set<UUID> processedIdentityRolesByContract = processContracts(automaticRole);
+			if (processedIdentityRolesByContract == null) {
 				// task was canceled from the outside => not continue 
 				return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 			}
+			processedIdentityRoles.addAll(processedIdentityRolesByContract);
 			//
 			// process contract positions
 			Set<UUID> processedIdentityRolesByPositions = processPositions(automaticRole);
@@ -192,8 +229,8 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			}
 			processedIdentityRoles.addAll(processedIdentityRolesByPositions);
 			//
-			// remove previously assigned role, which was not processed by automatic role
-			processIdentityRoles(processedIdentityRoles, automaticRole);
+			// delete automatic role is skipped flag for already processed automatic role
+			entityStateManager.deleteStates(automaticRole, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED);
 			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch(Exception ex) {
@@ -212,22 +249,39 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		}
 	}
 	
+	@Override
+	protected Boolean end(Boolean result, Exception ex) {
+		Boolean ended = super.end(result, ex);
+		//
+		if (BooleanUtils.isTrue(ended) && removeNotProcessedIdentityRoles) {
+			// remove previously assigned role, which was not processed by any automatic role
+			automaticRoles.forEach(automaticRole -> {
+				// new transaction is wrapped inside
+				processIdentityRoles(processedIdentityRoles, automaticRole);
+			});
+		}
+		//
+		return ended;
+	}
+	
 	private Set<UUID> processContracts(IdmRoleTreeNodeDto automaticRole) {
 		Set<UUID> processedIdentityRoles = new HashSet<>();
+		//
+		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+		filter.setWorkPosition(automaticRole.getTreeNode());
+		filter.setRecursionType(automaticRole.getRecursionType());
+		filter.setValidNowOrInFuture(Boolean.TRUE);
 		//
 		Pageable pageable = PageRequest.of(
 				0, 
 				getPageSize(),
 				new Sort(Direction.ASC, BaseEntity.PROPERTY_ID)
 		);
+		//
 		boolean canContinue = true;
 		//
 		do {
-			Page<IdmIdentityContractDto> contracts = identityContractService.findByWorkPosition(
-					automaticRole.getTreeNode(), 
-					automaticRole.getRecursionType(),
-					pageable
-			);
+			Page<IdmIdentityContractDto> contracts = identityContractService.find(filter, pageable);
 			//
 			for (Iterator<IdmIdentityContractDto> i = contracts.iterator(); i.hasNext() && canContinue;) {
 				IdmIdentityContractDto contract = i.next();
@@ -271,6 +325,10 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	private Set<UUID> processPositions(IdmRoleTreeNodeDto automaticRole) {
 		Set<UUID> processedIdentityRoles = new HashSet<>();
 		//
+		IdmContractPositionFilter filter = new IdmContractPositionFilter();
+		filter.setWorkPosition(automaticRole.getTreeNode());
+		filter.setRecursionType(automaticRole.getRecursionType());
+		filter.setValidNowOrInFuture(Boolean.TRUE);
 		Pageable pageable = PageRequest.of(
 				0, 
 				getPageSize(),
@@ -279,11 +337,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		boolean canContinue = true;
 		//
 		do {
-			Page<IdmContractPositionDto> positions = contractPositionService.findByWorkPosition(
-					automaticRole.getTreeNode(), 
-					automaticRole.getRecursionType(),
-					pageable
-			);
+			Page<IdmContractPositionDto> positions = contractPositionService.find(filter, pageable);
 			//
 			for (Iterator<IdmContractPositionDto> i = positions.iterator(); i.hasNext() && canContinue;) {
 				IdmContractPositionDto position = i.next();
@@ -324,7 +378,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		return processedIdentityRoles;
 	}
 	
-	private void processIdentityRoles(Set<UUID> processedIdentityRoles, IdmRoleTreeNodeDto automaticRole) {
+	protected void processIdentityRoles(Set<UUID> processedIdentityRoles, UUID automaticRole) {
 		//
 		// remove old assigned roles by automatic role
 		Pageable pageable = PageRequest.of(
@@ -335,7 +389,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		boolean canContinue = true;
 		// filter - if role was assigned by contract or contract position doesn't matter => automatic role is the same
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-		filter.setAutomaticRoleId(automaticRole.getId());
+		filter.setAutomaticRoleId(automaticRole);
 		//
 		do {
 			Page<IdmIdentityRoleDto> identityRoles = identityRoleService.find(filter, pageable);
@@ -389,19 +443,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		IdmIdentityDto identity = getLookupService().lookupEmbeddedDto(contract, IdmIdentityContract_.identity);
 		IdmRoleDto role = getLookupService().lookupEmbeddedDto(automaticRole, IdmRoleTreeNode_.role);
 		//
-		try {	
-			if (!contract.isValidNowOrInFuture()) {
-				ResultModel resultModel = new DefaultResultModel(
-						CoreResultCode.AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID,
-						ImmutableMap.of(
-								"role", role.getCode(),
-								"roleTreeNode", automaticRoleId,
-								"identity", identity.getUsername()));
-				saveItemResult(contract, OperationState.NOT_EXECUTED, resultModel, null);
-				//
-				return processedIdentityRoles;
-			}
-			//
+		try {
 			List<IdmIdentityRoleDto> allByContract = identityRoleService.findAllByContract(contractId);
 			//
 			// skip already assigned automatic roles
@@ -479,18 +521,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		IdmIdentityDto identity = getLookupService().lookupEmbeddedDto(contract, IdmIdentityContract_.identity);
 		IdmRoleDto role = getLookupService().lookupEmbeddedDto(automaticRole, IdmRoleTreeNode_.role);
 		//
-		try {		
-			if (!contract.isValidNowOrInFuture()) {
-				ResultModel resultModel = new DefaultResultModel(
-						CoreResultCode.AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID,
-						ImmutableMap.of(
-								"role", role.getCode(),
-								"roleTreeNode", automaticRoleId,
-								"identity", identity.getUsername()));
-				saveItemResult(position, OperationState.NOT_EXECUTED, resultModel, null);
-				//
-				return processedIdentityRoles;
-			}
+		try {
 			List<IdmIdentityRoleDto> allByPosition = identityRoleService.findAllByContractPosition(positionId);
 			//
 			// skip already assigned automatic roles
@@ -563,12 +594,11 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	private void checkProcessedIdentityRole(
 			Set<UUID> processedIdentityRoles, 
 			IdmIdentityRoleDto identityRole,
-			IdmRoleTreeNodeDto automaticRole) {
+			UUID automaticRoleId) {
 		UUID identityRoleId = identityRole.getId();
-		UUID automaticRoleId = automaticRole.getId();
 		IdmIdentityContractDto identityContract = getLookupService().lookupEmbeddedDto(identityRole, IdmIdentityRole_.identityContract);
 		IdmIdentityDto identity = getLookupService().lookupEmbeddedDto(identityContract, IdmIdentityContract_.identity);
-		IdmRoleDto role = getLookupService().lookupEmbeddedDto(automaticRole, IdmRoleTreeNode_.role);
+		IdmRoleDto role = getLookupService().lookupEmbeddedDto(identityRole, IdmIdentityRole_.role);
 		//
 		if (!processedIdentityRoles.contains(identityRoleId)) {
 			// remove role by request
@@ -633,7 +663,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		this.automaticRoles = automaticRoles;
 	}
 	
-	private List<UUID> getAutomaticRoles(Map<String, Object> properties) {
+	protected List<UUID> getAutomaticRoles(Map<String, Object> properties) {
 		// TODO: support list?
 		String rawUuids = getParameterConverter().toString(properties, AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
 		if (StringUtils.isEmpty(rawUuids)) {

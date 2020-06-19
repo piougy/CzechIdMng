@@ -3284,7 +3284,7 @@
     "organizations": {
       "header": "Organizační struktura",
       "title": "Organizační struktura",
-      "label": "Organizace",
+      "label": "Organizační struktura",
       "defaultTreeType": {
         "empty": {
           "message": "Výchozí organizační struktura není nakonfigurována.",
@@ -5010,6 +5010,10 @@
         "label": "Entita",
         "placeholder": "Identifikátor entity"
       },
+      "referencedEntityType": {
+        "label": "Typ entity",
+        "placeholder": "Typ entity"
+      },
       "result": {
         "state": "Stav"
       },
@@ -6174,6 +6178,11 @@
       "core-process-all-automatic-role-attribute-long-running-task": {
         "label": "Přepočítat všechny automatické role dle atributu",
         "help": "Přepočítá všechny nakonfigurované automatické role dle atributu.",
+        "icon": "component:automatic-role"
+      },
+      "core-process-all-automatic-role-tree-long-running-task": {
+        "label": "Přepočítat všechny automatické role dle stromové struktury pro kontrakty a další pozice",
+        "help": "Přepočítá všechny role pro uživatele s kontraktem přidělené dle automatické role dle stromové struktury. Úlohu lze pouštět opakovaně, již přiřazené role jsou přeskočeny.",
         "icon": "component:automatic-role"
       },
       "core-process-automatic-role-attribute-long-running-task": {

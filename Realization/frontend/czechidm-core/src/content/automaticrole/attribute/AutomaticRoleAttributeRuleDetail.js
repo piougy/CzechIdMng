@@ -3,6 +3,7 @@ import React from 'react';
 import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import { AutomaticRoleAttributeRuleManager, FormAttributeManager, FormDefinitionManager } from '../../../redux';
 import AutomaticRoleAttributeRuleTypeEnum from '../../../enums/AutomaticRoleAttributeRuleTypeEnum';
 import AutomaticRoleAttributeRuleComparisonEnum from '../../../enums/AutomaticRoleAttributeRuleComparisonEnum';
@@ -187,6 +188,9 @@ class IdentityAttributeEnum extends AbstractEnum {
       case this.DESCRIPTION: {
         return 'description';
       }
+      case this.FORM_PROJECTION: {
+        return 'formProjection';
+      }
       default: {
         return null;
       }
@@ -229,6 +233,9 @@ class IdentityAttributeEnum extends AbstractEnum {
       case 'description': {
         return this.DESCRIPTION;
       }
+      case 'formProjection': {
+        return this.FORM_PROJECTION;
+      }
       default: {
         return null;
       }
@@ -260,6 +267,7 @@ IdentityAttributeEnum.PHONE = Symbol('PHONE');
 IdentityAttributeEnum.TITLE_BEFORE = Symbol('TITLE_BEFORE');
 IdentityAttributeEnum.TITLE_AFTER = Symbol('TITLE_AFTER');
 IdentityAttributeEnum.DESCRIPTION = Symbol('DESCRIPTION');
+IdentityAttributeEnum.FORM_PROJECTION = Symbol('FORM_PROJECTION');
 
 /**
  * Form attrribute select box.
@@ -391,22 +399,18 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
         entity.comparison = AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.EQUALS);
         attributeName = IdentityAttributeEnum.findKeyBySymbol(IdentityAttributeEnum.USERNAME);
         entity.attributeName = attributeName;
-      } else {
-        if (entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY_EAV)
-          && entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV)) {
-          if (entity.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
-            entity.attributeName = IdentityAttributeEnum.getEnum(entity.attributeName);
-            attributeName = IdentityAttributeEnum.findKeyBySymbol(entity.attributeName);
-          } else {
-            entity.attributeName = ContractAttributeEnum.getEnum(entity.attributeName);
-            attributeName = ContractAttributeEnum.findKeyBySymbol(entity.attributeName);
-          }
+      } else if (entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY_EAV)
+        && entity.type !== AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.CONTRACT_EAV)) {
+        if (entity.type === AutomaticRoleAttributeRuleTypeEnum.findKeyBySymbol(AutomaticRoleAttributeRuleTypeEnum.IDENTITY)) {
+          entity.attributeName = IdentityAttributeEnum.getEnum(entity.attributeName);
+          attributeName = IdentityAttributeEnum.findKeyBySymbol(entity.attributeName);
         } else {
-          // eav is used
-          if (entity._embedded && entity._embedded.formAttribute) {
-            formAttribute = entity._embedded.formAttribute;
-          }
+          entity.attributeName = ContractAttributeEnum.getEnum(entity.attributeName);
+          attributeName = ContractAttributeEnum.findKeyBySymbol(entity.attributeName);
         }
+      } else if (entity._embedded && entity._embedded.formAttribute) {
+        // eav is used
+        formAttribute = entity._embedded.formAttribute;
       }
       if (entity.comparison === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_EMPTY) ||
         entity.comparison === AutomaticRoleAttributeRuleComparisonEnum.findKeyBySymbol(AutomaticRoleAttributeRuleComparisonEnum.IS_NOT_EMPTY)) {
@@ -456,7 +460,8 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       typeForceSearchParameters = this._getForceSearchParametersForType(option.value);
     }
     //
-    const newEntity = _.merge({}, this.state.entity);
+    const { entity } = this.state;
+    const newEntity = _.merge({}, entity);
     newEntity.type = option ? option.value : null;
     this.setState({
       typeForceSearchParameters,
@@ -539,6 +544,18 @@ export default class AutomaticRoleAttributeRuleDetail extends Basic.AbstractCont
       // disabled is obly attribute that has different face
       if (IdentityAttributeEnum.findSymbolByKey(attributeName) === IdentityAttributeEnum.DISABLED) {
         return this._getDefaultBooleanSelectBox(value, valueRequired);
+      }
+      if (IdentityAttributeEnum.findSymbolByKey(attributeName) === IdentityAttributeEnum.FORM_PROJECTION) {
+        return (
+          <Advanced.FormProjectionSelect
+            ref="value"
+            label={ this.i18n('entity.AutomaticRole.attribute.value.label') }
+            helpBlock={ this.i18n('entity.AutomaticRole.attribute.value.help') }
+            value={ value }
+            readOnly={ this.props.readOnly }
+            required={ valueRequired }
+            showIcon/>
+        );
       }
       return this._getDefaultTextField(value, valueRequired);
     }

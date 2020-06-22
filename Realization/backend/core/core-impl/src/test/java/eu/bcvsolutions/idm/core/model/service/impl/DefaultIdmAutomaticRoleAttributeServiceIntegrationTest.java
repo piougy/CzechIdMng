@@ -57,8 +57,10 @@ import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
@@ -80,7 +82,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Ondrej Kopr
  *
  */
-public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractIntegrationTest {
+public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmAutomaticRoleAttributeService automaticRoleAttributeService;
@@ -102,6 +104,8 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 	private IdmEmailLogRepository emailLogRepository;
 	@Autowired
 	private IdmNotificationLogRepository notificationRepository;
+	@Autowired
+	private IdmFormProjectionService formProjectionService;
 
 	/**
 	 * Delete all identities for improve performance of this test. In some cases
@@ -566,6 +570,46 @@ public class DefaultIdmAutomaticRoleAttributeIntegrationTest extends AbstractInt
 		identity = identityService.save(identity);
 		//
 		// recalculate isn't needed, is done when save identity contract
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+	}
+	
+	@Test
+	public void testAssingByIdentityFormProjection() {
+		IdmFormProjectionDto formProjection = new IdmFormProjectionDto();
+		formProjection.setCode(getHelper().createName());
+		formProjection.setOwnerType(getLookupService().getOwnerType(IdmIdentityDto.class));
+		formProjection = formProjectionService.save(formProjection);
+		
+		IdmIdentityDto identity = getHelper().createIdentity();
+		identity.setFormProjection(formProjection.getId());
+		identity = identityService.save(identity);
+		//
+		IdmRoleDto role = getHelper().createRole();
+		IdmAutomaticRoleAttributeDto automaticRole = getHelper().createAutomaticRole(role.getId());
+		getHelper().createAutomaticRoleRule(automaticRole.getId(), AutomaticRoleAttributeRuleComparison.EQUALS,
+				AutomaticRoleAttributeRuleType.IDENTITY, IdmIdentity_.formProjection.getName(), null, formProjection.getId().toString());
+		//
+		List<IdmIdentityRoleDto> identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(0, identityRoles.size());
+		//
+		// add new one
+		this.recalculateSync(automaticRole.getId());
+		//
+		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
+		assertEquals(1, identityRoles.size());
+		//
+		IdmIdentityRoleDto identityRoleDto = identityRoles.get(0);
+		assertNotNull(identityRoleDto.getAutomaticRole());
+		assertEquals(automaticRole.getId(), identityRoleDto.getAutomaticRole());
+		assertEquals(automaticRole.getRole(), identityRoleDto.getRole());
+		//
+		// change value and recalculate
+		identity.setFormProjection(null);
+		identity = identityService.save(identity);
+		//
+		// recalculate isn't needed, is done when save identity
 		//
 		identityRoles = identityRoleService.findAllByIdentity(identity.getId());
 		assertEquals(0, identityRoles.size());

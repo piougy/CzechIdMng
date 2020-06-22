@@ -63,12 +63,14 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormProjection;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttribute;
 import eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRule;
@@ -1051,6 +1053,10 @@ public class DefaultIdmAutomaticRoleAttributeService
 		 *   return IdentityState.valueOf(value);
 		 * }
 		*/
+		if (javaType.equals(IdmFormProjection.class)) {
+			// create new instance of projection with filled uuid only - usage in criteris api only 
+			return new IdmFormProjection(EntityUtils.toUuid(value));
+		}
 		if (javaType.equals(ContractState.class)) {
 			return ContractState.valueOf(value);
 		}

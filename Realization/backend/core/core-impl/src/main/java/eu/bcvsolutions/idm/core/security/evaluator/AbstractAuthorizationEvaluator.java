@@ -163,6 +163,6 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	 * @return
 	 */
 	protected boolean hasAuthority(Collection<String> authorities, BasePermission... authority) {
-		return authorities.containsAll(Arrays.stream(authority).map(Object::toString).collect(Collectors.toList()));
+		return authorities.containsAll(Arrays.stream(authority).map(BasePermission::getName).collect(Collectors.toList()));
 	}
 }

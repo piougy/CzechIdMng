@@ -43,7 +43,7 @@ Configuration properties:
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow15" sourceRef="returnedRequestFromHelpdesk" targetRef="exclusivegateway1"></sequenceFlow>
@@ -254,7 +254,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-503B495E-9455-44B9-8789-19E5D35765A9" sourceRef="returnedRequestFromManager" targetRef="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4"></sequenceFlow>
@@ -324,7 +324,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-0311903F-711C-4751-81EB-814842E975FD" sourceRef="returnedRequestFromUserManager" targetRef="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E"></sequenceFlow>

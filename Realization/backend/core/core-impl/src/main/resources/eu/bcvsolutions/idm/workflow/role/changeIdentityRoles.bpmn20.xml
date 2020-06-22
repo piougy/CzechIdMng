@@ -26,7 +26,7 @@ Configuration properties:
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway2" default="flow20"></exclusiveGateway>
@@ -43,7 +43,7 @@ Configuration properties:
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow15" sourceRef="returnedRequestFromHelpdesk" targetRef="exclusivegateway1"></sequenceFlow>
@@ -164,7 +164,7 @@ execution.setVariable("removedConceptRoles", removedConceptRoles);</script>
     <sequenceFlow id="flow35" sourceRef="servicetaskRealization" targetRef="scripttask8"></sequenceFlow>
     <scriptTask id="scripttask4" name="Set request to approved" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
- 
+
 // Set and save state APPROVED to request
 def requestDto = roleRequestService.get(entityEvent.content.id);
 requestDto.setState(RoleRequestState.APPROVED);
@@ -175,7 +175,7 @@ roleRequestService.save(requestDto);</script>
     <scriptTask id="sid-02963C54-77A0-4E79-8EBD-4FBA5CCD4501" name="Set request and concepts to disapproved" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter
           import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
- 
+
  //Request was disapproved, now we set DISAPPROVE state to all concepts and request
 
  IdmConceptRoleRequestFilter filter = new IdmConceptRoleRequestFilter();
@@ -192,7 +192,7 @@ requestDto.setState(RoleRequestState.DISAPPROVED);
 roleRequestService.save(requestDto);</script>
     </scriptTask>
     <scriptTask id="scripttask5" name="Find all helpdesk identities and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script> // Reset decision 
+      <script> // Reset decision
  execution.setVariable("decision", "none");
 
 boolean skip = false;
@@ -215,7 +215,7 @@ if(!skip){
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(helpdesks, implementerIdentifier);
   }else{
-    skip = false; 
+    skip = false;
  }
 }
 
@@ -223,7 +223,7 @@ if(!skip){
 execution.setVariable("skipApproveByHelpDesk", skip);
 
 if(!skip){
-  // Convert all helpdesks to string separate by comma		
+  // Convert all helpdesks to string separate by comma
   def candidates = identityService.convertIdentitiesToString(helpdesks);
 
   //Save candidates to variables
@@ -240,7 +240,7 @@ if(!skip){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="sid-CB31E93D-4436-474F-B565-D990B2AC1E64" default="sid-97770AD6-3F73-4833-B2EE-918194BBA074"></exclusiveGateway>
@@ -254,7 +254,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-503B495E-9455-44B9-8789-19E5D35765A9" sourceRef="returnedRequestFromManager" targetRef="sid-7A6483E5-707A-40F9-A0A7-DFB32DE745A4"></sequenceFlow>
@@ -262,7 +262,7 @@ if(!skip){
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("repairedRequest")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="sid-8554081E-2846-412C-A612-0F532ADABEDA" name="Find all applicant's managers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>// Reset decision 
+      <script>// Reset decision
 execution.setVariable("decision", "none");
 
 boolean skip = false;
@@ -285,7 +285,7 @@ if(!skip){
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(managers, implementerIdentifier);
   }else{
-    skip = false; 
+    skip = false;
  }
 }
 
@@ -293,7 +293,7 @@ if(!skip){
 execution.setVariable("skipApproveByManager", skip);
 
 if(!skip){
-  // Convert all managers to string separate by comma		
+  // Convert all managers to string separate by comma
   def candidates = identityService.convertIdentitiesToString(managers);
 
   //Save candidates to variables
@@ -310,7 +310,7 @@ if(!skip){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="sid-5BBC5295-B11C-4FF1-AF93-B26B087B3471" default="sid-62F032AA-0D66-4AC4-9A9E-EC0276A2EEB3"></exclusiveGateway>
@@ -324,7 +324,7 @@ if(!skip){
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" type="textArea" variable="managerDescription" writable="false"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="false" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="false" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-0311903F-711C-4751-81EB-814842E975FD" sourceRef="returnedRequestFromUserManager" targetRef="sid-17EC3714-6324-4F6C-8BCB-8950E3D2911E"></sequenceFlow>
@@ -333,7 +333,7 @@ if(!skip){
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("repairedRequest")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="sid-3BE56C1C-CC6A-4DD2-AC41-AFCF1A6EC43E" name="Find all user managers and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>// Reset decision 
+      <script>// Reset decision
 execution.setVariable("decision", "none");
 
 boolean skip = false;
@@ -355,7 +355,7 @@ if(!skip){
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(usermanagers, implementerIdentifier);
   }else{
-    skip = false; 
+    skip = false;
  }
 }
 
@@ -363,7 +363,7 @@ if(!skip){
 execution.setVariable("skipApproveByUsermanager", skip);
 
 if(!skip){
-  // Convert all usermanagers to string separate by comma		
+  // Convert all usermanagers to string separate by comma
   def candidates = identityService.convertIdentitiesToString(usermanagers);
 
   //Save candidates to variables
@@ -396,7 +396,7 @@ if(!skip){
     <scriptTask id="scripttask6" name="Set request and concepts to canceled by applicant" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.api.dto.filter.IdmConceptRoleRequestFilter
           import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
- 
+
  //Request was disapproved, now we set CANCELED state to all concepts and request
 
  IdmConceptRoleRequestFilter filter = new IdmConceptRoleRequestFilter();
@@ -424,11 +424,11 @@ roleRequestService.save(requestDto);</script>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <scriptTask id="scripttask7" name="Find all identities with security role and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>// Reset decision 
+      <script>// Reset decision
 execution.setVariable("decision", "none");
 
 boolean skip = false;
@@ -451,7 +451,7 @@ if(!skip){
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(securities, implementerIdentifier);
   }else{
-    skip = false; 
+    skip = false;
  }
 }
 
@@ -459,7 +459,7 @@ if(!skip){
 execution.setVariable("skipApproveBySecurity", skip);
 
 if(!skip){
-  // Convert all securities to string separate by comma		
+  // Convert all securities to string separate by comma
   def candidates = identityService.convertIdentitiesToString(securities);
 
   //Save candidates to variables
@@ -906,11 +906,11 @@ if(sendNotificationToApplicant){
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" type="textArea" expression="#{entityEvent.content.description}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <scriptTask id="scripttask13" name="Find all identities for approving a incompatibilities and resolve if we can skip next task" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>// Reset decision 
+      <script>// Reset decision
 execution.setVariable("decision", "none");
 
 boolean skip = false;
@@ -933,7 +933,7 @@ if(!skip){
   if(implementerIdentifier.equals(securityService.getCurrentId().toString())){
     skip = identityService.containsUser(approvers, implementerIdentifier);
   }else{
-    skip = false; 
+    skip = false;
  }
 }
 
@@ -941,7 +941,7 @@ if(!skip){
 execution.setVariable("skipApproveIncompatibilities", skip);
 
 if(!skip){
-  // Convert all identities to string separate by comma		
+  // Convert all identities to string separate by comma
   def candidates = identityService.convertIdentitiesToString(approvers);
 
   //Save candidates to variables
@@ -958,7 +958,7 @@ if(!skip){
     <scriptTask id="scripttask14" name="Find incompatibilities in approved roles" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.ResolvedIncompatibleRoleDto;
- 
+
 // Check if exists some incompatibilities for that request
 IdmRoleRequestDto requestDto = roleRequestService.get(entityEvent.content.id);
 Set&lt;ResolvedIncompatibleRoleDto&gt; incompatibilities = roleRequestService.getIncompatibleRoles(requestDto);

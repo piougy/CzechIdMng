@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions
-	xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-	xmlns:activiti="http://activiti.org/bpmn" 
-    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-    xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
-    xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
-    typeLanguage="http://www.w3.org/2001/XMLSchema"
-    expressionLanguage="http://www.w3.org/1999/XPath"
-    xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL ../BPMN20.xsd"
-    targetNamespace="http://www.bcvsolutions.eu/test/notification">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.bcvsolutions.eu/test/notification" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL ../BPMN20.xsd">
   <process id="testNotificationDisableGlobal" name="testNotificationDisableGlobal" isExecutable="true">
     <documentation>send notification with task disable property</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
@@ -19,7 +8,7 @@
     <sequenceFlow id="flow2" sourceRef="usertask1" targetRef="endevent1"></sequenceFlow>
     <userTask id="usertask1" name="Send notification" activiti:assignee="wfTestUser02">
       <extensionElements>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
   </process>

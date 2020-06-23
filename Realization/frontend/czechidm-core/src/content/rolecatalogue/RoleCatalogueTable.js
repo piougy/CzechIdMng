@@ -63,7 +63,7 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
       event.stopPropagation();
     }
     const data = {
-      ... this.refs.filterForm.getData(),
+      ...this.refs.filterForm.getData(),
       parent: nodeId
     };
     this.setState({
@@ -84,15 +84,15 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
       return null;
     }
     return (
-      <div className="basic-toolbar" style={{ borderLeft: '1px solid #ddd' }}>
+      <Basic.Div className="basic-toolbar" style={{ borderLeft: '1px solid #ddd' }}>
         <Basic.Alert
           title={ this.i18n('label.selected') }
           level="info"
           style={{ margin: 0, maxWidth: 450 }}>
-          <div style={{ display: 'flex'}}>
-            <div style={{ flex: 1}}>
+          <Basic.Div style={{ display: 'flex'}}>
+            <Basic.Div style={{ flex: 1}}>
               <Basic.ShortText text={ this.getManager().getNiceLabel(selectedNode) } maxLength={ 40 }/>
-            </div>
+            </Basic.Div>
             <Basic.Button
               type="button"
               level="primary"
@@ -101,26 +101,34 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
               onClick={ this.showDetail.bind(this, selectedNode) }>
               { this.i18n('component.advanced.EntityInfo.link.detail.label') }
             </Basic.Button>
-          </div>
+          </Basic.Div>
         </Basic.Alert>
-      </div>
+      </Basic.Div>
     );
   }
 
   render() {
     const { filterOpened } = this.state;
+    const showTree = SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
+    //
     return (
       <Basic.Row>{/* FIXME: resposive design - wrong wrapping on mobile */}
-        <Basic.Col lg={ 3 } style={{ paddingRight: 0 }}>
+        <Basic.Col
+          lg={ 3 }
+          style={{ paddingRight: 0 }}
+          rendered={ showTree === true }>
           <Advanced.Tree
             ref="roleCatalogueTree"
             uiKey="role-catalogue-tree"
             manager={ this.getManager() }
             onChange={ this._useFilterByTree.bind(this) }
-            header={ this.i18n('header') }/>
+            header={ this.i18n('header') }
+            rendered={ showTree }/>
         </Basic.Col>
 
-        <Basic.Col lg={ 9 } style={{ paddingLeft: 0 }}>
+        <Basic.Col
+          lg={ showTree ? 9 : 12 }
+          style={ showTree ? { paddingLeft: 0 } : {} }>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
 
           { this._renderSelectedNode() }
@@ -129,12 +137,12 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
             ref="table"
             uiKey={ this.getUiKey() }
             manager={ this.getManager() }
-            rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+            rowClass={ ({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); } }
             filterOpened={filterOpened}
-            showRowSelection={SecurityManager.hasAuthority('ROLECATALOGUE_DELETE')}
-            style={{ borderLeft: '1px solid #ddd' }}
+            showRowSelection={ SecurityManager.hasAuthority('ROLECATALOGUE_DELETE') }
+            style={ showTree ? { borderLeft: '1px solid #ddd' } : {} }
             filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+              <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <Basic.Col lg={ 4 }>
@@ -167,16 +175,14 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
                   level="success"
                   key="add_button"
                   className="btn-xs"
-                  onClick={this.showDetail.bind(this, { })}
-                  rendered={SecurityManager.hasAuthority('ROLECATALOGUE_CREATE')}>
-                  <Basic.Icon type="fa" icon="plus"/>
-                  {' '}
+                  onClick={ this.showDetail.bind(this, { }) }
+                  rendered={ SecurityManager.hasAuthority('ROLECATALOGUE_CREATE') }
+                  icon="fa:plus">
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
             }
-            _searchParameters={ this.getSearchParameters() }
-            >
+            _searchParameters={ this.getSearchParameters() }>
 
             <Advanced.Column
               header=""
@@ -185,34 +191,41 @@ class RoleCatalogueTable extends Advanced.AbstractTableContent {
                 ({ rowIndex, data }) => {
                   return (
                     <Advanced.DetailButton
-                      title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                      title={ this.i18n('button.detail') }
+                      onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                   );
                 }
               }
               sort={false}/>
-            <Advanced.ColumnLink to="/role-catalogue/:id/detail"
-              header={this.i18n('entity.RoleCatalogue.code.name')}
-              property="code" width="15%" sort face="text"/>
-            <Advanced.Column property="name" header={this.i18n('entity.RoleCatalogue.name.name')} sort face="text"/>
-            <Advanced.Column property="parent.name" cell={
+            <Advanced.ColumnLink
+              to="/role-catalogue/:id/detail"
+              header={ this.i18n('entity.RoleCatalogue.code.name') }
+              property="code"
+              width="15%"
+              sort
+              face="text"/>
+            <Advanced.Column property="name" header={ this.i18n('entity.RoleCatalogue.name.name') } sort face="text"/>
+            <Advanced.Column
+              property="parent.name"
+              cell={
                 ({rowIndex, data}) => {
                   // get parent name from _embedded
                   const parentName = (data[rowIndex]._embedded && data[rowIndex]._embedded.parent) ? data[rowIndex]._embedded.parent.name : null;
                   return parentName;
                 }
               }/>
-            <Advanced.Column header={this.i18n('entity.RoleCatalogue.url')}
+            <Advanced.Column
+              header={ this.i18n('entity.RoleCatalogue.url') }
               cell={
                 ({ rowIndex, data }) => {
-                  return (<Basic.Link href={data[rowIndex].url} text={data[rowIndex].urlTitle} />);
+                  return (<Basic.Link href={ data[rowIndex].url } text={ data[rowIndex].urlTitle } />);
                 }
               }/>
-              <Advanced.Column property="description" sort face="text"/>
-            </Advanced.Table>
-          </Basic.Col>
-        </Basic.Row>
-      );
+            <Advanced.Column property="description" sort face="text"/>
+          </Advanced.Table>
+        </Basic.Col>
+      </Basic.Row>
+    );
   }
 }
 

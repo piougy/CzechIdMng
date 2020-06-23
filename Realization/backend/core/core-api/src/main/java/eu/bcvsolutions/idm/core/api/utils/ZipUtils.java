@@ -107,7 +107,7 @@ public class ZipUtils {
 	    String relativePath = parent.relativize(child).toString();
 	    // Normal slash is needed => prevent to use back slash in zip entry.
 	    if (File.separator.equals("\\")) {
-	        relativePath = relativePath.replace("\\", "/");
+	        relativePath = relativePath.replace('\\', '/');
 	    }
 	    //
 	    return relativePath;

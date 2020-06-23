@@ -63,7 +63,7 @@ module.exports = {
         icon: 'fa:group',
         order: 1010,
         path: '/identities',
-        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ],
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ', 'DELEGATIONDEFINITION_READ'] } ],
         items: [
           {
             id: 'identities',
@@ -394,8 +394,8 @@ module.exports = {
         iconColor: '#419641',
         path: '/organizations',
         access: [
-          { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREETYPE_AUTOCOMPLETE'] },
-          { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ', 'TREETYPE_READ'] }
+          { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ', 'TREETYPE_READ'] },
+          { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREETYPE_AUTOCOMPLETE', 'TREENODE_AUTOCOMPLETE'] }
         ],
         items: [
           {
@@ -406,7 +406,7 @@ module.exports = {
             order: 100,
             icon: 'fa:folder-open',
             path: '/organizations',
-            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ'] } ],
+            access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREENODE_READ', 'TREETYPE_AUTOCOMPLETE'] } ],
             items: [
               {
                 id: 'tree-node-detail',
@@ -628,7 +628,8 @@ module.exports = {
                 labelKey: 'content.role.identities.title',
                 order: 400,
                 path: '/role/:entityId/identities',
-                icon: 'fa:group'
+                icon: 'fa:group',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
               }
             ]
           },

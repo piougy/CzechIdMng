@@ -18,7 +18,7 @@ parameters:
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>delegationCreatedToDelegator</code>
 	<name>Notification informs the delegator about the new delegation.</name>
-	<subject>CzechIdM - některé Vaše úkoly budou delegovány na uživatel $delegate.Username.</subject>
+	<subject>CzechIdM - některé Vaše úkoly budou delegovány na uživatele $delegate.Username.</subject>
 	<bodyHtml>
 <![CDATA[
 <html>

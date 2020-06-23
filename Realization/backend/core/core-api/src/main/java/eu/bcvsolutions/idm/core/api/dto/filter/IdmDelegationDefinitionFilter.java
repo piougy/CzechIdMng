@@ -6,6 +6,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for a definition of delegation.
@@ -26,7 +27,11 @@ public class IdmDelegationDefinitionFilter extends DataFilter {
 	}
 
 	public IdmDelegationDefinitionFilter(MultiValueMap<String, Object> data) {
-		super(IdmExportImportDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmDelegationDefinitionFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmExportImportDto.class, data, parameterConverter);
 	}
 
 	public UUID getDelegatorId() {
@@ -54,7 +59,7 @@ public class IdmDelegationDefinitionFilter extends DataFilter {
 	}
 
 	public String getType() {
-		return getParameterConverter().toString(data, PARAMETER_TYPE);
+		return getParameterConverter().toString(getData(), PARAMETER_TYPE);
 	}
 
 	public void setType(String type) {
@@ -62,7 +67,7 @@ public class IdmDelegationDefinitionFilter extends DataFilter {
 	}
 
 	public Boolean getValid() {
-		return getParameterConverter().toBoolean(data, PARAMETER_VALID);
+		return getParameterConverter().toBoolean(getData(), PARAMETER_VALID);
 	}
 
 	public void setValid(Boolean valid) {

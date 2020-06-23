@@ -38,6 +38,8 @@ import org.springframework.context.annotation.Lazy;
 @Service("delegationManager")
 public class DefaultDelegationManager implements DelegationManager {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultDelegationManager.class);
+	
 	@Autowired
 	private ApplicationContext context;
 	@Lazy
@@ -49,8 +51,6 @@ public class DefaultDelegationManager implements DelegationManager {
 	@Lazy
 	@Autowired
 	private IdmDelegationService delegationService;
-
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultDelegationManager.class);
 
 	@Override
 	public List<IdmDelegationDefinitionDto> findDelegation(String type, UUID delegatorId, UUID delegatorContractId, BaseDto owner) {

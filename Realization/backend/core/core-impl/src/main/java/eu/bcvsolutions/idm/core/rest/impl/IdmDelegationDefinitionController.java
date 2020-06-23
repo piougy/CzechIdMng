@@ -52,12 +52,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Api(
 		value = IdmDelegationDefinitionController.TAG,  
 		tags = { IdmDelegationDefinitionController.TAG }, 
-		description = "Delegation definitons",
+		description = "Delegation definitions",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class IdmDelegationDefinitionController extends AbstractReadWriteDtoController<IdmDelegationDefinitionDto, IdmDelegationDefinitionFilter>  {
 
-	protected static final String TAG = "Delegation definitons";
+	protected static final String TAG = "Delegation definitions";
 	
 	@Autowired
 	private DelegationManager delegationManager;
@@ -73,7 +73,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.DELEGATIONDEFINITION_READ + "')")
 	@ApiOperation(
-			value = "Search definitiones (/search/quick alias)", 
+			value = "Search definitions (/search/quick alias)", 
 			nickname = "searchDefinitions", 
 			tags = { IdmDelegationDefinitionController.TAG }, 
 			authorizations = {
@@ -93,7 +93,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.DELEGATIONDEFINITION_READ + "')")
 	@ApiOperation(
-			value = "Search definitiones", 
+			value = "Search definitions", 
 			nickname = "searchQuickDefinitions", 
 			tags = { IdmDelegationDefinitionController.TAG }, 
 			authorizations = {
@@ -113,7 +113,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 	@RequestMapping(value = "/search/autocomplete", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.DELEGATIONDEFINITION_AUTOCOMPLETE + "')")
 	@ApiOperation(
-			value = "Autocomplete definitiones (selectbox usage)", 
+			value = "Autocomplete definitions (selectbox usage)", 
 			nickname = "autocompleteDefinitions", 
 			tags = { IdmDelegationDefinitionController.TAG }, 
 			authorizations = { 
@@ -154,7 +154,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 	@RequestMapping(method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.DELEGATIONDEFINITION_CREATE + "') or hasAuthority('" + CoreGroupPermission.DELEGATIONDEFINITION_UPDATE + "')")
 	@ApiOperation(
-			value = "Create / update delegation definiton", 
+			value = "Create / update delegation definition", 
 			nickname = "postDelegationDefinition", 
 			response = IdmDelegationDefinitionDto.class, 
 			tags = { IdmDelegationDefinitionController.TAG }, 
@@ -175,7 +175,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.DELEGATIONDEFINITION_UPDATE + "')")
 	@ApiOperation(
-			value = "Update delegation definiton",
+			value = "Update delegation definition",
 			nickname = "putDelegationDefinition", 
 			response = IdmDelegationDefinitionDto.class, 
 			tags = { IdmDelegationDefinitionController.TAG }, 
@@ -186,7 +186,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 						@AuthorizationScope(scope = CoreGroupPermission.DELEGATIONDEFINITION_UPDATE, description = "") })
 				})
 	public ResponseEntity<?> put(
-			@ApiParam(value = "Delegation definiton's uuid identifier", required = true)
+			@ApiParam(value = "Delegation definition's uuid identifier", required = true)
 			@PathVariable @NotNull String backendId, 
 			@Valid @RequestBody IdmDelegationDefinitionDto dto) {
 		return super.put(backendId, dto);
@@ -260,7 +260,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.DELEGATIONDEFINITION_READ + "')")
 	@ApiOperation(
-			value = "Process bulk action for delegation definitons", 
+			value = "Process bulk action for delegation definitions", 
 			nickname = "bulkAction", 
 			response = IdmBulkActionDto.class, 
 			tags = { IdmDelegationDefinitionController.TAG }, 
@@ -279,7 +279,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.DELEGATIONDEFINITION_READ + "')")
 	@ApiOperation(
-			value = "Prevalidate bulk action for delegation definitons", 
+			value = "Prevalidate bulk action for delegation definitions", 
 			nickname = "prevalidateBulkAction", 
 			response = IdmBulkActionDto.class, 
 			tags = { IdmDelegationDefinitionController.TAG }, 
@@ -319,7 +319,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 
 	@Override
 	protected IdmDelegationDefinitionFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmDelegationDefinitionFilter filter = new IdmDelegationDefinitionFilter(parameters);
+		IdmDelegationDefinitionFilter filter = new IdmDelegationDefinitionFilter(parameters, getParameterConverter());
 		return filter;
 	}
 

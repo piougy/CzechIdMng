@@ -7,6 +7,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Filter for a delegation.
@@ -30,7 +31,11 @@ public class IdmDelegationFilter extends DataFilter {
 	}
 
 	public IdmDelegationFilter(MultiValueMap<String, Object> data) {
-		super(IdmExportImportDto.class, data);
+		this(data, null);
+	}
+	
+	public IdmDelegationFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
+		super(IdmExportImportDto.class, data, parameterConverter);
 	}
 
 	public UUID getDelegatorId() {
@@ -82,11 +87,7 @@ public class IdmDelegationFilter extends DataFilter {
 	}
 
 	public boolean isIncludeOwner() {
-		Boolean result = getParameterConverter().toBoolean(getData(), PARAMETER_INCLUDE_OWNER);
-		if (result == null) {
-			return false;
-		}
-		return result;
+		return getParameterConverter().toBoolean(getData(), PARAMETER_INCLUDE_OWNER, false);
 	}
 
 	public void setIncludeOwner(boolean includeOwner) {
@@ -94,11 +95,11 @@ public class IdmDelegationFilter extends DataFilter {
 	}
 
 	public void setOperationState(OperationState operation) {
-		data.set(PARAMETER_OPERATION_STATE, operation);
+		set(PARAMETER_OPERATION_STATE, operation);
 	}
 
 	public OperationState getOperationState() {
-		return getParameterConverter().toEnum(data, PARAMETER_OPERATION_STATE, OperationState.class);
+		return getParameterConverter().toEnum(getData(), PARAMETER_OPERATION_STATE, OperationState.class);
 	}
 
 }

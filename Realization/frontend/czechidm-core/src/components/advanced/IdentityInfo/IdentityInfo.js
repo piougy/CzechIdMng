@@ -216,7 +216,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           ?
           <AuditableInfo entity={ _entity } face="content" showAuditLink={ false }/>
           :
-          <Basic.Div rendered={expandInfo} className="image-field-container">
+          <Basic.Div rendered={ expandInfo } className="image-field-container">
             <Basic.Div className="image-col">
               { this.renderImage(_entity) }
             </Basic.Div>

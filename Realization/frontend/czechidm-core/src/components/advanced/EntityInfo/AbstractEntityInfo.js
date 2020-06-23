@@ -19,7 +19,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
-    const {collapse, collapsable, face} = props;
+    const { collapse, collapsable, face } = props;
 
     let expandInfo = true;
     if (collapsable && face === 'full') {
@@ -297,7 +297,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     //
     return (
       <Basic.Icon
-        value={expandInfo ? 'fa:angle-down arrow-icon' : 'fa:angle-left arrow-icon'}
+        value={ expandInfo ? 'fa:angle-down arrow-icon' : 'fa:angle-left arrow-icon' }
         style={{
           color: '#000',
           marginLeft: 10,

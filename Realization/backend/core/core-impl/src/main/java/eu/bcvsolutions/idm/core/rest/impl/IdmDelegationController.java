@@ -244,7 +244,7 @@ public class IdmDelegationController extends AbstractReadWriteDtoController<IdmD
 
 	@Override
 	protected IdmDelegationFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmDelegationFilter filter = new IdmDelegationFilter(parameters);
+		IdmDelegationFilter filter = new IdmDelegationFilter(parameters, getParameterConverter());
 		filter.setIncludeOwner(true);
 		return filter;
 	}

@@ -5831,7 +5831,7 @@
         "icon": "$t(action.delete.icon)"
       },
       "core-delegation-definition-delete-bulk-action": {
-        "label": "$t(action.delete.action) definic delegací",
+        "label": "$t(action.delete.action) definice delegací",
         "help": "Smaže vybrané definice.",
         "icon": "$t(action.delete.icon)"
       }
@@ -7479,7 +7479,7 @@
       "message": "Rodičovská položka [{{field}}] musí mít datový typ UUID!"
     },
     "DELEGATION_UNSUPPORTED_TYPE": {
-      "title": "Type delegace není podporován!",
+      "title": "Typ delegace není podporován!",
       "message": "Typ delegace [{{type}}] není podporován!"
     },
     "DELEGATION_DEFINITION_CANNOT_BE_UPDATED": {

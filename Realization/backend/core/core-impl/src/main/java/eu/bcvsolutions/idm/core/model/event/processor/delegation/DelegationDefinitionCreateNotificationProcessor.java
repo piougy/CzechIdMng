@@ -83,10 +83,10 @@ public class DelegationDefinitionCreateNotificationProcessor extends CoreEventPr
 		UUID currentUserId = securityService.getCurrentId();
 		
 		// Send notification to the delegate.
-		senNotification(CoreModuleDescriptor.TOPIC_DELEGATION_CREATED_TO_DELEGATE, dto, delegator, delegate, from, till, delegate);
+		sendNotification(CoreModuleDescriptor.TOPIC_DELEGATION_CREATED_TO_DELEGATE, dto, delegator, delegate, from, till, delegate);
 		// Send notification to the delegator (only if the delegator didn't create the delegation).
 		if (!dto.getDelegator().equals(currentUserId)) {
-			senNotification(CoreModuleDescriptor.TOPIC_DELEGATION_CREATED_TO_DELEGATOR, dto, delegator, delegate, from, till, delegator);
+			sendNotification(CoreModuleDescriptor.TOPIC_DELEGATION_CREATED_TO_DELEGATOR, dto, delegator, delegate, from, till, delegator);
 		}
 
 		return new DefaultEventResult<>(event, this);
@@ -103,7 +103,7 @@ public class DelegationDefinitionCreateNotificationProcessor extends CoreEventPr
 	 * @param till
 	 * @param recipient 
 	 */
-	private void senNotification(String topic, IdmDelegationDefinitionDto dto,
+	private void sendNotification(String topic, IdmDelegationDefinitionDto dto,
 			IdmIdentityDto delegator, IdmIdentityDto delegate,
 			String from, String till, IdmIdentityDto recipient) {
 

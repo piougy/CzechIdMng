@@ -18,7 +18,7 @@ parameters:
 		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
 	<code>delegationDeletedToDelegate</code>
 	<name>Notification informs the delegate about the deleted delegation.</name>
-	<subject>CzechIdM - delegace úkolů od uživatel $delegator.Username na Vás byla odstraněna.</subject>
+	<subject>CzechIdM - delegace úkolů od uživatele $delegator.Username na Vás byla odstraněna.</subject>
 	<bodyHtml>
 <![CDATA[
 <html>

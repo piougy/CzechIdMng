@@ -45,7 +45,7 @@ export default class DetailHeader extends Basic.AbstractContextComponent {
           </Basic.Div>
           <Basic.Div style={{ fontSize: '0.85em' }}>
             { buttons }
-            <AuditableInfo entity={ entity } additionalOptions={additionalOptions}/>
+            <AuditableInfo entity={ entity } additionalOptions={ additionalOptions }/>
             <CloseButton to={ back } />
           </Basic.Div>
         </Basic.Div>

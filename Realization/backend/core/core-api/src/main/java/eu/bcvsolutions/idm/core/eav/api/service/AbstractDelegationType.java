@@ -28,13 +28,14 @@ public abstract class AbstractDelegationType implements
 		DelegationType,
 		BeanNameAware {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractDelegationType.class);
+	
 	@Autowired
 	private IdmDelegationDefinitionService delegationDefinitionService;
 	@Autowired
 	private IdmDelegationService delegationService;
 
 	private String beanName; // spring bean name - used as id
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractDelegationType.class);
 
 	@Override
 	public void setBeanName(String name) {

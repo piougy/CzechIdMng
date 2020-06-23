@@ -467,7 +467,7 @@ module.exports = {
         iconColor: '#eb9316',
         order: 1030,
         path: '/roles',
-        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ', 'ROLECATALOGUE_READ'] } ],
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ', 'ROLECATALOGUE_READ', 'ROLETREENODE_READ'] } ],
         items: [
           {
             id: 'roles',

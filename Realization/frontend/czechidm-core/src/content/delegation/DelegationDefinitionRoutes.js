@@ -55,6 +55,7 @@ class DelegationDefinitionRoutes extends Basic.AbstractContent {
           <Advanced.DetailHeader
             entity={ entity }
             showLoading={ showLoading }
+            icon="fa:dolly"
             back="/delegation-definitions">
             { this.i18n('content.delegation-definitions.detailHeader',
               {delegator: identityManager.getNiceLabel(entity._embedded.delegator),

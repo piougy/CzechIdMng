@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.core.api.bulk.action;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -23,6 +25,14 @@ public interface BulkActionManager {
 	List<IdmBulkActionDto> getAvailableActions(Class<? extends BaseEntity> entity);
 	
 	/**
+	 * Get all available bulk actions for given entity
+	 *
+	 * @param dtoClass action for given dtoClass
+	 * @return available bulk actions.
+	 */
+	public List<IdmBulkActionDto> getAvailableActionsForDto(Class<? extends BaseDto> dtoClass);
+	
+	/**
 	 * Process bulk action in new long running task
 	 *
 	 * @param actionDto action configuration.
@@ -40,5 +50,13 @@ public interface BulkActionManager {
 	 * @return Messages - what action will or will not do.
 	 */
 	ResultModels prevalidate(IdmBulkActionDto bulkAction);
+	
+	/**
+	 * To DTO conversion.
+	 * 
+	 * @param action
+	 * @return 
+	 */
+	public IdmBulkActionDto toDto(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action);
 	
 }

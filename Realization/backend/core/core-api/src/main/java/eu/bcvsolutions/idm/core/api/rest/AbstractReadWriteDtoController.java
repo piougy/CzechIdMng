@@ -1,9 +1,6 @@
 package eu.bcvsolutions.idm.core.api.rest;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,18 +16,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.Assert;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
-import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.domain.RequestConfiguration;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
@@ -58,8 +50,6 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	//
 	@Autowired(required = false) // optional dependency for support automatic JSR303 validations
 	private ValidatorFactory validatorFactory;
-	@Autowired
-	private BulkActionManager bulkActionManager;
 	@Autowired
 	private RequestConfiguration requestConfiguration;
 	@Autowired
@@ -239,40 +229,6 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 		//
 		getService().delete(dto, IdmBasePermission.DELETE);
 	}
-	
-	/**
-	 * Returns available bulk actions
-	 * 
-	 * @return
-	 */
-	public List<IdmBulkActionDto> getAvailableBulkActions() {
-		return bulkActionManager.getAvailableActions(getService().getEntityClass());
-	}
-	
-	/**
-	 * Process bulk action
-	 * 
-	 * @param bulkAction
-	 * @return
-	 */
-	public ResponseEntity<IdmBulkActionDto> bulkAction(IdmBulkActionDto bulkAction) {
-		initBulkAction(bulkAction);
-		return new ResponseEntity<IdmBulkActionDto>(bulkActionManager.processAction(bulkAction), HttpStatus.CREATED);
-	}
-	
-	/**
-	 * Start prevalidation for given bulk action
-	 * @param bulkAction
-	 * @return
-	 */
-	public ResponseEntity<ResultModels> prevalidateBulkAction(IdmBulkActionDto bulkAction) {
-		initBulkAction(bulkAction);
-		ResultModels result = bulkActionManager.prevalidate(bulkAction);
-		if(result == null) {
-			return new ResponseEntity<ResultModels>(HttpStatus.NO_CONTENT);
-		}
-		return new ResponseEntity<ResultModels>(result, HttpStatus.OK);
-	}
 
 	/**
 	 * Returns DTO service configured to current controller
@@ -280,34 +236,6 @@ public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F exte
 	@Override
 	protected ReadWriteDtoService<DTO, F> getService() {
 		return (ReadWriteDtoService<DTO, F>) super.getService();
-	}
-	
-	/**
-	 * Init bulk action
-	 * @param bulkAction
-	 */
-	@SuppressWarnings("unchecked")
-	private void initBulkAction(IdmBulkActionDto bulkAction) {
-		// TODO: use MultiValueMap in object if is possible?
-		if (bulkAction.getFilter() != null) {
-			MultiValueMap<String, Object> multivaluedMap = new LinkedMultiValueMap<>();
-			Map<String, Object> properties = bulkAction.getFilter();
-			
-			for (Entry<String, Object> entry : properties.entrySet()) {
-				Object value = entry.getValue();
-				if (value == null) {
-					multivaluedMap.remove(entry.getKey());
-				} else if(value instanceof List<?>) {
-					multivaluedMap.put(entry.getKey(), (List<Object>) value);
-				} else {
-					multivaluedMap.add(entry.getKey(), entry.getValue());
-				}
-			}
-			F filter = this.toFilter(multivaluedMap);
-			bulkAction.setTransformedFilter(filter);
-		}
-		bulkAction.setEntityClass(getService().getEntityClass().getName());
-		bulkAction.setFilterClass(this.getFilterClass().getName());
 	}
 	
 	@Override

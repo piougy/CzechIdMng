@@ -362,7 +362,9 @@ public enum CoreResultCode implements ResultCode {
 	// Delegations
 	DELEGATION_UNSUPPORTED_TYPE(HttpStatus.NOT_FOUND, "Delegation type [%s] is not supported!"),
 	DELEGATION_DEFINITION_CANNOT_BE_UPDATED(HttpStatus.BAD_REQUEST, "Definition of a delegation cannot be updated!"),
-	DELEGATION_DEFINITION_DELEGATOR_AND_DELEGATE_ARE_SAME(HttpStatus.BAD_REQUEST, "Delegator and delegate [%s] cannot be same for one delegation definition!");
+	DELEGATION_DEFINITION_DELEGATOR_AND_DELEGATE_ARE_SAME(HttpStatus.BAD_REQUEST, "Delegator and delegate [%s] cannot be same for one delegation definition!"),
+	MANUAL_TASK_DELEGATION_DELEGATOR_MISSING(HttpStatus.BAD_REQUEST, "Delegator not found. You must apply a filter by delegator (assigned user)!"),
+	MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE(HttpStatus.BAD_REQUEST, "Delegator [%s] isn't candidate of the task [%s]!");
 	
 	
 	

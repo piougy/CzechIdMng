@@ -122,6 +122,8 @@ public class DefaultDelegationManager implements DelegationManager {
 		}
 		delegationTypeDto.setModule(delegationType.getModule());
 		delegationTypeDto.setSupportsDelegatorContract(delegationType.isSupportsDelegatorContract());
+		delegationTypeDto.setCanBeCreatedManually(delegationType.canBeCreatedManually());
+		delegationTypeDto.setSendNotifications(delegationType.sendNotifications());
 		//
 		return delegationTypeDto;
 	}

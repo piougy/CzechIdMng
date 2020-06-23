@@ -39,6 +39,36 @@ public interface DelegationType extends Ordered{
 	default String getModule() {
 		return EntityUtils.getModule(this.getClass());
 	}
+	
+	/**
+	 * Can be this delegation created manually? If not, then this delegation type
+	 * will be not show in selectbox on FE.
+	 * 
+	 * @return 
+	 */
+	default public boolean canBeCreatedManually() {
+		return true;
+	}
+	
+	/**
+	 * If true, then notification about creation and delete of the delegation definition
+	 * will be send.
+	 * 
+	 * @return 
+	 */
+	default public boolean sendNotifications() {
+		return true;
+	}
+	
+	/**
+	 * If true, then notification about creation of the delegation
+	 * will be send.
+	 * 
+	 * @return 
+	 */
+	default public boolean sendDelegationNotifications() {
+		return false;
+	}
 
 	/**
 	 * If return true, then this delegation using identity-contract and will be

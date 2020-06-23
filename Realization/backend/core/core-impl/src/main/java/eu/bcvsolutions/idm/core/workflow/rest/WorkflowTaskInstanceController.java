@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.workflow.rest;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -32,6 +35,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmDelegation_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataWrapperDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceAbstractDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
@@ -40,7 +44,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.domain.Page;
 
@@ -66,6 +74,7 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 
 	@Autowired
 	private DelegationManager delegationManager;
+	@Autowired	private BulkActionManager bulkActionManager;
 	private final WorkflowTaskInstanceService workflowTaskInstanceService;
 
 	@Autowired
@@ -161,6 +170,68 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 
 		return results;
 	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/bulk/actions", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.WORKFLOW_TASK_READ + "')")
+	@ApiOperation(
+			value = "Get available bulk actions", 
+			nickname = "availableBulkAction", 
+			tags = { WorkflowTaskInstanceController.TAG },
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+			@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+			@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "")})
+			})
+	@Override
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return bulkActionManager.getAvailableActionsForDto(WorkflowTaskInstanceAbstractDto.class);
+	}
+	
+	@ResponseBody
+	@RequestMapping(path = "/bulk/action", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.WORKFLOW_TASK_READ + "')")
+	@ApiOperation(
+			value = "Process bulk action", 
+			nickname = "bulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { WorkflowTaskInstanceController.TAG },
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+			@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+			@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "")})
+			})
+	@Override
+	public ResponseEntity<IdmBulkActionDto> bulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		// Set DTO name to the action directly.
+		bulkAction.setDtoClass(WorkflowTaskInstanceAbstractDto.class.getCanonicalName());
+		
+		return super.bulkAction(bulkAction);
+	}
+	
+	@ResponseBody
+	@RequestMapping(path = "/bulk/prevalidate", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.WORKFLOW_TASK_READ + "')")
+	@ApiOperation(
+			value = "Prevalidate bulk action", 
+			nickname = "prevalidateBulkAction", 
+			response = IdmBulkActionDto.class, 
+			tags = { WorkflowTaskInstanceController.TAG },
+			authorizations = {
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
+			@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
+			@AuthorizationScope(scope = CoreGroupPermission.WORKFLOW_TASK_READ, description = "")})
+			})
+	@Override
+	public ResponseEntity<ResultModels> prevalidateBulkAction(@Valid @RequestBody IdmBulkActionDto bulkAction) {
+		// Set DTO name to the action directly.
+		bulkAction.setDtoClass(WorkflowTaskInstanceAbstractDto.class.getCanonicalName());
+		
+		return super.prevalidateBulkAction(bulkAction);
+	}
 
 	/**
 	 * Find and add definition of the delegation connected with this task.
@@ -172,9 +243,13 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 			// We need to create mock task, because DTO can be instance of historic task here.
 			WorkflowTaskInstanceDto mockTask = new WorkflowTaskInstanceDto();
 			mockTask.setId(dto.getId());
-			List<IdmDelegationDto> delegations = delegationManager.findDelegationForOwner(mockTask, permission);
+			List<IdmDelegationDto> delegations = delegationManager.findDelegationForOwner(mockTask, permission)
+					.stream()
+					.sorted(Comparator.comparing(IdmDelegationDto::getCreated))
+					.collect(Collectors.toList());
 			// TODO: ONLY first delegation definition is sets to the task!
 			if (!CollectionUtils.isEmpty(delegations)) {
+				Collections.reverse(delegations);
 				IdmDelegationDto delegation = delegations.get(0);
 				IdmDelegationDefinitionDto definition = DtoUtils.getEmbedded(delegation,
 						IdmDelegation_.definition.getName(), IdmDelegationDefinitionDto.class);
@@ -182,4 +257,15 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 			}
 		}
 	}
+
+	@Override
+	protected WorkflowFilterDto toFilter(MultiValueMap<String, Object> parameters) {
+		WorkflowFilterDto filter = super.toFilter(parameters);
+		
+		if (filter == null) {
+			return new WorkflowFilterDto();
+		}
+		return filter;
+	}
+	
 }

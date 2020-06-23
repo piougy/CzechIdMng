@@ -21,6 +21,10 @@ class WorkflowTaskInstanceService extends AbstractService {
     return true;
   }
 
+  supportsBulkAction() {
+    return true;
+  }
+
   getGroupPermission() {
     return 'WORKFLOWTASK';
   }

@@ -2109,8 +2109,12 @@
             "text": "Úkoly navázané na kontrakt."
           }
         },
-        "approving-role-request-delegation-type": {
-          "label": "Delegace pro úkoly schvalující změnu oprávnění (celá žádost)"
+        "manual-task-delegation-type": {
+          "label": "Ruční delegace úkolů",
+          "info": {
+            "header": "Ruční delegace úkolů",
+            "text": "Vzniká automaticky na základě použití operace delegování nad agendou přiřazených úkolů."
+          }
         }
       },
       "identity-is-delegator": "Na koho deleguji",
@@ -5834,6 +5838,20 @@
         "label": "$t(action.delete.action) definice delegací",
         "help": "Smaže vybrané definice.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-manual-wf-task-delegation-bulk-action": {
+        "label": "Ruční delegace úkolů",
+        "icon": "fa:dolly",
+        "attributes": {
+          "delegate": {
+            "label": "Delegát",
+            "help": "Na koho se mají úkoly přesunout."
+          },
+          "candidateorassigned": {
+            "label": "Delegátor",
+            "help": "Od koho se mají úkoly přesunout."
+          }
+        }
       }
     },
     "authorization-evaluator": {
@@ -7489,6 +7507,14 @@
     "DELEGATION_DEFINITION_DELEGATOR_AND_DELEGATE_ARE_SAME": {
       "title": "Delegující a delegovaný nemohou být stejní!",
       "message": "Delegující a delegovaný nemohou být stejní v rámci stejné delegace!"
+    },
+    "MANUAL_TASK_DELEGATION_DELEGATOR_MISSING": {
+      "title": "Není specifikovano od koho se úkoly mají delegovat!",
+      "message": "Pro specifikování delegátora můžete použít filtr (Přiřazeno) nad agendou všech úkolů a nebo vyberte delegátora níže. Delegování úkolu proběhne pouze, pokud jedním z řešitelů je vybraný delegátor."
+    },
+    "MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE": {
+      "title": "Delegátor není schvalovatelem úkolu!",
+      "message": "Delegátor [{{delegator}}] není schvalovatelem úkolu [{{task}}]."
     }
   },
   "validationError": {

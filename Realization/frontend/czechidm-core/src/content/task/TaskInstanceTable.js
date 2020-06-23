@@ -92,7 +92,7 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, taskInstanceManager, columns, searchParameters, showFilter, showToolbar, username, userContext } = this.props;
+    const { uiKey, taskInstanceManager, columns, searchParameters, showFilter, showToolbar, username, userContext, showRowSelection } = this.props;
     const { filterOpened} = this.state;
     let _searchParameters = null;
     if (searchParameters == null) {
@@ -105,11 +105,11 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
         ref="table"
         uiKey={uiKey}
         manager={taskInstanceManager}
-        showRowSelection={false}
+        showRowSelection={showRowSelection}
         forceSearchParameters={_searchParameters}
         filterOpened={filterOpened}
         showFilter={showFilter}
-        showToolbar={showToolbar}
+        showToolbar={showToolbar || showRowSelection}
         filter={
           <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
             <Basic.AbstractForm ref="filterForm">
@@ -201,7 +201,8 @@ TaskInstanceTable.propTypes = {
   filterOpened: PropTypes.bool,
   searchParameters: PropTypes.object,
   showFilter: PropTypes.bool,
-  showToolbar: PropTypes.bool
+  showToolbar: PropTypes.bool,
+  showRowSelection: PropTypes.bool
 };
 
 TaskInstanceTable.defaultProps = {
@@ -210,7 +211,8 @@ TaskInstanceTable.defaultProps = {
   _showLoading: false,
   searchParameters: null,
   showFilter: false,
-  showToolbar: false
+  showToolbar: false,
+  showRowSelection: true
 };
 
 function select(state, component) {

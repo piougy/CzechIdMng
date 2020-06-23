@@ -1,0 +1,100 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "yes"?>
+<!-- 
+@author Vít Švanda
+
+Notification informs the delegate about the new delegation instance.
+
+parameters:
+    - delegation
+    - delegator
+    - instance
+    - delegate
+    - url
+ -->
+
+<template
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:noNamespaceSchemaLocation="IdmNotificationTemplate.xsd">
+	<code>delegationInstanceCreatedToDelegate</code>
+	<name>Notification informs the delegate about the new delegation instance.</name>
+	<subject>CzechIdM - uživatel $delegator.Username na Vás deleguje jeden ze svých úkolů.</subject>
+	<bodyHtml>
+<![CDATA[
+<html>
+	<body style="font-family:'Lato', Tahoma, Verdana, Segoe, sans-serif;line-height:120%;color:#555555; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+		<!-- Macros for Apache velocity -->
+		#macro( printType $state $loc )
+			#if($loc == "cs")
+			#if( $state == "default-delegation-type" )
+			Výchozí delegace pro všechny úkoly
+				#elseif( $state == "approve-role-by-manager-delegation-type" )
+			Delegace pro úkoly schvalující přiřazení rolí dle vedoucího
+				#elseif( $state == "manual-task-delegation-type" )
+			Ruční delegace úkolů
+				#else
+				#end
+				#else
+					#if( $state == "default-delegation-type" )
+				Default delegation for all tasks
+					#elseif( $state == "approve-role-by-manager-delegation-type" )
+				Delegation for tasks approving role assignments by a manager
+					#elseif( $state == "manual-task-delegation-type" )
+				Manual task delegation
+					#else
+				#end
+			#end
+		#end
+   
+		
+		Dobrý den,<br />
+		jeden z úkolů uživatele <strong>$delegator.Username</strong> byl delegován na Vás.<br/>
+		<br />
+
+        <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
+            border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+            Detail tohoto <b>úkolu</b> najdete zde <b><a href='$url'>zde</a>.</b><br/>
+        </div>
+
+		<br />
+        #set( $loc = "cs" )
+        Type delegace: <strong>#printType( $delegation.type $loc )</strong>
+        <br />
+        Delegaci vytvořil uživatel: <strong>$instance.OriginalCreator</strong>
+		<br />
+
+		<div style="display: block; margin: 30px auto; max-width: 400px; text-align: center;">
+			CzechIdM © 2020&nbsp;BCV Solutions s.r.o.&nbsp;
+		</div>
+
+		<div style="display: block; margin: 30px auto; max-width: 800px; text-align: center;">
+				----------------------------------------- English version -----------------------------------------
+		</div>
+
+		Hello,<br />
+		one of the tasks for <strong>$delegator.Username</strong> has been delegated to you.<br/>
+		<br />
+
+        <div style="display: block; margin: 10px auto; max-width: 400px; background-color: #d9edf7; color: #31708f; padding: 10px;
+            border: 1px solid; border-radius: 4px; border-color: #bce8f1;">
+            Detail of this <b>task</b> can be found <b><a href='$url'>here</a>.</b><br/>
+        </div>
+
+        <br />
+        #set( $loc = "en" )
+        Delegation type: <strong>#printType( $delegation.type $loc )</strong>
+        <br />
+        Delegation was created by user: <strong>$instance.OriginalCreator</strong>
+		<br />
+
+		<div style="display: block; margin: 30px auto; max-width: 400px; text-align: center;">
+			CzechIdM © 2020&nbsp;BCV Solutions s.r.o.&nbsp;
+		</div>
+	</body>
+</html>
+]]>
+	</bodyHtml>
+	<bodyText></bodyText>
+	<parameter>delegation, instance, url</parameter>
+	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
+</template>

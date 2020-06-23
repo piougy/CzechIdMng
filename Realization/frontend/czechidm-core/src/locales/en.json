@@ -2059,8 +2059,12 @@
             "text": "Tasks related to the contract."
           }
         },
-        "approving-role-request-delegation-type": {
-          "label": "Delegation for tasks approves change of authorization (whole request)"
+        "manual-task-delegation-type": {
+          "label": "Manual task delegation",
+          "info": {
+            "header": "Manual task delegation",
+            "text": "It is created automatically on using the delegate operation over the agenda of assigned tasks."
+          }
         }
       },
       "identity-is-delegator": "Who am I delegating to",
@@ -5782,6 +5786,20 @@
         "label": "$t(action.delete.action) definitions of delegations",
         "help": "$t(action.delete.action) selected definitions.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-manual-wf-task-delegation-bulk-action": {
+        "label": "Manual task delegation",
+        "icon": "fa:dolly",
+        "attributes": {
+          "delegate": {
+            "label": "Delegate",
+            "help": "To whom should tasks be assigned."
+          },
+          "candidateorassigned": {
+            "label": "Delegator",
+            "help": "From whom tasks should be assigned."
+          }
+        }
       }
     },
     "authorization-evaluator": {
@@ -7437,6 +7455,14 @@
     "DELEGATION_DEFINITION_DELEGATOR_AND_DELEGATE_ARE_SAME": {
       "title": "The delegator and the delegate cannot be the same!",
       "message": "Delegator and delegate cannot be the same within the same delegation!"
+    },
+    "MANUAL_TASK_DELEGATION_DELEGATOR_MISSING": {
+      "title": "It is not specified who the tasks are to be delegated to!",
+      "message": "To specify a delegator, you can use the filter (Assigned) above the agenda of all tasks or select a delegator below. The task will be delegated only if one of the solvers is the selected delegator."
+    },
+    "MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE": {
+      "title": "The delegator is not the task approver!",
+      "message": "The delegator [{{delegator}}] is not the approver of the task [{{task}}]."
     }
   },
   "validationError": {

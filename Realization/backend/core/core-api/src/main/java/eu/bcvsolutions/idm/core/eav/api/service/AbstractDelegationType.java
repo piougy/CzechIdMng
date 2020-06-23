@@ -33,7 +33,7 @@ public abstract class AbstractDelegationType implements
 	@Autowired
 	private IdmDelegationDefinitionService delegationDefinitionService;
 	@Autowired
-	private IdmDelegationService delegationService;
+	protected IdmDelegationService delegationService;
 
 	private String beanName; // spring bean name - used as id
 
@@ -67,7 +67,8 @@ public abstract class AbstractDelegationType implements
 				.stream()
 				.sorted(Comparator.comparing(IdmDelegationDefinitionDto::getDelegate))
 				.sorted(Comparator.comparing(IdmDelegationDefinitionDto::getValidTill,
-						Comparator.nullsFirst(Comparator.naturalOrder()))).collect(Collectors.toList());
+						Comparator.nullsFirst(Comparator.naturalOrder())))
+				.collect(Collectors.toList());
 	}
 
 	@Override

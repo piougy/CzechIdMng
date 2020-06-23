@@ -147,6 +147,10 @@ public class DefaultWorkflowTaskInstanceService extends
 	@Override
 	public Set<String> getPermissions(Serializable id) {
 		Assert.notNull(id, "Identifier is required.");
+		if (id instanceof BaseDto) {
+			BaseDto baseDto = (BaseDto) id;
+			return this.getPermissions(this.get(baseDto.getId()));
+		}
 		return this.getPermissions(this.get(id));
 	}
 
@@ -194,6 +198,27 @@ public class DefaultWorkflowTaskInstanceService extends
 		}
 		return permissions;
 	}
+
+	@Override
+	public Page<UUID> findIds(WorkflowFilterDto filter, Pageable pageable, BasePermission... permission) {
+		
+		Page<WorkflowTaskInstanceDto> page = this.find(filter, pageable, permission);
+		
+		List<UUID> uuids = page.getContent()
+				.stream()
+				.map(task -> UUID.fromString(task.getId()))
+				.collect(Collectors.toList());
+		
+		return new PageImpl<>(uuids, page.getPageable(), page.getTotalElements());
+	}
+	
+	@Override
+	public Page<UUID> findIds(Pageable pageable, BasePermission... permission) {
+		
+		return findIds(null, pageable, permission);
+	}
+	
+	
 
 	private WorkflowTaskInstanceDto toResource(TaskInfo task, BasePermission[] permission) {
 		if (task == null) {

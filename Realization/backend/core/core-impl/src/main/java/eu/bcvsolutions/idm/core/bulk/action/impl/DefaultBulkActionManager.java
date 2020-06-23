@@ -66,8 +66,12 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		//
 		LongRunningFutureTask<OperationResult> execute = taskManager.execute(executor);
 		action.setLongRunningTaskId(execute.getExecutor().getLongRunningTaskId());
-		action.setEntityClass(executor.getService().getEntityClass().getName());
-		action.setFilterClass(executor.getService().getFilterClass().getName());
+		if (executor.getService().getEntityClass() != null) {
+			action.setEntityClass(executor.getService().getEntityClass().getName());
+		}
+		if (executor.getService().getFilterClass() != null) {
+			action.setFilterClass(executor.getService().getFilterClass().getName());
+		}
 		action.setModule(executor.getModule());
 		action.setFormAttributes(executor.getFormAttributes());
 		//
@@ -104,6 +108,18 @@ public class DefaultBulkActionManager implements BulkActionManager {
 					if (action.isGeneric()) {
 						return createNewActionInstance(action, entity);
 					}
+					return action;
+				})
+				.map(this::toDto)
+				.collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<IdmBulkActionDto> getAvailableActionsForDto(Class<? extends BaseDto> dtoClass) {
+
+		List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> enabledActions = getEnabledActionsForDto(dtoClass);
+		return enabledActions.stream()
+				.map(action -> {
 					return action;
 				})
 				.map(this::toDto)
@@ -152,26 +168,51 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	@SuppressWarnings("unchecked")
 	private AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> getOperationForDto(IdmBulkActionDto actionDto) {
 		Assert.notNull(actionDto, "Action DTO is required to get action executor.");
-		Assert.notNull(actionDto.getEntityClass(), "Action has to be assigned to some entity, which can action process.");
-		try {
-			Class<?> forName = Class.forName(actionDto.getEntityClass());
-			if (AbstractEntity.class.isAssignableFrom(forName)) {
-				List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> actions = getEnabledActions((Class<? extends BaseEntity>) forName);
-				//
-				for (AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action : actions) {
-					// skip disabled modules 
-					if (!enabledEvaluator.isEnabled(action)) {
-						continue;
-					}
-					if (action.getName().equals(actionDto.getName())) {
-						return action;
+
+		if (actionDto.getEntityClass() != null) {
+			try {
+				Class<?> forName = Class.forName(actionDto.getEntityClass());
+				if (AbstractEntity.class.isAssignableFrom(forName)) {
+					List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> actions = getEnabledActions((Class<? extends BaseEntity>) forName);
+					//
+					for (AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action : actions) {
+						// skip disabled modules 
+						if (!enabledEvaluator.isEnabled(action)) {
+							continue;
+						}
+						if (action.getName().equals(actionDto.getName())) {
+							return action;
+						}
 					}
 				}
+			} catch (ClassNotFoundException e) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionClass", actionDto.getEntityClass()), e);
 			}
-		} catch (ClassNotFoundException e) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionClass", actionDto.getEntityClass()), e);
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionName", actionDto.getName()));
 		}
-		throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionName", actionDto.getName()));
+
+		if (actionDto.getDtoClass() != null) {
+			try {
+				Class<?> forName = Class.forName(actionDto.getDtoClass());
+				if (BaseDto.class.isAssignableFrom(forName)) {
+					List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> actions = getEnabledActionsForDto((Class<? extends BaseDto>) forName);
+					//
+					for (AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action : actions) {
+						// skip disabled modules 
+						if (!enabledEvaluator.isEnabled(action)) {
+							continue;
+						}
+						if (action.getName().equals(actionDto.getName())) {
+							return action;
+						}
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionClass", actionDto.getDtoClass()), e);
+			}
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("bulkActionName", actionDto.getName()));
+		}
+		return null;
 	}
 	
 	/**
@@ -180,11 +221,19 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	 * @param action
 	 * @return
 	 */
-	private IdmBulkActionDto toDto(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action) {
+	@Override
+	public IdmBulkActionDto toDto(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action) {
 		IdmBulkActionDto actionDto = new IdmBulkActionDto();
 		actionDto.setId(action.getName()); // FIXME: spring bean name 
-		actionDto.setEntityClass(action.getService() != null ? action.getService().getEntityClass().getName() : null);
-		actionDto.setFilterClass(action.getService() != null ? action.getService().getFilterClass().getName() : null);
+		if (action.getService() != null && action.getService().getEntityClass() != null) {
+			actionDto.setEntityClass(action.getService().getEntityClass().getName());
+		}
+		if (action.getDtoClass() != null) {
+			actionDto.setDtoClass(action.getDtoClass().getName());
+		}
+		if (action.getService() != null && action.getService().getFilterClass() != null) {
+			actionDto.setFilterClass(action.getService().getFilterClass().getName());
+		}
 		actionDto.setModule(action.getModule());
 		actionDto.setName(action.getName());
 		actionDto.setDescription(action.getDescription());
@@ -209,6 +258,22 @@ public class DefaultBulkActionManager implements BulkActionManager {
 				.getPluginsFor(entity)
 				.stream()
 				.filter(action -> enabledEvaluator.isEnabled(action))
+				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Get enabled actions
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	private List<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>> getEnabledActionsForDto(Class<? extends BaseDto> dtoClass) {
+		return pluginExecutors
+				.getPlugins()
+				.stream()
+				.filter(action -> enabledEvaluator.isEnabled(action))
+				.filter(action -> !action.isGeneric()) // Generic actions are not supported for DTO now.
+				.filter(action -> dtoClass.equals(action.getDtoClass()))
 				.collect(Collectors.toList());
 	}
 }

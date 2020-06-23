@@ -6,7 +6,7 @@ import org.springframework.core.Ordered;
 import org.springframework.plugin.core.Plugin;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
  *
  */
 
-public interface IdmBulkAction<DTO extends AbstractDto, F extends BaseFilter>
+public interface IdmBulkAction<DTO extends BaseDto, F extends BaseFilter>
 		extends Plugin<Class<? extends BaseEntity>>, Ordered {
 
 	int DEFAULT_ORDER = 0;

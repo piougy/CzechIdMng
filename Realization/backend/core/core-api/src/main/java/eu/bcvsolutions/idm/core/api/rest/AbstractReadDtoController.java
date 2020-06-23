@@ -28,9 +28,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.PermissionContext;
@@ -49,6 +52,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -66,6 +70,7 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 	@Autowired private PagedResourcesAssembler<Object> pagedResourcesAssembler;
 	@Autowired private ObjectMapper objectMapper;
 	@Autowired private LookupService lookupService;
+	@Autowired	private BulkActionManager bulkActionManager;
 	//
 	private FilterConverter filterConverter;
 	private final ReadDtoService<DTO, F> service;
@@ -405,5 +410,67 @@ public abstract class AbstractReadDtoController<DTO extends BaseDto, F extends B
 		);
 		//
 		return permission == null ? originalPermission : permission;
+	}
+	
+	/**
+	 * Returns available bulk actions
+	 * 
+	 * @return
+	 */
+	public List<IdmBulkActionDto> getAvailableBulkActions() {
+		return bulkActionManager.getAvailableActions(getService().getEntityClass());
+	}
+	
+	/**
+	 * Process bulk action
+	 * 
+	 * @param bulkAction
+	 * @return
+	 */
+	public ResponseEntity<IdmBulkActionDto> bulkAction(IdmBulkActionDto bulkAction) {
+		initBulkAction(bulkAction);
+		return new ResponseEntity<IdmBulkActionDto>(bulkActionManager.processAction(bulkAction), HttpStatus.CREATED);
+	}
+	
+	/**
+	 * Start prevalidation for given bulk action
+	 * @param bulkAction
+	 * @return
+	 */
+	public ResponseEntity<ResultModels> prevalidateBulkAction(IdmBulkActionDto bulkAction) {
+		initBulkAction(bulkAction);
+		ResultModels result = bulkActionManager.prevalidate(bulkAction);
+		if(result == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+	
+	/**
+	 * Init bulk action
+	 * @param bulkAction
+	 */
+	@SuppressWarnings("unchecked")
+	protected void initBulkAction(IdmBulkActionDto bulkAction) {
+		// TODO: use MultiValueMap in object if is possible?
+		if (bulkAction.getFilter() != null) {
+			MultiValueMap<String, Object> multivaluedMap = new LinkedMultiValueMap<>();
+			Map<String, Object> properties = bulkAction.getFilter();
+			
+			for (Map.Entry<String, Object> entry : properties.entrySet()) {
+				Object value = entry.getValue();
+				if (value == null) {
+					multivaluedMap.remove(entry.getKey());
+				} else if(value instanceof List<?>) {
+					multivaluedMap.put(entry.getKey(), (List<Object>) value);
+				} else {
+					multivaluedMap.add(entry.getKey(), entry.getValue());
+				}
+			}
+			F filter = this.toFilter(multivaluedMap);
+			bulkAction.setTransformedFilter(filter);
+		}
+		bulkAction.setEntityClass(getService().getEntityClass() != null ? getService().getEntityClass().getName() : null);
+		bulkAction.setFilterClass(this.getFilterClass() != null ? this.getFilterClass().getName() : null);
 	}
 }

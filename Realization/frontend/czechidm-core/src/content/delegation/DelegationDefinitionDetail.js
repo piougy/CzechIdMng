@@ -151,6 +151,7 @@ class DelegationDefinitionDetail extends Basic.AbstractContent {
       niceLabel: this.i18n(`${localizationKey}.label`, type.id),
       description: this.i18n(`${localizationKey}.info.text`, ''),
       value: type.id,
+      disabled: !type.canBeCreatedManually,
       supportsDelegatorContract: type.supportsDelegatorContract
     };
   }

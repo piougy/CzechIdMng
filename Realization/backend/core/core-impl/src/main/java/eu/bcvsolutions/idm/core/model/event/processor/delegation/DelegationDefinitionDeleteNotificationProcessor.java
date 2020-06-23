@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.DelegationDefinitionProcessor;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.DelegationManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.event.DelegationDefinitionEvent.DelegationDefinitionEventType;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
@@ -43,6 +44,8 @@ public class DelegationDefinitionDeleteNotificationProcessor extends CoreEventPr
 	private IdmIdentityService identityService;
 	@Autowired
 	private SecurityService securityService;
+	@Autowired
+	private DelegationManager delegationManager;
 
 	@Autowired
 	public DelegationDefinitionDeleteNotificationProcessor() {
@@ -114,6 +117,16 @@ public class DelegationDefinitionDeleteNotificationProcessor extends CoreEventPr
 						.addParameter("delegate", delegate)
 						.addParameter("from", from)
 						.addParameter("till", till).build(), recipient);
+	}
+
+	@Override
+	public boolean conditional(EntityEvent<IdmDelegationDefinitionDto> event) {
+		// Notification will be send only if type supports it.
+		if (event.getContent() != null
+				&& !delegationManager.getDelegateType(event.getContent().getType()).sendNotifications()) {
+			return false;
+		}
+		return super.conditional(event);
 	}
 
 	@Override

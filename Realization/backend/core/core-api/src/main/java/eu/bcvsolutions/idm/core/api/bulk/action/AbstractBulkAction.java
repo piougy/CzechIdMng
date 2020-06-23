@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -43,6 +44,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilte
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
+import org.springframework.core.GenericTypeResolver;
 
 /**
  * Abstract parent for all bulk actions
@@ -319,6 +321,10 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	protected List<UUID> getAllEntities(IdmBulkActionDto action, StringBuilder description) {
 		throw new ResultCodeException(CoreResultCode.BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED);
 	}
+	
+	protected DTO getDtoById(UUID id) {
+		return getService().get(id);
+	}
 
 	/**
 	 * Process all identities by given list of ID's
@@ -329,7 +335,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	protected OperationResult processEntities(Collection<UUID> entitiesId) {
 		for (UUID entityId : entitiesId) {
 			this.increaseCounter();
-			DTO entity = getService().get(entityId);
+			DTO entity = getDtoById(entityId);
 			if (entity == null) {
 				LOG.warn("Entity with id [{}] not found. The Entity will be skipped.", entityId);
 				continue;
@@ -454,4 +460,11 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	public void setEntityClass(Class<? extends BaseEntity> entityClass) {
 		this.entityClass = entityClass;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Class<? extends BaseDto> getDtoClass() {
+		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractBulkAction.class);
+		return (Class<? extends BaseDto>) genericTypes[0];
+	}
+	
 }

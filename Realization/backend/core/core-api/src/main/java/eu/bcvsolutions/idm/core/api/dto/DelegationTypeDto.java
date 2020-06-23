@@ -18,6 +18,8 @@ public class DelegationTypeDto extends AbstractComponentDto {
 	@NotEmpty
 	private String ownerType;
 	private boolean supportsDelegatorContract;
+	private boolean canBeCreatedManually;
+	private boolean sendNotifications;
 
 	public String getOwnerType() {
 		return ownerType;
@@ -34,4 +36,22 @@ public class DelegationTypeDto extends AbstractComponentDto {
 	public void setSupportsDelegatorContract(boolean supportsDelegatorContract) {
 		this.supportsDelegatorContract = supportsDelegatorContract;
 	}
+
+	public boolean isCanBeCreatedManually() {
+		return canBeCreatedManually;
+	}
+
+	public void setCanBeCreatedManually(boolean canBeCreatedManually) {
+		this.canBeCreatedManually = canBeCreatedManually;
+	}
+
+	public boolean isSendNotifications() {
+		return sendNotifications;
+	}
+
+	public void setSendNotifications(boolean sendNotifications) {
+		this.sendNotifications = sendNotifications;
+	}
+	
+	
 }

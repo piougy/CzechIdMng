@@ -31,7 +31,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.domain.Page;
 
@@ -131,9 +134,15 @@ public class WorkflowHistoricTaskInstanceController extends AbstractReadDtoContr
 			// We need to create mock task, because DTO is instance of historic task here.
 			WorkflowTaskInstanceDto mockTask = new WorkflowTaskInstanceDto();
 			mockTask.setId(dto.getId());
-			List<IdmDelegationDto> delegations = delegationManager.findDelegationForOwner(mockTask, permission);
+			List<IdmDelegationDto> delegations = delegationManager.findDelegationForOwner(mockTask, permission)
+					.stream()
+					.sorted(Comparator.comparing(IdmDelegationDto::getCreated,
+							Comparator.nullsFirst(Comparator.naturalOrder())))
+					.collect(Collectors.toList());
+			
 			// TODO: ONLY first delegation definition is sets to the task!
 			if (!CollectionUtils.isEmpty(delegations)) {
+				Collections.reverse(delegations);
 				IdmDelegationDto delegation = delegations.get(0);
 				IdmDelegationDefinitionDto definition = DtoUtils.getEmbedded(delegation,
 						IdmDelegation_.definition.getName(), IdmDelegationDefinitionDto.class);

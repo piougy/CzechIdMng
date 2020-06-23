@@ -212,7 +212,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			//
 			longRunningTaskManager.execute(executor);
 			Function<String, Boolean> continueFunction = res -> {
-				return !longRunningTaskManager.getLongRunningTask(executor).getResultState().isSuccessful();
+				return longRunningTaskManager.getLongRunningTask(executor).getResultState() != OperationState.EXCEPTION;
 			};
 			getHelper().waitForResult(continueFunction);
 			//
@@ -280,11 +280,13 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			executor.exceptionOnItem = 2;
 			//
 			longRunningTaskManager.execute(executor);
+			// wait for start (with optimization, when task was already processed)
 			Function<String, Boolean> continueFunction = res -> {
-				return !longRunningTaskManager.getLongRunningTask(executor).isRunning();
+				return longRunningTaskManager.getLongRunningTask(executor).getResultState() != OperationState.EXECUTED;
 			};
 			getHelper().waitForResult(continueFunction);
 			//
+			Assert.assertNotNull(executor.getLongRunningTaskId());
 			IdmLongRunningTaskDto taskDto = longRunningTaskService.get(executor.getLongRunningTaskId(), getContext());
 			Assert.assertEquals(3, taskDto.getCount().intValue());
 			Assert.assertEquals(2, taskDto.getSuccessItemCount().intValue());
@@ -348,7 +350,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			//
 			longRunningTaskManager.execute(executor);
 			Function<String, Boolean> continueFunction = res -> {
-				return !longRunningTaskManager.getLongRunningTask(executor).isRunning();
+				return longRunningTaskManager.getLongRunningTask(executor).getResultState() != OperationState.EXCEPTION;
 			};
 			getHelper().waitForResult(continueFunction);
 			//
@@ -413,7 +415,7 @@ public class AbstractSchedulableStatefulExecutorIntegrationTest extends Abstract
 			//
 			longRunningTaskManager.execute(executor);
 			Function<String, Boolean> continueFunction = res -> {
-				return !longRunningTaskManager.getLongRunningTask(executor).isRunning();
+				return longRunningTaskManager.getLongRunningTask(executor).getResultState() != OperationState.EXECUTED;
 			};
 			getHelper().waitForResult(continueFunction);
 			//

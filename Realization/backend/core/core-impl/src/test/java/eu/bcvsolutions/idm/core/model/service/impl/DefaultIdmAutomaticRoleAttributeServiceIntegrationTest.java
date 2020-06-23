@@ -106,7 +106,7 @@ public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends Abst
 	private IdmNotificationLogRepository notificationRepository;
 	@Autowired
 	private IdmFormProjectionService formProjectionService;
-
+	
 	/**
 	 * Delete all identities for improve performance of this test. In some cases
 	 * taken this test more then 40m (because previous tests created and not deleted
@@ -117,6 +117,7 @@ public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends Abst
 	 */
 	@Before
 	public void purgeData() {
+		loginAsAdmin(); // FIXME: fix DefaultWorkflowTaskInstanceService to support not logged identity (nullpointer when securityService.getCurrentId() is used).
 		// First delete notification ... because here is integrity problem!
 		emailLogRepository.deleteAll();
 		notificationRepository.deleteAll();
@@ -137,6 +138,7 @@ public class DefaultIdmAutomaticRoleAttributeServiceIntegrationTest extends Abst
 		automaticRoleAttributeService.find(null).forEach(autoRole -> {
 			automaticRoleAttributeService.delete(autoRole);
 		});
+		super.logout(); // FIXME: fix DefaultWorkflowTaskInstanceService to support not logged identity (nullpointer when securityService.getCurrentId() is used).
 	}
 
 	@Test

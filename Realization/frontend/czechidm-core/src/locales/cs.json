@@ -7509,7 +7509,7 @@
       "message": "Delegující a delegovaný nemohou být stejní v rámci stejné delegace!"
     },
     "MANUAL_TASK_DELEGATION_DELEGATOR_MISSING": {
-      "title": "Není specifikovano od koho se úkoly mají delegovat!",
+      "title": "Není specifikováno od koho se úkoly mají delegovat!",
       "message": "Pro specifikování delegátora můžete použít filtr (Přiřazeno) nad agendou všech úkolů a nebo vyberte delegátora níže. Delegování úkolu proběhne pouze, pokud jedním z řešitelů je vybraný delegátor."
     },
     "MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE": {

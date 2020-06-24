@@ -63,7 +63,6 @@ public class DelegationDefinitionCreateNotificationProcessor extends CoreEventPr
 	public EventResult<IdmDelegationDefinitionDto> process(EntityEvent<IdmDelegationDefinitionDto> event) {
 		IdmDelegationDefinitionDto dto = event.getContent();
 
-		Assert.notNull(dto, "Delegate definition cannot be null!");
 		Assert.notNull(dto.getType(), "Delegate type cannot be null!");
 		Assert.notNull(dto.getDelegator(), "Delegator cannot be null!");
 		Assert.notNull(dto.getDelegate(), "Delegate cannot be null!");
@@ -124,8 +123,7 @@ public class DelegationDefinitionCreateNotificationProcessor extends CoreEventPr
 	@Override
 	public boolean conditional(EntityEvent<IdmDelegationDefinitionDto> event) {
 		// Notification will be send only if type supports it.
-		if (event.getContent() != null
-				&& !delegationManager.getDelegateType(event.getContent().getType()).sendNotifications()) {
+		if (!delegationManager.getDelegateType(event.getContent().getType()).sendNotifications()) {
 			return false;
 		}
 		return super.conditional(event);

@@ -1,12 +1,19 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl.delegation;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.UUID;
 
+import org.activiti.engine.TaskService;
+import org.activiti.engine.task.IdentityLinkType;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
@@ -32,17 +39,10 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.delegation.type.ManualTaskDelegationType;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceAbstractDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceAbstractDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
-import java.security.BasicPermission;
-import java.util.UUID;
-import org.activiti.engine.TaskService;
-import org.activiti.engine.task.IdentityLinkType;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.util.Assert;
 
 /**
  * Bulk operation for manual delegation of workflow tasks.
@@ -263,7 +263,7 @@ public class ManualWorkflowTaskDelegationBulkAction extends AbstractBulkAction<W
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ReadWriteDtoService<WorkflowTaskInstanceAbstractDto, WorkflowFilterDto> getService() {
 		// Workaround: Service doesn't have correct DTO type, but I need made this.
 		return (ReadWriteDtoService) workflowTaskInstanceService;

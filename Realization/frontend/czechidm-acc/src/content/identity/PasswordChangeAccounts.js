@@ -26,6 +26,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     const defaultSearchParameters = accountManager
       .getDefaultSearchParameters()
       .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
+      .setSize(1000) // TODO: now this is maximum
       .setFilter('ownership', true)
       .setFilter('supportChangePassword', true)
       .setFilter('identity', entityId);

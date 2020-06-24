@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.acc.TestHelper;
+import eu.bcvsolutions.idm.acc.config.domain.AuthenticatorConfiguration;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
@@ -57,7 +58,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Default test for {@link DefaultAccAuthenticator} against new system.
  *
  * @author Svanda
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  * @author Roman Kucera
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -442,7 +443,7 @@ public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 		system = sysSystemService.save(system);
 
 		// set system id to application property
-		configurationService.setValue(DefaultAccAuthenticator.PROPERTY_AUTH_SYSTEM_ID, system.getId().toString());
+		configurationService.setValue(AuthenticatorConfiguration.PROPERTY_AUTH_SYSTEM_ID, system.getId().toString());
 		return system;
 	}
 }

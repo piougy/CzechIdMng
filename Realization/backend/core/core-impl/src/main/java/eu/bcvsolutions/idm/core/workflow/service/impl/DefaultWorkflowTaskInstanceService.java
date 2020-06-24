@@ -218,8 +218,6 @@ public class DefaultWorkflowTaskInstanceService extends
 		return findIds(null, pageable, permission);
 	}
 	
-	
-
 	private WorkflowTaskInstanceDto toResource(TaskInfo task, BasePermission[] permission) {
 		if (task == null) {
 			return null;
@@ -355,6 +353,13 @@ public class DefaultWorkflowTaskInstanceService extends
 	public Object getProcessVariable(String taskId, String key) {
 		return taskService.getVariableInstance(taskId, key);
 	}
+	
+
+	@Override
+	public boolean canReadAllTask(BasePermission... permission) {
+		// TODO: Implement check on permission (READ, UPDATE ...). Permissions are uses only for skip rights check now!
+		return permission == null || securityService.isAdmin() || securityService.hasAnyAuthority(CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+	}
 
 	private FormDataDto historyToResource(FormProperty property, List<WorkflowHistoricTaskInstanceDto> history) {
 		FormDataDto dto = new FormDataDto();
@@ -410,16 +415,6 @@ public class DefaultWorkflowTaskInstanceService extends
 		dto.setType(link.getType());
 		dto.setUserId(link.getUserId());
 		return dto;
-	}
-
-	/**
-	 * Method return true if it is possible read all tasks.
-	 *
-	 * @return
-	 */
-	private boolean canReadAllTask(BasePermission... permission) {
-		// TODO: Implement check on permission (READ, UPDATE ...). Permissions are uses only for skip rights check now!
-		return permission == null || securityService.isAdmin() || securityService.hasAnyAuthority(CoreGroupPermission.WORKFLOW_TASK_ADMIN);
 	}
 
 	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable, BasePermission... permission) {

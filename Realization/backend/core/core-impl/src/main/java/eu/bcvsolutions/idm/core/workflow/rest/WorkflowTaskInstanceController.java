@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmDelegation_;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataWrapperDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceAbstractDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -47,8 +48,10 @@ import io.swagger.annotations.AuthorizationScope;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import org.activiti.engine.task.IdentityLinkType;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.domain.Page;
 
@@ -74,7 +77,10 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 
 	@Autowired
 	private DelegationManager delegationManager;
-	@Autowired	private BulkActionManager bulkActionManager;
+	@Autowired
+	private BulkActionManager bulkActionManager;
+	@Autowired
+	private SecurityService securityService;
 	private final WorkflowTaskInstanceService workflowTaskInstanceService;
 
 	@Autowired
@@ -243,10 +249,35 @@ public class WorkflowTaskInstanceController extends AbstractReadDtoController<Wo
 			// We need to create mock task, because DTO can be instance of historic task here.
 			WorkflowTaskInstanceDto mockTask = new WorkflowTaskInstanceDto();
 			mockTask.setId(dto.getId());
+			
+			UUID currentUserId = securityService.getCurrentId();
+			
+			boolean currentUserIsCandidate = dto.getIdentityLinks().stream()
+				.filter(identityLink -> IdentityLinkType.CANDIDATE.equals(identityLink.getType())
+				|| IdentityLinkType.ASSIGNEE.equals(identityLink.getType()))
+				.filter(identityLink -> currentUserId != null
+						&& UUID.fromString(identityLink.getUserId()).equals(currentUserId))
+				.findFirst()
+				.isPresent();
+			
+			boolean filterOnlyForCurrentUser = currentUserIsCandidate && !workflowTaskInstanceService.canReadAllTask(permission);
+			
 			List<IdmDelegationDto> delegations = delegationManager.findDelegationForOwner(mockTask, permission)
 					.stream()
+					.filter(delegation -> {
+						// Filter only delegation where delegator or delegate is logged user (and user is not admin).
+						if (!filterOnlyForCurrentUser) {
+							return true;
+						}
+						IdmDelegationDefinitionDto definition = DtoUtils.getEmbedded(delegation,
+								IdmDelegation_.definition.getName(), IdmDelegationDefinitionDto.class);
+						
+						return definition.getDelegate().equals(currentUserId)
+								|| definition.getDelegator().equals(currentUserId);
+					})
 					.sorted(Comparator.comparing(IdmDelegationDto::getCreated))
 					.collect(Collectors.toList());
+			
 			// TODO: ONLY first delegation definition is sets to the task!
 			if (!CollectionUtils.isEmpty(delegations)) {
 				Collections.reverse(delegations);

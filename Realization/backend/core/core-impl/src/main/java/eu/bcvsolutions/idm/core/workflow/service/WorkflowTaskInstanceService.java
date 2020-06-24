@@ -87,4 +87,13 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	 * @return 
 	 */
 	public Object getProcessVariable(String taskId, String key);
+	
+	
+	/**
+	 * Method return true if logged user can read all tasks.
+	 *
+	 * @param permission
+	 * @return
+	 */
+	public boolean canReadAllTask(BasePermission... permission);
 }

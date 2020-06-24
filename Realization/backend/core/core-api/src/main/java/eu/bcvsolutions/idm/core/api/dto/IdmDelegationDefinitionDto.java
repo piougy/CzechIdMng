@@ -11,7 +11,7 @@ import java.time.LocalDate;
  * @author Vít Švanda
  *
  */
-@Relation(collectionRelation = "delegationDefs")
+@Relation(collectionRelation = "delegationDefinitions")
 public class IdmDelegationDefinitionDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;

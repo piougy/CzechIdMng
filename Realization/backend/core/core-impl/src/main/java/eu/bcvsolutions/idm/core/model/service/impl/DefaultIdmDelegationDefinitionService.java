@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmDelegationDefinitionReposito
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import java.time.LocalDate;
 import org.modelmapper.internal.util.Assert;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * CRUD service for a definition of delegation.
@@ -79,6 +80,7 @@ public class DefaultIdmDelegationDefinitionService extends
 	}
 
 	@Override
+	@Transactional
 	public void deleteInternal(IdmDelegationDefinitionDto dto) {
 		Assert.notNull(dto.getId(), "ID cannot be null!");
 		

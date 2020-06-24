@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 public interface DelegationManager {
 
-	final String WORKFLOW_DELEGATION_TYPE_KEY = "delegationType";
+	String WORKFLOW_DELEGATION_TYPE_KEY = "delegationType";
 
 	/**
 	 * Finds delegation for given delegation type, delegator and owner (task).
@@ -33,7 +33,7 @@ public interface DelegationManager {
 	 *
 	 * @return
 	 */
-	public List<IdmDelegationDefinitionDto> findDelegation(String type, UUID delegatorId, UUID delegatorContractId, BaseDto owner);
+	List<IdmDelegationDefinitionDto> findDelegation(String type, UUID delegatorId, UUID delegatorContractId, BaseDto owner);
 
 	/**
 	 * Delegate the given task (ownere) by given delegation definition.
@@ -42,14 +42,14 @@ public interface DelegationManager {
 	 * @param definition
 	 * @return 
 	 */
-	public IdmDelegationDto delegate(BaseDto owner, IdmDelegationDefinitionDto definition);
+	IdmDelegationDto delegate(BaseDto owner, IdmDelegationDefinitionDto definition);
 
 	/**
 	 * Returns all registred delegationTypes.
 	 *
 	 * @return
 	 */
-	public List<DelegationType> getSupportedTypes();
+	List<DelegationType> getSupportedTypes();
 
 	/**
 	 * Converts delegationTyp to DTO version
@@ -58,7 +58,7 @@ public interface DelegationManager {
 	 *
 	 * @return
 	 */
-	public DelegationTypeDto convertDelegationTypeToDto(DelegationType delegationType);
+	DelegationTypeDto convertDelegationTypeToDto(DelegationType delegationType);
 
 	/**
 	 * Find delegate type by bean name.
@@ -67,7 +67,7 @@ public interface DelegationManager {
 	 *
 	 * @return
 	 */
-	public DelegationType getDelegateType(String id);
+	DelegationType getDelegateType(String id);
 
 	/**
 	 * Get delegation type form workflow process definition.
@@ -77,7 +77,7 @@ public interface DelegationManager {
 	 * @return If delegatio type is not defined in that process, then will be
 	 *         returned null.
 	 */
-	public String getProcessDelegationType(String wfDefinition);
+	String getProcessDelegationType(String wfDefinition);
 	
 	/**
 	 * Find delegation for given owner.
@@ -86,6 +86,6 @@ public interface DelegationManager {
 	 * @param permission
 	 * @return
 	 */
-	public List<IdmDelegationDto> findDelegationForOwner(BaseDto owner, BasePermission... permission);
+	List<IdmDelegationDto> findDelegationForOwner(BaseDto owner, BasePermission... permission);
 
 }

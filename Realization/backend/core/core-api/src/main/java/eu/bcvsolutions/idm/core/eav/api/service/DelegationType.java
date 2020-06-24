@@ -76,7 +76,7 @@ public interface DelegationType extends Ordered{
 	 *
 	 * @return
 	 */
-	public boolean isSupportsDelegatorContract();
+	boolean isSupportsDelegatorContract();
 
 	/**
 	 * Order of delegation (in select-box).
@@ -84,7 +84,7 @@ public interface DelegationType extends Ordered{
 	 * @return
 	 */
 	@Override
-	public int getOrder();
+	int getOrder();
 
 	/**
 	 * Indicates if that delegation should be evaluate automatically or is executed
@@ -94,7 +94,7 @@ public interface DelegationType extends Ordered{
 	 * @return true - if we don't want evaluate a delegation automatically. false is
 	 *         default.
 	 */
-	public boolean isCustomeDelegation();
+	boolean isCustomeDelegation();
 
 	/**
 	 * Find delegation. Method can contains custom logic for that delegation type.
@@ -104,7 +104,7 @@ public interface DelegationType extends Ordered{
 	 * @param owner
 	 * @return
 	 */
-	public List<IdmDelegationDefinitionDto> findDelegation(UUID delegatorId, UUID delegatorContractId, BaseDto owner);
+	List<IdmDelegationDefinitionDto> findDelegation(UUID delegatorId, UUID delegatorContractId, BaseDto owner);
 
 	/**
 	 * Creates delegatio for given task (owner). Method can contains custom logic for that delegation type.
@@ -112,6 +112,6 @@ public interface DelegationType extends Ordered{
 	 * @param definition
 	 * @return
 	 */
-	public IdmDelegationDto delegate(BaseDto owner, IdmDelegationDefinitionDto definition);
+	IdmDelegationDto delegate(BaseDto owner, IdmDelegationDefinitionDto definition);
 	
 }

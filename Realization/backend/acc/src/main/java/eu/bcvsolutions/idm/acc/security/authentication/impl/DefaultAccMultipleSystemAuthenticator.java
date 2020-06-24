@@ -28,7 +28,6 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
  * @author Ondrej Kopr
  *
  */
-
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @Description("ACC authenticator that authenticate over multiple systems defined by properties.")
@@ -43,7 +42,7 @@ public class DefaultAccMultipleSystemAuthenticator extends AbstractAccAuthentica
 	
 	@Override
 	public int getOrder() {
-		// Before CORE module and after original ACC module. Original authenticator has bigger priority than this authenticator.
+		// After CORE module and after original ACC module. Original authenticator has bigger priority than this authenticator.
 		return DEFAULT_AUTHENTICATOR_ORDER + 10;
 	}
 

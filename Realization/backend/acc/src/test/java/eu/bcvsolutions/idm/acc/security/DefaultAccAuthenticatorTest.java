@@ -61,6 +61,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Ondrej Kopr
  * @author Roman Kucera
  */
+@SuppressWarnings("deprecation")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DefaultAccAuthenticatorTest extends AbstractIntegrationTest {
 

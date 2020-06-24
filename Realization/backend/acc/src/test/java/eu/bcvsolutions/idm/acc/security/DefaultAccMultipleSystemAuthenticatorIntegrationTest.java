@@ -273,6 +273,7 @@ public class DefaultAccMultipleSystemAuthenticatorIntegrationTest extends Abstra
 	 *
 	 * @param system
 	 */
+	@SuppressWarnings("deprecation")
 	private void setupDefaultAuthentication(SysSystemDto system) {
 		getHelper().setConfigurationValue(AuthenticatorConfiguration.PROPERTY_AUTH_SYSTEM_ID, system.getId().toString());
 	}
@@ -280,6 +281,7 @@ public class DefaultAccMultipleSystemAuthenticatorIntegrationTest extends Abstra
 	/**
 	 * Remove all configuration that may be initialized by this tests
 	 */
+	@SuppressWarnings("deprecation")
 	private void removeAllConfiguration() {
 		for (int index = 0; index < authenticatorConfiguration.getMaximumSystemCount(); index++) {
 			getHelper().setConfigurationValue(composeKey(index), null);

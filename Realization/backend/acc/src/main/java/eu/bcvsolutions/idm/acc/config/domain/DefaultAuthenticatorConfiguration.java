@@ -64,6 +64,7 @@ public class DefaultAuthenticatorConfiguration extends AbstractConfiguration imp
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public SysSystemDto getSystem() {
 		return getSystemByCodeable(this.getConfigurationService().getValue(PROPERTY_AUTH_SYSTEM_ID));
 	}

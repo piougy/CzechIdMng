@@ -24,11 +24,9 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
  * 
  * @author Ondrej Kopr
  * @author Roman Kucera
- * @deprecated Whole behavior of this authenticator {@link DefaultAccAuthenticator}
- * was fully cover by {@link DefaultAccMultipleSystemAuthenticator} please use and configure only the newer.
+ * @deprecated @since 10.4.0 Whole behavior of this authenticator {@link DefaultAccAuthenticator} was fully cover by {@link DefaultAccMultipleSystemAuthenticator} please use and configure only the newer.
  *
  */
-
 @Deprecated
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
@@ -46,7 +44,7 @@ public class DefaultAccAuthenticator extends AbstractAccAuthenticator implements
 	
 	@Override
 	public int getOrder() {
-		// Before CORE module
+		// After CORE module
 		return DEFAULT_AUTHENTICATOR_ORDER + 5;
 	}
 

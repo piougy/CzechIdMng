@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
  * @author Ondrej Kopr
  *
  */
+@SuppressWarnings({ "deprecation", "unused" })
 public interface AuthenticatorConfiguration extends Configurable  {
 
 	/**
@@ -25,13 +26,15 @@ public interface AuthenticatorConfiguration extends Configurable  {
 	 * - idm.sec.acc.security.auth.order2.system=<br />
 	 * - ...
 	 */
-	String PROPERTY_AUTH_PREFIX = IdmConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + AccModuleDescriptor.MODULE_ID + ".security.auth.order.";
+	String PROPERTY_AUTH_PREFIX = IdmConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + AccModuleDescriptor.MODULE_ID + ".security.auth.order";
 	String AUTH_SYSTEM_SEPARATOR = "system";
 
 	String PROPERTY_AUTH_MAX_SYSTEM_COUNT = IdmConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + AccModuleDescriptor.MODULE_ID + ".security.auth.maximumSystemCount";
 	long DEFAULT_AUTH_MAX_SYSTEM_COUNT = 50;
 	/**
 	 * Old configuration property for authentication against system. Please use property {@link #PROPERTY_AUTH_PREFIX}
+	 * 
+	 * @deprecated @since 10.4.0 use {@link #getSystems()}
 	 */
 	@Deprecated
 	String PROPERTY_AUTH_SYSTEM_ID = IdmConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "security.auth" + ConfigurationService.PROPERTY_SEPARATOR + AUTH_SYSTEM_SEPARATOR;
@@ -52,9 +55,10 @@ public interface AuthenticatorConfiguration extends Configurable  {
 
 	/**
 	 * Return system that is used for authentication.
-	 * Property is used in standard acc module authentication against one system {@link DefaultAccAuthenticator}
 	 *
 	 * @return
+	 * @deprecated @since 10.4.0 use {@link #getSystems()}
 	 */
+	@Deprecated
 	SysSystemDto getSystem();
 }

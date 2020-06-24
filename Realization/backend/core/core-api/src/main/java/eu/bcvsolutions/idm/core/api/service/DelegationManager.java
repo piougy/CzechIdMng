@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 public interface DelegationManager {
 
-	static final String WORKFLOW_DELEGATION_TYPE_KEY = "delegationType";
+	final String WORKFLOW_DELEGATION_TYPE_KEY = "delegationType";
 
 	/**
 	 * Finds delegation for given delegation type, delegator and owner (task).

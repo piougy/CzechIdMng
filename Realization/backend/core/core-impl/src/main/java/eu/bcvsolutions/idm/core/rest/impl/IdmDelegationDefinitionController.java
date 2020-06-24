@@ -212,6 +212,24 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 		return super.delete(backendId);
 	}
 	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.DELEGATIONDEFINITION_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countDelegationDefinitions", 
+			tags = { IdmDelegationDefinitionController.TAG },
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.DELEGATIONDEFINITION_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.DELEGATIONDEFINITION_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
+	
 	/**
 	 * Returns all registered delegation types.
 	 *
@@ -230,7 +248,7 @@ public class IdmDelegationDefinitionController extends AbstractReadWriteDtoContr
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
 			@AuthorizationScope(scope = CoreGroupPermission.DELEGATIONDEFINITION_READ, description = "")})
 			})
-	public Resources<DelegationTypeDto> getSupportedRoutes() {
+	public Resources<DelegationTypeDto> getSupportedTypes() {
 		return new Resources<>(delegationManager.getSupportedTypes()
 				.stream()
 				.map(delegationType -> delegationManager.convertDelegationTypeToDto(delegationType))

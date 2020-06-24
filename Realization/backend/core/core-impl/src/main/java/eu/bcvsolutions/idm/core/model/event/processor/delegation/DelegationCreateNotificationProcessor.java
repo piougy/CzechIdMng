@@ -62,7 +62,6 @@ public class DelegationCreateNotificationProcessor extends CoreEventProcessor<Id
 	@Override
 	public EventResult<IdmDelegationDto> process(EntityEvent<IdmDelegationDto> event) {
 		IdmDelegationDto dto = event.getContent();
-		Assert.notNull(dto, "Delegate cannot be null!");
 
 		IdmDelegationDefinitionDto definition = lookupService.lookupEmbeddedDto(dto, IdmDelegation_.definition);
 

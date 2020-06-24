@@ -30,7 +30,7 @@ export default class DelegationDefinitionManager extends EntityManager {
   }
 
   getCollectionType() {
-    return 'delegationDefs';
+    return 'delegationDefinitions';
   }
 
   getNiceLabel(entity) {

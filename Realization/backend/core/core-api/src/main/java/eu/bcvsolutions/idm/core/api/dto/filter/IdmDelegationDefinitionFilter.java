@@ -1,11 +1,11 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
 import java.util.UUID;
 
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
@@ -31,7 +31,7 @@ public class IdmDelegationDefinitionFilter extends DataFilter {
 	}
 	
 	public IdmDelegationDefinitionFilter(MultiValueMap<String, Object> data, ParameterConverter parameterConverter) {
-		super(IdmExportImportDto.class, data, parameterConverter);
+		super(IdmDelegationDefinitionDto.class, data, parameterConverter);
 	}
 
 	public UUID getDelegatorId() {

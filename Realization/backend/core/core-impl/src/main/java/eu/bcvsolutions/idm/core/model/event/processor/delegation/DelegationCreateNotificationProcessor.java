@@ -75,7 +75,7 @@ public class DelegationCreateNotificationProcessor extends CoreEventProcessor<Id
 		// UUID currentUserId = securityService.getCurrentId();
 
 		// Send notification to the delegate.
-		senNotification(CoreModuleDescriptor.TOPIC_DELEGATION_INSTANCE_CREATED_TO_DELEGATE, dto, definition, delegator, delegate, delegate);
+		sendNotification(CoreModuleDescriptor.TOPIC_DELEGATION_INSTANCE_CREATED_TO_DELEGATE, dto, definition, delegator, delegate, delegate);
 		
 		// TODO notification to delegator:
 		// Send notification to the delegator (only if the delegator didn't create the delegation).
@@ -97,7 +97,7 @@ public class DelegationCreateNotificationProcessor extends CoreEventProcessor<Id
 	 * @param till
 	 * @param recipient
 	 */
-	private void senNotification(String topic, IdmDelegationDto dto,
+	private void sendNotification(String topic, IdmDelegationDto dto,
 			IdmDelegationDefinitionDto definition, IdmIdentityDto delegator, IdmIdentityDto delegate, IdmIdentityDto recipient) {
 
 		notificationManager.send(topic,

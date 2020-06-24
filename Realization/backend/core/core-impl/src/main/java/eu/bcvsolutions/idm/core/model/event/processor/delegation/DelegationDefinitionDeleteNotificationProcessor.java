@@ -121,8 +121,7 @@ public class DelegationDefinitionDeleteNotificationProcessor extends CoreEventPr
 	@Override
 	public boolean conditional(EntityEvent<IdmDelegationDefinitionDto> event) {
 		// Notification will be send only if type supports it.
-		if (event.getContent() != null
-				&& !delegationManager.getDelegateType(event.getContent().getType()).sendNotifications()) {
+		if (!delegationManager.getDelegateType(event.getContent().getType()).sendNotifications()) {
 			return false;
 		}
 		return super.conditional(event);

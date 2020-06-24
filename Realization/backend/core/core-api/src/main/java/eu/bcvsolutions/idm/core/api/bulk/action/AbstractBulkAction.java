@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -33,7 +34,6 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -44,7 +44,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilte
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
-import org.springframework.core.GenericTypeResolver;
 
 /**
  * Abstract parent for all bulk actions

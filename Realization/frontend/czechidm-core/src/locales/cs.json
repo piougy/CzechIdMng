@@ -5007,6 +5007,10 @@
         "core-instanceid": {
           "label": "$t(entity.LongRunningTask.instanceId.label)"
         }
+      },
+      "dryRun": {
+        "label": "Zkušební běh",
+        "help": "Úloha byla spuštěna ve zkušením režimu."
       }
     },
     "LongRunningTaskItem": {

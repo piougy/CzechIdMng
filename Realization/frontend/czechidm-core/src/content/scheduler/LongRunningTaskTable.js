@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -11,12 +10,10 @@ import {
   SecurityManager,
   ConfigurationManager,
   DataManager,
-  SchedulerManager,
-  FormAttributeManager
+  SchedulerManager
 } from '../../redux';
 
 const schedulerManager = new SchedulerManager();
-const formAttributeManager = new FormAttributeManager();
 
 /**
  * Table with long running tasks
@@ -102,7 +99,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs['confirm-task-run'].show(
-      this.i18n(`action.task-run.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-run.message`, { record: this.getManager().getNiceLabel(entity, this.props.supportedTasks) }),
       this.i18n(`action.task-run.header`)
     ).then(() => {
       this.context.store.dispatch(this.getManager().processCreatedTask(entity.id, 'task-queue-process-created', (e, error) => {
@@ -110,7 +107,12 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
           this.addError(error);
           return;
         }
-        this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+        this.addMessage({
+          message: this.i18n('action.task-run.success', {
+            count: 1,
+            record: this.getManager().getNiceLabel(entity, this.props.supportedTasks)
+          })
+        });
         this.refs.table.reload();
       }));
     }, () => {
@@ -123,11 +125,16 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs['confirm-task-recover'].show(
-      this.i18n(`action.task-recover.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-recover.message`, { record: this.getManager().getNiceLabel(entity, this.props.supportedTasks) }),
       this.i18n(`action.task-recover.header`)
     ).then(() => {
       this.context.store.dispatch(this.getManager().recover(entity, 'task-queue-process-created', () => {
-        this.addMessage({ message: this.i18n('action.task-recover.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+        this.addMessage({
+          message: this.i18n('action.task-recover.success', {
+            count: 1,
+            record: this.getManager().getNiceLabel(entity, this.props.supportedTasks)
+          })
+        });
         this.refs.table.reload();
       }));
     }, () => {
@@ -140,13 +147,16 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs['confirm-task-cancel'].show(
-      this.i18n(`action.task-cancel.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-cancel.message`, { record: this.getManager().getNiceLabel(entity, this.props.supportedTasks) }),
       this.i18n(`action.task-cancel.header`)
     ).then(() => {
       this.context.store.dispatch(this.getManager().cancel(entity, 'task-queue-process-created', () => {
         this.addMessage({
           level: 'info',
-          message: this.i18n('action.task-cancel.success', { count: 1, record: this.getManager().getNiceLabel(entity) })
+          message: this.i18n('action.task-cancel.success', {
+            count: 1,
+            record: this.getManager().getNiceLabel(entity, this.props.supportedTasks)
+          })
         });
         this.refs.table.reload();
       }));
@@ -156,7 +166,7 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { showRowSelection, showTransactionId } = this.props;
+    const { showRowSelection, showTransactionId, supportedTasks } = this.props;
     const { filterOpened } = this.state;
     return (
       <Basic.Div>
@@ -172,27 +182,27 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
           manager={ this.getManager() }
           showRowSelection={ showRowSelection }
           filter={
-            <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
               <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <Basic.Col lg={ 8 }>
                     <Advanced.Filter.FilterDate ref="fromTill"/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 } className="text-right">
-                    <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row className="last">
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="operationState"
-                      placeholder={this.i18n('filter.operationState.placeholder')}
-                      enum={OperationStateEnum}/>
+                      placeholder={ this.i18n('filter.operationState.placeholder') }
+                      enum={ OperationStateEnum }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 }>
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('filter.text.placeholder')}/>
+                      placeholder={ this.i18n('filter.text.placeholder') }/>
                   </Basic.Col>
                   <Basic.Col lg={ 4 } rendered={ showTransactionId }>
                     <Advanced.Filter.TextField
@@ -236,8 +246,8 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
             }/>
           <Advanced.Column
             property="result.state"
-            width={75}
-            header={this.i18n('entity.LongRunningTask.result.state')}
+            width={ 75 }
+            header={ this.i18n('entity.LongRunningTask.result.state') }
             sort
             cell={
               ({ data, rowIndex }) => {
@@ -261,79 +271,29 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
                 );
               }
             }/>
-          <Advanced.Column property="created" width={150} header={this.i18n('entity.created')} sort face="datetime"/>
+          <Advanced.Column property="created" width={ 150 } header={ this.i18n('entity.created') } sort face="datetime"/>
           <Advanced.Column
             property="taskType"
-            width={150}
+            width={ 150 }
             sort
             cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data, property }) => {
-                const entity = data[rowIndex];
-                const propertyValue = entity[property];
-                const simpleTaskType = Utils.Ui.getSimpleJavaType(propertyValue);
-                const { supportedTasks } = this.props;
-                //
-                let _taskType;
-                if (supportedTasks && supportedTasks.has(entity.taskType)) {
-                  _taskType = supportedTasks.get(entity.taskType);
-                }
-                let _label = simpleTaskType;
-                let _icon = 'component:scheduled-task';
-                if (_taskType && _taskType.formDefinition) {
-                  _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', _label);
-                  _icon = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'icon', _icon);
-                }
-                if (_label !== simpleTaskType) {
-                  // append simple taks type name as new line
-                  _label = (
-                    <span>
-                      <Basic.Icon value={ _icon } style={{ marginRight: 3 }}/>
-                      { _label }
-                      <small style={{ display: 'block' }}>
-                        { `(${ simpleTaskType })` }
-                      </small>
-                    </span>
-                  );
-                }
-                //
-                return (
-                  <span title={propertyValue}>
-                    { _label }
-                  </span>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <Advanced.LongRunningTaskName entity={ data[rowIndex] } supportedTasks={ supportedTasks }/>
+              )
             }/>
           <Advanced.Column
             property="taskProperties"
             header={ this.i18n('entity.LongRunningTask.taskProperties.label') }
+            width={ 300 }
             cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data, property }) => {
-                const entity = data[rowIndex];
-                const propertyValue = entity[property];
-                return [..._.keys(propertyValue).map(propertyName => {
-                  if (Utils.Ui.isEmpty(propertyValue[propertyName])) {
-                    return null;
-                  }
-                  if (propertyName === 'core:transactionContext') {
-                    // FIXME: transaction context info
-                    return null;
-                  }
-                  if (propertyName === 'core:bulkAction') {
-                    // FIXME: bulk action info + #2086
-                    return null;
-                  }
-                  return (
-                    <div>{ propertyName }: { Utils.Ui.toStringValue(propertyValue[propertyName]) }</div>
-                  );
-                }).values()];
-              }
+              ({ rowIndex, data }) => (
+                <Advanced.LongRunningTaskProperties entity={ data[rowIndex] } supportedTasks={ supportedTasks } condensed/>
+              )
             }/>
           <Advanced.Column property="taskDescription" sort />
           <Advanced.Column
             property="counter"
-            width={75}
+            width={ 75 }
             sort
             cell={
               /* eslint-disable react/no-multi-comp */
@@ -405,7 +365,7 @@ function select(state, component) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     showTransactionId: ConfigurationManager.showTransactionId(state),
-    supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS),
+    supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS)
   };
 }
 

@@ -10,9 +10,12 @@ import OperationResultDownloadButton from '../OperationResult/OperationResultDow
 import ProgressBar from '../ProgressBar/ProgressBar';
 import * as Utils from '../../../utils';
 import OperationStateEnum from '../../../enums/OperationStateEnum';
-import { LongRunningTaskManager, ConfigurationManager, SecurityManager } from '../../../redux';
+import { LongRunningTaskManager, ConfigurationManager, SecurityManager, SchedulerManager, DataManager } from '../../../redux';
+import LongRunningTaskName from './LongRunningTaskName';
+import LongRunningTaskProperties from './LongRunningTaskProperties';
 
 const manager = new LongRunningTaskManager();
+const schedulerManager = new SchedulerManager();
 
 /**
  * Long running task detail - progress bar.
@@ -38,6 +41,7 @@ class LongRunningTask extends Basic.AbstractContent {
       this.setRefresh(entity || _entity);
     }
     this._loadEntity();
+    this.context.store.dispatch(schedulerManager.fetchSupportedTasks());
   }
 
   updateLrtState() {
@@ -100,12 +104,17 @@ class LongRunningTask extends Basic.AbstractContent {
   onCancel(task) {
     // show confirm message for deleting entity or entities
     this.refs['confirm-cancel'].show(
-      this.i18n(`action.task-cancel.message`, { record: manager.getNiceLabel(task) }),
+      this.i18n(`action.task-cancel.message`, { record: manager.getNiceLabel(task, this.props.supportedTasks) }),
       this.i18n(`action.task-cancel.header`)
     ).then(() => {
       const uiKey = manager.resolveUiKey(null, task.id);
       this.context.store.dispatch(manager.cancel(task, uiKey, () => {
-        this.addMessage({ level: 'info', message: this.i18n(`action.task-cancel.success`, { record: manager.getNiceLabel(task) }) });
+        this.addMessage({
+          level: 'info',
+          message: this.i18n(`action.task-cancel.success`, {
+            record: manager.getNiceLabel(task, this.props.supportedTasks)
+          })
+        });
       }));
     }, () => {
       //
@@ -115,12 +124,17 @@ class LongRunningTask extends Basic.AbstractContent {
   onInterrupt(task) {
     // show confirm message for deleting entity or entities
     this.refs['confirm-interrupt'].show(
-      this.i18n(`action.task-interrupt.message`, { record: manager.getNiceLabel(task) }),
+      this.i18n(`action.task-interrupt.message`, { record: manager.getNiceLabel(task, this.props.supportedTasks) }),
       this.i18n(`action.task-interrupt.header`)
     ).then(() => {
       const uiKey = manager.resolveUiKey(null, task.id);
       this.context.store.dispatch(manager.interrupt(task, uiKey, () => {
-        this.addMessage({ level: 'info', message: this.i18n(`action.task-interrupt.success`, { record: manager.getNiceLabel(task) }) });
+        this.addMessage({
+          level: 'info',
+          message: this.i18n(`action.task-interrupt.success`, {
+            record: manager.getNiceLabel(task, this.props.supportedTasks)
+          })
+        });
       }));
     }, () => {
       //
@@ -215,7 +229,8 @@ class LongRunningTask extends Basic.AbstractContent {
       _showLoading,
       header,
       footerButtons,
-      showProperties
+      showProperties,
+      supportedTasks
     } = this.props;
     const _entity = this.getEntity();
     //
@@ -228,7 +243,7 @@ class LongRunningTask extends Basic.AbstractContent {
           header
           ||
           <span>
-            { Utils.Ui.getSimpleJavaType(_entity.taskType) }
+            <LongRunningTaskName entity={ _entity } supportedTasks={ supportedTasks } showTaskType={ false }/>
             {' '}
             <small>{ _entity.taskDescription }</small>
           </span>
@@ -237,28 +252,7 @@ class LongRunningTask extends Basic.AbstractContent {
           {
             !showProperties
             ||
-            <Basic.Div>
-              <Basic.Div><strong>{ this.i18n('entity.LongRunningTask.taskProperties.label') }</strong></Basic.Div>
-              {
-                _.keys(_entity.taskProperties)
-                  .map(propertyName => {
-                    if (Utils.Ui.isEmpty(_entity.taskProperties[propertyName])) {
-                      return null;
-                    }
-                    if (propertyName === 'core:transactionContext') {
-                      // FIXME: transaction context info
-                      return null;
-                    }
-                    if (propertyName === 'core:bulkAction') {
-                      // FIXME: bulk action info + #2086
-                      return null;
-                    }
-                    return `${ propertyName }: ${ Utils.Ui.toStringValue(_entity.taskProperties[propertyName]) }`;
-                  })
-                  .filter(v => v !== null)
-                  .join(', ')
-              }
-            </Basic.Div>
+            <LongRunningTaskProperties entity={ _entity } supportedTasks={ supportedTasks } />
           }
           <ProgressBar
             style={{ marginTop: 15, marginBottom: 0 }}
@@ -404,7 +398,8 @@ function select(state, component) {
   return {
     instanceId: ConfigurationManager.getPublicValue(state, 'idm.pub.app.instanceId'),
     _entity,
-    _showLoading
+    _showLoading,
+    supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS)
   };
 }
 

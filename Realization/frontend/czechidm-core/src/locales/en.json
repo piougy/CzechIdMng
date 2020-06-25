@@ -4955,6 +4955,10 @@
         "core-instanceid": {
           "label": "$t(entity.LongRunningTask.instanceId.label)"
         }
+      },
+      "dryRun": {
+        "label": "Dry run",
+        "help": "Task was executed in dryRun mode."
       }
     },
     "LongRunningTaskItem": {

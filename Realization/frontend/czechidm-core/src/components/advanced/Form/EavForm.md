@@ -10,6 +10,7 @@ Dynamic form renders form instance domain object (form definition + form values)
 | formInstance  | string   | Prepared / loaded form instance with form definition and values |  |
 | readOnly | bool | Read only form | false |
 | useDefaultValue | bool | Use configured attribute default values as filled. | false |
+| condensed | bool | Condensed (shorten) form properties - usable in tables. Just filled values without help will be shown. | false |
 
 ## Usage
 ```html

@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 //
-import { SchedulerManager } from '../../../redux';
+import { SchedulerManager, DataManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import LongRunningTaskName from '../LongRunningTask/LongRunningTaskName';
+import LongRunningTaskProperties from '../LongRunningTask/LongRunningTaskProperties';
 
 const manager = new SchedulerManager();
 
@@ -15,8 +16,10 @@ const manager = new SchedulerManager();
  */
 export class SchedulerTaskInfo extends AbstractEntityInfo {
 
-  constructor(props, context) {
-    super(props, context);
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    this.context.store.dispatch(manager.fetchSupportedTasks());
   }
 
   getManager() {
@@ -52,6 +55,18 @@ export class SchedulerTaskInfo extends AbstractEntityInfo {
   }
 
   /**
+   * Renders nicelabel used in text and link face
+   */
+  _renderNiceLabel(entity) {
+    const { className, style, supportedTasks } = this.props;
+    const _entity = entity || this.getEntity();
+    //
+    return (
+      <LongRunningTaskName entity={ _entity } supportedTasks={ supportedTasks } className={ className } style={ style }/>
+    );
+  }
+
+  /**
    * Returns popovers title
    *
    * @param  {object} entity
@@ -77,12 +92,9 @@ export class SchedulerTaskInfo extends AbstractEntityInfo {
       },
       {
         label: this.i18n('entity.SchedulerTask.parameters.label'),
-        value: [..._.keys(entity.parameters).map(parameterName => {
-          if (parameterName.lastIndexOf('core:', 0) === 0) {
-            return null;
-          }
-          return (<div>{parameterName}: { entity.parameters[parameterName] }</div>);
-        }).values()]
+        value: (
+          <LongRunningTaskProperties entity={ entity } supportedTasks={ this.props.supportedTasks } condensed/>
+        )
       }
     ];
   }
@@ -100,6 +112,10 @@ SchedulerTaskInfo.propTypes = {
   entityIdentifier: PropTypes.string,
   //
   _showLoading: PropTypes.bool,
+  /**
+   * Supported schedulable long running task.
+   */
+  supportedTasks: PropTypes.arrayOf(PropTypes.object)
 };
 SchedulerTaskInfo.defaultProps = {
   ...AbstractEntityInfo.defaultProps,
@@ -112,6 +128,7 @@ function select(state, component) {
   return {
     _entity: manager.getEntity(state, component.entityIdentifier),
     _showLoading: manager.isShowLoading(state, null, component.entityIdentifier),
+    supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS)
   };
 }
 export default connect(select)(SchedulerTaskInfo);

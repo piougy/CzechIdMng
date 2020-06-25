@@ -4,14 +4,14 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 //
 import * as Basic from '../../components/basic';
-import { LongRunningTaskManager } from '../../redux';
+import { LongRunningTaskManager, SchedulerManager, DataManager } from '../../redux';
 import * as Advanced from '../../components/advanced';
-import * as Utils from '../../utils';
 
 const manager = new LongRunningTaskManager();
+const schedulerManager = new SchedulerManager();
 
 /**
- * Long running task tab panel
+ * Long running task tab panel.
  *
  * @author Radek Tomiška
  */
@@ -20,6 +20,7 @@ class LongRunningTaskRoute extends Basic.AbstractContent {
   componentDidMount() {
     const { entityId } = this.props.match.params;
     //
+    this.context.store.dispatch(schedulerManager.fetchSupportedTasks());
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId, null, (entity, error) => {
       this.handleError(error);
     }));
@@ -30,23 +31,30 @@ class LongRunningTaskRoute extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity, showLoading, supportedTasks } = this.props;
     //
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
 
         <Advanced.DetailHeader
-          showLoading={ showLoading }
+          showLoading={ showLoading && !entity }
           entity={ entity }
           back="/scheduler/all-tasks">
-          { entity ? Utils.Ui.getSimpleJavaType(entity.taskType) : null }<small> { this.i18n('detail.header') }</small>
+          {
+            entity
+            ?
+            <Advanced.LongRunningTaskName entity={ entity } supportedTasks={ supportedTasks } showTaskType={ false }/>
+            :
+            null
+          }
+          <small> { this.i18n('detail.header') }</small>
         </Advanced.DetailHeader>
 
         <Advanced.TabPanel parentId="scheduler-all-tasks" match={ this.props.match }>
           { this.getRoutes() }
         </Advanced.TabPanel>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -64,7 +72,8 @@ function select(state, component) {
   const { entityId } = component.match.params;
   return {
     entity: manager.getEntity(state, entityId),
-    showLoading: manager.isShowLoading(state, null, entityId)
+    showLoading: manager.isShowLoading(state, null, entityId),
+    supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS)
   };
 }
 

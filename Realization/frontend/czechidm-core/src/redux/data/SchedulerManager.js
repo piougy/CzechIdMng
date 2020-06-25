@@ -3,6 +3,10 @@ import Immutable from 'immutable';
 import EntityManager from './EntityManager';
 import { SchedulerService } from '../../services';
 import DataManager from './DataManager';
+import FormAttributeManager from './FormAttributeManager';
+import * as Utils from '../../utils';
+
+const formAttributeManager = new FormAttributeManager();
 
 /**
  * Scheduler administration
@@ -21,7 +25,19 @@ export default class SchedulerManager extends EntityManager {
     return this.service;
   }
 
-  getNiceLabel(entity, showDescription = true) {
+  getNiceLabel(entity, showDescription = true, supportedTasks = null) {
+    let _taskType;
+    if (supportedTasks && supportedTasks.has(entity.taskType)) {
+      _taskType = supportedTasks.get(entity.taskType);
+    }
+    if (_taskType && _taskType.formDefinition) {
+      const simpleTaskType = Utils.Ui.getSimpleJavaType(entity.taskType);
+      let _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', simpleTaskType);
+      if (_label !== simpleTaskType) {
+        _label += ` (${ simpleTaskType })`;
+      }
+      return _label;
+    }
     return this.getService().getNiceLabel(entity, showDescription);
   }
 

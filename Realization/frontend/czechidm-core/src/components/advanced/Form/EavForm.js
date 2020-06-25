@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
+import * as Utils from '../../../utils';
 import { FormAttributeManager } from '../../../redux';
 import FormInstance from '../../../domain/FormInstance';
 //
@@ -124,7 +126,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
       useDefaultValue,
       validationErrors,
       formableManager,
-      showAttributes
+      showAttributes,
+      condensed
     } = this.props;
     //
     if (!rendered || !formInstance) {
@@ -142,20 +145,37 @@ export default class EavForm extends Basic.AbstractContextComponent {
           level="info"
           text={ this.i18n('attributes.empty') }
           className="no-margin"
-          rendered={ !showAttributes }/>
+          rendered={ !showAttributes && !condensed }/>
       );
     }
-
+    //
     return (
-      <span>
+      <span className={
+        classnames({
+          'eav-form': true,
+          condensed
+        })
+      }>
         {
           [...formInstance.getAttributes().map(attribute => {
             if (showAttributes && showAttributes.size > 0 && !showAttributes.has(attribute.code) && !showAttributes.has(attribute.id)) {
               return null;
             }
             //
+            const values = formInstance.getValues(attribute.code);
+            const filledValues = !values ? [] : values.filter(value => !Utils.Ui.isEmpty(value.value));
+            if (filledValues.length === 0 && condensed) {
+              return null;
+            }
             const component = attributeManager.getFormComponent(attribute);
             if (!component) {
+              if (condensed) {
+                return (
+                  <Basic.LabelWrapper label={ attribute.code } >
+                    { filledValues.map(value => Utils.Ui.toStringValue(value.value)).join(', ') }
+                  </Basic.LabelWrapper>
+                );
+              }
               return (
                 <Basic.LabelWrapper label={attribute.name}>
                   <Basic.Alert
@@ -175,7 +195,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 uiKey={ `form-attribute-${attribute.code}` }
                 formDefinition={ this.getFormDefinition() }
                 attribute={ attribute }
-                values={ formInstance.getValues(attribute.code) }
+                values={ values }
                 readOnly={ readOnly }
                 useDefaultValue={ useDefaultValue }
                 manager={ ManagerType ? new ManagerType() : null }
@@ -218,11 +238,16 @@ EavForm.propTypes = {
   /**
    * Render given attributes only. Render all atributes otherwise.
    */
-  showAttributes: PropTypes.arrayOf(PropTypes.string)
+  showAttributes: PropTypes.arrayOf(PropTypes.string),
+  /**
+   * Condensed (shorten) form properties - usable in tables. Just filled values without help will be shown.
+   */
+  condensed: PropTypes.bool
 };
 EavForm.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   formInstance: null,
   readOnly: false,
-  useDefaultValue: false
+  useDefaultValue: false,
+  condensed: false
 };

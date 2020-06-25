@@ -52,6 +52,8 @@ import TreeTypeInfo from './TreeTypeInfo/TreeTypeInfo';
 import TreeNodeInfo from './TreeNodeInfo/TreeNodeInfo';
 import ImageCropper from './ImageCropper/ImageCropper';
 import LongRunningTask from './LongRunningTask/LongRunningTask';
+import LongRunningTaskName from './LongRunningTask/LongRunningTaskName';
+import LongRunningTaskProperties from './LongRunningTask/LongRunningTaskProperties';
 import CreatableSelectBox from './CreatableSelectBox/CreatableSelectBox';
 import CodeListSelect from './CodeListSelect/CodeListSelect';
 import CodeListValue from './CodeListValue/CodeListValue';
@@ -121,6 +123,8 @@ const Components = {
   TreeNodeInfo,
   ImageCropper,
   LongRunningTask,
+  LongRunningTaskName,
+  LongRunningTaskProperties,
   CreatableSelectBox,
   CodeListSelect,
   CodeListValue,
@@ -134,5 +138,5 @@ const Components = {
   CronGenerator
 };
 
-Components.version = '10.3.0';
+Components.version = '10.4.0';
 module.exports = Components;

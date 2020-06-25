@@ -9,6 +9,8 @@ All notable changes to this project will be documented in this file.
 - [#2296](https://redmine.czechidm.com/issues/2296) - Sidebar menu - added redirect on menu items with sub menu items (for ``Users``, ``Roles`` and ``Organization``). Menu item ``Role catalogue`` moved bellow ``Roles`` menu item. Menu items ``Structure nodes`` and ``Structure types`` moved bellow ``Organization`` menu item. Our goal is continue with reducing items in ``Settings`` menu in future releases.
 - [#2346](https://redmine.czechidm.com/issues/2346) 
   - Skipping of sending notification after new workflow task was created not worked if ``default`` property (in task configuration) was used. You can fix this with using ``expression`` property instead ``default`` value in your workflow.
+  
+    <code><activiti:formProperty id="sendNotification" type="configuration" expression="false" writable="false"></activiti:formProperty></code>
   - The product workflow for change permissions was modified. There are three places, where notifications are sent directly from the workflow and universal notification sending after new task is created should be skipped. This skip were added to these tasks.
 
 ## [10.3.2]

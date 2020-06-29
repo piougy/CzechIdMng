@@ -215,7 +215,7 @@ public class DefaultWorkflowTaskInstanceService extends
 	@Override
 	public Page<UUID> findIds(Pageable pageable, BasePermission... permission) {
 		
-		return findIds(null, pageable, permission);
+		return findIds(new WorkflowFilterDto(), pageable, permission);
 	}
 	
 	private WorkflowTaskInstanceDto toResource(TaskInfo task, BasePermission[] permission) {

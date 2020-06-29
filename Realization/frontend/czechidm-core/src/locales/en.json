@@ -2316,6 +2316,13 @@
       "filter": {
         "text": {
           "placeholder": "Name, code, environment or description"
+        },
+        "roleCatalogue": {
+          "option": {
+            "withoutCatalogue": {
+              "label": "-- without catalogue --"
+            }
+          }
         }
       },
       "roleCataloguePick": "Select folder",

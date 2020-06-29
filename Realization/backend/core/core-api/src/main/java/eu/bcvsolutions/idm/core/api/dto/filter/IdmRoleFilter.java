@@ -38,6 +38,12 @@ public class IdmRoleFilter
 	public static final String PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF = "identityRoleAttributeDefinition";
 	@Deprecated // unused since the start of project
 	public static final String PARAMETER_ROLE_TYPE = "roleType";
+	/**
+	 * Roles, which are not placed in any catalogue folder.
+	 * 
+	 * @since 10.4.0
+	 */
+	public static final String PARAMETER_WITHOUT_CATALOGUE = "withoutCatalogue";
 
 	public IdmRoleFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -127,5 +133,24 @@ public class IdmRoleFilter
 	 */
 	public void setParent(UUID parent) {
 		set(PARAMETER_PARENT, parent);
+	}
+	
+	/**
+	 * Roles, which are not placed in any catalogue folder.
+	 * 
+	 * @since 10.4.0
+	 * @return without catalogue
+	 */
+	public Boolean getWithoutCatalogue() {
+		return getParameterConverter().toBoolean(getData(), PARAMETER_WITHOUT_CATALOGUE);
+	}
+	
+	/**
+	 * Roles, which are not placed in any catalogue folder.
+	 * 
+	 * @param withoutCatalogue without catalogue
+	 */
+	public void setWithoutCatalogue(Boolean withoutCatalogue) {
+		set(PARAMETER_WITHOUT_CATALOGUE, withoutCatalogue);
 	}
 }

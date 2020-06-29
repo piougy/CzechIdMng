@@ -2366,6 +2366,13 @@
       "filter": {
         "text": {
           "placeholder": "Název, kód, prostředí či popis"
+        },
+        "roleCatalogue": {
+          "option": {
+            "withoutCatalogue": {
+              "label": "-- bez katalogu --"
+            }
+          }
         }
       },
       "roleCataloguePick": "Vyberte složku",

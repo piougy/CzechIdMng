@@ -227,8 +227,8 @@
   "eav": {
     "long-running-task": {
       "vs-system-generator-long-running-task": {
-        "label": "Vygenerovat požadované množství virtuálních systémů",
-        "help": "Vygeneruje požadované množství virtuálních systémů a rovnoměrně je přiřadí zadanému množství uživatelů.",
+        "label": "Vygenerovat požadované množství virtuálních systémů (test výkonnosti)",
+        "help": "Úloha pouze pro test výkonnosti. Vygeneruje požadované množství virtuálních systémů a rovnoměrně je přiřadí zadanému množství uživatelů.",
         "icon": "component:scheduled-task",
         "attributes": {
           "item-prefix": {

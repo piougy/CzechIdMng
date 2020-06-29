@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import java.lang.Math;
-
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,14 +31,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
 import eu.bcvsolutions.idm.vs.exception.VsResultCode;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemService;
 
 
 /**
- * Generator of virtual systems. Generates given number of systems, roles and
+ * Generator of virtual systems (for optimization testing only). Generates given number of systems, roles and
  * identities for performance test purpose. Generated entities are evenly
  * distributed. Generated roles are evenly assigned to created users. And
  * generate roles are evenly assigned to systems.
@@ -64,8 +61,6 @@ public class VsSystemGeneratorTaskExecutor extends AbstractSchedulableTaskExecut
 	private IdmIdentityService identityService;
 	@Autowired
 	private IdmIdentityContractService identityContractService;
-	@Autowired
-	private SecurityService securityService;
 	@Autowired
 	private SysSystemMappingService systemMappingService;
 	
@@ -197,7 +192,7 @@ public class VsSystemGeneratorTaskExecutor extends AbstractSchedulableTaskExecut
 	 * @return
 	 */
 	private List<IdmRoleDto> createRole(int roleCount) {
-		List<IdmRoleDto> dtos = new ArrayList<IdmRoleDto>(roleCount);
+		List<IdmRoleDto> dtos = new ArrayList<>(roleCount);
 		for (int i = 0; i < roleCount; i++) {
 			IdmRoleDto role = new IdmRoleDto();
 			role.setCode(createPrefixedName());
@@ -218,7 +213,7 @@ public class VsSystemGeneratorTaskExecutor extends AbstractSchedulableTaskExecut
 	 * @return
 	 */
 	private List<IdmIdentityDto> createIdentity(int identityCount) {
-		List<IdmIdentityDto> dtos = new ArrayList<IdmIdentityDto>(identityCount);
+		List<IdmIdentityDto> dtos = new ArrayList<>(identityCount);
 		for (int i = 0; i < identityCount; i++) {
 			IdmIdentityDto dto = new IdmIdentityDto();
 			dto.setUsername(createPrefixedName());
@@ -269,7 +264,7 @@ public class VsSystemGeneratorTaskExecutor extends AbstractSchedulableTaskExecut
 			IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 			identityRole.setIdentityContract(contract.getId());
 			identityRole.setRole(role.getId());
-			identityRole = identityRoleService.save(identityRole);
+			identityRoleService.save(identityRole);
 			increaseCounter();
 			if (!updateState()) {
 				break;
@@ -300,7 +295,7 @@ public class VsSystemGeneratorTaskExecutor extends AbstractSchedulableTaskExecut
 	private void generateSystems() {
 		List<IdmRoleDto> roles = createRole(roleCount);
 		List<IdmIdentityDto> users = createIdentity(userCount);
-		List<SysSystemDto> systems = new ArrayList<SysSystemDto>(systemCount);
+		List<SysSystemDto> systems = new ArrayList<>(systemCount);
 		createIdentityRole(roles, users);
 
 		int moduloCnt = roles.size();

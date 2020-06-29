@@ -221,8 +221,8 @@
   "eav": {
     "long-running-task": {
       "vs-system-generator-long-running-task": {
-        "label": "Generate requested number of virtual systems",
-        "help": "Generate requested number of virtual systems and evenly assign the number of users to them.",
+        "label": "Generate requested number of virtual systems (for optimization testing only)",
+        "help": "Task for optimization testing only. Generate requested number of virtual systems and evenly assign the number of users to them.",
         "icon": "component:scheduled-task",
         "attributes": {
           "item-prefix": {

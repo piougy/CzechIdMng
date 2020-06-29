@@ -237,7 +237,9 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
       required,
       validationErrors,
       value,
-      multiSelect
+      multiSelect,
+      onChange,
+      additionalOptions
     } = this.props;
     const { showTree, selected, readOnly } = this.state;
     //
@@ -247,8 +249,8 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
     //
     return (
       <span>
-        <div style={{ display: 'flex' }}>
-          <div style={{ flex: 1 }}>
+        <Basic.Div style={{ display: 'flex' }}>
+          <Basic.Div style={{ flex: 1 }}>
             <EntitySelectBox
               entityType="roleCatalogue"
               ref="roleCatalogue"
@@ -260,10 +262,12 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               required={ required }
               validationErrors={ validationErrors }
               value={ value }
-              multiSelect={ multiSelect }/>
-          </div>
+              multiSelect={ multiSelect }
+              onChange={ onChange }
+              additionalOptions={ additionalOptions}/>
+          </Basic.Div>
           { this._renderShowTreeIcon() }
-        </div>
+        </Basic.Div>
 
         <Basic.Modal
           show={ showTree }
@@ -281,7 +285,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               clearable={ false }
               multiSelect={ multiSelect }
               selected={ !selected || _.isArray(selected) ? selected : [ selected ] }
-              />
+            />
           </Basic.Modal.Body>
           <Basic.Modal.Footer>
             <Basic.Button
@@ -294,7 +298,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               level="success"
               showLoadingIcon
               onClick={ this.onSelect.bind(this, null) }
-              disabled={ !selected || (_.isArray(selected) && selected.length === 0) ? true : false }>
+              disabled={ !!(!selected || (_.isArray(selected) && selected.length === 0)) }>
               {this.i18n('button.select')}
             </Basic.Button>
           </Basic.Modal.Footer>

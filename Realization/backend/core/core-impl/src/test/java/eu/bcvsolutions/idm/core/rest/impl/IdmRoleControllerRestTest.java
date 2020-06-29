@@ -96,6 +96,37 @@ public class IdmRoleControllerRestTest extends AbstractReadWriteDtoControllerRes
 	}
 	
 	@Test
+	public void testFindWithoutCatalogue() {
+		// prepare role catalogue
+		IdmRoleCatalogueDto roleCatalogue = getHelper().createRoleCatalogue();
+		// create roles
+		String environment = getHelper().createName();
+		IdmRoleDto roleOne = getHelper().createRole(null, null, environment);
+		IdmRoleDto roleTwo = getHelper().createRole(null, null, environment);
+		// assign role into catalogue
+		getHelper().createRoleCatalogueRole(roleOne, roleCatalogue);
+		//
+		// test
+		IdmRoleFilter filter = new IdmRoleFilter();
+		filter.setEnvironment(environment);
+		filter.setWithoutCatalogue(Boolean.TRUE);
+		List<IdmRoleDto> roles = find(filter);
+		Assert.assertEquals(1, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleTwo.getId())));
+		//
+		filter.setWithoutCatalogue(Boolean.FALSE);
+		roles = find(filter);
+		Assert.assertEquals(1, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
+		//
+		filter.setWithoutCatalogue(null);
+		roles = find(filter);
+		Assert.assertEquals(2, roles.size());
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
+		Assert.assertTrue(roles.stream().anyMatch(r -> r.getId().equals(roleTwo.getId())));
+	}
+	
+	@Test
 	public void testFindByEnvironment() {
 		IdmRoleDto roleOne = prepareDto();
 		roleOne.setCode(null);

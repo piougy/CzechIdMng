@@ -251,9 +251,8 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		Boolean ended = super.end(result, ex);
 		//
-		if (BooleanUtils.isTrue(ended) && removeNotProcessedIdentityRoles) {
+		if (BooleanUtils.isTrue(result) && removeNotProcessedIdentityRoles && ex == null) {
 			// remove previously assigned role, which was not processed by any automatic role
 			automaticRoles.forEach(automaticRole -> {
 				// new transaction is wrapped inside
@@ -261,11 +260,11 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			});
 		}
 		//
-		return ended;
+		return super.end(result, ex);
 	}
 	
 	private Set<UUID> processContracts(IdmRoleTreeNodeDto automaticRole) {
-		Set<UUID> processedIdentityRoles = new HashSet<>();
+		Set<UUID> localProcessedIdentityRoles = new HashSet<>();
 		//
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setWorkPosition(automaticRole.getTreeNode());
@@ -288,7 +287,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 				UUID contractId = contract.getId();
 				//
 				if (!requireNewTransaction()) {
-					processedIdentityRoles.addAll(processContract(contract, automaticRole));
+					localProcessedIdentityRoles.addAll(processContract(contract, automaticRole));
 				} else {
 					TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
 					template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -298,7 +297,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 							
 							@Override
 							public void doInTransactionWithoutResult(TransactionStatus status) {
-								processedIdentityRoles.addAll(processContract(contract, automaticRole));
+								localProcessedIdentityRoles.addAll(processContract(contract, automaticRole));
 							}
 						});
 					} catch (UnexpectedRollbackException ex ) {
@@ -319,11 +318,11 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			//
 		} while (canContinue);
 		//
-		return processedIdentityRoles;
+		return localProcessedIdentityRoles;
 	}
 	
 	private Set<UUID> processPositions(IdmRoleTreeNodeDto automaticRole) {
-		Set<UUID> processedIdentityRoles = new HashSet<>();
+		Set<UUID> localProcessedIdentityRoles = new HashSet<>();
 		//
 		IdmContractPositionFilter filter = new IdmContractPositionFilter();
 		filter.setWorkPosition(automaticRole.getTreeNode());
@@ -344,7 +343,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 				UUID contractId = position.getId();
 				//
 				if (!requireNewTransaction()) {
-					processedIdentityRoles.addAll(processPosition(position, automaticRole));
+					localProcessedIdentityRoles.addAll(processPosition(position, automaticRole));
 				} else {
 					TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
 					template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -354,7 +353,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 							
 							@Override
 							public void doInTransactionWithoutResult(TransactionStatus status) {
-								processedIdentityRoles.addAll(processPosition(position, automaticRole));
+								localProcessedIdentityRoles.addAll(processPosition(position, automaticRole));
 							}
 						});
 					} catch (UnexpectedRollbackException ex ) {
@@ -375,7 +374,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			//
 		} while (canContinue);
 		//
-		return processedIdentityRoles;
+		return localProcessedIdentityRoles;
 	}
 	
 	protected void processIdentityRoles(Set<UUID> processedIdentityRoles, UUID automaticRole) {
@@ -438,7 +437,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			IdmIdentityContractDto contract, 
 			IdmRoleTreeNodeDto automaticRole) {
 		UUID contractId = contract.getId();
-		Set<UUID> processedIdentityRoles = new HashSet<>();
+		Set<UUID> localProcessedIdentityRoles = new HashSet<>();
 		UUID automaticRoleId = automaticRole.getId();
 		IdmIdentityDto identity = getLookupService().lookupEmbeddedDto(contract, IdmIdentityContract_.identity);
 		IdmRoleDto role = getLookupService().lookupEmbeddedDto(automaticRole, IdmRoleTreeNode_.role);
@@ -449,7 +448,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			// skip already assigned automatic roles
 			for (IdmIdentityRoleDto roleByContract : allByContract) {
 				if (ObjectUtils.equals(roleByContract.getAutomaticRole(), automaticRoleId)) {
-					processedIdentityRoles.add(roleByContract.getId());
+					localProcessedIdentityRoles.add(roleByContract.getId());
 					ResultModel resultModel = new DefaultResultModel(
 							CoreResultCode.AUTOMATIC_ROLE_ALREADY_ASSIGNED,
 							ImmutableMap.of(
@@ -457,7 +456,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 									"roleTreeNode", automaticRoleId,
 									"identity", identity.getUsername()));
 					saveItemResult(roleByContract, OperationState.NOT_EXECUTED, resultModel, null);
-					return processedIdentityRoles;
+					return localProcessedIdentityRoles;
 				}
 			}
 			//
@@ -475,7 +474,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 				conceptRoleRequestService
 					.findAllByRoleRequest(request.getId())
 					.forEach(concept -> {
-						processedIdentityRoles.add(concept.getIdentityRole());
+						localProcessedIdentityRoles.add(concept.getIdentityRole());
 					});
 			}
 			// Log successfully assigned role
@@ -500,7 +499,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			saveItemResult(contract, OperationState.EXCEPTION, resultModel, ex);
 		}
 		//
-		return processedIdentityRoles;
+		return localProcessedIdentityRoles;
 	}
 	
 	/**
@@ -516,7 +515,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		UUID positionId = position.getId();
 		IdmIdentityContractDto contract = getLookupService().lookupEmbeddedDto(position, IdmContractPosition_.identityContract);
 		UUID contractId = contract.getId();
-		Set<UUID> processedIdentityRoles = new HashSet<>();
+		Set<UUID> localProcessedIdentityRoles = new HashSet<>();
 		UUID automaticRoleId = automaticRole.getId();
 		IdmIdentityDto identity = getLookupService().lookupEmbeddedDto(contract, IdmIdentityContract_.identity);
 		IdmRoleDto role = getLookupService().lookupEmbeddedDto(automaticRole, IdmRoleTreeNode_.role);
@@ -527,7 +526,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			// skip already assigned automatic roles
 			for (IdmIdentityRoleDto roleByContract : allByPosition) {
 				if (ObjectUtils.equals(roleByContract.getAutomaticRole(), automaticRoleId)) {
-					processedIdentityRoles.add(roleByContract.getId());
+					localProcessedIdentityRoles.add(roleByContract.getId());
 					ResultModel resultModel = new DefaultResultModel(
 							CoreResultCode.AUTOMATIC_ROLE_ALREADY_ASSIGNED,
 							ImmutableMap.of(
@@ -535,7 +534,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 									"roleTreeNode", automaticRoleId,
 									"identity", identity.getUsername()));
 					saveItemResult(roleByContract, OperationState.NOT_EXECUTED, resultModel, null);
-					return processedIdentityRoles;
+					return localProcessedIdentityRoles;
 
 				}
 			}
@@ -555,7 +554,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 				conceptRoleRequestService
 					.findAllByRoleRequest(request.getId())
 					.forEach(concept -> {
-						processedIdentityRoles.add(concept.getIdentityRole());
+						localProcessedIdentityRoles.add(concept.getIdentityRole());
 					});
 			}
 			// Log successfully assigned role
@@ -580,7 +579,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			saveItemResult(position, OperationState.EXCEPTION, resultModel, ex);
 		}
 		//
-		return processedIdentityRoles;
+		return localProcessedIdentityRoles;
 	}
 	
 	/**

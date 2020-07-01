@@ -243,20 +243,20 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		}
 		// remove not sent contracts, if previous exists
 		if (previousProjection != null) {
+			boolean primeContractChanged = false;
+			//
 			for (IdmIdentityContractDto contract : previousProjection.getOtherContracts()) {
 				if (Objects.equals(dto.getContract(), contract)) {
 					// new prime contract is saved all time
+					primeContractChanged = true; 
 					continue;
 				}
 				//
-				IdentityContractEventType contractEventType = IdentityContractEventType.DELETE;
-				IdentityContractEvent otherContractEvent = new IdentityContractEvent(contractEventType, contract);
-				//
-				contractService.publish(
-						otherContractEvent,
-						event,
-						PermissionUtils.isEmpty(permission) ? null : IdmBasePermission.DELETE
-				);
+				deleteContract(event, contract, permission);
+			}
+			// delete previous prime contract, if order of contracts changed
+			if (primeContractChanged && !savedContracts.contains(previousProjection.getContract())) {
+				deleteContract(event, previousProjection.getContract(), permission);
 			}
 		}
 		//
@@ -481,5 +481,16 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 					formProjection.getCode(), ex);
 			context.setAddEavMetadata(Boolean.TRUE);
 		}
+	}
+	
+	private void deleteContract(EntityEvent<IdmIdentityProjectionDto> event, IdmIdentityContractDto contract, BasePermission... permission) {
+		IdentityContractEventType contractEventType = IdentityContractEventType.DELETE;
+		IdentityContractEvent otherContractEvent = new IdentityContractEvent(contractEventType, contract);
+		//
+		contractService.publish(
+				otherContractEvent,
+				event,
+				PermissionUtils.isEmpty(permission) ? null : IdmBasePermission.DELETE
+		);
 	}
 }

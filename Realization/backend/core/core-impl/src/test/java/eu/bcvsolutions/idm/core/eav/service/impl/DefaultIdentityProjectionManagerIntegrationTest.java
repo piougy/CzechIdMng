@@ -1040,7 +1040,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	}
 	
 	@Test
-	public void testPreventToDeleteOtherContractWhenPrimeCOntractIsChanged() {
+	public void testPreventToDeleteOtherContractWhenPrimeContractIsChanged() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
 		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
@@ -1059,6 +1059,27 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 		contracts = contractService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(2, contracts.size());
 		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(primeContract.getId())));
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(otherContract.getId())));
+	}
+	
+	@Test
+	public void testDeleteOtherContractWhenPrimeContractIsChanged() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
+		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		
+		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, contracts.size());
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(primeContract.getId())));
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(otherContract.getId())));
+		
+		IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
+		projection.setContract(otherContract);
+		
+		manager.publish(new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, projection));
+		
+		contracts = contractService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, contracts.size());
 		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(otherContract.getId())));
 	}
 }

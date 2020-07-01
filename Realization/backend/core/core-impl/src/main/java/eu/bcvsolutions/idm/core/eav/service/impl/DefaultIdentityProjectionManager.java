@@ -212,7 +212,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 	protected List<IdmIdentityContractDto> saveOtherContracts(EntityEvent<IdmIdentityProjectionDto> event, BasePermission... permission) {
 		IdmIdentityProjectionDto dto = event.getContent();
 		IdmIdentityProjectionDto previousProjection = event.getOriginalSource();
-		List<IdmIdentityContractDto> savedContracts = new ArrayList<>(dto.getOtherContracts().size() + 1);
+		List<IdmIdentityContractDto> savedContracts = new ArrayList<>(dto.getOtherContracts().size());
 		//
 		// check all contracts has to be saved
 		IdmIdentityDto identity = dto.getIdentity();

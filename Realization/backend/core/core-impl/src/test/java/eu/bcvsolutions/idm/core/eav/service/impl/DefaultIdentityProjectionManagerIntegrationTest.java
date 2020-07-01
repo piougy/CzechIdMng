@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.dto.projection.IdmIdentityProjectionDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
@@ -76,6 +77,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	@Autowired private LookupService lookupService;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmIdentityContractService contractService;
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private EventConfiguration eventConfiguration;
 	//
@@ -1035,5 +1037,49 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 		Assert.assertTrue(createdProjection.getOtherContracts().isEmpty());
 		// other position
 		Assert.assertTrue(createdProjection.getOtherPositions().isEmpty());
+	}
+	
+	@Test
+	public void testPreventToDeleteOtherContractWhenPrimeContractIsChanged() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
+		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		
+		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, contracts.size());
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(primeContract.getId())));
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(otherContract.getId())));
+		
+		IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
+		projection.setContract(otherContract);
+		projection.setOtherContracts(Lists.newArrayList(primeContract));
+		
+		manager.publish(new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, projection));
+		
+		contracts = contractService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, contracts.size());
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(primeContract.getId())));
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(otherContract.getId())));
+	}
+	
+	@Test
+	public void testDeleteOtherContractWhenPrimeContractIsChanged() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
+		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		
+		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, contracts.size());
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(primeContract.getId())));
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(otherContract.getId())));
+		
+		IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
+		projection.setContract(otherContract);
+		
+		manager.publish(new IdentityProjectionEvent(IdentityProjectionEventType.UPDATE, projection));
+		
+		contracts = contractService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, contracts.size());
+		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(otherContract.getId())));
 	}
 }

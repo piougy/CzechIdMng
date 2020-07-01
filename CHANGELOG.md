@@ -3,13 +3,18 @@ All notable changes to this project will be documented in this file.
 
 
 ## [10.4.0]
-- [#2158](https://redmine.czechidm.com/issues/2158) - ``Node version 12.16.3``, ``Npm 6.14.4``, ``Npx 6.14.4`` is used for developing and building CzechIdM.
-- [#2282](https://redmine.czechidm.com/issues/22828) - ``FilterNotSupportedException`` exception was added. Exception is thrown, when unsupported filter is used from REST or on service layer. Make sure **all used filters are [registered properly](https://wiki.czechidm.com/devel/documentation/architecture/dev/filters) in your custom module!**. Unsupported filter usage is not possible now - exception will be thrown instead of skipping filter usage silently.
+
+### Administrator
+
 - [#1043](https://redmine.czechidm.com/issues/1043) - Automatic roles by tree structure were improved. Automatic roles by tree structure are recalculated after tree structure is changed (after node is moved in structure). Skipping recalculation of automatic roles by tree structure was added too and new tree synchronization configuration is available - recalculation of automatic roles can be turned off in synchronization (now it works the same way as automatic roles by attributes).
 - [#2296](https://redmine.czechidm.com/issues/2296) - Sidebar menu - added redirect on menu items with sub menu items (for ``Users``, ``Roles`` and ``Organization``). Menu item ``Role catalogue`` moved bellow ``Roles`` menu item. Menu items ``Structure nodes`` and ``Structure types`` moved bellow ``Organization`` menu item. Our goal is continue with reducing items in ``Settings`` menu in future releases.
+
+### Developer
+
+- [#2158](https://redmine.czechidm.com/issues/2158) - ``Node version 12.16.3``, ``Npm 6.14.4``, ``Npx 6.14.4`` is used for developing and building CzechIdM.
+- [#2282](https://redmine.czechidm.com/issues/22828) - ``FilterNotSupportedException`` exception was added. Exception is thrown, when unsupported filter is used from REST or on service layer. Make sure **all used filters are [registered properly](https://wiki.czechidm.com/devel/documentation/architecture/dev/filters) in your custom module!**. Unsupported filter usage is not possible now - exception will be thrown instead of skipping filter usage silently.
 - [#2346](https://redmine.czechidm.com/issues/2346)
   - Skipping of sending notification after new workflow task was created not worked if ``default`` property (in task configuration) was used. You can fix this with using ``expression`` property instead ``default`` value in your workflow.
-
     <code><activiti:formProperty id="sendNotification" type="configuration" expression="false" writable="false"></activiti:formProperty></code>
   - The product workflow for change permissions was modified. There are three places, where notifications are sent directly from the workflow and universal notification sending after new task is created should be skipped. This skip were added to these tasks.
 

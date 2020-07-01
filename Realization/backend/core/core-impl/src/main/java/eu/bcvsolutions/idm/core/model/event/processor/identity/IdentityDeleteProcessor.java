@@ -121,8 +121,6 @@ public class IdentityDeleteProcessor
 		passwordProcessor.deletePassword(identity);
 		// delete password history for identity
 		passwordHistoryService.deleteAllByIdentity(identity.getId());
-		// set to null all notification recipients - real recipient remains (email etc.)
-		notificationRecipientRepository.clearIdentity(identity.getId());
 		// remove related tokens
 		tokenManager.deleteTokens(identity);
 		//

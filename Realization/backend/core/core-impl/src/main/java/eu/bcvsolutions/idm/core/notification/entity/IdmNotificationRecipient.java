@@ -17,6 +17,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  * Notification recipient
@@ -42,6 +44,7 @@ public class IdmNotificationRecipient extends AbstractEntity {
 	private IdmNotification notification;
 	
 	@ManyToOne(optional = true)
+	@NotFound(action = NotFoundAction.IGNORE)
 	@JoinColumn(name = "identity_recipient_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )

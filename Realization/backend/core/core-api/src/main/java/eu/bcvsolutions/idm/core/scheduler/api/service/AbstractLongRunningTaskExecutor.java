@@ -218,6 +218,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements
 	}
 	
 	/**
+	 * Set LRT to executed / exception. Make sure in on end, if method is overriden!
+	 * 
 	 * TODO: save result into long running task - blob, text?
 	 * 
 	 * @param result

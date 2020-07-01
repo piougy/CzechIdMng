@@ -6951,6 +6951,10 @@
       "title": "Role wasn't removed",
       "message": "Role [{{role}}] wasn't removed by automatic role [{{roleTreeNode}}] for identity [{{identity}}], Check role request agenda for reason."
     },
+    "AUTOMATIC_ROLE_REMOVE_HAS_ASSIGNED_ROLES": {
+      "title": "Automatic role cannot be deleted",
+      "message": "Currenty deleted automatic role [{{automaticRoleId}}] was newly assigned to [{{assignedRoles}}] users. Cancel role assignment and delete business role again."
+    },
     "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE": {
       "title": "Invalid comparison and attribute type",
       "message": "The selected comparison cannot be used with a multivalued attribute."

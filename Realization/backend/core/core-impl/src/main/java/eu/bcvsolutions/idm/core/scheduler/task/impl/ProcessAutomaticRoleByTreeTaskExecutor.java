@@ -251,9 +251,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		Boolean ended = super.end(result, ex);
-		//
-		if (BooleanUtils.isTrue(ended) && removeNotProcessedIdentityRoles) {
+		if (ex == null && BooleanUtils.isTrue(result) && removeNotProcessedIdentityRoles) {
 			// remove previously assigned role, which was not processed by any automatic role
 			automaticRoles.forEach(automaticRole -> {
 				// new transaction is wrapped inside
@@ -261,7 +259,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			});
 		}
 		//
-		return ended;
+		return super.end(result, ex);
 	}
 	
 	private Set<UUID> processContracts(IdmRoleTreeNodeDto automaticRole) {

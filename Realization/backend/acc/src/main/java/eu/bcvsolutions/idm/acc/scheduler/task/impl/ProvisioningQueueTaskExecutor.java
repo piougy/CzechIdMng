@@ -69,9 +69,9 @@ public class ProvisioningQueueTaskExecutor extends AbstractSchedulableStatefulEx
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		result = super.end(result, ex);
 		LOG.debug("End processing created provisioning operation in queue.");
-		return result;
+		//
+		return super.end(result, ex);
 	}
 
 	@Override

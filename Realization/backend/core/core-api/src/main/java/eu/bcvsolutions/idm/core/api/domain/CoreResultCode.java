@@ -201,6 +201,7 @@ public enum CoreResultCode implements ResultCode {
 	AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not removed for identity [%s]."),
 	AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Automatic role [%s] is removed in concurent task [%s]"),
 	AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Automatic role [%s] is added in concurent task [%s], wait for task is complete, after removal."),
+	AUTOMATIC_ROLE_REMOVE_HAS_ASSIGNED_ROLES(HttpStatus.CONFLICT, "Remove automatic role [%s] is not complete, some identity roles [%s] were assigned to identities in the meantime."),
 	AUTOMATIC_ROLE_TASK_RUNNING(HttpStatus.BAD_REQUEST, "Automatic role is processed in concurent task [%s], wait for task is complete."),
 	AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY(HttpStatus.BAD_REQUEST, "Rule for automatic role hasn't filled necessary attribute: [%s]."),
 	AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE(HttpStatus.BAD_REQUEST, "Comparsion [%s] cannot be used with multiple form attribute."),

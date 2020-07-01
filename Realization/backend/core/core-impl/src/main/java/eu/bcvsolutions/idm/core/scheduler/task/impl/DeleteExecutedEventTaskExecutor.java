@@ -71,9 +71,9 @@ public class DeleteExecutedEventTaskExecutor extends AbstractSchedulableStateful
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		result = super.end(result, ex);
 		LOG.warn("End deleting executed events  older than [{}] days. Processed events [{}].", numberOfDays, counter);
-		return result;
+		//
+		return super.end(result, ex);
 	}
 	
 	@Override

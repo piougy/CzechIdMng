@@ -61,6 +61,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent;
@@ -69,6 +70,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor;
@@ -103,6 +105,7 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 	@Autowired private LookupService lookupService;
 	@Autowired private EntityStateManager entityStateManager;
 	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private IdmLongRunningTaskService longRunningTaskService;
 	//
 	private DefaultIdmIdentityContractService service;
 	private IdmTreeTypeDto treeType = null;
@@ -1464,5 +1467,27 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(1, assignedRoles.size());
 		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testPreventToDeleteCurrentlyDeletedRole() {
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(getHelper().createRole(), getHelper().createTreeNode(), true);
+		RemoveAutomaticRoleTaskExecutor taskExecutor = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
+		taskExecutor.setAutomaticRoleId(automaticRole.getId());
+		//
+		IdmLongRunningTaskDto lrt = null;
+		try {
+			lrt = longRunningTaskManager.resolveLongRunningTask(taskExecutor, null, OperationState.RUNNING);
+			lrt.setRunning(true);
+			longRunningTaskService.save(lrt);
+			//
+			taskExecutor = AutowireHelper.createBean(RemoveAutomaticRoleTaskExecutor.class);
+			taskExecutor.setAutomaticRoleId(automaticRole.getId());
+			//
+			longRunningTaskManager.execute(taskExecutor);
+			longRunningTaskManager.getLongRunningTask(taskExecutor);
+		} finally {
+			longRunningTaskService.delete(lrt);
+		}
 	}
 }

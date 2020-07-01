@@ -7019,6 +7019,10 @@
       "title": "Role je využívána jiným procesem",
       "message": "Automatická role [{{roleTreeNode}}] je mazána souběžnou úlohou [{{taskId}}]."
     },
+    "AUTOMATIC_ROLE_REMOVE_HAS_ASSIGNED_ROLES": {
+      "title": "Automatickou roli nelze smazat",
+      "message": "Aktuálně mazaná automatická role [{{automaticRoleId}}] byla nově přidělena [{{assignedRoles}}] uživatelům. Přerušte přidělování rolí a smažte automatickou roli znovu."
+    },
     "AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY": {
       "title": "Nejsou vyplněny potřebné atributy",
       "message": "Pravidlo pro automatickou roli nevyplnilo potřebné atributy: [{{attrs}}]."

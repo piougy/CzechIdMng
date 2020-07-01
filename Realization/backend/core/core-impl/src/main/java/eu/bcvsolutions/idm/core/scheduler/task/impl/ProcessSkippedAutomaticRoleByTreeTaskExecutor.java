@@ -146,9 +146,7 @@ public class ProcessSkippedAutomaticRoleByTreeTaskExecutor extends AbstractSched
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		Boolean ended = super.end(result, ex);
-		//
-		if (BooleanUtils.isTrue(ended)) {
+		if (BooleanUtils.isTrue(result) && ex == null) {
 			// remove previously assigned role, which was not processed by any automatic role
 			ProcessAutomaticRoleByTreeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByTreeTaskExecutor.class);
 			automaticRoleTask.setAutomaticRoles(processedAutomaticRoles);
@@ -160,6 +158,6 @@ public class ProcessSkippedAutomaticRoleByTreeTaskExecutor extends AbstractSched
 			automaticRoleTask.end(Boolean.TRUE, null);
 		}
 		//
-		return ended;
+		return super.end(result, ex);
 	}
 }

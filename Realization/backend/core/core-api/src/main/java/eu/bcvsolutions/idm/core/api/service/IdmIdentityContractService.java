@@ -84,7 +84,6 @@ public interface IdmIdentityContractService extends
 	 * - 5. with undefined valid from
 	 * - 6. other with lowest valid from
 	 * - 7. by created date
-	 * - 8. by id
 	 * 
 	 * @param identityId
 	 * @return
@@ -111,7 +110,6 @@ public interface IdmIdentityContractService extends
 	 * - 5. with undefined valid from
 	 * - 6. other with lowest valid from
 	 * - 7. by created date
-	 * - 8. by id
 	 * 
 	 * @param identityId
 	 * @return

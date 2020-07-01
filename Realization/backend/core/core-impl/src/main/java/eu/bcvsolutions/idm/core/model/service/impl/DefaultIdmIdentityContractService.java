@@ -381,7 +381,6 @@ public class DefaultIdmIdentityContractService
 	 * - 5. with undefined valid from
 	 * - 6. other with lowest valid from
 	 * - 7. by created date
-	 * - 8. by id
 	 * 
 	 * @author Radek Tomiška
 	 *

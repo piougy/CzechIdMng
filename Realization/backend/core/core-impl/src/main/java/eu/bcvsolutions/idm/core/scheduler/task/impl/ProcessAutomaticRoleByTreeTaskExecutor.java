@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -661,8 +662,17 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		this.automaticRoles = automaticRoles;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected List<UUID> getAutomaticRoles(Map<String, Object> properties) {
-		// TODO: support list?
+		// support list (List) + multivalue LRT (from LRT manual configuration)
+		Object propertyValue = properties.get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
+		if (propertyValue == null) {
+			return new ArrayList<>();
+		}
+		if (propertyValue instanceof List) { // TODO: resolve lists directly in parameter converter
+			return (List) propertyValue;
+		}
+		//
 		String rawUuids = getParameterConverter().toString(properties, AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE);
 		if (StringUtils.isEmpty(rawUuids)) {
 			return null;

@@ -212,7 +212,7 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 	protected List<IdmIdentityContractDto> saveOtherContracts(EntityEvent<IdmIdentityProjectionDto> event, BasePermission... permission) {
 		IdmIdentityProjectionDto dto = event.getContent();
 		IdmIdentityProjectionDto previousProjection = event.getOriginalSource();
-		List<IdmIdentityContractDto> savedContracts = new ArrayList<>(dto.getOtherContracts().size());
+		List<IdmIdentityContractDto> savedContracts = new ArrayList<>(dto.getOtherContracts().size() + 1);
 		//
 		// check all contracts has to be saved
 		IdmIdentityDto identity = dto.getIdentity();
@@ -244,6 +244,11 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 		// remove not sent contracts, if previous exists
 		if (previousProjection != null) {
 			for (IdmIdentityContractDto contract : previousProjection.getOtherContracts()) {
+				if (Objects.equals(dto.getContract(), contract)) {
+					// new prime contract is saved all time
+					continue;
+				}
+				//
 				IdentityContractEventType contractEventType = IdentityContractEventType.DELETE;
 				IdentityContractEvent otherContractEvent = new IdentityContractEvent(contractEventType, contract);
 				//

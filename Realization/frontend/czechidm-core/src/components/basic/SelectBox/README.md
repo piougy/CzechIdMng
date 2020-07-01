@@ -31,7 +31,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | optionComponent | func | Option decorator | OptionDecorator |
 | valueComponent | func | Value decorator | ValueDecorator |
 | emptyOptionLabel | string | Empty value label (text). Use ``false`` to hide emptyOption. | 'emptyOption.label' localization |
-| additionalOptions | arrayOf(object) | Additional select box options - extend options wit custom behavior. |  ||
+| additionalOptions | arrayOf(object) | Additional select box options - extend options with custom behavior. |  ||
 
 
 ## Usage

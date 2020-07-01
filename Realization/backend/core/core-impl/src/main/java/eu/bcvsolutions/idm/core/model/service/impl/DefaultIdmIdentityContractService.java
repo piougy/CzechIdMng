@@ -380,6 +380,8 @@ public class DefaultIdmIdentityContractService
 	 * - 4. with working position with any tree type
 	 * - 5. with undefined valid from
 	 * - 6. other with lowest valid from
+	 * - 7. by created date
+	 * - 8. by id
 	 * 
 	 * @author Radek Tomiška
 	 *
@@ -397,9 +399,9 @@ public class DefaultIdmIdentityContractService
 			CompareToBuilder builder = new CompareToBuilder();
 			// main
 			builder.append(o1.isMain(), o2.isMain());
-			// valid 
-			builder.append(!o1.isDisabled(), !o2.isDisabled());
 			// not disabled
+			builder.append(!o1.isDisabled(), !o2.isDisabled());
+			// valid
 			builder.append(o1.isValid(), o2.isValid());
 			// with default tree position
 			if (defaultTreeType != null) {
@@ -421,6 +423,8 @@ public class DefaultIdmIdentityContractService
 			builder.append(o1.getWorkPosition() != null, o2.getWorkPosition() != null);
 			// by the less valid from (or undefined)
 			builder.append(o2.getValidFrom(), o1.getValidFrom());
+			// by the less created
+			builder.append(o2.getCreated(), o1.getCreated());
 			//
 			return builder.toComparison();
 		}

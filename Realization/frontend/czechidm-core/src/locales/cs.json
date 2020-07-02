@@ -5998,6 +5998,9 @@
             "placeholder": "Katalog ..."
           }
         }
+      },
+      "core-self-contract-evaluator": {
+        "help": "Oprávnění pro kontrakty aktuálně přihlášeného uživatele."
       }
     },
     "value-generator": {

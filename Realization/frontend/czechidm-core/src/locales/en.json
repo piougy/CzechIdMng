@@ -5946,6 +5946,9 @@
             "placeholder": "Catalogue ..."
           }
         }
+      },
+      "core-self-contract-evaluator": {
+        "help": "Currently logged user - self contract permissions."
       }
     },
     "value-generator": {

@@ -252,7 +252,10 @@ class LongRunningTask extends Basic.AbstractContent {
           {
             !showProperties
             ||
-            <LongRunningTaskProperties entity={ _entity } supportedTasks={ supportedTasks } />
+            <LongRunningTaskProperties
+              key={ `lrt-eav-${ _entity.id }` }
+              entity={ _entity }
+              supportedTasks={ supportedTasks } />
           }
           <ProgressBar
             style={{ marginTop: 15, marginBottom: 0 }}

@@ -287,7 +287,11 @@ class LongRunningTaskTable extends Advanced.AbstractTableContent {
             width={ 300 }
             cell={
               ({ rowIndex, data }) => (
-                <Advanced.LongRunningTaskProperties entity={ data[rowIndex] } supportedTasks={ supportedTasks } condensed/>
+                <Advanced.LongRunningTaskProperties
+                  key={ `lrt-eav-${ data[rowIndex].id }` }
+                  entity={ data[rowIndex] }
+                  supportedTasks={ supportedTasks }
+                  condensed/>
               )
             }/>
           <Advanced.Column property="taskDescription" sort />

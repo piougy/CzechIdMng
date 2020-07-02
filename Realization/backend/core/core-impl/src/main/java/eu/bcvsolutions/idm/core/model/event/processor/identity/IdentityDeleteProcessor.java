@@ -38,7 +38,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipientRepository;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 
 /**
@@ -59,7 +58,6 @@ public class IdentityDeleteProcessor
 	@Autowired private IdentityPasswordProcessor passwordProcessor;
 	@Autowired private IdmRoleGuaranteeService roleGuaranteeService;
 	@Autowired private IdmIdentityContractService identityContractService;
-	@Autowired private IdmNotificationRecipientRepository notificationRecipientRepository;
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private IdmIdentityRoleValidRequestService identityRoleValidRequestService;
 	@Autowired private IdmContractGuaranteeService contractGuaranteeService;

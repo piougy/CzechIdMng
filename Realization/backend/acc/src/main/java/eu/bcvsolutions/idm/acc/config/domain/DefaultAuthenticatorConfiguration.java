@@ -42,7 +42,7 @@ public class DefaultAuthenticatorConfiguration extends AbstractConfiguration imp
 			StringBuilder property = new StringBuilder();
 			property.append(PROPERTY_AUTH_PREFIX);
 			property.append(index);
-			property.append(ConfigurationService.PROPERTY_SEPARATOR);
+			property.append(ConfigurationService.PROPERTY_SEPARATOR.charAt(0));
 			property.append(AUTH_SYSTEM_SEPARATOR);
 			
 			String key = property.toString();

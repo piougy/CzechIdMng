@@ -28,7 +28,9 @@ public interface IdmNotificationRecipientRepository extends AbstractEntityReposi
 	 * 
 	 * @param identity
 	 * @return
+	 * @deprecated @since 10.4.0 @NotFound annotation is used on recipient now
 	 */
+	@Deprecated
 	@Modifying
 	@Query("update #{#entityName} e set e.identityRecipient = null where e.identityRecipient.id = :identityId")
 	int clearIdentity(@Param("identityId") UUID identityId);

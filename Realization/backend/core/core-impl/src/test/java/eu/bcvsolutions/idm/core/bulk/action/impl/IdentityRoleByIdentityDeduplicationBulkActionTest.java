@@ -40,6 +40,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.workflow.permissions.ChangeIdentityPermissionTest;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 
 /**
@@ -71,6 +72,15 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 		
 		getHelper().createIdentityRole(identity, createRole);
 		loginAsNoAdmin(identity.getUsername());
+		
+		// FIXME: set defaults on the other side 
+		getHelper().setConfigurationValue(ChangeIdentityPermissionTest.APPROVE_BY_SECURITY_ENABLE, false);
+		getHelper().setConfigurationValue(ChangeIdentityPermissionTest.APPROVE_BY_MANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(ChangeIdentityPermissionTest.APPROVE_BY_HELPDESK_ENABLE, false);
+		getHelper().setConfigurationValue(ChangeIdentityPermissionTest.APPROVE_BY_USERMANAGER_ENABLE, false);
+		getHelper().setConfigurationValue("idm.sec.core.wf.approval.security.role", "Security");
+		getHelper().setConfigurationValue("idm.sec.core.wf.approval.helpdesk.role", "Helpdesk");
+		getHelper().setConfigurationValue("idm.sec.core.wf.approval.usermanager.role", "Usermanager");
 	}
 	
 	@After

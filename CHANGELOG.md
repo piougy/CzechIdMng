@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Administrator
 
-- [#1043](https://redmine.czechidm.com/issues/1043) - Automatic roles by tree structure were improved. Automatic roles by tree structure are recalculated after tree structure is changed (after node is moved in structure). Skipping recalculation of automatic roles by tree structure was added too and new tree synchronization configuration is available - recalculation of automatic roles can be turned off in synchronization (now it works the same way as automatic roles by attributes).
+- [#1043](https://redmine.czechidm.com/issues/1043) - Automatic roles by tree structure were improved. Automatic roles by tree structure are recalculated after tree structure is changed (after node is moved in structure). Skipping recalculation of automatic roles by tree structure was added too and new [tree synchronization configuration is available](https://wiki.czechidm.com/devel/documentation/synchronization/dev/tree-sync#automatic_roles) - recalculation of automatic roles can be turned off in synchronization (now it works the same way as automatic roles by attributes).
 - [#2296](https://redmine.czechidm.com/issues/2296) - Sidebar menu - added redirect on menu items with sub menu items (for ``Users``, ``Roles`` and ``Organization``). Menu item ``Role catalogue`` moved bellow ``Roles`` menu item. Menu items ``Structure nodes`` and ``Structure types`` moved bellow ``Organization`` menu item. Our goal is continue with reducing items in ``Settings`` menu in future releases.
 - [#2167](https://redmine.czechidm.com/issues/2167) - Tomcat startup parameter `-DuseLegacyMergeSort=true` is no longer needed and should be removed from the configuration.
 

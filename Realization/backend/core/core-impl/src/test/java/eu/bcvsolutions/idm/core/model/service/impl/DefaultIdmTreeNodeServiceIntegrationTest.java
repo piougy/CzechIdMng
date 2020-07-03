@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,18 +10,42 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmEntityStateDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmEntityStateFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
+import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeForestContentService;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByTreeTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessSkippedAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -37,6 +62,9 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmTreeNodeForestContentService treeNodeForestContentService;
 	@Autowired private ForestIndexService<IdmForestIndexEntity, UUID> forestIndexService;
+	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private LongRunningTaskManager longRunningTaskManager;
+	@Autowired private EntityStateManager entityStateManager;
 	//
 	private DefaultIdmTreeNodeService service;
 	
@@ -282,25 +310,402 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		Assert.assertTrue(results.stream().anyMatch(n -> n.equals(node4)));
 	}
 
+	@Transactional
 	@Test(expected = ResultCodeException.class)
 	public void testNullCode() {
 		IdmTreeTypeDto treeType = getHelper().createTreeType();
 		IdmTreeNodeDto node = new IdmTreeNodeDto();
 		node.setTreeType(treeType.getId());
-		node.setName("test-" + System.currentTimeMillis());
+		node.setName("test-" + getHelper().createName());
 		node.setCode(null);
 		
 		service.save(node);
 	}
 
+	@Transactional
 	@Test(expected = ResultCodeException.class)
 	public void testEmptyCode() {
 		IdmTreeTypeDto treeType = getHelper().createTreeType();
 		IdmTreeNodeDto node = new IdmTreeNodeDto();
 		node.setTreeType(treeType.getId());
-		node.setName("test-" + System.currentTimeMillis());
+		node.setName("test-" + getHelper().createName());
 		node.setCode("    ");
 		
 		service.save(node);
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleAfterNodeIsMovedWithDownRecursion() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, parentNode, RecursionType.DOWN, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentityContact(identity, node);
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		IdmTreeNodeDto otherNode = getHelper().createTreeNode();
+		IdmRoleTreeNodeDto otherAutomaticRole = getHelper().createRoleTreeNode(role, otherNode, RecursionType.DOWN, true);
+		node.setParent(otherNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		UUID assignedRoleId = assignedRoles.get(0).getId();
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(otherAutomaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		// recalculate role => nothing happend
+		ProcessAutomaticRoleByTreeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByTreeTaskExecutor.class);
+		automaticRoleTask.setAutomaticRoles(Lists.newArrayList(otherAutomaticRole.getId()));
+		longRunningTaskManager.execute(automaticRoleTask);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(otherAutomaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		Assert.assertEquals(assignedRoleId, assignedRoles.get(0).getId());
+		//
+		// move node deeper in sub tree => nothing should happend
+		IdmTreeNodeDto subNode = getHelper().createTreeNode(null, null, getHelper().createTreeNode(null, null, otherNode));
+		node.setParent(subNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(otherAutomaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		Assert.assertEquals(assignedRoleId, assignedRoles.get(0).getId());
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleAfterNodeIsMovedWithUpRecursion() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentityContact(identity, parentNode);
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		IdmTreeNodeDto otherNode = getHelper().createTreeNode(null, null, node);
+		IdmRoleDto roleOther = getHelper().createRole();
+		IdmRoleTreeNodeDto otherAutomaticRole = getHelper().createRoleTreeNode(roleOther, otherNode, RecursionType.UP, false);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> automaticRole.getId().equals(ir.getAutomaticRole())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> otherAutomaticRole.getId().equals(ir.getAutomaticRole())));
+	}
+	
+	@Test
+	public void testDontAssignAutomaticRoleAfterNodeIsMovedToInvalidContract() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentityContact(identity, parentNode, null, LocalDate.now().minusDays(1));
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleOnPositionAfterNodeIsMovedWithDownRecursion() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, parentNode, RecursionType.DOWN, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		getHelper().createContractPosition(getHelper().getPrimeContract(identity), node);
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		IdmTreeNodeDto otherNode = getHelper().createTreeNode();
+		IdmRoleTreeNodeDto otherAutomaticRole = getHelper().createRoleTreeNode(role, otherNode, RecursionType.DOWN, true);
+		node.setParent(otherNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		UUID assignedRoleId = assignedRoles.get(0).getId();
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(otherAutomaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		// recalculate role => nothing happend
+		ProcessAutomaticRoleByTreeTaskExecutor automaticRoleTask = AutowireHelper.createBean(ProcessAutomaticRoleByTreeTaskExecutor.class);
+		automaticRoleTask.setAutomaticRoles(Lists.newArrayList(otherAutomaticRole.getId()));
+		longRunningTaskManager.execute(automaticRoleTask);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(otherAutomaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		Assert.assertEquals(assignedRoleId, assignedRoles.get(0).getId());
+		//
+		// move node deeper in sub tree => nothing should happend
+		IdmTreeNodeDto subNode = getHelper().createTreeNode(null, null, getHelper().createTreeNode(null, null, otherNode));
+		node.setParent(subNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(otherAutomaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		Assert.assertEquals(assignedRoleId, assignedRoles.get(0).getId());
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleOnPositionAfterNodeIsMovedWithUpRecursion() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		getHelper().createContractPosition(getHelper().getPrimeContract(identity), parentNode);
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		IdmTreeNodeDto otherNode = getHelper().createTreeNode(null, null, node);
+		IdmRoleDto roleOther = getHelper().createRole();
+		IdmRoleTreeNodeDto otherAutomaticRole = getHelper().createRoleTreeNode(roleOther, otherNode, RecursionType.UP, false);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> automaticRole.getId().equals(ir.getAutomaticRole())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> otherAutomaticRole.getId().equals(ir.getAutomaticRole())));
+	}
+	
+	@Test
+	public void testDontAssignAutomaticRoleOnPositionAfterNodeIsMovedToInvalidContract() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, null, null, LocalDate.now().minusDays(1));
+		getHelper().createContractPosition(contract, parentNode);
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		node = service.save(node);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+	}
+	
+	@Test
+	@Transactional
+	public void testChangeParentToRoot() {
+		IdmTreeNodeDto parent = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode((IdmTreeTypeDto) null, parent);
+		//
+		Assert.assertEquals(parent.getId(), node.getParent());
+		// set parent as root
+		node.setParent(null);
+		node = service.save(node);
+		//
+		Assert.assertNull(node.getParent());
+	}
+	
+	@Test
+	public void testSkipAndAssignAutomaticRoleAfterNodeIsMovedWithUpRecursion() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		getHelper().createIdentityContact(identity, parentNode);
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(TreeNodeEventType.UPDATE, node);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
+		node = service.publish(event).getContent();
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		// recount skipped automatic roles
+		longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		IdmTreeNodeDto otherNode = getHelper().createTreeNode(null, null, node);
+		IdmRoleDto roleOther = getHelper().createRole();
+		IdmRoleTreeNodeDto otherAutomaticRole = getHelper().createRoleTreeNode(roleOther, otherNode, RecursionType.UP, false);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> automaticRole.getId().equals(ir.getAutomaticRole())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> otherAutomaticRole.getId().equals(ir.getAutomaticRole())));
+	}
+	
+	@Test
+	public void testSkipAndAssignAutomaticRoleOnPositionAfterNodeIsMovedWithUpRecursion() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		getHelper().createContractPosition(getHelper().getPrimeContract(identity), parentNode);
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(TreeNodeEventType.UPDATE, node);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
+		node = service.publish(event).getContent();
+		IdmEntityStateFilter filter = new IdmEntityStateFilter();
+		filter.setStates(Lists.newArrayList(OperationState.BLOCKED));
+		filter.setResultCode(CoreResultCode.AUTOMATIC_ROLE_SKIPPED.getCode());
+		filter.setOwnerType(entityStateManager.getOwnerType(IdmRoleTreeNodeDto.class));
+		List<IdmEntityStateDto> skippedStates = entityStateManager.findStates(filter, null).getContent();
+		Assert.assertTrue(skippedStates.stream().anyMatch(s -> s.getOwnerId().equals(automaticRole.getId())));
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		// recount skipped automatic roles
+		longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
+		skippedStates = entityStateManager.findStates(filter, null).getContent();
+		Assert.assertFalse(skippedStates.stream().anyMatch(s -> s.getOwnerId().equals(automaticRole.getId())));
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		//
+		IdmTreeNodeDto otherNode = getHelper().createTreeNode(null, null, node);
+		IdmRoleDto roleOther = getHelper().createRole();
+		IdmRoleTreeNodeDto otherAutomaticRole = getHelper().createRoleTreeNode(roleOther, otherNode, RecursionType.UP, false);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> automaticRole.getId().equals(ir.getAutomaticRole())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> otherAutomaticRole.getId().equals(ir.getAutomaticRole())));
+	}
+	
+	@Test
+	@Transactional
+	public void testRecountAutomaticRoleWithMissingContent() {
+		// create state with missing content
+		IdmEntityStateDto state = new IdmEntityStateDto();
+		UUID stateId = UUID.randomUUID();
+		state.setOwnerId(stateId);
+		state.setOwnerType(entityStateManager.getOwnerType(IdmRoleTreeNodeDto.class));
+		state.setResult(
+				new OperationResultDto
+					.Builder(OperationState.BLOCKED)
+					.setModel(new DefaultResultModel(CoreResultCode.AUTOMATIC_ROLE_SKIPPED))
+					.build());
+		entityStateManager.saveState(null, state);
+		//
+		state = new IdmEntityStateDto();
+		state.setOwnerId(stateId);
+		state.setOwnerType(entityStateManager.getOwnerType(IdmRoleTreeNodeDto.class));
+		state.setResult(
+				new OperationResultDto
+					.Builder(OperationState.BLOCKED)
+					.setModel(new DefaultResultModel(CoreResultCode.AUTOMATIC_ROLE_SKIPPED))
+					.build());
+		entityStateManager.saveState(null, state);
+		//
+		// recount skipped automatic roles
+		LongRunningFutureTask<Boolean> executor = longRunningTaskManager.execute(new ProcessSkippedAutomaticRoleByTreeTaskExecutor());
+		IdmLongRunningTaskDto longRunningTask = longRunningTaskManager.getLongRunningTask(executor);
+		Assert.assertTrue(longRunningTask.getWarningItemCount() > 0);
+	}
+	
+	@Test
+	public void testRecalculateAllAutomaticRoles() {
+		IdmTreeNodeDto parentNode = getHelper().createTreeNode();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		// define automatic role for parent
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
+		// create identity with contract on node
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, parentNode);
+		entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+		Assert.assertEquals(1, entityStateManager.findStates(contract, null).getTotalElements());
+		// no role should be assigned now
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		node.setParent(parentNode.getId());
+		EntityEvent<IdmTreeNodeDto> event = new TreeNodeEvent(TreeNodeEventType.UPDATE, node);
+		event.getProperties().put(AutomaticRoleManager.SKIP_RECALCULATION, Boolean.TRUE);
+		node = service.publish(event).getContent();
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertTrue(assignedRoles.isEmpty());
+		//
+		// recount skipped automatic roles
+		ProcessAllAutomaticRoleByTreeTaskExecutor taskExecutor = AutowireHelper.createBean(ProcessAllAutomaticRoleByTreeTaskExecutor.class);
+		taskExecutor.init(null);
+		longRunningTaskManager.execute(taskExecutor);
+		//
+		assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(1, assignedRoles.size());
+		Assert.assertEquals(automaticRole.getId(), assignedRoles.get(0).getAutomaticRole());
+		Assert.assertEquals(0, entityStateManager.findStates(contract, null).getTotalElements());
 	}
 }

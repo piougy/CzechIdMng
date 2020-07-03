@@ -12,19 +12,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityManager;
 
 import org.apache.logging.log4j.util.Strings;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.FileSystemUtils;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -105,6 +109,8 @@ public class DefaultImportManager implements ImportManager {
 	private LongRunningTaskManager longRunningTaskManager;
 	@Autowired
 	private FormService formService;
+	@Autowired
+	private EntityManager entityManager;
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultImportManager.class);
 
@@ -140,14 +146,8 @@ public class DefaultImportManager implements ImportManager {
 			batch = exportImportService.save(batch, permission);
 		} finally {
 			// Delete temp files.
-			try {
-				Files.walk(tempDirectory)//
-						.sorted(Comparator.reverseOrder())//
-						.map(Path::toFile)//
-						.forEach(File::delete);
-			} catch (IOException ex) {
-				// Only log a error.
-				LOG.error(ex.getLocalizedMessage(), ex);
+			if (tempDirectory != null) {
+				FileSystemUtils.deleteRecursively(tempDirectory.toFile());
 			}
 		}
 
@@ -229,14 +229,8 @@ public class DefaultImportManager implements ImportManager {
 			return context;
 		} finally {
 			// Delete temp files.
-			try {
-				Files.walk(tempDirectory)//
-						.sorted(Comparator.reverseOrder())//
-						.map(Path::toFile)//
-						.forEach(File::delete);
-			} catch (IOException ex) {
-				// Only log a error.
-				LOG.error(ex.getLocalizedMessage(), ex);
+			if (tempDirectory != null) {
+				FileSystemUtils.deleteRecursively(tempDirectory.toFile());
 			}
 			LOG.info("Internal import [{}, dry-run: {}] ended", batch.toString(), dryRun);
 		}
@@ -244,7 +238,7 @@ public class DefaultImportManager implements ImportManager {
 
 	/**
 	 * Ensures add new and update existed DTOs by given batch.
-	 * 
+	 *
 	 * @param dtoClass
 	 * @param context
 	 */
@@ -254,23 +248,35 @@ public class DefaultImportManager implements ImportManager {
 		Path dtoTypePath = Paths.get(context.getTempDirectory().toString(), dtoClass.getSimpleName());
 
 		try {
-			List<BaseDto> dtos = Files.walk(dtoTypePath)//
-					.filter(path -> Files.isRegularFile(path))//
-					.map(path -> {
-						BaseDto dto = convertFileToDto(path.toFile(), dtoClass, context);
-						Assert.notNull(dto, "DTO cannot be null after conversion from the batch!");
+			List<BaseDto> dtos;
+			try (Stream<Path> paths = Files.walk(dtoTypePath)) {
+				dtos = paths//
+						.filter(path -> Files.isRegularFile(path))//
+						.map(path -> {
+							BaseDto dto = convertFileToDto(path.toFile(), dtoClass, context);
+							Assert.notNull(dto, "DTO cannot be null after conversion from the batch!");
 
-						return dto;
-					}).collect(Collectors.toList());
-
+							return dto;
+						}).collect(Collectors.toList());
+			}
 			if (dtos.isEmpty()) {
 				return;
 			}
 
 			// Sorts all DTOs for this type (maybe it is tree).
 			dtos = sortsDTOs(dtoClass, dtos);
-
-			dtos.forEach(dto -> {
+			
+			int i = 0;
+			for (BaseDto dto : dtos) {
+				// Flush Hibernate in batch - performance improving
+				if (i % 20 == 0 && i > 0) {
+					// Call hard hibernate session flush and clear
+					if (getHibernateSession().isOpen()) {
+						getHibernateSession().flush();
+						getHibernateSession().clear();
+					}
+				}
+				i++;
 
 				// Increase counter and update state of import LRT.
 				context.getImportTaskExecutor().increaseCounter();
@@ -295,7 +301,7 @@ public class DefaultImportManager implements ImportManager {
 								new OperationResultDto.Builder(OperationState.CANCELED).setModel(resultModel).build());
 						importLogService.saveDistinct(dtoLog);
 
-						return;
+						continue;
 					}
 				} catch (ResultCodeException ex) {
 					if (context.isDryRun() && ex.getError() != null && ex.getError().getError() != null
@@ -308,7 +314,7 @@ public class DefaultImportManager implements ImportManager {
 								new OperationResultDto.Builder(OperationState.EXCEPTION).setException(ex).build());
 						importLogService.saveDistinct(dtoLog);
 
-						return;
+						continue;
 					} else if (ex.getError() != null && ex.getError().getError() != null
 							&& CoreResultCode.IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL.name()
 									.equals(ex.getError().getError().getStatusEnum())) {
@@ -319,7 +325,7 @@ public class DefaultImportManager implements ImportManager {
 								new OperationResultDto.Builder(OperationState.CANCELED).setException(ex).build());
 						importLogService.saveDistinct(dtoLog);
 
-						return;
+						continue;
 					}
 					throw ex;
 				}
@@ -355,7 +361,7 @@ public class DefaultImportManager implements ImportManager {
 					}
 					importLogService.saveDistinct(dtoLog);
 
-					return;
+					continue;
 				}
 
 				if (dto.getClass().isAnnotationPresent(Inheritable.class)) {
@@ -379,7 +385,7 @@ public class DefaultImportManager implements ImportManager {
 					}
 					importLogService.saveDistinct(dtoLog);
 
-					return;
+					continue;
 				}
 				if (dto instanceof Codeable) {
 					// We try to find exists DTO by code.
@@ -435,8 +441,7 @@ public class DefaultImportManager implements ImportManager {
 					}
 					importLogService.saveDistinct(dtoLog);
 				}
-			});
-
+			}
 		} catch (IOException | IllegalArgumentException e) {
 			throw new ResultCodeException(CoreResultCode.EXPORT_IMPORT_IO_FAILED, e);
 		}
@@ -683,30 +688,34 @@ public class DefaultImportManager implements ImportManager {
 				superParentDtoClass.getSimpleName());
 		try {
 			// Find all super parent IDs for this DTO type in batch.
-			Set<UUID> superParentIdsInBatch = Files.walk(superParentDtoTypePath)//
-					.filter(path -> Files.isRegularFile(path))//
-					.map(path -> {
-						BaseDto dto = convertFileToDto(path.toFile(), superParentDtoClass, context);
-						return (UUID) dto.getId();
-					}).collect(Collectors.toSet());
-
+			Set<UUID> superParentIdsInBatch;
+			try (Stream<Path> paths = Files.walk(superParentDtoTypePath)) {
+				superParentIdsInBatch = paths//
+						.filter(path -> Files.isRegularFile(path))//
+						.map(path -> {
+							BaseDto dto = convertFileToDto(path.toFile(), superParentDtoClass, context);
+							return (UUID) dto.getId();
+						}).collect(Collectors.toSet());
+			}
 			Set<Class<? extends BaseDto>> inheritedClasses = getInheritedClasses(dtoClass, context.getManifest());
 			// Find all IDs for all children classes
 			Set<Serializable> childrenIdsInBatch = Sets.newHashSet();
 			for (Class<? extends BaseDto> inheritedClass : inheritedClasses) {
 				// Find all IDs for this DTO type in batch.
 				Path dtoTypePath = Paths.get(context.getTempDirectory().toString(), inheritedClass.getSimpleName());
-				Set<Serializable> childrenIds = Files.walk(dtoTypePath)//
-						.filter(path -> Files.isRegularFile(path))//
-						.map(path -> (BaseDto) convertFileToDto(path.toFile(), inheritedClass, context))//
-						.map(dto -> {
-							// If ID has been replaced, then we need to also replace it.
-							if (context.getReplacedIDs().containsKey(dto.getId())) {
-								return context.getReplacedIDs().get(dto.getId());
-							}
-							return dto.getId();
-						}).collect(Collectors.toSet());
-				childrenIdsInBatch.addAll(childrenIds);
+				try (Stream<Path> paths = Files.walk(dtoTypePath)) {
+					Set<Serializable> childrenIds = paths//
+							.filter(path -> Files.isRegularFile(path))//
+							.map(path -> (BaseDto) convertFileToDto(path.toFile(), inheritedClass, context))//
+							.map(dto -> {
+								// If ID has been replaced, then we need to also replace it.
+								if (context.getReplacedIDs().containsKey(dto.getId())) {
+									return context.getReplacedIDs().get(dto.getId());
+								}
+								return dto.getId();
+							}).collect(Collectors.toSet());
+					childrenIdsInBatch.addAll(childrenIds);
+				}
 			}
 
 			superParentIdsInBatch.forEach(superParentId -> {
@@ -839,15 +848,17 @@ public class DefaultImportManager implements ImportManager {
 				}
 
 				Path dtoTypePath = Paths.get(context.getTempDirectory().toString(), parentType.getSimpleName());
-				BaseDto parentDto = Files.walk(dtoTypePath)//
-						.filter(path -> Files.isRegularFile(path))//
-						.map(path -> (BaseDto) convertFileToDto(path.toFile(), parentType, context))//
-						.filter(d -> parentId.equals(d.getId()))//
-						.findFirst()//
-						.orElse(null);
+				try (Stream<Path> paths = Files.walk(dtoTypePath)) {
+					BaseDto parentDto = paths//
+							.filter(path -> Files.isRegularFile(path))//
+							.map(path -> (BaseDto) convertFileToDto(path.toFile(), parentType, context))//
+							.filter(d -> parentId.equals(d.getId()))//
+							.findFirst()//
+							.orElse(null);
 
-				if (parentDto != null) {
-					return parentDto;
+					if (parentDto != null) {
+						return parentDto;
+					}
 				}
 			} catch (IOException ex) {
 				throw new ResultCodeException(CoreResultCode.IMPORT_ZIP_EXTRACTION_FAILED, ex);
@@ -858,9 +869,11 @@ public class DefaultImportManager implements ImportManager {
 
 	private long countOfFiles(Path mainPath) {
 		try {
-			return Files.walk(mainPath)//
-					.filter(path -> Files.isRegularFile(path))//
-					.count();
+			try (Stream<Path> paths = Files.walk(mainPath)) {
+				return paths//
+						.filter(path -> Files.isRegularFile(path))//
+						.count();
+			}
 		} catch (IOException ex) {
 			throw new ResultCodeException(CoreResultCode.IMPORT_ZIP_EXTRACTION_FAILED, ex);
 		}
@@ -1006,5 +1019,10 @@ public class DefaultImportManager implements ImportManager {
 		}
 		return (DTO) mapper.readValue(replacedDtoAsString, dtoClass);
 	}
+	
+	private Session getHibernateSession() {
+		return (Session) this.entityManager.getDelegate();
+	}
+
 
 }

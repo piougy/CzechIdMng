@@ -26,7 +26,7 @@ class ChangePermissionDashboardButton extends Advanced.AbstractIdentityDashboard
           new SearchParameters(SearchParameters.NAME_AUTOCOMPLETE)
             .setFilter('identity', identity.id)
             .setFilter('validNowOrInFuture', true)
-            .setFilter('addPermissions', true),
+            .setFilter('_permission', 'CHANGEPERMISSION'),
           `role-identity-contracts-${ identity.id }`
         )
       );
@@ -46,7 +46,7 @@ class ChangePermissionDashboardButton extends Advanced.AbstractIdentityDashboard
     if (!_contracts || _contracts.length === 0) {
       return false;
     }
-    return _contracts.some(c => Utils.Permission.hasPermission(c._permissions, 'CHANGEPERMISSION'));
+    return true;
   }
 
   getLabel() {

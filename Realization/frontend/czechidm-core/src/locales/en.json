@@ -1124,7 +1124,8 @@
       "TOKEN": "Token",
       "GENERATEVALUE": "Value generate",
       "PASSWORD": "Users passwords",
-      "EXPORTIMPORT": "Export/Import"
+      "EXPORTIMPORT": "Export/Import",
+      "DELEGATIONDEFINITION": "Delegation"
     }
   },
   "content": {
@@ -1308,6 +1309,8 @@
         "minNumber": "Minimum number of digits: {{0}}",
         "minUpperChar": "Minimum number uppercase characters: {{0}}",
         "prohibited": "Password contains illegal characters: {{0}}",
+        "beginProhibited": "Password starts with forbidden character: {{0}}",
+        "endProhibited": "Password ends with forbidden character: {{0}}",
         "minLowerChar": "Minimum number of lowercase characters: {{0}}",
         "minSpecialChar": "Minimum number of special characters: {{0}}",
         "policiesNames": "Password does not meet these password policies: {{0}}",
@@ -1330,6 +1333,14 @@
         "forbiddenCharacterBase": {
           "list": "List of forbidden characters for password policies: {{0}}",
           "text": "Forbidden characters: {{0}}"
+          },
+        "forbiddenBeginCharacterBase": {
+          "list": "List of characters passwrods must not start with: {{0}}",
+          "text": "Forbidden initial characters: {{0}}"
+          },
+        "forbiddenEndCharacterBase": {
+          "list": "List of characters passwrods must not end with: {{0}}",
+          "text": "Forbidden final characters: {{0}}"
           },
         "passwordSimilarUsernamePreValidate": "login",
         "passwordSimilarEmailPreValidate": "email",
@@ -1491,6 +1502,10 @@
         "role": {
           "currentRoles": "Currently assigned roles",
           "conceptIdentityRoles": "Applicant's roles"
+        },
+        "delegation": {
+          "header": "Delegated task",
+          "text": "This task was delegated to you."
         }
       },
       "historicInstance": {
@@ -1990,6 +2005,82 @@
         }
       }
     },
+    "delegation-definitions": {
+      "header": "Delegations",
+      "title": "Definitions of delegation",
+      "label": "Delegations",
+      "detailHeader": "Delegation <small>({{delegator}} -> {{delegate}})</small>",
+      "edit": {
+        "title": "Detail for definition of delegation"
+      },
+      "create": {
+        "title": "New definition of delegation",
+        "header": "New definition of delegation"
+      },
+      "filter": {
+        "delegator": {
+          "placeholder": "Delegator"
+        },
+        "delegate": {
+          "placeholder": "Delegate"
+        }
+      },
+      "detail": {
+        "title": "Basic information"
+      },
+      "save": {
+        "success": "Definition of delegation was successfully saved"
+      },
+      "delegations": {
+        "label": "Delegated tasks",
+        "header": "Delegated tasks",
+        "title": "Delegated tasks",
+        "filter": {
+          "delegator": {
+            "placeholder": "Delegator"
+          },
+          "delegate": {
+            "placeholder": "Delegate"
+          }
+        }
+      },
+      "types": {
+        "default-delegation-type": {
+          "label": "Default delegation for all tasks",
+          "info": {
+            "header": "Default delegation for all tasks",
+            "text": "It will be used for all tasks for which no other delegation is defined (with a more specific type)."
+          }
+        },
+        "approve-role-by-manager-delegation-type": {
+          "label": "Tasks approving role assignments by a manager",
+          "info": {
+            "header": "Delegation for role assignment according to the manager",
+            "text": "Tasks related to the contract."
+          }
+        },
+        "manual-task-delegation-type": {
+          "label": "Manual task delegation",
+          "info": {
+            "header": "Manual task delegation",
+            "text": "It is created automatically on using the delegate operation over the agenda of assigned tasks."
+          }
+        }
+      },
+      "identity-is-delegator": "Who am I delegating to",
+      "identity-is-delegate": "Who delegates to me",
+      "button": {
+        "add-delegation": {
+          "label": "Create a delegation",
+          "header": "New delegation",
+          "text": "Creates a new rule for delegating your tasks to someone else.",
+          "title": {
+            "disabled": "You do not have permission to create delegations.",
+            "tooltip": "Creates a new rule for delegating your tasks to someone else."
+          }
+        }
+      }
+    },
     "formAttributes": {
       "header": "Form attributes",
       "title": "Form attributes",
@@ -2225,6 +2316,13 @@
       "filter": {
         "text": {
           "placeholder": "Name, code, environment or description"
+        },
+        "roleCatalogue": {
+          "option": {
+            "withoutCatalogue": {
+              "label": "-- without catalogue --"
+            }
+          }
         }
       },
       "roleCataloguePick": "Select folder",
@@ -2982,37 +3080,6 @@
         },
         "message": {
           "success": "User [{{username}}] successfully created."
-        }
-      },
-      "delegates": {
-        "header": "Delegate tasks",
-        "title": "$t(content.identity.delegates.header)",
-        "empty": "No set delegations found.",
-        "message": {
-          "save": {
-            "success": "Delegation to user [{{delegate}}] was successful."
-          },
-          "delete": {
-            "confirm": {
-              "title": "Remove delegation",
-              "message": "Do you really want to remove delegation on user <strong>{{delegate}}</strong>?"
-            },
-            "success": "Delegation on user [{{delegate}}] successfully removed."
-          }
-        },
-        "button": {
-          "add": "Add delegation",
-          "delete": "Remove delegation from user {{delegate}}"
-        },
-        "create": {
-          "header": "New delegation",
-          "button": {
-            "save": "Save delegation",
-            "saving": "Saving delegation ..."
-          }
-        },
-        "delete": {
-          "header": "Processing removing delegation"
         }
       },
       "subordinates": {
@@ -4038,6 +4105,46 @@
         "help": "Additional projection properties."
       }
     },
+    "DelegationDefinition" : {
+      "_type": "Definition of delegation",
+      "type": {
+        "label": "Delegation type",
+        "help": "Defines in which situation this delegation will be used."
+      },
+      "validFrom": {
+        "label": "$t(entity.validFrom)"
+      },
+      "validTill": {
+        "label": "$t(entity.validTill)"
+      },
+      "delegator": {
+        "label": "Delegator"
+      },
+      "delegatorContract": {
+        "label": "Delegator's contract"
+      },
+      "delegate": {
+        "label": "Delegate"
+      },
+      "description": {
+        "label": "Description"
+      }
+    },
+    "Delegation" : {
+      "_type": "Delegation",
+      "definition": {
+        "label": "Definition of the delegation"
+      },
+      "ownerId": {
+        "label": "Task"
+      },
+      "ownerType": {
+        "label": "Delegation target type"
+      },
+      "ownerState": {
+        "label": "Task state"
+      }
+    },
     "FormAttribute" : {
       "code": {
         "label": "Code",
@@ -4689,6 +4796,14 @@
         "label": "Forbidden characters",
         "help": "Listed characters are not allowed for generating and validating passwords. Enter characters without spaces, e.g. 1LliIo0!"
       },
+      "prohibitedBeginCharacters": {
+        "label": "Forbidden characters at the beginning",
+        "help": "Listed characters are not allowed to be used as the first character of passwords. Enter characters without spaces, e.g. 1LliIo0!"
+      },
+      "prohibitedEndCharacters": {
+        "label": "Forbidden characters at the end",
+        "help": "Listed characters are not allowed to be used as the last character of passwords. Enter characters without spaces, e.g. 1LliIo0!"
+      },
       "weakPassRequired": {
         "label": "Required weak passwords"
       },
@@ -4847,12 +4962,20 @@
         "core-instanceid": {
           "label": "$t(entity.LongRunningTask.instanceId.label)"
         }
+      },
+      "dryRun": {
+        "label": "Dry run",
+        "help": "Task was executed in dryRun mode."
       }
     },
     "LongRunningTaskItem": {
       "referencedEntityId": {
         "label": "Entity",
         "placeholder": "Entity identifier"
+      },
+      "referencedEntityType": {
+        "label": "Entity type",
+        "placeholder": "Entity type"
       },
       "result": {
         "state": "State"
@@ -5669,6 +5792,25 @@
         "label": "$t(action.delete.action) projections",
         "help": "$t(action.delete.action) selected projections. Users with deleted projection will be switched to default projection.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-delegation-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) definitions of delegations",
+        "help": "$t(action.delete.action) selected definitions.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-manual-wf-task-delegation-bulk-action": {
+        "label": "Manual task delegation",
+        "icon": "fa:dolly",
+        "attributes": {
+          "delegate": {
+            "label": "Delegate",
+            "help": "To whom should tasks be assigned."
+          },
+          "candidateorassigned": {
+            "label": "Delegator",
+            "help": "From whom tasks should be assigned."
+          }
+        }
       }
     },
     "authorization-evaluator": {
@@ -5804,6 +5946,9 @@
             "placeholder": "Catalogue ..."
           }
         }
+      },
+      "core-self-contract-evaluator": {
+        "help": "Currently logged user - self contract permissions."
       }
     },
     "value-generator": {
@@ -5999,20 +6144,9 @@
           }
         }
       },
-      "core-add-new-automatic-role-contract-long-running-task": {
-        "label": "Recalculate automatic role by tree structure for contracts",
-        "help": "Assign roles for identities with contract match selected automatic role by tree structure.",
-        "icon": "component:automatic-role",
-        "attributes": {
-          "roletreenode": {
-            "label": "Automatic role",
-            "help": "Automatic role by tree structure."
-          }
-        }
-      },
-      "core-add-new-automatic-role-position-long-running-task": {
-        "label": "Recalculate automatic role by tree structure for other contract positions",
-        "help": "Assign roles for identities with other contract position which match selected automatic role by tree structure.",
+      "core-process-automatic-role-tree-long-running-task": {
+        "label": "Recalculate automatic role by tree structure for contracts and positions",
+        "help": "Recalculate roles for identities with contract or other position match selected automatic role by tree structure. Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupted (e.g. by server restart).",
         "icon": "component:automatic-role",
         "attributes": {
           "roletreenode": {
@@ -6026,6 +6160,11 @@
         "help": "Recalculate all automatic roles by attribute. Creates new request with concepts.",
         "icon": "component:automatic-role"
       },
+      "core-process-all-automatic-role-tree-long-running-task": {
+        "label": "Recalculate all automatic roles by tree structure for contracts and positions",
+        "help": "Recalculate all roles for identities with contract or other position assigned by automatic role by tree structure. Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupted (e.g. by server restart).",
+        "icon": "component:automatic-role"
+      },
       "core-process-automatic-role-attribute-long-running-task": {
         "label": "Recalculate automatic role by attribute",
         "help": "Recalculate roles for identities for selected automatic role by attribute.",
@@ -6036,6 +6175,16 @@
             "help": "Automatic role by attribute."
           }
         }
+      },
+      "core-process-skipped-automatic-role-by-tree-long-running-task": {
+        "label": "Recalculate skipped automatic role by tree structure",
+        "help": "Recalculate automatic roles by tree structure, which were not processed (skipped) after tree structure was changed (e.g. from synchronization).",
+        "icon": "component:automatic-role"
+      },
+      "core-process-skipped-automatic-role-by-tree-for-contract-long-running-task": {
+        "label": "Recalculate skipped automatic role by tree structure for contracts and other positions",
+        "help": "Recalculate automatic roles by tree structure for contracts and other positions, which were not processed (skipped) after work position was changed (e.g. from synchronization).",
+        "icon": "component:automatic-role"
       },
       "core-remove-automatic-role-long-running-task": {
         "label": "Remove automatic role",
@@ -6701,6 +6850,10 @@
       "title": "Not found",
       "message": "Event does not exist, processed events are deleted automatically."
     },
+    "CONTENT_DELETED": {
+      "title": "Content was deleted",
+      "message": "Operation content was deleted, operation cannot be executed anymore and will be canceled."
+    },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Wrong format",
       "message": "File has got image suffix but It's not an image. File should contains image in one of this formats: jpg, jpeg, png, gif."
@@ -6745,6 +6898,10 @@
       "title": "The [{{definition}}] policy does not have a user lockout timeout defined!",
       "message": "The [[{definition}}] policy defines the maximum number of logon attempts but does not have a user lockout timeout defined!"
     },
+    "PASSWORD_POLICY_INVALID_SETTING": {
+      "title": "Invalid setting of password policy.",
+      "message": "It is impossible to generate password which meets this password policy setting!"
+    },
     "PASSWORD_CHANGE_ACCOUNT_SUCCESS": {
       "title": "Password was changed",
       "message": "Password change for account [{{account}}] was successful."
@@ -6761,13 +6918,33 @@
       "title": "Missing attribute 'groupPermission'",
       "message": "When authorization type is filled, then attribute 'groupPermission' must be filled to."
     },
+    "AUTOMATIC_ROLE_ASSIGN_NOT_COMPLETE": {
+      "title": "Role wasn't assigned",
+      "message": "Role [{{role}}] wasn't assigned by automatic role [{{roleTreeNode}}] for some identities. More information can be found in task item detail."
+    },
     "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
       "title": "Role wasn't assigned",
-      "message": "Role [{{role}}] wasn't assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]. Check role request agenda for reason."
+      "message": "Role [{{role}}] wasn't assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]. More information can be found in task item detail."
     },
     "AUTOMATIC_ROLE_ALREADY_ASSIGNED": {
-      "title": "Role was already assigned",
+      "title": "Role is already assigned",
       "message": "Role [{{role}}] was already assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED": {
+      "title": "Role is assigned",
+      "message": "Role [{{role}}] is assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_REMOVED": {
+      "title": "Assigned role is removed",
+      "message": "Assigned Role [{{role}}] is removed by automatic role [{{roleTreeNode}}] for identity [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID": {
+      "title": "Role cannot be assigned",
+      "message": "Role [{{role}}] cannot be assigned by automatic role [{{roleTreeNode}}] for identity [{{identity}}]. Identity doesn't have a valid contract."
+    },
+    "AUTOMATIC_ROLE_TASK_RUNNING": {
+      "title": "Role is used by concurrent task",
+      "message": "Automatic role is processed by concurrent task [{{taskId}}], wait for task completion."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
       "title": "Role is used by concurrent task",
@@ -6776,6 +6953,10 @@
     "AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE": {
       "title": "Role wasn't removed",
       "message": "Role [{{role}}] wasn't removed by automatic role [{{roleTreeNode}}] for identity [{{identity}}], Check role request agenda for reason."
+    },
+    "AUTOMATIC_ROLE_REMOVE_HAS_ASSIGNED_ROLES": {
+      "title": "Automatic role cannot be deleted",
+      "message": "Currenty deleted automatic role [{{automaticRoleId}}] was newly assigned to [{{assignedRoles}}] users. Cancel role assignment and delete business role again."
     },
     "AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE": {
       "title": "Invalid comparison and attribute type",
@@ -6804,6 +6985,14 @@
     "AUTOMATIC_ROLE_TASK_INVALID": {
       "title": "",
       "message": "Select only one of automatic role - by tree structure or by attribute."
+    },
+    "AUTOMATIC_ROLE_TREE_TASK_INVALID": {
+      "title": "",
+      "message": "Set at least one of automatic role by tree structure."
+    },
+    "AUTOMATIC_ROLE_SKIPPED": {
+      "title": "Recount of automatic roles was skipped",
+      "message": "Automatic roles by tree strucuture were not processed, when record was saved."
     },
     "BACKUP_FAIL": {
       "title": "Backup failed",
@@ -6904,6 +7093,10 @@
     "FILTER_IMPLEMENTATION_NOT_FOUND": {
       "title": "Filter not found",
       "message": "Filter [{{implementation}}] for attribute [{{propertyName}}] not found. Fix configuration property [{{configurationProperty}}]."
+    },
+    "FILTER_PROPERTY_NOT_SUPPORTED": {
+      "title": "Filter not found",
+      "message": "Filter for attribute [{{propertyName}}] not found."
     },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Can not update form definition",
@@ -7268,6 +7461,26 @@
     "EXPORT_IMPORT_FILTER_PARENT_FIELD_MUST_BE_UUID": {
       "title": "Export/Import failed!",
       "message": "Parent field [{{field}}] must have a UUID data type!"
+    },
+    "DELEGATION_UNSUPPORTED_TYPE": {
+      "title": "Delegation type is not supported!",
+      "message": "Delegation type [{{type}}] is not supported!"
+    },
+    "DELEGATION_DEFINITION_CANNOT_BE_UPDATED": {
+      "title": "The delegation cannot be modified!",
+      "message": "The definition of delegation cannot be modified. You can try delete the existing one and create a new one."
+    },
+    "DELEGATION_DEFINITION_DELEGATOR_AND_DELEGATE_ARE_SAME": {
+      "title": "The delegator and the delegate cannot be the same!",
+      "message": "Delegator and delegate cannot be the same within the same delegation!"
+    },
+    "MANUAL_TASK_DELEGATION_DELEGATOR_MISSING": {
+      "title": "It is not specified who the tasks are to be delegated to!",
+      "message": "To specify a delegator, you can use the filter (Assigned) above the agenda of all tasks or select a delegator below. The task will be delegated only if one of the solvers is the selected delegator."
+    },
+    "MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE": {
+      "title": "The delegator is not the task approver!",
+      "message": "The delegator [{{delegator}}] is not the approver of the task [{{task}}]."
     }
   },
   "validationError": {

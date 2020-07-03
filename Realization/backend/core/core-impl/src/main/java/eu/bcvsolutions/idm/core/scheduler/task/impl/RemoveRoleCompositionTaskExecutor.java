@@ -138,9 +138,7 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		Boolean ended = super.end(result, ex);
-		//
-		if (BooleanUtils.isTrue(ended)) {
+		if (BooleanUtils.isTrue(result) && ex == null) {
 			IdmRoleCompositionDto roleComposition = roleCompositionService.get(roleCompositionId);
 			Assert.notNull(roleComposition, "Role composition is required.");
 			//
@@ -156,7 +154,7 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 						"roleCompositionId", roleCompositionId.toString(), 
 						"assignedRoles", String.valueOf(assignedRoles)));
 				saveResult(resultModel, OperationState.EXCEPTION, null);
-				return ended;
+				return result;
 			}
 			//
 			LOG.debug("Remove role composition [{}]", roleCompositionId);
@@ -178,7 +176,7 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 			}
 		}
 		//
-		return ended;
+		return super.end(result, ex);
 	}
 	
 	public void setRoleCompositionId(UUID roleCompositionId) {

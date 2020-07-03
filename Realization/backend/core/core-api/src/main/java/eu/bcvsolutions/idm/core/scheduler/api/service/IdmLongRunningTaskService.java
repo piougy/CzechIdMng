@@ -43,13 +43,17 @@ public interface IdmLongRunningTaskService extends
 	void updateState(UUID id, Long count, Long counter);
 
 	/**
-	 * Create LRT by given scheduled task and executor
+	 * Create LRT by given scheduled task and executor.
+	 * 
 	 * @param scheduledTask
 	 * @param taskExecutor
 	 * @param instanceId
 	 * @return
+	 * @deprecated @since 10.4.0 use {@link LongRunningTaskManager#saveLongRunningTask(LongRunningTaskExecutor, UUID, OperationState)}
 	 */
-	IdmLongRunningTaskDto create(IdmScheduledTaskDto scheduledTask, SchedulableTaskExecutor<?> taskExecutor,
+	@Deprecated
+	IdmLongRunningTaskDto create(
+			IdmScheduledTaskDto scheduledTask, 
+			SchedulableTaskExecutor<?> taskExecutor,
 			String instanceId);
-	
 }

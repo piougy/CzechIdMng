@@ -32,7 +32,9 @@ import eu.bcvsolutions.idm.core.workflow.service.impl.DefaultWorkflowHistoricTas
  * 
  * @author Radek Tomiška
  * @since 9.7.9
+ * @deprecated @since 10.4.0 ModelMapper updated to new version 2.3.7, where issue above is fixed 
  */
+@Deprecated
 @Component
 public class ModelMapperChecker {
 	

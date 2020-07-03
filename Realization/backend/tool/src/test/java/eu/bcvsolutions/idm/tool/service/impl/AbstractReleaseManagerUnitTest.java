@@ -19,6 +19,11 @@ import eu.bcvsolutions.idm.tool.service.api.ReleaseManager.VersionType;
 @Ignore
 public abstract class AbstractReleaseManagerUnitTest extends AbstractUnitTest {
 	
+	/**
+	 * IdM version - product version used for generation maven poms.
+	 */
+	protected static final String PRODUCT_VERSION = "10.3.0"; 
+	
 	protected abstract AbstractReleaseManager getReleaseManager();
 	
 	/**

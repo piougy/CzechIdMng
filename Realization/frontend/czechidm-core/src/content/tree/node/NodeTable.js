@@ -55,7 +55,7 @@ class NodeTable extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     const data = {
-      ... this.refs.filterForm.getData(),
+      ...this.refs.filterForm.getData(),
       treeNodeId: this.refs.filterForm.getData().treeNodeId,
       treeTypeId: type.id
     };
@@ -81,7 +81,9 @@ class NodeTable extends Advanced.AbstractTableContent {
         }, () => {
           this.refs.treeNodeId.setValue(nodeId);
           this.refs.table.useFilterData(data);
-          this.refs.identityTable.filterByTreeNodeId(nodeId);
+          if (this.refs.identityTable) {
+            this.refs.identityTable.filterByTreeNodeId(nodeId);
+          }
         });
       }));
     } else {
@@ -90,7 +92,9 @@ class NodeTable extends Advanced.AbstractTableContent {
       }, () => {
         this.refs.treeNodeId.setValue(nodeId);
         this.refs.table.useFilterData(data);
-        this.refs.identityTable.filterByTreeNodeId(nodeId);
+        if (this.refs.identityTable) {
+          this.refs.identityTable.filterByTreeNodeId(nodeId);
+        }
       });
     }
   }
@@ -154,11 +158,13 @@ class NodeTable extends Advanced.AbstractTableContent {
       type: entity
     }, () => {
       this.cancelFilter();
-      this.refs.identityTable.filterByTreeNodeId(null);
+      if (this.refs.identityTable) {
+        this.refs.identityTable.filterByTreeNodeId(null);
+      }
       //
       const { showTreeTypeSelect } = this.props;
       if (showTreeTypeSelect) {
-        this.context.history.push('/tree/nodes/?type=' + entity.id);
+        this.context.history.push(`/tree/nodes/?type=${ entity.id }`);
       }
     });
   }
@@ -169,9 +175,9 @@ class NodeTable extends Advanced.AbstractTableContent {
     }
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.history.push(`/tree/types/${uuidId}?new=1&b=nodes`);
+      this.context.history.push(`/tree/types/${ uuidId }?new=1&b=nodes`);
     } else {
-      this.context.history.push('/tree/types/' + entity.id);
+      this.context.history.push(`/tree/types/${ entity.id }`);
     }
   }
 
@@ -190,15 +196,15 @@ class NodeTable extends Advanced.AbstractTableContent {
     }
     const _permissions = this.getManager().getPermissions(this.context.store.getState(), null, selectedNodeId);
     return (
-      <div className="basic-toolbar">
+      <Basic.Div className="basic-toolbar">
         <Basic.Alert
           title={ this.i18n('label.selected') }
           level="info"
           style={{ margin: 0, maxWidth: 450 }}>
-          <div style={{ display: 'flex'}}>
-            <div style={{ flex: 1}}>
+          <Basic.Div style={{ display: 'flex'}}>
+            <Basic.Div style={{ flex: 1}}>
               <Basic.ShortText text={ this.getManager().getNiceLabel(selectedNode) } maxLength={ 40 }/>
-            </div>
+            </Basic.Div>
             <Basic.Button
               type="button"
               level="primary"
@@ -208,9 +214,9 @@ class NodeTable extends Advanced.AbstractTableContent {
               rendered={ this.getManager().canRead({ id: selectedNodeId}, _permissions) }>
               { this.i18n('component.advanced.EntityInfo.link.detail.label') }
             </Basic.Button>
-          </div>
+          </Basic.Div>
         </Basic.Alert>
-      </div>
+      </Basic.Div>
     );
   }
 
@@ -225,8 +231,8 @@ class NodeTable extends Advanced.AbstractTableContent {
     }
     //
     return (
-      <div>
-        <TypeConfiguration treeTypeId={type.id}/>
+      <Basic.Div>
+        <TypeConfiguration treeTypeId={ type.id }/>
 
         <Basic.Panel>
           <Basic.Row>{/* FIXME: resposive design - wrong wrapping on mobile */}
@@ -251,38 +257,43 @@ class NodeTable extends Advanced.AbstractTableContent {
                     onChange={ this._changeTree.bind(this) }
                     clearable={ false }
                     className="small"
-                    style={{ marginBottom: 0 }}/>
+                    style={{ marginBottom: 0 }}
+                    tooltip={ this.i18n('entity.TreeNode.treeType.label') }/>
                 }
-                />
+              />
             </Basic.Col>
             <Basic.Col lg={ 9 } style={{ paddingLeft: 0 }}>
               <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-              <Basic.Tabs activeKey={activeTab} onSelect={this._onChangeSelectTabs.bind(this)} className="tab-embedded" style={{ marginBottom: 0 }}>
-                <Basic.Tab eventKey={2} title={ this.i18n('tab.nodes') } style={{ borderBottom: 0, borderRight: 0, borderRadius: 0 }}>
+              <Basic.Tabs
+                activeKey={ activeTab }
+                onSelect={ this._onChangeSelectTabs.bind(this) }
+                className="tab-embedded"
+                style={{ marginBottom: 0 }}>
+                <Basic.Tab eventKey={ 2} title={ this.i18n('tab.nodes') } style={{ borderBottom: 0, borderRight: 0, borderRadius: 0 }}>
 
                   { this._renderSelectedNode() }
 
                   <Advanced.Table
                     ref="table"
-                    uiKey={uiKey}
-                    forceSearchParameters={new SearchParameters().setFilter('treeTypeId', type.id)}
-                    manager={treeNodeManager}
-                    showRowSelection={SecurityManager.hasAuthority('TREENODE_DELETE')}
-                    rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+                    uiKey={ uiKey }
+                    forceSearchParameters={new SearchParameters().setFilter('treeTypeId', type.id) }
+                    manager={ treeNodeManager }
+                    showRowSelection={ SecurityManager.hasAuthority('TREENODE_DELETE') }
+                    rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
                     showLoading={ showLoading }
                     filter={
-                      <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                      <Advanced.Filter onSubmit={ this.useFilter.bind(this) }>
                         <Basic.AbstractForm ref="filterForm">
                           <Basic.Row>
                             <Basic.Col lg={ 6 }>
                               <Advanced.Filter.TextField
                                 ref="text"
-                                placeholder={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }
+                                placeholder={ `${ this.i18n('entity.TreeNode.code') } / ${ this.i18n('entity.TreeNode.name') }` }
                                 help={ Advanced.Filter.getTextHelp() }/>
                             </Basic.Col>
                             <Basic.Col lg={ 6 } className="text-right">
-                              <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                              <Advanced.Filter.FilterButtons cancelFilter={ this.cancelFilter.bind(this) }/>
                             </Basic.Col>
                           </Basic.Row>
                           <Basic.Row className="last">
@@ -299,7 +310,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                               <Advanced.Filter.BooleanSelectBox
                                 ref="recursively"
                                 placeholder={ this.i18n('content.identities.filter.recursively.placeholder') }
-                                options={ [
+                                options={[
                                   { value: 'true', niceLabel: this.i18n('content.identities.filter.recursively.yes') },
                                   { value: 'false', niceLabel: this.i18n('content.identities.filter.recursively.no') }
                                 ]}/>
@@ -316,9 +327,13 @@ class NodeTable extends Advanced.AbstractTableContent {
                     }
                     buttons={
                       [
-                        <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREENODE_CREATE')}>
-                          <Basic.Icon type="fa" icon="plus"/>
-                          {' '}
+                        <Basic.Button
+                          level="success"
+                          key="add_button"
+                          className="btn-xs"
+                          onClick={ this.showDetail.bind(this, {}) }
+                          rendered={ SecurityManager.hasAuthority('TREENODE_CREATE') }
+                          icon="fa:plus">
                           {this.i18n('button.add')}
                         </Basic.Button>
                       ]
@@ -331,13 +346,13 @@ class NodeTable extends Advanced.AbstractTableContent {
                         ({ rowIndex, data }) => {
                           return (
                             <Advanced.DetailButton
-                              title={this.i18n('button.detail')}
-                              onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                              title={ this.i18n('button.detail') }
+                              onClick={ this.showDetail.bind(this, data[rowIndex]) }/>
                           );
                         }
                       }
                       sort={false}/>
-                    <Advanced.Column property="code" width="125px" sort face="text"/>
+                    <Advanced.Column property="code" width={ 125 } sort face="text"/>
                     <Advanced.ColumnLink to="/tree/nodes/:id/detail" property="name" width="20%" sort face="text"/>
                     <Advanced.ColumnLink
                       header={ this.i18n('entity.TreeNode.parent.name') }
@@ -346,14 +361,18 @@ class NodeTable extends Advanced.AbstractTableContent {
                       property="_embedded.parent.name"
                       sort
                       sortProperty="parent.name"/>
-                    <Advanced.Column property="treeType.name" sort rendered={false}/>
+                    <Advanced.Column property="treeType.name" sort rendered={ false }/>
                     <Advanced.Column property="disabled" sort face="bool"/>
-                    <Advanced.Column property="shortName" sort rendered={false}/>
-                    <Advanced.Column property="parentId" sort rendered={false}/>
+                    <Advanced.Column property="shortName" sort rendered={ false }/>
+                    <Advanced.Column property="parentId" sort rendered={ false }/>
                   </Advanced.Table>
                 </Basic.Tab>
 
-                <Basic.Tab eventKey={ 1 } title={ this.i18n('tab.identities') } style={{ borderBottom: 0, borderRight: 0, borderRadius: 0 }}>
+                <Basic.Tab
+                  eventKey={ 1 }
+                  title={ this.i18n('tab.identities') }
+                  style={{ borderBottom: 0, borderRight: 0, borderRadius: 0 }}
+                  rendered={ SecurityManager.hasAuthority('IDENTITY_READ') }>
                   <IdentityTable
                     ref="identityTable"
                     uiKey={ `${uiKey}-identity` }
@@ -361,13 +380,14 @@ class NodeTable extends Advanced.AbstractTableContent {
                     filterOpened={ filterOpened }
                     showAddButton={ false }
                     treeType={ type }
-                    showRowSelection/>
+                    showRowSelection
+                    rendered={ SecurityManager.hasAuthority('IDENTITY_READ') }/>
                 </Basic.Tab>
               </Basic.Tabs>
             </Basic.Col>
           </Basic.Row>
         </Basic.Panel>
-      </div>
+      </Basic.Div>
     );
   }
 }

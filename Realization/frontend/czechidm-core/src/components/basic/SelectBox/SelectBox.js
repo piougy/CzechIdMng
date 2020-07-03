@@ -113,7 +113,7 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getOptions(input, forceSearchParameters, useFirst = false, addToEnd = false) {
-    const { manager, clearable, multiSelect, emptyOptionLabel } = this.props;
+    const { manager, clearable, multiSelect, emptyOptionLabel, additionalOptions } = this.props;
     const { options } = this.state;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     const timeInMs = Date.now();
@@ -161,15 +161,29 @@ class SelectBox extends AbstractFormComponent {
               options: finalOptions,
               complete: finalOptions.length >= result.page.totalElements,
             };
+            //
+            let addedCustomOptions = 0;
+            if (additionalOptions && additionalOptions.length > 0) {
+              addedCustomOptions += additionalOptions.length;
+              // additional selecbox options
+              if (result.page.number === 0) { // only once
+                additionalOptions.forEach(additionalOption => {
+                  data.options.unshift({
+                    ...additionalOption,
+                    _moreOption: true, // prevent to show icon
+                    additionalOption: true
+                  });
+                });
+              }
+            }
             // add empty option at start
-            let hasEmptyOption = false;
             if (clearable && !multiSelect && data.options.length > 0) {
               const emptyOption = this.getEmptyOption(emptyOptionLabel);
               if (emptyOption) {
                 if (result.page.number === 0) { // only once
                   data.options.unshift(emptyOption);
                 }
-                hasEmptyOption = true; // we need to know on all pages
+                addedCustomOptions += 1;
               }
             }
             if (!data.complete) {
@@ -180,7 +194,7 @@ class SelectBox extends AbstractFormComponent {
                     {
                       this.i18n('results', {
                         escape: false,
-                        count: data.options.length - (hasEmptyOption ? 1 : 0),
+                        count: data.options.length - addedCustomOptions,
                         total: result.page.totalElements
                       })
                     }
@@ -195,7 +209,7 @@ class SelectBox extends AbstractFormComponent {
               data.options.push({
                 [NICE_LABEL]: this.i18n('results', {
                   escape: false,
-                  count: data.options.length - (hasEmptyOption ? 1 : 0),
+                  count: data.options.length - addedCustomOptions,
                   total: result.page.totalElements
                 }),
                 [ITEM_FULL_KEY]: input,
@@ -299,8 +313,11 @@ class SelectBox extends AbstractFormComponent {
     // value is not array
     const copyValue = _.merge({}, value);
     this._deletePrivateField(copyValue);
-    // result property value - if value is false, then whole object is returned
-    if (returnProperty) {
+    //
+    if (value && value.additionalOption) {
+      return copyValue;
+    }
+    if (returnProperty) { // result property value - if value is false, then whole object is returned
       return copyValue[returnProperty];
     }
     return copyValue;
@@ -639,9 +656,9 @@ class SelectBox extends AbstractFormComponent {
         ignoreCase
         ignoreAccents={false}
         multi={ multiSelect }
-        valueKey={ITEM_FULL_KEY}
-        labelKey={fieldLabel}
-        onBlurResetsInput={false}
+        valueKey={ ITEM_FULL_KEY }
+        labelKey={ fieldLabel }
+        onBlurResetsInput={ false }
         closeOnSelect={ !multiSelect }
         onSelectResetsInput={ false }
         noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
@@ -736,7 +753,11 @@ SelectBox.propTypes = {
   emptyOptionLabel: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.bool
-  ])
+  ]),
+  /**
+   * Additional select box options - extend options wit custom behavior.
+   */
+  additionalOptions: PropTypes.arrayOf(PropTypes.object)
 };
 
 SelectBox.defaultProps = {
@@ -751,7 +772,8 @@ SelectBox.defaultProps = {
   loadMoreContent: true,
   optionComponent: OptionDecorator,
   valueComponent: ValueDecorator,
-  disableable: true
+  disableable: true,
+  additionalOptions: []
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

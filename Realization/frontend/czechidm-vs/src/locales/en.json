@@ -218,6 +218,33 @@
       "DUPLICATED": "Duplicated"
     }
   },
+  "eav": {
+    "long-running-task": {
+      "vs-system-generator-long-running-task": {
+        "label": "Generate requested number of virtual systems (for optimization testing only)",
+        "help": "Task for optimization testing only. Generate requested number of virtual systems and evenly assign the number of users to them.",
+        "icon": "component:scheduled-task",
+        "attributes": {
+          "item-prefix": {
+            "label": "Item prefix",
+            "help": "Prefix common to all created items for their better recognition."
+          },
+          "system-count": {
+            "label": "System count",
+            "help": "Number of generated systems."
+          },
+          "identity-count": {
+            "label": "User count",
+            "help": "Nuber of users to which the generated systems are evenly assigned."
+          },
+          "role-count": {
+            "label": "Role count",
+            "help": "Number of roles, which are evenly assigned to generated users."
+          }
+        }
+      }
+    }
+  },
   "error": {
     "VS_REQUEST_DELETING_ACCOUNT_NOT_EXIST": {
       "title": "Account [{{uid}}] on the target system cannot be deleted",
@@ -254,6 +281,10 @@
     "ROLE_REQUEST_VS_REQUEST_IN_PROGRESS": {
       "title": "Some requests on a virtual systems are not resloved!",
       "message": "Some requests on this vritual systems [{{systems}}] are not resloved!"
+    },
+    "VS_SYSTEM_GENERATOR_INSUFFICIENT_PERMISSION": {
+      "title": "Insufficient permission.",
+      "message": "Only administrator is allowed to run this task."
     }
   }
 }

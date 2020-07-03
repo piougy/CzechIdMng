@@ -1,5 +1,10 @@
 import EntityManager from './EntityManager';
 import { LongRunningTaskService } from '../../services';
+import FormAttributeManager from './FormAttributeManager';
+import * as Utils from '../../utils';
+
+const formAttributeManager = new FormAttributeManager();
+
 
 /**
  * Long tunning task administration
@@ -23,6 +28,34 @@ export default class LongRunningTaskManager extends EntityManager {
 
   getCollectionType() {
     return 'longRunningTasks';
+  }
+
+  getNiceLabel(entity, supportedTasks = null) {
+    let _taskType;
+    if (supportedTasks && supportedTasks.has(entity.taskType)) {
+      _taskType = supportedTasks.get(entity.taskType);
+    } else if (entity.taskProperties) {
+      const bulkAction = entity.taskProperties['core:bulkAction'];
+      // try to find form attributes from form definition
+      if (bulkAction) {
+        _taskType = {
+          formDefinition: {
+            code: bulkAction.name,
+            module: bulkAction.module,
+            type: 'bulk-action'
+          }
+        };
+      }
+    }
+    if (_taskType && _taskType.formDefinition) {
+      const simpleTaskType = Utils.Ui.getSimpleJavaType(entity.taskType);
+      let _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', simpleTaskType);
+      if (_label !== simpleTaskType) {
+        _label += ` (${ simpleTaskType })`;
+      }
+      return _label;
+    }
+    return this.getService().getNiceLabel(entity);
   }
 
   /**

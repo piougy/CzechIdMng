@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
@@ -357,7 +358,7 @@ public interface TestHelper {
 	void deleteRole(UUID id);
 
 	/**
-	 * Creates automatic role
+	 * Creates automatic role by tree structure without recursion ({@link RecursionType#NO}).
 	 *
 	 * @param role
 	 * @param treeNode
@@ -365,6 +366,22 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNodeDto treeNode, boolean skipLongRunningTask);
+	
+	/**
+	 * Creates automatic role by tree structure.
+	 * 
+	 * @param role
+	 * @param treeNode
+	 * @param recursionType [optional] {@link RecursionType#NO} is used as default
+	 * @param skipLongRunningTask
+	 * @return
+	 * @since 10.4.0
+	 */
+	IdmRoleTreeNodeDto createRoleTreeNode(
+			IdmRoleDto role,
+			IdmTreeNodeDto treeNode,
+			RecursionType recursionType,
+			boolean skipLongRunningTask);
 
 	/**
 	 * Creates simple uuid permission evaluator authorization policy
@@ -834,14 +851,14 @@ public interface TestHelper {
 	/**
 	 * Wait for result - usable for asynchronous tests
 	 *
-	 * @param continueFunction
+	 * @param continueFunction [optional] continue by default, until iterationCount is complete. If continueFunction is given, then is iterated while function returns true.
 	 */
 	void waitForResult(Function<String, Boolean> continueFunction);
 	
 	/**
 	 * Wait for result - usable for asynchronous tests
 	 * 
-	 * @param continueFunction [option] continue by default, until iterationCount is complete. If continueFunction is given, then is iterated while function returns true.
+	 * @param continueFunction [optional] continue by default, until iterationCount is complete. If continueFunction is given, then is iterated while function returns true.
 	 * @param interationWaitMilis [optional] default 300ms
 	 * @param iterationCount [optional] default 50 => max wait 300ms x 50 = 15s. Maximum is 300.
 	 */

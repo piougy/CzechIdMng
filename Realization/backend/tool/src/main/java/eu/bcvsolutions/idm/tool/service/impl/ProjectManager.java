@@ -2,10 +2,13 @@ package eu.bcvsolutions.idm.tool.service.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.Manifest;
@@ -16,18 +19,30 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.google.common.collect.Maps;
 
 import eu.bcvsolutions.idm.core.api.utils.ZipUtils;
 import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.tool.exception.BuildException;
+import eu.bcvsolutions.idm.tool.service.api.ReleaseManager;
 
 /**
  * Build project war (BE + FE).
@@ -166,20 +181,25 @@ public class ProjectManager {
 			File productFrontendModulesFolder = new File(String.format("%s/czechidm-modules", productFrontendFolder.getPath()));
 			File extractedFrontendModulesFolder = new File(String.format("%s/czechidm-modules", extractedFrontendFolder.getPath()));
 			List<String> installedModules = new ArrayList<>();
+			List<File> installedJarModules = new ArrayList<>();
 			Map<String, String> distinctModuleNames = Maps.newHashMap();
 			//
 			if (!modulesFolder.exists()) {
 				LOG.info("Folder with modules not found, modules will not be installed.");
 			} else {
 				ObjectMapper mapper = new ObjectMapper();
-				for (File module : modulesFolder.listFiles()) {
+				// ensure files are sorted alphabetically
+				File[] files = modulesFolder.listFiles();
+				Arrays.sort(files);
+				//
+				for (File module : files) {
 					String moduleName = module.getName();
 					//
 					FileUtils.copyFile(module, new File(String.format("%s/WEB-INF/lib", extractedProductFolder.getPath()), moduleName));
 					//
 					// extract module jar into target
 					File extractedModuleFolder = new File(targetFolder, FilenameUtils.removeExtension(moduleName));
-						try {
+					try {
 						ZipUtils.extract(module, extractedModuleFolder.getPath());
 						//
 						String simpleModuleName = null; // module name without version suffix
@@ -227,6 +247,7 @@ public class ProjectManager {
 						} else {
 							LOG.info("Module [{}] not contain frontend.", module.getName());
 						}
+						installedJarModules.add(extractedModuleFolder);
 					} catch (ZipException ex) {
 						LOG.warn("Module [{}] cannot be extracted, is not .jar library. Library will be installed without frontend resolving.", module.getName());
 					}
@@ -251,7 +272,7 @@ public class ProjectManager {
 			//
 			// create new idm.war
 			LOG.info("Build backend application with frontend included ...");
-			prepareBackendMavenProject(targetFolder);
+			prepareBackendMavenProject(installedJarModules, targetFolder);
 			mavenManager.command(
 					targetFolder, 
 					"clean", 
@@ -326,9 +347,183 @@ public class ProjectManager {
 				new File(targetFolder, "pom.xml"));
 	}
 	
-	private void prepareBackendMavenProject(File targetFolder) throws IOException {
+	private void prepareBackendMavenProject(List<File> installedJarModules, File targetFolder) throws Exception {
+		File projectDescriptor = new File(targetFolder, "pom.xml");
+		//
 		FileUtils.copyInputStreamToFile(
 				new ClassPathResource("eu/bcvsolutions/idm/build/war-pom.xml").getInputStream(),
-				new File(targetFolder, "pom.xml"));
+				projectDescriptor);
+		
+		if (installedJarModules.isEmpty()) {
+			return;
+		}
+		// append registered backend modules as dependencies => third party module libraries will be resolved by maven automatically
+		//
+		// parse xml and append modules as standard maven dependencies
+		// TODO: can be refactored to maven model usage ...
+		XmlMapper xmlMapper = new XmlMapper();
+		xmlMapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+		xmlMapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
+		xmlMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
+		xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
+		// read maven poms
+		MavenXpp3Reader reader = new MavenXpp3Reader();
+		//
+		ObjectNode buildPom = (ObjectNode) xmlMapper.readTree(projectDescriptor);
+		//
+		// find pom.xml modules in jar
+		Map<String, String> resolvedModules = new HashMap<>();
+		// add all product modules as resolved => will not be registered repetitivelly
+		Arrays
+			.stream(ProductReleaseManager.BACKEND_MODULES)
+			.map(backendModule -> {
+				// transform path to module to artefact id by conventions
+				String productArtefactId = backendModule;
+				int slashPosition = productArtefactId.lastIndexOf('/');
+				if (slashPosition > 0) { // not at start => >
+					productArtefactId = productArtefactId.substring(slashPosition + 1);
+				}
+				productArtefactId = String.format("idm-%s", productArtefactId);
+				//
+				return getSimpleModuleId(ReleaseManager.MAVEN_GROUP_ID, productArtefactId);
+			})
+			.forEach(productModuleId -> {
+				resolvedModules.put(productModuleId, "");
+			});
+		//
+		Map<String, Model> modules = new LinkedHashMap<>();
+		for (File installedJarModule : installedJarModules) {
+			File moduleMavenResources = new File(String.format("%s/META-INF/maven", installedJarModule.getPath()));
+			if (!moduleMavenResources.exists()) {
+				LOG.info("Backend module [{}] cannot be registered as maven dependency for backend build, "
+						+ "required maven descriptor not found.",
+						installedJarModule.getName());
+			}
+			
+            for (File file : FileUtils.listFiles(installedJarModule, null, true)) {
+                if (file.getName().equals("pom.xml")) {
+                	try (InputStream is = new FileInputStream(file)) {
+        				Model model = reader.read(is);
+        				modules.put(model.getId(), model);
+        				// we don't want to add directly installed modules as dependency repetitivelly
+        				resolvedModules.put(getSimpleModuleId(model), "");
+        			}
+                }
+            }	
+		}
+		// a module doesn't contain pom descriptor
+		if (modules.isEmpty()) {
+			return;
+		}
+		// resolve third party dependencies
+		int registeredDependencies = 0;
+		ArrayNode dependencies = xmlMapper.createArrayNode();
+		for (Model module : modules.values()) {
+			for (Dependency dependency : module.getDependencies()) {
+				// group id decorator
+				String groupId = dependency.getGroupId();
+				if (StringUtils.isEmpty(groupId)) {
+					groupId = module.getGroupId();
+				} else if("${project.groupId}".equals(groupId)) {
+					groupId = module.getGroupId();
+					if (StringUtils.isEmpty(groupId)) {
+						Parent parent = module.getParent();
+						if (parent != null) {
+							groupId = parent.getGroupId();
+						}
+					}
+				}
+				String artifactId = dependency.getArtifactId();
+				String simpleModuleId = getSimpleModuleId(groupId, artifactId);
+				String version = dependency.getVersion();
+				// resolve module version as project property
+				if (version != null && version.startsWith("${") && version.endsWith("}")) {
+					String propertyKey = version.substring(2, version.length() - 1);
+					if (module.getProperties().containsKey(propertyKey)) {
+						version = module.getProperties().getProperty(propertyKey);
+					}
+				}
+				String scope = dependency.getScope();
+				//
+				// simple check dependency is fully specified
+				if (StringUtils.isEmpty(groupId) 
+						|| StringUtils.isEmpty(artifactId)
+						|| StringUtils.isEmpty(version)) {
+					throw new BuildException(String.format("Backend module artefact [%s:%s:%s] cannot "
+							+ "be registered as maven dependency for backend build, "
+							+ "required artefact properties are not defined.",
+							groupId, artifactId, version));
+				}
+				//
+				// skip already resolved modules 
+				if (resolvedModules.containsKey(simpleModuleId)) {
+					String checkVersion = resolvedModules.get(simpleModuleId);
+					if (StringUtils.isEmpty(checkVersion)) {
+						LOG.debug("Module [{}] is already registered, skipping.", simpleModuleId);
+						continue;
+					}
+					if (checkVersion.equals(version)) {
+						LOG.debug("Module [{}] is already registered with the same version [{}], skipping.", simpleModuleId, checkVersion);
+						continue;
+					}
+					throw new BuildException(String.format("Backend module artefact [%s:%s:%s] cannot "
+							+ "be registered as maven dependency for backend build, "
+							+ "the same library is already registeres with version [%s]. "
+							+ "Update module dependencies or copy third party library to modules folder to ensure concrete version is used.",
+							groupId, artifactId, version, checkVersion));
+				}
+				//
+				// create target dependency
+				ObjectNode targetDependency = xmlMapper.createObjectNode();
+				targetDependency.put("groupId", groupId);
+				targetDependency.put("artifactId", artifactId);
+				targetDependency.put("version", version);
+				if (StringUtils.isNotEmpty(scope)) {
+					targetDependency.put("scope", scope);
+				}
+				dependencies.add(targetDependency);
+				//
+				registeredDependencies++;
+				resolvedModules.put(simpleModuleId, version);
+				LOG.info("Backend module artefact [{}:{}:{}] registered as maven dependency for backend build.",
+						groupId, artifactId, version);
+			}
+		}
+		// no additional 3th party dependencies are resolved
+		if (registeredDependencies == 0) {
+			return;
+		}
+		//
+		ObjectNode dependenciesWrapper = xmlMapper.createObjectNode();
+		dependenciesWrapper.set("dependency", dependencies);
+		buildPom.set("dependencies", dependenciesWrapper);
+		//
+		try (FileOutputStream outputStream = new FileOutputStream(projectDescriptor)) {
+			JsonGenerator jGenerator = xmlMapper.getFactory().createGenerator(outputStream, JsonEncoding.UTF8);
+			xmlMapper
+				.writerWithDefaultPrettyPrinter()
+				.withRootName("project")
+				.writeValue(jGenerator, buildPom);
+			jGenerator.close();
+		}
+		LOG.info("Backend maven project [{}] for build prepared. Modules [{}] registered as dependency.",
+				projectDescriptor.getPath(), registeredDependencies);
+	}
+	
+	private String getSimpleModuleId(Model model) {
+		String groupId = model.getGroupId();
+		if (StringUtils.isEmpty(groupId)) {
+			Parent parent = model.getParent();
+			if (parent != null) {
+				groupId = parent.getGroupId();
+			}
+		}
+		//
+		return getSimpleModuleId(groupId, model.getArtifactId());
+	}
+	
+	private String getSimpleModuleId(String groupId, String artifactId) {
+		return String.format("%s:%s", groupId, artifactId);
 	}
 }

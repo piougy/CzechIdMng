@@ -76,10 +76,10 @@ public class RemoveOldLogsTaskExecutor extends AbstractSchedulableTaskExecutor<B
 
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		result = super.end(result, ex);
 		LOG.warn("End deleting logs older than [{}]. Processed logs [{}].",
 				numberOfDays, counter);
-		return result;
+		//
+		return super.end(result, ex);
 	}
 
 	@Override

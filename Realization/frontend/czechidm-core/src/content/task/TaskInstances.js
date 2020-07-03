@@ -32,7 +32,10 @@ class TaskInstances extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <TaskInstanceTable uiKey="task-instance-table" taskInstanceManager={this.workflowTaskInstanceManager} filterOpened={false}/>
+        <TaskInstanceTable
+          uiKey="task-instance-table"
+          taskInstanceManager={this.workflowTaskInstanceManager}
+          filterOpened={false}/>
       </div>
     );
   }

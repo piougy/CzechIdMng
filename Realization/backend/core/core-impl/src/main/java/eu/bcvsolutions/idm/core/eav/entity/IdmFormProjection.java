@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.eav.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
@@ -72,6 +74,13 @@ public class IdmFormProjection
 	@Column(name = "projection_properties", length = Integer.MAX_VALUE)
 	private ConfigurationMap properties; // cannot be string (~json) => needed on backend too.
 
+	public IdmFormProjection() {
+	}
+	
+	public IdmFormProjection(UUID id) {
+		super(id);
+	}
+	
 	@Override
 	public String getCode() {
 		return code;

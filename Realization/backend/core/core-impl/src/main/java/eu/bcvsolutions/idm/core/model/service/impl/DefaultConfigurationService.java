@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -29,6 +28,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.domain.comparator.CodeableComparator;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
@@ -236,8 +236,8 @@ public class DefaultConfigurationService
 	@Override
 	@Transactional(readOnly = true)
 	public String getValue(String key, String defaultValue) {
-		Optional<Object> cachedValue = getCachedValue(key);
-		if (cachedValue.isPresent()) {
+		ValueWrapper cachedValue = getCachedValue(key);
+		if (cachedValue != null) {
 			return (String) cachedValue.get();
 		}	
 		//
@@ -550,7 +550,7 @@ public class DefaultConfigurationService
 		cacheManager.evictValue(CACHE_NAME, key);
 	}
 	
-	private Optional<Object> getCachedValue(String key) {
+	private ValueWrapper getCachedValue(String key) {
 		return cacheManager.getValue(CACHE_NAME, key);
 	}
 	

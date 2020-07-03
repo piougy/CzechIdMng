@@ -85,6 +85,8 @@ import FilterBuilderService from './FilterBuilderService';
 import ExportImportService from './ExportImportService';
 import AvailableServiceService from './AvailableServiceService';
 import ImportLogService from './ImportLogService';
+import DelegationDefinitionService from './DelegationDefinitionService';
+import DelegationService from './DelegationService';
 
 const ServiceRoot = {
   RestApiService,
@@ -166,8 +168,10 @@ const ServiceRoot = {
   RequestIdentityRoleService,
   ExportImportService,
   AvailableServiceService,
-  ImportLogService
+  ImportLogService,
+  DelegationDefinitionService,
+  DelegationService
 };
 
-ServiceRoot.version = '10.3.0';
+ServiceRoot.version = '10.4.0';
 module.exports = ServiceRoot;

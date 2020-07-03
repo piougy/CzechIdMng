@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.rest.impl.PasswordChangeController;
+import eu.bcvsolutions.idm.core.security.api.domain.ContractBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -243,6 +244,103 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 			passwordChangeDto.setOldPassword(identity.getPassword());
 			passwordChangeDto.setNewPassword(new GuardedString("heslo2"));
 			passwordChangeController.passwordChange(InitTestData.TEST_ADMIN_USERNAME, passwordChangeDto);
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	public void testTransitiveContractPermissionsForSelfAndSubordinate() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		IdmIdentityDto manager = getHelper().createIdentity();
+		//
+		IdmRoleDto selfRole = getHelper().createRole();
+		IdmRoleDto managerRole = getHelper().createRole();
+		//
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
+		Assert.assertNotNull(primeContract);
+		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		getHelper().createContractGuarantee(otherContract, manager);
+		//
+		getHelper().createIdentityRole(identity, selfRole);
+		getHelper().createIdentityRole(manager, selfRole); // manager has both
+		getHelper().createIdentityRole(manager, managerRole);
+		// self
+		getHelper().createAuthorizationPolicy(
+				selfRole.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				SelfIdentityEvaluator.class,
+				IdmBasePermission.AUTOCOMPLETE,
+				IdmBasePermission.READ,
+				IdentityBasePermission.CHANGEPERMISSION);
+		ConfigurationMap properties = new ConfigurationMap();
+		properties.put(
+				IdentityContractByIdentityEvaluator.PARAMETER_INCLUDE_PERMISSIONS,
+				// same configuration as doc - autocomplete is needed for FE
+				StringUtils.join(Lists.newArrayList(IdmBasePermission.AUTOCOMPLETE.getName(), IdmBasePermission.READ.getName(), ContractBasePermission.CHANGEPERMISSION.getName()), ","));
+		getHelper().createAuthorizationPolicy(
+				selfRole.getId(), 
+				CoreGroupPermission.IDENTITYCONTRACT, 
+				IdmIdentityContract.class, 
+				IdentityContractByIdentityEvaluator.class,
+				properties);
+		// manager
+		getHelper().createAuthorizationPolicy(
+				managerRole.getId(),
+				CoreGroupPermission.IDENTITYCONTRACT,
+				IdmIdentityContract.class,
+				SubordinateContractEvaluator.class,
+				IdmBasePermission.AUTOCOMPLETE,
+				IdmBasePermission.READ,
+				IdentityBasePermission.CHANGEPERMISSION);
+		getHelper().createBasePolicy(
+				managerRole.getId(),
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.AUTOCOMPLETE,
+				IdmBasePermission.READ);
+		//
+		try {			
+			getHelper().login(identity);
+			//
+			IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+			filter.setIdentity(identity.getId());
+			List<IdmIdentityContractDto> contracts = identityContractService.find(filter, null, ContractBasePermission.CHANGEPERMISSION).getContent();
+			assertEquals(2, contracts.size());	
+			IdmIdentityContractDto contract = contracts.get(0);
+			Set<String> contractPermissions = identityContractService.getPermissions(contract);
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(ContractBasePermission.CHANGEPERMISSION.getName())));
+		} finally {
+			logout();
+		}
+		// change permission for one
+		try {			
+			getHelper().login(manager);
+			//
+			IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+			filter.setIdentity(identity.getId());
+			List<IdmIdentityContractDto> contracts = identityContractService.find(filter, null, ContractBasePermission.CHANGEPERMISSION).getContent();
+			assertEquals(1, contracts.size());	
+			IdmIdentityContractDto contract = contracts.get(0);
+			Assert.assertEquals(otherContract.getId(), contract.getId());
+			Set<String> contractPermissions = identityContractService.getPermissions(contract);
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(contractPermissions.stream().anyMatch(p -> p.equals(ContractBasePermission.CHANGEPERMISSION.getName())));
+		} finally {
+			logout();
+		}
+		// read both
+		try {			
+			getHelper().login(manager);
+			//
+			IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
+			filter.setIdentity(identity.getId());
+			List<IdmIdentityContractDto> contracts = identityContractService.find(filter, null, IdmBasePermission.READ).getContent();
+			assertEquals(2, contracts.size());	
 		} finally {
 			logout();
 		}

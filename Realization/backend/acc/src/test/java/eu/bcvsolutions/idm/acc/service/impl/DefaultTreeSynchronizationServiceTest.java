@@ -9,9 +9,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -36,9 +34,9 @@ import eu.bcvsolutions.idm.acc.dto.AccTreeAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncActionLogDto;
-import eu.bcvsolutions.idm.acc.dto.SysSyncConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncItemLogDto;
 import eu.bcvsolutions.idm.acc.dto.SysSyncLogDto;
+import eu.bcvsolutions.idm.acc.dto.SysSyncTreeConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
@@ -128,16 +126,6 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 
 	private SysSystemDto system;
 
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
-
-	@After
-	public void logout() {
-		super.logout();
-	}
-
 	@Test
 	@Transactional
 	public void doCreateSyncConfig() {
@@ -160,7 +148,7 @@ public class DefaultTreeSynchronizationServiceTest extends AbstractIntegrationTe
 		}).findFirst().get();
 
 		// Create default synchronization config
-		AbstractSysSyncConfigDto syncConfigCustom = new SysSyncConfigDto();
+		AbstractSysSyncConfigDto syncConfigCustom = new SysSyncTreeConfigDto();
 		syncConfigCustom.setReconciliation(true);
 		syncConfigCustom.setCustomFilter(true);
 		syncConfigCustom.setSystemMapping(mapping.getId());

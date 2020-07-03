@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -118,7 +119,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			}
 		}
 		//
-		filter.setTaskType(AddNewAutomaticRoleTaskExecutor.class.getCanonicalName());
+		filter.setTaskType(ProcessAutomaticRoleByTreeTaskExecutor.class.getCanonicalName());
 		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
 			if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING,
@@ -128,12 +129,12 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 			}
 		}
 		//
-		filter.setTaskType(AddNewAutomaticRoleForPositionTaskExecutor.class.getCanonicalName());
+		filter.setTaskType(ProcessAutomaticRoleByAttributeTaskExecutor.class.getCanonicalName());
 		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
 			if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING,
 						ImmutableMap.of(
-								"roleTreeNode", automaticRole.getId().toString(),
+								"automaticRoleId", automaticRole.getId().toString(),
 								"taskId", longRunningTask.getId().toString()));
 			}
 		}
@@ -209,87 +210,91 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		Boolean ended = super.end(result, ex);
-		//
-		if (BooleanUtils.isTrue(ended)) {
+		if (BooleanUtils.isTrue(result) && ex == null) {
 			IdmRoleDto role = DtoUtils.getEmbedded(getAutomaticRole(), IdmRoleTreeNode_.role);
 			//
 			long assignedRoles = identityRoleService.findByAutomaticRole(getAutomaticRoleId(), PageRequest.of(0, 1)).getTotalElements();
 			if (assignedRoles != 0) {
+				// some assigned role was created in the meantime
+				UUID automaticRoleId = getAutomaticRoleId();
 				LOG.debug("Remove role [{}] by automatic role [{}] is not complete, some roles [{}] remains assigned to identities.", 
-						role.getCode(), getAutomaticRole().getId(), assignedRoles);
-				return ended;
-			}
-			//
-			LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
-			try {
+						role.getCode(), automaticRoleId, assignedRoles);
+				ResultModel resultModel = new DefaultResultModel(CoreResultCode.AUTOMATIC_ROLE_REMOVE_HAS_ASSIGNED_ROLES, ImmutableMap.of(
+						"automaticRoleId", automaticRoleId.toString(), 
+						"assignedRoles", String.valueOf(assignedRoles)));
+				saveResult(resultModel, OperationState.EXCEPTION, null);
+			} else {
 				//
-				// Find all concepts and remove relation on role tree
-				IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
-				conceptRequestFilter.setAutomaticRole(getAutomaticRoleId());
-				//
-				List<IdmConceptRoleRequestDto> concepts = conceptRequestService.find(conceptRequestFilter, null).getContent();
-				for (IdmConceptRoleRequestDto concept : concepts) {
-					IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
-					String message = null;
-					if (concept.getState().isTerminatedState()) {
-						message = MessageFormat.format(
-								"Automatic role [{0}] (reqested in concept [{1}]) was deleted (not from this role request)!",
-								getAutomaticRoleId(), concept.getId());
-					} else {
-						message = MessageFormat.format(
-								"Request change in concept [{0}], was not executed, because requested automatic role [{1}] was deleted (not from this role request)!",
-								concept.getId(), getAutomaticRoleId());
-						concept.setState(RoleRequestState.CANCELED);
+				LOG.debug("Remove role [{}] by automatic role [{}]", role.getCode(), getAutomaticRole().getId());
+				try {
+					//
+					// Find all concepts and remove relation on role tree
+					IdmConceptRoleRequestFilter conceptRequestFilter = new IdmConceptRoleRequestFilter();
+					conceptRequestFilter.setAutomaticRole(getAutomaticRoleId());
+					//
+					List<IdmConceptRoleRequestDto> concepts = conceptRequestService.find(conceptRequestFilter, null).getContent();
+					for (IdmConceptRoleRequestDto concept : concepts) {
+						IdmRoleRequestDto request = roleRequestService.get(concept.getRoleRequest());
+						String message = null;
+						if (concept.getState().isTerminatedState()) {
+							message = MessageFormat.format(
+									"Automatic role [{0}] (reqested in concept [{1}]) was deleted (not from this role request)!",
+									getAutomaticRoleId(), concept.getId());
+						} else {
+							message = MessageFormat.format(
+									"Request change in concept [{0}], was not executed, because requested automatic role [{1}] was deleted (not from this role request)!",
+									concept.getId(), getAutomaticRoleId());
+							concept.setState(RoleRequestState.CANCELED);
+						}
+						roleRequestService.addToLog(request, message);
+						conceptRequestService.addToLog(concept, message);
+						concept.setAutomaticRole(null);
+						
+						roleRequestService.save(request);
+						conceptRequestService.save(concept);
 					}
-					roleRequestService.addToLog(request, message);
-					conceptRequestService.addToLog(concept, message);
-					concept.setAutomaticRole(null);
-					
-					roleRequestService.save(request);
-					conceptRequestService.save(concept);
-				}
-				// Find all automatic role requests and remove relation on automatic role
-				if (automaticRoleId != null) {
-					IdmAutomaticRoleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleRequestFilter();
-					automaticRoleRequestFilter.setAutomaticRoleId(automaticRoleId);
-					
-					automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
-						request.setAutomaticRole(null);
-						automaticRoleRequestService.save(request);
-						// WFs cannot be cancel here, because this method can be called from the same WF
-						// automaticRoleRequestService.cancel(request);
-					});
-				}
-				//
-				// by default is this allowed
-				if (this.isDeleteEntity()) {
-					// delete entity
-					if (getAutomaticRole() instanceof IdmRoleTreeNodeDto) {
-						roleTreeNodeService.deleteInternalById(getAutomaticRole().getId());
-					} else {
-						// remove all rules
-						automaticRoleAttributeRuleService.deleteAllByAttribute(getAutomaticRole().getId());
-						automaticRoleAttributeService.deleteInternalById(getAutomaticRole().getId());
+					// Find all automatic role requests and remove relation on automatic role
+					if (automaticRoleId != null) {
+						IdmAutomaticRoleRequestFilter automaticRoleRequestFilter = new IdmAutomaticRoleRequestFilter();
+						automaticRoleRequestFilter.setAutomaticRoleId(automaticRoleId);
+						
+						automaticRoleRequestService.find(automaticRoleRequestFilter, null).getContent().forEach(request -> {
+							request.setAutomaticRole(null);
+							automaticRoleRequestService.save(request);
+							// WFs cannot be cancel here, because this method can be called from the same WF
+							// automaticRoleRequestService.cancel(request);
+						});
 					}
+					//
+					// by default is this allowed
+					if (this.isDeleteEntity()) {
+						// delete entity
+						if (getAutomaticRole() instanceof IdmRoleTreeNodeDto) {
+							roleTreeNodeService.deleteInternalById(getAutomaticRole().getId());
+						} else {
+							// remove all rules
+							automaticRoleAttributeRuleService.deleteAllByAttribute(getAutomaticRole().getId());
+							automaticRoleAttributeService.deleteInternalById(getAutomaticRole().getId());
+						}
+					}
+					//
+					LOG.debug("End: Remove role [{}] by automatic role [{}].", role.getCode(), getAutomaticRole().getId());
+					//
+				} catch (Exception O_o) {
+					LOG.debug("Remove role [{}] by automatic role [{}] failed", role.getCode(), getAutomaticRole().getId(), O_o);
+					//
+					IdmLongRunningTaskDto task = longRunningTaskService.get(getLongRunningTaskId());
+					ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
+							ImmutableMap.of(
+									"taskId", getLongRunningTaskId(), 
+									"taskType", task.getTaskType(),
+									"instanceId", task.getInstanceId()));
+					saveResult(resultModel, OperationState.EXCEPTION, O_o);
 				}
-				//
-				LOG.debug("End: Remove role [{}] by automatic role [{}].", role.getCode(), getAutomaticRole().getId());
-				//
-			} catch (Exception O_o) {
-				LOG.debug("Remove role [{}] by automatic role [{}] failed", role.getCode(), getAutomaticRole().getId(), O_o);
-				//
-				IdmLongRunningTaskDto task = longRunningTaskService.get(getLongRunningTaskId());
-				ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
-						ImmutableMap.of(
-								"taskId", getLongRunningTaskId(), 
-								"taskType", task.getTaskType(),
-								"instanceId", task.getInstanceId()));
-				saveResult(resultModel, OperationState.EXCEPTION, O_o);
 			}
 		}
 		//
-		return ended;
+		return super.end(result, ex);
 	}
 	
 	private void saveResult(ResultModel resultModel, OperationState state, Exception ex) {
@@ -318,10 +323,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 	
 	private AbstractIdmAutomaticRoleDto getAutomaticRole() {
 		if (automaticRole == null) {
-			automaticRole = roleTreeNodeService.get(getAutomaticRoleId());
-			if (automaticRole == null) {
-				automaticRole = automaticRoleAttributeService.get(getAutomaticRoleId());
-			}
+			automaticRole = getAutomaticRole(getAutomaticRoleId());
 			if (automaticRole == null) {
 				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_EMPTY);
 			}
@@ -329,10 +331,29 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		return automaticRole;
 	}
 	
+	private AbstractIdmAutomaticRoleDto getAutomaticRole(UUID automaticRoleId) {
+		AbstractIdmAutomaticRoleDto automaticRole = roleTreeNodeService.get(getAutomaticRoleId());
+		if (automaticRole == null) {
+			automaticRole = automaticRoleAttributeService.get(getAutomaticRoleId());
+		}
+		return automaticRole;
+	}
+	
 	@Override
 	public Map<String, Object> getProperties() {
 		Map<String, Object> properties =  super.getProperties();
-		properties.put(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE, getAutomaticRoleId());
+		//
+		UUID automaticRoleId = getAutomaticRoleId();
+		properties.put(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE, automaticRoleId);
+		// Fill property by automatic role type. If automatic role is already removed, then set both just for sure.
+		AbstractIdmAutomaticRoleDto automaticRole = getAutomaticRole();
+		if (automaticRole == null || (automaticRole instanceof IdmRoleTreeNodeDto)) {
+			properties.put(PARAMETER_AUTOMATIC_ROLE_TREE, automaticRoleId);
+		}
+		if (automaticRole == null || (automaticRole instanceof IdmAutomaticRoleAttributeDto)) {
+			properties.put(PARAMETER_AUTOMATIC_ROLE_ATTRIBUTE, automaticRoleId);
+		}
+		//
 		return properties;
 	}
 	

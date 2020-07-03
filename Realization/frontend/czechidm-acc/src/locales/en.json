@@ -168,7 +168,7 @@
             "label": "Logs"
           }
         },
-        "contractConfigDetail":{
+        "contractConfigDetail": {
           "defaultTreeType": {
             "label": "Default type of structure",
             "helpBlock": "Relations will be assigned (searched) for positions within the selected structure."
@@ -187,7 +187,13 @@
           },
           "startAutoRoleRec": {
             "label": "After end, start the automatic role recalculation",
-            "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute."
+            "helpBlock": "After successful synchronization will be start recalculation of all automatic role by attribute and tree structure."
+          }
+        },
+        "treeConfigDetail": {
+          "startAutoRoleRec": {
+            "label": "After end, start the automatic role recalculation",
+            "helpBlock": "After successful synchronization will be start recalculation of automatic role by tree structure."
           }
         },
         "identityConfigDetail":{

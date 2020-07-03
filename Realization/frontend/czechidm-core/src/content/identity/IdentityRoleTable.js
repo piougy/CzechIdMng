@@ -114,7 +114,11 @@ export class IdentityRoleTable extends Advanced.AbstractTableContent {
 
   showDetail(entity) {
     super.showDetail(entity, () => {
-      this.refs.role.focus();
+      this.setState({
+        activeKey: 1
+      }, () => {
+        this.refs.role.focus();
+      });
     });
   }
 

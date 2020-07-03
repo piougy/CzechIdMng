@@ -387,7 +387,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		Assert.assertEquals(passwordOne, serializable);
 		serializable = confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, identityTwo.getUsername());
 		Assert.assertEquals(passwordTwo, serializable);
-		serializable = confidentalStorage.get(identityThree.getId(), IdmIdentity.class, identityThree.getUsername());
+		serializable = confidentalStorage.get(identityThree, identityThree.getUsername());
 		Assert.assertEquals(passwordThree, serializable);
 
 		String newKey = getHelper().createName();
@@ -411,7 +411,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		}
 
 		try {
-			confidentalStorage.get(identityThree.getId(), IdmIdentity.class, identityThree.getUsername());
+			confidentalStorage.get(identityThree, identityThree.getUsername());
 			Assert.fail();
 		} catch (Exception e) {
 			Assert.assertTrue(e.getCause() instanceof BadPaddingException);
@@ -424,7 +424,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		Assert.assertEquals(passwordOne, serializable);
 		serializable = confidentalStorage.get(identityTwo.getId(), IdmIdentity.class, identityTwo.getUsername());
 		Assert.assertEquals(passwordTwo, serializable);
-		serializable = confidentalStorage.get(identityThree.getId(), IdmIdentity.class, identityThree.getUsername());
+		serializable = confidentalStorage.get(identityThree, identityThree.getUsername());
 		Assert.assertEquals(passwordThree, serializable);
 
 		reinitializingKey();

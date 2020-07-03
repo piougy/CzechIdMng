@@ -49,7 +49,7 @@ public class IdmProcessedTaskItem extends AbstractEntity {
 	
 	@NotEmpty
 	@Column(name = "referenced_dto_type", updatable = false)
-	private String referencedDtoType;
+	private String referencedDtoType; //  FIXME: referencedEntityType - dtos cannot be in database
 	
 	@SuppressWarnings("deprecation")
 	@ManyToOne(fetch = FetchType.LAZY)

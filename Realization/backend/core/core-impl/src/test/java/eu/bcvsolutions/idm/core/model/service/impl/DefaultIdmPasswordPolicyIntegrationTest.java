@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -248,6 +250,184 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 			
 			assertTrue(StringUtils.containsNone(password, "a+-^sd2!@#%3$"));
 		}
+	}
+	
+	@Test
+	public void testGenerateWithBeginForbidden() {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_10_1");
+		policy.setType(IdmPasswordPolicyType.GENERATE);
+		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		policy.setMaxPasswordLength(5);
+		policy.setMinPasswordLength(5);
+		policy.setSpecialCharBase("+");
+		policy.setLowerCharBase("a");
+		policy.setUpperCharBase("A");
+		policy.setNumberBase("1");
+		policy.setProhibitedBeginCharacters("1Aa");
+
+		for (int index = 0; index < ATTEMPTS; index++) {
+			String password = passwordPolicyService.generatePassword(policy);
+			assertTrue(password.length() == 5);
+			assertTrue(StringUtils.startsWith(password, "+"));
+		}
+	}
+	
+	@Test
+	public void testGenerateWithBeginForbiddenNotPossible() {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_10_2");
+		policy.setType(IdmPasswordPolicyType.GENERATE);
+		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		policy.setMaxPasswordLength(5);
+		policy.setMinPasswordLength(5);
+		policy.setSpecialCharBase("+");
+		policy.setLowerCharBase("a");
+		policy.setUpperCharBase("A");
+		policy.setNumberBase("1");
+		policy.setProhibitedBeginCharacters("1Aa+");
+
+		for (int index = 0; index < ATTEMPTS; index++) {
+			try {
+				passwordPolicyService.generatePassword(policy);
+				fail("Expected to throw");
+			} catch (ResultCodeException e) {
+				assertEquals(e.getError().getError().getStatusEnum(), CoreResultCode.PASSWORD_POLICY_INVALID_SETTING.getCode());
+			} catch (Exception e) {
+				fail("Unexcpected exception");
+			}
+		}
+	}
+
+	@Test
+	public void testGenerateWithEndForbidden() {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_10_3");
+		policy.setType(IdmPasswordPolicyType.GENERATE);
+		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		policy.setMaxPasswordLength(5);
+		policy.setMinPasswordLength(5);
+		policy.setSpecialCharBase("+");
+		policy.setLowerCharBase("a");
+		policy.setUpperCharBase("A");
+		policy.setNumberBase("1");
+		policy.setProhibitedEndCharacters("1Aa");
+
+		for (int index = 0; index < ATTEMPTS; index++) {
+			String password = passwordPolicyService.generatePassword(policy);
+			assertTrue(password.length() == 5);
+			assertTrue(StringUtils.endsWith(password, "+"));
+		}
+	}
+	
+	@Test
+	public void testBeginEndIgnoredWhenPrefixSuffix () {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_10_4");
+		policy.setType(IdmPasswordPolicyType.GENERATE);
+		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		policy.setMaxPasswordLength(5);
+		policy.setMinPasswordLength(5);
+		policy.setSpecialCharBase("+");
+		policy.setLowerCharBase("a");
+		policy.setUpperCharBase("A");
+		policy.setNumberBase("1");
+		policy.setProhibitedBeginCharacters("X");
+		policy.setProhibitedEndCharacters("Y");
+		policy.setPrefix("Xzz");
+		policy.setSuffix("zzY");
+		
+		for (int index = 0; index < ATTEMPTS; index++) {
+			String password = passwordPolicyService.generatePassword(policy);
+			assertTrue(StringUtils.startsWith(password, "Xzz"));
+			assertTrue(StringUtils.endsWith(password, "zzY"));
+		}
+	}
+	
+	@Test
+	public void testBeginEndPartOfManadatoryChars () {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_10_5");
+		policy.setType(IdmPasswordPolicyType.GENERATE);
+		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		policy.setMaxPasswordLength(5);
+		policy.setMinPasswordLength(5);
+		policy.setSpecialCharBase("+");
+		policy.setLowerCharBase("abcdefghijklmnopqrstuvwxyz");
+		policy.setUpperCharBase("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		policy.setNumberBase("0123456789");
+		policy.setProhibitedBeginCharacters("abcde");
+		policy.setProhibitedEndCharacters("vwxyz");
+		
+		for (int index = 0; index < ATTEMPTS; index++) {
+			// must not throw
+			// password policy test is part of save process
+			passwordPolicyService.generatePassword(policy);
+		}
+	}
+	
+	@Test
+	public void testBeginEndForbiddenWithPassLen1Char () {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_10_6");
+		policy.setType(IdmPasswordPolicyType.GENERATE);
+		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		policy.setMaxPasswordLength(1);
+		policy.setMinPasswordLength(1);
+		policy.setSpecialCharBase("+");
+		policy.setLowerCharBase("abcdefghijklmnopqrstuvwxyz");
+		policy.setUpperCharBase("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		policy.setNumberBase("0123456789");
+		policy.setProhibitedBeginCharacters("abcde");
+		policy.setProhibitedEndCharacters("vwxyz");
+		
+		for (int index = 0; index < ATTEMPTS; index++) {
+			// must not throw
+			// password policy test is part of save process
+			passwordPolicyService.generatePassword(policy);
+		}
+	}
+	
+	@Test
+	public void testPolicyGeneratorValidator () {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_10_7");
+		policy.setType(IdmPasswordPolicyType.GENERATE);
+		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		policy.setMaxPasswordLength(10);
+		policy.setMinPasswordLength(8);
+		policy.setMinLowerChar(2);
+		policy.setMinNumber(2);
+		policy.setMinUpperChar(2);
+		policy.setMinSpecialChar(2);
+		policy.setSpecialCharBase("!@#+$%&*");
+		policy.setLowerCharBase("abcdefghijklmnopqrstuvwxyz");
+		policy.setUpperCharBase("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		policy.setNumberBase("0123456789");
+		policy.setProhibitedCharacters("X");
+		policy.setProhibitedBeginCharacters("a");
+		policy.setProhibitedEndCharacters("z");
+		
+		PasswordGenerator generator = passwordPolicyService.getPasswordGenerator();
+		
+		// contains forbidden chars
+		assertFalse(generator.testPasswordAgainstPolicy("a1@9X+loZs", policy));
+		// contains forbidden chars at the beginning
+		assertFalse(generator.testPasswordAgainstPolicy("a1@9Y+loZs", policy));
+		// contains forbidden chars at the end
+		assertFalse(generator.testPasswordAgainstPolicy("b1@9Y+loJz", policy));
+		// does not contain min count from lower
+		assertFalse(generator.testPasswordAgainstPolicy("A1@9Y+9*Zs", policy));
+		// does not contain min count from upper
+		assertFalse(generator.testPasswordAgainstPolicy("f1@9y+loZs", policy));
+		// does not contain min count from special
+		assertFalse(generator.testPasswordAgainstPolicy("f1#9yUloZs", policy));
+		// does not contain min count from numbers
+		assertFalse(generator.testPasswordAgainstPolicy("fG@9y+loZs", policy));
+		// pass too long
+		assertFalse(generator.testPasswordAgainstPolicy("h6%#ghGABDc*+369", policy));
+		// pass too short
+		assertFalse(generator.testPasswordAgainstPolicy("h6%G", policy));
 	}
 	
 	@Test
@@ -485,6 +665,40 @@ public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegration
 			password.setPassword("test!");
 			this.passwordPolicyService.validate(password, policy);
 			fail("Password validate prohibited characters. " + policy);
+		} catch (Exception e) {
+			// nothing, success
+		}
+	}
+	
+	@Test
+	public void testValidateWithForbiddenBeginEnd() {
+		IdmPasswordPolicyDto policy = new IdmPasswordPolicyDto();
+		policy.setName("test_14_1");
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setMinPasswordLength(0);
+		policy.setMinNumber(0);
+		policy.setMinLowerChar(0);
+		policy.setMinSpecialChar(0);
+		policy.setMinUpperChar(0);
+		policy.setProhibitedBeginCharacters("A");
+		policy.setProhibitedEndCharacters("B");
+		IdmPasswordValidationDto password = new IdmPasswordValidationDto();
+		password.setPassword("aAsdfg12B3");
+
+		this.passwordPolicyService.validate(password, policy);
+
+		try {
+			password.setPassword("Asdfg12s");
+			this.passwordPolicyService.validate(password, policy);
+			fail("A forbidden character at the beginning of the password was not detected");
+		} catch (Exception e) {
+			// nothing, success
+		}
+
+		try {
+			password.setPassword("asdfg12B");
+			this.passwordPolicyService.validate(password, policy);
+			fail("A forbidden character at the end of the password was not detected");
 		} catch (Exception e) {
 			// nothing, success
 		}

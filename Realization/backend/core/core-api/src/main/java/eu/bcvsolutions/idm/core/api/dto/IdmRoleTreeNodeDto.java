@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 /**
- * Automatic role
+ * Automatic role by tree structure.
  *
  * @author Radek Tomiška
  */

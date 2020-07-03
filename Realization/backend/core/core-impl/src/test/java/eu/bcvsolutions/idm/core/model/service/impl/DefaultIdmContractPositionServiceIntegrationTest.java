@@ -1,14 +1,15 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import java.time.LocalDate;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
@@ -25,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.scheduler.task.impl.AddNewAutomaticRoleForPositionTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAutomaticRoleByTreeTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -221,8 +222,8 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		IdmRoleTreeNodeDto roleTreeNode = roleTreeNodeService.saveInternal(automaticRole);
 		//
 		if (withLongRunningTask) {
-			AddNewAutomaticRoleForPositionTaskExecutor task = new AddNewAutomaticRoleForPositionTaskExecutor();
-			task.setAutomaticRoleId(roleTreeNode.getId());
+			ProcessAutomaticRoleByTreeTaskExecutor task = new ProcessAutomaticRoleByTreeTaskExecutor();
+			task.setAutomaticRoles(Lists.newArrayList(roleTreeNode.getId()));
 			taskManager.executeSync(task);
 		}
 		//
@@ -396,5 +397,23 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		//
 		assignedRoles = identityRoleService.find(filter, null).getContent();
 		Assert.assertTrue(assignedRoles.isEmpty());
+	}
+	
+	@Test
+	public void testAssignSameAutomaticRoleAsContract() {
+		// create automatic role on tree node
+		IdmRoleDto role = getHelper().createRole();
+		IdmTreeNodeDto node = getHelper().createTreeNode();
+		IdmRoleTreeNodeDto automaticRoleTwo = getHelper().createAutomaticRole(role, node);
+		// create identity
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, node);
+		getHelper().createContractPosition(contract, node);
+		//
+		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+		filter.setIdentityId(identity.getId());
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.find(filter, null).getContent();
+		Assert.assertEquals(2, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().allMatch(ir -> ir.getAutomaticRole().equals(automaticRoleTwo.getId())));
 	}
 }

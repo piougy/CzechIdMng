@@ -77,7 +77,7 @@ public class ConsoleRunner implements CommandLineRunner {
 	}
 	
 	@Override
-	public void run(String... args) throws ParseException, IOException {
+	public void run(String... args) throws ParseException, IOException {	
 		//
 		// available commands
 		Option optionVersion = Option.builder("v")

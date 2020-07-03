@@ -415,32 +415,32 @@ export default class SecurityManager {
     }
 
     const hasPermitAll = accessItems.some(accessItem => {
-      if (accessItem.type && accessItem.type === 'PERMIT_ALL') {
-        return true;
-      }
+      return accessItem.type && accessItem.type === 'PERMIT_ALL';
     });
     if (hasPermitAll) {
       return true;
     }
 
     return accessItems.every(accessItem => {
-      if (accessItem.type) {
-        switch (accessItem.type) {
-          case 'NOT_AUTHENTICATED': {
-            return !this.isAuthenticated(userContext);
-          }
-          case 'IS_AUTHENTICATED': {
-            return this.isAuthenticated(userContext);
-          }
-          case 'HAS_ANY_AUTHORITY': {
-            return this.hasAnyAuthority(accessItem.authorities, userContext);
-          }
-          case 'HAS_ALL_AUTHORITIES': {
-            return this.hasAllAuthorities(accessItem.authorities, userContext);
-          }
-          default : {
-            return false;
-          }
+      if (!accessItem.type) {
+        return false;
+      }
+      //
+      switch (accessItem.type) {
+        case 'NOT_AUTHENTICATED': {
+          return !this.isAuthenticated(userContext);
+        }
+        case 'IS_AUTHENTICATED': {
+          return this.isAuthenticated(userContext);
+        }
+        case 'HAS_ANY_AUTHORITY': {
+          return this.hasAnyAuthority(accessItem.authorities, userContext);
+        }
+        case 'HAS_ALL_AUTHORITIES': {
+          return this.hasAllAuthorities(accessItem.authorities, userContext);
+        }
+        default: {
+          return false;
         }
       }
     });
@@ -457,9 +457,7 @@ export default class SecurityManager {
       accessItems = [accessItems];
     }
     return accessItems.some(accessItem => {
-      if (accessItem.type && accessItem.type === 'DENY_ALL') {
-        return true;
-      }
+      return accessItem.type && accessItem.type === 'DENY_ALL';
     });
   }
 

@@ -176,7 +176,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
       let searchParameters = new Domain.SearchParameters()
         .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
         .setFilter('codeListId', code)
-        .setSort('name', false)
+        .setSort('name', true)
         .setSize(10000);
       let _forceSearchParameters = null;
       if (forceSearchParameters) {

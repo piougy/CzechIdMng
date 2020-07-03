@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -40,15 +39,15 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
- * Long running task for add newly added automatic role to users. 
+ * Assign roles for identities with contract match selected automatic role by tree structure.
  * Can be executed repetitively to assign role to unprocessed identities, after process was stopped or interrupted (e.g. by server restart). 
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  * @author Jan Helbich
- *
+ * @deprecated @unused @since 10.4.0 use {@link ProcessAutomaticRoleByTreeTaskExecutor}
  */
-@Component(AddNewAutomaticRoleTaskExecutor.TASK_NAME)
+@Deprecated
 public class AddNewAutomaticRoleTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityContractDto> {
 
 	public static final String TASK_NAME = "core-add-new-automatic-role-contract-long-running-task";

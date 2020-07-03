@@ -39,6 +39,8 @@ public class IdmBulkActionDto extends AbstractComponentDto {
 	@JsonProperty(access = Access.READ_ONLY)
 	private String entityClass;
 	@JsonProperty(access = Access.READ_ONLY)
+	private String dtoClass;
+	@JsonProperty(access = Access.READ_ONLY)
 	private String filterClass;
 	@JsonIgnore
 	private transient BaseFilter transformedFilter;
@@ -174,5 +176,13 @@ public class IdmBulkActionDto extends AbstractComponentDto {
 	
 	public NotificationLevel getLevel() {
 		return level;
+	}
+
+	public String getDtoClass() {
+		return dtoClass;
+	}
+
+	public void setDtoClass(String dtoClass) {
+		this.dtoClass = dtoClass;
 	}
 }

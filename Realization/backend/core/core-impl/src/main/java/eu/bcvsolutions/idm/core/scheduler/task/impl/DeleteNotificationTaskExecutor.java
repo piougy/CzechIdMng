@@ -79,10 +79,10 @@ public class DeleteNotificationTaskExecutor
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		result = super.end(result, ex);
 		LOG.warn("End deleting notifications older than [{}] days [sent only: {}]. Processed notifications [{}].",
 				numberOfDays, sentOnly, counter);
-		return result;
+		//
+		return super.end(result, ex);
 	}
 	
 	@Override

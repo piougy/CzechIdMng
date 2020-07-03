@@ -33,7 +33,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
     const message = this.getFlashManager().convertFromResultModel(value.model);
     //
     return (
-      <div style={{ whiteSpace: 'nowrap' }}>
+      <Basic.Div style={{ whiteSpace: 'nowrap' }}>
         <Basic.EnumValue
           level={ message ? message.level : null }
           value={ value.state }
@@ -55,7 +55,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
             </span>
           }
         </Basic.Popover>
-      </div>
+      </Basic.Div>
     );
   }
 
@@ -160,7 +160,7 @@ export default class OperationResult extends Basic.AbstractContextComponent {
           <Basic.Div>
             <Basic.TextArea
               rows="10"
-              value={value.stackTrace}
+              value={ value.stackTrace }
               readOnly/>
           </Basic.Div>
         }

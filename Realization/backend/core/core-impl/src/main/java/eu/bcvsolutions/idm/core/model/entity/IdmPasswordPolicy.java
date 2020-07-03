@@ -193,6 +193,14 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "suffix")
 	private String suffix;
+	
+	@Audited
+	@Column(name = "prohibited_begin_characters")
+	private String prohibitedBeginCharacters;
+	
+	@Audited
+	@Column(name = "prohibited_end_characters")
+	private String prohibitedEndCharacters;
 
 	public Integer getMaxUnsuccessfulAttempts() {
 		return maxUnsuccessfulAttempts;
@@ -480,6 +488,22 @@ public class IdmPasswordPolicy extends AbstractEntity implements Codeable, Passw
 
 	public void setSuffix(String suffix) {
 		this.suffix = suffix;
+	}
+	
+	public String getProhibitedBeginCharacters() {
+		return prohibitedBeginCharacters;
+	}
+
+	public void setProhibitedBeginCharacters(String prohibitedBeginCharacters) {
+		this.prohibitedBeginCharacters = prohibitedBeginCharacters;
+	}
+
+	public String getProhibitedEndCharacters() {
+		return prohibitedEndCharacters;
+	}
+
+	public void setProhibitedEndCharacters(String prohibitedEndCharacters) {
+		this.prohibitedEndCharacters = prohibitedEndCharacters;
 	}
 
 	/**

@@ -65,6 +65,9 @@ public abstract class AbstractTransitiveEvaluator<E extends Identifiable> extend
 	
 	/**
 	 * Returns transitive permissions by entity's owner
+	 * @param entity
+	 * @param policy
+	 * @return 
 	 */
 	@Override
 	public Set<String> getPermissions(E entity, AuthorizationPolicy policy) {
@@ -73,7 +76,12 @@ public abstract class AbstractTransitiveEvaluator<E extends Identifiable> extend
 			return permissions;
 		}
 		// evaluates permissions on owner class
-		Set<String> transitivePermissions =  authorizationManager.getPermissions(getOwner(entity));
+		Identifiable owner = getOwner(entity);
+		// If is owner null, then now permissions well be granted.
+		if (owner == null) {
+			return Sets.newHashSet();
+		}
+		Set<String> transitivePermissions =  authorizationManager.getPermissions(owner);
 		// configured permissions - reduce permissions (intersection)
 		Set<String> includePermissions = getIncludePermissions(policy);
 		if (includePermissions.isEmpty()) {

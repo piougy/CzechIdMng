@@ -31,7 +31,7 @@ public interface IdmAutomaticRoleAttributeService extends
 	/**
 	 * Property in event. If is value TRUE, then will be recalculation skipped.
 	 */
-	String SKIP_RECALCULATION = "skip_recalculation";
+	String SKIP_RECALCULATION = AutomaticRoleManager.SKIP_RECALCULATION;
 	
 	/**
 	 * Remove identity role (must be automatic role). This method doesn't use standard role request 

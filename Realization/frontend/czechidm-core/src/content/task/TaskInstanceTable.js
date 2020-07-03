@@ -70,8 +70,29 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
     );
   }
 
+  _renderDefinitionColumn({rowIndex, data}) {
+    const value = data[rowIndex];
+    if (!value) {
+      return null;
+    }
+    const delegation = value.delegationDefinition;
+    if (!delegation) {
+      return null;
+    }
+    return (
+      <Advanced.EntityInfo
+        entityType="DelegationDefinitionDto"
+        entityIdentifier={ delegation.id}
+        face="popover"
+        entity={delegation}
+        showEntityType
+        showLink
+        showIcon/>
+    );
+  }
+
   render() {
-    const { uiKey, taskInstanceManager, columns, searchParameters, showFilter, showToolbar, username, userContext } = this.props;
+    const { uiKey, taskInstanceManager, columns, searchParameters, showFilter, showToolbar, username, userContext, showRowSelection } = this.props;
     const { filterOpened} = this.state;
     let _searchParameters = null;
     if (searchParameters == null) {
@@ -84,11 +105,11 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
         ref="table"
         uiKey={uiKey}
         manager={taskInstanceManager}
-        showRowSelection={false}
+        showRowSelection={showRowSelection}
         forceSearchParameters={_searchParameters}
         filterOpened={filterOpened}
         showFilter={showFilter}
-        showToolbar={showToolbar}
+        showToolbar={showToolbar || showRowSelection}
         filter={
           <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
             <Basic.AbstractForm ref="filterForm">
@@ -150,15 +171,24 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
           width={ 175 }
           cell={ ({rowIndex, data}) => {
             const identityIds = [];
-            for (const index in data[rowIndex].identityLinks) {
-              if (data[rowIndex].identityLinks.hasOwnProperty(index)) {
-                identityIds.push(data[rowIndex].identityLinks[index].userId);
-              }
+            const identityLinks = data[rowIndex].identityLinks;
+            if (identityLinks) {
+              identityLinks.forEach((identityLink) => {
+                if (identityLink.type === 'candidate' || identityLink.type === 'assignee') {
+                  identityIds.push(identityLink.userId);
+                }
+              });
             }
             return (
               <Advanced.IdentitiesInfo identities={identityIds} maxEntry={5} />
             );
           }}/>
+        <Advanced.Column
+          property="delegationDefinition"
+          header={ this.i18n('content.task.instance.delegation.header') }
+          width={ 200 }
+          rendered={ _.includes(columns, 'delegation') }
+          cell={this._renderDefinitionColumn.bind(this)}/>
       </Advanced.Table>
     );
   }
@@ -171,16 +201,18 @@ TaskInstanceTable.propTypes = {
   filterOpened: PropTypes.bool,
   searchParameters: PropTypes.object,
   showFilter: PropTypes.bool,
-  showToolbar: PropTypes.bool
+  showToolbar: PropTypes.bool,
+  showRowSelection: PropTypes.bool
 };
 
 TaskInstanceTable.defaultProps = {
-  columns: ['created', 'description', 'id'],
+  columns: ['created', 'description', 'id', 'delegation'],
   filterOpened: false,
   _showLoading: false,
   searchParameters: null,
   showFilter: false,
-  showToolbar: false
+  showToolbar: false,
+  showRowSelection: true
 };
 
 function select(state, component) {

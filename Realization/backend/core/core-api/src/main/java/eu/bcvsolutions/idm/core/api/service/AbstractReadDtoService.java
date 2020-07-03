@@ -684,7 +684,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	/**
 	 * Evaluates authorization permission on given entity.
 	 *
-	 * @param dto
 	 * @param permission base permissions to evaluate (all permission needed)
 	 * @return
 	 * @throws ForbiddenEntityException if authorization policies doesn't met

@@ -55,6 +55,11 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	public static final String TOPIC_EVENT = String.format("%s:event", MODULE_ID);
 	public static final String TOPIC_LOGIN_BLOCKED = String.format("%s:loginBlocked", MODULE_ID);
 	public static final String TOPIC_BULK_ACTION_END = String.format("%s:bulkActionEnd", MODULE_ID);
+	public static final String TOPIC_DELEGATION_CREATED_TO_DELEGATE = String.format("%s:delegationCreatedToDelegate", MODULE_ID);
+	public static final String TOPIC_DELEGATION_CREATED_TO_DELEGATOR = String.format("%s:delegationCreatedToDelegator", MODULE_ID);
+	public static final String TOPIC_DELEGATION_DELETED_TO_DELEGATE = String.format("%s:delegationDeletedToDelegate", MODULE_ID);
+	public static final String TOPIC_DELEGATION_DELETED_TO_DELEGATOR = String.format("%s:delegationDeletedToDelegator", MODULE_ID);
+	public static final String TOPIC_DELEGATION_INSTANCE_CREATED_TO_DELEGATE = String.format("%s:delegationInstanceCreatedToDelegate", MODULE_ID);
 
 	@Override
 	public String getId() {
@@ -217,6 +222,43 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 				IdmEmailLog.NOTIFICATION_TYPE,
 				"Bulk action ended.", 
 				getNotificationTemplateId("bulkActionEnd")));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_DELEGATION_CREATED_TO_DELEGATE, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Notification informs the delegate about the new delegation.", 
+				getNotificationTemplateId("delegationCreatedToDelegate")));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_DELEGATION_CREATED_TO_DELEGATOR, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Notification informs the delegator about the new delegation.", 
+				getNotificationTemplateId("delegationCreatedToDelegator")));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_DELEGATION_DELETED_TO_DELEGATE, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Notification informs the delegate about the deleted delegation.", 
+				getNotificationTemplateId("delegationDeletedToDelegate")));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_DELEGATION_DELETED_TO_DELEGATOR, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Notification informs the delegator about the deleted delegation.", 
+				getNotificationTemplateId("delegationDeletedToDelegator")));
+		//
+		configs.add(new NotificationConfigurationDto(
+				TOPIC_DELEGATION_INSTANCE_CREATED_TO_DELEGATE, 
+				null, 
+				IdmEmailLog.NOTIFICATION_TYPE,
+				"Notification informs the delegate about the new delegation instance.", 
+				getNotificationTemplateId("delegationInstanceCreatedToDelegate")));
+		//
+		
 		return configs;
 	}
 	

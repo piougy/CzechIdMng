@@ -37,6 +37,18 @@ const SPECIAL_CHARACTER_BASE = 'specialCharacterBase';
 const FORBIDDEN_CHARACTER_BASE = 'forbiddenCharacterBase';
 
 /**
+ * Forbidden character at the beginning of passwords base for each required policies
+ * @type {String} 
+ */
+const FORBIDDEN_BEGIN_CHARACTER_BASE = 'forbiddenBeginCharacterBase';
+
+/**
+ * Forbidden character at the end of passwords base for each required policies
+ * @type {String} 
+ */
+const FORBIDDEN_END_CHARACTER_BASE = 'forbiddenEndCharacterBase';
+
+/**
  * Merge similar password lines
  * @type {String}
  */
@@ -54,8 +66,8 @@ const DATE = 'date';
  * @type {Array}
  */
 const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
-  'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'weakPass',
-  'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
+  'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'beginProhibited',
+   'endProhibited', 'weakPass', 'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
   'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName',
   'passwordSimilarLastName', 'passwordSimilarTitlesAfter',
   'passwordSimilarTitlesBefore', 'passwordSimilarExternalCode', 'maxHistorySimilar',
@@ -228,6 +240,28 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
           }
         } else {
           forbiddenBase.push(this._showCharacterBase(error.parameters[key], FORBIDDEN_CHARACTER_BASE, validationMessage, `info`));
+        }
+      }
+      if (key === FORBIDDEN_BEGIN_CHARACTER_BASE) {
+        if (_.size(error.parameters[key]) === 1) {
+          for (const ruleKey in error.parameters[key]) {
+            if (Object.prototype.hasOwnProperty.call(error.parameters[key], ruleKey)) {
+              bases.push(this.i18n('content.passwordPolicies.validation.' + FORBIDDEN_BEGIN_CHARACTER_BASE + '.text') + error.parameters[key][ruleKey]);
+            }
+          }
+        } else {
+          forbiddenBase.push(this._showCharacterBase(error.parameters[key], FORBIDDEN_BEGIN_CHARACTER_BASE, validationMessage, `info`));
+        }
+      }
+      if (key === FORBIDDEN_END_CHARACTER_BASE) {
+        if (_.size(error.parameters[key]) === 1) {
+          for (const ruleKey in error.parameters[key]) {
+            if (Object.prototype.hasOwnProperty.call(error.parameters[key], ruleKey)) {
+              bases.push(this.i18n('content.passwordPolicies.validation.' + FORBIDDEN_END_CHARACTER_BASE + '.text') + error.parameters[key][ruleKey]);
+            }
+          }
+        } else {
+          forbiddenBase.push(this._showCharacterBase(error.parameters[key], FORBIDDEN_END_CHARACTER_BASE, validationMessage, `info`));
         }
       }
     }

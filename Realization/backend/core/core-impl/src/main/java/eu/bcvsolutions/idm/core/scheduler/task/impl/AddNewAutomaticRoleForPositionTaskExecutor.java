@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -47,9 +46,9 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * @author Radek Tomiška
  * @author Jan Helbich
- *
+ * @deprecated @unused @since 10.4.0 use {@link ProcessAutomaticRoleByTreeTaskExecutor}
  */
-@Component(AddNewAutomaticRoleForPositionTaskExecutor.TASK_NAME)
+@Deprecated
 public class AddNewAutomaticRoleForPositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmContractPositionDto> {
 
 	public static final String TASK_NAME = "core-add-new-automatic-role-position-long-running-task";

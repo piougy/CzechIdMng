@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
@@ -263,7 +264,7 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmTreeNodeDto createTreeNode(String name, IdmTreeNodeDto parent) {
-		return createTreeNode(getDefaultTreeType(), name, parent);
+		return createTreeNode(null, name, parent);
 	}
 
 	@Override
@@ -273,6 +274,9 @@ public class DefaultTestHelper implements TestHelper {
 
 	@Override
 	public IdmTreeNodeDto createTreeNode(IdmTreeTypeDto treeType, String name, IdmTreeNodeDto parent) {
+		if (treeType == null) {
+			treeType = getDefaultTreeType();
+		}
 		Assert.notNull(treeType, "Tree type is required - test environment is wrong configured, test data is not prepared!");
 		//
 		name = name == null ? createName() : name;
@@ -383,9 +387,19 @@ public class DefaultTestHelper implements TestHelper {
 	public void deleteRole(UUID id) {
 		roleService.deleteById(id);
 	}
+	
+	@Override
+	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNodeDto treeNode,
+			boolean skipLongRunningTask) {
+		return createRoleTreeNode(role, treeNode, null, skipLongRunningTask);
+	}
 
 	@Override
-	public IdmRoleTreeNodeDto createRoleTreeNode(IdmRoleDto role, IdmTreeNodeDto treeNode, boolean skipLongRunningTask) {
+	public IdmRoleTreeNodeDto createRoleTreeNode(
+			IdmRoleDto role, 
+			IdmTreeNodeDto treeNode,
+			RecursionType recursionType,
+			boolean skipLongRunningTask) {
 		Assert.notNull(role, "Role is required.");
 		Assert.notNull(treeNode, "Tree node is required.");
 		//
@@ -393,6 +407,9 @@ public class DefaultTestHelper implements TestHelper {
 		roleTreeNode.setRole(role.getId());
 		roleTreeNode.setTreeNode(treeNode.getId());
 		roleTreeNode.setName(DEFAULT_AUTOMATIC_ROLE_NAME);
+		if (recursionType != null) {
+			roleTreeNode.setRecursionType(recursionType);
+		}
 		if (skipLongRunningTask) {
 			return roleTreeNodeService.saveInternal(roleTreeNode);
 		}

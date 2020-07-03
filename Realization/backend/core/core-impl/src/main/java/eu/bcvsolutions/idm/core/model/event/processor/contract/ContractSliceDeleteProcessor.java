@@ -31,7 +31,6 @@ import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.entity.IdmContractSlice;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractSliceEvent.ContractSliceEventType;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ClearDirtyStateForContractSliceTaskExecutor;
@@ -168,7 +167,7 @@ public class ContractSliceDeleteProcessor extends CoreEventProcessor<IdmContract
 	private List<IdmEntityStateDto> findAllDirtyStatesForSlices(UUID sliceId) {
 		IdmEntityStateFilter filter = new IdmEntityStateFilter();
 		filter.setResultCode(CoreResultCode.DIRTY_STATE.getCode());
-		filter.setOwnerType(IdmContractSlice.class.getName());
+		filter.setOwnerType(entityStateManager.getOwnerType(IdmContractSliceDto.class));
 		filter.setOwnerId(sliceId);
 		return entityStateManager.findStates(filter, null).getContent();
 	}

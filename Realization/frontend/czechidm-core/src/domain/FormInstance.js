@@ -176,8 +176,18 @@ export default class FormInstance {
           },
           value
         });
-      } else {
-        // resolve multiple values
+      } else if (_.isArray(value)) { // resolve multiple values
+        value.forEach(singleValue => {
+          formValues.push({
+            _embedded: {
+              formAttribute: {
+                code: parameterName
+              }
+            },
+            value: singleValue
+          });
+        });
+      } else if (_.isString(value)) {
         value.split(',').forEach(singleValue => {
           formValues.push({
             _embedded: {
@@ -188,6 +198,9 @@ export default class FormInstance {
             value: singleValue
           });
         });
+      } else {
+        LOGGER.error(`[FormInstance] property [${ parameterName }] value [${ value }] ` +
+          `is not supported. Array or String type is supported only.`);
       }
     });
     //

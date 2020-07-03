@@ -244,6 +244,20 @@ public class DefaultIdmRoleService
 			predicates.add(builder.equal(root.get(IdmRole_.identityRoleAttributeDefinition).get(IdmFormDefinition_.id),
 					definitionId));
 		}
+		// without role catalogue
+		Boolean withoutCatalogue = filter.getWithoutCatalogue();
+		if (withoutCatalogue != null) {
+			Subquery<IdmRoleCatalogueRole> subquery = query.subquery(IdmRoleCatalogueRole.class);
+			Root<IdmRoleCatalogueRole> subRoot = subquery.from(IdmRoleCatalogueRole.class);
+			subquery.select(subRoot);
+			subquery.where(builder.equal(subRoot.get(IdmRoleCatalogueRole_.role), root));
+			//
+			if (withoutCatalogue) { // without
+				predicates.add(builder.not(builder.exists(subquery)));
+			} else { // with some
+				predicates.add(builder.exists(subquery));
+			}
+		}
 		//
 		return predicates;
 	}

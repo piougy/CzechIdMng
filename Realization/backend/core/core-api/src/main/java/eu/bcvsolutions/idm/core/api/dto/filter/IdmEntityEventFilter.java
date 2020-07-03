@@ -1,10 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -64,11 +62,7 @@ public class IdmEntityEventFilter extends DataFilter {
 	}
 	
 	public void setStates(List<OperationState> states) {
-		if (CollectionUtils.isEmpty(states)) {
-    		data.remove(PARAMETER_STATES);
-    	} else {
-    		data.put(PARAMETER_STATES, new ArrayList<Object>(states));
-    	}
+		put(PARAMETER_STATES, states);
 	}
 	
 	public UUID getParentId() {

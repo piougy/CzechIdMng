@@ -1,13 +1,13 @@
 package eu.bcvsolutions.idm.core.scheduler.rest.impl;
 
-import java.util.List;
-
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
@@ -16,7 +16,6 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
-import eu.bcvsolutions.idm.core.scheduler.rest.impl.IdmLongRunningTaskController;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
 
 /**
@@ -26,7 +25,6 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.TestTaskExecutor;
  * @author Radek Tomiška
  *
  */
-@Transactional
 public class IdmLongRunningTaskControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmLongRunningTaskDto> {
 
 	@Autowired private IdmLongRunningTaskController controller;
@@ -67,6 +65,12 @@ public class IdmLongRunningTaskControllerRestTest extends AbstractReadWriteDtoCo
 	@Override
 	protected boolean supportsPut() {
 		return false;
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	public void testDelete() throws Exception {
+		super.testDelete();
 	}
 	
 	@Test

@@ -185,7 +185,6 @@ public class IdmRequestIdentityRoleController
 		filter.setIdentityId(getParameterConverter().toUuid(parameters, "identityId"));
 		filter.setIdentityContractId(getParameterConverter().toUuid(parameters, "identityContractId"));
 		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
-		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setRoleEnvironments(getParameterConverter().toStrings(parameters, "roleEnvironment"));
 		filter.setRoleRequestId(getParameterConverter().toUuid(parameters, "roleRequestId"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));

@@ -34,6 +34,8 @@ All parameters from AbstractComponent are supported. Added parameters:
 | showIcon | bool | Shows icon for 'text', 'link', 'popover' face | false |
 | level | oneOf(['warning', 'success', 'info']) | Directly set level. | |
 | titleStyle | object | Custom style for main title in full mode. |  |
+| collapsable | bool | Allow collapsing of this info. | false |
+| collapse | bool | Collapse content of this info. Collapseable property must be true and face = "full"! | false |
 
 ## Public static methods
 

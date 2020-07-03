@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -22,6 +23,26 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
  *
  */
 public interface IdmIdentityContractRepository extends AbstractEntityRepository<IdmIdentityContract> {
+	
+	String FIND_BY_WORK_PROSITION_QUERY = "select e from IdmTreeNode wp, #{#entityName} e join e.workPosition n"
+			+ " where"
+			+ " wp.id = :workPositionId"
+			+ " and"
+			+ " n.treeType = wp.treeType" // more tree types
+			+ " and"
+			+ " ("
+				+ " (n.id = wp.id)" // takes all recursion
+				+ " or"
+				+ " ("
+					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'DOWN'"
+					+ " and n.forestIndex.lft between wp.forestIndex.lft and wp.forestIndex.rgt"
+				+ " )"
+				+ " or"
+				+ " ("
+					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'UP'"
+					+ " and wp.forestIndex.lft between n.forestIndex.lft and n.forestIndex.rgt"
+				+ " )"
+			+ " )";
 	
 	/**
 	 * All contracts of given identity.
@@ -47,26 +68,10 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	 * @param workPositionId
 	 * @param recursionType
 	 * @return
+	 * @see #findByWorkPosition(UUID, RecursionType, Pageable)
+	 * @deprecated @since 10.4.0 use {@link IdmIdentityContractFilter#PARAMETER_RECURSION_TYPE}
 	 */
-	@Query(value = "select e from IdmTreeNode wp, #{#entityName} e join e.workPosition n"
-			+ " where"
-			+ " wp.id = :workPositionId"
-			+ " and"
-			+ " n.treeType = wp.treeType" // more tree types
-			+ " and"
-			+ " ("
-				+ " (n.id = wp.id)" // takes all recursion
-				+ " or"
-				+ " ("
-					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'DOWN'"
-					+ " and n.forestIndex.lft between wp.forestIndex.lft and wp.forestIndex.rgt"
-				+ " )"
-				+ " or"
-				+ " ("
-					+ " ?#{[1] == null ? '' : #recursionType.name()} = 'UP'"
-					+ " and wp.forestIndex.lft between n.forestIndex.lft and n.forestIndex.rgt"
-				+ " )"
-			+ " )")
+	@Query(value = FIND_BY_WORK_PROSITION_QUERY)
 	List<IdmIdentityContract> findAllByWorkPosition(
 			@Param("workPositionId") UUID workPositionId, 
 			@Param("recursionType") RecursionType recursionType);

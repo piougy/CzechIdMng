@@ -31,4 +31,12 @@ public interface PasswordGenerate {
 	String getNumberBase();
 	
 	String getLowerCharBase();
+	
+	String getPrefix();
+	
+	String getSuffix();
+	
+	String getProhibitedBeginCharacters();
+	
+	String getProhibitedEndCharacters();
 }

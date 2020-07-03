@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
@@ -26,6 +28,8 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.ContractPositionProcessor;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
@@ -47,10 +51,12 @@ public class ContractPositionAutomaticRoleProcessor
 		implements ContractPositionProcessor {
 	
 	public static final String PROCESSOR_NAME = "core-contract-position-automatic-role-processor";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ContractPositionAutomaticRoleProcessor.class);
 	//
 	@Autowired private IdmRoleTreeNodeService roleTreeNodeService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private EntityStateManager entityStateManager;
 	
 	public ContractPositionAutomaticRoleProcessor() {
 		super(ContractPositionEventType.NOTIFY);
@@ -71,12 +77,23 @@ public class ContractPositionAutomaticRoleProcessor
 
 	@Override
 	public EventResult<IdmContractPositionDto> process(EntityEvent<IdmContractPositionDto> event) {
+		// when automatic role recalculation is skipped, then flag for contract position is created only
+		// flag can be processed afterwards
+		if (getBooleanProperty(AutomaticRoleManager.SKIP_RECALCULATION, event.getProperties())) {
+			IdmContractPositionDto contractPosition = event.getContent();
+			LOG.debug("Automatic roles are skipped for position [{}], state [AUTOMATIC_ROLE_SKIPPED] for position will be created only.",
+					contractPosition.getId());
+			// 
+			entityStateManager.createState(contractPosition, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+			//
+			return new DefaultEventResult<>(event, this);
+		}
+		//
 		IdmContractPositionDto contractPosition = event.getContent();
 		IdmIdentityContractDto contract = DtoUtils.getEmbedded(contractPosition, IdmContractPosition_.identityContract);
 		//
 		UUID newPosition = contractPosition.getWorkPosition();
 		//
-		// check if new and old work position are same
 		// check automatic roles - if position or contract was enabled
 		// work positions has some difference or validity changes
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContractPosition(contractPosition.getId());
@@ -182,14 +199,13 @@ public class ContractPositionAutomaticRoleProcessor
 			} else {
 				// execute new request
 				roleRequest = roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
-				//
-				event.getProperties().put(IdentityContractUpdateByAutomaticRoleProcessor.EVENT_PROPERTY_REQUEST, roleRequest);
 			}
+			event.getProperties().put(IdentityContractUpdateByAutomaticRoleProcessor.EVENT_PROPERTY_REQUEST, roleRequest);
 		}
 		//
 		return new DefaultEventResult<>(event, this);
 	}
-	
+
 	private IdmRoleTreeNodeDto getByRole(UUID roleId, Set<IdmRoleTreeNodeDto> automaticRoles) {
 		for (IdmRoleTreeNodeDto automaticRole : automaticRoles) {
 			if (automaticRole.getRole().equals(roleId)) {

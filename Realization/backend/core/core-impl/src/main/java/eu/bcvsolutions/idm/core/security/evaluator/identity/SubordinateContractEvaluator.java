@@ -26,8 +26,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.AbstractAuthorizationEvaluato
 /**
  * Permissions to subordinate contracts.
  * 
- * Lookout: Prevent to combine with {@link SubordinatesEvaluator} - configure one of them.
- * {@link SubordinateContractEvaluator} is more flexibile - contracts can be secured by manager (by tree structure or by guarantee).
+ * {@link SubordinateContractEvaluator} is more flexible than {@link SubordinatesEvaluator} - contracts can be secured by manager (by tree structure or by guarantee).
  * If {@link IdentityRoleByContractEvaluator} is configured, then logged identity can see / edit roles assigned to managed contracts.
  * 
  * @author Radek Tomiška

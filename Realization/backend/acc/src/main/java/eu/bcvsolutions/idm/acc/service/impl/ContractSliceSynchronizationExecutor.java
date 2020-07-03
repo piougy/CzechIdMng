@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -57,7 +58,6 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
-import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -74,13 +74,13 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
-import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmScheduledTaskService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ClearDirtyStateForContractSliceTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessAllAutomaticRoleByAttributeTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.task.impl.ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.SelectCurrentContractSliceTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess;
@@ -104,11 +104,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	@Autowired
 	private SchedulerManager schedulerService;
 	@Autowired
-	private IdmLongRunningTaskService longRunningTaskService;
-	@Autowired
 	private IdmScheduledTaskService scheduledTaskService;
-	@Autowired
-	private IdmConfigurationService configurationService;
 	@Autowired
 	private ContractSliceManager contractSliceManager;
 	@Autowired
@@ -429,7 +425,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 			}
 			context.getLogItem().addToLog(MessageFormat
 					.format("Work position - was not not found directly from transformed value [{0}]!", value));
-			if (value instanceof String) {
+			if (value instanceof String && StringUtils.isNotEmpty(( String) value)) {
 				// Find by code in default tree type
 				SysSyncContractConfigDto config = this.getConfig(context);
 				if (config.getDefaultTreeType() == null) {
@@ -715,26 +711,35 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 	}
 	
 	/**
-	 * Start automatic role by attribute recalculation synchronously.
+	 * Start automatic roles recalculation synchronously.
 	 *
 	 * @param log
 	 * @return
 	 */
 	private SysSyncLogDto executeAutomaticRoleRecalculation(SysSyncLogDto log) {
-		ProcessAllAutomaticRoleByAttributeTaskExecutor executor = new ProcessAllAutomaticRoleByAttributeTaskExecutor();
 
 		log.addToLog(MessageFormat.format(
-				"After success sync have to be run Automatic role by attribute recalculation. We start him (synchronously) now [{0}].",
+				"After success sync have to recount automatic roles (by attribute and tree structure). We start recount automatic roles by attribute (synchronously) now [{0}].",
 				ZonedDateTime.now()));
-		Boolean executed = longRunningTaskManager.executeSync(executor);
-
+		Boolean executed = longRunningTaskManager.executeSync(new ProcessAllAutomaticRoleByAttributeTaskExecutor());
 		if (BooleanUtils.isTrue(executed)) {
 			log.addToLog(MessageFormat.format("Recalculation automatic role by attribute ended in [{0}].",
 					ZonedDateTime.now()));
 		} else {
 			addToItemLog(log, "Warning - recalculation automatic role by attribute is not executed correctly.");
 		}
-
+		
+		log.addToLog(MessageFormat.format(
+				"We start recount automatic roles by tree structure (synchronously) now [{0}].",
+				ZonedDateTime.now()));
+		executed = longRunningTaskManager.executeSync(new ProcessSkippedAutomaticRoleByTreeForContractTaskExecutor());
+		if (BooleanUtils.isTrue(executed)) {
+			log.addToLog(MessageFormat.format("Recalculation automatic role by tree structure ended in [{0}].",
+					ZonedDateTime.now()));
+		} else {
+			addToItemLog(log, "Warning - recalculation automatic role by tree structure is not executed correctly.");
+		}
+		
 		return synchronizationLogService.save(log);
 	}
 
@@ -756,7 +761,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
 		filter.setOperationState(OperationState.CREATED);
 		filter.setTaskType(taskType.getCanonicalName());
-		List<IdmLongRunningTaskDto> createdLrts = longRunningTaskService.find(filter, null).getContent();
+		List<IdmLongRunningTaskDto> createdLrts = longRunningTaskManager.findLongRunningTasks(filter, null).getContent();
 
 		IdmLongRunningTaskDto lrt = null;
 		String simpleName = taskType.getSimpleName();
@@ -778,7 +783,7 @@ public class ContractSliceSynchronizationExecutor extends AbstractSynchronizatio
 				log = synchronizationLogService.save(log);
 				return log;
 			}
-			lrt = longRunningTaskService.create(scheduledTask, executor, configurationService.getInstanceId());
+			lrt = longRunningTaskManager.resolveLongRunningTask(executor, scheduledTask.getId(), OperationState.RUNNING);
 		} else {
 			lrt = createdLrts.get(0);
 		}

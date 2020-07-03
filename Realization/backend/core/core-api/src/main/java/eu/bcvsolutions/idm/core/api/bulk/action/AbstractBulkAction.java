@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -319,6 +320,10 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	protected List<UUID> getAllEntities(IdmBulkActionDto action, StringBuilder description) {
 		throw new ResultCodeException(CoreResultCode.BULK_ACTION_ENTITIES_ARE_NOT_SPECIFIED);
 	}
+	
+	protected DTO getDtoById(UUID id) {
+		return getService().get(id);
+	}
 
 	/**
 	 * Process all identities by given list of ID's
@@ -329,7 +334,7 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	protected OperationResult processEntities(Collection<UUID> entitiesId) {
 		for (UUID entityId : entitiesId) {
 			this.increaseCounter();
-			DTO entity = getService().get(entityId);
+			DTO entity = getDtoById(entityId);
 			if (entity == null) {
 				LOG.warn("Entity with id [{}] not found. The Entity will be skipped.", entityId);
 				continue;
@@ -454,4 +459,11 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	public void setEntityClass(Class<? extends BaseEntity> entityClass) {
 		this.entityClass = entityClass;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Class<? extends BaseDto> getDtoClass() {
+		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), AbstractBulkAction.class);
+		return (Class<? extends BaseDto>) genericTypes[0];
+	}
+	
 }

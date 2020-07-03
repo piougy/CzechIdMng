@@ -1157,7 +1157,8 @@
       "TOKEN": "Token",
       "GENERATEVALUE": "Generování hodnot",
       "PASSWORD": "Uživatelská hesla",
-      "EXPORTIMPORT": "Export/Import"
+      "EXPORTIMPORT": "Export/Import",
+      "DELEGATIONDEFINITION": "Delegace"
     }
   },
   "content": {
@@ -1341,6 +1342,8 @@
         "minNumber": "Minimální počet číslic: {{0}}",
         "minUpperChar": "Minimální počet velkých znaků: {{0}}",
         "prohibited": "Heslo obsahuje zakázané znaky: {{0}}",
+        "beginProhibited": "Heslo začíná zakázaným znakem: {{0}}",
+        "endProhibited": "Heslo končí zakázaným znakem: {{0}}",
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
         "policiesNames": "Heslo neprošlo přes tyto politiky: {{0}}",
@@ -1373,6 +1376,14 @@
         "forbiddenCharacterBase": {
           "list": "Seznam zakázaných znaků pro politiky hesel: {{0}}",
           "text": "Zakázané znaky: {{0}}"
+          },
+        "forbiddenBeginCharacterBase": {
+          "list": "Seznam zakázaných znaků, kterými heslo nesmí začínat: {{0}}",
+          "text": "Zakázané počáteční znaky: {{0}}"
+          },
+        "forbiddenEndCharacterBase": {
+          "list": "Seznam zakázaných znaků, kterými heslo nesmí končit: {{0}}",
+          "text": "Zakázané znaky na konci: {{0}}"
           },
         "passwordSimilarUsernamePreValidate": "uživatelskému jménu",
         "passwordSimilarEmailPreValidate": "emailu",
@@ -1537,6 +1548,10 @@
         "role": {
           "currentRoles": "Aktuálně přiřazené role",
           "conceptIdentityRoles": "Role žadatele"
+        },
+        "delegation": {
+          "header": "Delegovaný úkol",
+          "text": "Tento úkol na Vás byl delegován."
         }
       },
       "historicInstance": {
@@ -2040,6 +2055,82 @@
         }
       }
     },
+    "delegation-definitions": {
+      "header": "Delegace",
+      "title": "Definice delegací",
+      "label": "Delegace",
+      "detailHeader": "Delegace <small>({{delegator}} 🡆 {{delegate}})</small>",
+      "edit": {
+        "title": "Detail definice delegace"
+      },
+      "create": {
+        "title": "Nová definice delegace",
+        "header": "Nová definice delegace"
+      },
+      "filter": {
+        "delegator": {
+          "placeholder": "Delegující"
+        },
+        "delegate": {
+          "placeholder": "Delegát"
+        }
+      },
+      "detail": {
+        "title": "Základní informace"
+      },
+      "save": {
+        "success": "Definice delegace byla úspěšně uložena"
+      },
+      "delegations": {
+        "label": "Delegované úkoly",
+        "header": "Delegované úkoly",
+        "title": "Delegované úkoly",
+        "filter": {
+          "delegator": {
+            "placeholder": "Delegující"
+          },
+          "delegate": {
+            "placeholder": "Delegát"
+          }
+        }
+      },
+      "types": {
+        "default-delegation-type": {
+          "label": "Výchozí delegace pro všechny úkoly",
+          "info": {
+            "header": "Výchozí delegace pro všechny úkoly",
+            "text": "Bude použita pro všechny úkoly, pro které není definovaná jiná delegace (s konkrétnějším typem)."
+          }
+        },
+        "approve-role-by-manager-delegation-type": {
+          "label": "Úkoly schvalující přiřazení rolí dle vedoucího",
+          "info": {
+            "header": "Delegace pro přiřazení role dle vedoucího",
+            "text": "Úkoly navázané na kontrakt."
+          }
+        },
+        "manual-task-delegation-type": {
+          "label": "Ruční delegace úkolů",
+          "info": {
+            "header": "Ruční delegace úkolů",
+            "text": "Vzniká automaticky na základě použití operace delegování nad agendou přiřazených úkolů."
+          }
+        }
+      },
+      "identity-is-delegator": "Na koho deleguji",
+      "identity-is-delegate": "Kdo na mě deleguje",
+      "button": {
+        "add-delegation": {
+          "label": "Vytvořit delegaci",
+          "header": "Nová delegace",
+          "text": "Vytvoří nové pravidlo pro delegaci Vašich úkolů na někoho jiného.",
+          "title": {
+            "disabled": "Nemáte oprávnění vytvářet delegace.",
+            "tooltip": "Vytvoří nové pravidlo pro delegaci Vašich úkolů na někoho jiného."
+          }
+        }
+      }
+    },
     "formAttributes": {
       "header": "Atributy formuláře",
       "title": "Atributy formuláře",
@@ -2275,6 +2366,13 @@
       "filter": {
         "text": {
           "placeholder": "Název, kód, prostředí či popis"
+        },
+        "roleCatalogue": {
+          "option": {
+            "withoutCatalogue": {
+              "label": "-- bez katalogu --"
+            }
+          }
         }
       },
       "roleCataloguePick": "Vyberte složku",
@@ -3037,37 +3135,6 @@
           "success": "Uživatel [{{username}}] byl úspěšně vytvořen."
         }
       },
-      "delegates": {
-        "header": "Delegace úkolů",
-        "title": "$t(content.identity.delegates.header)",
-        "empty": "Nenalezeny žádné nastavené delegace.",
-        "message": {
-          "save": {
-            "success": "Uložení delegace na uživatele [{{delegate}}] úspěšně proběhlo."
-          },
-          "delete": {
-            "confirm": {
-              "title": "Odebrání delegace",
-              "message": "Opravdu chcete odebrat delegaci na uživatele <strong>{{delegate}}</strong>?"
-            },
-            "success": "Odebrání delegace na uživatele [{{delegate}}] proběhlo úspěšně."
-          }
-        },
-        "button": {
-          "add": "Přidat delegaci",
-          "delete": "Odebrat delegaci na uživatele {{delegate}}"
-        },
-        "create": {
-          "header": "Nová delegace",
-          "button": {
-            "save": "Uložit delegaci",
-            "saving": "Ukládám delegaci ..."
-          }
-        },
-        "delete": {
-          "header": "Probíhá odebírání delegace"
-        }
-      },
       "subordinates": {
         "header": "Podřízení",
         "title": "$t(content.identity.subordinates.header)"
@@ -3228,7 +3295,7 @@
     "organizations": {
       "header": "Organizační struktura",
       "title": "Organizační struktura",
-      "label": "Organizace",
+      "label": "Organizační struktura",
       "defaultTreeType": {
         "empty": {
           "message": "Výchozí organizační struktura není nakonfigurována.",
@@ -4091,6 +4158,46 @@
         "help": "Další konfigurační položky."
       }
     },
+    "DelegationDefinition" : {
+      "_type": "Definice delegace",
+      "type": {
+        "label": "Typ delegace",
+        "help": "Definuje, v jaké situaci bude tato delegace použita."
+      },
+      "validFrom": {
+        "label": "$t(entity.validFrom)"
+      },
+      "validTill": {
+        "label": "$t(entity.validTill)"
+      },
+      "delegator": {
+        "label": "Delegováno od koho"
+      },
+      "delegatorContract": {
+        "label": "Kontrakt delegujícího"
+      },
+      "delegate": {
+        "label": "Delegováno na koho"
+      },
+      "description": {
+        "label": "Popis"
+      }
+    },
+    "Delegation" : {
+      "_type": "Delegované úkoly",
+      "definition": {
+        "label": "Definice delegace"
+      },
+      "ownerId": {
+        "label": "Delegovaný úkol"
+      },
+      "ownerType": {
+        "label": "Type cíle delegace"
+      },
+      "ownerState": {
+        "label": "Stav úkolu"
+      }
+    },
     "FormAttribute" : {
       "code": {
         "label": "Kód",
@@ -4741,6 +4848,14 @@
         "label": "Zakázané znaky",
         "help": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!"
       },
+      "prohibitedBeginCharacters": {
+        "label": "Počáteční zakázaný znak",
+        "help": "Uvedené znaky nesmí být použity na začátku hesla. Znaky budou kontrolovány při validaci hesla a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!"
+      },
+      "prohibitedEndCharacters": {
+        "label": "Koncový zakázaný znak",
+        "help": "Uvedené znaky nesmí být použity na konci hesla. Znaky budou kontrolovány při validaci hesla a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!"
+      },
       "weakPassRequired": {
         "label":  "Povinné slabé hesla"
       },
@@ -4899,12 +5014,20 @@
         "core-instanceid": {
           "label": "$t(entity.LongRunningTask.instanceId.label)"
         }
+      },
+      "dryRun": {
+        "label": "Zkušební běh",
+        "help": "Úloha byla spuštěna ve zkušením režimu."
       }
     },
     "LongRunningTaskItem": {
       "referencedEntityId": {
         "label": "Entita",
         "placeholder": "Identifikátor entity"
+      },
+      "referencedEntityType": {
+        "label": "Typ entity",
+        "placeholder": "Typ entity"
       },
       "result": {
         "state": "Stav"
@@ -5721,6 +5844,25 @@
         "label": "$t(action.delete.action) projekce",
         "help": "Smaže vybrané projekce. Uživatelé s mazanou projekcí budou přepnuty na výchozí projekci.",
         "icon": "$t(action.delete.icon)"
+      },
+      "core-delegation-definition-delete-bulk-action": {
+        "label": "$t(action.delete.action) definice delegací",
+        "help": "Smaže vybrané definice.",
+        "icon": "$t(action.delete.icon)"
+      },
+      "core-manual-wf-task-delegation-bulk-action": {
+        "label": "Ruční delegace úkolů",
+        "icon": "fa:dolly",
+        "attributes": {
+          "delegate": {
+            "label": "Delegát",
+            "help": "Na koho se mají úkoly přesunout."
+          },
+          "candidateorassigned": {
+            "label": "Delegátor",
+            "help": "Od koho se mají úkoly přesunout."
+          }
+        }
       }
     },
     "authorization-evaluator": {
@@ -5856,6 +5998,9 @@
             "placeholder": "Katalog ..."
           }
         }
+      },
+      "core-self-contract-evaluator": {
+        "help": "Oprávnění pro kontrakty aktuálně přihlášeného uživatele."
       }
     },
     "value-generator": {
@@ -6051,20 +6196,9 @@
           }
         }
       },
-      "core-add-new-automatic-role-contract-long-running-task": {
-        "label": "Přepočítat automatickou roli dle stromové struktury pro kontrakty",
-        "help": "Přiřadí role pro uživatele s kontraktem vyhovující zadané automatické roli dle stromové struktury.",
-        "icon": "component:automatic-role",
-        "attributes": {
-          "roletreenode": {
-            "label": "Automatická role",
-            "help": "Automatická role dle stromové struktury."
-          }
-        }
-      },
-      "core-add-new-automatic-role-position-long-running-task": {
-        "label": "Přepočítat automatickou roli dle stromové struktury pro další pozice kontraktu",
-        "help": "Přiřadí role pro uživatele s kontraktem a další pozicí vyhovující zadané automatické roli dle stromové struktury.",
+      "core-process-automatic-role-tree-long-running-task": {
+        "label": "Přepočítat automatickou roli dle stromové struktury pro kontrakty a další pozice",
+        "help": "Přepočítá role pro uživatele s kontraktem vyhovující zadané automatické roli dle stromové struktury. Úlohu lze pouštět opakovaně, již přiřazené role jsou přeskočeny.",
         "icon": "component:automatic-role",
         "attributes": {
           "roletreenode": {
@@ -6078,6 +6212,11 @@
         "help": "Přepočítá všechny nakonfigurované automatické role dle atributu.",
         "icon": "component:automatic-role"
       },
+      "core-process-all-automatic-role-tree-long-running-task": {
+        "label": "Přepočítat všechny automatické role dle stromové struktury pro kontrakty a další pozice",
+        "help": "Přepočítá všechny role pro uživatele s kontraktem přidělené dle automatické role dle stromové struktury. Úlohu lze pouštět opakovaně, již přiřazené role jsou přeskočeny.",
+        "icon": "component:automatic-role"
+      },
       "core-process-automatic-role-attribute-long-running-task": {
         "label": "Přepočítat automatickou roli dle atributu",
         "help": "Přepočítá přiřazené role uživatelům dle zadané automatické role dle atributu.",
@@ -6088,6 +6227,16 @@
             "help": "Automatická role dle attributu."
           }
         }
+      },
+      "core-process-skipped-automatic-role-by-tree-long-running-task": {
+        "label": "Přepočítat nezpracované automatické role dle stromové struktury",
+        "help": "Přepočítá automatické role dle stromové struktury, které nebyly zpracovány (byly přeskočeny) po změně stromové struktury (například ze synchronizace).",
+        "icon": "component:automatic-role"
+      },
+      "core-process-skipped-automatic-role-by-tree-for-contract-long-running-task": {
+        "label": "Přepočítat nezpracované automatické role dle stromové struktury pro kontrakty a další pozice",
+        "help": "Přepočítá automatické role dle stromové struktury pro kontrakty a další pozice, které nebyly zpracovány (byly přeskočeny) po změně pracovní pozice (například ze synchronizace).",
+        "icon": "component:automatic-role"
       },
       "core-remove-automatic-role-long-running-task": {
         "label": "Odebrat automatickou roli",
@@ -6753,6 +6902,10 @@
       "title": "Nenalezeno",
       "message": "Událost již neexistuje, zpracované události jsou automaticky mazány."
     },
+    "CONTENT_DELETED": {
+      "title": "Obsah byl smazán",
+      "message": "Obsah úlohy byl smazán, úloha již nemůže být vykonána."
+    },
     "IDENTITYIMAGE_WRONG_FORMAT": {
       "title": "Neplatný formát",
       "message": "Soubor má správnou příponu, ale není to obrázek. Soubor musí obsahovat obrázek v jednom z těchto formátů: jpg, jpeg, png, gif."
@@ -6797,6 +6950,10 @@
       "title": "Politika [{{definition}}] nemá definovaný interval blokování!",
       "message": "Politika [{{definition}}] definuje maximální počet pokusů přihlášení, ale nemá definovaný časový interval blokování uživatele!"
     },
+    "PASSWORD_POLICY_INVALID_SETTING": {
+      "title": "Nastavení politiky hesel není správné.",
+      "message": "Nelze vygenerovat heslo splňující tuto politku!"
+    },
     "PASSWORD_CHANGE_ACCOUNT_SUCCESS": {
       "title": "Změna hesla provedena",
       "message": "Změna hesla pro účet [{{account}}] byla úspěšná."
@@ -6813,13 +6970,33 @@
       "title": "Není vyplněn atribut 'groupPermission'",
       "message": "V případě vyplnění typu autorizace musíte vyplnit i atribut 'groupPermission'."
     },
+    "AUTOMATIC_ROLE_ASSIGN_NOT_COMPLETE": {
+      "title": "Role nebyla přiřazena",
+      "message": "Automatická role [{{roleTreeNode}}] pro přiřazení role [{{role}}] byla zpracována pouze částečně. Podrobnosti naleznete na detailu zpracované položky úlohy."
+    },
     "AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE": {
       "title": "Role nebyla přiřazena",
-      "message": "Role [{{role}}] nebyla přiřazena automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}], podrobnosti naleznete v přehledu žádostí."
+      "message": "Role [{{role}}] nebyla přiřazena automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}]. Podrobnosti naleznete na detailu zpracované položky úlohy."
     },
     "AUTOMATIC_ROLE_ALREADY_ASSIGNED": {
       "title": "Role byla již přiřazena",
-      "message": "Role [{{role}}] byla již přiřazena automatickou rolí [{{roleTreeNode}}] pro identitu [{{identity}}]."
+      "message": "Role [{{role}}] byla již přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED": {
+      "title": "Role je přiřazena",
+      "message": "Role [{{role}}] je přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}]."
+    },
+    "AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_REMOVED": {
+      "title": "Přidělená role je odebrána",
+      "message": "Přidělená role [{{role}}] přiřazena automatickou rolí [{{roleTreeNode}}] pro uživatele [{{identity}}] byla odebrána."
+    },
+    "AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID": {
+      "title": "Roli nelze přiřadit",
+      "message": "Roli [{{role}}] dle automatické role [{{roleTreeNode}}] pro uživatele [{{identity}}] nelze přiřadit. Uživatel nemá platný kontrakt."
+    },
+    "AUTOMATIC_ROLE_TASK_RUNNING": {
+      "title": "Role je využívána jiným procesem",
+      "message": "Automatická role je zpracovávána souběžně běžící úlohou [{{taskId}}], počkejte na dokončení úlohy."
     },
     "AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING": {
       "title": "Role je využívána jiným procesem",
@@ -6845,6 +7022,10 @@
       "title": "Role je využívána jiným procesem",
       "message": "Automatická role [{{roleTreeNode}}] je mazána souběžnou úlohou [{{taskId}}]."
     },
+    "AUTOMATIC_ROLE_REMOVE_HAS_ASSIGNED_ROLES": {
+      "title": "Automatickou roli nelze smazat",
+      "message": "Aktuálně mazaná automatická role [{{automaticRoleId}}] byla nově přidělena [{{assignedRoles}}] uživatelům. Přerušte přidělování rolí a smažte automatickou roli znovu."
+    },
     "AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY": {
       "title": "Nejsou vyplněny potřebné atributy",
       "message": "Pravidlo pro automatickou roli nevyplnilo potřebné atributy: [{{attrs}}]."
@@ -6856,6 +7037,14 @@
     "AUTOMATIC_ROLE_TASK_INVALID": {
       "title": "",
       "message": "Vyberte pouze jednu z automatických rolí - dle stromové struktury nebo dle atributu."
+    },
+    "AUTOMATIC_ROLE_TREE_TASK_INVALID": {
+      "title": "",
+      "message": "Vyberte alespoň jednu automatickou roli dle stromové struktury."
+    },
+    "AUTOMATIC_ROLE_SKIPPED": {
+      "title": "Přepočet automatických rolí nebyl proveden",
+      "message": "Při ukládání záznamu nebyl proveden přepočet automatických rolí dle stromové struktury."
     },
     "BACKUP_FAIL": {
       "title": "Záloha nebyla provedena",
@@ -6956,6 +7145,10 @@
     "FILTER_IMPLEMENTATION_NOT_FOUND": {
       "title": "Filter nebyl nalezen",
       "message": "Filter [{{implementation}}] pro atribut [{{propertyName}}] nebyl nalezen. Opravte konfigurační atribut [{{configurationProperty}}]."
+    },
+    "FILTER_PROPERTY_NOT_SUPPORTED": {
+      "title": "Filter nebyl nalezen",
+      "message": "Filter pro atribut [{{propertyName}}] nebyl nalezen."
     },
     "FORM_DEFINITION_INCOMPATIBLE_CHANGE": {
       "title": "Definici formuláře nelze aktualizovat",
@@ -7320,6 +7513,26 @@
     "EXPORT_IMPORT_FILTER_PARENT_FIELD_MUST_BE_UUID": {
       "title": "Export/Import selhal!",
       "message": "Rodičovská položka [{{field}}] musí mít datový typ UUID!"
+    },
+    "DELEGATION_UNSUPPORTED_TYPE": {
+      "title": "Typ delegace není podporován!",
+      "message": "Typ delegace [{{type}}] není podporován!"
+    },
+    "DELEGATION_DEFINITION_CANNOT_BE_UPDATED": {
+      "title": "Delegace nemůže být upravena!",
+      "message": "Definice delegace nemůže být modifikována. Můžete zkusit odstranit existující a vytvořte novou."
+    },
+    "DELEGATION_DEFINITION_DELEGATOR_AND_DELEGATE_ARE_SAME": {
+      "title": "Delegující a delegovaný nemohou být stejní!",
+      "message": "Delegující a delegovaný nemohou být stejní v rámci stejné delegace!"
+    },
+    "MANUAL_TASK_DELEGATION_DELEGATOR_MISSING": {
+      "title": "Není specifikováno od koho se úkoly mají delegovat!",
+      "message": "Pro specifikování delegátora můžete použít filtr (Přiřazeno) nad agendou všech úkolů a nebo vyberte delegátora níže. Delegování úkolu proběhne pouze, pokud jedním z řešitelů je vybraný delegátor."
+    },
+    "MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE": {
+      "title": "Delegátor není schvalovatelem úkolu!",
+      "message": "Delegátor [{{delegator}}] není schvalovatelem úkolu [{{task}}]."
     }
   },
   "validationError": {

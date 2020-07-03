@@ -13,12 +13,14 @@ import eu.bcvsolutions.idm.tool.exception.ReleaseException;
  *
  */
 public interface ReleaseManager {
+	
+	/**
+	 * Common IdM (product, modules ...) maven project group id.
+	 */
+	String MAVEN_GROUP_ID = "eu.bcvsolutions.idm";
 
 	/**
 	 * Base semantic version types.
-	 *  
-	 * @author Radek Tomiška
-	 *
 	 */
 	enum VersionType {
 		MAJOR, // 1.x.x
@@ -42,6 +44,9 @@ public interface ReleaseManager {
 	 */
 	int MAX_RELEASE_CHANGES = 30;
 	
+	/**
+	 * Init manager after all configuration is set.
+	 */
 	void init();
 	
 	/**

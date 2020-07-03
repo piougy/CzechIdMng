@@ -77,5 +77,23 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	 * @param dto
 	 * @param taskVariables 
 	 */
-	public void convertToDtoVariables(WorkflowTaskInstanceDto dto, Map<String, Object> taskVariables);
+	void convertToDtoVariables(WorkflowTaskInstanceDto dto, Map<String, Object> taskVariables);
+	
+	/**
+	 * Get variable by key from the task or parent process.
+	 * 
+	 * @param taskId
+	 * @param key
+	 * @return 
+	 */
+	Object getProcessVariable(String taskId, String key);
+	
+	
+	/**
+	 * Method return true if logged user can read all tasks.
+	 *
+	 * @param permission
+	 * @return
+	 */
+	boolean canReadAllTask(BasePermission... permission);
 }

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -127,7 +126,7 @@ public class DefaultWorkflowTaskInstanceService extends
 			taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE,
 					formData.get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_MESSAGE));
 		}
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put(WorkflowTaskInstanceService.WORKFLOW_DECISION, decision);
 		if (formData != null) {
 			properties.putAll(formData);
@@ -148,6 +147,10 @@ public class DefaultWorkflowTaskInstanceService extends
 	@Override
 	public Set<String> getPermissions(Serializable id) {
 		Assert.notNull(id, "Identifier is required.");
+		if (id instanceof BaseDto) {
+			BaseDto baseDto = (BaseDto) id;
+			return this.getPermissions(this.get(baseDto.getId()));
+		}
 		return this.getPermissions(this.get(id));
 	}
 
@@ -196,6 +199,25 @@ public class DefaultWorkflowTaskInstanceService extends
 		return permissions;
 	}
 
+	@Override
+	public Page<UUID> findIds(WorkflowFilterDto filter, Pageable pageable, BasePermission... permission) {
+		
+		Page<WorkflowTaskInstanceDto> page = this.find(filter, pageable, permission);
+		
+		List<UUID> uuids = page.getContent()
+				.stream()
+				.map(task -> UUID.fromString(task.getId()))
+				.collect(Collectors.toList());
+		
+		return new PageImpl<>(uuids, page.getPageable(), page.getTotalElements());
+	}
+	
+	@Override
+	public Page<UUID> findIds(Pageable pageable, BasePermission... permission) {
+		
+		return findIds(new WorkflowFilterDto(), pageable, permission);
+	}
+	
 	private WorkflowTaskInstanceDto toResource(TaskInfo task, BasePermission[] permission) {
 		if (task == null) {
 			return null;
@@ -218,8 +240,7 @@ public class DefaultWorkflowTaskInstanceService extends
 		// Add applicant username to task dto (for easier work)
 		if (processVariables != null
 				&& processVariables.containsKey(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER)) {
-			dto.setApplicant(
-					(String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER).toString());
+			dto.setApplicant(processVariables.get(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER).toString());
 		}
 
 		dto.setVariables(processVariables);
@@ -327,6 +348,18 @@ public class DefaultWorkflowTaskInstanceService extends
 			});
 		}
 	}
+	
+	@Override
+	public Object getProcessVariable(String taskId, String key) {
+		return taskService.getVariableInstance(taskId, key);
+	}
+	
+
+	@Override
+	public boolean canReadAllTask(BasePermission... permission) {
+		// TODO: Implement check on permission (READ, UPDATE ...). Permissions are uses only for skip rights check now!
+		return permission == null || securityService.isAdmin() || securityService.hasAnyAuthority(CoreGroupPermission.WORKFLOW_TASK_ADMIN);
+	}
 
 	private FormDataDto historyToResource(FormProperty property, List<WorkflowHistoricTaskInstanceDto> history) {
 		FormDataDto dto = new FormDataDto();
@@ -384,19 +417,6 @@ public class DefaultWorkflowTaskInstanceService extends
 		return dto;
 	}
 
-	/**
-	 * Method return true if it is possible read all tasks.
-	 *
-	 * @return
-	 */
-	private boolean canReadAllTask(BasePermission... permission) {
-		// TODO: Implement check on permission (READ, UPDATE ...). Permissions are uses only for skip rights check now!
-		if (permission == null || securityService.isAdmin() || securityService.hasAnyAuthority(CoreGroupPermission.WORKFLOW_TASK_ADMIN)) {
-			return true;
-		}
-		return false;
-	}
-
 	private PageImpl<WorkflowTaskInstanceDto> internalSearch(WorkflowFilterDto filter, Pageable pageable, BasePermission... permission) {
 		if (pageable == null) {
 			pageable = PageRequest.of(0, Integer.MAX_VALUE);
@@ -443,9 +463,9 @@ public class DefaultWorkflowTaskInstanceService extends
 			query.taskCreatedBefore(Date.from(filter.getCreatedBefore().toInstant()));
 		}
 		if (equalsVariables != null) {
-			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
+			equalsVariables.entrySet().forEach((entry) -> {
 				query.processVariableValueEquals(entry.getKey(), entry.getValue());
-			}
+			});
 		}
 
 		if (filter.getCandidateOrAssigned() != null) {
@@ -475,10 +495,10 @@ public class DefaultWorkflowTaskInstanceService extends
 
 		List<WorkflowTaskInstanceDto> dtos = new ArrayList<>();
 		if (tasks != null) {
-			for (Task task : tasks) {
+			tasks.forEach((task) -> {
 				dtos.add(toResource(task, permission));
-			}
+			});
 		}
-		return new PageImpl<WorkflowTaskInstanceDto>(dtos, pageable, count);
+		return new PageImpl<>(dtos, pageable, count);
 	}
 }

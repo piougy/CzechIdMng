@@ -72,7 +72,6 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmProfileFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.rest.AbstractEventableDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
@@ -85,11 +84,11 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormProjectionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormAttributeFilter;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
+import eu.bcvsolutions.idm.core.eav.rest.impl.AbstractFormableDtoController;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
@@ -124,7 +123,7 @@ import io.swagger.annotations.AuthorizationScope;
 		description = "Operations with identities",
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmIdentityController extends AbstractEventableDtoController<IdmIdentityDto, IdmIdentityFilter> {
+public class IdmIdentityController extends AbstractFormableDtoController<IdmIdentityDto, IdmIdentityFilter> {
 
 	protected static final String TAG = "Identities";
 	//
@@ -684,12 +683,7 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 		return toResources(results, IdmAuditDto.class);
 	}
 	
-	/**
-	 * Returns form definition to given identity.
-	 * 
-	 * @param backendId
-	 * @return
-	 */
+	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-definitions", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
@@ -708,7 +702,27 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 	public ResponseEntity<?> getFormDefinitions(
 			@ApiParam(value = "Identity's uuid identifier or username.", required = true)
 			@PathVariable @NotNull String backendId) {
-		return formDefinitionController.getDefinitions(IdmIdentity.class, IdmBasePermission.AUTOCOMPLETE);
+		return super.getFormDefinitions(backendId);
+	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/form-values/prepare", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_READ + "')")
+	@ApiOperation(
+			value = "Identity form definition - prepare available values", 
+			nickname = "prepareIdentityFormValues", 
+			tags = { IdmIdentityController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "")}),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.IDENTITY_READ, description = "")})
+				})
+	public Resource<?> prepareFormValues(
+			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
+			@RequestParam(name = IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, required = false) String definitionCode) {
+		return super.prepareFormValues(definitionCode);
 	}
 	
 	/**
@@ -735,22 +749,15 @@ public class IdmIdentityController extends AbstractEventableDtoController<IdmIde
 			@PathVariable @NotNull String backendId, 
 			@ApiParam(value = "Code of form definition (default will be used if no code is given).", required = false, defaultValue = FormService.DEFAULT_DEFINITION_CODE)
 			@RequestParam(name = IdmFormAttributeFilter.PARAMETER_FORM_DEFINITION_CODE, required = false) String definitionCode) {
+		IdmIdentityDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		//
 		IdmFormDefinitionDto formDefinition = formDefinitionController.getDefinition(
 				IdmIdentity.class, 
 				definitionCode, 
 				IdmBasePermission.AUTOCOMPLETE);
-		//
-		IdmIdentityDto dto = getDto(backendId);
-		if (dto == null) {		
-			// empty form instance with filled form definition
-			IdmFormInstanceDto formInstance = new IdmFormInstanceDto();
-			formInstance.setFormDefinition(formDefinition);
-			formInstance.setOwnerType(IdmIdentity.class);
-			// secure attributes
-			formDefinitionController.secureAttributes(formInstance);
-			//
-			return new Resource<>(formInstance);
-		}
 		//
 		return formDefinitionController.getFormValues(dto, formDefinition, IdmBasePermission.READ);
 	}

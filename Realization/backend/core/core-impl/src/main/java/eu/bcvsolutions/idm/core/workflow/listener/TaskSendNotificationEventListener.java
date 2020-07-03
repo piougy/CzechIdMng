@@ -18,7 +18,7 @@ import org.springframework.context.ApplicationContext;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.service.NotificationManager;
@@ -34,7 +34,7 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TaskSendNotificationEventListener.class);
 	
-	@Autowired private IdmIdentityService identityService;
+	@Autowired private LookupService lookupService;
 	@Autowired private NotificationManager notificationManager;
 	@Autowired private ApplicationContext context;
 	@Autowired private ConfigurationService configurationService;
@@ -146,7 +146,7 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 	 * @param username
 	 */
 	private void sendNotification(String topic, TaskEntity taskEntity, String username) {
-		IdmIdentityDto identity = identityService.getByUsername(username);
+		IdmIdentityDto identity = lookupService.lookupDto(IdmIdentityDto.class, username);
 		//
 		if (identity == null) {
 			LOG.info("TaskSendNotificationEventListener - Identity [{}] not found, message will not be sent.", username);
@@ -156,7 +156,7 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 		notificationManager.send(topic,
 				new IdmMessageDto
 				.Builder()
-					.addParameter("identity", username)
+					.addParameter("identity", identity.getUsername())
 					.addParameter("url", getUrlToTask(taskEntity))
 					.addParameter("subject", taskEntity.getName())
 				.build(), identity);

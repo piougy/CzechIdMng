@@ -28,7 +28,7 @@ module.exports = {
         disabled: false,
         labelKey: 'navigation.menu.tasks.label',
         titleKey: 'navigation.menu.tasks.title',
-        icon: 'tasks',
+        icon: 'fa:tasks',
         path: '/tasks/identity/:entityId',
         access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['WORKFLOWTASK_READ'] } ],
         order: 30,
@@ -56,254 +56,335 @@ module.exports = {
         ]
       },
       {
-        id: 'identities',
+        id: 'identities-menu',
+        type: 'DYNAMIC',
         labelKey: 'navigation.menu.identities.label',
         titleKey: 'navigation.menu.identities.title',
         icon: 'fa:group',
         order: 1010,
         path: '/identities',
-        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ],
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ', 'DELEGATIONDEFINITION_READ'] } ],
         items: [
           {
-            id: 'identity-profile',
-            type: 'TAB',
-            section: 'main',
-            labelKey: 'navigation.menu.profile.label',
-            titleKey: 'navigation.menu.profile.title',
-            icon: 'user',
-            iconColor: '#428BCA',
-            order: 10,
-            priority: 0,
-            path: '/identity/:loggedUsername/profile',
+            id: 'identities',
+            labelKey: 'navigation.menu.identities.label',
+            titleKey: 'navigation.menu.identities.title',
+            icon: 'fa:group',
+            type: 'MAIN-MENU',
+            order: 1010,
+            path: '/identities',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ],
             items: [
               {
-                id: 'profile-personal',
+                id: 'identity-profile',
                 type: 'TAB',
-                labelKey: 'content.identity.sidebar.profile',
+                section: 'main',
+                labelKey: 'navigation.menu.profile.label',
+                titleKey: 'navigation.menu.profile.title',
+                icon: 'user',
+                iconColor: '#428BCA',
                 order: 10,
                 priority: 0,
-                path: '/identity/:entityId/profile',
-                icon: 'user',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
-              },
-              {
-                id: 'profile-eav',
-                type: 'TAB',
-                labelKey: 'content.identity.eav.title',
-                order: 11,
-                priority: 0,
-                path: '/identity/:entityId/eav',
-                access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['IDENTITY_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
-              },
-              {
-                id: 'profile-password',
-                type: 'TAB',
-                labelKey: 'content.identity.sidebar.password',
-                order: 20,
-                path: '/identity/:entityId/password/change',
-                icon: 'component:password',
-                conditions: [
-                  'todo: eval( canPasswordChange ...)'
-                ],
-                access: [{
-                  type: 'HAS_ANY_AUTHORITY', // TODO: PASSWORDRESET is from pwdreset module, implement some conditional iten hidding
-                  authorities: ['IDENTITY_PASSWORDCHANGE', 'PASSWORD_READ', 'IDENTITY_PASSWORDRESET']
-                }],
+                path: '/identity/:loggedUsername/profile',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ],
                 items: [
                   {
-                    id: 'profile-password-change',
+                    id: 'profile-personal',
                     type: 'TAB',
-                    labelKey: 'content.identity.passwordChange.title',
-                    order: 0,
-                    icon: '',
-                    path: '/identity/:entityId/password/change',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_PASSWORDCHANGE'] } ]
-                  },
-                  {
-                    id: 'profile-password-metadata',
-                    type: 'TAB',
-                    labelKey: 'content.password.label',
-                    order: 100,
-                    icon: '',
-                    path: '/identity/:entityId/password/detail',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORD_READ'] } ]
-                  }
-                ]
-              },
-              {
-                id: 'profile-roles',
-                type: 'TAB',
-                labelKey: 'content.identity.sidebar.roles',
-                order: 30,
-                path: '/identity/:entityId/roles',
-                icon: 'component:identity-roles',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYROLE_READ'] } ]
-              },
-              {
-                id: 'profile-authorities',
-                type: 'TAB',
-                labelKey: 'content.identity.authorities.label',
-                titleKey: 'content.identity.authorities.title',
-                order: 40,
-                path: '/identity/:entityId/authorities',
-                access: [ { type: 'DENY_ALL', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
-              },
-              {
-                id: 'profile-contracts',
-                type: 'TAB',
-                labelKey: 'entity.IdentityContract._type',
-                order: 50,
-                path: '/identity/:entityId/contracts',
-                icon: 'component:contracts',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYCONTRACT_READ'] } ],
-                items: [
-                  {
-                    id: 'identity-contract-detail',
-                    type: 'TAB',
-                    labelKey: 'content.identity-contract.detail.label',
+                    labelKey: 'content.identity.sidebar.profile',
                     order: 10,
-                    path: '/identity/:identityId/identity-contract/:entityId/detail',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYCONTRACT_READ'] } ]
+                    priority: 0,
+                    path: '/identity/:entityId/profile',
+                    icon: 'user',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
                   },
                   {
-                    id: 'identity-contract-eav',
+                    id: 'profile-eav',
                     type: 'TAB',
-                    labelKey: 'content.identity-contract.eav.label',
+                    labelKey: 'content.identity.eav.title',
+                    order: 11,
+                    priority: 0,
+                    path: '/identity/:entityId/eav',
+                    access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['IDENTITY_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
+                  },
+                  {
+                    id: 'profile-password',
+                    type: 'TAB',
+                    labelKey: 'content.identity.sidebar.password',
                     order: 20,
-                    path: '/identity/:identityId/identity-contract/:entityId/eav',
-                    access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['IDENTITYCONTRACT_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ],
-                  },
-                  {
-                    id: 'identity-contract-guarantees',
-                    type: 'TAB',
-                    labelKey: 'content.identity-contract.guarantees.label',
-                    order: 30,
-                    path: '/identity/:identityId/identity-contract/:entityId/guarantees',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYCONTRACT_READ'] } ],
-                  },
-                  {
-                    id: 'identity-contract-positions',
-                    type: 'TAB',
-                    labelKey: 'content.identity-contract.positions.label',
-                    order: 40,
-                    icon: 'component:contract-positions',
-                    path: '/identity/:identityId/identity-contract/:entityId/positions',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONTRACTPOSITION_READ'] } ],
-                  },
-                  {
-                    id: 'identity-contract-slices',
-                    type: 'TAB',
-                    labelKey: 'entity.ContractSlice._type',
-                    order: 55,
-                    path: '/identity/:identityId/identity-contract/:entityId/contract-slices',
-                    icon: 'fa:hourglass-half',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONTRACTSLICE_READ'] } ],
+                    path: '/identity/:entityId/password/change',
+                    icon: 'component:password',
+                    conditions: [
+                      'todo: eval( canPasswordChange ...)'
+                    ],
+                    access: [{
+                      type: 'HAS_ANY_AUTHORITY', // TODO: PASSWORDRESET is from pwdreset module, implement some conditional iten hidding
+                      authorities: ['IDENTITY_PASSWORDCHANGE', 'PASSWORD_READ', 'IDENTITY_PASSWORDRESET']
+                    }],
                     items: [
                       {
-                        id: 'contract-slice-detail',
+                        id: 'profile-password-change',
                         type: 'TAB',
-                        labelKey: 'content.contract-slice.detail.label',
-                        order: 10,
-                        path: '/identity/:identityId/contract-slice/:entityId/detail',
-                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONTRACTSLICE_READ'] } ]
+                        labelKey: 'content.identity.passwordChange.title',
+                        order: 0,
+                        icon: '',
+                        path: '/identity/:entityId/password/change',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_PASSWORDCHANGE'] } ]
                       },
                       {
-                        id: 'contract-slice-eav',
+                        id: 'profile-password-metadata',
                         type: 'TAB',
-                        labelKey: 'content.contract-slice.eav.label',
-                        order: 20,
-                        path: '/identity/:identityId/contract-slice/:entityId/eav',
-                        access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['CONTRACTSLICE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
-                      },
-                      {
-                        id: 'contract-slice-guarantees',
-                        type: 'TAB',
-                        labelKey: 'content.contract-slice.guarantees.label',
-                        order: 30,
-                        path: '/identity/:identityId/contract-slice/:entityId/guarantees',
-                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONTRACTSLICEGUARANTEE_READ'] } ],
+                        labelKey: 'content.password.label',
+                        order: 100,
+                        icon: '',
+                        path: '/identity/:entityId/password/detail',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORD_READ'] } ]
                       }
                     ]
                   },
-                ]
-              },
-              {
-                id: 'profile-audit',
-                labelKey: 'content.audit.label',
-                order: 500,
-                path: '/identity/:entityId/audit/identity',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ],
-                icon: 'component:audit',
-                items: [
                   {
-                    id: 'profile-audit-profile',
-                    icon: '',
+                    id: 'profile-roles',
                     type: 'TAB',
+                    labelKey: 'content.identity.sidebar.roles',
+                    order: 30,
+                    path: '/identity/:entityId/roles',
+                    icon: 'component:identity-roles',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYROLE_READ'] } ]
+                  },
+                  {
+                    id: 'profile-authorities',
+                    type: 'TAB',
+                    labelKey: 'content.identity.authorities.label',
+                    titleKey: 'content.identity.authorities.title',
+                    order: 40,
+                    path: '/identity/:entityId/authorities',
+                    access: [ { type: 'DENY_ALL', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
+                  },
+                  {
+                    id: 'profile-contracts',
+                    type: 'TAB',
+                    labelKey: 'entity.IdentityContract._type',
+                    order: 50,
+                    path: '/identity/:entityId/contracts',
+                    icon: 'component:contracts',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYCONTRACT_READ'] } ],
+                    items: [
+                      {
+                        id: 'identity-contract-detail',
+                        type: 'TAB',
+                        labelKey: 'content.identity-contract.detail.label',
+                        order: 10,
+                        path: '/identity/:identityId/identity-contract/:entityId/detail',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYCONTRACT_READ'] } ]
+                      },
+                      {
+                        id: 'identity-contract-eav',
+                        type: 'TAB',
+                        labelKey: 'content.identity-contract.eav.label',
+                        order: 20,
+                        path: '/identity/:identityId/identity-contract/:entityId/eav',
+                        access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['IDENTITYCONTRACT_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ],
+                      },
+                      {
+                        id: 'identity-contract-guarantees',
+                        type: 'TAB',
+                        labelKey: 'content.identity-contract.guarantees.label',
+                        order: 30,
+                        path: '/identity/:identityId/identity-contract/:entityId/guarantees',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYCONTRACT_READ'] } ],
+                      },
+                      {
+                        id: 'identity-contract-positions',
+                        type: 'TAB',
+                        labelKey: 'content.identity-contract.positions.label',
+                        order: 40,
+                        icon: 'component:contract-positions',
+                        path: '/identity/:identityId/identity-contract/:entityId/positions',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONTRACTPOSITION_READ'] } ],
+                      },
+                      {
+                        id: 'identity-contract-slices',
+                        type: 'TAB',
+                        labelKey: 'entity.ContractSlice._type',
+                        order: 55,
+                        path: '/identity/:identityId/identity-contract/:entityId/contract-slices',
+                        icon: 'fa:hourglass-half',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONTRACTSLICE_READ'] } ],
+                        items: [
+                          {
+                            id: 'contract-slice-detail',
+                            type: 'TAB',
+                            labelKey: 'content.contract-slice.detail.label',
+                            order: 10,
+                            path: '/identity/:identityId/contract-slice/:entityId/detail',
+                            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONTRACTSLICE_READ'] } ]
+                          },
+                          {
+                            id: 'contract-slice-eav',
+                            type: 'TAB',
+                            labelKey: 'content.contract-slice.eav.label',
+                            order: 20,
+                            path: '/identity/:identityId/contract-slice/:entityId/eav',
+                            access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['CONTRACTSLICE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
+                          },
+                          {
+                            id: 'contract-slice-guarantees',
+                            type: 'TAB',
+                            labelKey: 'content.contract-slice.guarantees.label',
+                            order: 30,
+                            path: '/identity/:identityId/contract-slice/:entityId/guarantees',
+                            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONTRACTSLICEGUARANTEE_READ'] } ],
+                          }
+                        ]
+                      },
+                    ]
+                  },
+                  {
+                    id: 'profile-audit',
                     labelKey: 'content.audit.label',
-                    order: 100,
+                    order: 500,
                     path: '/identity/:entityId/audit/identity',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ],
+                    icon: 'component:audit',
+                    items: [
+                      {
+                        id: 'profile-audit-profile',
+                        icon: '',
+                        type: 'TAB',
+                        labelKey: 'content.audit.label',
+                        order: 100,
+                        path: '/identity/:entityId/audit/identity',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
+                      },
+                      {
+                        id: 'profile-audit-roles',
+                        icon: '',
+                        type: 'TAB',
+                        labelKey: 'content.audit.identityRoles.label',
+                        order: 200,
+                        path: '/identity/:entityId/audit/roles',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
+                      },
+                      {
+                        id: 'profile-audit-login',
+                        icon: '',
+                        type: 'TAB',
+                        labelKey: 'content.audit.identityLogin.label',
+                        order: 300,
+                        path: '/identity/:entityId/audit/login',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
+                      },
+                      {
+                        id: 'profile-audit-password-change',
+                        icon: '',
+                        type: 'TAB',
+                        labelKey: 'content.audit.identityPasswordChange.label',
+                        order: 400,
+                        path: '/identity/:entityId/audit/password-change',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
+                      }
+                    ]
                   },
                   {
-                    id: 'profile-audit-roles',
-                    icon: '',
+                    id: 'profile-events',
                     type: 'TAB',
-                    labelKey: 'content.audit.identityRoles.label',
-                    order: 200,
-                    path: '/identity/:entityId/audit/roles',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
+                    labelKey: 'content.entityEvents.label',
+                    order: 550,
+                    path: '/identity/:entityId/events',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
                   },
                   {
-                    id: 'profile-audit-login',
-                    icon: '',
+                    id: 'profile-delegations',
                     type: 'TAB',
-                    labelKey: 'content.audit.identityLogin.label',
-                    order: 300,
-                    path: '/identity/:entityId/audit/login',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
+                    icon: 'fa:dolly',
+                    labelKey: 'content.delegation-definitions.label',
+                    order: 95,
+                    path: '/identity/:entityId/delegation-definitions',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ],
+                    items: [
+                      {
+                        id: 'identity-delegation-definitions',
+                        labelKey: 'content.delegation-definitions.header',
+                        titleKey: 'content.delegation-definitions.title',
+                        icon: 'fa:dolly',
+                        order: 20,
+                        path: '/delegation-definitions',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ],
+                        items: [
+                          {
+                            id: 'identity-delegation-definition-detail',
+                            labelKey: 'content.delegation-definitions.detail.title',
+                            order: 10,
+                            path: '/identity/:entityId/delegation-definitions/:delegationId/detail',
+                            icon: 'fa:dolly',
+                            type: 'TAB',
+                            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ]
+                          },
+                          {
+                            id: 'identity-delegations',
+                            type: 'TAB',
+                            labelKey: 'content.delegation-definitions.delegations.label',
+                            order: 40,
+                            icon: 'fa:tasks',
+                            path: '/identity/:entityId/delegation-definitions/:delegationId/delegations',
+                            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ]
+                          }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    id: 'profile-audit-password-change',
-                    icon: '',
+                    id: 'profile-subordinates',
                     type: 'TAB',
-                    labelKey: 'content.audit.identityPasswordChange.label',
-                    order: 400,
-                    path: '/identity/:entityId/audit/password-change',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUDIT_READ'] } ]
-                  }
+                    labelKey: 'content.identity.subordinates.title',
+                    order: 60,
+                    path: '/identity/:entityId/subordinates',
+                    icon: 'component:identities',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
+                  },
+                  {
+                    id: 'profile-garanted-roles',
+                    type: 'TAB',
+                    labelKey: 'content.identity.garanted-roles.title',
+                    order: 70,
+                    path: '/identity/:entityId/garanted-roles',
+                    icon: 'component:roles',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ'] } ]
+                  },
                 ]
+              }
+            ]
+          },
+          {
+            id: 'delegation-definitions',
+            labelKey: 'content.delegation-definitions.header',
+            titleKey: 'content.delegation-definitions.title',
+            icon: 'fa:dolly',
+            order: 20,
+            path: '/delegation-definitions',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ],
+            items: [
+              {
+                id: 'delegation-definition-detail',
+                labelKey: 'content.delegation-definitions.detail.title',
+                order: 10,
+                path: '/delegation-definitions/:delegationId/detail',
+                icon: 'fa:dolly',
+                type: 'TAB',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ]
               },
               {
-                id: 'profile-events',
+                id: 'delegations',
                 type: 'TAB',
-                labelKey: 'content.entityEvents.label',
-                order: 550,
-                path: '/identity/:entityId/events',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
-              },
-              {
-                id: 'profile-subordinates',
-                type: 'TAB',
-                labelKey: 'content.identity.subordinates.title',
-                order: 60,
-                path: '/identity/:entityId/subordinates',
-                icon: 'component:identities',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
-              },
-              {
-                id: 'profile-garanted-roles',
-                type: 'TAB',
-                labelKey: 'content.identity.garanted-roles.title',
-                order: 70,
-                path: '/identity/:entityId/garanted-roles',
-                icon: 'component:roles',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ'] } ]
+                labelKey: 'content.delegation-definitions.delegations.label',
+                order: 40,
+                icon: 'fa:tasks',
+                path: '/delegation-definitions/:delegationId/delegations',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['DELEGATIONDEFINITION_READ'] } ]
               }
             ]
           }
-        ]
-      },
+        ]},
       {
         id: 'organizations',
         labelKey: 'content.organizations.label',
@@ -312,7 +393,70 @@ module.exports = {
         order: 1020,
         iconColor: '#419641',
         path: '/organizations',
-        access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREETYPE_AUTOCOMPLETE', 'TREENODE_READ'] } ]
+        access: [
+          { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ', 'TREETYPE_READ'] },
+          { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREETYPE_AUTOCOMPLETE', 'TREENODE_AUTOCOMPLETE'] }
+        ],
+        items: [
+          {
+            id: 'tree-nodes',
+            type: 'MAIN-MENU',
+            labelKey: 'content.organizations.label',
+            titleKey: 'content.organizations.title',
+            order: 100,
+            icon: 'fa:folder-open',
+            path: '/organizations',
+            access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREENODE_READ', 'TREETYPE_AUTOCOMPLETE'] } ],
+            items: [
+              {
+                id: 'tree-node-detail',
+                type: 'TAB',
+                labelKey: 'content.tree.node.detail.label',
+                order: 10,
+                path: '/tree/nodes/:entityId/detail',
+                icon: 'fa:newspaper-o',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ'] } ]
+              },
+              {
+                id: 'tree-node-eav',
+                type: 'TAB',
+                labelKey: 'content.tree.node.eav.title',
+                order: 20,
+                path: '/tree/nodes/:entityId/eav',
+                access: [ { type: 'HAS_ALL_AUTHORITIES', authorities: ['TREENODE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
+              },
+              {
+                id: 'tree-node-roles',
+                type: 'TAB',
+                labelKey: 'content.tree.node.roles.label',
+                titleKey: 'content.tree.node.roles.title',
+                order: 30,
+                icon: 'component:roles',
+                path: '/tree/nodes/:entityId/roles',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLETREENODE_READ'] } ]
+              },
+              {
+                id: 'tree-node-identities',
+                type: 'TAB',
+                labelKey: 'content.tree.node.identities.label',
+                titleKey: 'content.tree.node.identities.title',
+                order: 40,
+                icon: 'fa:group',
+                path: '/tree/nodes/:entityId/identities',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
+              }
+            ]
+          },
+          {
+            id: 'tree-types',
+            labelKey: 'content.tree.types.title',
+            titleKey: 'content.tree.types.title',
+            order: 200,
+            icon: 'fa:folder-open',
+            path: '/tree/types',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREETYPE_READ'] } ]
+          }
+        ]
       },
       {
         id: 'roles-menu',
@@ -323,11 +467,11 @@ module.exports = {
         iconColor: '#eb9316',
         order: 1030,
         path: '/roles',
-        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ'] } ],
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ', 'ROLECATALOGUE_READ', 'ROLETREENODE_READ'] } ],
         items: [
           {
             id: 'roles',
-            type: 'DYNAMIC',
+            type: 'MAIN-MENU',
             labelKey: 'content.roles.header',
             titleKey: 'content.roles.title',
             icon: 'component:roles',
@@ -484,7 +628,8 @@ module.exports = {
                 labelKey: 'content.role.identities.title',
                 order: 400,
                 path: '/role/:entityId/identities',
-                icon: 'fa:group'
+                icon: 'fa:group',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
               }
             ]
           },
@@ -649,6 +794,27 @@ module.exports = {
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
                   }
                 ]
+              }
+            ]
+          },
+          {
+            id: 'role-catalogues',
+            labelKey: 'content.roleCatalogues.header',
+            titleKey: 'content.roleCatalogues.title',
+            icon: 'fa:list-alt',
+            iconColor: '#dad727',
+            order: 100,
+            path: '/role-catalogues',
+            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ],
+            items: [
+              {
+                id: 'role-catalogue-detail',
+                type: 'TAB',
+                labelKey: 'content.roles.tabs.basic',
+                order: 200,
+                path: '/role-catalogue/:entityId/detail',
+                icon: 'fa:newspaper-o',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ]
               }
             ]
           }
@@ -819,20 +985,6 @@ module.exports = {
             order: 150,
             path: '/audit/entity-states',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
-          },
-          {
-            id: 'audit-notification',
-            labelKey: 'navigation.menu.notifications.label',
-            titleKey: 'navigation.menu.notifications.title',
-            icon: 'fa:envelope',
-            order: 1910,
-            path: '/notification/notifications',
-            access: [
-              {
-                type: 'DENY_ALL', // TODO: fix issue with metis menu - collapsing different submenu is broken
-                authorities: ['NOTIFICATION_READ']
-              }
-            ],
           }
         ]
       },
@@ -943,8 +1095,8 @@ module.exports = {
           {
             type: 'HAS_ANY_AUTHORITY',
             authorities: [
-              'TREETYPE_READ', 'TREENODE_READ', 'CONFIGURATION_READ', 'MODULE_READ', 'GENERATEVALUE_READ',
-              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'FORMPROJECTION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ', 'ROLECATALOGUE_READ',
+              'CONFIGURATION_READ', 'MODULE_READ', 'GENERATEVALUE_READ',
+              'SCHEDULER_READ', 'FORMDEFINITION_READ', 'FORMPROJECTION_READ', 'PASSWORDPOLICY_READ', 'SCRIPT_READ',
               'CONFIDENTIALSTORAGEVALUE_READ', 'CODELIST_READ', 'EXPORTIMPORT_READ'
             ]
           }
@@ -962,7 +1114,7 @@ module.exports = {
             id: 'monitoring',
             labelKey: 'navigation.menu.monitoring',
             icon: 'fa:heartbeat',
-            order: 12,
+            order: 120,
             path: '/monitorings',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CONFIGURATION_READ'] } ]
           },
@@ -1125,95 +1277,6 @@ module.exports = {
             iconColor: '#428BCA',
             path: '/workflow/definitions',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ]
-          },
-          {
-            id: 'tree',
-            labelKey: 'content.tree.header',
-            titleKey: 'content.tree.title',
-            icon: 'fa:folder-open',
-            order: 80,
-            iconColor: '#419641',
-            path: '/tree/nodes',
-            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREETYPE_READ', 'TREENODE_READ'] } ],
-            items: [
-              {
-                id: 'tree-nodes',
-                labelKey: 'content.tree.nodes.title',
-                order: 15,
-                icon: 'apple',
-                path: '/tree/nodes',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ'] } ],
-                items: [
-                  {
-                    id: 'tree-node-detail',
-                    type: 'TAB',
-                    labelKey: 'content.tree.node.detail.label',
-                    order: 10,
-                    path: '/tree/nodes/:entityId/detail',
-                    icon: 'fa:newspaper-o',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ'] } ]
-                  },
-                  {
-                    id: 'tree-node-eav',
-                    type: 'TAB',
-                    labelKey: 'content.tree.node.eav.title',
-                    order: 20,
-                    path: '/tree/nodes/:entityId/eav',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ', 'FORMDEFINITION_AUTOCOMPLETE'] } ]
-                  },
-                  {
-                    id: 'tree-node-roles',
-                    type: 'TAB',
-                    labelKey: 'content.tree.node.roles.label',
-                    titleKey: 'content.tree.node.roles.title',
-                    order: 30,
-                    icon: 'component:roles',
-                    path: '/tree/nodes/:entityId/roles',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLETREENODE_READ'] } ]
-                  },
-                  {
-                    id: 'tree-node-identities',
-                    type: 'TAB',
-                    labelKey: 'content.tree.node.identities.label',
-                    titleKey: 'content.tree.node.identities.title',
-                    order: 40,
-                    icon: 'fa:group',
-                    path: '/tree/nodes/:entityId/identities',
-                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_READ'] } ]
-                  }
-                ]
-              },
-              {
-                id: 'tree-types',
-                labelKey: 'content.tree.types.title',
-                titleKey: 'content.tree.types.title',
-                order: 10,
-                icon: 'fa:folder-open',
-                path: '/tree/types',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREETYPE_READ'] } ]
-              }
-            ]
-          },
-          {
-            id: 'role-catalogues',
-            labelKey: 'content.roleCatalogues.header',
-            titleKey: 'content.roleCatalogues.title',
-            icon: 'fa:list-alt',
-            iconColor: '#dad727',
-            order: 100,
-            path: '/role-catalogues',
-            access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ],
-            items: [
-              {
-                id: 'role-catalogue-detail',
-                type: 'TAB',
-                labelKey: 'content.roles.tabs.basic',
-                order: 200,
-                path: '/role-catalogue/:entityId/detail',
-                icon: 'fa:newspaper-o',
-                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ]
-              }
-            ]
           },
           {
             id: 'password-policies',

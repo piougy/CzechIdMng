@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.codehaus.groovy.control.CompilationFailedException;
@@ -21,6 +20,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
@@ -168,12 +168,13 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 
 	private Script getScript(String source) {
 		// TODO: consider hashing source in order to not waste so much space
-		Optional<Object> value = cacheManager.getValue(CACHE_NAME, source);
-		return value.map(o -> (Script)o).orElseGet(() -> {
+		ValueWrapper value = cacheManager.getValue(CACHE_NAME, source);
+		if (value == null) {
 			Script script = buildScript(source);
 			cacheManager.cacheValue(CACHE_NAME, source, script);
 			return script;
-		});
+		}
+		return (Script) value.get();
 	}
 
 	private Script buildScript(String source) {

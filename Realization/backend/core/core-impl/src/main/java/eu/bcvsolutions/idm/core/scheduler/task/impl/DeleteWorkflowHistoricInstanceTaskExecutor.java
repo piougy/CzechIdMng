@@ -77,10 +77,10 @@ public class DeleteWorkflowHistoricInstanceTaskExecutor extends AbstractSchedula
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		result = super.end(result, ex);
 		LOG.warn("End deleting historic workflow process instaces older than [{}] days (finished before). Processed instances [{}].",
 				numberOfDays, counter);
-		return result;
+		//
+		return super.end(result, ex);
 	}
 
 	@Override

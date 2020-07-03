@@ -93,6 +93,11 @@ public class DefaultIdmProcessedTaskItemService
 		if (filter.getReferencedEntityId() != null) {
 			predicates.add(builder.equal(root.get(IdmProcessedTaskItem_.referencedEntityId), filter.getReferencedEntityId()));
 		}
+		String referencedEntityType = filter.getReferencedEntityType();
+		if (StringUtils.isNotEmpty(referencedEntityType)) {
+			predicates.add(builder.equal(root.get(IdmProcessedTaskItem_.referencedDtoType), referencedEntityType));
+		}
+		
 		if (filter.getLongRunningTaskId() != null) {
 			predicates.add(builder.equal(root.get(
 					IdmProcessedTaskItem_.longRunningTask)

@@ -44,9 +44,12 @@ export class AuditableInfo extends Basic.AbstractContextComponent {
   }
 
   getPopoverContent(entity) {
-    const { showAuditLink } = this.props;
+    const { showAuditLink, additionalOptions } = this.props;
     //
-    const content = [];
+    let content = [];
+    if (additionalOptions) {
+      content = content.concat(additionalOptions);
+    }
     content.push(
       {
         label: this.i18n('entity.id.label'),
@@ -235,7 +238,16 @@ AuditableInfo.propTypes = {
    * Shows links to audit.
    * FIXME: embedded content in info component doesn't have context.history ...  why?
    */
-  showAuditLink: PropTypes.bool
+  showAuditLink: PropTypes.bool,
+  /**
+   * Additional options to show in table.
+   */
+  additionalOptions: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string,
+      value: PropTypes.object,
+    })
+  )
 };
 AuditableInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,

@@ -82,7 +82,7 @@ public class IdmLongRunningTask extends AbstractEntity implements AttachableEnti
 	@Column(name = "task_started")
 	private ZonedDateTime taskStarted;
 
-	@Audited
+	// @Audited
 	@NotNull
 	@Embedded
 	private OperationResult result;

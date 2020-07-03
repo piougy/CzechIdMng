@@ -19,7 +19,7 @@
     <sequenceFlow id="flow2" sourceRef="usertask1" targetRef="endevent1"></sequenceFlow>
     <userTask id="usertask1" name="Send notification smtp" activiti:assignee="testUserSmtpServer1">
       <extensionElements>
-        <activiti:formProperty id="sendNotification" type="configuration" default="true" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="sendNotification" type="configuration" expression="true" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
   </process>

@@ -83,9 +83,8 @@ public class ProcessAutomaticRoleByAttributeTaskExecutor extends AbstractAutomat
 		boolean canContinue = true;
     	//
     	// process contracts
-    	canContinue = true;
     	while (canContinue) {
-    		for(UUID contractId : newPassedContracts) {
+    		for (UUID contractId : newPassedContracts) {
     			IdmIdentityContractDto contract = identityContractService.get(contractId);
     			//
     			try {

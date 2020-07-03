@@ -49,35 +49,35 @@
 			</plugin>
 			<!-- idm tool will be available in war in WEB-INF folder (libs are there and can be executed). -->
 			<plugin>
-    		<groupId>org.apache.maven.plugins</groupId>
-    		<artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.1</version>
-        <executions>
-          <execution>
-            <id>copy</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <artifactItems>
-            <artifactItem>
-              <groupId>${project.groupId}</groupId>
-              <artifactId>idm-tool</artifactId>
-              <version>${project.version}</version>
-              <type>jar</type>
-              <overWrite>false</overWrite>
-              <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF</outputDirectory>
-              <destFileName>idm-tool.jar</destFileName>
-            </artifactItem>
-          </artifactItems>
-          <outputDirectory>${project.build.directory}/wars</outputDirectory>
-          <overWriteReleases>false</overWriteReleases>
-          <overWriteSnapshots>true</overWriteSnapshots>
-        </configuration>
-      </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.1.1</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<artifactItems>
+						<artifactItem>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>idm-tool</artifactId>
+							<version>${project.version}</version>
+							<type>jar</type>
+							<overWrite>false</overWrite>
+							<outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF</outputDirectory>
+							<destFileName>idm-tool.jar</destFileName>
+						</artifactItem>
+					</artifactItems>
+					<outputDirectory>${project.build.directory}/wars</outputDirectory>
+					<overWriteReleases>false</overWriteReleases>
+					<overWriteSnapshots>true</overWriteSnapshots>
+				</configuration>
+			</plugin>
 		</plugins>
 		<resources>
 			<resource>
@@ -223,7 +223,7 @@
 					<plugin>
 						<groupId>com.github.eirslett</groupId>
 						<artifactId>frontend-maven-plugin</artifactId>
-						<version>1.0</version>
+						<version>1.10.0</version>
 						<configuration>
 							<workingDirectory>../../frontend/czechidm-app</workingDirectory>
 							<installDirectory>target</installDirectory>
@@ -241,7 +241,7 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>app npm install</id>
+								<id>app install npm</id>
 								<goals>
 									<goal>npm</goal>
 								</goals>

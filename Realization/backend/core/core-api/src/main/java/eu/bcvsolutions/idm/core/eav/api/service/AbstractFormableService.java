@@ -43,7 +43,8 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
  * @param <F> {@link BaseFilter} type
  */
 public abstract class AbstractFormableService<DTO extends FormableDto, E extends FormableEntity, F extends BaseFilter> 
-		extends AbstractEventableDtoService<DTO, E, F> {
+		extends AbstractEventableDtoService<DTO, E, F>
+		implements FormableDtoService<DTO, F> {
 
 	private final FormService formService;
 	//
@@ -142,8 +143,13 @@ public abstract class AbstractFormableService<DTO extends FormableDto, E extends
 				&& CollectionUtils.isEmpty(formableContext.getFormDefinitionAttributes())) {
 			return dto;
 		}
-		// load all form instances
-		dto.setEavs(this.findFormInstances(dto, formableContext, permission));
+		// load or find form instances
+		if (CollectionUtils.isEmpty(formableContext.getFormDefinitionAttributes())) {
+			// backward compatible -> method is overriden e.g. for role attributes
+			dto.setEavs(this.getFormInstances(dto, permission));
+		} else {
+			dto.setEavs(this.findFormInstances(dto, formableContext, permission));
+		}
 		//
 		return dto;
 	}

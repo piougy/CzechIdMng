@@ -181,7 +181,7 @@ export class IdentityInfo extends AbstractEntityInfo {
 
   _renderFull() {
     const { className, style } = this.props;
-    const { showAuditableInfo } = this.state;
+    const { showAuditableInfo, expandInfo } = this.state;
     const _entity = this.getEntity();
     //
     const panelClassNames = classNames(
@@ -207,6 +207,7 @@ export class IdentityInfo extends AbstractEntityInfo {
                 <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
               }
               { this._renderSystemInformationIcon() }
+              { this._renderSystemCollapsIcon() }
             </Basic.Div>
           </Basic.Div>
         </Basic.PanelHeader>
@@ -215,7 +216,7 @@ export class IdentityInfo extends AbstractEntityInfo {
           ?
           <AuditableInfo entity={ _entity } face="content" showAuditLink={ false }/>
           :
-          <Basic.Div className="image-field-container">
+          <Basic.Div rendered={ expandInfo } className="image-field-container">
             <Basic.Div className="image-col">
               { this.renderImage(_entity) }
             </Basic.Div>

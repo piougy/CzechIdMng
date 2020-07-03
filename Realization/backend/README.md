@@ -9,7 +9,7 @@ Java application deployable to Tomcat 9 application server.
 * Install `maven` - at least version `3.1` is required
 * Install `Tomcat`, tested versions:
   * `8.0.37`
-  * `8.5.46`
+  * `8.5.56`
   * `9.0.24`
 
 ## Project modules [mandatory]
@@ -84,8 +84,4 @@ All configuration properties can be found in [documentation](https://wiki.czechi
 
 ## Known issues
 
-To prevent application startup fails due to Flyway error, property **``-Djava.util.Arrays.useLegacyMergeSort=true``** has to be added into environment properties. If property is not set, then application can fail on error:
-```
-Error creating bean with name 'flywayCore' defined in class path resource [eu/bcvsolutions/idm/core/config/flyway/CoreFlywayConfig.class]:
-Initialization of bean failed; nested exception is java.lang.IllegalArgumentException: Comparison method violates its general contract!
-```
+There are no known issues.

@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import DecisionButtons from '../DecisionButtons';
 import DynamicTaskDetail from '../DynamicTaskDetail';
 import RoleConceptDetail from '../../requestrole/RoleConceptDetail';
@@ -137,7 +138,7 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
   }
 
   render() {
-    const {task, canExecute, taskManager, _entity} = this.props;
+    const {task, canExecute, _entity} = this.props;
     const { showLoading, errorOccurred} = this.state;
     let showLoadingInternal = task && _entity ? showLoading : true;
     // If some error occurred, then we want to hide the show loading.
@@ -145,7 +146,6 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
       showLoadingInternal = false;
     }
     const formDataValues = this._toFormDataValues(task.formData);
-    const taskName = taskManager.localize(task, 'name');
     const entity = _entity ? _.merge({}, _entity) : null;
     if (_entity && _entity.identityContract && _entity._embedded && _entity._embedded.identityContract) {
       entity.identityContract = _entity._embedded.identityContract;
@@ -159,19 +159,17 @@ class DynamicTaskRoleConceptDetail extends DynamicTaskDetail {
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
 
-        <Basic.PageHeader>
-          {taskName}
-          <small>
-            {' '}
-            {this.i18n('header')}
-          </small>
-        </Basic.PageHeader>
+        {this.renderHeader(task)}
 
         <Basic.Panel showLoading={showLoadingInternal}>
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             {this._getTaskInfo(task)}
             {this._getApplicantAndRequester(task)}
-            <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
+            <Basic.LabelWrapper
+              ref="taskCreated"
+              label={this.i18n('createdDate')}>
+              <Advanced.DateValue value={task ? task.taskCreated : null} showTime/>
+            </Basic.LabelWrapper>
           </Basic.AbstractForm>
           <Basic.AbstractForm ref="formData" data={formDataValues} style={{ padding: '15px 15px 0px 15px' }}>
             {this._getFormDataComponents(task)}

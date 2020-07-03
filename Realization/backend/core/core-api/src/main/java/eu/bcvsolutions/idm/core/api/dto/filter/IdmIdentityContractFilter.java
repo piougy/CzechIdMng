@@ -7,6 +7,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
@@ -34,9 +35,21 @@ public class IdmIdentityContractFilter
 	 * Managers with contract guarantees included (manually assigned guarantees).
 	 */
 	public static final String PARAMETER_INCLUDE_GUARANTEES = IdmIdentityFilter.PARAMETER_INCLUDE_GUARANTEES;
-	
+	/**
+	 * Related identity - contract owner.
+	 */
 	public static final String PARAMETER_IDENTITY = "identity";
+	/**
+	 * Contract work position (tree node identifier).
+	 */
 	public static final String PARAMETER_WORK_POSITION = "workPosition";
+	/**
+	 * Contract for tree structure recursively. {@link RecursionType#NO} is used as default for filtering, if filter is not set.
+	 * Additional parameter - effective, when {@link #PARAMETER_WORK_POSITION} is set.
+	 * 
+	 * @Since 10.4.0
+	 */
+	public static final String PARAMETER_RECURSION_TYPE = "recursionType";
 	public static final String PARAMETER_POSITION = "position";
 	public static final String PARAMETER_VALID_FROM = ValidableEntity.PROPERTY_VALID_FROM;  
 	public static final String PARAMETER_VALID_TILL = ValidableEntity.PROPERTY_VALID_TILL;
@@ -46,6 +59,19 @@ public class IdmIdentityContractFilter
 	public static final String PARAMETER_MAIN = "main";
 	public static final String PARAMETER_STATE = "state";
 	public static final String PARAMETER_ROLE = "role";
+	/**
+	 * Returns managers' contracts by subordinate's contract.
+	 * 
+	 * @since 10.4.0
+	 */
+	public static final String PARAMETER_MANAGERS_BY_CONTRACT = IdmIdentityFilter.PARAMETER_MANAGERS_BY_CONTRACT;
+	/**
+	 * Returns manager' contracts for valid now or in future contracts. Can be combined with PARAMETER_MANAGERS_BY_CONTRACT only.
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @since 10.4.0
+	 */
+	public static final String PARAMETER_VALID_CONTRACT_MANAGERS = "validContractManagers";
 
 	public IdmIdentityContractFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -120,7 +146,7 @@ public class IdmIdentityContractFilter
 	}
 
 	public Boolean getValidNowOrInFuture() {
-		return getParameterConverter().toBoolean(data, PARAMETER_VALID_NOW_OR_FUTURE);
+		return getParameterConverter().toBoolean(getData(), PARAMETER_VALID_NOW_OR_FUTURE);
 	}
 
 	public void setState(ContractState state) {
@@ -233,5 +259,77 @@ public class IdmIdentityContractFilter
 	 */
 	public void setRoleId(UUID roleId) {
 		set(PARAMETER_ROLE, roleId);
+	}
+	
+	/**
+	 * Returns managers' contracts by subordinate's contract.
+	 * 
+	 * @return subordinate contract identifier
+	 * @since 10.4.0
+	 */
+	public UUID getManagersByContract() {
+		return getParameterConverter().toUuid(getData(), PARAMETER_MANAGERS_BY_CONTRACT);
+	}
+	
+	/**
+	 * Returns managers' contracts by subordinate's contract.
+	 * 
+	 * @param managersByContract subordinate contract identifier
+	 * @since 10.4.0
+	 */
+	public void setManagersByContract(UUID managersByContract) {
+		set(PARAMETER_MANAGERS_BY_CONTRACT, managersByContract);
+	}
+	
+	/**
+	 * Filter managers' contracts for valid now or in future contracts.
+	 * - true: valid now or in future
+	 * - false: ended contracts
+	 * 
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @return filter value
+	 * @since 10.4.0
+	 */
+	public Boolean getValidContractManagers() {
+    	return getParameterConverter().toBoolean(getData(), PARAMETER_VALID_CONTRACT_MANAGERS);
+	}
+	
+	/**
+	 * Filter managers' contracts for valid now or in future contracts.
+	 * - true: valid now or in future
+	 * - false: ended contracts
+	 * 
+	 * Contract state (~DISABLED) is ignored. This filter works just with contract dates.
+	 * 
+	 * @param filter value
+	 * @since 10.4.0
+	 */
+	public void setValidContractManagers(Boolean validContractManagers) {
+		set(PARAMETER_VALID_CONTRACT_MANAGERS, validContractManagers);
+	}
+	
+	/**
+	 * Contract for tree structure recursively. {@link RecursionType#NO} is used as default for filtering, if filter is not set.
+	 * Additional parameter - effective, when {@link #PARAMETER_WORK_POSITION} is set.
+	 * 
+	 * @return
+	 * @since 10.4.0
+	 */
+	public RecursionType getRecursionType() {
+		RecursionType recursionType = getParameterConverter().toEnum(getData(), PARAMETER_RECURSION_TYPE, RecursionType.class);
+		//
+		return recursionType == null ? RecursionType.NO : recursionType;
+	}
+	
+	/**
+	 * Contract for tree structure recursively. {@link RecursionType#NO} is used as default for filtering, if filter is not set.
+	 * Additional parameter - effective, when {@link #PARAMETER_WORK_POSITION} is set.
+	 * 
+	 * @param recursionType recursion type
+	 * @since 10.4.0
+	 */
+	public void setRecursionType(RecursionType recursionType) {
+		set(PARAMETER_RECURSION_TYPE, recursionType);
 	}
 }

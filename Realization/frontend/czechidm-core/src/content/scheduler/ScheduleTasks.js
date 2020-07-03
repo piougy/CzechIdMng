@@ -56,54 +56,29 @@ class SchedulerTaskOptionDecorator extends Basic.SelectBox.OptionDecorator {
   renderDescription(entity) {
     const { supportedTasks } = this.props;
     //
-    let _task;
-    if (supportedTasks && supportedTasks.has(entity.taskType)) {
-      _task = supportedTasks.get(entity.taskType);
-    }
-    //
-    const parameterValues = [];
-    _.keys(entity.parameters).forEach(parameterName => {
+    const filledParameters = _.keys(entity.parameters).filter(parameterName => {
       if (Utils.Ui.isEmpty(entity.parameters[parameterName])) {
         // not filled (false is needed to render)
-        return;
+        return false;
       }
-      let parameterNameLocalized = parameterName;
       if (parameterName.lastIndexOf('core:', 0) === 0) { // core parameter
-        parameterNameLocalized = this.i18n(`entity.LongRunningTask.taskProperties.${ Utils.Ui.spinalCase(parameterName) }.label`, {
-          defaultValue: parameterName
-        });
-      } else if (_task && _task.formDefinition) { // task's form definition is available
-        parameterNameLocalized = formAttributeManager.getLocalization(_task.formDefinition, { code: parameterName }, 'label', parameterName);
+        // not filled (false is needed to render)
+        return false;
       }
-      let confidential = false;
-      if (_task && _task.formDefinition) {
-        const instance = new Domain.FormInstance(_task.formDefinition);
-        if (instance.getAttributes().has(parameterName)) {
-          const attribute = instance.getAttributes().get(parameterName);
-          if (attribute && !!attribute.confidential) {
-            confidential = true;
-          }
-        }
-      }
-      parameterValues.push(
-        <div>
-          { `${ parameterNameLocalized }: ${ (!confidential) ? Utils.Ui.toStringValue(entity.parameters[parameterName]) : '*****' }` }
-        </div>
-      );
+      //
+      return true;
     });
     //
     return (
       <Basic.Div>
         { super.renderDescription(entity) }
         {
-          parameterValues.length === 0
+          filledParameters.length === 0
           ||
           <Basic.Div style={{ color: '#555', fontSize: '0.95em' }}>
-            { this.i18n('content.scheduler.schedule-tasks.action.task-edit.parameters') }
+            <strong>{ this.i18n('content.scheduler.schedule-tasks.action.task-edit.parameters') } :</strong>
             <Basic.Div style={{ fontStyle: 'italic' }}>
-              {
-                parameterValues
-              }
+              <Advanced.LongRunningTaskProperties entity={ entity } supportedTasks={ supportedTasks } condensed/>
             </Basic.Div>
           </Basic.Div>
         }
@@ -282,11 +257,16 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs['confirm-task-run'].show(
-      this.i18n(`action.task-run.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-run.message`, { record: this.getManager().getNiceLabel(entity, true, this.props.supportedTasks) }),
       this.i18n(`action.task-run.header`)
     ).then(() => {
       this.context.store.dispatch(this.getManager().runTask(entity.id, () => {
-        this.addMessage({ message: this.i18n('action.task-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+        this.addMessage({
+          message: this.i18n('action.task-run.success', {
+            count: 1,
+            record: this.getManager().getNiceLabel(entity, true, this.props.supportedTasks)
+          })
+        });
       }));
     }, () => {
       // Rejected
@@ -298,11 +278,16 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
       event.preventDefault();
     }
     this.refs['confirm-task-dry-run'].show(
-      this.i18n(`action.task-dry-run.message`, { record: this.getManager().getNiceLabel(entity) }),
+      this.i18n(`action.task-dry-run.message`, { record: this.getManager().getNiceLabel(entity, true, this.props.supportedTasks) }),
       this.i18n(`action.task-dry-run.header`)
     ).then(() => {
       this.context.store.dispatch(this.getManager().dryRunTask(entity.id, () => {
-        this.addMessage({ message: this.i18n('action.task-dry-run.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
+        this.addMessage({
+          message: this.i18n('action.task-dry-run.success', {
+            count: 1,
+            record: this.getManager().getNiceLabel(entity, true, this.props.supportedTasks)
+          })
+        });
       }));
     }, () => {
       // Rejected
@@ -514,86 +499,24 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
             sort
             width={ 150 }
             cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data, property }) => {
-                const propertyValue = data[rowIndex][property];
-                let _taskType;
-                if (supportedTasks && supportedTasks.has(propertyValue)) {
-                  _taskType = this._toOption(supportedTasks.get(propertyValue));
-                }
-                const simpleTaskType = Utils.Ui.getSimpleJavaType(propertyValue);
-                let _label = simpleTaskType;
-                let _icon = 'component:scheduled-task';
-                if (_taskType && _taskType.formDefinition) {
-                  _label = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'label', _label);
-                  _icon = formAttributeManager.getLocalization(_taskType.formDefinition, null, 'icon', _icon);
-                }
-                if (_label !== simpleTaskType) {
-                  // append simple taks type name as new line
-                  _label = (
-                    <span>
-                      <Basic.Icon value={ _icon } style={{ marginRight: 3 }}/>
-                      { _label }
-                      <small style={{ display: 'block' }}>
-                        { `(${ simpleTaskType })` }
-                      </small>
-                    </span>
-                  );
-                }
-                //
-                return (
-                  <span title={propertyValue}>
-                    { _label }
-                  </span>
-                );
-              }
+              ({ rowIndex, data }) => (
+                <Advanced.LongRunningTaskName entity={ data[rowIndex] } supportedTasks={ supportedTasks }/>
+              )
+            }/>
+          <Basic.Column
+            header={ this.i18n('action.task-edit.parameters') }
+            width={ 300 }
+            cell={
+              ({ rowIndex, data }) => (
+                <Advanced.LongRunningTaskProperties
+                  key={ `lrt-eav-${ data[rowIndex].id }` }
+                  entity={ data[rowIndex] }
+                  supportedTasks={ supportedTasks }
+                  condensed/>
+              )
             }/>
           <Advanced.Column property="description" sort />
           <Advanced.Column property="instanceId" sort />
-          <Basic.Column
-            header={ this.i18n('action.task-edit.parameters') }
-            cell={
-              /* eslint-disable react/no-multi-comp */
-              ({ rowIndex, data }) => {
-                const entity = data[rowIndex];
-                if (!entity.parameters) {
-                  return null;
-                }
-                let _taskType;
-                if (supportedTasks && supportedTasks.has(entity.taskType)) {
-                  _taskType = this._toOption(supportedTasks.get(entity.taskType));
-                }
-                return [..._.keys(entity.parameters).map(parameterName => {
-                  if (parameterName.lastIndexOf('core:', 0) === 0) {
-                    return null;
-                  }
-                  if (Utils.Ui.isEmpty(entity.parameters[parameterName])) {
-                    // not filled (false is needed to render)
-                    return null;
-                  }
-                  let attribute = null;
-                  if (_taskType && _taskType.formDefinition) {
-                    const instance = new Domain.FormInstance(_taskType.formDefinition);
-                    if (instance.getAttributes().has(parameterName)) {
-                      attribute = instance.getAttributes().get(parameterName);
-                    }
-                  }
-                  return (
-                    <Basic.Div>
-                      {
-                        _taskType
-                        ?
-                        formAttributeManager.getLocalization(_taskType.formDefinition, { code: parameterName }, 'label', parameterName)
-                        :
-                        parameterName
-                      }
-                      {': '}
-                      { (!attribute || !attribute.confidential) ? Utils.Ui.toStringValue(entity.parameters[parameterName]) : '*****' }
-                    </Basic.Div>
-                  );
-                }).values()];
-              }
-            }/>
           <Basic.Column
             property="triggers"
             header={ this.i18n('entity.SchedulerTask.triggers') }
@@ -615,7 +538,9 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
                             {
                               trigger.initiatorTaskId
                               ?
-                              <Advanced.SchedulerTaskInfo entityIdentifier={ trigger.initiatorTaskId } face="popover"/>
+                              <Advanced.SchedulerTaskInfo
+                                entityIdentifier={ trigger.initiatorTaskId }
+                                face="popover"/>
                               :
                               <Advanced.DateValue value={trigger.nextFireTime} title={trigger.cron ? `Cron: ${trigger.cron}` : null} showTime />
                             }

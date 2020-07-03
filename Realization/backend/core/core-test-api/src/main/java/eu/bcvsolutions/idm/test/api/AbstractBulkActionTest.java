@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -79,6 +80,26 @@ public class AbstractBulkActionTest extends AbstractIntegrationTest {
 			}
 		}
 		fail("For entity class: " + entity.getSimpleName() + " was not found bulk action: " + name);
+		return null;
+	}
+	
+	/**
+	 * Find bulk action
+	 *
+	 * @param dto
+	 * @param name
+	 * @return
+	 */
+	protected IdmBulkActionDto findBulkActionForDto(Class<? extends BaseDto> dto, String name) {
+		List<IdmBulkActionDto> actions = bulkActionManager.getAvailableActionsForDto(dto);
+		assertFalse(actions.isEmpty());
+		
+		for (IdmBulkActionDto action : actions) {
+			if (action.getName().equals(name)) {
+				return action;
+			}
+		}
+		fail("For entity class: " + dto.getSimpleName() + " was not found bulk action: " + name);
 		return null;
 	}
 

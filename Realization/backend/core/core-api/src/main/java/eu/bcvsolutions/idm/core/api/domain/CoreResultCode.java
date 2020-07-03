@@ -35,6 +35,7 @@ public enum CoreResultCode implements ResultCode {
 	NULL_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Attribute '%s' is NULL."),
 	NOT_FOUND(HttpStatus.NOT_FOUND, "%s not found."),
 	ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity type [%s] with id [%s] not found."),
+	CONTENT_DELETED(HttpStatus.CONFLICT, "Content [%s] with type [%s] was deleted. Operation cannot be executed and will be canceled."),
 	WF_WARNING(HttpStatus.BAD_REQUEST, "Warning occured during workflow execution: %s"),
 	BAD_FILTER(HttpStatus.BAD_REQUEST, "The filter is wrong!"),
 	UNMODIFIABLE_ATTRIBUTE_CHANGE(HttpStatus.BAD_REQUEST, "Attribute %s for class %s can't be changed!"),
@@ -66,6 +67,7 @@ public enum CoreResultCode implements ResultCode {
 	UNMODIFIABLE_LOCKED(HttpStatus.CONFLICT, "This entity [%s] cannot be modified (is locked)!"),
 	// filter
 	FILTER_IMPLEMENTATION_NOT_FOUND(HttpStatus.CONFLICT, "Filter implementation [%s] for property [%s] not found. Repair configuration property [%s]."),
+	FILTER_PROPERTY_NOT_SUPPORTED(HttpStatus.NOT_IMPLEMENTED, "Filter for property [%s] for entity [%s] is not supported and cannot be used."),
 	// identity
 	IDENTITY_ALREADY_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is already disabled manually, cannot be disable twice."),
 	IDENTITY_NOT_DISABLED_MANUALLY(HttpStatus.BAD_REQUEST, "Identity [%s] is not disabled manually [%s], cannot be enabled."),
@@ -154,6 +156,7 @@ public enum CoreResultCode implements ResultCode {
 	PASSWORD_POLICY_MAX_RULE(HttpStatus.BAD_REQUEST, "Password policy: minimum rules to fulfill must be [%s] or lower."),
 	PASSWORD_POLICY_NEGATIVE_VALUE(HttpStatus.BAD_REQUEST, "Password policy can not contain negative values. Attribute: [%s]"),
 	PASSWORD_POLICY_BLOCK_TIME_IS_REQUIRED(HttpStatus.BAD_REQUEST, "Attribute 'Max login attempts' attribute has value, but time of blocking missing (for policy [%s])!"),
+	PASSWORD_POLICY_INVALID_SETTING(HttpStatus.BAD_REQUEST, "No generated password is able to meet policy constraints."),
 	//
 	SCHEDULER_INVALID_CRON_EXPRESSION(HttpStatus.BAD_REQUEST, "Cron expression [%s] is invalid."),
 	SCHEDULER_UNSUPPORTED_TASK_TRIGGER(HttpStatus.BAD_REQUEST, "Task trigger [%s] is not supported."),
@@ -188,18 +191,25 @@ public enum CoreResultCode implements ResultCode {
 	//
 	AUTOMATIC_ROLE_TASK_EMPTY(HttpStatus.BAD_REQUEST, "Automatic role id is required."),
 	AUTOMATIC_ROLE_TASK_INVALID(HttpStatus.BAD_REQUEST, "Set one of automatic role by tree structure or by attribute."),
+	AUTOMATIC_ROLE_TREE_TASK_INVALID(HttpStatus.BAD_REQUEST, "Set at least one of automatic role by tree structure."),
+	AUTOMATIC_ROLE_ASSIGN_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not processed completely."),
 	AUTOMATIC_ROLE_ASSIGN_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not assigned for identity [%s]."),
+	AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_ASSIGNED(HttpStatus.OK, "Role [%s] by automatic role [%s] for identity [%s] is assigned."),
+	AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_REMOVED(HttpStatus.OK, "Role [%s] by automatic role [%s] for identity [%s] is removed."),
 	AUTOMATIC_ROLE_ALREADY_ASSIGNED(HttpStatus.OK, "Role [%s] by automatic role [%s] for identity [%s] is assigned."),
 	AUTOMATIC_ROLE_CONTRACT_IS_NOT_VALID(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] for identity [%s] was not assigned, contract is not valid (skip)."),
 	AUTOMATIC_ROLE_REMOVE_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Role [%s] by automatic role [%s] was not removed for identity [%s]."),
 	AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Automatic role [%s] is removed in concurent task [%s]"),
 	AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Automatic role [%s] is added in concurent task [%s], wait for task is complete, after removal."),
+	AUTOMATIC_ROLE_REMOVE_HAS_ASSIGNED_ROLES(HttpStatus.CONFLICT, "Remove automatic role [%s] is not complete, some identity roles [%s] were assigned to identities in the meantime."),
+	AUTOMATIC_ROLE_TASK_RUNNING(HttpStatus.BAD_REQUEST, "Automatic role is processed in concurent task [%s], wait for task is complete."),
 	AUTOMATIC_ROLE_RULE_ATTRIBUTE_EMPTY(HttpStatus.BAD_REQUEST, "Rule for automatic role hasn't filled necessary attribute: [%s]."),
 	AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_WITH_MULTIPLE_ATTIBUTE(HttpStatus.BAD_REQUEST, "Comparsion [%s] cannot be used with multiple form attribute."),
 	AUTOMATIC_ROLE_RULE_COMPARSION_IS_ONLY_FOR_NUMERIC_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Comparsion [%s] can be used only with numeric form attribute."),
 	AUTOMATIC_ROLE_RULE_INVALID_COMPARSION_BOOLEAN(HttpStatus.BAD_REQUEST, "Comparsion [%s] cannot be used with boolean types."),
 	AUTOMATIC_ROLE_RULE_PERSISTENT_TYPE_TEXT(HttpStatus.BAD_REQUEST, "Persistent type TEXT isn't allowed."),
 	AUTOMATIC_ROLE_PROCESS_TASK_NOT_COMPLETE(HttpStatus.BAD_REQUEST, "Automatic role [%s] was not process correctly, failed contracts add: [%s], failed contracts remove: [%s]."),
+	AUTOMATIC_ROLE_SKIPPED(HttpStatus.ACCEPTED, "Recount of automatic roles was skipped."),
 	//
 	// role tree node
 	ROLE_TREE_NODE_TYPE_EXISTS(HttpStatus.CONFLICT, "Role tree node for this role id: [%s], tree node id: [%s] and recursion type [%s] already exists"),
@@ -349,7 +359,13 @@ public enum CoreResultCode implements ResultCode {
 	IMPORT_CAN_EXECUTE_ONLY_ADMIN(HttpStatus.BAD_REQUEST, "Import can execute only super-admin!"),
 	IMPORT_DTO_SKIPPED(HttpStatus.NOT_MODIFIED, "Imported DTO [%s] was skipped. Relation on this DTO was not found and this DTO type is marked as optional."),
 	IMPORT_DTO_SKIPPED_DRY_RUN(HttpStatus.NOT_IMPLEMENTED, "Relation on this DTO was not found. Imported DTO [%s] was skipped, because is import executed as dry-run."),
-	IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL(HttpStatus.NOT_FOUND, "Advanced paring failed for field [%s] in DTO [%s]. No DTO [%s] was found on target IdM and import was skipped for it!");
+	IMPORT_ADVANCED_PARING_NOT_FOUND_OPTIONAL(HttpStatus.NOT_FOUND, "Advanced paring failed for field [%s] in DTO [%s]. No DTO [%s] was found on target IdM and import was skipped for it!"),
+	// Delegations
+	DELEGATION_UNSUPPORTED_TYPE(HttpStatus.NOT_FOUND, "Delegation type [%s] is not supported!"),
+	DELEGATION_DEFINITION_CANNOT_BE_UPDATED(HttpStatus.BAD_REQUEST, "Definition of a delegation cannot be updated!"),
+	DELEGATION_DEFINITION_DELEGATOR_AND_DELEGATE_ARE_SAME(HttpStatus.BAD_REQUEST, "Delegator and delegate [%s] cannot be same for one delegation definition!"),
+	MANUAL_TASK_DELEGATION_DELEGATOR_MISSING(HttpStatus.BAD_REQUEST, "Delegator not found. You must apply a filter by delegator (assigned user)!"),
+	MANUAL_TASK_DELEGATION_DELEGATOR_IS_NOT_CANDIDATE(HttpStatus.BAD_REQUEST, "Delegator [%s] isn't candidate of the task [%s]!");
 	
 	
 	

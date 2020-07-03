@@ -125,6 +125,7 @@ public enum AccResultCode implements ResultCode {
 	AUTHENTICATION_AGAINST_SYSTEM_FAILED(HttpStatus.BAD_REQUEST, "Authentication failed! For system [%s] and username [%s]."),
 	AUTHENTICATION_USERNAME_DONT_EXISTS(HttpStatus.BAD_REQUEST, "Authentication failed! For username [%s] in CzechIdM no username found on system [%s]."),
 	AUTHENTICATION_AUTHENTICATION_ATTRIBUTE_DONT_SET(HttpStatus.BAD_REQUEST, "Authentication failed! Authentication attribute not set for the system [%s]"),
+	AUTHENTICATION_AGAINST_MULTIPLE_SYSTEM_FAILED(HttpStatus.BAD_REQUEST, "Authentication against multiple system for username [%s] failed!"),
 	// Protection account system
 	ACCOUNT_CANNOT_BE_DELETED_IS_PROTECTED(HttpStatus.BAD_REQUEST, "Account [%s] cannot be deleted. It is protected against deletion!"),
 	ACCOUNT_CANNOT_UPDATE_IS_PROTECTED(HttpStatus.BAD_REQUEST, "Account [%s] cannot be updated. Attribute [isProtected] connot be changed manually!"),

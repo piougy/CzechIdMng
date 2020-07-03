@@ -185,6 +185,7 @@ public class IdmLongRunningTaskItemController extends AbstractReadWriteDtoContro
 	@Override
 	protected IdmProcessedTaskItemFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmProcessedTaskItemFilter filter = super.toFilter(parameters);
+		
 		return filter;
 	}
 	

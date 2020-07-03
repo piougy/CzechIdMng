@@ -330,6 +330,7 @@ public class SysProvisioningOperationController
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = AccGroupPermission.PROVISIONING_OPERATION_READ, description = "") })
 				})
+	@Override
 	public List<IdmBulkActionDto> getAvailableBulkActions() {
 		// Provisioning operation controller isn't read write,
 		// we must get available bulk action by bulk action manager
@@ -373,7 +374,8 @@ public class SysProvisioningOperationController
 	 * @param bulkAction
 	 */
 	@SuppressWarnings("unchecked")
-	private void initBulkAction(IdmBulkActionDto bulkAction) {
+	@Override
+	protected void initBulkAction(IdmBulkActionDto bulkAction) {
 		// TODO: use MultiValueMap in object if is possible?
 		if (bulkAction.getFilter() != null) {
 			MultiValueMap<String, Object> multivaluedMap = new LinkedMultiValueMap<>();

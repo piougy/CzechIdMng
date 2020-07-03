@@ -426,7 +426,7 @@ public class IdmRoleRequestController extends AbstractReadWriteDtoController<Idm
 		filter.setStates(getParameterConverter().toEnums(parameters, "states", RoleRequestState.class));
 		filter.setSystemStates(getParameterConverter().toEnums(parameters, "systemStates", OperationState.class));
 		filter.setApplicants(getParameterConverter().toUuids(parameters, "applicants"));
-		filter.setCreatorId(getParameterConverter().toEntityUuid(parameters, "creator", IdmIdentityDto.class));
+		filter.setCreatorId(getParameterConverter().toEntityUuid(parameters, IdmRoleRequestFilter.PARAMETER_CREATOR_ID, IdmIdentityDto.class));
 		filter.setExecuted(getParameterConverter().toBoolean(parameters, "executed"));
 		filter.setIncludeApprovers(getParameterConverter().toBoolean(parameters, "includeApprovers", false));
 		return filter;

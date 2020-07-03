@@ -1,8 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 
 import org.junit.Assert;
@@ -13,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.testng.collections.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -69,8 +69,28 @@ public class DefaultLongRunningTaskManagerUnitTest extends AbstractUnitTest {
 		//
 		// running - has to be save just one
 		ArgumentCaptor<IdmLongRunningTaskDto> argument = ArgumentCaptor.forClass(IdmLongRunningTaskDto.class);
-		verify(service, times(1)).save(argument.capture());
+		Mockito.verify(service, Mockito.times(1)).save(argument.capture());
 		Assert.assertEquals(OperationState.RUNNING, argument.getValue().getResultState());		
+	}
+	
+	@Test
+	public void testFailedLoggedTask() {
+		IdmLongRunningTaskDto task = new IdmLongRunningTaskDto(UUID.randomUUID());
+		task.setResult(new OperationResult(OperationState.CREATED));
+		task.setTaskType(TestSchedulableTask.class.getCanonicalName());
+		task.setInstanceId("mock");
+		List<IdmLongRunningTaskDto> tasks = Lists.newArrayList(task);
+		//
+		Mockito.when(configurationService.getInstanceId()).thenReturn(task.getInstanceId());
+		Mockito.when(service.findAllByInstance(Mockito.any(), Mockito.any())).thenReturn(tasks);
+		Mockito.when(service.get(Mockito.any())).thenReturn(task);
+		//
+		manager.processCreated();
+		manager.processCreated();
+		manager.processCreated();
+		//
+		Assert.assertEquals(1, manager.getFailedLoggedTask().size());
+		Assert.assertTrue(manager.getFailedLoggedTask().contains(task.getId()));
 	}
 	
 	private static class Holder {

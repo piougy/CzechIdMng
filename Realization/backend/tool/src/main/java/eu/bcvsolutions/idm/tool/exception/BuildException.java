@@ -24,6 +24,6 @@ public class BuildException extends ResultCodeException {
 	}
 	
 	public BuildException(String message, Throwable exception) {
-		super(ToolResultCode.BUILD_FAILED, ImmutableMap.of("message", message), exception);
+		super(ToolResultCode.BUILD_FAILED, ImmutableMap.of("message", String.valueOf(message)), exception);
 	}
 }

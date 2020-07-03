@@ -37,20 +37,16 @@ class DynamicRequestTaskDetail extends DynamicTaskDetail {
   }
 
   render() {
-    const {task, canExecute, taskManager} = this.props;
+    const {task, canExecute} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
     const formDataValues = this._toFormDataValues(task.formData);
-    const taskName = taskManager.localize(task, 'name');
 
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
-
-        <Basic.PageHeader>{taskName}
-          <small> {this.i18n('header')}</small>
-        </Basic.PageHeader>
+        {this.renderHeader(task)}
         <Basic.Alert
           title={this.i18n('description')}
           text={<WorkflowTaskInfo entity={task} showLink={false} showLoading={!task} className="no-margin"/>}

@@ -64,6 +64,8 @@ public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerat
 	private Integer blockLoginTime;
 	private String prefix;
 	private String suffix;
+	private String prohibitedBeginCharacters;
+	private String prohibitedEndCharacters;
 	
 	public String getName() {
 		return name;
@@ -333,6 +335,22 @@ public class IdmPasswordPolicyDto extends AbstractDto implements PasswordGenerat
 
 	public void setSuffix(String suffix) {
 		this.suffix = suffix;
+	}
+	
+	public String getProhibitedBeginCharacters() {
+		return prohibitedBeginCharacters;
+	}
+
+	public void setProhibitedBeginCharacters(String prohibitedBeginCharacters) {
+		this.prohibitedBeginCharacters = prohibitedBeginCharacters;
+	}
+
+	public String getProhibitedEndCharacters() {
+		return prohibitedEndCharacters;
+	}
+
+	public void setProhibitedEndCharacters(String prohibitedEndCharacters) {
+		this.prohibitedEndCharacters = prohibitedEndCharacters;
 	}
 
 	@JsonIgnore

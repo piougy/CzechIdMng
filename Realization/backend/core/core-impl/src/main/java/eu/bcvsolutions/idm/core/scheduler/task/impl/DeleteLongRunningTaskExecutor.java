@@ -75,10 +75,10 @@ public class DeleteLongRunningTaskExecutor extends AbstractSchedulableStatefulEx
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		result = super.end(result, ex);
 		LOG.warn("End deleting long running tasks older than [{}] days in state [{}]. Processed lrts [{}].",
 				numberOfDays, operationState, counter);
-		return result;
+		//
+		return super.end(result, ex);
 	}
 	
 	@Override

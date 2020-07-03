@@ -7,6 +7,7 @@ import uuid from 'uuid';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
+import * as Domain from '../../domain';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import ConfigLoader from '../../utils/ConfigLoader';
 //
@@ -71,14 +72,60 @@ class RoleTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.useFilterForm(this.refs.filterForm);
+    const filterData = Domain.SearchParameters.getFilterData(this.refs.filterForm);
+    //
+    // resolve additional filter options
+    if (this.refs.roleCatalogue) {
+      const roleCatalogue = this.refs.roleCatalogue.getValue();
+      if (roleCatalogue && roleCatalogue.additionalOption) {
+        filterData.roleCatalogue = null;
+        filterData.withoutCatalogue = true;
+      }
+    }
+    //
+    this.refs.table.useFilterData(filterData);
   }
 
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
+    if (this.refs.roleCatalogue) {
+      this.refs.roleCatalogue.setValue(null);
+    }
     this.refs.table.cancelFilter(this.refs.filterForm);
+  }
+
+  /**
+   * Loads filter from redux state or default.
+   */
+  loadFilter() {
+    if (!this.refs.filterForm) {
+      return;
+    }
+    //  filters from redux
+    const _searchParameters = this.getSearchParameters();
+    if (_searchParameters) {
+      const filterData = {};
+      _searchParameters.getFilters().forEach((v, k) => {
+        filterData[k] = v;
+      });
+      // set without catalogue option
+      if (filterData.withoutCatalogue) {
+        filterData.withoutCatalogue = null;
+        filterData.roleCatalogue = this._getWithoutCatalogueOption();
+      }
+      //
+      this.refs.filterForm.setData(filterData);
+    }
+  }
+
+  _getWithoutCatalogueOption() {
+    return {
+      [Basic.SelectBox.NICE_LABEL]: this.i18n('filter.roleCatalogue.option.withoutCatalogue.label'),
+      [Basic.SelectBox.ITEM_FULL_KEY]: this.i18n('filter.roleCatalogue.option.withoutCatalogue.label'),
+      [Basic.SelectBox.ITEM_VALUE]: 'core:no-catalogue'
+    };
   }
 
   _validateCreateRequestDialog(result) {
@@ -139,15 +186,22 @@ class RoleTable extends Advanced.AbstractTableContent {
     const { roleManager, uiKey } = this.props;
     const selectedEntities = roleManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: roleManager.getNiceLabel(selectedEntities[0]), records: roleManager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: roleManager.getNiceLabels(selectedEntities).join(', ') })
+    this.refs[`confirm-${ bulkActionValue }`].show(
+      this.i18n(`action.${ bulkActionValue }.message`, {
+        count: selectedEntities.length,
+        record: roleManager.getNiceLabel(selectedEntities[0]),
+        records: roleManager.getNiceLabels(selectedEntities).join(', ')
+      }),
+      this.i18n(`action.${ bulkActionValue }.header`, {
+        count: selectedEntities.length,
+        records: roleManager.getNiceLabels(selectedEntities).join(', ')
+      })
     ).then(() => {
       this.context.store.dispatch(roleManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
         if (entity && error) {
           // redirect to role detail with identities table
           if (error.statusEnum === 'ROLE_DELETE_FAILED_IDENTITY_ASSIGNED') {
-            this.context.history.push(`/role/${entity.id}/identities`);
+            this.context.history.push(`/role/${ entity.id }/identities`);
             this.addMessage({
               position: 'tc',
               level: 'info',
@@ -175,8 +229,9 @@ class RoleTable extends Advanced.AbstractTableContent {
       event.stopPropagation();
     }
     const data = {
-      ... this.refs.filterForm.getData(),
-      roleCatalogue: nodeId
+      ...this.refs.filterForm.getData(),
+      roleCatalogue: nodeId,
+      withoutCatalogue: null
     };
     this.refs.roleCatalogue.setValue(nodeId);
     this.refs.table.useFilterData(data);
@@ -264,7 +319,8 @@ class RoleTable extends Advanced.AbstractTableContent {
                         ref="roleCatalogue"
                         label={ null }
                         placeholder={ this.i18n('entity.Role.roleCatalogue.name') }
-                        header={ this.i18n('entity.Role.roleCatalogue.name') }/>
+                        header={ this.i18n('entity.Role.roleCatalogue.name') }
+                        additionalOptions={[ this._getWithoutCatalogueOption() ]}/>
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>

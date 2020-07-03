@@ -71,7 +71,7 @@ public class ZipUtils {
 	 * @throws IOException
 	 */
 	public static void compress(File source, String destinationFilePath) throws IOException {
-	    Path zipFilePath = Files.createFile(Paths.get(destinationFilePath));
+		Path zipFilePath = Files.createFile(Paths.get(destinationFilePath));
 	    try (ZipOutputStream zipStream = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
 	        Path pp = Paths.get(source.getPath());
 	        List<Path> children = Files
@@ -79,19 +79,14 @@ public class ZipUtils {
 	        		// .filter(path -> !Files.isDirectory(path))
 	        		.collect(Collectors.toList());
 	        for (Path path : children) {
-	        	 /**
-	             * Just add only empty directories
-	             */
+	        	// add only empty directories
 	            if (Files.isDirectory(path)) {
-	                /**
-	                 * Add ZIP directory entry
-	                 */
 	            	if (path.toFile().list().length == 0) {
-	            		zipStream.putNextEntry(new ZipEntry(pp.relativize(path).toString() + "/"));
+	            		zipStream.putNextEntry(new ZipEntry(getRelativePath(pp, path) + "/")); // normal slash is needed => prevent to use back slash in zip entry
 	            		zipStream.closeEntry();
 	            	}
 	            } else {
-		        	ZipEntry zipEntry = new ZipEntry(pp.relativize(path).toString());
+		        	ZipEntry zipEntry = new ZipEntry(getRelativePath(pp, path));
 		        	//
 	            	zipStream.putNextEntry(zipEntry);
 	            	Files.copy(path, zipStream);
@@ -99,5 +94,22 @@ public class ZipUtils {
 	            }
 	        }
 	    }
+	}
+	
+	/**
+	 * Normal slash is needed => prevent to use back slash in zip entry.
+	 * 
+	 * @param parent
+	 * @param child
+	 * @return
+	 */
+	private static String getRelativePath(Path parent, Path child) {
+	    String relativePath = parent.relativize(child).toString();
+	    // Normal slash is needed => prevent to use back slash in zip entry.
+	    if (File.separator.equals("\\")) {
+	        relativePath = relativePath.replace('\\', '/');
+	    }
+	    //
+	    return relativePath;
 	}
 }

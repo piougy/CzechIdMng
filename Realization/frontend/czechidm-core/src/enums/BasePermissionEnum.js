@@ -26,3 +26,4 @@ BasePermissionEnum.CREATE = Symbol('CREATE');
 BasePermissionEnum.UPDATE = Symbol('UPDATE');
 BasePermissionEnum.DELETE = Symbol('DELETE');
 BasePermissionEnum.EXECUTE = Symbol('EXECUTE');
+BasePermissionEnum.CHANGEPERMISSION = Symbol('CHANGEPERMISSION');

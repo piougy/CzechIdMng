@@ -85,10 +85,10 @@ public class DeleteProvisioningArchiveTaskExecutor
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		result = super.end(result, ex);
 		LOG.warn("End deleting empty [{}] archived provisioning operations older than [{}] days in state [{}] with system [{}]. Processed operations [{}].", 
 				emptyProvisioning, numberOfDays, operationState, systemId, counter);
-		return result;
+		//
+		return super.end(result, ex);
 	}
 	
 	@Override

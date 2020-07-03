@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +14,8 @@ import java.util.concurrent.RejectedExecutionException;
 import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -51,7 +55,6 @@ import eu.bcvsolutions.idm.core.scheduler.exception.TaskNotRecoverableException;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
-import java.io.Serializable;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
@@ -67,6 +70,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	private final ConfigurationService configurationService;
 	private final SecurityService securityService;
 	private final EntityEventManager entityEventManager;
+	private final Set<UUID> failedLoggedTask = new HashSet<>();
 	//
 	@Autowired private AttachmentManager attachmentManager;
 
@@ -143,21 +147,26 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
 		service.findAllByInstance(instanceId, OperationState.CREATED).forEach(task -> {
 			String taskType = task.getTaskType();
+			UUID taskId = task.getId();
 			if (!processedTaskTypes.contains(taskType)) {
 				try {
-					LongRunningFutureTask<?> futureTask = processCreated(task.getId());
+					LongRunningFutureTask<?> futureTask = processCreated(taskId);
 					if (futureTask != null) {
 						taskList.add(futureTask);
 						// prevent to persisted task starts twice
 						if (AutowireHelper.getTargetClass(futureTask.getExecutor()).isAnnotationPresent(DisallowConcurrentExecution.class)) {
 							processedTaskTypes.add(taskType);
 						}
+						failedLoggedTask.remove(taskId);
 					}
 				} catch (ResultCodeException ex) {
 					// we want to process other task, if some task fails and log just once
 					processedTaskTypes.add(taskType);
-					// we want to know in log, some scheduled task is not complete before next execution attempt
-					ExceptionUtils.log(LOG, ex);
+					if (!failedLoggedTask.contains(taskId)) {
+						// we want to know in log, some scheduled task is not complete before next execution attempt
+						ExceptionUtils.log(LOG, ex);
+						failedLoggedTask.add(taskId);
+					}
 				}
 			}
 		});
@@ -235,10 +244,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
 		// persist LRT as running => prevent to scheduler process the created tasks
-		IdmLongRunningTaskDto persistTask = persistTask(taskExecutor, OperationState.RUNNING);
+		IdmLongRunningTaskDto persistTask = resolveLongRunningTask(taskExecutor, null, OperationState.RUNNING);
 		//
 		try {
-			taskExecutor.validate(persistTask(taskExecutor, OperationState.RUNNING));
+			taskExecutor.validate(resolveLongRunningTask(taskExecutor, null, OperationState.RUNNING));
 		} catch (ConcurrentExecutionException ex) {
 			// task can be executed later, e.g. after previous task ends
 			markTaskAsCreated(persistTask);
@@ -297,7 +306,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
 		// persist LRT - set state to running - prevent to execute task twice asynchronously by processCreated
-		IdmLongRunningTaskDto task = persistTask(taskExecutor, OperationState.RUNNING);
+		IdmLongRunningTaskDto task = resolveLongRunningTask(taskExecutor, null, OperationState.RUNNING);
 		//
 		try {
 			task = getValidTask(taskExecutor);
@@ -406,7 +415,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public IdmLongRunningTaskDto getLongRunningTask(UUID longRunningTaskId, BasePermission... permission) {
 		Assert.notNull(longRunningTaskId, "Long running task id is required. Long running task has to be executed at first.");
 		//
-		return service.get(longRunningTaskId, permission);
+		IdmLongRunningTaskFilter context = new IdmLongRunningTaskFilter();
+		context.setIncludeItemCounts(true);
+		//
+		return service.get(longRunningTaskId, context, permission);
 	}
 
 	@Override
@@ -424,6 +436,12 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		Assert.notNull(futureTask, "Long running future task is required.");
 		//
 		return getLongRunningTask(futureTask.getExecutor(), permission);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmLongRunningTaskDto> findLongRunningTasks(IdmLongRunningTaskFilter filter, Pageable pageable, BasePermission... permission) {
+		return service.find(filter, pageable, permission);
 	}
 
 	@Override
@@ -457,14 +475,15 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		return attachmentDto;
 	}
 
-	/**
-	 * Prepares executor's LRT
-	 *
-	 * @param taskExecutor
-	 * @parem state - sync - RUNNING, async - CREATED => prevent to execute synchronous task twice by asynchronous processing
-	 * @return
-	 */
-	protected IdmLongRunningTaskDto persistTask(LongRunningTaskExecutor<?> taskExecutor, OperationState state) {
+	@Override
+	@Transactional
+	public IdmLongRunningTaskDto resolveLongRunningTask(LongRunningTaskExecutor<?> taskExecutor, UUID sheduledTaskId, OperationState state) {
+		Assert.notNull(taskExecutor, "Task executor is required.");
+		if (state == null) {
+			// default
+			state = OperationState.CREATED;
+		}
+		//
 		// prepare task
 		IdmLongRunningTaskDto task;
 		if (taskExecutor.getLongRunningTaskId() == null) {
@@ -472,6 +491,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task.setTaskType(AutowireHelper.getTargetType(taskExecutor));
 			task.setTaskProperties(taskExecutor.getProperties());
 			task.setTaskDescription(taskExecutor.getDescription());
+			task.setScheduledTask(sheduledTaskId);
 			task.setInstanceId(configurationService.getInstanceId());
 			task.setRecoverable(taskExecutor.isRecoverable());
 			task.setResult(new OperationResult.Builder(state).build());
@@ -486,9 +506,20 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			task = service.save(task);
 			taskExecutor.setLongRunningTaskId(task.getId());
 		} else {
+			// load
 			task = service.get(taskExecutor.getLongRunningTaskId());
 		}
 		return task;
+	}
+	
+	/**
+	 * Returns failed task identifiers.
+	 * 
+	 * @return failed task identifiers
+	 * @since 10.4.0
+	 */
+	protected Set<UUID> getFailedLoggedTask() {
+		return failedLoggedTask;
 	}
 
 	/**

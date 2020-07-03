@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import _ from 'lodash';
 import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
@@ -21,73 +20,55 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity } = this.props;
+    const { entity, supportedTasks } = this.props;
     //
     return (
       <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.Panel className="no-border last">
-          <Basic.PanelHeader text={ this.i18n('tabs.basic') } />
-
           <Basic.PanelBody style={{ padding: 0 }}>
 
-            <Basic.AbstractForm data={entity} readOnly>
+            <Basic.AbstractForm data={ entity } readOnly style={{ paddingTop: 0 }}>
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
-                  <Basic.LabelWrapper label={this.i18n('entity.created')}>
-                    <Advanced.DateValue value={entity.created} showTime/>
+                  <Basic.ContentHeader text={ this.i18n('tabs.basic') } />
+
+                  <Basic.LabelWrapper label={ this.i18n('entity.created') }>
+                    <Advanced.DateValue value={ entity.created } showTime/>
                   </Basic.LabelWrapper>
                   {
                     !entity.taskStarted
                     ||
-                    <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.started')}>
-                      <Advanced.DateValue value={entity.taskStarted} showTime/>
+                    <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.started') }>
+                      <Advanced.DateValue value={ entity.taskStarted } showTime/>
                     </Basic.LabelWrapper>
                   }
+                  <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.taskType') }>
+                    <span title={ entity.taskType }>
+                      { Utils.Ui.getSimpleJavaType(entity.taskType) }
+                    </span>
+                  </Basic.LabelWrapper>
+                  <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.instanceId.label') }>
+                    { entity.instanceId }
+                    <span className="help-block">{ this.i18n('entity.LongRunningTask.instanceId.help') }</span>
+                  </Basic.LabelWrapper>
+                  <Basic.Checkbox
+                    label={ this.i18n('entity.LongRunningTask.dryRun.label') }
+                    helpBlock={ this.i18n('entity.LongRunningTask.dryRun.help') }
+                    readOnly
+                    value={ entity.dryRun }/>
                 </Basic.Col>
                 <Basic.Col lg={ 6 }>
-                  <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.instanceId.label')}>
-                    {entity.instanceId}
-                    <span className="help-block">{this.i18n('entity.LongRunningTask.instanceId.help')}</span>
-                  </Basic.LabelWrapper>
-                </Basic.Col>
-              </Basic.Row>
-
-              <Basic.Row>
-                <Basic.Col lg={ 6 }>
-                  <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskType')}>
-                    { Utils.Ui.getSimpleJavaType(entity.taskType) }
-                  </Basic.LabelWrapper>
-                </Basic.Col>
-                <Basic.Col lg={ 6 }>
-                  <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.taskProperties.label')}>
-                    {
-                      [..._.keys(entity.taskProperties).map(propertyName => {
-                        if (Utils.Ui.isEmpty(entity.taskProperties[propertyName])) {
-                          return null;
-                        }
-                        if (propertyName === 'core:transactionContext') {
-                          // FIXME: transaction context info
-                          return null;
-                        }
-                        if (propertyName === 'core:bulkAction') {
-                          // FIXME: bulk action info + #2086
-                          return null;
-                        }
-                        return (
-                          <div>{ propertyName }: { Utils.Ui.toStringValue(entity.taskProperties[propertyName]) }</div>
-                        );
-                      }).values()]
-                    }
-                  </Basic.LabelWrapper>
+                  <Basic.ContentHeader text={ this.i18n('entity.LongRunningTask.taskProperties.label') } />
+                  <Advanced.LongRunningTaskProperties entity={ entity } supportedTasks={ supportedTasks }/>
                 </Basic.Col>
               </Basic.Row>
 
               <Basic.TextArea
-                label={this.i18n('entity.LongRunningTask.taskDescription')}
+                label={ this.i18n('entity.LongRunningTask.taskDescription') }
                 disabled
-                value={entity.taskDescription}/>
+                value={ entity.taskDescription }/>
 
               <Basic.Row>
                 <Basic.Col lg={ 6 }>
@@ -105,7 +86,7 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                   {
                     !entity.taskStarted
                     ||
-                    <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
+                    <Basic.LabelWrapper label={ this.i18n('entity.LongRunningTask.duration') }>
                       <Basic.Tooltip
                         ref="popover"
                         placement="bottom"
@@ -128,14 +109,14 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
                 </Basic.Col>
               </Basic.Row>
 
-              <Advanced.OperationResult value={ entity.result } face="full" downloadLinkPrefix={`long-running-tasks/${entity.id}/download`} />
+              <Advanced.OperationResult value={ entity.result } face="full" downloadLinkPrefix={ `long-running-tasks/${entity.id}/download` } />
 
             </Basic.AbstractForm>
           </Basic.PanelBody>
 
           <Basic.PanelFooter>
-            <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>
-              {this.i18n('button.back')}
+            <Basic.Button type="button" level="link" onClick={ this.context.history.goBack }>
+              { this.i18n('button.back') }
             </Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
@@ -145,5 +126,14 @@ export default class LongRunningTaskDetail extends Basic.AbstractContent {
 }
 
 LongRunningTaskDetail.propTypes = {
+  /**
+   * LRT
+   *
+   * @type {IdmLongRunningTaskDto}
+   */
   entity: PropTypes.object,
+  /**
+   * Supported schedulable long running task.
+   */
+  supportedTasks: PropTypes.arrayOf(PropTypes.object)
 };

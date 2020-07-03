@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.workflow.config;
 
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
 import eu.bcvsolutions.idm.core.workflow.listener.CandidateToUuidEventListener;
+import eu.bcvsolutions.idm.core.workflow.listener.DelegationEventListener;
 import eu.bcvsolutions.idm.core.workflow.listener.StartProcessEventListener;
 import eu.bcvsolutions.idm.core.workflow.listener.TaskSendNotificationEventListener;
 
@@ -145,6 +147,11 @@ public class WorkflowConfig {
 			return new CandidateToUuidEventListener();
 		}
 		
+		@Bean
+		public DelegationEventListener delegationEventListener() {
+			return new DelegationEventListener();
+		}
+		
 		@Bean 
 		public TaskSendNotificationEventListener taskSendNotificationEventListener() {
 			return new TaskSendNotificationEventListener();
@@ -206,12 +213,13 @@ public class WorkflowConfig {
 		 */
 		private void addActivitiEventListeners(ProcessEngineConfigurationImpl processEngineConfiguration) {
 			CandidateToUuidEventListener candidateToUuidEventListener = candidateToUuidEventListener();
+			DelegationEventListener delegationEventListener = delegationEventListener();
 			//
-			List<ActivitiEventListener> candidateUiidList = Stream
+			List<ActivitiEventListener> entityListeners = Stream
 					.of(candidateToUuidEventListener)
 					.collect(Collectors.toList());
-			List<ActivitiEventListener> taskSendNotificationList = Stream
-					.of(taskSendNotificationEventListener(), candidateToUuidEventListener)
+			List<ActivitiEventListener> taskListeners = Stream
+					.of(candidateToUuidEventListener, delegationEventListener, taskSendNotificationEventListener())
 					.collect(Collectors.toList());
 			//
 			Map<String, List<ActivitiEventListener>> typedListeners = new HashMap<>();
@@ -221,12 +229,16 @@ public class WorkflowConfig {
 						.of(startSubprocessEventListener())
 						.collect(Collectors.toList()));
 			//
-			typedListeners.put(ActivitiEventType.TASK_ASSIGNED.name(), taskSendNotificationList);
-			typedListeners.put(ActivitiEventType.TASK_CREATED.name(), taskSendNotificationList);
-			typedListeners.put(ActivitiEventType.TASK_COMPLETED.name(), taskSendNotificationList);
+			typedListeners.put(ActivitiEventType.TASK_ASSIGNED.name(), taskListeners);
+			typedListeners.put(ActivitiEventType.TASK_CREATED.name(), taskListeners);
+			typedListeners.put(ActivitiEventType.TASK_COMPLETED.name(), taskListeners);
+			// For change a delegation state to Cancelled for cancelled user-tasks.
+			typedListeners.put(ActivitiEventType.ACTIVITY_CANCELLED.name(), Lists.newArrayList(delegationEventListener));
+			// For ensure integrity - we need to delete a delegations connected on the task deleted.
+			typedListeners.put(ActivitiEventType.ENTITY_DELETED.name(), Lists.newArrayList(delegationEventListener));
 			//
-			typedListeners.put(ActivitiEventType.ENTITY_CREATED.name(), candidateUiidList);
-			typedListeners.put(ActivitiEventType.ENTITY_INITIALIZED.name(), candidateUiidList);
+			typedListeners.put(ActivitiEventType.ENTITY_CREATED.name(), entityListeners);
+			typedListeners.put(ActivitiEventType.ENTITY_INITIALIZED.name(), entityListeners);
 			//
 			processEngineConfiguration.setTypedEventListeners(typedListeners);
 		}

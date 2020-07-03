@@ -237,7 +237,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	public List<EntityEventProcessorDto> find(EntityEventProcessorFilter filter) {
 		List<EntityEventProcessorDto> dtos = new ArrayList<>();
 		Map<String, EntityEventProcessor> processors = context.getBeansOfType(EntityEventProcessor.class);
-		for(Entry<String, EntityEventProcessor> entry : processors.entrySet()) {
+		for (Entry<String, EntityEventProcessor> entry : processors.entrySet()) {
 			EntityEventProcessor<?> processor = entry.getValue();
 			// entity event processor depends on module - we could not call any processor method
 			// TODO: all processor should be returned - disabled controlled by filter

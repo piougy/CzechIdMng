@@ -8,20 +8,29 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.StringUtil;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**
  * Password generator
  * 
  * @author Ondrej Kopr
+ * @author Ondrej Husnik
  */
 
 public class PasswordGenerator {
@@ -75,12 +84,12 @@ public class PasswordGenerator {
 	public String generateRandom(PasswordGenerate policy) {
 		Assert.notNull(policy, "Password policy can't be null.");		
 		// policy may contains null values
-		int minimumLength = policy.getMinPasswordLength() == null ? 0 : policy.getMinPasswordLength().intValue();
+		int minimumLength = intNullToZero(policy.getMinPasswordLength());
 
-		int minimumLengthAll = policy.getMinLowerChar() == null ? 0 : policy.getMinLowerChar().intValue(); 
-		minimumLengthAll += policy.getMinUpperChar() == null ? 0 : policy.getMinUpperChar().intValue();
-		minimumLengthAll += policy.getMinSpecialChar() == null ? 0 : policy.getMinSpecialChar().intValue();
-		minimumLengthAll += policy.getMinNumber() == null ? 0 : policy.getMinNumber().intValue();
+		int minimumLengthAll = intNullToZero(policy.getMinLowerChar()); 
+		minimumLengthAll += intNullToZero(policy.getMinUpperChar());
+		minimumLengthAll += intNullToZero(policy.getMinSpecialChar());
+		minimumLengthAll += intNullToZero(policy.getMinNumber());
 
 		// defensive set of max length
 		int maximumLength = 0;
@@ -99,46 +108,146 @@ public class PasswordGenerator {
 		}
 		
 		if (maximumLength < minimumLength) {
-			throw new IllegalArgumentException("Parameter: maxLength can't be lower than parameter: minLength");
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_INVALID_SETTING,
+					"Parameter: maxLength can't be lower than parameter: minLength");
 		}
 		
 		
 		if (maximumLength < minimumLengthAll) {
-			throw new IllegalArgumentException("Parameter: maxLength must be higer or same as sum minimal length of all base.");
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_INVALID_SETTING,
+					"Parameter: maxLength must be higer or same as sum minimal length of all base.");
 		}
 
+		// Start of password generating
+		int generatedPassLen = 0;
 		StringBuilder password = new StringBuilder();
-		StringBuilder base = new StringBuilder();
-		String prohibited = policy.getProhibitedCharacters();
+		List<CharBaseCont> baseList	= buildBaseContainerList(policy);
 		
-		// set bases for generating
-		String lowerBase = removeProhibited(policy.getLowerCharBase(), prohibited);
-		String upperBase = removeProhibited(policy.getUpperCharBase(), prohibited);
-		String specialBase = removeProhibited(policy.getSpecialCharBase(), prohibited);
-		String numberBase = removeProhibited(policy.getNumberBase(), prohibited);
-		base.append(lowerBase).append(upperBase).append(specialBase).append(numberBase);
+		// ********** generate begin/end character if necessary *****************
+		String beginChar = null;
+		String endChar = null;
+		String beginProhibited = Strings.emptyToNull(policy.getProhibitedBeginCharacters());
+		String endProhibited = Strings.emptyToNull(policy.getProhibitedEndCharacters());
+		boolean limitBeginChar = StringUtils.isEmpty(policy.getPrefix()) && !StringUtils.isEmpty(beginProhibited);
+		boolean limitEndChar = StringUtils.isEmpty(policy.getSuffix()) && !StringUtils.isEmpty(endProhibited);
+		Set<Character> beginCandidates = null;
+		Set<Character> endCandidates = null;
+		int limitedCharsVsTotalLen = maximumLength 
+				- baseList.stream().map((cont) -> cont.minCount).reduce(0, (sum, count) -> sum + count)
+				- (limitBeginChar ? 1 : 0) - (limitEndChar ? 1 : 0);
 		
-		// generate minimal requirements
-		if (policy.getMinLowerChar() != null && policy.getMinLowerChar() != 0) {
-			password.append(getRandomChars(lowerBase, policy.getMinLowerChar(), null));
-		}
-		if (policy.getMinUpperChar() != null && policy.getMinUpperChar() != 0) {
-			password.append(getRandomChars(upperBase, policy.getMinUpperChar(), null));
-		}
-		if (policy.getMinSpecialChar() != null && policy.getMinSpecialChar() != 0) {
-			password.append(getRandomChars(specialBase, policy.getMinSpecialChar(), null));
-		}
-		if (policy.getMinNumber() != null && policy.getMinNumber() != 0) {
-			password.append(getRandomChars(numberBase, policy.getMinNumber(), null));
+		// very rare case when password has 1 character but possible
+		// then begin/and char is the same -> beginCandidates will be used for both
+		if (maximumLength < 2 && limitBeginChar && limitEndChar) {
+			beginCandidates = aggregatedBaseSet(baseList, true);
+			beginCandidates.removeAll(fromStringToCharSet(beginProhibited));
+			beginCandidates.removeAll(fromStringToCharSet(endProhibited));
+			beginChar = getMarginCharWithAllocUpdate(beginCandidates, baseList).toString();
+			generatedPassLen++;
+		} else {
+			// we have to count marginal characters to overall required
+			// count of characters from individual bases if following condition is true   
+			boolean basesWithRequiredCharsOnly = limitedCharsVsTotalLen < 0;		
+			if(limitBeginChar) {
+				beginCandidates = aggregatedBaseSet(baseList, basesWithRequiredCharsOnly);
+				beginCandidates.removeAll(fromStringToCharSet(beginProhibited));
+				beginChar = getMarginCharWithAllocUpdate(beginCandidates, baseList).toString();
+				generatedPassLen++;
+			}
+			if(limitEndChar) {
+				endCandidates = aggregatedBaseSet(baseList, basesWithRequiredCharsOnly);
+				endCandidates.removeAll(fromStringToCharSet(endProhibited));
+				endChar = getMarginCharWithAllocUpdate(endCandidates, baseList).toString();
+				generatedPassLen++;
+			}
 		}
 		
-		// add final string to password 
-		int missingLength = getRandomNumber(minimumLength - password.length(), maximumLength - password.length());
+		// ********* generate up to minimum number of mandatory characters from individual bases **********
+		for (CharBaseCont cont : baseList) {
+			int neededNum = cont.minCount - cont.allocCount;
+			if (neededNum > 0) {
+				password.append(getRandomChars(cont.base, neededNum, null));
+			}
+		}
+		generatedPassLen += password.length();
+		
+		// ********** generate rest of remaining characters up to password length	
+		// generated missing number of characters 
+		int missingLength = getRandomNumber(minimumLength - generatedPassLen, maximumLength - generatedPassLen);
 		if (missingLength > 0) {
-			password.append(getRandomChars(shuffle(base).toString(), missingLength, null));
+			Set<Character> generalCandidates = aggregatedBaseSet(baseList, false);
+			StringBuilder base = new StringBuilder(fromCharSetToString(generalCandidates));
+			base = shuffle(base);
+			password.append(getRandomChars(base.toString(), missingLength, null));
 		}
-		
-		return shuffle(password).toString();
+		// final password completion
+		password = shuffle(password);
+		password.insert(0, Strings.nullToEmpty(beginChar));
+		password.append(Strings.nullToEmpty(endChar));
+		return password.toString();
+	}
+	
+	/**
+	 * Test generated password whether it meets requirements
+	 * 
+	 * @param password
+	 * @param policy
+	 * @return
+	 */
+	public boolean testPasswordAgainstPolicy(String password, PasswordGenerate policy) {
+		if (Strings.isNullOrEmpty(password)) {
+			return false;
+		}
+
+		int passLen = password.length();
+		if (passLen < intNullToZero(policy.getMinPasswordLength())
+				|| passLen > intNullToMax(policy.getMaxPasswordLength())) {
+			return false;
+		}
+		if (leaveAllowed(password, policy.getLowerCharBase()).length() < intNullToZero(policy.getMinLowerChar())) {
+			return false;
+		}
+		if (leaveAllowed(password, policy.getUpperCharBase()).length() < intNullToZero(policy.getMinUpperChar())) {
+			return false;
+		}
+		if (leaveAllowed(password, policy.getNumberBase()).length() < intNullToZero(policy.getMinNumber())) {
+			return false;
+		}
+		if (leaveAllowed(password, policy.getSpecialCharBase()).length() < intNullToZero(policy.getMinSpecialChar())) {
+			return false;
+		}
+		// contains forbidden characters
+		if (!Strings.isNullOrEmpty(leaveAllowed(password, Strings.nullToEmpty(policy.getProhibitedCharacters())))) {
+			return false;
+		}
+		// must not start with
+		if (Strings.isNullOrEmpty(policy.getPrefix()) && Strings.nullToEmpty(policy.getProhibitedBeginCharacters())
+				.contains(String.valueOf(password.charAt(0)))) {
+			return false;
+		}
+		// must not end with
+		if (Strings.isNullOrEmpty(policy.getSuffix()) && Strings.nullToEmpty(policy.getProhibitedEndCharacters())
+				.contains(String.valueOf(password.charAt(password.length() - 1)))) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 
+	 * @param policy
+	 * @param testCycleNum
+	 * @return
+	 */
+	public boolean testPolicySetting(PasswordGenerate policy, int testCycleNum) {
+		for (int i = 0; i < testCycleNum; ++i) {
+			String pass = generateRandom(policy);
+			boolean result = testPasswordAgainstPolicy(pass, policy);
+			if (!result) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -245,6 +354,26 @@ public class PasswordGenerator {
 			@Override
 			public String getLowerCharBase() {
 				return lowerBase;
+			}
+			
+			@Override
+			public String getPrefix() {
+				return "";
+			}
+			
+			@Override
+			public String getSuffix() {
+				return "";
+			}
+			
+			@Override
+			public String getProhibitedBeginCharacters() {
+				return "";
+			}
+			
+			@Override
+			public String getProhibitedEndCharacters() {
+				return "";
 			}
 		});
 	}
@@ -369,8 +498,12 @@ public class PasswordGenerator {
 		if (StringUtil.isEmpty(base)) {
 			return result;
 		}
-		base = removeProhibited(base, prohibited);
-		
+		if (StringUtil.isNotEmpty(prohibited)) {
+			base = removeProhibited(base, prohibited);
+		}
+		if (StringUtil.isEmpty(base)) {
+			return result;
+		}
 		for (int index = 0; index < length; index++) {
 			result.append(getRandomChar(base));
 		}
@@ -385,6 +518,19 @@ public class PasswordGenerator {
 			 string = string.trim();
 		}
 		return string;
+	}
+	
+	private String leaveAllowed(String string, String allowed) {
+		if (Strings.isNullOrEmpty(string)) {
+			return Strings.nullToEmpty(string);
+		}
+		StringBuilder result = new StringBuilder();
+		for (Character character : string.toCharArray()) {
+			if (allowed.contains(character.toString())) {
+				result.append(character);
+			}
+		}
+		return result.toString();
 	}
 	
 	private int getRandomNumber(int min, int max) {
@@ -461,5 +607,159 @@ public class PasswordGenerator {
 		}
 
 		return word;
+	}
+	
+	/**
+	 * Generates marginal character from defined set of characters and increments
+	 * allocCount in corresponding baseCont which is generated character from. If
+	 * {@code srcBaseSet} is empty - means no allowed chars available to be used at
+	 * the begin/end - throws invalid policy exception.
+	 * 
+	 * @param srcBaseSet
+	 * @param baseListToUpdate
+	 * @return
+	 */
+	private Character getMarginCharWithAllocUpdate (Set<Character> srcBaseSet, List<CharBaseCont> baseListToUpdate) throws ResultCodeException {
+		if(srcBaseSet.isEmpty()) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_INVALID_SETTING);
+		}
+		StringBuilder sb = new StringBuilder(fromCharSetToString(srcBaseSet));
+		sb = shuffle(sb);
+		Character ch = getRandomChar(sb.toString());
+		CharBaseCont cont = findBaseContWithChar(ch, baseListToUpdate);
+		cont.allocCount++;
+		return ch;
+	}
+	
+	
+	/**
+	 * Returns baseCont containing {@code character}
+	 * 
+	 * @param charac
+	 * @param baseList
+	 * @return
+	 */
+	private CharBaseCont findBaseContWithChar(Character character, List<CharBaseCont> baseList) {
+		for (CharBaseCont baseCont : baseList) {
+			if (baseCont.baseSet.contains(character)) {
+				return baseCont;
+			}
+		}
+		return null;
+	}
+	
+
+	/**
+	 * Generates list of containers with character bases Container carries
+	 * additional information like minimal or already generated char counts from
+	 * individual bases
+	 * 
+	 * @param policy
+	 * @return
+	 */
+	private List<CharBaseCont> buildBaseContainerList(PasswordGenerate policy) {
+		String prohibited = policy.getProhibitedCharacters();
+		List<CharBaseCont> baseList = new ArrayList<>(4);
+		CharBaseCont lowerCont = new CharBaseCont();
+		lowerCont.base = removeProhibited(policy.getLowerCharBase(), prohibited);
+		lowerCont.baseSet = fromStringToCharSet(lowerCont.base);
+		lowerCont.minCount = intNullToZero(policy.getMinLowerChar());
+		baseList.add(lowerCont);
+		CharBaseCont upperCont = new CharBaseCont();
+		upperCont.base = removeProhibited(policy.getUpperCharBase(), prohibited);
+		upperCont.baseSet = fromStringToCharSet(upperCont.base);
+		upperCont.minCount = intNullToZero(policy.getMinUpperChar());
+		baseList.add(upperCont);
+		CharBaseCont specialCont = new CharBaseCont();
+		specialCont.base = removeProhibited(policy.getSpecialCharBase(), prohibited);
+		specialCont.baseSet = fromStringToCharSet(specialCont.base);
+		specialCont.minCount = intNullToZero(policy.getMinSpecialChar());
+		baseList.add(specialCont);
+		CharBaseCont numberCont = new CharBaseCont();
+		numberCont.base = removeProhibited(policy.getNumberBase(), prohibited);
+		numberCont.baseSet = fromStringToCharSet(numberCont.base);
+		numberCont.minCount = intNullToZero(policy.getMinNumber());
+		baseList.add(numberCont);
+		return baseList;
+	}
+	
+	/**
+	 * Creates aggregated set of characters from bases. If
+	 * {@code mandatoryCharsOnly} is true, limit to bases, characters of which are
+	 * mandatory in the password. Otherwise all bases. If there are no mandatory
+	 * characters, return all bases anyway
+	 * 
+	 * @param baseList
+	 * @param mandatoryCharsOnly
+	 * @return
+	 */
+	private Set<Character> aggregatedBaseSet(List<CharBaseCont> baseList, boolean mandatoryCharsOnly) {
+		Set<Character> result = new HashSet<Character>();
+		for (CharBaseCont baseCont : baseList) {
+			if (mandatoryCharsOnly && ((baseCont.minCount - baseCont.allocCount) <= 0)) {
+				continue;
+			}
+			result.addAll(baseCont.baseSet);
+		}
+		// true if no mandatory characters found
+		if (result.isEmpty()) {
+			for (CharBaseCont baseCont : baseList) {
+				result.addAll(baseCont.baseSet);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Transform String of chars to Set
+	 * 
+	 * @param chars
+	 * @return
+	 */
+	private Set<Character> fromStringToCharSet(String chars) {
+		return chars.chars().mapToObj(e -> (char) e).collect(Collectors.toSet());
+	}
+	
+	/**
+	 * Transform a Set of chars to String
+	 * 
+	 * @param charSet
+	 * @return
+	 */
+	private String fromCharSetToString(Set<Character> charSet) {
+		return charSet.stream().map(String::valueOf).collect(Collectors.joining());
+	}
+	
+	
+	/**
+	 * Null to zero value
+	 * 
+	 * @param val
+	 * @return
+	 */
+	private int intNullToZero(Integer val) {
+		return val == null ? 0 : val;
+	}
+	
+	/**
+	 * Null to max value
+	 * 
+	 * @param val
+	 * @return
+	 */
+	private int intNullToMax(Integer val) {
+		return val == null ? Integer.MAX_VALUE : val;
+	}
+	
+	/**
+	 * Local container of character bases.
+	 */
+	private static class CharBaseCont {
+		public String base;
+		public Set<Character> baseSet;
+		// min necessary chars
+		public int minCount = 0;
+		// currently allocated chars
+		public int allocCount = 0;
 	}
 }

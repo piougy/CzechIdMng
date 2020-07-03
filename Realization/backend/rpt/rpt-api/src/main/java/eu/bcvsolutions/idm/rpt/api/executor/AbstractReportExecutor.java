@@ -97,14 +97,12 @@ public abstract class AbstractReportExecutor
 	
 	@Override
 	protected RptReportDto end(RptReportDto result, Exception ex) {
-		result = super.end(result, ex);
-		//
 		// continue generate event, if event is given
-		if (event != null) {
+		if (ex == null && event != null) {
 			entityEventManager.process(event);
 		}
 		// 
-		return result;	
+		return super.end(result, ex);
 	}
 	
 	/**

@@ -77,10 +77,10 @@ public class DeleteSynchronizationLogTaskExecutor
 	
 	@Override
 	protected Boolean end(Boolean result, Exception ex) {
-		result = super.end(result, ex);
 		LOG.warn("End deleting synchronization logs older than [{}] days  with system [{}]. Processed logs [{}].", 
 				numberOfDays, systemId, counter);
-		return result;
+		//
+		return super.end(result, ex);
 	}
 	
 	@Override

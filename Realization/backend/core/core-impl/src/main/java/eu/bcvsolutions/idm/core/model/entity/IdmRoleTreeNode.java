@@ -17,7 +17,7 @@ import org.hibernate.envers.Audited;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 
 /**
- * Automatic roles for tree structures
+ * Automatic role by tree structure.
  * 
  * @author Radek Tomiška
  *

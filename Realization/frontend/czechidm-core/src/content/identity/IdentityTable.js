@@ -250,7 +250,7 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                   </Basic.Col>
                 </Basic.Row>
                 <Basic.Row>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ SecurityManager.hasAuthority('FORMPROJECTION_AUTOCOMPLETE') ? 4 : 6 }>
                     <Advanced.Filter.BooleanSelectBox
                       ref="disabled"
                       placeholder={ this.i18n('filter.disabled.placeholder') }
@@ -259,14 +259,14 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                         { value: 'false', niceLabel: this.i18n('label.enabled') }
                       ]}/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ 4 } rendered={ SecurityManager.hasAuthority('FORMPROJECTION_AUTOCOMPLETE') }>
                     <Advanced.Filter.FormProjectionSelect
                       ref="formProjection"
                       placeholder={ this.i18n('filter.formProjection.placeholder') }
                       manager={ projectionManager }
                       forceSearchParameters={ new SearchParameters().setFilter('disabled', 'false') }/>
                   </Basic.Col>
-                  <Basic.Col lg={ 4 }>
+                  <Basic.Col lg={ SecurityManager.hasAuthority('FORMPROJECTION_AUTOCOMPLETE') ? 4 : 6 }>
                     <Advanced.Filter.EnumSelectBox
                       ref="state"
                       placeholder={ this.i18n('filter.state.placeholder') }

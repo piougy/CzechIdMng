@@ -247,7 +247,8 @@ class RoleTable extends Advanced.AbstractTableContent {
       _requestsEnabled,
       className,
       showAddButton,
-      showEnvironment
+      showEnvironment,
+      showBaseCode
     } = this.props;
     const { filterOpened, showLoading } = this.state;
     const _showTree = showCatalogue && SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
@@ -364,8 +365,27 @@ class RoleTable extends Advanced.AbstractTableContent {
                 }
               }
               sort={false}/>
-            <Advanced.ColumnLink to="/role/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
-            <Advanced.Column property="baseCode" width={ 125 } face="text" sort rendered={_.includes(columns, 'baseCode')}/>
+            <Advanced.Column
+              property="name"
+              width="25%"
+              sort
+              face="text"
+              rendered={ _.includes(columns, 'name') }
+              cell={
+                ({ rowIndex, data }) => (
+                  <Advanced.EntityInfo
+                    entityType="role"
+                    entityIdentifier={ data[rowIndex].id }
+                    entity={ data[rowIndex] }
+                    face="popover"/>
+                )
+              }/>
+            <Advanced.Column
+              property="baseCode"
+              width={ 125 }
+              face="text"
+              sort
+              rendered={ _.includes(columns, 'baseCode') && showBaseCode }/>
             <Advanced.Column
               property="environment"
               width={ 100 }
@@ -373,11 +393,9 @@ class RoleTable extends Advanced.AbstractTableContent {
               sort
               rendered={ _.includes(columns, 'environment') && showEnvironment }
               cell={
-                ({ rowIndex, data, property }) => {
-                  return (
-                    <Advanced.CodeListValue code="environment" value={ data[rowIndex][property] }/>
-                  );
-                }
+                ({ rowIndex, data, property }) => (
+                  <Advanced.CodeListValue code="environment" value={ data[rowIndex][property] }/>
+                )
               }
             />
             <Advanced.Column
@@ -387,7 +405,11 @@ class RoleTable extends Advanced.AbstractTableContent {
               face="enum"
               enumClass={ RoleTypeEnum }
               rendered={ false && _.includes(columns, 'roleType') }/>
-            <Advanced.Column property="roleCatalogue.name" width={ 75 } face="text" rendered={ _.includes(columns, 'roleCatalogue') }/>
+            <Advanced.Column
+              property="roleCatalogue.name"
+              width={ 75 }
+              face="text"
+              rendered={ _.includes(columns, 'roleCatalogue') }/>
             <Advanced.Column
               property="description"
               sort
@@ -436,6 +458,7 @@ RoleTable.defaultProps = {
 function select(state, component) {
   return {
     showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', true),
+    showBaseCode: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.role.baseCode', true),
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
     _requestsEnabled: ConfigurationManager.getPublicValueAsBoolean(state, component.roleManager.getEnabledPropertyKey())
   };

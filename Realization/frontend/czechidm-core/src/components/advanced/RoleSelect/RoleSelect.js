@@ -49,6 +49,13 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
         ConfigurationManager.getPublicValueAsBoolean(context.store.getState(), 'idm.pub.app.show.environment', true)
         :
         true
+      ),
+      showBaseCode: (
+        context && context.store
+        ?
+        ConfigurationManager.getPublicValueAsBoolean(context.store.getState(), 'idm.pub.app.show.role.baseCode', true)
+        :
+        true
       )
     };
   }
@@ -476,7 +483,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
       roleCatalogue,
       showRoleCatalogue,
       readOnly,
-      showEnvironment
+      showEnvironment,
+      showBaseCode
     } = this.state;
     //
     if (!rendered) {
@@ -613,7 +621,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                         style={{ color: 'transparent' }}/>
                     }
                     width={ 15 }
-                    rendered={showActionButtons}
+                    rendered={ showActionButtons }
                     cell={
                       ({ rowIndex, data }) => {
                         const isSelected = _.includes(selectedRows, data[rowIndex].id);
@@ -634,7 +642,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                                 onMouseDown={ this._addRole.bind(this, rowIndex, data[rowIndex]) }/>
                               :
                               <input
-                                readOnly={readOnly}
+                                readOnly={ readOnly }
                                 type="checkbox"
                                 checked
                                 onMouseDown={ this._removeRole.bind(this, rowIndex, data[rowIndex]) }/>
@@ -668,7 +676,8 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                     header={ this.i18n('entity.Role.baseCode.label') }
                     width={ 100 }
                     sort
-                    face="text"/>
+                    face="text"
+                    rendered={ showBaseCode }/>
                   <Column
                     property="environment"
                     width={ 125 }

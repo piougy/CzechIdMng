@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Joi from 'joi';
@@ -20,6 +21,13 @@ const INVALID_DATE = 'Invalid date';
  * @author Radek Tomiška
  */
 class DateTimePicker extends AbstractFormComponent {
+
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      positionUp: false
+    };
+  }
 
   getRequiredValidationSchema() {
     return Joi.any().required();
@@ -140,6 +148,27 @@ class DateTimePicker extends AbstractFormComponent {
     });
   }
 
+  /**
+   * Resolve position of the component dialog.
+   * If is component too down, then will be dialog open above the component.
+   */
+  resolvePosition(callback) {
+    if (!this.refs.input) {
+      return;
+    }
+
+    // TODO: Using of findDOMNode is not recommended. Find a another solution.
+    /* eslint-disable react/no-find-dom-node */
+    const rect = ReactDOM.findDOMNode(this.refs.input).getBoundingClientRect();
+    const pageHeight = document.documentElement.clientHeight;
+    const positionY = rect.y;
+    const heightOfDialog = 250;
+
+    // Should be dialog show above the component?
+    const positionUp = (positionY + heightOfDialog) > pageHeight;
+    this.setState({positionUp}, () => (callback ? callback() : null));
+  }
+
   getValue() {
     const { mode } = this.props;
     const { value } = this.state;
@@ -175,7 +204,7 @@ class DateTimePicker extends AbstractFormComponent {
 
   _openDialog() {
     const dateTimePicker = this.refs.input;
-    dateTimePicker.setState({ open: true });
+    this.resolvePosition(() => { dateTimePicker.setState({ open: true }); });
   }
 
   getBody(feedback) {
@@ -192,7 +221,7 @@ class DateTimePicker extends AbstractFormComponent {
       isValidDate,
     } = this.props;
 
-    const { readOnly, disabled, value } = this.state;
+    const { readOnly, disabled, value, positionUp } = this.state;
     //
     // default prop values - we need initialized LocalizationService
     const _locale = locale || LocalizationService.getCurrentLanguage();
@@ -233,8 +262,10 @@ class DateTimePicker extends AbstractFormComponent {
                   onChange={this.onChange}
                   disabled={disabled}
                   readOnly={readOnly}
+                  className={positionUp ? 'rdtPickerOpenUpwards' : '' }
                   style={style}
                   closeOnSelect
+                  onFocus={this.resolvePosition.bind(this, null)}
                   locale={_locale === 'cs' ? 'cs' : 'en'}
                   dateFormat={mode === 'time' ? false : _dateFormat}
                   timeFormat={mode === 'date' ? false : _timeFormat}

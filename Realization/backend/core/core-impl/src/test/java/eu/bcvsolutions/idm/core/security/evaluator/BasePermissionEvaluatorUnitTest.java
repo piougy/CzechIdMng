@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
+@SuppressWarnings("deprecation")
 public class BasePermissionEvaluatorUnitTest extends AbstractUnitTest {
 	
 	private BasePermissionEvaluator evaluator = new BasePermissionEvaluator();

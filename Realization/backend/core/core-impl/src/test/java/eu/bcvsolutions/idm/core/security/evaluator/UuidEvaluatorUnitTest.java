@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
+@SuppressWarnings("deprecation")
 public class UuidEvaluatorUnitTest extends AbstractUnitTest {
 	
 	private UuidEvaluator evaluator = new UuidEvaluator();

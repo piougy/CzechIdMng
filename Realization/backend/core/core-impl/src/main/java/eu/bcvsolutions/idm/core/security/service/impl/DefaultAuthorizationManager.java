@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,14 +16,17 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
@@ -50,8 +54,10 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	private final ApplicationContext context;
 	private final SecurityService securityService;
 	private final ModuleService moduleService;
-	// cache
-	private final Map<String, AuthorizationEvaluator<?>> evaluators = new HashMap<>();
+	//
+	@Autowired private IdmCacheManager cacheManager;
+	// evaluators cache
+	private final Map<String, AuthorizationEvaluator<?>> evaluators = new HashMap<>();	
 	
 	public DefaultAuthorizationManager(
 			ApplicationContext context,
@@ -74,14 +80,14 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		Assert.notNull(permission, "Permission is required");
 		//
 		// check super admin
-		if(securityService.isAdmin()) {
+		if (securityService.isAdmin()) {
 			LOG.debug("Logged as admin [{}], authorization granted", securityService.getCurrentUsername());
 			return builder.conjunction();
 		}
 		//
 		final List<Predicate> predicates = Lists.newArrayList(); // no data by default
 		//
-		service.getEnabledPolicies(securityService.getCurrentId(), root.getJavaType()).forEach(policy -> {
+		getEnabledPolicies(securityService.getCurrentId(), root.getJavaType()).forEach(policy -> {
 			if (!supportsEntityType(policy, root.getJavaType())) {
 				// TODO: compatibility issues - agendas without authorization support
 			} else {
@@ -101,17 +107,47 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <E extends Identifiable> Set<String> getPermissions(E entity) {
 		Assert.notNull(entity, "Entity is required.");
-		//
 		final Set<String> permissions = new HashSet<>();
-		service.getEnabledPolicies(securityService.getCurrentId(), entity.getClass()).forEach(policy -> {
+		//
+		UUID loggedIdentityId = securityService.getCurrentId();
+		if (loggedIdentityId == null) {
+			// TODO: support setting policies to not logged user - e.g. public endpoints.
+			return permissions;
+		}
+		// try to get cached permissions
+		Serializable entityId = entity.getId();
+		Map<Serializable, Set<String>> cachedPermissions = null;
+		if (entityId != null) { // TODO: support cache for newly created entities without id
+			ValueWrapper value = cacheManager.getValue(PERMISSION_CACHE_NAME, loggedIdentityId);
+			if (value != null) {
+				// cache value is never null
+				cachedPermissions = new HashMap<>((Map) value.get());
+				//
+				if (cachedPermissions.containsKey(entityId)) {
+					return cachedPermissions.get(entityId);
+				}
+			}		
+		}
+		// load policies and get permissions
+		getEnabledPolicies(loggedIdentityId, entity.getClass()).forEach(policy -> {
 			if (!supportsEntityType(policy, entity.getClass())) {
 				// TODO: compatibility issues - agendas without authorization support
 			} else {					
 				permissions.addAll(getPermissions(entity, policy));
 			}
 		});
+		// cache permissions 
+		if (entityId != null) {
+			if (cachedPermissions == null) {
+				cachedPermissions = new HashMap<>();
+			}
+			cachedPermissions.put(entityId, permissions);
+			cacheManager.cacheValue(PERMISSION_CACHE_NAME, loggedIdentityId, cachedPermissions);
+		}
+		//
 		return permissions;
 	}
 	
@@ -143,7 +179,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		Assert.notNull(authorizableType, "Authorizable type is required.");
 		//
 		final Set<String> authorities = new HashSet<>();
-		service.getEnabledPolicies(identityId, authorizableType).forEach(policy -> {
+		getEnabledPolicies(identityId, authorizableType).forEach(policy -> {
 			if (!supportsEntityType(policy, authorizableType)) {
 				// TODO: compatibility issues - agendas without authorization support
 			} else {		
@@ -178,6 +214,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public <E extends Identifiable> boolean evaluate(E entity, BasePermission... permission) {
 		Assert.notNull(entity, "Entity is required.");
 		Assert.notNull(permission, "Permission is required");
@@ -197,11 +234,62 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 				continue;
 			}
 			AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
+			// TODO: rewrite to use cached getPermission method instead in version 10.5.x
 			if (evaluator != null && evaluator.supports(entity.getClass()) && evaluator.evaluate(entity, policy, permission)) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public List<AuthorizationEvaluatorDto> getSupportedEvaluators() {
+		// TODO: sort
+		return context
+			.getBeansOfType(AuthorizationEvaluator.class)
+			.values()
+			.stream()
+			.map(evaluator -> {
+				AuthorizationEvaluatorDto evaluatorDto = new AuthorizationEvaluatorDto();
+				evaluatorDto.setId(evaluator.getId());
+				evaluatorDto.setName(evaluator.getName());
+				evaluatorDto.setEntityType(evaluator.getEntityClass().getCanonicalName());
+				evaluatorDto.setEvaluatorType(AutowireHelper.getTargetType(evaluator));
+				evaluatorDto.setModule(evaluator.getModule());
+				evaluatorDto.setSupportsPermissions(evaluator.supportsPermissions());
+				evaluatorDto.setDescription(evaluator.getDescription());
+				evaluatorDto.setFormDefinition(evaluator.getFormDefinition());
+				//
+				return evaluatorDto;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Services authorization policies support can be enabled / disabled dynamically
+	 */
+	@Override
+	public Set<AuthorizableType> getAuthorizableTypes() {
+		Set<AuthorizableType> authorizableTypes = new HashSet<>();
+		// types with authorization evaluators support
+		context.getBeansOfType(AuthorizableService.class).values().forEach(service -> {
+			if (service.getAuthorizableType() != null) {
+				authorizableTypes.add(service.getAuthorizableType());
+			}
+		});
+		// add default - doesn't supports authorization evaluators
+		moduleService.getAvailablePermissions().forEach(groupPermission -> {
+			boolean exists = authorizableTypes.stream().anyMatch(authorizableType -> {
+				// equals by group permission name only - name is identifier, base permission can be added in custom module
+				return authorizableType.getGroup().getName().equals(groupPermission.getName());
+			});
+			if (!exists) {
+				authorizableTypes.add(new AuthorizableType(groupPermission, null));
+			}
+		});
+		return authorizableTypes;
 	}
 	
 	/**
@@ -231,29 +319,6 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		//
 		return evaluator;
 	}
-
-	@Override
-	public List<AuthorizationEvaluatorDto> getSupportedEvaluators() {
-		// TODO: sort
-		return context
-			.getBeansOfType(AuthorizationEvaluator.class)
-			.values()
-			.stream()
-			.map(evaluator -> {
-				AuthorizationEvaluatorDto evaluatorDto = new AuthorizationEvaluatorDto();
-				evaluatorDto.setId(evaluator.getId());
-				evaluatorDto.setName(evaluator.getName());
-				evaluatorDto.setEntityType(evaluator.getEntityClass().getCanonicalName());
-				evaluatorDto.setEvaluatorType(AutowireHelper.getTargetType(evaluator));
-				evaluatorDto.setModule(evaluator.getModule());
-				evaluatorDto.setSupportsPermissions(evaluator.supportsPermissions());
-				evaluatorDto.setDescription(evaluator.getDescription());
-				evaluatorDto.setFormDefinition(evaluator.getFormDefinition());
-				//
-				return evaluatorDto;
-			})
-			.collect(Collectors.toList());
-	}
 	
 	/**
 	 * Returns true, when given policy supports given entityType. 
@@ -270,7 +335,7 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 	
 	/**
-	 * Authorizable class from entity or policy
+	 * Authorizable class from entity or policy.
 	 * 
 	 * @param entity
 	 * @param policy
@@ -289,31 +354,40 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		}
 		return null;
 	}
-
+	
 	/**
-	 * {@inheritDoc}
+	 * Cache decorator - get otr load current identity permissions.
 	 * 
-	 * Services authorization policies support can be enabled / disabled dynamically
+	 * @param identityId
+	 * @param entityType
+	 * @return
 	 */
-	@Override
-	public Set<AuthorizableType> getAuthorizableTypes() {
-		Set<AuthorizableType> authorizableTypes = new HashSet<>();
-		// types with authorization evaluators support
-		context.getBeansOfType(AuthorizableService.class).values().forEach(service -> {
-			if (service.getAuthorizableType() != null) {
-				authorizableTypes.add(service.getAuthorizableType());
-			}
-		});
-		// add default - doesn't supports authorization evaluators
-		moduleService.getAvailablePermissions().forEach(groupPermission -> {
-			boolean exists = authorizableTypes.stream().anyMatch(authorizableType -> {
-				// equals by group permission name only - name is identifier, base permission can be added in custom module
-				return authorizableType.getGroup().getName().equals(groupPermission.getName());
-			});
-			if (!exists) {
-				authorizableTypes.add(new AuthorizableType(groupPermission, null));
-			}
-		});
-		return authorizableTypes;
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private List<IdmAuthorizationPolicyDto> getEnabledPolicies(UUID identityId, Class<? extends Identifiable> entityType) {
+		if (identityId == null) {
+			// TODO: support setting policies to not logged user - e.g. public endpoints.
+			return Lists.newArrayList();
+		}
+		Assert.notNull(entityType, "Entity type is required.");
+		//
+		// try to get cached policies
+		Map<Class<? extends Identifiable>, List<IdmAuthorizationPolicyDto>> cachedPolicies;
+		ValueWrapper value = cacheManager.getValue(AUTHORIZATION_POLICY_CACHE_NAME, identityId);
+		if (value != null) {
+			// cache value is never null - create copy
+			cachedPolicies = new HashMap<>((Map) value.get());
+		} else {
+			cachedPolicies = new HashMap<>();
+		}
+		if (cachedPolicies.containsKey(entityType)) {
+			return cachedPolicies.get(entityType);
+		}
+		// load policies
+		List<IdmAuthorizationPolicyDto> enabledPolicies = service.getEnabledPolicies(identityId, entityType);
+		// cache policies 
+		cachedPolicies.put(entityType, enabledPolicies);
+		cacheManager.cacheValue(AUTHORIZATION_POLICY_CACHE_NAME, identityId, cachedPolicies);
+		//
+		return enabledPolicies;
 	}
 }

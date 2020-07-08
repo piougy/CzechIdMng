@@ -64,15 +64,13 @@ public class DefaultConfigurationService
 		implements IdmConfigurationService, ConfigurationService {
 
 	public static final String CACHE_NAME = CoreModuleDescriptor.MODULE_ID + ":configuration-cache";
-
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
-
 	//
 	private final IdmConfigurationRepository repository;
 	private final ConfidentialStorage confidentialStorage;
 	private final ConfigurableEnvironment env;
-	@Autowired
-	private IdmCacheManager cacheManager;
+	//
+	@Autowired private IdmCacheManager cacheManager;
 	
 	@Autowired
 	public DefaultConfigurationService(

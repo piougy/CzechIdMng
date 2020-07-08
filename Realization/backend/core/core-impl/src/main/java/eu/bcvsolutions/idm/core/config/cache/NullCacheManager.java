@@ -17,6 +17,7 @@ import javax.cache.spi.CachingProvider;
  * @author Peter Štrunc
  */
 public class NullCacheManager implements CacheManager {
+	
 	@Override
 	public CachingProvider getCachingProvider() {
 		return Caching.getCachingProvider();

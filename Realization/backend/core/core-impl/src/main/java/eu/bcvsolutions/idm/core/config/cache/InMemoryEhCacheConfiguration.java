@@ -8,6 +8,7 @@ import javax.cache.Caching;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,17 +60,25 @@ public class InMemoryEhCacheConfiguration {
 		);
 	}
 
-	private CacheConfiguration<?, ?> toConcreteConfiguration(IdMCacheConfiguration idMCacheConfiguration) {
-		if (idMCacheConfiguration.isOnlyLocal()) {
-			return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-					idMCacheConfiguration.getKeyType(), CacheObjectWrapper.class,
-					ResourcePoolsBuilder.heap(idMCacheConfiguration.getSize())
-			).withValueSerializer(CacheWrapperSerializer.class).build();
+	private CacheConfiguration<?, ?> toConcreteConfiguration(IdMCacheConfiguration idmCacheConfiguration) {
+		if (idmCacheConfiguration.isOnlyLocal()) {
+			return CacheConfigurationBuilder
+					.newCacheConfigurationBuilder(
+							idmCacheConfiguration.getKeyType(),
+							CacheObjectWrapper.class,
+							ResourcePoolsBuilder.heap(idmCacheConfiguration.getSize()))
+					.withValueSerializer(CacheWrapperSerializer.class)
+					.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(idmCacheConfiguration.getTtl()))
+					.build();
 		} else {
-			return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-					idMCacheConfiguration.getKeyType(), SerializableCacheObjectWrapper.class,
-					ResourcePoolsBuilder.heap(idMCacheConfiguration.getSize())
-			).withValueSerializer(SerializableCacheWrapperSerializer.class).build();
+			return CacheConfigurationBuilder
+					.newCacheConfigurationBuilder(
+							idmCacheConfiguration.getKeyType(), 
+							SerializableCacheObjectWrapper.class,
+							ResourcePoolsBuilder.heap(idmCacheConfiguration.getSize()))
+					.withValueSerializer(SerializableCacheWrapperSerializer.class)
+					.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(idmCacheConfiguration.getTtl()))
+					.build();
 		}
 	}
 

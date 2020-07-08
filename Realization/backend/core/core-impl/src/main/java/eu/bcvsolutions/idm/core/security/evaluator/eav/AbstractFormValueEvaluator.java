@@ -153,7 +153,7 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 		// owner update
 		if (isOwnerUpdate(policy)) {
 			FormableEntity owner = getOwner(entity); // Owner instance is required (type is needed to resolve configured policies).
-			Serializable ownerId = owner.getId();
+			Serializable ownerId = owner.getId();			
 			if (ownerId == null || lookupService.lookupEntity(owner.getClass(), ownerId) == null) { // ~ is newly created owner
 				// newly created owner together with extended values
 				if (!PermissionUtils.hasAnyPermission(

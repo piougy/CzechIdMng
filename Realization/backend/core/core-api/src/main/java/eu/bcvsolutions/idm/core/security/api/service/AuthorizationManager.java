@@ -23,6 +23,9 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
  */
 public interface AuthorizationManager {
 	
+	String PERMISSION_CACHE_NAME = "core:permission-cache"; // TODO: move core module descriptor to api
+	String AUTHORIZATION_POLICY_CACHE_NAME = "core:authorization-policy-cache"; // TODO: move core module descriptor to api
+	
 	/**
 	 * Return security predicate for given permissions and root by {@link BaseEntity} type.
 	 * Calls all registered and enabled {@link AuthorizationEvaluator} which support {@link BaseEntity} type.

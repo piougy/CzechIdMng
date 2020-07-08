@@ -181,7 +181,7 @@ public class IdmRoleCatalogueController extends AbstractReadWriteDtoController<I
 						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_CREATE, description = ""),
 						@AuthorizationScope(scope = CoreGroupPermission.ROLECATALOGUE_UPDATE, description = "")})
 				})
-	public ResponseEntity<?> post(@Valid @RequestBody IdmRoleCatalogueDto dto) {
+	public ResponseEntity<?> post(@Valid @RequestBody IdmRoleCatalogueDto dto) {		
 		return super.post(dto);
 	}
 

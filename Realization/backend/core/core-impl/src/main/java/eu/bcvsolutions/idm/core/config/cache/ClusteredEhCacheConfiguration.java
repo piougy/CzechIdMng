@@ -14,6 +14,7 @@ import org.ehcache.clustered.client.config.builders.ClusteringServiceConfigurati
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.MemoryUnit;
 import org.ehcache.jsr107.EhcacheCachingProvider;
@@ -99,17 +100,25 @@ public class ClusteredEhCacheConfiguration {
 				).collect(Collectors.toList());
 	}
 
-	private CacheConfiguration<?, ?> toConcreteConfiguration(IdMCacheConfiguration idMCacheConfiguration, String teracotaResourcePoolName) {
-		if (idMCacheConfiguration.isOnlyLocal()) {
-			return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-					idMCacheConfiguration.getKeyType(), CacheObjectWrapper.class,
-					getResourcePools(idMCacheConfiguration, teracotaResourcePoolName)
-			).withValueSerializer(CacheWrapperSerializer.class).build();
+	private CacheConfiguration<?, ?> toConcreteConfiguration(IdMCacheConfiguration idmCacheConfiguration, String teracotaResourcePoolName) {
+		if (idmCacheConfiguration.isOnlyLocal()) {
+			return CacheConfigurationBuilder
+					.newCacheConfigurationBuilder(
+							idmCacheConfiguration.getKeyType(),
+							CacheObjectWrapper.class,
+							getResourcePools(idmCacheConfiguration, teracotaResourcePoolName))
+					.withValueSerializer(CacheWrapperSerializer.class)
+					.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(idmCacheConfiguration.getTtl()))
+					.build();
 		} else {
-			return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-					idMCacheConfiguration.getKeyType(), SerializableCacheObjectWrapper.class,
-					getResourcePools(idMCacheConfiguration, teracotaResourcePoolName)
-			).withValueSerializer(SerializableCacheWrapperSerializer.class).build();
+			return CacheConfigurationBuilder
+					.newCacheConfigurationBuilder(
+							idmCacheConfiguration.getKeyType(), 
+							SerializableCacheObjectWrapper.class,
+							getResourcePools(idmCacheConfiguration, teracotaResourcePoolName))
+					.withValueSerializer(SerializableCacheWrapperSerializer.class)
+					.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(idmCacheConfiguration.getTtl()))
+					.build();
 		}
 	}
 

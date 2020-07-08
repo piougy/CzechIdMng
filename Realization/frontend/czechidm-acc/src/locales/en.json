@@ -2625,6 +2625,9 @@
     },
     "provisioning-cache": {
       "description": "Stores executed provisioning operations. This drastically speeds up provisioning brake. Evicting this cach may temporarilly slow down provisioning execution for systems, which have provisioning brake enabled."
+    },
+    "sync-mapping-cache": {
+      "description": "Cache stores mapped attribute values during synchronization."
     }
   }
 }

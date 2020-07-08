@@ -108,8 +108,9 @@ public abstract class AbstractAuthorizationEvaluator<E extends Identifiable> imp
 	}
 
 	/**
-	 * Supposed to be overriden for orderable optimalizations.
+	 * @deprecated @since 10.4.1 - override {@link #getPermissions(Identifiable, AuthorizationPolicy)} instead
 	 */
+	@Deprecated
 	@Override
 	public boolean evaluate(E authorizable, AuthorizationPolicy policy, BasePermission... permission) {
 		Assert.notEmpty(permission, "Permission is required.");

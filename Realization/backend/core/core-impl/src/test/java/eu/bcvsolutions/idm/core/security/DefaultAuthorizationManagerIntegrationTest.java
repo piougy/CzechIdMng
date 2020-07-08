@@ -5,16 +5,21 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-import java.util.Set;
-
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -23,11 +28,11 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
-import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -36,7 +41,7 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultAuthorizationManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
@@ -53,18 +58,18 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmAuthorizationPolicyService service;
-	@Autowired private SecurityService securityService;
-	@Autowired private ModuleService moduleService;
 	@Autowired private LoginService loginService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmIdentityContractService identityContractService;
+	@Autowired private IdmCacheManager cacheManager;
+	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	//
 	private AuthorizationManager manager;
 	
 	@Before
 	public void init() {		
-		manager = new DefaultAuthorizationManager(context, service, securityService, moduleService);
+		manager = context.getAutowireCapableBeanFactory().createBean(DefaultAuthorizationManager.class);
 	}
 	
 	@Test
@@ -279,5 +284,95 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		} finally {
 			logout();
 		}
+	}
+	
+	@Test
+	@Transactional
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testCache() {
+		// create and login identity
+		IdmIdentityDto identity = getHelper().createIdentity();
+		UUID mockIdentity = UUID.randomUUID();
+		// prepare role
+		IdmRoleDto role = helper.createRole();
+		IdmAuthorizationPolicyDto policy = helper.createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
+		getHelper().createIdentityRole(identity, role);
+		//
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity));
+		//
+		cacheManager.cacheValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity, new HashMap<>());
+		cacheManager.cacheValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity, new HashMap<>());
+		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
+		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity));
+		//
+		// without login
+		Set<String> permissions = manager.getPermissions(role);
+		Assert.assertTrue(permissions.isEmpty());
+		//
+		
+		//
+		try {
+			getHelper().login(identity);
+			//
+			// new entity is not supported with cache, but permissions are evaluated
+			permissions = manager.getPermissions(new IdmRoleDto());
+			Assert.assertEquals(2, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+			//
+			// load from db
+			permissions = manager.getPermissions(role);
+			Assert.assertEquals(2, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+			// load from cache
+			permissions = manager.getPermissions(role);
+			Assert.assertEquals(2, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+			// check cache content - one
+			ValueWrapper cacheValue = cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId());
+			List<IdmAuthorizationPolicyDto> cachedPolicies = (List) ((Map) cacheValue.get()).get(role.getClass());
+			Assert.assertEquals(1, cachedPolicies.size());
+			Assert.assertEquals(BasePermissionEvaluator.class.getCanonicalName(), cachedPolicies.get(0).getEvaluatorType());
+			cacheValue = cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId());
+			permissions = (Set) ((Map) cacheValue.get()).get(role.getId());
+			Assert.assertEquals(2, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			//
+			// change policy => evict whole cache
+			policy.setPermissions(IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ, IdmBasePermission.UPDATE);
+			authorizationPolicyService.save(policy);
+			Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+			Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+			Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
+			Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity));
+			//
+			cacheManager.cacheValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity, new HashMap<>());
+			cacheManager.cacheValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity, new HashMap<>());
+			permissions = manager.getPermissions(role);
+			Assert.assertEquals(3, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.AUTOCOMPLETE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.UPDATE.getName())));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+			Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+		} finally {
+			logout(); // evict logged identity cache only
+		}
+		// check cache is evicted only for logged identity
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
+		Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
+		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
+		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity));
 	}
 }

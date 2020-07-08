@@ -92,12 +92,12 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
         Assert.hasText(cacheName, EMPTY_NAME_MSG);
         Assert.notNull(key, EMPTY_KEY_MSG);
         //
-        final Cache<Object, Object> cache = jCacheManager.getCache(cacheName);
-        final IdMCacheConfiguration cacheConfiguration = cacheConfigurations.get(cacheName);
+        Cache<Object, Object> cache = jCacheManager.getCache(cacheName);      
+        IdMCacheConfiguration cacheConfiguration = cacheConfigurations.get(cacheName);
         //
         if (cache == null) {
             return null;
-        }
+        }     
         //
         return toValueWrapper(cacheConfiguration, cache.get(key));
     }

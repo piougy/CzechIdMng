@@ -5911,7 +5911,7 @@
             "help": "Nastaví oprávnění pro atributy kontraktů, které aktuálně přihlášený uživatel může editovat (například pokud může editovat kontrakt, může editovat i vyjmenované atributy)."
           },
           "owner-read": {
-            "label": "Dle oprávnění číst uživatele",
+            "label": "Dle oprávnění číst kontrakt",
             "help": "Nastaví oprávnění pro atributy kontraktů, které aktuálně přihlášený uživatel může číst (například pokud může číst kontrakt, může editovat vyjmenované atributy)."
           }
         }
@@ -7599,6 +7599,12 @@
     },
     "default-groovy-script-service-script-cache": {
       "description": "Cache pro ukládání Groovy scriptů. Smazání této cache způsobí to, že při dalším pokusu o spuštění scriptu, je tento script znovu zkompilován, uložen do cache a teprve poté spuštěn."
+    },
+    "authorization-policy-cache": {
+      "description": "Cache pro ukládání aktivních autorizačních politik přihlášeného uživatele. Cache je vyprázdněna po odhlášení uživatele. Pokud se změní konfigurace autorizačních politik, je uživatel odhlášen a cache vyprázdněna (platí pouze pro odebírání oprávnění). Platnost cache jsou 2 hodiny, například pokud se uživatel zapomene odhlásit."
+    },
+    "permission-cache": {
+      "description": "Cache pro ukládání oprávnění (na data) přihlášeného uživatele. Cache je vyprázdněna po odhlášení uživatele. Platnost cache je 1 minuta - pokud se změní struktura dat ovlivňující oprávnění, jsou oprávnění aktualizována po uplynutí této doby. Pokud se změní konfigurace autorizačních politik, je tato cache vyprázdněna (kompletně)."
     }
   }
 }

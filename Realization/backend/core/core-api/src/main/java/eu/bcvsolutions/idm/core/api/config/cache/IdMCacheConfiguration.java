@@ -1,13 +1,23 @@
 package eu.bcvsolutions.idm.core.api.config.cache;
 
+import java.time.Duration;
 import java.util.Map;
+
+import org.ehcache.expiry.ExpiryPolicy;
 
 /**
  * Configuration of cache in CzechIdM. It contains basic attributes such as name, key and value types and size.
  *
  * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
+ * @author Radek Tomiška
  */
 public interface IdMCacheConfiguration {
+	
+	/**
+	 * A {@link Duration duration} that represents an infinite time.
+	 * @since 10.4.1
+	 */
+	Duration INFINITE_TTL = ExpiryPolicy.INFINITE;
 
 	/**
 	 * This property indicates whether this cache should be only cached locally, or if it could be distributed.
@@ -35,11 +45,18 @@ public interface IdMCacheConfiguration {
 	 */
 	Class<?> getValueType();
 
+	/**
+	 * Additional cache properties.
+	 * 
+	 * @param propName
+	 * @return
+	 */
 	Object getProperty(String propName);
 
 	/**
+	 * Additional defined properties.
 	 * 
-	 * @returnn Additional defined properties
+	 * @return additional defined properties
 	 */
 	Map<String, Object> getProperties();
 
@@ -50,4 +67,15 @@ public interface IdMCacheConfiguration {
 	 * @return number of entries, which this cache can hold
 	 */
 	long getSize();
+	
+	/**
+	 * Cache entry expiration.
+	 * A {@link Duration duration} that represents an infinite time by default, never returns {@code null}.
+	 * 
+	 * @return time to live duration.
+	 * @since 10.4.1
+	 */
+	default Duration getTtl() {
+		return INFINITE_TTL;
+	}
 }

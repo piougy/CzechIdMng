@@ -100,7 +100,9 @@ public interface AuthorizationEvaluator<E extends Identifiable> extends Ordered,
 	 * @param policy
 	 * @param permission permissions to evaluate (AND)
 	 * @return
+	 * @deprecated @since 10.4.1 - override {@link #getPermissions(Identifiable, AuthorizationPolicy)} instead
 	 */
+	@Deprecated
 	boolean evaluate(E authorizable, AuthorizationPolicy policy, BasePermission... permission);
 	
 	/**

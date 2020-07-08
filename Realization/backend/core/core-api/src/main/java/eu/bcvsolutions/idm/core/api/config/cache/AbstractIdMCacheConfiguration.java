@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.config.cache;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
  * will then serve as a template for constructing caches.
  *
  * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
+ * @author Radek Tomiška
  */
 public abstract class AbstractIdMCacheConfiguration implements IdMCacheConfiguration {
 
@@ -21,14 +23,33 @@ public abstract class AbstractIdMCacheConfiguration implements IdMCacheConfigura
 	private final ImmutableMap<String, Object> properties;
 	private final boolean onlyLocal;
 	private final long size;
+	private final Duration ttl;
 
-	protected AbstractIdMCacheConfiguration(String cacheName, Class<?> keyType, Class<?> valueType, ImmutableMap<String, Object> properties, boolean onlyLocal, long size) {
+	protected AbstractIdMCacheConfiguration(
+			String cacheName, 
+			Class<?> keyType, 
+			Class<?> valueType, 
+			ImmutableMap<String, Object> properties, 
+			boolean onlyLocal, 
+			long size) {
+		this(cacheName, keyType, valueType, properties, onlyLocal, size, null);
+	}
+	
+	protected AbstractIdMCacheConfiguration(
+			String cacheName, 
+			Class<?> keyType, 
+			Class<?> valueType, 
+			ImmutableMap<String, Object> properties, 
+			boolean onlyLocal, 
+			long size,
+			Duration ttl) {
 		this.cacheName = cacheName;
 		this.keyType = keyType;
 		this.valueType = valueType;
 		this.properties = properties;
 		this.onlyLocal = onlyLocal;
 		this.size = size;
+		this.ttl = ttl == null ? INFINITE_TTL : ttl;
 	}
 
 	@Override
@@ -71,6 +92,11 @@ public abstract class AbstractIdMCacheConfiguration implements IdMCacheConfigura
 	public long getSize() {
 		return size;
 	}
+	
+	@Override
+	public Duration getTtl() {
+		return ttl;
+	}
 
 	/**
 	 * Builder for cache configuration. It ensures, that ll required configuration options are set before creating
@@ -86,6 +112,7 @@ public abstract class AbstractIdMCacheConfiguration implements IdMCacheConfigura
 		protected Class<? extends V>  valueType;
 		protected final Map<String, Object> properties = new HashMap<>();
 		protected Long size = null;
+		protected Duration ttl = null;
 
 		public Builder<K, V> withName(final String name) {
 			this.cacheName = name;
@@ -109,6 +136,11 @@ public abstract class AbstractIdMCacheConfiguration implements IdMCacheConfigura
 
 		public Builder<K, V> witchCacheSize(long size) {
 			this.size = size;
+			return this;
+		}
+		
+		public Builder<K, V> withTtl(Duration ttl) {
+			this.ttl = ttl;
 			return this;
 		}
 

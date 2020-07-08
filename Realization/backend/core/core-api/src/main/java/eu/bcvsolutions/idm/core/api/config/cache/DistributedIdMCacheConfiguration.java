@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.config.cache;
 
 import java.io.Serializable;
+import java.time.Duration;
 
 import org.springframework.util.Assert;
 
@@ -12,11 +13,27 @@ import com.google.common.collect.ImmutableMap;
  *
  * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
  */
-public class DistributedIdMCacheConfiguration extends AbstractIdMCacheConfiguration{
-	protected DistributedIdMCacheConfiguration(String cacheName, Class<? extends Serializable> keyType,
-											   Class<? extends Serializable> valueType, ImmutableMap<String, Object> properties,
-											   boolean onlyLocal, long size) {
-		super(cacheName, keyType, valueType, properties, onlyLocal, size);
+public class DistributedIdMCacheConfiguration extends AbstractIdMCacheConfiguration {
+	
+	protected DistributedIdMCacheConfiguration(
+			String cacheName, 
+			Class<? extends Serializable> keyType,
+			Class<? extends Serializable> valueType,
+			ImmutableMap<String, Object> properties,
+			boolean onlyLocal, 
+			long size) {
+		this(cacheName, keyType, valueType, properties, onlyLocal, size, null);
+	}
+	
+	protected DistributedIdMCacheConfiguration(
+			String cacheName, 
+			Class<? extends Serializable> keyType,
+			Class<? extends Serializable> valueType,
+			ImmutableMap<String, Object> properties,
+			boolean onlyLocal, 
+			long size,
+			Duration ttl) {
+		super(cacheName, keyType, valueType, properties, onlyLocal, size, ttl);
 	}
 
 	public static <K extends Serializable, V extends Serializable> DistributedIdMCacheConfiguration.Builder <K, V> builder() {
@@ -31,8 +48,15 @@ public class DistributedIdMCacheConfiguration extends AbstractIdMCacheConfigurat
 			Assert.notNull(keyType, "No key type provided");
 			Assert.notNull(valueType, "No value type provided");
 			//
-			return new DistributedIdMCacheConfiguration(cacheName, keyType, valueType, ImmutableMap.copyOf(properties),
-					false, size == null ? DEFAULT_HEAP_CACHE_SIZE : size);
+			return new DistributedIdMCacheConfiguration(
+					cacheName, 
+					keyType, 
+					valueType, 
+					ImmutableMap.copyOf(properties),
+					false, 
+					size == null ? DEFAULT_HEAP_CACHE_SIZE : size,
+					ttl
+			);
 		}
 	}
 

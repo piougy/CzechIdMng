@@ -28,11 +28,18 @@ public interface RoleConfiguration extends Configurable {
 	 */
 	String PROPERTY_ADMIN_ROLE = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.role.admin";
 	String DEFAULT_ADMIN_ROLE = "superAdminRole";
-
-	/**
-	 * 
-	 */
 	String PROPERTY_APPROVE_ROLE_CHANGE_ROLE =  ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.wf.approval.role-change.role";
+	/**
+	 * If is true, then role-request description will be show on the detail.
+	 * 
+	 * Description will hidden if this property will be false and role request
+	 * doesn't contains any value in description (can be filled during the approval
+	 * process)
+	 *
+	 * Defalut is true.
+	 *
+	 */
+	String PROPERTY_SHOW_ROLE_REQUEST_DESCRIPTION =  ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "app.show.roleRequest.description";
 	
 	/**
 	 * Separator for the suffix with environment used in role code.
@@ -62,6 +69,7 @@ public interface RoleConfiguration extends Configurable {
 		properties.add(getPropertyName(PROPERTY_DEFAULT_ROLE));
 		properties.add(getPropertyName(PROPERTY_ADMIN_ROLE));
 		properties.add(getPropertyName(PROPERTY_APPROVE_ROLE_CHANGE_ROLE));
+		properties.add(getPropertyName(PROPERTY_SHOW_ROLE_REQUEST_DESCRIPTION));
 		return properties;
 	}
 	

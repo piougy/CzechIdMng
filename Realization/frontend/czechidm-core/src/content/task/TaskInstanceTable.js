@@ -6,6 +6,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import * as Domain from '../../domain';
+import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
 /**
 * Table of tasks
 * Without given props search parameter show this table only tasks for logged identity.
@@ -180,7 +181,7 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
               });
             }
             return (
-              <Advanced.IdentitiesInfo identities={identityIds} maxEntry={5} />
+              <IdentitiesInfo identities={identityIds} maxEntry={5} />
             );
           }}/>
         <Advanced.Column

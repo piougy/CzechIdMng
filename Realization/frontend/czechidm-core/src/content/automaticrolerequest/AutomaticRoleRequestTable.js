@@ -9,6 +9,7 @@ import * as Utils from '../../utils';
 import {SecurityManager, IdentityManager, WorkflowTaskInstanceManager} from '../../redux';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
+import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
 
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 /**
@@ -55,17 +56,13 @@ export class AutomaticRoleRequestTable extends Advanced.AbstractTableContent {
     }
   }
 
-  reload() {
-    this.refs.table.reload();
-  }
-
   _getCandidatesCell({ rowIndex, data, property}) {
     const entity = data[rowIndex];
     if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
       return '';
     }
     return (
-      <Advanced.IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={5} />
+      <IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={5} />
     );
   }
 

@@ -1710,6 +1710,9 @@
           "or": "or",
           "default": "use default form"
         }
+      },
+      "info": {
+        "warningTooMuchIds": "Only first {{limit}} users out of {{count}} are shown!"
       }
     },
     "tree": {

@@ -23,6 +23,7 @@ import {
   from '../../redux';
 import RoleRequestTable from '../requestrole/RoleRequestTable';
 import IdentityRoleTableComponent, { IdentityRoleTable } from './IdentityRoleTable';
+import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
 
 const uiKey = 'identity-roles';
 const uiKeyContracts = 'role-identity-contracts';
@@ -225,7 +226,7 @@ class IdentityRoles extends Basic.AbstractContent {
       return '';
     }
     return (
-      <Advanced.IdentitiesInfo identities={entity.candicateUsers} maxEntry={2} />
+      <IdentitiesInfo identities={entity.candicateUsers} maxEntry={2} />
     );
   }
 

@@ -7,6 +7,10 @@ import * as Basic from '../../basic';
 /**
  * Cells for Candicates
  * maxEntry - max entry in candidates
+ *
+ * @Deprecated since 10.4.1.
+ * Use src.content.identity.IdentitiesInfo.IdentitiesInfo instead!
+ *
  */
 class IdentitiesInfo extends Basic.AbstractComponent {
 
@@ -48,6 +52,7 @@ class IdentitiesInfo extends Basic.AbstractComponent {
 }
 
 IdentitiesInfo.propTypes = {
+  /* eslint-disable react/forbid-prop-types */
   identities: PropTypes.array,
   isUsedIdentifier: PropTypes.bool,
   maxEntry: PropTypes.number,

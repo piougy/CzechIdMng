@@ -9,6 +9,7 @@ import * as Utils from '../../utils';
 import { SecurityManager, WorkflowTaskInstanceManager, RoleRequestManager } from '../../redux';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import OperationStateEnum from '../../enums/OperationStateEnum';
+import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
 
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 const manager = new RoleRequestManager();
@@ -75,7 +76,7 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <Advanced.IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={5} />
+      <IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={5} />
     );
   }
 

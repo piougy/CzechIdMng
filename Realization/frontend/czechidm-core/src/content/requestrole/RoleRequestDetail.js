@@ -12,6 +12,7 @@ import { RoleRequestManager, IdentityRoleManager, DataManager, ConfigurationMana
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import RequestIdentityRoleTable from './RequestIdentityRoleTable';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
+import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
 //
 const uiKey = 'role-request';
 const uiKeyIncompatibleRoles = 'request-incompatible-roles-';
@@ -413,7 +414,7 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <Basic.LabelWrapper
                 label={ this.i18n('entity.RoleRequest.candicateUsers') }
                 rendered={ ((approvers && approvers.length > 0) === true) }>
-                <Advanced.IdentitiesInfo identities={ approvers } isUsedIdentifier={ false } maxEntry={ 5 } />
+                <IdentitiesInfo identities={ approvers } isUsedIdentifier={ false } maxEntry={ 5 } />
               </Basic.LabelWrapper>
               <Basic.TextArea
                 ref="description"

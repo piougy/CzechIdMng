@@ -16,7 +16,10 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  * but only for read current state.
  *
  * @author Svanda
+ * 
+ * @deprecated since 10.4.1. This class is no longer used.
  */
+@Deprecated
 @Relation(collectionRelation = "contracts")
 public class IdmContractDto implements Serializable, ValidableEntity {
 

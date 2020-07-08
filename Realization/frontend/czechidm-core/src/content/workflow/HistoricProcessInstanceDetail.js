@@ -10,6 +10,7 @@ import { WorkflowHistoricProcessInstanceManager,
   SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
+import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
 
 /**
 * Workflow process historic detail
@@ -100,7 +101,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
       }
     }
     return (
-      <Advanced.IdentitiesInfo identities={identityIds} maxEntry={MAX_CANDICATES} />
+      <IdentitiesInfo identities={identityIds} maxEntry={MAX_CANDICATES} />
     );
   }
 

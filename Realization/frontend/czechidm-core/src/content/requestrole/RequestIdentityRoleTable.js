@@ -12,6 +12,7 @@ import RoleConceptDetail from './RoleConceptDetail';
 import FormInstance from '../../domain/FormInstance';
 import ConfigLoader from '../../utils/ConfigLoader';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
+import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
 
 const uiKeyIncompatibleRoles = 'request-incompatible-roles-';
 const requestIdentityRoleManager = new RequestIdentityRoleManager();
@@ -721,7 +722,7 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                 ({rowIndex, data}) => {
                   const candidates = data[rowIndex].candidates;
                   return (
-                    <Advanced.IdentitiesInfo identities={ candidates } isUsedIdentifier={ false } maxEntry={ 5 } />
+                    <IdentitiesInfo identities={ candidates } isUsedIdentifier={ false } maxEntry={ 5 } />
                   );
                 }
               }/>

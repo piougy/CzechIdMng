@@ -1760,6 +1760,9 @@
           "or": "nebo",
           "default": "použít výchozí formulář"
         }
+      },
+      "info": {
+        "warningTooMuchIds": "Je zobrazeno pouze prvních {{limit}} uživatelů z celkového počtu {{count}}!"
       }
     },
     "tree": {

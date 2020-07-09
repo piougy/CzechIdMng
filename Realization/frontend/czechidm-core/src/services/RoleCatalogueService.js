@@ -43,14 +43,22 @@ class RoleCatalogueService extends AbstractService {
    * Returns search parameters for search roots
    */
   getRootSearchParameters() {
-    return super.getDefaultSearchParameters().setName(RoleCatalogueService.ROOT_SEARCH).clearSort().setSort('name').setSize(50);
+    return super.getDefaultSearchParameters()
+      .setName(RoleCatalogueService.ROOT_SEARCH)
+      .clearSort()
+      .setSort('name')
+      .setSize(25);
   }
 
   /**
    * Search children by parent id
    */
   getTreeSearchParameters() {
-    return super.getDefaultSearchParameters().setName(RoleCatalogueService.TREE_SEARCH).clearSort().setSort('name').setSize(50);
+    return super.getDefaultSearchParameters()
+      .setName(RoleCatalogueService.TREE_SEARCH)
+      .clearSort()
+      .setSort('name')
+      .setSize(25);
   }
 }
 

@@ -448,7 +448,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
     const { readOnly } = this.state;
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.LabelWrapper label={ this.getLabel() ? (<span style={{ visibility: 'hidden' }}>T</span>) : null }>
           <Basic.Button
             level="default"
@@ -459,7 +459,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
             titlePlacement="bottom"
             disabled={ readOnly } />
         </Basic.LabelWrapper>
-      </div>
+      </Basic.Div>
     );
   }
 
@@ -521,7 +521,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
               clearable={ clearable }
               valueComponent={ RoleValueDecorator }
               forceSearchParameters={ forceSearchParameters }
-              niceLabel={(r) => {
+              niceLabel={ (r) => {
                 return this.getManager().getNiceLabel(r, showEnvironment);
               }}
               disableable={ disableable }/>
@@ -541,7 +541,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
             style={ showTree === true ? { padding: 0 } : {} }>
             <Basic.Row>
               <Basic.Col
-                lg={ 3 }
+                lg={ 4 }
                 className="role-select-tree-container"
                 rendered={ showTree === true }>
                 <Tree
@@ -550,10 +550,11 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                   manager={ this.getRoleCatalogueManager() }
                   onChange={ this._filterByRoleCatalogue.bind(this) }
                   header={ this.i18n('content.roles.select.chooseFolder') }
-                  rendered={ showTree }/>
+                  rendered={ showTree }
+                  bodyStyle={{ overflow: 'auto', maxHeight: 600 }}/>
               </Basic.Col>
               <Basic.Col
-                lg={ showTree ? 9 : 12 }
+                lg={ showTree ? 8 : 12 }
                 className={
                   classNames({
                     'role-select-table-container': true,
@@ -656,6 +657,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                     header={ this.i18n('entity.Role._type') }
                     sort
                     face="text"
+                    width="40%"
                     cell={
                       ({ rowIndex, data }) => {
                         const entity = data[rowIndex];
@@ -695,7 +697,6 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                     property="description"
                     sort
                     face="text"
-                    width={ 175 }
                     maxLength={ 100 }/>
                 </Table>
               </Basic.Col>

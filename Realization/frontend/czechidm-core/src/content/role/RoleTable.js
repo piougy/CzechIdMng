@@ -377,7 +377,8 @@ class RoleTable extends Advanced.AbstractTableContent {
                     entityType="role"
                     entityIdentifier={ data[rowIndex].id }
                     entity={ data[rowIndex] }
-                    face="popover"/>
+                    face="popover"
+                    showIcon/>
                 )
               }/>
             <Advanced.Column

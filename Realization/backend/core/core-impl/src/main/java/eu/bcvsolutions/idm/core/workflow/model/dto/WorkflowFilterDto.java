@@ -6,6 +6,11 @@ import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
+/**
+ * 
+ * FIXME: filter is used in bulk action and cannot be saved and persisted into DB (DataFilter is required to asynchronous bulk action processing).
+ *
+ */
 public class WorkflowFilterDto extends QuickFilter {
 	
 	private Map<String, Object> equalsVariables;

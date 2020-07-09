@@ -74,6 +74,13 @@ public class DefaultSecurityService implements SecurityService {
 		}
 		return true;
 	}
+	
+	@Override
+	public boolean isSystemAuthenticated() {
+		return isAuthenticated() 
+				&& SYSTEM_NAME.equals(getCurrentUsername()) // [SYSTEM]
+				&& getCurrentId() == null; // without identity identifier
+	}
 
 	@Override
 	public String getUsername() {

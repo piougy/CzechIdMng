@@ -2,14 +2,16 @@ package eu.bcvsolutions.idm.core.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.UUID;
 
-import java.time.ZonedDateTime;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
@@ -45,11 +48,9 @@ public class DefaultSecurityServiceUnitTest extends AbstractUnitTest {
 			AUTHORITIES,
 			"test");
 	
-	@Mock
-	private SecurityContext securityContext;
-	@Mock
-	private RoleHierarchy authorityHierarchy; 
-	
+	@Mock private SecurityContext securityContext;
+	@Mock private RoleHierarchy authorityHierarchy; 
+	//
 	private DefaultSecurityService defaultSecurityService;
 
 	@Before
@@ -86,5 +87,27 @@ public class DefaultSecurityServiceUnitTest extends AbstractUnitTest {
 		boolean result = defaultSecurityService.hasAnyAuthority(TEST_AUTHORITY);
 		//
 		assertTrue(result);
-	}	
+	}
+	
+	@Test
+	public void testIsSystemAuthority() {
+		Assert.assertFalse(defaultSecurityService.isSystemAuthenticated());
+		// setup normal authentication
+		when(securityContext.getAuthentication()).thenReturn(AUTHENTICATION);
+		Assert.assertFalse(defaultSecurityService.isSystemAuthenticated());
+		//
+		when(securityContext.getAuthentication())
+			.thenReturn(
+				new IdmJwtAuthentication(new IdmIdentityDto(SecurityService.SYSTEM_NAME), null, null, null)
+			);
+		//
+		Assert.assertTrue(defaultSecurityService.isSystemAuthenticated());
+		//
+		when(securityContext.getAuthentication())
+			.thenReturn(
+				new IdmJwtAuthentication(new IdmIdentityDto(UUID.randomUUID(), SecurityService.SYSTEM_NAME), null, null, null)
+			);
+		//
+		Assert.assertFalse(defaultSecurityService.isSystemAuthenticated());
+	}
 }

@@ -56,6 +56,15 @@ public interface SecurityService {
 	boolean isAuthenticated();
 	
 	/**
+	 * Returns true, if system is logged ([SYSTEM]).
+	 * 
+	 * @see SecurityService#setSystemAuthentication()
+	 * @return true, if system is logged
+	 * @since 10.4.1
+	 */
+	boolean isSystemAuthenticated();
+	
+	/**
 	 * Returns current authentication id (~ token id).
 	 * 
 	 * @return

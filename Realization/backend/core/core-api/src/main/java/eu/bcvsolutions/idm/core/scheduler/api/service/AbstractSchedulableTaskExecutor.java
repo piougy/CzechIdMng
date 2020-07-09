@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.TransactionContextHolder;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
@@ -60,7 +61,10 @@ public abstract class AbstractSchedulableTaskExecutor<V>
 			}
 		}		
 		//
-		// run as system - called from scheduler internally
+		// run as system - called from scheduler internall
+		if (securityService.isAuthenticated() && !securityService.isSystemAuthenticated()) {
+			throw new CoreException("System want to reuse thread logged with identity [" + securityService.getCurrentUsername()+ "] for system processing!");
+		}
 		securityService.setSystemAuthentication();
 		//
 		// scheduled task is quartz reference to IdM entity

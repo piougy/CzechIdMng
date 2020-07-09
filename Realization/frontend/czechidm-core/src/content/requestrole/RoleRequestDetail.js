@@ -365,8 +365,31 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               showLoading={showLoading && showRequestDetail }
               style={{ padding: '15px 15px 0 15px', display: (showRequestDetail ? null : 'none') }}>
               <Basic.Row>
-                <Basic.Col lg={ 6 }>
+                <Basic.Col lg={ 7 }>
                   { this._getApplicantAndImplementer(request) }
+                </Basic.Col>
+                <Basic.Col
+                  lg={ 5 }
+                  rendered={
+                    canExecuteTheRequest
+                    && request
+                    && roleRequestManager.canSave(request, _permissions)
+                  }>
+                  <Basic.Alert
+                    level="success"
+                    style={{marginTop: 25, marginRight: 0, marginLeft: 0}}
+                    title={ this.i18n('button.createRequest.header') }
+                    text={ this.i18n('button.createRequest.tooltip') }
+                    buttons={[
+                      <Basic.Button
+                        icon="fa:object-group"
+                        level="success"
+                        showLoading={ showLoading || _incompatibleRolesLoading }
+                        onClick={ this._confirmIncompatibleRoles.bind(this, _incompatibleRoles) }
+                        title={ this.i18n('button.createRequest.tooltip') }>
+                        { this.i18n('button.createRequest.label') }
+                      </Basic.Button>
+                    ]}/>
                 </Basic.Col>
               </Basic.Row>
               <Basic.LabelWrapper

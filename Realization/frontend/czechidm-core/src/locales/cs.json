@@ -2494,6 +2494,7 @@
       },
       "button": {
         "createRequest":{
+          "header": "Odeslat žádost ke schválení",
           "label": "Podat žádost",
           "tooltip": "Zahájí žádost o změnu rolí. Spustí případné schvalovací procesy."
         },

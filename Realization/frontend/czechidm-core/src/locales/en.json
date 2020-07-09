@@ -2443,6 +2443,7 @@
       },
       "button": {
         "createRequest":{
+          "header": "Submit a request for approval",
           "label": "Submit a request",
           "tooltip": "Start request for change assigned roles."
         },

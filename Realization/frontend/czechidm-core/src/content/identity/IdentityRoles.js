@@ -23,7 +23,7 @@ import {
   from '../../redux';
 import RoleRequestTable from '../requestrole/RoleRequestTable';
 import IdentityRoleTableComponent, { IdentityRoleTable } from './IdentityRoleTable';
-import IdentitiesInfo from './IdentitiesInfo/IdentitiesInfo';
+import IdentitiesInfo from './IdentitiesInfo';
 
 const uiKey = 'identity-roles';
 const uiKeyContracts = 'role-identity-contracts';

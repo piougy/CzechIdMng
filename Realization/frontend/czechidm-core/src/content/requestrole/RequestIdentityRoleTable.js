@@ -12,7 +12,7 @@ import RoleConceptDetail from './RoleConceptDetail';
 import FormInstance from '../../domain/FormInstance';
 import ConfigLoader from '../../utils/ConfigLoader';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
-import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
+import IdentitiesInfo from '../identity/IdentitiesInfo';
 
 const uiKeyIncompatibleRoles = 'request-incompatible-roles-';
 const requestIdentityRoleManager = new RequestIdentityRoleManager();

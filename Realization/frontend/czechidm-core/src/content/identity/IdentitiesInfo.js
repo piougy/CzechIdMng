@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import IdentityInfo from '../../../components/advanced/IdentityInfo/IdentityInfo';
-import AbstractTableContent from '../../../components/advanced/Content/AbstractTableContent';
-import * as Basic from '../../../components/basic';
-import IdentityTable from '../IdentityTable';
-import SearchParameters from '../../../domain/SearchParameters';
+import IdentityInfo from '../../components/advanced/IdentityInfo/IdentityInfo';
+import AbstractTableContent from '../../components/advanced/Content/AbstractTableContent';
+import * as Basic from '../../components/basic';
+import IdentityTable from './IdentityTable';
+import SearchParameters from '../../domain/SearchParameters';
 
 /**
  * Component for show identities. Input can be array of UUID or IdentityDto.
@@ -41,7 +41,7 @@ class IdentitiesInfo extends AbstractTableContent {
   }
 
   render() {
-    const { identities, isUsedIdentifier, maxEntry, showOnlyUsername} = this.props;
+    const { identities, isUsedIdentifier, maxEntry, showOnlyUsername, headerKey} = this.props;
     const { showIdentityTableModal } = this.state;
 
     let candidatesResult;
@@ -108,11 +108,12 @@ class IdentitiesInfo extends AbstractTableContent {
           show={ showIdentityTableModal }
           onHide={ this.closeModal.bind(this) }
           backdrop="static"
+          bsSize="large"
           keyboard>
           <Basic.Modal.Header
             closeButton
             icon="fa:user"
-            text={ this.i18n('navigation.menu.identities.label') }/>
+            text={ this.i18n(headerKey) }/>
           <Basic.Modal.Body style={{padding: 0}}>
             <Basic.Alert
               rendered={isCutted}
@@ -146,13 +147,15 @@ IdentitiesInfo.propTypes = {
   identities: PropTypes.array,
   isUsedIdentifier: PropTypes.bool,
   maxEntry: PropTypes.number,
-  showOnlyUsername: PropTypes.bool
+  showOnlyUsername: PropTypes.bool,
+  headerKey: PropTypes.string,
 };
 
 IdentitiesInfo.defaultProps = {
   isUsedIdentifier: true,
   showOnlyUsername: true,
-  maxEntry: 2
+  maxEntry: 2,
+  headerKey: 'entity.WorkflowHistoricTaskInstance.candicateUsers'
 };
 
 export default IdentitiesInfo;

@@ -9,7 +9,7 @@ import * as Utils from '../../utils';
 import {SecurityManager, IdentityManager, WorkflowTaskInstanceManager} from '../../redux';
 import ConceptRoleRequestOperationEnum from '../../enums/ConceptRoleRequestOperationEnum';
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
-import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
+import IdentitiesInfo from '../identity/IdentitiesInfo';
 
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 /**

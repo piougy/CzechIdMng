@@ -1762,7 +1762,7 @@
         }
       },
       "info": {
-        "warningTooMuchIds": "Je zobrazeno pouze prvních {{limit}} uživatelů z celkového počtu {{count}}!"
+        "warningTooMuchIds": "Je zobrazeno pouze prvních [{{limit}}] uživatelů z celkového počtu [{{count}}]!"
       }
     },
     "tree": {

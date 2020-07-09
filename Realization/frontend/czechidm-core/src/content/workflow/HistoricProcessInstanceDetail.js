@@ -10,7 +10,7 @@ import { WorkflowHistoricProcessInstanceManager,
   SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
-import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
+import IdentitiesInfo from '../identity/IdentitiesInfo';
 
 /**
 * Workflow process historic detail

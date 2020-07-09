@@ -12,7 +12,7 @@ import { RoleRequestManager, IdentityRoleManager, DataManager, ConfigurationMana
 import RoleRequestStateEnum from '../../enums/RoleRequestStateEnum';
 import RequestIdentityRoleTable from './RequestIdentityRoleTable';
 import IncompatibleRoleWarning from '../role/IncompatibleRoleWarning';
-import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
+import IdentitiesInfo from '../identity/IdentitiesInfo';
 //
 const uiKey = 'role-request';
 const uiKeyIncompatibleRoles = 'request-incompatible-roles-';

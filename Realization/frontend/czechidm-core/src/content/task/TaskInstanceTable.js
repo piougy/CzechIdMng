@@ -6,7 +6,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import * as Domain from '../../domain';
-import IdentitiesInfo from '../identity/IdentitiesInfo/IdentitiesInfo';
+import IdentitiesInfo from '../identity/IdentitiesInfo';
 /**
 * Table of tasks
 * Without given props search parameter show this table only tasks for logged identity.

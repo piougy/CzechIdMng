@@ -41,7 +41,7 @@ class IdentitiesInfo extends AbstractTableContent {
   }
 
   render() {
-    const { identities, isUsedIdentifier, maxEntry, showOnlyUsername, headerKey} = this.props;
+    const { identities, isUsedIdentifier, maxEntry, showOnlyUsername, header} = this.props;
     const { showIdentityTableModal } = this.state;
 
     let candidatesResult;
@@ -113,7 +113,7 @@ class IdentitiesInfo extends AbstractTableContent {
           <Basic.Modal.Header
             closeButton
             icon="fa:user"
-            text={ this.i18n(headerKey) }/>
+            text={ this.i18n(header) }/>
           <Basic.Modal.Body style={{padding: 0}}>
             <Basic.Alert
               rendered={isCutted}
@@ -148,14 +148,14 @@ IdentitiesInfo.propTypes = {
   isUsedIdentifier: PropTypes.bool,
   maxEntry: PropTypes.number,
   showOnlyUsername: PropTypes.bool,
-  headerKey: PropTypes.string,
+  header: PropTypes.string,
 };
 
 IdentitiesInfo.defaultProps = {
   isUsedIdentifier: true,
   showOnlyUsername: true,
   maxEntry: 2,
-  headerKey: 'entity.WorkflowHistoricTaskInstance.candicateUsers'
+  header: 'entity.WorkflowHistoricTaskInstance.candicateUsers'
 };
 
 export default IdentitiesInfo;

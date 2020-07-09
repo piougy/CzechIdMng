@@ -129,6 +129,9 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			// prevent to debug some messages into log - usable for devs
 			return;
 		}
+		// run as system - called from scheduler internally
+		securityService.setSystemAuthentication();
+		//
 		processCreated();
 	}
 
@@ -140,8 +143,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public List<LongRunningFutureTask<?>> processCreated() {
 		String instanceId = configurationService.getInstanceId();
 		LOG.debug("Processing created tasks from long running task queue on instance id [{}]", instanceId);
-		// run as system - called from scheduler internally
-		securityService.setSystemAuthentication();
+		// run as system if it's called from scheduler internally
+		// Prevent to mess up logged identity authentication => tasks can be started manually => will be visible in audit
+		if (!securityService.isAuthenticated()) {
+			securityService.setSystemAuthentication();
+		}
 		//
 		Set<String> processedTaskTypes = Sets.newHashSet();
 		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();

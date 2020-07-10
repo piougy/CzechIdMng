@@ -437,7 +437,11 @@ class RoleRequestDetail extends Advanced.AbstractTableContent {
               <Basic.LabelWrapper
                 label={ this.i18n('entity.RoleRequest.candicateUsers') }
                 rendered={ ((approvers && approvers.length > 0) === true) }>
-                <IdentitiesInfo identities={ approvers } isUsedIdentifier={ false } maxEntry={ 5 } />
+                <IdentitiesInfo
+                  identities={ approvers }
+                  isUsedIdentifier={ false }
+                  maxEntry={ 5 }
+                  header={ this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers') } />
               </Basic.LabelWrapper>
               <Basic.TextArea
                 ref="description"

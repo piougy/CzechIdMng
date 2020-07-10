@@ -101,7 +101,10 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
       }
     }
     return (
-      <IdentitiesInfo identities={identityIds} maxEntry={MAX_CANDICATES} />
+      <IdentitiesInfo
+        identities={ identityIds }
+        maxEntry={ MAX_CANDICATES }
+        header={ this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers') }/>
     );
   }
 
@@ -203,7 +206,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             <Advanced.Column
               property="candicateUsers"
               sort={false}
-              cell={this._getCandidatesCell}/>
+              cell={ this._getCandidatesCell.bind(this) }/>
             <Advanced.Column property="createTime" sort face="datetime"/>
             <Advanced.Column property="endTime" sort face="datetime"/>
             <Advanced.Column property="completeTaskDecision" sort={false} face="text"/>

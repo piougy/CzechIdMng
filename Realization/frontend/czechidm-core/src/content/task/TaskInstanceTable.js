@@ -181,7 +181,10 @@ export class TaskInstanceTable extends Advanced.AbstractTableContent {
               });
             }
             return (
-              <IdentitiesInfo identities={identityIds} maxEntry={5} />
+              <IdentitiesInfo
+                identities={ identityIds }
+                maxEntry={ 5 }
+                header={ this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers') }/>
             );
           }}/>
         <Advanced.Column

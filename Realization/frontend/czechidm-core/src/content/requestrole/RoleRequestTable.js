@@ -76,7 +76,10 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
       return '';
     }
     return (
-      <IdentitiesInfo identities={entity._embedded.wfProcessId[property]} maxEntry={5} />
+      <IdentitiesInfo
+        identities={ entity._embedded.wfProcessId[property] }
+        maxEntry={ 5 }
+        header={ this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers') }/>
     );
   }
 
@@ -275,7 +278,7 @@ export class RoleRequestTable extends Advanced.AbstractTableContent {
             property="candicateUsers"
             rendered={_.includes(columns, 'wf')}
             face="text"
-            cell={this._getCandidatesCell}
+            cell={ this._getCandidatesCell.bind(this) }
           />
           <Advanced.Column
             property="executeImmediately"

@@ -722,7 +722,11 @@ export class RequestIdentityRoleTable extends Advanced.AbstractTableContent {
                 ({rowIndex, data}) => {
                   const candidates = data[rowIndex].candidates;
                   return (
-                    <IdentitiesInfo identities={ candidates } isUsedIdentifier={ false } maxEntry={ 5 } />
+                    <IdentitiesInfo
+                      identities={ candidates }
+                      isUsedIdentifier={ false }
+                      maxEntry={ 5 }
+                      header={ this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers') }/>
                   );
                 }
               }/>

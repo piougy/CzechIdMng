@@ -226,7 +226,7 @@ class IdentityRoles extends Basic.AbstractContent {
       return '';
     }
     return (
-      <IdentitiesInfo identities={entity.candicateUsers} maxEntry={2} />
+      <IdentitiesInfo identities={ entity.candicateUsers } maxEntry={ 2 } header={ this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers') }/>
     );
   }
 
@@ -449,7 +449,7 @@ class IdentityRoles extends Basic.AbstractContent {
                 property="candicateUsers"
                 header={this.i18n('content.roles.processRoleChange.candicateUsers')}
                 face="text"
-                cell={this._getCandidatesCell}
+                cell={ this._getCandidatesCell.bind(this) }
               />
               <Advanced.Column
                 property="processVariables.conceptRole.validFrom"

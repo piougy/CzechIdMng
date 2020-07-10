@@ -24,7 +24,6 @@ class IdentitiesInfo extends AbstractTableContent {
     };
   }
 
-
   closeModal() {
     this.setState({
       showIdentityTableModal: false
@@ -40,8 +39,14 @@ class IdentitiesInfo extends AbstractTableContent {
     });
   }
 
+  getHeader() {
+    const { header} = this.props;
+    // prop or default
+    return header || this.i18n('content.identities.header');
+  }
+
   render() {
-    const { identities, isUsedIdentifier, maxEntry, showOnlyUsername, header} = this.props;
+    const { identities, isUsedIdentifier, maxEntry, showOnlyUsername} = this.props;
     const { showIdentityTableModal } = this.state;
 
     let candidatesResult;
@@ -113,7 +118,7 @@ class IdentitiesInfo extends AbstractTableContent {
           <Basic.Modal.Header
             closeButton
             icon="fa:user"
-            text={ this.i18n(header) }/>
+            text={ this.getHeader() }/>
           <Basic.Modal.Body style={{padding: 0}}>
             <Basic.Alert
               rendered={isCutted}
@@ -148,14 +153,13 @@ IdentitiesInfo.propTypes = {
   isUsedIdentifier: PropTypes.bool,
   maxEntry: PropTypes.number,
   showOnlyUsername: PropTypes.bool,
-  header: PropTypes.string,
+  header: PropTypes.string
 };
 
 IdentitiesInfo.defaultProps = {
   isUsedIdentifier: true,
   showOnlyUsername: true,
-  maxEntry: 2,
-  header: 'entity.WorkflowHistoricTaskInstance.candicateUsers'
+  maxEntry: 2
 };
 
 export default IdentitiesInfo;

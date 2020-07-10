@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../basic';
+import * as Utils from '../../../utils';
 import { RoleManager, ConfigurationManager, SecurityManager } from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
 import RolePriorityEnum from '../../../enums/RolePriorityEnum';
@@ -193,13 +194,22 @@ RoleInfo.defaultProps = {
 };
 
 function select(state, component) {
-  const { entityIdentifier, entity, showEnvironment } = component;
+  const { entityIdentifier, entity, showEnvironment, showCode } = component;
   let entityId = entityIdentifier;
   if (!entityId && entity) {
     entityId = entity.id;
   }
   return {
-    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.environment', showEnvironment || true),
+    showEnvironment: ConfigurationManager.getPublicValueAsBoolean(
+      state,
+      'idm.pub.app.show.environment',
+      Utils.Ui.isEmpty(showEnvironment) ? true : showEnvironment
+    ),
+    showCode: ConfigurationManager.getPublicValueAsBoolean(
+      state,
+      'idm.pub.app.show.role.baseCode',
+      Utils.Ui.isEmpty(showCode) ? true : showCode
+    ),
     _entity: manager.getEntity(state, entityId),
     _showLoading: manager.isShowLoading(state, null, entityId),
     _permissions: manager.getPermissions(state, null, entityId)

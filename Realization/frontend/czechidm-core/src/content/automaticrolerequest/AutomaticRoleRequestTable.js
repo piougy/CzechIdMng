@@ -71,10 +71,11 @@ export class AutomaticRoleRequestTable extends Advanced.AbstractTableContent {
     if (!entity || !entity._embedded || !entity._embedded.wfProcessId) {
       return '';
     }
-    const task = {taskName: entity._embedded.wfProcessId.currentActivityName,
-                  processDefinitionKey: entity._embedded.wfProcessId.processDefinitionKey,
-                  definition: {id: entity._embedded.wfProcessId.activityId}
-                };
+    const task = {
+      taskName: entity._embedded.wfProcessId.currentActivityName,
+      processDefinitionKey: entity._embedded.wfProcessId.processDefinitionKey,
+      definition: {id: entity._embedded.wfProcessId.activityId}
+    };
     return (
       workflowTaskInstanceManager.localize(task, 'name')
     );
@@ -105,8 +106,12 @@ export class AutomaticRoleRequestTable extends Advanced.AbstractTableContent {
           manager={this.getManager()}
           showRowSelection={SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_UPDATE')}
           actions={
-            [{ value: 'delete', niceLabel: this.i18n('action.delete.action'),
-               action: this.onDelete.bind(this), disabled: false }]
+            [{
+              value: 'delete',
+              niceLabel: this.i18n('action.delete.action'),
+              action: this.onDelete.bind(this),
+              disabled: false
+            }]
           }
           filterOpened
           filter={
@@ -143,9 +148,8 @@ export class AutomaticRoleRequestTable extends Advanced.AbstractTableContent {
                   _.includes(columns, 'createNew')
                     && createNewRequestFunc
                     && SecurityManager.hasAnyAuthority(['AUTOMATICROLEREQUEST_CREATE'])
-                  }>
-                <Basic.Icon type="fa" icon="plus"/>
-                {' '}
+                }
+                icon="fa:plus">
                 {this.i18n('button.add')}
               </Basic.Button>
             ]
@@ -181,7 +185,7 @@ export class AutomaticRoleRequestTable extends Advanced.AbstractTableContent {
             property="name"
             rendered={_.includes(columns, 'name')}
             face="text"
-            />
+          />
           <Advanced.Column
             property="role"
             rendered={_.includes(columns, 'role')}
@@ -190,7 +194,7 @@ export class AutomaticRoleRequestTable extends Advanced.AbstractTableContent {
               ({ rowIndex, data }) => {
                 const entity = data[rowIndex];
                 return (
-                  <Advanced.RoleInfo entityIdentifier={ entity.role } entity={ entity._embedded.role } face="popover" />
+                  <Advanced.RoleInfo entityIdentifier={ entity.role } entity={ entity._embedded.role } face="popover" showIcon />
                 );
               }
             }/>
@@ -199,13 +203,13 @@ export class AutomaticRoleRequestTable extends Advanced.AbstractTableContent {
             rendered={_.includes(columns, 'wf')}
             face="text"
             cell={this._getCurrentActivitiCell}
-            />
+          />
           <Advanced.Column
             property="candicateUsers"
             rendered={_.includes(columns, 'wf')}
             face="text"
             cell={this._getCandidatesCell}
-            />
+          />
           <Advanced.Column
             property="executeImmediately"
             rendered={_.includes(columns, 'executeImmediately')}
@@ -276,7 +280,7 @@ AutomaticRoleRequestTable.defaultProps = {
   _showLoading: false,
   showFilter: true,
   columns: ['state', 'created', 'modified', 'wf', 'role', 'executeImmediately',
-   'startRequest', 'createNew', 'detail', 'name', 'operation', 'wf_name']
+    'startRequest', 'createNew', 'detail', 'name', 'operation', 'wf_name']
 };
 
 function select(state, component) {

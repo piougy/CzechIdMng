@@ -18,3 +18,4 @@ Realization/backend/core/core-impl/nbactions.xml
 Realization/backend/core/nbactions.xml
 Realization/backend/acc/nbactions.xml
 Realization/backend/vs/nbactions.xml
+*.iml

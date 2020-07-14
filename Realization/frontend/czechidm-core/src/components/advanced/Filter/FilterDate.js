@@ -68,10 +68,10 @@ export default class FilterDate extends Basic.AbstractFormComponent {
    * @return {object}
    */
   getValue() {
-    const { mode, faceProperty, fromProperty, tillProperty } = this.props;
+    const { mode, fromProperty, tillProperty } = this.props;
     const { face } = this.state;
     const resultValue = {
-      [faceProperty]: face
+      // [faceProperty]: face - Commeneted because caused No found filter exception. I here bigger idea for face in filter?
     };
     //
     // TODO: convert face instead convert each case

@@ -7,11 +7,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
+import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
+import org.checkerframework.checker.units.qual.s;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableList;
@@ -70,6 +79,9 @@ import eu.bcvsolutions.idm.vs.evaluator.VsRequestByImplementerEvaluator;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 
+import static eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRuleRequest_.ATTRIBUTE_NAME;
+import static org.junit.Assert.assertEquals;
+
 /**
  * Virtual system request test
  * + request filters
@@ -113,6 +125,8 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 	private SysSystemEntityService systemEntityService;
 	@Autowired
 	private IcConnectorFacade connectorFacade;
+	@Autowired
+	private IdmNotificationLogService notificationLogService;
 
 	@Before
 	public void init() {
@@ -837,12 +851,80 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		Assert.assertEquals(note, request.getReason());
 	}
 
+	@Test
+	public void testNotificationForCreateRequest() {
+
+		SysSystemDto system = this.createVirtualSystem(USER_IMPLEMENTER_NAME, null);
+		this.assignRoleSystem(system, helper.createIdentity(USER_ONE_NAME), ROLE_ONE_NAME);
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(system.getId());
+		requestFilter.setUid(USER_ONE_NAME);
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		VsRequestDto request = requests.get(0);
+		Assert.assertEquals(USER_ONE_NAME, request.getUid());
+		Assert.assertEquals(VsOperationType.CREATE, request.getOperationType());
+		Assert.assertEquals(VsRequestState.IN_PROGRESS, request.getState());
+
+		VsAccountDto account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
+		Assert.assertNull("Account must be null, because request was not realized yet!", account);
+
+		IdmNotificationFilter filter = new IdmNotificationFilter();
+		filter.setRecipient(USER_IMPLEMENTER_NAME);
+		filter.setNotificationType(IdmNotificationLog.class);
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
+		//
+		assertEquals(1, notifications.size());
+		assertEquals(VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_CREATED, notifications.get(0).getTopic());
+	}
+
+	@Test
+	public void testNotificationForCreateRequestDiffUid() {
+		String suffix="_suffix";
+		SysSystemDto system = this.createVirtualSystem(USER_IMPLEMENTER_NAME, null);
+
+		SysSystemAttributeMappingFilter filterAttribute = new SysSystemAttributeMappingFilter();
+		filterAttribute.setSystemId(system.getId());
+
+		SysSystemAttributeMappingDto attributeUid = systemAttributeMappingService.find(filterAttribute, null)
+				.getContent()
+				.stream()
+				.filter(attribute -> attribute.isUid())
+				.findFirst()
+				.orElse(null);
+
+		attributeUid.setTransformToResourceScript("return attributeValue+\""+suffix+"\"");
+		attributeUid = systemAttributeMappingService.save(attributeUid);
+		String uid = USER_ONE_NAME + suffix;
+
+		this.assignRoleSystem(system, helper.createIdentity(USER_ONE_NAME), ROLE_ONE_NAME);
+		// Find created requests
+		VsRequestFilter requestFilter = new VsRequestFilter();
+		requestFilter.setSystemId(system.getId());
+		requestFilter.setUid(uid);
+		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
+		Assert.assertEquals(1, requests.size());
+		VsRequestDto request = requests.get(0);
+		Assert.assertEquals(uid, request.getUid());
+		Assert.assertEquals(VsOperationType.CREATE, request.getOperationType());
+		Assert.assertEquals(VsRequestState.IN_PROGRESS, request.getState());
+
+		VsAccountDto account = accountService.findByUidSystem(uid, system.getId());
+		Assert.assertNull("Account must be null, because request was not realized yet!", account);
+
+		IdmNotificationFilter filter = new IdmNotificationFilter();
+		filter.setRecipient(USER_IMPLEMENTER_NAME);
+		filter.setNotificationType(IdmNotificationLog.class);
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
+		//
+		assertEquals(1, notifications.size());
+		assertEquals(VirtualSystemModuleDescriptor.TOPIC_VS_REQUEST_CREATED, notifications.get(0).getTopic());
+	}
+
 	/**
 	 * Method for create role, assign role to system and to user.
 	 *
-	 * @param USER_ONE_NAME
-	 * @param USER_IMPLEMENTER_NAME
-	 * @param ROLE_ONE_NAME
 	 * @return
 	 */
 	public SysSystemDto assignRoleSystem(SysSystemDto system, IdmIdentityDto userOne, String roleOneName) {

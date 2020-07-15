@@ -278,21 +278,36 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		if (dto != null && dto.getSystem() != null && dto.getUid() != null && filter != null && filter.isIncludeOwner()) {
 			// Load and set target entity. For loading a target entity is using sync
 			// executor. Owner loading is processed only if filter "includeOwner" is present!
-			AccAccountDto account = accAccountService.getAccount(dto.getUid(), dto.getSystem());
-			if (account != null) {
-				SystemEntityType entityType = account.getEntityType();
-				if (entityType != null && entityType.isSupportsSync()) {
-					SynchronizationEntityExecutor executor = accAccountService.getSyncExecutor(entityType);
-					AbstractDto targetEntity = executor.getDtoByAccount(null, account);
-					if (targetEntity != null) {
-						dto.setTargetEntity(targetEntity);
-						dto.setTargetEntityType(targetEntity.getClass().getName());
-					}
-				}
+			AbstractDto targetEntity = findTargetEntity(dto);
+			if (targetEntity != null) {
+				dto.setTargetEntity(targetEntity);
+				dto.setTargetEntityType(targetEntity.getClass().getName());
 			}
 		}
 
 		return dto;
+	}
+
+	/**
+	 * Find target entity for given request.
+	 * For loading a target entity is using sync executor.
+	 *
+	 * @param dto
+	 * @return
+	 */
+	private AbstractDto findTargetEntity(VsRequestDto dto) {
+		if (dto.getUid() == null || dto.getSystem() == null) {
+			return null;
+		}
+		AccAccountDto account = accAccountService.getAccount(dto.getUid(), dto.getSystem());
+		if (account != null) {
+			SystemEntityType entityType = account.getEntityType();
+			if (entityType != null && entityType.isSupportsSync()) {
+				SynchronizationEntityExecutor executor = accAccountService.getSyncExecutor(entityType);
+				return executor.getDtoByAccount(null, account);
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -527,7 +542,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 	 * Find duplicity requests. All request in state IN_PROGRESS for same UID and
 	 * system. For all operation types.
 	 * 
-	 * @param request
 	 * @return
 	 */
 	@Override
@@ -656,18 +670,9 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 			return;
 		}
 
-		// We assume the request.UID is equals Identity user name!;
+		// Identity is find by target entity (entity connected to AccAccount).
 		VsConnectorObjectDto wish = this.getWishConnectorObject(request);
-		IdmIdentityDto identity = this.getIdentity(request.getUid());
-		if (identity == null) {
-			// Identity was not found, we try found her again with 'new' UID (__NAME__)
-			for (VsAttributeDto att : wish.getAttributes()) {
-				if (att.getName().equals(NAME)) {
-					identity = this.getIdentity((String) att.getValue().getValue());
-					break;
-				}
-			}
-		}
+		IdmIdentityDto identity = this.getIdentity(request);
 		SysSystemDto system = systemService.get(request.getSystem());
 
 		// For information about role request and role request applicant
@@ -724,18 +729,12 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 		return null;
 	}
 
-	private IdmIdentityDto getIdentity(String uid) {
-		if (uid == null) {
-			return null;
+	private IdmIdentityDto getIdentity(VsRequestDto request) {
+		AbstractDto targetEntity = findTargetEntity(request);
+		if (targetEntity instanceof IdmIdentityDto) {
+			return (IdmIdentityDto) targetEntity;
 		}
-		// We assume the request.UID is equals Identity user name!;
-		IdmIdentityFilter filter = new IdmIdentityFilter();
-		filter.setUsername(uid);
-		List<IdmIdentityDto> identities = this.identityService.find(filter, null).getContent();
-		if (identities.isEmpty()) {
-			return null;
-		}
-		return identities.get(0);
+		return null;
 	}
 
 	/**

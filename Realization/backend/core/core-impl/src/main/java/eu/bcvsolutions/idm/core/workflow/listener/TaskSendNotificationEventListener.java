@@ -46,35 +46,6 @@ public class TaskSendNotificationEventListener implements ActivitiEventListener{
 	@Override
 	public void onEvent(ActivitiEvent event) {
 		switch (event.getType()) {
-		case TASK_ASSIGNED:
-			LOG.debug("TaskSendNotificationEventListener - recieve event [{}]", event.getType());
-			//
-			// check global disable or enable send notification from WF
-			if (!configurationService.getBooleanValue(WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY, true)) {
-				LOG.debug("TaskSendNotificationEventListener - Notification is disabled by [{}] configuration property.", WorkflowConfig.SEND_NOTIFICATION_CONFIGURATION_PROPERTY);
-				break;
-			}
-			//
-			if (event instanceof ActivitiEntityEventImpl &&
-					((ActivitiEntityEventImpl)event).getEntity() instanceof TaskEntity) {
-				TaskEntity taskEntity = (TaskEntity) ((ActivitiEntityEventImpl)event).getEntity();
-				//
-				if (isSendDisabledByTask(taskEntity)) {
-					break;
-				}
-				//
-				// if not exist assigne send message to all candidates
-				if (taskEntity.getAssignee() == null) {
-					for (IdentityLink candidate : taskEntity.getCandidates()) {
-						sendNotification(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED, taskEntity, candidate.getUserId());
-					}
-				} else {
-					sendNotification(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED, taskEntity, taskEntity.getAssignee());
-				}
-			} else {
-				LOG.info("TaskSendNotificationEventListener - can't get TaskEntity from event [{}] ", event.getExecutionId());
-			}
-			break;
 			
 		case TASK_COMPLETED:
 			LOG.debug("TaskSendNotificationEventListener - recieve event [{}] [not implemented for now]", event.getType());

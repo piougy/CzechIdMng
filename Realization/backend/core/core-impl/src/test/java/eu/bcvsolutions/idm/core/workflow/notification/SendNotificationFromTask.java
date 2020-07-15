@@ -67,15 +67,8 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		filter.setNotificationType(IdmNotificationLog.class);
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
 		//
-		assertEquals(2, notifications.size());
-		// two notifications - created + assigned, we didnt know order
-		if (notifications.get(0).getTopic().equals(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED)) {
-			assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED, notifications.get(0).getTopic());
-			assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_CREATED, notifications.get(1).getTopic());
-		} else {
-			assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_CREATED, notifications.get(0).getTopic());
-			assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_ASSIGNED, notifications.get(1).getTopic());
-		}
+		assertEquals(1, notifications.size());
+		assertEquals(CoreModuleDescriptor.TOPIC_WF_TASK_CREATED, notifications.get(0).getTopic());
 	}
 
 	@Test

@@ -229,7 +229,6 @@ public class WorkflowConfig {
 						.of(startSubprocessEventListener())
 						.collect(Collectors.toList()));
 			//
-			typedListeners.put(ActivitiEventType.TASK_ASSIGNED.name(), taskListeners);
 			typedListeners.put(ActivitiEventType.TASK_CREATED.name(), taskListeners);
 			typedListeners.put(ActivitiEventType.TASK_COMPLETED.name(), taskListeners);
 			// For change a delegation state to Cancelled for cancelled user-tasks.

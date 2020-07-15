@@ -52,7 +52,6 @@ public class DelegationEventListener implements ActivitiEventListener {
 		LOG.debug("DelegationEventListener - recieve event [{}]", event.getType());
 		switch (event.getType()) {
 
-		case TASK_ASSIGNED:
 		case TASK_CREATED:
 			if (event instanceof ActivitiEntityEventImpl
 					&& ((ActivitiEntityEventImpl) event).getEntity() instanceof TaskEntity) {

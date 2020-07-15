@@ -145,7 +145,7 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 		assertTrue(this.isRunning());
 		
 		// init observer for this test only
-		NotificationObserver observer = new NotificationObserver(2);
+		NotificationObserver observer = new NotificationObserver(1);
 		this.addObserver(observer);
 		int currentEmails = observer.getEmails().size();
 
@@ -168,10 +168,10 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 		filter.setNotificationType(IdmNotificationLog.class);
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(filter, null).getContent();
 		//
-		assertEquals(2, notifications.size());
+		assertEquals(1, notifications.size());
 
 		assertTrue(this.isRunning());
-		assertEquals(currentEmails + 2, observer.getEmails().size());
+		assertEquals(currentEmails + 1, observer.getEmails().size());
 
 		for (EmailModel email : observer.getEmails()) {
 			assertEquals(FROM, email.getFrom());

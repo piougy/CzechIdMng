@@ -68,9 +68,9 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 			tags = { SysSystemAttributeMappingController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_READ, description = "")})
 				})
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
@@ -79,7 +79,7 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 	}
 
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_READ + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "Search system attribute mappings", 
@@ -87,9 +87,9 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 			tags = { SysSystemAttributeMappingController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_READ, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_READ, description = "")})
 				})
 	public Resources<?> findQuick(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters,
@@ -99,7 +99,7 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@ApiOperation(
 			value = "System attribute mapping detail", 
@@ -108,9 +108,9 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 			tags = { SysSystemAttributeMappingController.TAG }, 
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")}),
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_READ, description = "")}),
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_READ, description = "")})
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_READ, description = "")})
 					})
 	public ResponseEntity<?> get(
 			@ApiParam(value = "Attribute mapping's uuid identifier.", required = true)
@@ -120,7 +120,7 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_UPDATE + "')")
 	@RequestMapping(method = RequestMethod.POST)
 	@ApiOperation(
 			value = "Create / update system attribute mapping", 
@@ -129,9 +129,9 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 			tags = { SysSystemAttributeMappingController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")}),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_UPDATE, description = "")}),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = {
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_UPDATE, description = "")})
 				})
 	public ResponseEntity<?> post(@RequestBody @NotNull SysSystemAttributeMappingDto dto) {
 		return super.post(dto);
@@ -139,7 +139,7 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_UPDATE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_UPDATE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	@ApiOperation(
 			value = "Update system attribute mapping",
@@ -148,9 +148,9 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 			tags = { SysSystemAttributeMappingController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") }),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_UPDATE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "") })
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_UPDATE, description = "") })
 				})
 	public ResponseEntity<?> put(
 			@ApiParam(value = "Attribute mapping's uuid identifier.", required = true)
@@ -161,7 +161,7 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_DELETE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	@ApiOperation(
 			value = "Delete system attribute mapping", 
@@ -169,9 +169,9 @@ public class SysSystemAttributeMappingController extends AbstractReadWriteDtoCon
 			tags = { SysSystemAttributeMappingController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_DELETE, description = "") }),
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_DELETE, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
-						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_DELETE, description = "") })
+						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_ATTRIBUTE_MAPPING_DELETE, description = "") })
 				})
 	public ResponseEntity<?> delete(
 			@ApiParam(value = "Attribute mapping's uuid identifier.", required = true)

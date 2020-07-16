@@ -1350,7 +1350,8 @@
       "CONTRACTACCOUNT": "Účty pro vztahy identity (pozice)",
       "PROVISIONINGBREAK": "Provisioning - brzda",
       "PROVISIONINGOPERATION": "Provisioning - operace ve frontě",
-      "PROVISIONINGARCHIVE": "Provisioning - archív"
+      "PROVISIONINGARCHIVE": "Provisioning - archív",
+      "SYSTEMATTRIBUTEMAPPING": "Mapované atributy systému"
     }
   },
   "eav": {

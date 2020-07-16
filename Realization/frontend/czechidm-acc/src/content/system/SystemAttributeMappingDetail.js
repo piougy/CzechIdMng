@@ -234,7 +234,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                   ref="form"
                   data={ attribute }
                   showLoading={ _showLoading }
-                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEMATTRIBUTEMAPPING_UPDATE']) }>
                   <Basic.Checkbox
                     ref="disabledAttribute"
                     onChange={this._checkboxChanged.bind(this, 'disabledAttribute', null)}
@@ -391,7 +391,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                     level="success"
                     type="submit"
                     showLoading={ _showLoading }
-                    rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                    rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEMATTRIBUTEMAPPING_UPDATE']) }>
                     {this.i18n('button.save')}
                   </Basic.Button>
                 </Basic.PanelFooter>

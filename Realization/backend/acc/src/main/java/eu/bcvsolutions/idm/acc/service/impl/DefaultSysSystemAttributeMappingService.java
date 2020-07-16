@@ -15,10 +15,15 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -30,6 +35,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
@@ -49,9 +55,14 @@ import eu.bcvsolutions.idm.acc.dto.filter.SysRoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute_;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem_;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute_;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping_;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
@@ -69,6 +80,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
@@ -88,6 +100,7 @@ import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
@@ -107,7 +120,6 @@ public class DefaultSysSystemAttributeMappingService
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
 			.getLogger(DefaultSysSystemAttributeMappingService.class);
 
-	private final SysSystemAttributeMappingRepository repository;
 	private final GroovyScriptService groovyScriptService;
 	private final FormService formService;
 	private final ConfidentialStorage confidentialStorage;
@@ -151,7 +163,6 @@ public class DefaultSysSystemAttributeMappingService
 		Assert.notNull(systemMappingService, "Service is required.");
 		//
 		this.formService = formService;
-		this.repository = repository;
 		this.groovyScriptService = groovyScriptService;
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 		this.formPropertyManager = formPropertyManager;
@@ -165,26 +176,179 @@ public class DefaultSysSystemAttributeMappingService
 	}
 
 	@Override
-	protected Page<SysSystemAttributeMapping> findEntities(SysSystemAttributeMappingFilter filter, Pageable pageable,
-			BasePermission... permission) {
-		if (filter == null) {
-			return repository.findAll(pageable);
-		}
-		return repository.find(filter, pageable);
+	public AuthorizableType getAuthorizableType() {
+		return new AuthorizableType(AccGroupPermission.SYSTEMATTRIBUTEMAPPING, getEntityClass());
 	}
 
+	@Override
+	protected List<Predicate> toPredicates(Root<SysSystemAttributeMapping> root, CriteriaQuery<?> query,
+			CriteriaBuilder builder, SysSystemAttributeMappingFilter filter) {
+		List<Predicate> predicates = super.toPredicates(root, query, builder, filter);
+
+		// fulltext
+		String text = filter.getText();
+		if (!StringUtils.isEmpty(text)) {
+			predicates.add(builder.like(builder.lower(root.get(SysSystemAttributeMapping_.name)), "%" + text.toLowerCase() + "%"));
+		}
+
+		if (filter.getSystemMappingId() != null) {
+			predicates.add(builder.equal(root.get(SysSystemAttributeMapping_.systemMapping).get(AbstractEntity_.id), filter.getSystemMappingId()));
+		}
+		
+		if (filter.getSchemaAttributeId() != null) {
+			predicates.add(builder.equal(root.get(SysSystemAttributeMapping_.schemaAttribute).get(AbstractEntity_.id), filter.getSchemaAttributeId()));
+		}
+
+		if (!StringUtils.isEmpty(filter.getSchemaAttributeName())) {
+			Subquery<SysSchemaAttribute> subquery = query.subquery(SysSchemaAttribute.class);
+			Root<SysSchemaAttribute> subRoot = subquery.from(SysSchemaAttribute.class);
+			subquery.select(subRoot);
+			subquery.where(
+                    builder.and(
+                    		builder.equal(root.get(SysSystemAttributeMapping_.schemaAttribute), subRoot), // correlation attr
+                    		builder.equal(subRoot.get(SysSchemaAttribute_.name), filter.getSchemaAttributeName())
+                    		)
+            );
+			predicates.add(builder.exists(subquery));
+		}
+
+		if (filter.getSystemId() != null) {
+			Subquery<SysSystemMapping> subquerySystemMapping = query.subquery(SysSystemMapping.class);
+			Root<SysSystemMapping> subRootSystemMapping = subquerySystemMapping.from(SysSystemMapping.class);
+			subquerySystemMapping.select(subRootSystemMapping);
+			subquerySystemMapping.where(builder.equal(root.get(SysSystemAttributeMapping_.systemMapping), subRootSystemMapping)); // correlation attr;
+
+            Subquery<SysSchemaObjectClass> subqueryObjectClass = query.subquery(SysSchemaObjectClass.class);
+			Root<SysSchemaObjectClass> subRootObjectClass = subqueryObjectClass.from(SysSchemaObjectClass.class);
+			subqueryObjectClass.select(subRootObjectClass);
+			subqueryObjectClass.where(
+                    builder.and(
+                    		builder.equal(subRootSystemMapping.get(SysSystemMapping_.objectClass), subRootObjectClass), // correlation attr
+                    		builder.equal(subRootObjectClass.get(SysSchemaObjectClass_.system).get(AbstractEntity_.id), filter.getSystemId())
+                    		));
+
+			Predicate predicate = builder.exists(
+							subquerySystemMapping.where(
+									builder.and(
+											builder.equal(root.get(SysSystemAttributeMapping_.systemMapping), subRootSystemMapping),
+											builder.exists(
+													subqueryObjectClass.where(
+										                    builder.and(
+										                    		builder.equal(subRootSystemMapping.get(SysSystemMapping_.objectClass), subRootObjectClass), // correlation attr
+										                    		builder.equal(subRootObjectClass.get(SysSchemaObjectClass_.system).get(AbstractEntity_.id), filter.getSystemId())
+										                    		))
+													)
+					)));
+			
+			predicates.add(predicate);
+		}
+
+		if (filter.getIsUid() != null) {
+			if (BooleanUtils.isFalse(filter.getIsUid())) {
+				predicates.add(builder.isFalse(root.get(SysSystemAttributeMapping_.uid)));
+			} else {
+				predicates.add(builder.isTrue(root.get(SysSystemAttributeMapping_.uid)));
+			}
+		}
+
+		if (!StringUtils.isEmpty(filter.getIdmPropertyName())) {
+			predicates.add(builder.equal(root.get(SysSystemAttributeMapping_.idmPropertyName), filter.getIdmPropertyName()));
+		}
+
+		if (filter.getSendOnPasswordChange() != null) {
+			if (BooleanUtils.isFalse(filter.getSendOnPasswordChange())) {
+				predicates.add(builder.isFalse(root.get(SysSystemAttributeMapping_.sendOnPasswordChange)));
+			} else {
+				predicates.add(builder.isTrue(root.get(SysSystemAttributeMapping_.sendOnPasswordChange)));
+			}
+		}
+
+		if (filter.getPasswordAttribute() != null) {
+			if (BooleanUtils.isFalse(filter.getPasswordAttribute())) {
+				predicates.add(builder.isFalse(root.get(SysSystemAttributeMapping_.passwordAttribute)));
+			} else {
+				predicates.add(builder.isTrue(root.get(SysSystemAttributeMapping_.passwordAttribute)));
+			}
+		}
+
+		if (filter.getDisabledAttribute() != null) {
+			if (BooleanUtils.isFalse(filter.getDisabledAttribute())) {
+				predicates.add(builder.isFalse(root.get(SysSystemAttributeMapping_.disabledAttribute)));
+			} else {
+				predicates.add(builder.isTrue(root.get(SysSystemAttributeMapping_.disabledAttribute)));
+			}
+		}
+
+		if (filter.getOperationType() != null) {
+			Subquery<SysSystemMapping> subquery = query.subquery(SysSystemMapping.class);
+			Root<SysSystemMapping> subRoot = subquery.from(SysSystemMapping.class);
+			subquery.select(subRoot);
+
+			subquery.where(
+                    builder.and(
+                    		builder.equal(root.get(SysSystemAttributeMapping_.systemMapping), subRoot), // correlation attr
+                    		builder.equal(subRoot.get(SysSystemMapping_.operationType), filter.getOperationType())
+                    		)
+            );
+
+			predicates.add(builder.exists(subquery));
+		}
+
+		if (filter.getEntityType() != null) {
+			Subquery<SysSystemMapping> subquery = query.subquery(SysSystemMapping.class);
+			Root<SysSystemMapping> subRoot = subquery.from(SysSystemMapping.class);
+			subquery.select(subRoot);
+
+			subquery.where(
+                    builder.and(
+                    		builder.equal(root.get(SysSystemAttributeMapping_.systemMapping), subRoot), // correlation attr
+                    		builder.equal(subRoot.get(SysSystemMapping_.entityType), filter.getEntityType())
+                    		)
+            );
+
+			predicates.add(builder.exists(subquery));
+		}
+
+		if (!StringUtils.isEmpty(filter.getName())) {
+			predicates.add(builder.equal(root.get(SysSystemAttributeMapping_.name), filter.getName()));
+		}
+
+		if (filter.getAuthenticationAttribute() != null) {
+			if (BooleanUtils.isFalse(filter.getAuthenticationAttribute())) {
+				predicates.add(builder.isFalse(root.get(SysSystemAttributeMapping_.authenticationAttribute)));
+			} else {
+				predicates.add(builder.isTrue(root.get(SysSystemAttributeMapping_.authenticationAttribute)));
+			}
+		}
+
+		return predicates;
+	}
+	
 	@Override
 	@Transactional(readOnly = true)
 	public List<SysSystemAttributeMappingDto> findBySystemMapping(SysSystemMappingDto systemMapping) {
 		Assert.notNull(systemMapping, "System mapping is required.");
-		//
-		return toDtos(repository.findAllBySystemMapping_Id(systemMapping.getId()), true);
+
+		// Backward compatible for create new SysSystemMappingDto
+		// method in repository findAllBySystemMapping_Id return empty list for null value!
+		if (systemMapping.getId() == null) {
+			return Lists.newArrayList();
+		}
+
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setSystemMappingId(systemMapping.getId());
+		return this.find(filter, null).getContent();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public SysSystemAttributeMappingDto findBySystemMappingAndName(UUID systemMappingId, String name) {
-		return toDto(repository.findBySystemMapping_IdAndName(systemMappingId, name));
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setSystemMappingId(systemMappingId);
+		filter.setName(name);
+		List<SysSystemAttributeMappingDto> content = this.find(filter, null).getContent();
+		// Name must be unique for system mapping, checked by application and database
+		return content.isEmpty() ? null : content.get(0);
 	}
 
 	@Override
@@ -531,14 +695,25 @@ public class DefaultSysSystemAttributeMappingService
 		Assert.notNull(systemId, "System identifier is required.");
 		Assert.notNull(entityType, "Entity type is required.");
 		// authentication attribute is only from provisioning operation type
-		SysSystemAttributeMappingDto attr = toDto(
-				this.repository.findAuthenticationAttribute(systemId, SystemOperationType.PROVISIONING, entityType));
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setEntityType(entityType);
+		filter.setSystemId(systemId);
+		filter.setOperationType(SystemOperationType.PROVISIONING);
+		filter.setAuthenticationAttribute(Boolean.TRUE);
+		List<SysSystemAttributeMappingDto> attributes = this.find(filter, null).getContent();
+		
 		// defensive, if authentication attribute don't exists find attribute flagged as
-		// UID
-		if (attr == null) {
-			return toDto(this.repository.findUidAttribute(systemId, SystemOperationType.PROVISIONING, entityType));
+		// UID authentication attribute may be only one the integrity is checked by application before.
+		if (attributes.isEmpty()) {
+			filter.setIsUid(Boolean.TRUE);
+			filter.setAuthenticationAttribute(null);
+			attributes = this.find(filter, null).getContent();
+			if (attributes.isEmpty()) {
+				return null;
+			}
+			return attributes.get(0);
 		}
-		return attr;
+		return attributes.get(0);
 	}
 
 	/**

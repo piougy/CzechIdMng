@@ -79,12 +79,12 @@ module.exports = {
         {
           path: 'attribute-mappings/:attributeId/detail',
           component: require('./src/content/system/SystemAttributeMappingDetail'),
-          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['SYSTEM_READ'] } ]
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['SYSTEMATTRIBUTEMAPPING_READ'] } ]
         },
         {
           path: 'attribute-mappings/:attributeId/new',
           component: require('./src/content/system/SystemAttributeMappingDetail'),
-          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['SYSTEM_UPDATE'] } ]
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['SYSTEMATTRIBUTEMAPPING_READ'] } ]
         },
         {
           path: 'synchronization-configs/:configId/detail',

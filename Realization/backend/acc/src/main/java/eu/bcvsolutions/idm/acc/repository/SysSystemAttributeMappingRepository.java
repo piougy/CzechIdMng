@@ -12,7 +12,9 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 /**
  * Schema attributes handling repository
@@ -21,7 +23,16 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  *
  */
 public interface SysSystemAttributeMappingRepository extends AbstractEntityRepository<SysSystemAttributeMapping> {
-	
+
+	/**
+	 * Old find method in repository
+	 *
+	 * @param filter
+	 * @param pageable
+	 * @deprecated use {@link SysSystemAttributeMappingService#find(SysSystemAttributeMappingFilter, Pageable, BasePermission...)}. New filter properties may not be implemented.
+	 * @return
+	 */
+	@Deprecated
 	@Query(value = "select e from SysSystemAttributeMapping e" +
 			" where"
 			+ " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
@@ -45,7 +56,17 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	        + " (?#{[0].disabledAttribute} is null or e.disabledAttribute = ?#{[0].disabledAttribute})"
 			)
 	Page<SysSystemAttributeMapping> find(SysSystemAttributeMappingFilter filter, Pageable pageable);
-	
+
+	/**
+	 * Find authentication attribute
+	 *
+	 * @param systemId
+	 * @param operationType
+	 * @param entityType
+	 * @deprecated use filter properties from {@link SysSystemAttributeMappingFilter}
+	 * @return
+	 */
+	@Deprecated
 	@Query("SELECT e FROM SysSystemAttributeMapping e WHERE "
 			+ "e.authenticationAttribute = true "
 			+ "AND "
@@ -58,7 +79,17 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 			@Param("systemId") UUID systemId,
 			@Param("operationType") SystemOperationType operationType, 
 			@Param("entityType") SystemEntityType entityType);
-	
+
+	/**
+	 * Find uid attribute
+	 *
+	 * @param systemId
+	 * @param operationType
+	 * @param entityType
+	 * @deprecated use filter properties from {@link SysSystemAttributeMappingFilter}
+	 * @return
+	 */
+	@Deprecated
 	@Query("SELECT e FROM SysSystemAttributeMapping e WHERE "
 			+ "e.uid = true "
 			+ "AND "
@@ -75,15 +106,19 @@ public interface SysSystemAttributeMappingRepository extends AbstractEntityRepos
 	 * 
 	 * @param systemMappingId
 	 * @param name
+	 * @deprecated use filter properties from {@link SysSystemAttributeMappingFilter}
 	 * @return
 	 */
+	@Deprecated
 	SysSystemAttributeMapping findBySystemMapping_IdAndName(@Param("systemMappingId") UUID systemMappingId, @Param("name") String name);
 	
 	/**
 	 * All mapped attributes in given mapping
 	 * 
 	 * @param systemMappingId
+	 * @deprecated use filter properties from {@link SysSystemAttributeMappingFilter}
 	 * @return
 	 */
+	@Deprecated
 	List<SysSystemAttributeMapping> findAllBySystemMapping_Id(@Param("systemMappingId") UUID systemMappingId);
 }

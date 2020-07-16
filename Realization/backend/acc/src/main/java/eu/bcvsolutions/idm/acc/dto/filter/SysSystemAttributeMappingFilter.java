@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.acc.dto.filter;
 
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 /**
@@ -21,6 +23,10 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 	private Boolean sendOnPasswordChange;
 	private Boolean passwordAttribute;
 	private Boolean disabledAttribute;
+	private SystemOperationType operationType;
+	private SystemEntityType entityType;
+	private String name;
+	private Boolean authenticationAttribute;
 
 	public Boolean getIsUid() {
 		return isUid;
@@ -92,5 +98,37 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 
 	public void setDisabledAttribute(Boolean disabledAttribute) {
 		this.disabledAttribute = disabledAttribute;
+	}
+
+	public SystemOperationType getOperationType() {
+		return operationType;
+	}
+
+	public void setOperationType(SystemOperationType operationType) {
+		this.operationType = operationType;
+	}
+
+	public SystemEntityType getEntityType() {
+		return entityType;
+	}
+
+	public void setEntityType(SystemEntityType entityType) {
+		this.entityType = entityType;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Boolean getAuthenticationAttribute() {
+		return authenticationAttribute;
+	}
+
+	public void setAuthenticationAttribute(Boolean authenticationAttribute) {
+		this.authenticationAttribute = authenticationAttribute;
 	}
 }

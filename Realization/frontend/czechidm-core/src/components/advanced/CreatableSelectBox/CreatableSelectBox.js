@@ -98,7 +98,7 @@ class CreatableSelectBox extends Basic.EnumSelectBox {
   _exists(identifier, index) {
     const { manager, filterColumnName, existentClass, nonExistentClass } = this.props;
     const searchParameters = manager.getDefaultSearchParameters().setFilter(filterColumnName, identifier);
-    this.context.store.dispatch(manager.fetchEntitiesCount(searchParameters, null, count => {
+    this.context.store.dispatch(manager.fetchEntitiesCount(searchParameters, `identity-${identifier}-count`, count => {
       if (count && count > 0) {
         this._updateOptions(identifier, index, existentClass);
       } else {

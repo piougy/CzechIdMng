@@ -2012,7 +2012,7 @@
       "header": "Delegations",
       "title": "Definitions of delegation",
       "label": "Delegations",
-      "detailHeader": "Delegation <small>({{delegator}} -> {{delegate}})</small>",
+      "detailHeader": "Delegation <small>({{delegator}} <strong class=\"highlight\">></strong> {{delegate}})</small>",
       "edit": {
         "title": "Detail for definition of delegation"
       },

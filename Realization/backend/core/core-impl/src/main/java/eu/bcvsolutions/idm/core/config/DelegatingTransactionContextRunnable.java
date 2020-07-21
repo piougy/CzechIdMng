@@ -17,8 +17,6 @@ public class DelegatingTransactionContextRunnable implements Runnable {
 
     private final Runnable delegate;
     private final TransactionContext delegateTransactionContext;
-    private TransactionContext originalTransactionContext;
-
 
     public DelegatingTransactionContextRunnable(Runnable delegate,
                                                 TransactionContext transactionContext) {
@@ -32,15 +30,16 @@ public class DelegatingTransactionContextRunnable implements Runnable {
         this(delegate, TransactionContextHolder.getContext());
     }
 
+
     @Override
     public void run() {
-        this.originalTransactionContext = TransactionContextHolder.getContext();
+        TransactionContext originalTransactionContext = TransactionContextHolder.getContext();
 
         try {
             TransactionContextHolder.setContext(delegateTransactionContext);
             delegate.run();
         } finally {
-            // Here is uses same logic as in original DelegatingSecurityContextRunnable
+            // TODO: Here is uses same logic as in original DelegatingSecurityContextRunnable
             // class (restoring of original context), but this maybe cause problem with using same instance of context.
             TransactionContext emptyContext = TransactionContextHolder.createEmptyContext();
             if (emptyContext.equals(originalTransactionContext)) {
@@ -48,7 +47,6 @@ public class DelegatingTransactionContextRunnable implements Runnable {
             } else {
                 TransactionContextHolder.setContext(originalTransactionContext);
             }
-            this.originalTransactionContext = null;
         }
     }
 

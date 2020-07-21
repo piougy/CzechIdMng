@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.core.config;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.Executor;
-
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
+import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,13 +14,10 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
+import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
-import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
+import java.lang.reflect.Method;
+import java.util.concurrent.Executor;
 
 /**
  * Executor configuration
@@ -56,6 +55,11 @@ public class AsyncConfig implements AsyncConfigurer {
 				SchedulerConfiguration.DEFAULT_TASK_EXECUTOR_QUEUE_CAPACITY);
 		executor.setQueueCapacity(queueCapacity);
 		executor.setThreadPriority(env.getProperty(SchedulerConfiguration.PROPERTY_TASK_EXECUTOR_THREAD_PRIORITY, Integer.class, 5));
+		// MODE_INHERITABLETHREADLOCAL mode is not recommended in environment where thread pools are used (old SecurityContext can be reused in next thread using.).
+		// Instead that the DelegatingSecurityContextRunnable is used for delegating the SecurityContext to child the thread.
+		// Same is applies for TransactionContext. You have to use DelegatingTransactionContextRunnable for delegating to the child thread.
+		// Beware, you have to wrap every new Thread to this delegate objects (wrappers).
+		executor.setTaskDecorator(runnable -> new DelegatingSecurityContextRunnable(new DelegatingTransactionContextRunnable(runnable)));
 		executor.setThreadNamePrefix("base-task-executor-");
 		executor.initialize();
 		//
@@ -64,7 +68,7 @@ public class AsyncConfig implements AsyncConfigurer {
 				maxPoolSize,
 				queueCapacity);
 		//
-		return new DelegatingSecurityContextAsyncTaskExecutor(executor);
+		return executor;
 	}
 
 	@Override
@@ -111,6 +115,11 @@ public class AsyncConfig implements AsyncConfigurer {
 		executor.setThreadNamePrefix("event-task-executor-");
 		// @Beta - TODO: application context closed listener
 		executor.setWaitForTasksToCompleteOnShutdown(true);
+		// MODE_INHERITABLETHREADLOCAL mode is not recommended in environment where thread pools are used (old SecurityContext can be reused in next thread using.).
+		// Instead that the DelegatingSecurityContextRunnable is used for delegating the SecurityContext to child the thread.
+		// Same is applies for TransactionContext. You have to use DelegatingTransactionContextRunnable for delegating to the child thread.
+		// Beware, you have to wrap every new Thread to this delegate objects (wrappers).
+		executor.setTaskDecorator(runnable -> new DelegatingSecurityContextRunnable(new DelegatingTransactionContextRunnable(runnable)));
 		executor.setAwaitTerminationSeconds(30);
 		executor.initialize();
 		//
@@ -119,6 +128,6 @@ public class AsyncConfig implements AsyncConfigurer {
 				maxPoolSize,
 				queueCapacity);
 		//
-		return new DelegatingSecurityContextAsyncTaskExecutor(executor);
+		return executor;
 	}
 }

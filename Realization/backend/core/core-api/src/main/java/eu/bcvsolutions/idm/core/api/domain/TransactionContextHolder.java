@@ -13,8 +13,9 @@ import org.springframework.util.Assert;
  */
 public final class TransactionContextHolder {
 
-	// inheritable thread strategy is supported only.
-	private static final ThreadLocal<TransactionContext> contextHolder = new InheritableThreadLocal<TransactionContext>();
+	// Inheritable thread strategy cannot be use here, because it doesn't work well with thread pools.
+	// Delegation of the Transaction context is realized by eu.bcvsolutions.idm.core.config.DelegatingTransactionContextRunnable.
+	private static final ThreadLocal<TransactionContext> contextHolder = new ThreadLocal<>();
 	
 	private TransactionContextHolder() {}
 	

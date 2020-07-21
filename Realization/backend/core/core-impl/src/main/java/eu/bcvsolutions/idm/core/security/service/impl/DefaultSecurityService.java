@@ -42,6 +42,9 @@ public class DefaultSecurityService implements SecurityService {
 	
 	@Override
 	public void setAuthentication(AbstractAuthentication authentication) {
+		// We have to clear the context first. We need to ensure new instance of Security context.
+		SecurityContextHolder.clearContext();
+		// TODO: Maybe  clear of the TransactionContext should be realized here too.
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 	

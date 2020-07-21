@@ -180,7 +180,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	    MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
 	    methodInvokingFactoryBean.setTargetClass(SecurityContextHolder.class);
 	    methodInvokingFactoryBean.setTargetMethod("setStrategyName");
-	    methodInvokingFactoryBean.setArguments(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+	    // MODE_INHERITABLETHREADLOCAL mode is not recommended in environment where thread pools are used (old SecurityContext can be reused in next thread using.).
+		// Instead that the DelegatingSecurityContextRunnable is used for delegating the SecurityContext to child the thread.
+		// Same is applies for TransactionContext. You have to use DelegatingTransactionContextRunnable for delegating to the child thread.
+		// Beware, you have to wrap every new Thread to this delegate objects (wrappers).
+	    methodInvokingFactoryBean.setArguments(SecurityContextHolder.MODE_THREADLOCAL);
 	    return methodInvokingFactoryBean;
 	}
 	

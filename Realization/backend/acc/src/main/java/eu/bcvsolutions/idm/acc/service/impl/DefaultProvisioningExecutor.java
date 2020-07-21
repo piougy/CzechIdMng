@@ -8,10 +8,12 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import eu.bcvsolutions.idm.core.config.DelegatingTransactionContextRunnable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -181,7 +183,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 				
 			});
 			// thread pool is not used here
-			Thread thread = new Thread(futureTask);
+			Thread thread = new Thread(new DelegatingSecurityContextRunnable(new DelegatingTransactionContextRunnable(futureTask)));
 	        thread.start();
 	        //
 			// global timeout by configuration

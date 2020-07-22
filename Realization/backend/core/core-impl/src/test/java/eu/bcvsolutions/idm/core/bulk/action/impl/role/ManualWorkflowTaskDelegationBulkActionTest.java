@@ -1,17 +1,6 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl.role;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -37,7 +26,17 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
 import org.activiti.engine.task.IdentityLinkType;
 import org.assertj.core.util.Sets;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Integration tests for {@link ManualWorkflowTaskDelegationBulkAction}
@@ -56,6 +55,11 @@ public class ManualWorkflowTaskDelegationBulkActionTest extends AbstractBulkActi
 
 	@Before
 	public void login() {
+		getHelper().setConfigurationValue(ChangeIdentityPermissionTest.APPROVE_BY_SECURITY_ENABLE, false);
+		getHelper().setConfigurationValue(ChangeIdentityPermissionTest.APPROVE_BY_MANAGER_ENABLE, false);
+		getHelper().setConfigurationValue(ChangeIdentityPermissionTest.APPROVE_BY_HELPDESK_ENABLE, false);
+		getHelper().setConfigurationValue(ChangeIdentityPermissionTest.APPROVE_BY_USERMANAGER_ENABLE, false);
+		//
 		loginAsAdmin();
 	}
 

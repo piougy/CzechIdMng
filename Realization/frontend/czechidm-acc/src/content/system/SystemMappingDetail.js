@@ -138,12 +138,24 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
         return;
       }
     }
+    if (this.refs.formProvisioningContext) {
+      if (!this.refs.formProvisioningContext.isFormValid()) {
+        this.setState({activeKey: 3});
+        return;
+      }
+    }
 
     const formEntity = this.refs.form.getData();
     if (this.refs.formAcm) {
       const acmData = this.refs.formAcm.getData(false);
       // Merge specific data to form.
       _.merge(formEntity, acmData);
+    }
+
+    if (this.refs.formProvisioningContext) {
+      const mappingContextData = this.refs.formProvisioningContext.getData(false);
+      // Merge context data to form.
+      _.merge(formEntity, mappingContextData);
     }
     if (formEntity.id === undefined) {
       this.context.store.dispatch(systemMappingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
@@ -463,6 +475,56 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                     headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
                     helpBlock={this.i18n('acc:entity.SystemMapping.canBeAccountCreatedScript.help')}
                     label={this.i18n('acc:entity.SystemMapping.canBeAccountCreatedScript.label')}
+                    scriptManager={scriptManager} />
+                </Basic.AbstractForm>
+                <Basic.PanelFooter>
+                  <Basic.Button
+                    type="button"
+                    level="link"
+                    onClick={this.context.history.goBack}
+                    showLoading={_showLoading}>
+                    {this.i18n('button.back')}
+                  </Basic.Button>
+                  <Basic.Button
+                    level="success"
+                    type="submit"
+                    showLoading={ _showLoading }
+                    rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                    {this.i18n('button.saveAndContinue')}
+                  </Basic.Button>
+                </Basic.PanelFooter>
+              </Basic.Panel>
+            </form>
+          </Basic.Tab>
+          <Basic.Tab
+            eventKey={3}
+            title={this.i18n('acc:entity.SystemMapping.mappingContext.tab.title')}
+            rendered={isSelectedProvisioning}
+            className="bordered">
+            <form onSubmit={this.save.bind(this)}>
+              <Basic.Panel className="no-border">
+                <Basic.AbstractForm
+                  ref="formProvisioningContext"
+                  className="panel-body"
+                  data={ mapping }
+                  showLoading={ _showLoading }
+                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                  <Basic.Checkbox
+                    ref="addContextContracts"
+                    label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextContracts.label')}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextContracts.help')}
+                  />
+                  <Basic.Checkbox
+                    ref="addContextIdentityRoles"
+                    label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRoles.label')}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRoles.help')}
+                  />
+                  <Advanced.ScriptArea
+                    ref="mappingContextScript"
+                    scriptCategory={Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.MAPPING_CONTEXT)}
+                    headerText={this.i18n('acc:entity.SystemMapping.mappingContext.scriptSelectBox.label')}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.script.help')}
+                    label={this.i18n('acc:entity.SystemMapping.mappingContext.script.label')}
                     scriptManager={scriptManager} />
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>

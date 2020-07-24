@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -362,8 +364,46 @@ public class DefaultSysSystemMappingService
 			attributeMappingService = applicationContext.getBean(SysSystemAttributeMappingService.class);
 		return attributeMappingService;
 	}
-	
-	
+
+	@Override
+	public MappingContext getMappingContext(SysSystemMappingDto mapping, SysSystemEntityDto systemEntity, AbstractDto dto, SysSystemDto system) {
+		Assert.notNull(mapping, "Mapping cannot be null!");
+		Assert.notNull(systemEntity, "System entity cannot be null!");
+		Assert.notNull(dto, "DTO cannot be null!");
+		Assert.notNull(system, "System cannot be null!");
+
+		// Create new context.
+		MappingContext mappingContext = new MappingContext();
+
+		String script = mapping.getMappingContextScript();
+
+		if (StringUtils.isEmpty(script)) {
+			return mappingContext;
+		} else {
+			Map<String, Object> variables = new HashMap<>();
+			variables.put(SysSystemAttributeMappingService.ACCOUNT_UID, systemEntity.getUid());
+			variables.put(SysSystemAttributeMappingService.SYSTEM_KEY, system);
+			variables.put(SysSystemAttributeMappingService.ENTITY_KEY, dto);
+			variables.put(SysSystemAttributeMappingService.CONTEXT_KEY, mappingContext);
+			// Add default script evaluator, for call another scripts
+			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR,
+					pluginExecutors.getPluginFor(IdmScriptCategory.MAPPING_CONTEXT));
+
+			// Add access for script evaluator
+			List<Class<?>> extraClass = new ArrayList<>();
+			extraClass.add(AbstractScriptEvaluator.Builder.class);
+			//
+			Object result = groovyScriptService.evaluate(script, variables, extraClass);
+			if (result instanceof MappingContext) {
+				return (MappingContext) result;
+			} else {
+				throw new ProvisioningException(
+						AccResultCode.MAPPING_CONTEXT_SCRIPT_RETURNS_WRONG_TYPE,
+						ImmutableMap.of("system", system.getCode()));
+			}
+		}
+	}
+
 	@Override
 	@Transactional
 	public SysSystemMappingDto duplicateMapping(UUID id, SysSchemaObjectClassDto schema,

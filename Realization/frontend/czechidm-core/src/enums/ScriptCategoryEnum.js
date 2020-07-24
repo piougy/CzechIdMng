@@ -36,6 +36,9 @@ export default class ScriptCategoryEnum extends AbstractEnum {
       case this.SYSTEM: {
         return 'warning';
       }
+      case this.MAPPING_CONTEXT: {
+        return 'info';
+      }
       default: {
         return 'default';
       }
@@ -47,3 +50,4 @@ ScriptCategoryEnum.DEFAULT = Symbol('DEFAULT');
 ScriptCategoryEnum.TRANSFORM_FROM = Symbol('TRANSFORM_FROM');
 ScriptCategoryEnum.TRANSFORM_TO = Symbol('TRANSFORM_TO');
 ScriptCategoryEnum.SYSTEM = Symbol('SYSTEM');
+ScriptCategoryEnum.MAPPING_CONTEXT = Symbol('MAPPING_CONTEXT');

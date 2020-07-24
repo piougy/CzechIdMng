@@ -33,6 +33,9 @@ public class SysSystemMappingDto extends AbstractDto {
 	private boolean protectionEnabled = false;
 	private Integer protectionInterval;
 	private String canBeAccountCreatedScript;
+	private String mappingContextScript;
+	private boolean addContextContracts = false;
+	private boolean addContextIdentityRoles = false;
 
 	public String getName() {
 		return name;
@@ -98,4 +101,27 @@ public class SysSystemMappingDto extends AbstractDto {
 		this.canBeAccountCreatedScript = canBeAccountCreatedScript;
 	}
 
+	public String getMappingContextScript() {
+		return mappingContextScript;
+	}
+
+	public void setMappingContextScript(String mappingContextScript) {
+		this.mappingContextScript = mappingContextScript;
+	}
+
+	public boolean isAddContextContracts() {
+		return addContextContracts;
+	}
+
+	public void setAddContextContracts(boolean addContextContracts) {
+		this.addContextContracts = addContextContracts;
+	}
+
+	public boolean isAddContextIdentityRoles() {
+		return addContextIdentityRoles;
+	}
+
+	public void setAddContextIdentityRoles(boolean addContextIdentityRoles) {
+		this.addContextIdentityRoles = addContextIdentityRoles;
+	}
 }

@@ -89,7 +89,20 @@ public class SysSystemMapping extends AbstractEntity {
 	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "can_be_acc_created_script")
 	private String canBeAccountCreatedScript;
-	
+
+	@Audited
+	@Type(type = "org.hibernate.type.TextType")
+	@Column(name = "mapping_context_script")
+	private String mappingContextScript;
+
+	@Audited
+	@Column(name = "add_context_contracts", nullable = false)
+	private boolean addContextContracts = false;
+
+	@Audited
+	@Column(name = "add_context_identity_roles", nullable = false)
+	private boolean addContextIdentityRoles = false;
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -161,5 +174,28 @@ public class SysSystemMapping extends AbstractEntity {
 	public void setCanBeAccountCreatedScript(String canBeAccountCreatedScript) {
 		this.canBeAccountCreatedScript = canBeAccountCreatedScript;
 	}
-	
+
+	public String getMappingContextScript() {
+		return mappingContextScript;
+	}
+
+	public void setMappingContextScript(String provisioningContextScript) {
+		this.mappingContextScript = provisioningContextScript;
+	}
+
+	public boolean isAddContextContracts() {
+		return addContextContracts;
+	}
+
+	public void setAddContextContracts(boolean addContextContracts) {
+		this.addContextContracts = addContextContracts;
+	}
+
+	public boolean isAddContextIdentityRoles() {
+		return addContextIdentityRoles;
+	}
+
+	public void setAddContextIdentityRoles(boolean addContextIdentityRoles) {
+		this.addContextIdentityRoles = addContextIdentityRoles;
+	}
 }

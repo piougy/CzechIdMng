@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -78,8 +79,8 @@ public class RoleCatalogueProvisioningExecutor extends AbstractProvisioningExecu
 	}
 	
 	@Override
-	protected Object getAttributeValue(String uid, IdmRoleCatalogueDto dto, AttributeMapping attribute, SysSystemDto system) {
-		Object idmValue = super.getAttributeValue(uid, dto, attribute, system);
+	protected Object getAttributeValue(String uid, IdmRoleCatalogueDto dto, AttributeMapping attribute, SysSystemDto system, MappingContext mappingContext) {
+		Object idmValue = super.getAttributeValue(uid, dto, attribute, system, mappingContext);
 
 		if (attribute.isEntityAttribute()
 				&& TreeSynchronizationExecutor.PARENT_FIELD.equals(attribute.getIdmPropertyName())) {

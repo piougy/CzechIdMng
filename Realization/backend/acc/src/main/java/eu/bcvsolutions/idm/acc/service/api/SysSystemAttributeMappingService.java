@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import java.beans.IntrospectionException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -31,14 +32,15 @@ public interface SysSystemAttributeMappingService
 		CloneableService<SysSystemAttributeMappingDto>,
 		AuthorizableService<SysSystemAttributeMappingDto> {
 
-	public static final String ATTRIBUTE_VALUE_KEY = "attributeValue";
-	public static final String SYSTEM_KEY = "system";
-	public static final String IC_ATTRIBUTES_KEY = "icAttributes";
-	public static final String ENTITY_KEY = "entity";
-	public static final String ACCOUNT_UID = "uid";
-	public static final String MAPPING_SCRIPT_FAIL_MESSAGE_KEY = "origMessage";
-	public static final String MAPPING_SCRIPT_FAIL_IDM_PATH_KEY = "idmPath";
-	public static final String MAPPING_SCRIPT_FAIL_SCRIPT_PATH_KEY = "scriptPath";
+	static String ATTRIBUTE_VALUE_KEY = "attributeValue";
+	static String SYSTEM_KEY = "system";
+	static String IC_ATTRIBUTES_KEY = "icAttributes";
+	static String ENTITY_KEY = "entity";
+	static String ACCOUNT_UID = "uid";
+	static String MAPPING_SCRIPT_FAIL_MESSAGE_KEY = "origMessage";
+	static String MAPPING_SCRIPT_FAIL_IDM_PATH_KEY = "idmPath";
+	static String MAPPING_SCRIPT_FAIL_SCRIPT_PATH_KEY = "scriptPath";
+	static String CONTEXT_KEY = "context";
 	
 
 	/**
@@ -59,28 +61,65 @@ public interface SysSystemAttributeMappingService
 	SysSystemAttributeMappingDto findBySystemMappingAndName(UUID systemMappingId, String name);
 
 	/**
-	 * Do transformation given value to value for target system (resource)
-	 * 
-	 * @param uid              - Account identifier, can be null
-	 * @param value
-	 * @param attributeMapping
-	 * @return transformed value
-	 */
-	Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping, AbstractDto entity);
-
-	/**
-	 * Do transformation given value to value for IDM system
-	 * 
-	 * @param uid              - Account identifier, can be null
+	 * Do transformation given value to value for target system (resource).
+	 *
+	 * @param uid
 	 * @param value
 	 * @param attributeMapping
 	 * @param entity
+	 * @param mappingContext
+	 *
+	 * @return transformed value
+	 */
+	Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping,
+									AbstractDto entity, MappingContext mappingContext);
+
+	/**
+	 * Do transformation given value to value for IDM system.
+	 *
+	 * @param uid
+	 * @param value
+	 * @param entity
+	 * @param mappingContext
+	 * @return transformed value
+	 */
+	Object transformValueToResource(String uid, Object value, String script, AbstractDto entity,
+									SysSystemDto system, MappingContext mappingContext);
+
+	/**
+	 * Do transformation given value to value for IDM system.
+	 *
+	 * @param uid
+	 * @param value
+	 * @param script
+	 * @param entity
+	 * @param system
+	 *
+	 * @return transformed value
+	 */
+	Object transformValueToResource(String uid, Object value, String script, AbstractDto entity, SysSystemDto system);
+
+	/**
+	 * Do transformation given value to value for target system (resource)
+	 *
+	 * @param uid              - Account identifier, can be null
+	 * @param value
+	 * @param attributeMapping
+	 *
+	 * @return transformed value
+	 */
+	Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping,
+									AbstractDto entity);
+
+	/**
+	 * Do transformation given value to value for IDM system.
+	 *
+	 * @param value
+	 * @param attributeMapping
 	 * @param icAttributes
 	 * @return transformed value
 	 */
 	Object transformValueFromResource(Object value, AttributeMapping attributeMapping, List<IcAttribute> icAttributes);
-
-	Object transformValueToResource(String uid, Object value, String script, AbstractDto entity, SysSystemDto system);
 
 	Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes, SysSystemDto system);
 
@@ -122,13 +161,24 @@ public interface SysSystemAttributeMappingService
 	 * @param uid               - Account identifier
 	 * @param entity
 	 * @param attributeHandling
-	 * @param idmValue
 	 * @return
 	 * @throws IntrospectionException
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
 	Object getAttributeValue(String uid, AbstractDto entity, AttributeMapping attributeHandling);
+
+	/**
+	 * Find value for this mapped attribute by property name. Returned value can be
+	 * list of objects. Returns transformed value.
+	 *
+	 * @param uid
+	 * @param entity
+	 * @param attributeHandling
+	 * @param mappingContext
+	 * @return
+	 */
+	Object getAttributeValue(String uid, AbstractDto entity, AttributeMapping attributeHandling, MappingContext mappingContext);
 
 	/**
 	 * Generate UID from UID attribute

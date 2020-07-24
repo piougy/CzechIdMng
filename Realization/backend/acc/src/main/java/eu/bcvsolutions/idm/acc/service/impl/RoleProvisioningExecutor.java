@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,8 +103,8 @@ public class RoleProvisioningExecutor extends AbstractProvisioningExecutor<IdmRo
 	}
 	
 	@Override
-	protected Object getAttributeValue(String uid, IdmRoleDto entity, AttributeMapping attribute, SysSystemDto system) {
-		Object idmValue = super.getAttributeValue(uid, entity, attribute, system);
+	protected Object getAttributeValue(String uid, IdmRoleDto entity, AttributeMapping attribute, SysSystemDto system, MappingContext mappingContext) {
+		Object idmValue = super.getAttributeValue(uid, entity, attribute, system, mappingContext);
 
 		if (attribute.isEntityAttribute()
 				&& RoleSynchronizationExecutor.ROLE_TYPE_FIELD.equals(attribute.getIdmPropertyName())) {

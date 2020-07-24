@@ -710,9 +710,10 @@
     },
     "ScriptCategoryEnum": {
       "DEFAULT": "Standardní",
-      "TRANSFORM_FROM": "Transformace z",
-      "TRANSFORM_TO": "Transformace do",
-      "SYSTEM": "Systémové"
+      "TRANSFORM_FROM": "Transformace ze systému",
+      "TRANSFORM_TO": "Transformace do systému",
+      "SYSTEM": "Systémové",
+      "MAPPING_CONTEXT": "Sestavení provisioning kontextu"
     },
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "Nepřiřazena",

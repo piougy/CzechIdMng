@@ -677,9 +677,10 @@
     },
     "ScriptCategoryEnum": {
       "DEFAULT": "Standard",
-      "TRANSFORM_FROM": "Transformation from",
-      "TRANSFORM_TO": "Transformation to",
-      "SYSTEM": "System"
+      "TRANSFORM_FROM": "Transformation from a system",
+      "TRANSFORM_TO": "Transformation to a system",
+      "SYSTEM": "System",
+      "MAPPING_CONTEXT": "Build a provisioning context"
     },
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "not assigned",

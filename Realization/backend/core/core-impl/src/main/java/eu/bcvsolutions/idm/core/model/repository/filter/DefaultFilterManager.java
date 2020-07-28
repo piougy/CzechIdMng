@@ -72,7 +72,8 @@ public class DefaultFilterManager implements FilterManager {
 			"dtoClass", // filter type
 			"sort", // TODO: load from configuration, but cannot be configured now anyway - FE is hard coded to this props too.
 			"page", 
-			"size"); 
+			"size",
+			"face"); // TODO: sent from FE for validable filters - prevent to sent property form FE instead (but preserve saving in redux to remember filled filter).
 	
 	@Autowired
 	public DefaultFilterManager(

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security;
+package eu.bcvsolutions.idm.core.security.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
@@ -33,6 +34,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -42,9 +45,8 @@ import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
-import eu.bcvsolutions.idm.core.security.service.impl.DefaultAuthorizationManager;
+import eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Test for authorities evaluation
@@ -54,7 +56,6 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  */
 public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmAuthorizationPolicyService service;
@@ -65,7 +66,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	@Autowired private IdmCacheManager cacheManager;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	//
-	private AuthorizationManager manager;
+	private DefaultAuthorizationManager manager;
 	
 	@Before
 	public void init() {		
@@ -96,14 +97,14 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	public void testEvaluate() {
 		loginAsAdmin();
 		// prepare role
-		IdmRoleDto role = helper.createRole();
-		helper.createBasePolicy(role.getId(), IdmBasePermission.READ);		
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createBasePolicy(role.getId(), IdmBasePermission.READ);		
 		// prepare identity
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		identity.setPassword(new GuardedString("heslo"));
 		identityService.save(identity);
 		// assign role
-		helper.createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role);
 		logout();
 		//
 		// without login
@@ -130,15 +131,15 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	public void testPredicate() {
 		loginAsAdmin();
 		// prepare role
-		IdmRoleDto role = helper.createRole();
-		helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
-		helper.createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE);	
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+		getHelper().createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE);	
 		// prepare identity
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		identity.setPassword(new GuardedString("heslo"));
 		identityService.save(identity);
 		// assign role
-		helper.createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role);
 		logout();
 		//
 		// empty without login
@@ -163,15 +164,15 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin();
 			// prepare role
-			IdmRoleDto role = helper.createRole();
-			IdmRoleDto role2 = helper.createRole();
-			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
-			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);
+			IdmRoleDto role = getHelper().createRole();
+			IdmRoleDto role2 = getHelper().createRole();
+			getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			getHelper().createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);
 			// prepare identity
-			IdmIdentityDto identity = helper.createIdentity();
+			IdmIdentityDto identity = getHelper().createIdentity();
 			// assign role
-			helper.createIdentityRole(identity, role);
-			helper.createIdentityRole(identity, role2);
+			getHelper().createIdentityRole(identity, role);
+			getHelper().createIdentityRole(identity, role2);
 			//
 			assertEquals(2, service.getEnabledPolicies(identity.getId(), IdmRole.class).size());
 		} finally {
@@ -185,17 +186,17 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin();
 			// prepare role
-			IdmRoleDto role = helper.createRole();
-			IdmRoleDto role2 = helper.createRole();
+			IdmRoleDto role = getHelper().createRole();
+			IdmRoleDto role2 = getHelper().createRole();
 			role2.setDisabled(true);
 			roleService.save(role2);
-			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
-			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
+			getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			getHelper().createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
-			IdmIdentityDto identity = helper.createIdentity();
+			IdmIdentityDto identity = getHelper().createIdentity();
 			// assign role
-			helper.createIdentityRole(identity, role);
-			helper.createIdentityRole(identity, role2);
+			getHelper().createIdentityRole(identity, role);
+			getHelper().createIdentityRole(identity, role2);
 			//
 			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getId(), IdmRole.class);
 			assertEquals(1, policies.size());
@@ -211,15 +212,15 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin();
 			// prepare role
-			IdmRoleDto role = helper.createRole();
-			IdmRoleDto role2 = helper.createRole();
-			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
-			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
+			IdmRoleDto role = getHelper().createRole();
+			IdmRoleDto role2 = getHelper().createRole();
+			getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			getHelper().createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
-			IdmIdentityDto identity = helper.createIdentity();
+			IdmIdentityDto identity = getHelper().createIdentity();
 			// assign role
-			helper.createIdentityRole(identity, role);
-			IdmIdentityRoleDto assignedRole = helper.createIdentityRole(identity, role2);
+			getHelper().createIdentityRole(identity, role);
+			IdmIdentityRoleDto assignedRole = getHelper().createIdentityRole(identity, role2);
 			assignedRole.setValidFrom(LocalDate.now().plusDays(1));
 			identityRoleService.save(assignedRole);
 			//
@@ -236,18 +237,18 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin();
 			// prepare role
-			IdmRoleDto role = helper.createRole();
-			IdmRoleDto role2 = helper.createRole();
-			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
-			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
+			IdmRoleDto role = getHelper().createRole();
+			IdmRoleDto role2 = getHelper().createRole();
+			getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			getHelper().createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
-			IdmIdentityDto identity = helper.createIdentity();
+			IdmIdentityDto identity = getHelper().createIdentity();
 			// assign role
-			helper.createIdentityRole(identity, role);
-			IdmIdentityContractDto contract = helper.createIdentityContact(identity);
+			getHelper().createIdentityRole(identity, role);
+			IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
 			contract.setState(ContractState.DISABLED);	
 			identityContractService.save(contract);
-			helper.createIdentityRole(contract, role2);
+			getHelper().createIdentityRole(contract, role2);
 			//
 			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getId(), IdmRole.class);
 			assertEquals(1, policies.size());
@@ -263,20 +264,20 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		try {
 			loginAsAdmin();
 			// prepare role
-			IdmRoleDto role = helper.createRole();
-			IdmRoleDto role2 = helper.createRole();
-			helper.createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
-			helper.createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
+			IdmRoleDto role = getHelper().createRole();
+			IdmRoleDto role2 = getHelper().createRole();
+			getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);		
+			getHelper().createBasePolicy(role2.getId(), IdmBasePermission.AUTOCOMPLETE);	
 			// prepare identity
-			IdmIdentityDto identity = helper.createIdentity();
+			IdmIdentityDto identity = getHelper().createIdentity();
 			// assign role
-			helper.createIdentityRole(identity, role);
+			getHelper().createIdentityRole(identity, role);
 			IdmIdentityContractDto contract = new IdmIdentityContractDto();
 			contract.setIdentity(identity.getId());
 			contract.setPosition("position-" + System.currentTimeMillis());
 			contract.setValidFrom(LocalDate.now().plusDays(1));
 			contract = identityContractService.save(contract);
-			helper.createIdentityRole(contract, role2);
+			getHelper().createIdentityRole(contract, role2);
 			//
 			List<IdmAuthorizationPolicyDto> policies = service.getEnabledPolicies(identity.getId(), IdmRole.class);
 			assertEquals(1, policies.size());
@@ -294,8 +295,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		IdmIdentityDto identity = getHelper().createIdentity();
 		UUID mockIdentity = UUID.randomUUID();
 		// prepare role
-		IdmRoleDto role = helper.createRole();
-		IdmAuthorizationPolicyDto policy = helper.createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
+		IdmRoleDto role = getHelper().createRole();
+		IdmAuthorizationPolicyDto policy = getHelper().createBasePolicy(role.getId(), IdmBasePermission.AUTOCOMPLETE, IdmBasePermission.READ);
 		getHelper().createIdentityRole(identity, role);
 		//
 		Assert.assertNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identity.getId()));
@@ -374,5 +375,111 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		Assert.assertNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, identity.getId()));
 		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, mockIdentity));
 		Assert.assertNotNull(cacheManager.getValue(AuthorizationManager.PERMISSION_CACHE_NAME, mockIdentity));
+	}
+	
+	@Test
+	@Transactional
+	public void testDistictPolicies() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole();
+		IdmAuthorizationPolicyDto policy = getHelper().createBasePolicy(
+				role.getId(), 
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.AUTOCOMPLETE, 
+				IdmBasePermission.READ);
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createIdentityRole(identity, roleTwo);
+		getHelper().createIdentityRole(identity, roleTwo);
+		//
+		List<IdmAuthorizationPolicyDto> enabledDistinctPolicies = manager.getEnabledDistinctPolicies(identity.getId(), IdmIdentity.class);
+		Assert.assertEquals(1, enabledDistinctPolicies.size());
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policy.getId())));
+		//
+		IdmAuthorizationPolicyDto policyTwo = getHelper().createBasePolicy(
+				role.getId(), 
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.READ,
+				IdmBasePermission.AUTOCOMPLETE);
+		//
+		enabledDistinctPolicies = manager.getEnabledDistinctPolicies(identity.getId(), IdmIdentity.class);
+		Assert.assertEquals(1, enabledDistinctPolicies.size());
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policy.getId()) || p.getId().equals(policyTwo.getId())));
+		//
+		IdmAuthorizationPolicyDto policyThree = getHelper().createBasePolicy(
+				role.getId(), 
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				IdmBasePermission.AUTOCOMPLETE);
+		//
+		enabledDistinctPolicies = manager.getEnabledDistinctPolicies(identity.getId(), IdmIdentity.class);
+		Assert.assertEquals(2, enabledDistinctPolicies.size());
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policy.getId()) || p.getId().equals(policyTwo.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policyThree.getId())));
+		//
+		// with parameters
+		ConfigurationMap propsFour = new ConfigurationMap();
+		propsFour.put("one", "valueOne");
+		propsFour.put("two", "valueTwo");
+		IdmAuthorizationPolicyDto policyFour = getHelper().createAuthorizationPolicy(
+				roleTwo.getId(), 
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				UuidEvaluator.class,
+				propsFour,
+				IdmBasePermission.READ,
+				IdmBasePermission.AUTOCOMPLETE);
+		//
+		ConfigurationMap propsFive = new ConfigurationMap();
+		propsFive.put("two", "valueTwo");
+		propsFive.put("one", "valueOne");
+		IdmAuthorizationPolicyDto policyFive = getHelper().createAuthorizationPolicy(
+				roleTwo.getId(), 
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				UuidEvaluator.class,
+				propsFive,
+				IdmBasePermission.AUTOCOMPLETE,
+				IdmBasePermission.READ);
+		//
+		enabledDistinctPolicies = manager.getEnabledDistinctPolicies(identity.getId(), IdmIdentity.class);
+		Assert.assertEquals(3, enabledDistinctPolicies.size());
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policy.getId()) || p.getId().equals(policyTwo.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policyThree.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policyFour.getId()) || p.getId().equals(policyFive.getId())));
+		//
+		ConfigurationMap propsSix = new ConfigurationMap();
+		propsSix.put("one", "valueOneU");
+		propsSix.put("two", "valueTwo");
+		IdmAuthorizationPolicyDto policySix = getHelper().createAuthorizationPolicy(
+				roleTwo.getId(), 
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				UuidEvaluator.class,
+				propsSix,
+				IdmBasePermission.AUTOCOMPLETE,
+				IdmBasePermission.READ);
+		//
+		ConfigurationMap propsSeven = new ConfigurationMap();
+		propsSeven.put("one", "valueOneU");
+		propsSeven.put("two", "valueTwo");
+		IdmAuthorizationPolicyDto policySeven = getHelper().createAuthorizationPolicy(
+				roleTwo.getId(), 
+				CoreGroupPermission.IDENTITY,
+				IdmIdentity.class,
+				UuidEvaluator.class,
+				propsSeven,
+				IdmBasePermission.READ);
+		//
+		enabledDistinctPolicies = manager.getEnabledDistinctPolicies(identity.getId(), IdmIdentity.class);
+		Assert.assertEquals(5, enabledDistinctPolicies.size());
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policy.getId()) || p.getId().equals(policyTwo.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policyThree.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policyFour.getId()) || p.getId().equals(policyFive.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policySix.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policySeven.getId())));
 	}
 }

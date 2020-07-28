@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
@@ -87,16 +89,12 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		//
 		final List<Predicate> predicates = Lists.newArrayList(); // no data by default
 		//
-		getEnabledPolicies(securityService.getCurrentId(), root.getJavaType()).forEach(policy -> {
-			if (!supportsEntityType(policy, root.getJavaType())) {
-				// TODO: compatibility issues - agendas without authorization support
-			} else {
-				AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
-				if (evaluator != null && evaluator.supports(root.getJavaType())) {
-					Predicate predicate = evaluator.getPredicate(root, query, builder, policy, PermissionUtils.trimNull(permission));
-					if (predicate != null) {
-						predicates.add(predicate);
-					}
+		getEnabledDistinctPolicies(securityService.getCurrentId(), root.getJavaType()).forEach(policy -> {
+			AuthorizationEvaluator<E> evaluator = getEvaluator(policy);
+			if (evaluator != null && evaluator.supports(root.getJavaType())) {
+				Predicate predicate = evaluator.getPredicate(root, query, builder, policy, PermissionUtils.trimNull(permission));
+				if (predicate != null) {
+					predicates.add(predicate);
 				}
 			}
 		});
@@ -132,12 +130,8 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 			}		
 		}
 		// load policies and get permissions
-		getEnabledPolicies(loggedIdentityId, entity.getClass()).forEach(policy -> {
-			if (!supportsEntityType(policy, entity.getClass())) {
-				// TODO: compatibility issues - agendas without authorization support
-			} else {					
-				permissions.addAll(getPermissions(entity, policy));
-			}
+		getEnabledDistinctPolicies(loggedIdentityId, entity.getClass()).forEach(policy -> {				
+			permissions.addAll(getPermissions(entity, policy));
 		});
 		// cache permissions 
 		if (entityId != null) {
@@ -179,12 +173,8 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		Assert.notNull(authorizableType, "Authorizable type is required.");
 		//
 		final Set<String> authorities = new HashSet<>();
-		getEnabledPolicies(identityId, authorizableType).forEach(policy -> {
-			if (!supportsEntityType(policy, authorizableType)) {
-				// TODO: compatibility issues - agendas without authorization support
-			} else {		
-				authorities.addAll(getAuthorities(identityId, policy));
-			}
+		getEnabledDistinctPolicies(identityId, authorizableType).forEach(policy -> {	
+			authorities.addAll(getAuthorities(identityId, policy));
 		});
 		return authorities;
 	}
@@ -356,14 +346,15 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 	}
 	
 	/**
-	 * Cache decorator - get otr load current identity permissions.
+	 * Cache decorator - get or load current identity authorization policies.
+	 * Distinct policies are returned only
 	 * 
 	 * @param identityId
 	 * @param entityType
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private List<IdmAuthorizationPolicyDto> getEnabledPolicies(UUID identityId, Class<? extends Identifiable> entityType) {
+	protected List<IdmAuthorizationPolicyDto> getEnabledDistinctPolicies(UUID identityId, Class<? extends Identifiable> entityType) {
 		if (identityId == null) {
 			// TODO: support setting policies to not logged user - e.g. public endpoints.
 			return Lists.newArrayList();
@@ -382,12 +373,55 @@ public class DefaultAuthorizationManager implements AuthorizationManager {
 		if (cachedPolicies.containsKey(entityType)) {
 			return cachedPolicies.get(entityType);
 		}
+		// distinct policies
+		List<IdmAuthorizationPolicyDto> enabledDistinctPolicies = new ArrayList<>();
 		// load policies
-		List<IdmAuthorizationPolicyDto> enabledPolicies = service.getEnabledPolicies(identityId, entityType);
+		service
+			.getEnabledPolicies(identityId, entityType)
+			.stream()
+			.filter(p -> supportsEntityType(p, entityType)) // TODO: compatibility issues - agendas without authorization support
+			.forEach(policy -> {
+				boolean contains = false;
+				for (IdmAuthorizationPolicyDto registeredPolicy: enabledDistinctPolicies) {
+					if (isDuplicate(policy, registeredPolicy)) {
+						// policy with the same configuration is already registered
+						contains = true;
+						break;
+					}
+				}
+				// register policy
+				if (!contains) {
+					enabledDistinctPolicies.add(policy);
+				}
+			});
 		// cache policies 
-		cachedPolicies.put(entityType, enabledPolicies);
+		cachedPolicies.put(entityType, enabledDistinctPolicies);
 		cacheManager.cacheValue(AUTHORIZATION_POLICY_CACHE_NAME, identityId, cachedPolicies);
 		//
-		return enabledPolicies;
+		return enabledDistinctPolicies;
+	}
+	
+	/**
+	 * Resolve duplicate policies => policies with the same configuration can be ignored.
+	 *  
+	 * @param one first policy
+	 * @param two second policy
+	 * @return
+	 * @since 10.4.1
+	 */
+	protected boolean isDuplicate(IdmAuthorizationPolicyDto one, IdmAuthorizationPolicyDto two) {
+		Assert.notNull(one, "Policy (one) is required.");
+		Assert.notNull(two, "Policy (two) is required.");
+		//
+		// the same policy is assigned twice
+		if (Objects.equal(one.getId(), two.getId())) {
+			return true;
+		}
+		// policies are different, but configured the same way
+		return Objects.equal(one.getAuthorizableType(), two.getAuthorizableType())
+				&& Objects.equal(one.getEvaluatorType(), two.getEvaluatorType())
+				&& Objects.equal(one.getGroupPermission(), two.getGroupPermission())
+				&& Objects.equal(one.getPermissions(), two.getPermissions()) // set => order doesn't matter
+				&& Objects.equal(one.getEvaluatorProperties(), two.getEvaluatorProperties());
 	}
 }

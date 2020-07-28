@@ -2062,7 +2062,7 @@
       "header": "Delegace",
       "title": "Definice delegací",
       "label": "Delegace",
-      "detailHeader": "Delegace <small>({{delegator}} 🡆 {{delegate}})</small>",
+      "detailHeader": "Delegace <small>({{delegator}} <strong class=\"highlight\">></strong> {{delegate}})</small>",
       "edit": {
         "title": "Detail definice delegace"
       },

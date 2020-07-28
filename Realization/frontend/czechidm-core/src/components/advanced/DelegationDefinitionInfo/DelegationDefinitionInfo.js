@@ -1,8 +1,10 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
 import {DelegationDefinitionManager, IdentityManager} from '../../../redux';
 import AbstractEntityInfo from '../EntityInfo/AbstractEntityInfo';
+import * as Basic from '../../basic';
 
 const manager = new DelegationDefinitionManager();
 const identityManager = new IdentityManager();
@@ -24,6 +26,38 @@ export class DelegationDefinitionInfo extends AbstractEntityInfo {
     }
     return true;
   }
+
+  _renderNiceLabel(_entity) {
+    const entity = _entity || this.getEntity();
+    if (!entity || !entity._embedded || !entity._embedded.delegator) {
+      return null;
+    }
+    const delegator = this._getIdentityName(entity._embedded.delegator);
+    const delegate = this._getIdentityName(entity._embedded.delegate);
+
+    return (
+      <span>
+        {delegator}
+        <Basic.Icon
+          value="fa:angle-right"
+          style={{ marginRight: 5, marginLeft: 5}}/>
+        {delegate}
+      </span>
+    );
+  }
+
+  getPopoverTitle(entity) {
+    return this._renderNiceLabel(entity);
+  }
+
+  _getIdentityName(identity) {
+    const fullName = identityManager.getFullName(identity);
+    if (fullName) {
+      return fullName;
+    }
+    return identityManager.getNiceLabel(identity);
+  }
+
 
   /**
    * Get link to detail (`url`).

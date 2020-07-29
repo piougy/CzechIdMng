@@ -99,13 +99,23 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
     const entityFormData = _.merge({}, entity, {
       role: entity._embedded && entity._embedded.role ? entity._embedded.role : roleId,
       basePermissions: entity.basePermissions ? entity.basePermissions.split(',') : null,
-      groupPermission: entity.groupPermission ? `${ entity.groupPermission }${ entity.authorizableType ? '-' : '' }${ entity.authorizableType}` : null
+      groupPermission: // Create composite value (~option) identifier - authorizableType can be null.
+        entity.groupPermission
+        ?
+        `${ entity.groupPermission }${ entity.authorizableType ? '-' : '' }${ entity.authorizableType || '' }`
+        :
+        null
     });
     //
     let authorizableType = null;
-    const _authorizableType = !entity.groupPermission
-      ? null
-      : authorizableTypes.find(type => { return type.group === entity.groupPermission && type.type === entity.authorizableType; });
+    const _authorizableType =
+      !entity.groupPermission
+      ?
+      null
+      :
+      authorizableTypes.find(type => {
+        return type.group === entity.groupPermission && type.type === entity.authorizableType;
+      });
     if (_authorizableType) {
       authorizableType = {
         niceLabel: this._getAuthorizableTypeNiceLabel(_authorizableType._authorizableType, _authorizableType.type),
@@ -130,9 +140,11 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
   }
 
   closeDetail() {
+    const { detail } = this.state;
+    //
     this.setState({
       detail: {
-        ...this.state.detail,
+        ...detail,
         show: false
       },
       authorizableType: null,
@@ -437,7 +449,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
           <Advanced.Column
             property="basePermissions"
             header={ this.i18n('entity.AuthorizationPolicy.basePermissions.label') }
-            rendered={_.includes(columns, 'basePermissions')}
+            rendered={ _.includes(columns, 'basePermissions') }
             cell={
               /* eslint-disable react/no-multi-comp */
               ({ rowIndex, data, property }) => {
@@ -447,7 +459,9 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 }
                 return propertyValue.split(',').map(permission => {
                   return (
-                    <div>{ this._getBasePermissionNiceLabel(permission) }</div>
+                    <Basic.Div>
+                      { this._getBasePermissionNiceLabel(permission) }
+                    </Basic.Div>
                   );
                 });
               }
@@ -522,19 +536,19 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             header={ this.i18n('entity.AuthorizationPolicy.description.label') }
             face="text"
             sort
-            rendered={_.includes(columns, 'description')}/>
+            rendered={ _.includes(columns, 'description') }/>
           <Advanced.Column
             property="disabled"
             header={ this.i18n('entity.AuthorizationPolicy.disabled.label') }
             face="bool"
             sort
-            rendered={_.includes(columns, 'disabled')}/>
+            rendered={ _.includes(columns, 'disabled') }/>
           <Advanced.Column
             property="seq"
             header={ this.i18n('entity.AuthorizationPolicy.seq.label') }
             face="text"
             sort
-            rendered={_.includes(columns, 'seq')}/>
+            rendered={ _.includes(columns, 'seq') }/>
         </Advanced.Table>
 
         <Basic.Modal
@@ -556,7 +570,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Body>
               <Basic.AbstractForm
                 ref="form"
-                data={detail.entity}
+                data={ detail.entity }
                 showLoading={_showLoading}
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.Row>
@@ -585,10 +599,17 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                       readOnly={ (evaluatorType && evaluatorType.supportsPermissions !== undefined) ? !evaluatorType.supportsPermissions : false }
                       searchable
                       multiSelect
-                      required={ (evaluatorType && evaluatorType.supportsPermissions !== undefined) ? evaluatorType.supportsPermissions : false }/>
+                      required={ (evaluatorType && evaluatorType.supportsPermissions !== undefined) ? evaluatorType.supportsPermissions : true }/>
                     <Basic.TextField
                       ref="seq"
-                      validation={ Joi.number().integer().min(0).max(9999).allow(null) }
+                      validation={
+                        Joi
+                          .number()
+                          .integer()
+                          .min(0)
+                          .max(9999)
+                          .allow(null)
+                      }
                       label={ this.i18n('entity.AuthorizationPolicy.seq.label') }
                       help={ this.i18n('entity.AuthorizationPolicy.seq.help') }/>
                     <Basic.TextArea

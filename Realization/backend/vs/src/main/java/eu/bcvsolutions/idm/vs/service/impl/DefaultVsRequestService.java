@@ -36,7 +36,6 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.OperationResultDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -658,7 +657,6 @@ public class DefaultVsRequestService extends AbstractReadWriteDtoService<VsReque
 
 	private void sendNotification(VsRequestDto request, VsRequestDto previous) {
 		Assert.notNull(request, "VS request cannot be null for send notification!");
-		final String NAME = "__NAME__";
 
 		List<IdmIdentityDto> implementers = this.requestImplementerService.findRequestImplementers(request.getSystem(),
 				50);

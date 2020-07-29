@@ -35,7 +35,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
@@ -177,7 +176,10 @@ public class DefaultSysSystemAttributeMappingService
 
 	@Override
 	public AuthorizableType getAuthorizableType() {
-		return new AuthorizableType(AccGroupPermission.SYSTEMATTRIBUTEMAPPING, getEntityClass());
+		// RT: commented till system agenda will be secured properly
+		// return new AuthorizableType(AccGroupPermission.SYSTEMATTRIBUTEMAPPING, getEntityClass());
+		//
+		return null;
 	}
 
 	@Override

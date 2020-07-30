@@ -24,10 +24,10 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *  
  * @author Radek Tomiška
  */
-public class TestSmsNotificationSenderIntegrationTest extends AbstractIntegrationTest {
+public class ExampleSmsNotificationSenderIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private IdmNotificationConfigurationService notificationConfigurationService;
-	@Autowired private TestSmsNotificationSender smsNotificationSender;
+	@Autowired private ExampleSmsNotificationSender smsNotificationSender;
 	@Autowired private NotificationManager notificationManager;
 	@Autowired private IdmNotificationLogService notificationLogService;
 	

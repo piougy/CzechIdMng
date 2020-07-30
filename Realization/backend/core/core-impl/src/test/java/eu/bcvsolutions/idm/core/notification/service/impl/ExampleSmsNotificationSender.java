@@ -18,11 +18,11 @@ import eu.bcvsolutions.idm.core.notification.api.service.IdmSmsLogService;
  * @since 10.5.0
  */
 @Service
-public class TestSmsNotificationSender extends AbstractSmsNotificationSender {
+public class ExampleSmsNotificationSender extends AbstractSmsNotificationSender {
 
 	private IdmSmsLogService idmSmsLogService;
 	
-	public TestSmsNotificationSender(IdmSmsLogService idmSmsLogService, IdmIdentityService identityService) {
+	public ExampleSmsNotificationSender(IdmSmsLogService idmSmsLogService, IdmIdentityService identityService) {
 		super(idmSmsLogService, identityService);
 		//
 		this.idmSmsLogService = idmSmsLogService;

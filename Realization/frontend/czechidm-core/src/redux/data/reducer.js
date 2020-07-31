@@ -99,21 +99,21 @@ export default function reduce(state = INITIAL_STATE, action) {
       let trimmed = state.trimmed[entityType] || new Immutable.Map({});
       const ids = [];
       let isTrimmed = false;
-      action.entities.map(entity => {
+      action.entities.forEach(entity => {
         ids.push(entity.id);
         if (entity._trimmed === true) {
           isTrimmed = true;
           trimmed = trimmed.set(entity.id, entity);
-        } else {
-          // check modified date ... only newer
-          if (entities.has(entity.id)) {
-            // check trimmed and modified date
-            if (!entities.get(entity.id).modified || moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
-              entities = entities.set(entity.id, entity);
-            }
-          } else {
+        } else if (entities.has(entity.id)) { // check modified date ... only newer
+          // check trimmed and modified date
+          const previousEntity = entities.get(entity.id);
+          if (!previousEntity.modified
+              || moment(entity.modified).isAfter(previousEntity.modified) // by modified date
+              || entity.state !== previousEntity.state) { // by state (if defined)
             entities = entities.set(entity.id, entity);
           }
+        } else {
+          entities = entities.set(entity.id, entity);
         }
       });
       const ui = merge({}, state.ui, {

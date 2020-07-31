@@ -24,7 +24,8 @@ public enum AccGroupPermission implements GroupPermission {
 			IdmBasePermission.CREATE,
 			IdmBasePermission.UPDATE,
 			IdmBasePermission.DELETE),
-	SYSTEMATTRIBUTEMAPPING(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
+	// RT: commented till system agenda will be secured properly
+	// SYSTEMATTRIBUTEMAPPING(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ACCOUNT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE, IdmBasePermission.AUTOCOMPLETE),
 	IDENTITYACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
 	ROLEACCOUNT(IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
@@ -61,10 +62,11 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String SYSTEM_UPDATE = "SYSTEM" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SYSTEM_DELETE = "SYSTEM" + BasePermission.SEPARATOR + "DELETE";
 	//
-	public static final String SYSTEM_ATTRIBUTE_MAPPING_READ = "SYSTEMATTRIBUTEMAPPING" + BasePermission.SEPARATOR + "READ";
-	public static final String SYSTEM_ATTRIBUTE_MAPPING_CREATE = "SYSTEMATTRIBUTEMAPPING" + BasePermission.SEPARATOR + "CREATE";
-	public static final String SYSTEM_ATTRIBUTE_MAPPING_UPDATE = "SYSTEMATTRIBUTEMAPPING" + BasePermission.SEPARATOR + "UPDATE";
-	public static final String SYSTEM_ATTRIBUTE_MAPPING_DELETE = "SYSTEMATTRIBUTEMAPPING" + BasePermission.SEPARATOR + "DELETE";
+	// RT: commented till system agenda will be secured properly
+//	public static final String SYSTEM_ATTRIBUTE_MAPPING_READ = "SYSTEMATTRIBUTEMAPPING" + BasePermission.SEPARATOR + "READ";
+//	public static final String SYSTEM_ATTRIBUTE_MAPPING_CREATE = "SYSTEMATTRIBUTEMAPPING" + BasePermission.SEPARATOR + "CREATE";
+//	public static final String SYSTEM_ATTRIBUTE_MAPPING_UPDATE = "SYSTEMATTRIBUTEMAPPING" + BasePermission.SEPARATOR + "UPDATE";
+//	public static final String SYSTEM_ATTRIBUTE_MAPPING_DELETE = "SYSTEMATTRIBUTEMAPPING" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ACCOUNT_AUTOCOMPLETE = "ACCOUNT" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String ACCOUNT_READ = "ACCOUNT" + BasePermission.SEPARATOR + "READ";

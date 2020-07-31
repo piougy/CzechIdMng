@@ -3,9 +3,9 @@ package eu.bcvsolutions.idm.core.model.repository.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import java.time.LocalDate;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public abstract class AbstractWorkingPositionFilterIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired private FormService formService;
+	@Autowired private IdmCacheManager cacheManager;
 	//
 	protected IdmIdentityDto managerOne;
 	protected IdmIdentityDto managerTwo;
@@ -64,9 +66,11 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	protected IdmIdentityContractDto managerTwoContract;
 	protected IdmIdentityContractDto managerThreeContract;
 	
+	
 	@Before
 	public void init() {
-		// nothing needed now
+		// rollback after @Transaction => we need to create form attribute
+		cacheManager.evictCache(FormService.FORM_DEFINITION_CACHE_NAME);
 	}
 	
 	/**
@@ -246,6 +250,7 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 	}
 	
 	private IdmTreeNodeDto createPosition(IdmTreeTypeDto type, IdmTreeNodeDto parent) {
+		
 		IdmTreeNodeDto node = getHelper().createTreeNode(type, parent);
 		
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmTreeNode.class, FormService.DEFAULT_DEFINITION_CODE);

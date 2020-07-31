@@ -56,6 +56,9 @@ public class FormInstanceValidateProcessor
 		Assert.notNull(formInstance.getFormDefinition(), "Form definition is required for form instance validation.");
 		//
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(formInstance.getFormDefinition().getId());
+		if (formDefinition == null) {
+			System.out.println("..... fuj");
+		}
 		Assert.notNull(formDefinition, "Form definition is required for form instance validation.");
 		//
 		// get distinct attributes from the sent values

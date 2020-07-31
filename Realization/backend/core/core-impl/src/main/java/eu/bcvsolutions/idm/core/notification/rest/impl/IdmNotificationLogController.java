@@ -181,11 +181,13 @@ public class IdmNotificationLogController
 				notification.getTopic(), 
 				notification.getMessage(), 
 				notification.getIdentitySender() == null ? null : (IdmIdentityDto) getLookupService().lookupDto(IdmIdentityDto.class, notification.getIdentitySender()),
-				notification.getRecipients()
+				notification
+					.getRecipients()
 					.stream()
 					.map(recipient -> {
 						return (IdmIdentityDto) getLookupService().lookupDto(IdmIdentityDto.class, recipient.getIdentityRecipient());
-					}).collect(Collectors.toList())
+					})
+					.collect(Collectors.toList())
 				);
 		// TODO: parent notification should be returned ...
 		if (results.isEmpty()) {

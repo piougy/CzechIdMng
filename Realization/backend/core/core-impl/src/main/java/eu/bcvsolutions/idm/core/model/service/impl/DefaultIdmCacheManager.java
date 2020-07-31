@@ -97,7 +97,7 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
         //
         if (cache == null) {
             return null;
-        }     
+        }
         //
         return toValueWrapper(cacheConfiguration, cache.get(key));
     }

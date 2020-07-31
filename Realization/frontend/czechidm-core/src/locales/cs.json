@@ -7609,6 +7609,9 @@
     },
     "permission-cache": {
       "description": "Cache pro ukládání oprávnění (na data) přihlášeného uživatele. Cache je vyprázdněna po odhlášení uživatele. Platnost cache je 1 minuta - pokud se změní struktura dat ovlivňující oprávnění, jsou oprávnění aktualizována po uplynutí této doby. Pokud se změní konfigurace autorizačních politik, je tato cache vyprázdněna (kompletně)."
+    },
+    "form-definition-cache": {
+      "description": "Cache pro ukládání definic rozšířených (eav) atributů. Cache je vyprázdněna automaticky při každé změně definice či atributu formuláře."
     }
   }
 }

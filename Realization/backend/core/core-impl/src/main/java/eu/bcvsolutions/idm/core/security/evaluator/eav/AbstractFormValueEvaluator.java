@@ -29,10 +29,9 @@ import eu.bcvsolutions.idm.core.eav.api.domain.BaseFaceType;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
-import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormDefinitionFilter;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
-import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue_;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
@@ -61,7 +60,7 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 	public static final String PARAMETER_OWNER_UPDATE = "owner-update"; // can update owner => can edit form values
 	public static final String PARAMETER_OWNER_READ = "owner-read"; // can read owner => can edit form values
 	//
-	@Autowired private IdmFormDefinitionService formDefinitionService;
+	@Autowired private FormService formService;
 	@Autowired private SecurityService securityService;
 	@Autowired private AuthorizationManager authorizationManager;
 	@Autowired private LookupService lookupService;
@@ -79,6 +78,7 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 		List<Predicate> predicates = new ArrayList<>();
 		//
 		// by form definition
+		// TODO: form definition cache
 		IdmFormDefinitionDto formDefinition = getFormDefinition(policy);
 		if (formDefinition == null) {
 			// if form definition is empty ... we disable all
@@ -106,7 +106,7 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 			Class<? extends FormableEntity> ownerType = getOwnerType();
 			Subquery subquery = query.subquery(ownerType);
 			Root subRoot = subquery.from(ownerType);
-			subquery.select(subRoot);		
+			subquery.select(subRoot);	// TODO: select 1 or something like this	
 			subquery.where(builder.and(
 					authorizationManager.getPredicate(subRoot, query, builder, 
 							isOwnerRead(policy) ? IdmBasePermission.READ : null,
@@ -114,6 +114,8 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 					builder.equal(root.get(FormValueService.PROPERTY_OWNER), subRoot) // correlation attribute
 					));
 			//
+			// predicates.add(builder.greaterThan(builder.count(subquery), 0L));
+			
 			predicates.add(builder.exists(subquery));
 		}		
 		//
@@ -126,6 +128,8 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 		if (entity == null || entity.getFormAttribute() == null) {
 			return permissions;
 		}
+		// TODO: form definition cache
+		System.out.println(".... loaduju pro hodnotu: " + entity.getId() + ": " + entity.getFormAttribute());
 		IdmFormDefinitionDto formDefinition = getFormDefinition(policy);
 		//
 		// if form definition is empty ... we disable all
@@ -227,22 +231,21 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 	}
 	
 	private IdmFormDefinitionDto getFormDefinition(AuthorizationPolicy policy) {
-		IdmFormDefinitionFilter filter = new IdmFormDefinitionFilter();
-		filter.setType(formDefinitionService.getOwnerType(getOwnerType()));
-		filter.setCode(getFormDefinitionCode(policy));
+		String ownerType = formService.getOwnerType(getOwnerType());
+		String code = getFormDefinitionCode(policy);
 		//
 		// main form definition
-		if (StringUtils.isEmpty(filter.getCode())) {
-			return formDefinitionService.findOneByMain(filter.getType());
+		if (StringUtils.isEmpty(code)) {
+			return formService.getDefinition(ownerType);
 		}
 		try {
 			// by uuid
-			UUID formDefinitionId = EntityUtils.toUuid(filter.getCode());
+			UUID formDefinitionId = EntityUtils.toUuid(code);
 			//
-			return formDefinitionService.get(formDefinitionId);
+			return formService.getDefinition(formDefinitionId);
 		} catch (ClassCastException ex) {
 			// then by code
-			return formDefinitionService.findOneByTypeAndCode(filter.getType(), filter.getCode());
+			return formService.getDefinition(ownerType, code);
 		}
 	}
 	

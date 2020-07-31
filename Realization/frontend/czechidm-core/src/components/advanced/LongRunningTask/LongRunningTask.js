@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 import EntityInfo from '../EntityInfo/EntityInfo';
@@ -41,7 +40,9 @@ class LongRunningTask extends Basic.AbstractContent {
       this.setRefresh(entity || _entity);
     }
     this._loadEntity();
-    this.context.store.dispatch(schedulerManager.fetchSupportedTasks());
+    if (SecurityManager.hasAuthority('SCHEDULER_READ')) {
+      this.context.store.dispatch(schedulerManager.fetchSupportedTasks());
+    }
   }
 
   updateLrtState() {

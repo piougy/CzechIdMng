@@ -297,7 +297,7 @@
     "removedRecord_1": "Do zpracování hromadné úlohy nebude započítána tato entita: <b>[{{entities}}]</b>.",
     "removedRecord_2": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
     "removedRecord_5": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
-    "created": "Hromadná úloha [{{name}}] byla úspěšně spuštěna v dlouhotrvající úloze s id: [{{longRunningTaskId}}]",
+    "created": "Hromadná úloha [{{name}}] byla úspěšně spuštěna jako dlouhotrvající úloha.",
     "message_empty": "Provádíte hromadnou úlohu [{{name}}].",
     "message_1": "Provádíte hromadnou úlohu [{{name}}] nad vybraným záznamem: <b>[{{entities}}]</b>.",
     "message_2": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",

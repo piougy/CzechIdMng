@@ -78,7 +78,6 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 		List<Predicate> predicates = new ArrayList<>();
 		//
 		// by form definition
-		// TODO: form definition cache
 		IdmFormDefinitionDto formDefinition = getFormDefinition(policy);
 		if (formDefinition == null) {
 			// if form definition is empty ... we disable all
@@ -128,8 +127,6 @@ public class AbstractFormValueEvaluator<T extends AbstractFormValue<?>> extends 
 		if (entity == null || entity.getFormAttribute() == null) {
 			return permissions;
 		}
-		// TODO: form definition cache
-		System.out.println(".... loaduju pro hodnotu: " + entity.getId() + ": " + entity.getFormAttribute());
 		IdmFormDefinitionDto formDefinition = getFormDefinition(policy);
 		//
 		// if form definition is empty ... we disable all

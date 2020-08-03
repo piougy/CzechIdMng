@@ -23,11 +23,11 @@ public class PasswordChangeDto implements Serializable {
     private static final long serialVersionUID = 8418885222359043739L;
     //
     @JsonDeserialize(using = GuardedStringDeserializer.class)
-    @ApiModelProperty(notes = "Current password.", dataType = "string", example = "admin")
+    @ApiModelProperty(notes = "Current password.", dataType = "java.lang.String", example = "admin")
     private GuardedString oldPassword;
     @NotNull
     @JsonDeserialize(using = GuardedStringDeserializer.class)
-    @ApiModelProperty(required = true, notes = "New password.", dataType = "string", example = "admin")
+    @ApiModelProperty(required = true, notes = "New password.", dataType = "java.lang.String", example = "admin")
     private GuardedString newPassword;
     @ApiModelProperty(notes = "Change IdM password.")
     private boolean idm = false; // change in idm

@@ -20,7 +20,7 @@ public class LoginRequestDto {
 	private String username;
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@JsonDeserialize(using = GuardedStringDeserializer.class)
-	@ApiModelProperty(required = true, notes = "Identity password.", dataType = "string", example = "admin")
+	@ApiModelProperty(required = true, notes = "Identity password.", dataType = "java.lang.String", example = "admin")
 	private GuardedString password;
 	
 	public LoginRequestDto() {

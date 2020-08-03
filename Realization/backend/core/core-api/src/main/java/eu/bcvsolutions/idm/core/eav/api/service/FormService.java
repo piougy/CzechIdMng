@@ -64,7 +64,7 @@ public interface FormService extends ScriptEnabled {
 	/**
 	 * Form definition cache - use form service to get cached definition. Prevent to use {@link IdmFormDefinitionService} directly.
 	 * 
-	 * @since 10.5.0
+	 * @since 10.4.2
 	 */
 	String FORM_DEFINITION_CACHE_NAME = "core:form-definition-cache"; // TODO: move core module descriptor to api
 	
@@ -968,7 +968,11 @@ public interface FormService extends ScriptEnabled {
 	 * 
 	 * @param owner
 	 * @return
+<<<<<<< HEAD
 	 * @since 10.5.0
+=======
+	 * @since 10.4.2
+>>>>>>> master
 	 * @see IdmFormDefinitionService#getOwnerType(Identifiable)
 	 */
 	String getOwnerType(Identifiable owner);
@@ -980,7 +984,11 @@ public interface FormService extends ScriptEnabled {
 	 * 
 	 * @param ownerType
 	 * @return
+<<<<<<< HEAD
 	 * @since 10.5.0
+=======
+	 * @since 10.4.2
+>>>>>>> master
 	 * @see IdmFormDefinitionService#getOwnerType(Class)
 	 */
 	String getOwnerType(Class<? extends Identifiable> ownerType);
@@ -989,7 +997,11 @@ public interface FormService extends ScriptEnabled {
 	 * Evict caches for given form definition.
 	 * 
 	 * @param definition form definition
+<<<<<<< HEAD
 	 * @since 10.5.0
+=======
+	 * @since 10.4.2
+>>>>>>> master
 	 * @see IdmCacheManager#evictCache(String)
 	 */
 	void evictCache(IdmFormDefinitionDto definition);

@@ -3,13 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## [10.5.0]
 
-### Administrator
-- [#2366](https://redmine.czechidm.com/issues/2366) - New caches were registered:
-  - ``core:form-definition-cache`` - Cache stores form definitions (eav). Cache is evicted automatically after form definition or attribute is changed. **Memory usage per application is 25KB per definition with 10 attributes**.
-
 ### Developer
 
 - [#2386](https://redmine.czechidm.com/issues/2386) - All additional methods defined in ``SysSystemAttributeMappingRepository`` are deprecated now - new properties was added into system attribute mapping filter and predicates are implemented in ``DefaultSysSystemAttributeMappingService#toPredicates`` method. Filter properties (builders) can be registered in custom module now.
+
+## [10.4.2]
+
+### Administrator
+- [#2366](https://redmine.czechidm.com/issues/2366) - New caches were registered:
+  - ``core:form-definition-cache`` - Cache stores form definitions (eav). Cache is evicted automatically after form definition or attribute is changed. **Memory usage per application is 25KB per definition with 10 attributes**.
 
 ## [10.4.1]
 

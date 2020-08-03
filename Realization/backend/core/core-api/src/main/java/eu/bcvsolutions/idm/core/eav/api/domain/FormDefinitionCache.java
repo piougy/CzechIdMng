@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
  * Cached form definitions - we need to get main and definition by code and id.
  * 
  * @author Radek Tomiška
- * @since 10.5.0
+ * @since 10.4.2
  */
 public class FormDefinitionCache implements Serializable {
 	

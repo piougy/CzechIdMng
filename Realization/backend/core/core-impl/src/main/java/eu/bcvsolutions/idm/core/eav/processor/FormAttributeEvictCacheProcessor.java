@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
  * Clear form definition cache, when form attribute is changed (CUD).
  * 
  * @author Radek Tomiška
- * @since 10.5.0
+ * @since 10.4.2
  */
 @Component(FormAttributeEvictCacheProcessor.PROCESSOR_NAME)
 @Description("Clear form definition cache, when form definition is changed (UD).")

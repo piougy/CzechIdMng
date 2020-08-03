@@ -94,7 +94,7 @@ public class CoreCacheConfiguration {
 	 * Define distributed cache for {@link FormService} - configured form definitions.
 	 *
 	 * @return form definition cache
-	 * @since 10.5.0
+	 * @since 10.4.2
 	 */
 	@Bean
 	public IdMCacheConfiguration formDefinitionCacheConfiguration() {

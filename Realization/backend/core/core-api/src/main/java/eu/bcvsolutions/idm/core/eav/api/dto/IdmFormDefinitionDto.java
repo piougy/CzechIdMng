@@ -15,6 +15,7 @@ import org.springframework.hateoas.core.Relation;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Niceable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -59,6 +60,10 @@ public class IdmFormDefinitionDto extends AbstractDto implements UnmodifiableEnt
 	
 	public IdmFormDefinitionDto(UUID id) {
 		super(id);
+	}
+	
+	public IdmFormDefinitionDto(Auditable auditable) {
+		super(auditable);
 	}
 	
 	public String getType() {

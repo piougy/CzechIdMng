@@ -119,6 +119,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			//
 			// prepare default form definitions
+			// + definitions will be cached 
 			if (formService.getDefinition(IdmIdentity.class) == null) {
 				formService.createDefinition(IdmIdentity.class, new ArrayList<>());
 			}

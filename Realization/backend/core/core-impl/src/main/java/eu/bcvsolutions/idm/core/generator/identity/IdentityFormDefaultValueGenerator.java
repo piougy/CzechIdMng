@@ -79,10 +79,7 @@ public class IdentityFormDefaultValueGenerator extends AbstractValueGenerator<Id
 		if (formDefinition != null) {
 			formDefinitions.add(formDefinition);
 		} else {
-			formService.getDefinitions(dto).forEach(definition -> {
-				// list contains trimmed => load attributes
-				formDefinitions.add(formService.getDefinition(definition.getId()));
-			});
+			formDefinitions.addAll(formService.getDefinitions(dto));
 		}
 
 		List<IdmFormInstanceDto> eavs = dto.getEavs();

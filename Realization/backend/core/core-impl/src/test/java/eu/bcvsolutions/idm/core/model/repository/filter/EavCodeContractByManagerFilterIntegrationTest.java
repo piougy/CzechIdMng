@@ -29,6 +29,8 @@ public class EavCodeContractByManagerFilterIntegrationTest extends AbstractWorki
 	
 	@Before
 	public void init() {
+		super.init();
+		//
 		builder = AutowireHelper.autowireBean(new EavCodeContractByManagerFilter(repository));
 	}
 	

@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [10.4.2]
+
+### Administrator
+- [#2366](https://redmine.czechidm.com/issues/2366) - New caches were registered:
+  - ``core:form-definition-cache`` - Cache stores form definitions (eav). Cache is evicted automatically after form definition or attribute is changed. **Memory usage per application is 25KB per definition with 10 attributes**.
+
 ## [10.4.1]
 
 ### Administrator
@@ -9,7 +15,7 @@ All notable changes to this project will be documented in this file.
 - [#2366](https://redmine.czechidm.com/issues/2366) - New caches were registered:
   - ``core:authorization-policy-cache`` - Cache stores active authorization policies of currently logged user. Cache is evicted after user log out. When authorization policies configuration is changed, then user is logged out and cache is evicted (after permissions removal only). Cache expiration is 2 hour, e.g. if user forgot to log out. **Memory usage per logged user is ~500KB, when 100 policies are used (~configured) for logged user**.
   - ``core:permission-cache`` - Cache stores permissions (for data) of currently logged user. Cache is evicted after user log out. Cache expiration is 1 minute - if data structure is changed, then permissions are actualized after this duration. When authorization policies configuration is changed, cache is evicted (completely). **Memory usage per logged user is ~4KB for every shown record** (cache expiration is 1 minute => when 1000 record details are shown in the same time, then 4MB is consumed by this cache).
- 
+
  - [#2371](https://redmine.czechidm.com/issues/2371) You can see all approvers via clicking on the "..." now. Table of identities is limmited on first 100 approvers now. Limitation is necessary because IDs are send in GET request and these has limitation on 8kB.
 Beware on some more strict limitation for size of GET request on the Apache server (we need 4kB now)!
 

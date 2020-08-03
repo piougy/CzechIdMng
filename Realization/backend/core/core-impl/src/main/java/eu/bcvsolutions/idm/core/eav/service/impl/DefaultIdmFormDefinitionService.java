@@ -107,19 +107,21 @@ public class DefaultIdmFormDefinitionService
 	@Override
 	protected IdmFormDefinitionDto toDto(IdmFormDefinition entity, IdmFormDefinitionDto dto) {
 		dto = super.toDto(entity, dto);
-		if (dto != null) {
-			if (!dto.isTrimmed()) {
-				// set mapped attributes
-				// TODO: this is dangerous ... permission are not propagated lower - AUTOCOMPLETE permission on attributes by default?
-				IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
-				filter.setDefinitionId(dto.getId());
-				dto.setFormAttributes(
-						formAttributeService
-						.find(filter, getPageableAll(Sort.by(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
-						.getContent());
-				LOG.trace("Form attributes were loaded for definition [{},{}]", dto.getType(), dto.getCode());
-			}
+		if (dto == null) {
+			return null;
 		}
+		//
+		if (!dto.isTrimmed()) {
+			// set mapped attributes - required to cache form definition with attributes
+			IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
+			filter.setDefinitionId(dto.getId());
+			dto.setFormAttributes(
+					formAttributeService
+					.find(filter, getPageableAll(Sort.by(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
+					.getContent());
+			LOG.trace("Form attributes were loaded for definition [{},{}]", dto.getType(), dto.getCode());
+		}
+		//
 		return dto;
 	}
 	

@@ -7554,6 +7554,9 @@
     },
     "permission-cache": {
       "description": "Cache stores permissions (for data) of currently logged user. Cache is evicted after user log out. Cache expiration is 1 minute - if data structure is changed, then permissions are actualized after this duration. When authorization policies configuration is changed, cache is evicted (completely)."
+    },
+    "form-definition-cache": {
+      "description": "Cache stores form definitions (eav). Cache is evicted automatically after form definition or attribute is changed."
     }
   }
 }

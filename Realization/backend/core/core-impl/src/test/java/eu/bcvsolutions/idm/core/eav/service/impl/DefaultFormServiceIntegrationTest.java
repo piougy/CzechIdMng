@@ -54,9 +54,11 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmEntityEventService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.eav.api.domain.FormDefinitionCache;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.FormDefinitionAttributes;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -68,7 +70,9 @@ import eu.bcvsolutions.idm.core.eav.api.dto.filter.IdmFormValueFilter;
 import eu.bcvsolutions.idm.core.eav.api.exception.ChangeConfidentialException;
 import eu.bcvsolutions.idm.core.eav.api.exception.ChangePersistentTypeException;
 import eu.bcvsolutions.idm.core.eav.api.service.AbstractFormableService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
+import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute_;
@@ -111,12 +115,14 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmFormDefinitionService formDefinitionService;
+	@Autowired private IdmFormAttributeService formAttributeService;
 	@Autowired private IdmRoleRepository roleRepository;
 	@Autowired private LookupService lookupService;
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private IdmEntityEventService entityEventService;
 	@Autowired private EventConfiguration eventConfiguration;
 	@Autowired private EntityEventManager entityEventManager;
+	@Autowired private IdmCacheManager cacheManager;
 	//
 	private DefaultFormService formService;
 
@@ -729,7 +735,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		IdmRoleDto ownerTwo = getHelper().createRole();
 
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmRole.class);
-		IdmFormAttributeDto attribute = formDefinition.getFormAttributes().get(0);
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode("extAttr");
 		//
 		formService.saveValues(owner.getId(), IdmRole.class, attribute, Lists.newArrayList("test"));
 		formService.saveValues(ownerTwo.getId(), IdmRole.class, attribute, Lists.newArrayList("test2"));
@@ -1312,7 +1318,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 
 			IdmFormValueDto changeValue = new IdmFormValueDto(attributeNotSecured);
 			changeValue.setValue(updatedValue);
-			updateOwner.getEavs().add(new IdmFormInstanceDto(updateOwner, formDefinition, Lists.newArrayList( changeValue)));
+			updateOwner.getEavs().add(new IdmFormInstanceDto(updateOwner, formDefinition, Lists.newArrayList(changeValue)));
 			identityService.save(updateOwner, IdmBasePermission.UPDATE);
 			//
 			// check
@@ -1894,6 +1900,49 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		List<IdmFormValueDto>  getValueAfterMoveOne = formService.getValues(ownerOne, attribute);
 		Assert.assertEquals(1, getValueAfterMoveOne.size());
 		Assert.assertEquals(getValueOne.get(0).getId(), getValueAfterMoveOne.get(0).getId());
+	}
+	
+	@Test
+	public void testEvictCacheAfterChange() {
+		String definitionCode = getHelper().createName();
+		String definitionType = formService.getOwnerType(IdmIdentity.class);
+		formService.getDefinitions(definitionType);
+		Assert.assertNull(((FormDefinitionCache) cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(definitionType)).get()).getByCode(definitionCode));
+		//
+		// create definition with attribute
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attribute.getCode());
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class, definitionCode, Lists.newArrayList(attribute));
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		formService.getDefinitions(definitionType);
+		//
+		IdmFormDefinitionDto byCode = ((FormDefinitionCache) cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(definitionType)).get()).getByCode(definitionCode);
+		Assert.assertNotNull(byCode);
+		Assert.assertEquals(formDefinitionOne.getId(), byCode.getId());
+		Assert.assertEquals(1, byCode.getFormAttributes().size());
+		IdmFormDefinitionDto byId = ((FormDefinitionCache) cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(formDefinitionOne.getId())).get()).getById(formDefinitionOne.getId());
+		Assert.assertNotNull(byId);
+		Assert.assertEquals(formDefinitionOne.getId(), byId.getId());
+		Assert.assertEquals(1, byId.getFormAttributes().size());
+		//
+		// change form definition => evict both caches
+		formDefinitionOne.setDescription(getHelper().createName());
+		formService.saveDefinition(formDefinitionOne);
+		Assert.assertNull(cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(definitionType)));
+		Assert.assertNull(cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(formDefinitionOne.getId())));
+		//
+		formService.getDefinitions(definitionType); // fill cache
+		Assert.assertNotNull(((FormDefinitionCache) cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(definitionType)).get()).getByCode(definitionCode));
+		Assert.assertNotNull(((FormDefinitionCache) cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(formDefinitionOne.getId())).get()).getById(formDefinitionOne.getId()));
+		//
+		// change attribute
+		attribute.setDescription(getHelper().createName());
+		formAttributeService.save(attribute);
+		Assert.assertNull(cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(definitionType)));
+		Assert.assertNull(cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(formDefinitionOne.getId())));
 	}
 
 	private long prepareDataAndFind(Class<? extends AbstractEntity> type, AbstractDto owner) {

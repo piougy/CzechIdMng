@@ -51,11 +51,24 @@ export class AttributeControlledValueTable extends Advanced.AbstractTableContent
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
             ]
-          }
-          >
-          <Advanced.Column property="value" rendered={_.includes(columns, 'value')} sort face="text" header={this.i18n('acc:entity.AttributeControlledValue.value')}/>
-          <Advanced.Column property="created" rendered={_.includes(columns, 'created')} sort face="datetime" header={this.i18n('acc:entity.AttributeControlledValue.created')}/>
-          <Advanced.Column property="creator" rendered={_.includes(columns, 'creator')} sort face="text" header={this.i18n('acc:entity.AttributeControlledValue.creator')}/>
+          }>
+          <Advanced.Column
+            property="value"
+            rendered={_.includes(columns, 'value')}
+            face="text"
+            header={this.i18n('acc:entity.AttributeControlledValue.value')}/>
+          <Advanced.Column
+            property="created"
+            rendered={_.includes(columns, 'created')}
+            sort
+            face="datetime"
+            header={this.i18n('acc:entity.AttributeControlledValue.created')}/>
+          <Advanced.Column
+            property="creator"
+            rendered={_.includes(columns, 'creator')}
+            sort
+            face="text"
+            header={this.i18n('acc:entity.AttributeControlledValue.creator')}/>
         </Advanced.Table>
       </div>
     );

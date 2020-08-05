@@ -1,9 +1,8 @@
 package eu.bcvsolutions.idm.core.security.api.service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
-
-import java.time.ZonedDateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
@@ -20,6 +19,13 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
  * @since 8.2.0
  */
 public interface TokenManager {
+	
+	/**
+	 * Token cache - prevent to load token from DB repetitively between requests for the same user, when expiration is not prolonged.
+	 * 
+	 * @since 10.5.0
+	 */
+	String TOKEN_CACHE_NAME = "core:token-cache"; // TODO: move core module descriptor to api
 	
 	/**
 	 * Returns currently used token in security context

@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [10.5.0]
 
+### Administrator
+- [#2413](https://redmine.czechidm.com/issues/2413) - New caches were registered:
+  - ``core:token-cache`` - Cache stores logged user tokens. Cache is evicted automatically after token is changed. Cache expiration is 1 minute  - token expiration id prolonged automatically in one minute window, when token used.. **Memory usage per logged user is 25KB**.
+
 ### Developer
 
 - [#2386](https://redmine.czechidm.com/issues/2386) - All additional methods defined in ``SysSystemAttributeMappingRepository`` are deprecated now - new properties was added into system attribute mapping filter and predicates are implemented in ``DefaultSysSystemAttributeMappingService#toPredicates`` method. Filter properties (builders) can be registered in custom module now.

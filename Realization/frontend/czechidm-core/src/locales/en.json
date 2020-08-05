@@ -7557,6 +7557,9 @@
     },
     "form-definition-cache": {
       "description": "Cache stores form definitions (eav). Cache is evicted automatically after form definition or attribute is changed."
+    },
+    "token-cache": {
+      "description": "Cache stores logged user tokens. Cache is evicted automatically after token is changed. Cache expiration is 1 minute  - token expiration id prolonged automatically in one minute window, when token used."
     }
   }
 }

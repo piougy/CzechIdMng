@@ -119,8 +119,8 @@ public class IdentityDeleteProcessor
 		passwordProcessor.deletePassword(identity);
 		// delete password history for identity
 		passwordHistoryService.deleteAllByIdentity(identity.getId());
-		// remove related tokens
-		tokenManager.deleteTokens(identity);
+		// disable related tokens - tokens has to be disabled to prevent their usage (when tokens are deleted, then token is recreated)
+		tokenManager.disableTokens(identity);
 		//
 		// Delete all role requests where is this identity applicant
 		IdmRoleRequestFilter roleRequestFilter = new IdmRoleRequestFilter();

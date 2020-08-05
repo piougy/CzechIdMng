@@ -10,7 +10,6 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
@@ -19,7 +18,7 @@ import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 
 /**
- * Default implementation of OAuth - jwt authenticate service
+ * Default implementation of OAuth - jwt authenticate service.
  * 
  * @author svandav
  * @author Radek Tomiška
@@ -80,27 +79,28 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 					authentication.getClass().getCanonicalName()));
 		}
 		IdmJwtAuthentication idmJwtAuthentication = (IdmJwtAuthentication) authentication;
-		IdmIdentityDto identity = null;
 		//
 		// verify persisted token
+		boolean tokenVerified = false;
 		if (idmJwtAuthentication.getId() != null) {
 			// get verified (valid) token
-			IdmTokenDto token = tokenManager.verifyToken(idmJwtAuthentication.getId());
-			// valid identity - token manager doesn't know about owner validity
-			identity = identityService.get(token.getOwnerId());
-		}
+			tokenManager.verifyToken(idmJwtAuthentication.getId());
+			tokenVerified = true;
+		} 
 		//
 		// verify given authentication (token could not be persisted)
 		if (idmJwtAuthentication.isExpired()) {
 			throw new ResultCodeException(CoreResultCode.AUTH_EXPIRED);
 		}
-		if (identity == null) { // identity given by id in token has higher priority
-			identity = identityService.getByUsername(idmJwtAuthentication.getName());
+		if (tokenVerified) {
+			// when token is verified, then identity cannot be disabled => tokens are disabled after identity is disabled 
+			return idmJwtAuthentication;
 		}
 		//
 		// verify identity
+		IdmIdentityDto identity = identityService.getByUsername(idmJwtAuthentication.getName());
 		if (identity == null) {
-			throw new IdmAuthenticationException("Identity [" + idmJwtAuthentication.getName() + "] not found!");
+			throw new IdmAuthenticationException(String.format("Identity [%s] not found!", idmJwtAuthentication.getName()));
 		}
 		if (identity.isDisabled()) {
 			throw new IdmAuthenticationException(String.format("Identity [%s] is disabled!", identity.getId()));

@@ -128,31 +128,31 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		token.setTokenType("test");
 		token = tokenManager.saveToken(identity, token);
 		//
-		assertNotNull(tokenManager.getToken(token.getId()));
-		assertNotNull(profileService.findOneByIdentity(identity.getId()));
-		assertNotNull(identityService.getByUsername(username));
-		assertNotNull(passwordService.findOneByIdentity(identity.getId()));
-		assertEquals(1, formService.getValues(identity).size());
-		assertEquals(identity.getId(), roleGuaranteeService.findByRole(role.getId(), null).getContent().get(0).getGuarantee());
-		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
-		assertEquals(2, identityContractService.findAllByIdentity(identity.getId()).size()); // + default contract is created
+		Assert.assertNotNull(tokenManager.getToken(token.getId()));
+		Assert.assertNotNull(profileService.findOneByIdentity(identity.getId()));
+		Assert.assertNotNull(identityService.getByUsername(username));
+		Assert.assertNotNull(passwordService.findOneByIdentity(identity.getId()));
+		Assert.assertEquals(1, formService.getValues(identity).size());
+		Assert.assertEquals(identity.getId(), roleGuaranteeService.findByRole(role.getId(), null).getContent().get(0).getGuarantee());
+		Assert.assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
+		Assert.assertEquals(2, identityContractService.findAllByIdentity(identity.getId()).size()); // + default contract is created
 		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setIdentityContractId(contract2.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
-		assertEquals(1, guarantees.size());
-		assertEquals(identity.getId(), guarantees.get(0).getGuarantee());
+		Assert.assertEquals(1, guarantees.size());
+		Assert.assertEquals(identity.getId(), guarantees.get(0).getGuarantee());
 		//
 		identityService.delete(identity);
 		role = roleService.get(role.getId());
 		//
-		assertEquals(0L, roleGuaranteeService.findByRole(role.getId(), null).getTotalElements());
-		assertNull(identityService.getByUsername(username));
-		assertNull(passwordService.findOneByIdentity(identity.getId()));
-		assertEquals(0, identityContractService.findAllByIdentity(identity.getId()).size());
-		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
-		assertEquals(0, contractGuaranteeService.find(filter, null).getTotalElements());
-		assertNull(profileService.findOneByIdentity(identity.getId()));
-		assertNull(tokenManager.getToken(token.getId()));
+		Assert.assertEquals(0L, roleGuaranteeService.findByRole(role.getId(), null).getTotalElements());
+		Assert.assertNull(identityService.getByUsername(username));
+		Assert.assertNull(passwordService.findOneByIdentity(identity.getId()));
+		Assert.assertEquals(0, identityContractService.findAllByIdentity(identity.getId()).size());
+		Assert.assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
+		Assert.assertEquals(0, contractGuaranteeService.find(filter, null).getTotalElements());
+		Assert.assertNull(profileService.findOneByIdentity(identity.getId()));
+		Assert.assertTrue(tokenManager.getToken(token.getId()).isDisabled());
 	}
 	
 	@Test

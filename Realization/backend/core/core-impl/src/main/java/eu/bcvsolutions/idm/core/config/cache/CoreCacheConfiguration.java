@@ -10,11 +10,13 @@ import org.springframework.context.annotation.Configuration;
 import eu.bcvsolutions.idm.core.api.config.cache.DistributedIdMCacheConfiguration;
 import eu.bcvsolutions.idm.core.api.config.cache.IdMCacheConfiguration;
 import eu.bcvsolutions.idm.core.api.config.cache.LocalIdMCacheConfiguration;
+import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.eav.api.domain.FormDefinitionCache;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultGroovyScriptService;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import groovy.lang.Script;
 
 /**
@@ -102,6 +104,22 @@ public class CoreCacheConfiguration {
 			.withName(FormService.FORM_DEFINITION_CACHE_NAME)
 				.withKeyType(String.class) // owner type
 				.withValueType(FormDefinitionCache.class) // code - form definition
+				.build();
+	}
+	
+	/**
+	 * Token distributed cache for {@link TokenManager} - Token cache - prevent to load token from DB repetitively between requests for the same user, when expiration is not prolonged.
+	 *
+	 * @return token cache
+	 * @since 10.5.0
+	 */
+	@Bean
+	public IdMCacheConfiguration tokenCacheConfiguration() {
+		return DistributedIdMCacheConfiguration.<UUID, IdmTokenDto> builder()
+			.withName(TokenManager.TOKEN_CACHE_NAME)
+				.withKeyType(UUID.class) // token id
+				.withValueType(IdmTokenDto.class) // code - form definition
+				.withTtl(Duration.ofMinutes(1)) // token expiration is one minute anyway
 				.build();
 	}
 }

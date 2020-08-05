@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.processor.TokenProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.model.event.TokenEvent.TokenEventType;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 
 /**
@@ -43,33 +44,22 @@ public class TokenEvictCacheProcessor extends CoreEventProcessor<IdmTokenDto>  i
 	}
 	
 	@Override
-	public boolean conditional(EntityEvent<IdmTokenDto> event) {
-		if (!super.conditional(event)) {
-			return false;
-		}
-		IdmTokenDto token = event.getContent();
-		if (!JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME.equals(token.getTokenType())) {
-			// authentication token only
-			return false;
-		}
-		if (event.hasType(TokenEventType.DELETE)) {
-			return true;
-		}
-		//
-		IdmTokenDto previousToken = event.getOriginalSource();
-		// disabled changes => logout
-		return previousToken == null || (!previousToken.isDisabled() && token.isDisabled());
-	}
-	
-	@Override
 	public EventResult<IdmTokenDto> process(EntityEvent<IdmTokenDto> event) {
 		IdmTokenDto token = event.getContent();
-		UUID identityId = token.getOwnerId(); // identity owner = see conditional => authentication token only
+		IdmTokenDto previousToken = event.getOriginalSource();
 		//
 		// evict authorization manager caches for token identity only
-		cacheManager.evictValue(AuthorizationManager.PERMISSION_CACHE_NAME, identityId);
-		// cached configured authorization policies
-		cacheManager.evictValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identityId);
+		if (JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME.equals(token.getTokenType()) &&
+				(event.hasType(TokenEventType.DELETE) || previousToken == null || (!previousToken.isDisabled() && token.isDisabled()))) { // authentication token was disabled
+			// identity owner = see condition above => authentication token only
+			UUID identityId = token.getOwnerId(); 
+			// evict authorization manager caches for token identity only
+			cacheManager.evictValue(AuthorizationManager.PERMISSION_CACHE_NAME, identityId);
+			// cached configured authorization policies
+			cacheManager.evictValue(AuthorizationManager.AUTHORIZATION_POLICY_CACHE_NAME, identityId);
+		}
+		// evict token cache on every token change
+		cacheManager.evictValue(TokenManager.TOKEN_CACHE_NAME, token.getId());
 		//
 		return new DefaultEventResult<>(event, this);
 	}

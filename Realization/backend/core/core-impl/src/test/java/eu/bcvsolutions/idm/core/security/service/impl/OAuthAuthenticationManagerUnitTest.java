@@ -4,27 +4,29 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
 import org.activiti.engine.IdentityService;
-import java.time.ZonedDateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
@@ -42,15 +44,14 @@ public class OAuthAuthenticationManagerUnitTest extends AbstractUnitTest {
 	@Mock private IdentityService workflowIdentityService;
 	@Mock private SecurityService securityService;
 	@Mock private IdmTokenService tokenService;
+	@Mock private IdmCacheManager cacheManager;
 	//
+	@InjectMocks
 	private DefaultTokenManager tokenManager;
 	private OAuthAuthenticationManager authManager;
 	
-	
 	@Before
 	public void init() {
-		tokenManager = new DefaultTokenManager();
-		tokenManager.setTokenService(tokenService);
 		authManager = new OAuthAuthenticationManager(identityService, workflowIdentityService, securityService, tokenManager);
 	}
 	
@@ -61,12 +62,12 @@ public class OAuthAuthenticationManagerUnitTest extends AbstractUnitTest {
 	public void testAuthSuccess() {
 		IdmIdentityDto i = getTestIdentity();
 		IdmJwtAuthentication authentication = getAuthentication(UUID.randomUUID(), i, ZonedDateTime.now().plusHours(1), ZonedDateTime.now());
-		when(identityService.get(i.getId())).thenReturn(i);
 		doNothing().when(workflowIdentityService).setAuthenticatedUserId(USER_NAME);
 		doNothing().when(securityService).setAuthentication(authentication);
 		IdmTokenDto token = new IdmTokenDto(authentication.getId());
 		token.setOwnerId(i.getId());
 		when(tokenService.get(authentication.getId())).thenReturn(token);
+		when(cacheManager.getValue(TokenManager.TOKEN_CACHE_NAME, token.getId())).thenReturn(null);
 		
 		Authentication auth = authManager.authenticate(authentication);
 		
@@ -74,32 +75,10 @@ public class OAuthAuthenticationManagerUnitTest extends AbstractUnitTest {
 		Assert.assertEquals(USER_NAME, auth.getPrincipal());
 		Assert.assertTrue(auth.getAuthorities().isEmpty());
 		
-		verify(identityService).get(i.getId());
 		verify(workflowIdentityService).setAuthenticatedUserId(USER_NAME);
 		verify(securityService).setAuthentication(authentication);
 		verify(tokenService).get(authentication.getId());
-	}
-	
-	/**
-	 * Non-existent identities cannot possess auth. tokens. 
-	 */
-	@Test
-	public void testIdentityNotExists() {
-		IdmIdentityDto i = getTestIdentity(); 
-		IdmJwtAuthentication authentication = getAuthentication(
-				UUID.randomUUID(), i,
-				ZonedDateTime.now().plusHours(1), ZonedDateTime.now());
-		when(identityService.getByUsername(i.getUsername())).thenReturn(null);
-		IdmTokenDto token = new IdmTokenDto(authentication.getId());
-		token.setOwnerId(UUID.randomUUID());
-		when(tokenService.get(token.getId())).thenReturn(token);
-		try {
-			authManager.authenticate(authentication);
-			Assert.fail("Cannot authenticate unknown identity.");
-		} catch (AuthenticationException e) {
-			verify(identityService).get(token.getOwnerId());
-			verify(tokenService).get(token.getId());
-		}
+		verify(cacheManager).getValue(TokenManager.TOKEN_CACHE_NAME, token.getId());
 	}
 	
 	/**
@@ -111,6 +90,7 @@ public class OAuthAuthenticationManagerUnitTest extends AbstractUnitTest {
 		IdmTokenDto token = new IdmTokenDto(UUID.randomUUID());
 		token.setExpiration(ZonedDateTime.now().minusHours(1));
 		when(tokenService.get(token.getId())).thenReturn(token);
+		when(cacheManager.getValue(TokenManager.TOKEN_CACHE_NAME, token.getId())).thenReturn(null);
 		
 		IdmJwtAuthentication authentication = getAuthentication(token.getId(), i,
 				ZonedDateTime.now().minusHours(1), ZonedDateTime.now().plusHours(2));

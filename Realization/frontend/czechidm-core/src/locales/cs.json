@@ -7612,6 +7612,9 @@
     },
     "form-definition-cache": {
       "description": "Cache pro ukládání definic rozšířených (eav) atributů. Cache je vyprázdněna automaticky při každé změně definice či atributu formuláře."
+    },
+    "token-cache": {
+      "description": "Cache pro ukládání tokenů přihlášených uživatelů. Cache je vyprázdněna automaticky při každé změně tokenu. Platnost cache je 1 minuta - po jedné minutě je prodlužována platnost tokenu, pokud se token používá a cache se vyprázdní."
     }
   }
 }

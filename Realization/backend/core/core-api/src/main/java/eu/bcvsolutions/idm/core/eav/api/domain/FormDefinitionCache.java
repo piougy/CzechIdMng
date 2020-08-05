@@ -8,8 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
-
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 
 /**
@@ -62,8 +61,9 @@ public class FormDefinitionCache implements Serializable {
 	
 	/**
 	 * Clone cached form definition is needed => we need to prevent form definition instance is modified by logged user permissions.
-	 * @param original
-	 * @return
+	 * 
+	 * @param original definition
+	 * @return cloned definition
 	 */
 	private IdmFormDefinitionDto clone(IdmFormDefinitionDto original) {
 		if (original == null) {
@@ -80,7 +80,52 @@ public class FormDefinitionCache implements Serializable {
 		clone.setUnmodifiable(original.isUnmodifiable());
 		clone.setMain(original.isMain());
 		clone.setDescription(original.getDescription());
-		clone.setFormAttributes(Lists.newArrayList(original.getFormAttributes()));
+		clone.setFormAttributes(
+				original
+					.getFormAttributes()
+					.stream()
+					.map(this::clone)
+					.collect(Collectors.toList())
+		);
+		//
+		return clone;
+	}
+	
+	/**
+	 * Clone cached form attribute is needed => we need to prevent form attribute instance is modified by logged user permissions.
+	 * 
+	 * @param original attribute
+	 * @return cloned attribute
+	 * @since 10.4.3
+	 */
+	private IdmFormAttributeDto clone(IdmFormAttributeDto original) {
+		if (original == null) {
+			return null;
+		}
+		//
+		IdmFormAttributeDto clone = new IdmFormAttributeDto(original);
+		clone.setFormDefinition(original.getFormDefinition());
+		clone.setName(original.getName());
+		clone.setCode(original.getCode());
+		clone.setPlaceholder(original.getPlaceholder());
+		clone.setFaceType(original.getFaceType());
+		clone.setMultiple(original.isMultiple());
+		clone.setRequired(original.isRequired());
+		clone.setReadonly(original.isReadonly());
+		clone.setConfidential(original.isConfidential());
+		clone.setSeq(original.getSeq());
+		clone.setDefaultValue(original.getDefaultValue());
+		clone.setUnique(original.isUnique());
+		clone.setMax(original.getMax());
+		clone.setMin(original.getMin());
+		clone.setRegex(original.getRegex());
+		clone.setValidationMessage(original.getValidationMessage());
+		clone.setPersistentType(original.getPersistentType());
+		clone.setTrimmed(original.isTrimmed());
+		clone.setModule(original.getModule());
+		clone.setEmbedded(original.getEmbedded());
+		clone.setUnmodifiable(original.isUnmodifiable());
+		clone.setDescription(original.getDescription());
 		//
 		return clone;
 	}

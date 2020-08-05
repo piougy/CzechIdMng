@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.acc.service.api.EntityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
@@ -56,6 +57,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractPositionFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityContractFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractPositionService;
@@ -114,6 +116,8 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 	private SchedulerManager schedulerService;
 	@Autowired
 	private IdmScheduledTaskService scheduledTaskService;
+	@Autowired 
+	private EntityStateManager entityStateManager;
 
 	public final static String CONTRACT_STATE_FIELD = "state";
 	public final static String CONTRACT_GUARANTEES_FIELD = "guarantees";
@@ -629,7 +633,6 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IDM_FIELD_CANNOT_BE_NULL,
 					ImmutableMap.of("property", CONTRACT_IDENTITY_FIELD));
 		}
-
 		EntityEvent<IdmIdentityContractDto> event = new IdentityContractEvent(
 				contractService.isNew(entity) ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
 				entity, ImmutableMap.of(ProvisioningService.SKIP_PROVISIONING, skipProvisioning));
@@ -645,6 +648,11 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 		event.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE);
 
 		IdmIdentityContractDto contract = contractService.publish(event).getContent();
+		// We need to flag recalculation for contract immediately to prevent synchronization ends before flag is created by NOTIFY event asynchronously.
+		if (contract.isValidNowOrInFuture()) {				
+			entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+		}
+		//
 		if (entity.getEmbedded().containsKey(SYNC_CONTRACT_FIELD)) {
 			SyncIdentityContractDto syncContract = (SyncIdentityContractDto) entity.getEmbedded()
 					.get(SYNC_CONTRACT_FIELD);
@@ -666,18 +674,7 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 					return position.getId().equals(currentPosition.getWorkPosition());
 				}).findFirst().isPresent();
 			}).collect(Collectors.toList());
-
-			// Delete positions
-			positionsToDelete.forEach(position -> {
-				EntityEvent<IdmContractPositionDto> positionEvent = new ContractPositionEvent(
-						ContractPositionEventType.DELETE, position,
-						ImmutableMap.of(
-								ProvisioningService.SKIP_PROVISIONING, skipProvisioning,
-								IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE
-						));
-				contractPositionService.publish(positionEvent);
-			});
-
+			
 			// Create new positions
 			positionsToAdd.forEach(position -> {
 				IdmContractPositionDto contractPosition = new IdmContractPositionDto();
@@ -686,6 +683,21 @@ public class ContractSynchronizationExecutor extends AbstractSynchronizationExec
 				//
 				EntityEvent<IdmContractPositionDto> positionEvent = new ContractPositionEvent(
 						ContractPositionEventType.CREATE, contractPosition,
+						ImmutableMap.of(
+								ProvisioningService.SKIP_PROVISIONING, skipProvisioning,
+								IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE
+						));
+				contractPosition = contractPositionService.publish(positionEvent).getContent();
+				// We need to flag recalculation for contract immediately to prevent synchronization ends before flag is created by NOTIFY event asynchronously.
+				if (contract.isValidNowOrInFuture()) {				
+					entityStateManager.createState(contractPosition, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+				}
+			});
+
+			// Delete positions - should be after new positions are created (prevent to drop and create => delete is sync).
+			positionsToDelete.forEach(position -> {
+				EntityEvent<IdmContractPositionDto> positionEvent = new ContractPositionEvent(
+						ContractPositionEventType.DELETE, position,
 						ImmutableMap.of(
 								ProvisioningService.SKIP_PROVISIONING, skipProvisioning,
 								IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, Boolean.TRUE

@@ -1944,6 +1944,35 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		Assert.assertNull(cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(definitionType)));
 		Assert.assertNull(cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(formDefinitionOne.getId())));
 	}
+	
+	@Test
+	public void testPreventToChangeCache() {
+		String definitionCode = getHelper().createName();
+		String definitionType = formService.getOwnerType(IdmIdentity.class);
+		formService.getDefinitions(definitionType);
+		Assert.assertNull(((FormDefinitionCache) cacheManager.getValue(FormService.FORM_DEFINITION_CACHE_NAME, formService.getCacheKey(definitionType)).get()).getByCode(definitionCode));
+		//
+		// create definition with attribute
+		IdmFormAttributeDto attribute = new IdmFormAttributeDto();
+		String attributeName = getHelper().createName();
+		attribute.setCode(attributeName);
+		attribute.setName(attribute.getCode());
+		attribute.setReadonly(false);
+		attribute.setPersistentType(PersistentType.SHORTTEXT);
+		IdmFormDefinitionDto formDefinitionOne = formService.createDefinition(IdmIdentity.class, definitionCode, Lists.newArrayList(attribute));
+		//
+		// from cache
+		formDefinitionOne = formService.getDefinition(formDefinitionOne.getId());
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		Assert.assertFalse(attribute.isReadonly());
+		//
+		// change attribute instance
+		attribute.setReadonly(true);
+		//
+		formDefinitionOne = formService.getDefinition(formDefinitionOne.getId());
+		attribute = formDefinitionOne.getMappedAttributeByCode(attribute.getCode());
+		Assert.assertFalse(attribute.isReadonly());		
+	}
 
 	private long prepareDataAndFind(Class<? extends AbstractEntity> type, AbstractDto owner) {
 		//

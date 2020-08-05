@@ -11,6 +11,7 @@ import javax.validation.constraints.NotEmpty;
 import org.springframework.hateoas.core.Relation;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Niceable;
@@ -62,6 +63,10 @@ public class IdmFormAttributeDto extends AbstractDto implements UnmodifiableEnti
 	private String module;
 	
 	public IdmFormAttributeDto() {
+	}
+	
+	public IdmFormAttributeDto(Auditable auditable) {
+		super(auditable);
 	}
 	
 	/**

@@ -122,7 +122,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdmBasePermission.UPDATE, 
 			IdmBasePermission.DELETE),
 	ROLETREENODE(
-			IdmBasePermission.ADMIN, 
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
 			IdmBasePermission.AUTOCOMPLETE,
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
@@ -513,11 +514,12 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String INCOMPATIBLEROLE_UPDATE = "INCOMPATIBLEROLE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String INCOMPATIBLEROLE_DELETE = "INCOMPATIBLEROLE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String ROLETREENODE_COUNT = "ROLETREENODE" + BasePermission.SEPARATOR + "COUNT";
+	public static final String ROLETREENODE_AUTOCOMPLETE = "ROLETREENODE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	public static final String ROLETREENODE_READ = "ROLETREENODE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLETREENODE_CREATE = "ROLETREENODE" + BasePermission.SEPARATOR + "CREATE";
 	public static final String ROLETREENODE_UPDATE = "ROLETREENODE" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String ROLETREENODE_DELETE = "ROLETREENODE" + BasePermission.SEPARATOR + "DELETE";
-	public static final String ROLETREENODE_AUTOCOMPLETE = "ROLETREENODE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
 	//
 	public static final String ROLEGUARANTEE_COUNT = "ROLEGUARANTEE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String ROLEGUARANTEE_AUTOCOMPLETE = "ROLEGUARANTEE" + BasePermission.SEPARATOR + "AUTOCOMPLETE";

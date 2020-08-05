@@ -22,10 +22,6 @@ const automaticRoleRequestManager = new AutomaticRoleRequestManager();
 */
 export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getContentKey() {
     return 'content.role.tree-nodes';
   }
@@ -120,7 +116,7 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
     requestForceSearch = requestForceSearch.setFilter('states', ['IN_PROGRESS', 'CONCEPT', 'EXCEPTION']);
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -245,19 +241,25 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
         {
           !SecurityManager.hasAuthority('AUTOMATICROLEREQUEST_READ')
           ||
-          <div className="tab-pane-table-body">
+          <Basic.Div className="tab-pane-table-body">
             <Basic.ContentHeader style={{ marginBottom: 0 }} text={ this.i18n('content.automaticRoles.request.header') }/>
             <AutomaticRoleRequestTableComponent
               ref="automatic-role-requests-table"
               uiKey="role-automatic-role-requests-table"
               forceSearchParameters={ requestForceSearch }
-              columns={ _.difference(AutomaticRoleRequestTable.defaultProps.columns,
-                 roleId ? ['role', 'executeImmediately', 'startRequest', 'createNew']
-                        : ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
-              )}
+              columns={
+                _.difference(
+                  AutomaticRoleRequestTable.defaultProps.columns,
+                  roleId
+                  ?
+                  ['role', 'executeImmediately', 'startRequest', 'createNew']
+                  :
+                  ['executeImmediately', 'startRequest', 'createNew', 'wf_name', 'modified']
+                )
+              }
               showFilter={ false }
               manager={ automaticRoleRequestManager }/>
-          </div>
+          </Basic.Div>
         }
 
         <Basic.Modal
@@ -283,36 +285,36 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                 readOnly={ !manager.canSave(detail.entity, _permissions) }>
                 <Basic.SelectBox
                   ref="role"
-                  manager={roleManager}
-                  label={this.i18n('entity.RoleTreeNode.role')}
-                  readOnly={!Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'role')}
+                  manager={ roleManager }
+                  label={ this.i18n('entity.RoleTreeNode.role') }
+                  readOnly={ !Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'role') }
                   required/>
                 <Basic.TextField
                   ref="name"
                   required
-                  readOnly={!Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'name')}
-                  label={this.i18n('entity.AutomaticRole.name.label')}
-                  helpBlock={this.i18n('entity.AutomaticRole.name.help')}/>
+                  readOnly={ !Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'name') }
+                  label={ this.i18n('entity.AutomaticRole.name.label') }
+                  helpBlock={ this.i18n('entity.AutomaticRole.name.help') }/>
                 <Advanced.TreeNodeSelect
                   ref="treeNode"
-                  label={this.i18n('entity.RoleTreeNode.treeNode')}
-                  readOnly={!Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'treeNode')}
+                  label={ this.i18n('entity.RoleTreeNode.treeNode')}
+                  readOnly={ !Utils.Entity.isNew(detail.entity) || !_.includes(columns, 'treeNode') }
                   required/>
                 <Basic.EnumSelectBox
                   ref="recursionType"
-                  enum={RecursionTypeEnum}
-                  label={this.i18n('entity.RoleTreeNode.recursionType')}
-                  readOnly={!Utils.Entity.isNew(detail.entity)}
+                  enum={ RecursionTypeEnum }
+                  label={ this.i18n('entity.RoleTreeNode.recursionType') }
+                  readOnly={ !Utils.Entity.isNew(detail.entity) }
                   required/>
-                </Basic.AbstractForm>
+              </Basic.AbstractForm>
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
-                onClick={this.closeDetail.bind(this)}
-                showLoading={_showLoading}>
-                {this.i18n('button.close')}
+                onClick={ this.closeDetail.bind(this) }
+                showLoading={ _showLoading }>
+                { this.i18n('button.close') }
               </Basic.Button>
               <Basic.Button
                 type="submit"
@@ -321,12 +323,12 @@ export class RoleTreeNodeTable extends Advanced.AbstractTableContent {
                 showLoading={ _showLoading}
                 showLoadingIcon
                 showLoadingText={ this.i18n('button.saving') }>
-                {this.i18n('button.save')}
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

@@ -24,12 +24,17 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleTreeNodeFilter;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.AcceptedException;
+import eu.bcvsolutions.idm.core.api.exception.FilterNotSupportedException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterKey;
+import eu.bcvsolutions.idm.core.api.repository.filter.FilterManager;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode;
@@ -63,6 +68,8 @@ public class DefaultIdmRoleTreeNodeService
 	private final IdmTreeNodeRepository treeNodeRepository;
 	private final EntityEventManager entityEventManager;
 	private final IdmIdentityRoleService identityRoleService;
+	//
+	@Autowired private ConfigurationService configurationService;
 	
 	@Autowired
 	public DefaultIdmRoleTreeNodeService(
@@ -125,6 +132,11 @@ public class DefaultIdmRoleTreeNodeService
 							builder.like(builder.lower(root.get(IdmRoleTreeNode_.role).get(IdmRole_.code)), "%" + text + "%")
 							));
 		}
+		String name = filter.getName();
+		if (StringUtils.isNotEmpty(name)) {
+			predicates.add(builder.equal(root.get(IdmRoleTreeNode_.name), name));
+		}
+		//
 		if (filter.getRoleId() != null) {
 			predicates.add(builder.equal(root.get(IdmRoleTreeNode_.role).get(IdmRole_.id), filter.getRoleId()));
 		}
@@ -135,6 +147,15 @@ public class DefaultIdmRoleTreeNodeService
 		//
 		if (filter.getRecursionType() != null) {
 			predicates.add(builder.equal(root.get(IdmRoleTreeNode_.recursionType), filter.getRecursionType()));
+		}
+		if (filter.getConcept() != null) {
+			throwFilterNotSupportedException("concept"); // TODO: rewrite constant to data filter
+		}
+		if (filter.getHasRules() != null) {
+			throwFilterNotSupportedException("hasRules"); // TODO: rewrite constant to data filter
+		}
+		if (filter.getRuleType() != null) {
+			throwFilterNotSupportedException("ruleType"); // TODO: rewrite constant to data filter
 		}
 		return predicates;
 	}
@@ -195,6 +216,26 @@ public class DefaultIdmRoleTreeNodeService
 			IdentityRoleEvent event = new IdentityRoleEvent(IdentityRoleEventType.CREATE, identityRole);
 			event.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
 			identityRoleService.publish(event);
+		}
+	}
+	
+	/**
+	 * Properties generalized from automatic roles by attributes are not supported.
+	 * 
+	 * @param filterProperty unsupported property name
+	 * @since 10.5.0
+	 */
+	private void throwFilterNotSupportedException(String filterProperty) {
+		FilterNotSupportedException ex = new FilterNotSupportedException(new FilterKey(getEntityClass(), filterProperty));
+		//
+		if (configurationService.getBooleanValue(
+				FilterManager.PROPERTY_CHECK_SUPPORTED_FILTER_ENABLED, 
+				FilterManager.DEFAULT_CHECK_SUPPORTED_FILTER_ENABLED)) {
+			// throw exception otherwise => unrecognized filter is not supported
+			throw ex;
+		} else {
+			// log exception only
+			ExceptionUtils.log(LOG, ex);
 		}
 	}
 }

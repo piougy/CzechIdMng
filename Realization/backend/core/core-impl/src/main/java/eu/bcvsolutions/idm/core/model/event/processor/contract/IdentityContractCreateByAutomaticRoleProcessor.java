@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -23,7 +24,9 @@ import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
  * Automatic roles by tree structure recount while enabled identity contract is created.
@@ -96,7 +99,11 @@ public class IdentityContractCreateByAutomaticRoleProcessor
 					return conceptRoleRequest;
 				})
 				.collect(Collectors.toList());
-		roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
+		//
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setConceptRoles(concepts);
+		roleRequest.setApplicant(contract.getIdentity());
+		roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), event);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

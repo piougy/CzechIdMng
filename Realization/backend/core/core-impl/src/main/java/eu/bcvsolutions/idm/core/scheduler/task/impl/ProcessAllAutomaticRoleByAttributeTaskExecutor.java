@@ -26,6 +26,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
 
 /**
@@ -134,8 +136,11 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
     			concept.setAutomaticRole(automaticRoleId);
 				concept.setOperation(ConceptRoleRequestOperation.ADD);
 				concepts.add(concept);	
-
-    			roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
+    			
+    			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+    			roleRequest.setConceptRoles(concepts);
+    			roleRequest.setApplicant(contract.getIdentity());
+    			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
  
 				canContinue = updateState();
 				if (!canContinue) {
@@ -174,8 +179,11 @@ public class ProcessAllAutomaticRoleByAttributeTaskExecutor extends AbstractSche
 						identityId = contractDto.getIdentity();
     				}
     			}
-
-    			roleRequestService.executeConceptsImmediate(identityId, concepts);
+    			
+    			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+    			roleRequest.setConceptRoles(concepts);
+    			roleRequest.setApplicant(identityId);
+    			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
 
     			canContinue = updateState();
     			if (!canContinue) {

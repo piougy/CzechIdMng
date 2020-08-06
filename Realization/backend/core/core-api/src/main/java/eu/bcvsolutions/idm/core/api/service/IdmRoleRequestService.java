@@ -110,18 +110,21 @@ public interface IdmRoleRequestService extends
 	
 	/**
 	 * Execute concepts via request - usable programmatically, where identity roles are added / updated / removed.
+	 * Lookout: synchronous request (and provisioning) is executed - usable for removal (delete identity, contract) 
+	 * operations only or where provisioning is skipped.
 	 * 
 	 * @param applicant
 	 * @param concepts [optional] - if empty concepts are given, then no request will be executed.
-	 * 
 	 * @return
 	 * @since 9.6.0
+	 * @see #startConcepts(EntityEvent, EntityEvent)
 	 */
 	IdmRoleRequestDto executeConceptsImmediate(UUID applicant, List<IdmConceptRoleRequestDto> concepts);
-	
 
 	/**
 	 * Execute concepts via request - usable programmatically, where identity roles are added / updated / removed.
+	 * Lookout: synchronous request (and provisioning) is executed - usable for removal (delete identity, contract) 
+	 * operations only or where provisioning is skipped.
 	 * 
 	 * @param applicant
 	 * @param concepts [optional] - if empty concepts are given, then no request will be executed.
@@ -129,9 +132,21 @@ public interface IdmRoleRequestService extends
 	 * 
 	 * @return
 	 * @since 9.7.1
+	 * @see #startConcepts(EntityEvent, EntityEvent)
 	 */
 	IdmRoleRequestDto executeConceptsImmediate(UUID applicant, List<IdmConceptRoleRequestDto> concepts,
 			Map<String, Serializable> additionalProperties);
+	
+	/**
+	 * Save role requests (and concepts) and start request by given event.
+	 * Request and concepts will be saved - prepare evnt only.
+	 * 
+	 * @param requestEvent filled request, event priority
+	 * @param parentEvent parent event
+	 * @return created role request
+	 * @since 10.5.0
+	 */
+	IdmRoleRequestDto startConcepts(EntityEvent<IdmRoleRequestDto> requestEvent, EntityEvent<?> parentEvent);
 
 	/**
 	 * Start approval procces for this request.

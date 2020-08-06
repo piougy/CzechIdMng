@@ -71,6 +71,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleTreeNode_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -468,11 +470,16 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			conceptRoleRequest.setRole(automaticRole.getRole());
 			conceptRoleRequest.setAutomaticRole(automaticRoleId);
 			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
-			IdmRoleRequestDto request = roleRequestService.executeConceptsImmediate(contract.getIdentity(), Lists.newArrayList(conceptRoleRequest));
+			//
+			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+			roleRequest.setConceptRoles(Lists.newArrayList(conceptRoleRequest));
+			roleRequest.setApplicant(contract.getIdentity());
+			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
+			//
 			// load role concepts and add created role to processed
-			if (request != null) {
+			if (roleRequest != null) {
 				conceptRoleRequestService
-					.findAllByRoleRequest(request.getId())
+					.findAllByRoleRequest(roleRequest.getId())
 					.forEach(concept -> {
 						processedIdentityRoles.add(concept.getIdentityRole());
 					});
@@ -548,11 +555,16 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			conceptRoleRequest.setRole(automaticRole.getRole());
 			conceptRoleRequest.setAutomaticRole(automaticRoleId);
 			conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
-			IdmRoleRequestDto request = roleRequestService.executeConceptsImmediate(contract.getIdentity(), Lists.newArrayList(conceptRoleRequest));
+			//
+			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+			roleRequest.setConceptRoles(Lists.newArrayList(conceptRoleRequest));
+			roleRequest.setApplicant(contract.getIdentity());
+			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
+			//
 			// load role concepts and add created role to processed
-			if (request != null) {
+			if (roleRequest != null) {
 				conceptRoleRequestService
-					.findAllByRoleRequest(request.getId())
+					.findAllByRoleRequest(roleRequest.getId())
 					.forEach(concept -> {
 						processedIdentityRoles.add(concept.getIdentityRole());
 					});
@@ -607,7 +619,11 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 				conceptRoleRequest.setRole(identityRole.getRole());
 				conceptRoleRequest.setOperation(ConceptRoleRequestOperation.REMOVE);
 				conceptRoleRequest.setIdentityContract(identityRole.getIdentityContract());
-				roleRequestService.executeConceptsImmediate(identity.getId(), Lists.newArrayList(conceptRoleRequest));
+				//
+				IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+    			roleRequest.setConceptRoles(Lists.newArrayList(conceptRoleRequest));
+    			roleRequest.setApplicant(identity.getId());
+    			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
 				// log successfully removed identity role
 				ResultModel resultModel = new DefaultResultModel(
 						CoreResultCode.AUTOMATIC_ROLE_ASSIGN_TASK_ROLE_REMOVED,

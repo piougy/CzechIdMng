@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAutomaticRoleFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
@@ -92,7 +93,9 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue_;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent;
 import eu.bcvsolutions.idm.core.model.event.AutomaticRoleAttributeEvent.AutomaticRoleAttributeEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.role.AutomaticRoleAttributeDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmAutomaticRoleAttributeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
@@ -253,9 +256,12 @@ public class DefaultIdmAutomaticRoleAttributeService
 				}
 			}
 		}
-		
+		//
 		// Execute concepts
-		roleRequestService.executeConceptsImmediate(identityId, concepts);
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setConceptRoles(concepts);
+		roleRequest.setApplicant(identityId);
+		roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
 	}
 	
 	@Override
@@ -1106,8 +1112,11 @@ public class DefaultIdmAutomaticRoleAttributeService
 			concept.setOperation(ConceptRoleRequestOperation.ADD);
 			concepts.add(concept);
 		}
-
-		roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
+		//
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setConceptRoles(concepts);
+		roleRequest.setApplicant(contract.getIdentity());
+		roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
 	}
 	
 }

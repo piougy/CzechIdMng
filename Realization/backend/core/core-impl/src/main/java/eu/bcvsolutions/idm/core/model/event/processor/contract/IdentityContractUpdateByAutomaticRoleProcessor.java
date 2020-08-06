@@ -47,6 +47,8 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
  * Automatic roles by tree structure recount while identity contract is saved, updated or deleted / disabled.
@@ -235,8 +237,10 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			// process validable change only
 			roleRequest.getConceptRoles().addAll(changeValidable(contract, identityRoleService.findAllByContract(contract.getId())));
 		}
-		// start request at end
-		roleRequestService.executeConceptsImmediate(contract.getIdentity(), roleRequest.getConceptRoles());
+		// start request at end asynchronously
+		roleRequest.setApplicant(contract.getIdentity());
+		RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+		roleRequestService.startConcepts(requestEvent, event);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

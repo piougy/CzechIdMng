@@ -36,7 +36,9 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmContractPosition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
  * Automatic roles by tree structure recount while contract position is created or updated.
@@ -198,7 +200,10 @@ public class ContractPositionAutomaticRoleProcessor
 				roleRequest.getConceptRoles().addAll(concepts);
 			} else {
 				// execute new request
-				roleRequest = roleRequestService.executeConceptsImmediate(contract.getIdentity(), concepts);
+				roleRequest = new IdmRoleRequestDto();
+				roleRequest.setConceptRoles(concepts);
+				roleRequest.setApplicant(contract.getIdentity());
+				roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), event);
 			}
 			event.getProperties().put(IdentityContractUpdateByAutomaticRoleProcessor.EVENT_PROPERTY_REQUEST, roleRequest);
 		}

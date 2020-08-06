@@ -12,6 +12,7 @@ import {
 } from '../security/SecurityManager';
 import {
   REQUEST_ENTITIES,
+  RECEIVE_SEARCH_PARAMETERS,
   RECEIVE_ENTITIES,
   CLEAR_ENTITIES,
   REQUEST_ENTITY,
@@ -87,6 +88,16 @@ export default function reduce(state = INITIAL_STATE, action) {
           showLoading: true,
           searchParameters: action.searchParameters,
           error: null
+        })
+      });
+      return merge({}, state, {
+        ui: merge({}, state.ui, ui)
+      });
+    }
+    case RECEIVE_SEARCH_PARAMETERS: {
+      const ui = merge({}, state.ui, {
+        [uiKey]: merge({}, state.ui[uiKey], {
+          searchParameters: action.searchParameters,
         })
       });
       return merge({}, state, {

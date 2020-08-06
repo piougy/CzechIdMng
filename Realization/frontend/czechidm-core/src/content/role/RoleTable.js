@@ -237,6 +237,14 @@ class RoleTable extends Advanced.AbstractTableContent {
     this.refs.table.useFilterData(data);
   }
 
+  onChangeRoleCatalogue(option) {
+    if (!option) {
+      const { roleManager, uiKey, _searchParameters } = this.props;
+      // cleanup redux state search parameters for additional options
+      this.context.store.dispatch(roleManager.setSearchParameters(_searchParameters.clearFilter('withoutCatalogue'), uiKey));
+    }
+  }
+
   render() {
     const {
       uiKey,
@@ -321,7 +329,8 @@ class RoleTable extends Advanced.AbstractTableContent {
                         label={ null }
                         placeholder={ this.i18n('entity.Role.roleCatalogue.name') }
                         header={ this.i18n('entity.Role.roleCatalogue.name') }
-                        additionalOptions={[ this._getWithoutCatalogueOption() ]}/>
+                        additionalOptions={[ this._getWithoutCatalogueOption() ]}
+                        onChange={ this.onChangeRoleCatalogue.bind(this) }/>
                     </Basic.Col>
                   </Basic.Row>
                 </Basic.AbstractForm>

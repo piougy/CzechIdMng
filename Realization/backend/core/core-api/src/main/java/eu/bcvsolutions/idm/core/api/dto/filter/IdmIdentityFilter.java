@@ -117,6 +117,12 @@ public class IdmIdentityFilter
 	 * Identity projection.
 	 */
 	public static final String PARAMETER_FORM_PROJECTION = "formProjection";
+	/**
+	 * Without work position - without contract or with contract without work position is set.
+	 * 
+	 * @since 10.5.0
+	 */
+	public static final String PARAMETER_WITHOUT_WORK_POSITION = "withoutWorkPosition";
 	
 	public IdmIdentityFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -380,5 +386,25 @@ public class IdmIdentityFilter
 	 */
 	public void setValidContractManagers(Boolean validContractManagers) {
 		set(PARAMETER_VALID_CONTRACT_MANAGERS, validContractManagers);
+	}
+	
+	/**
+	 * Without work position - without contract or with contract without work position is set.
+	 * 
+	 * @return without work position 
+	 * @since 10.5.0
+	 */
+	public Boolean getWithoutWorkPosition() {
+		return getParameterConverter().toBoolean(getData(), PARAMETER_WITHOUT_WORK_POSITION);
+	}
+	
+	/**
+	 * Without work position - without contract or with contract without work position is set.
+	 * 
+	 * @param withoutWorkPosition without work position 
+	 * @since 10.5.0
+	 */
+	public void setWithoutWorkPosition(Boolean withoutWorkPosition) {
+		set(PARAMETER_WITHOUT_WORK_POSITION, withoutWorkPosition);
 	}
 }

@@ -1653,7 +1653,12 @@
         },
         "organization": {
           "label": "Org. structure",
-          "placeholder": "Element in organization structure"
+          "placeholder": "Element in organization structure",
+          "option": {
+            "withoutWorkPosition": {
+              "label": "-- without work position in organization structure --"
+            }
+          }
         },
         "recursively": {
           "label": "Recursively",

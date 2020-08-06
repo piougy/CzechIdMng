@@ -1699,7 +1699,12 @@
         },
         "organization": {
           "label": "Org. struktura",
-          "placeholder": "Prvek v organizační struktuře"
+          "placeholder": "Prvek v organizační struktuře",
+          "option": {
+            "withoutWorkPosition": {
+              "label": "-- bez pracovní pozice v organizační struktuře --"
+            }
+          }
         },
         "recursively": {
           "label": "Rekurzivně",

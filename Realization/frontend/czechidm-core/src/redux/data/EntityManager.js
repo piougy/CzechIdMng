@@ -12,6 +12,7 @@ import SearchParameters from '../../domain/SearchParameters';
  * TODO: move to action constant (prevent manager import only because action type usage)
  */
 export const REQUEST_ENTITIES = 'REQUEST_ENTITIES';
+export const RECEIVE_SEARCH_PARAMETERS = 'RECEIVE_SEARCH_PARAMETERS';
 export const RECEIVE_ENTITIES = 'RECEIVE_ENTITIES';
 export const REQUEST_ENTITY = 'REQUEST_ENTITY';
 export const RECEIVE_ENTITY = 'RECEIVE_ENTITY';
@@ -301,6 +302,23 @@ export default class EntityManager {
       type: REQUEST_ENTITIES,
       searchParameters,
       uiKey
+    };
+  }
+
+  /*
+  * Set search parameters into redux store.
+  *
+  * @since 10.5.0
+  */
+  setSearchParameters(searchParameters, uiKey = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    return (dispatch) => {
+      dispatch({
+        type: RECEIVE_SEARCH_PARAMETERS,
+        entityType: this.getEntityType(),
+        searchParameters,
+        uiKey
+      });
     };
   }
 

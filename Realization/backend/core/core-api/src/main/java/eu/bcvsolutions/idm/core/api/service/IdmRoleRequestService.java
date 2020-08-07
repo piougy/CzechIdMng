@@ -144,12 +144,12 @@ public interface IdmRoleRequestService extends
 	 * @param requestEvent filled request, event priority
 	 * @param parentEvent parent event
 	 * @return created role request
-	 * @since 10.5.0
+	 * @since 10.4.4
 	 */
 	IdmRoleRequestDto startConcepts(EntityEvent<IdmRoleRequestDto> requestEvent, EntityEvent<?> parentEvent);
 
 	/**
-	 * Start approval procces for this request.
+	 * Start approval process for this request.
 	 * 
 	 * @param request
 	 * @param checkRight

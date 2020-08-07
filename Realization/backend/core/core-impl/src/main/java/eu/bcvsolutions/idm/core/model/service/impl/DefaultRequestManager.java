@@ -92,7 +92,6 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.FormValueService;
-import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequestItem;
 import eu.bcvsolutions.idm.core.model.event.RequestEvent;
@@ -130,8 +129,6 @@ public class DefaultRequestManager implements RequestManager {
 	private LookupService lookupService;
 	@Autowired
 	private FormService formService;
-	@Autowired
-	private IdmFormDefinitionService formDefinitionService;
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
 	@Lazy
@@ -1439,7 +1436,7 @@ public class DefaultRequestManager implements RequestManager {
 		}
 		Class<? extends FormableEntity> ownerClass = (Class<? extends FormableEntity>) entityClass;
 
-		IdmFormDefinitionDto formDefinition = formDefinitionService.get(attribute.getFormDefinition());
+		IdmFormDefinitionDto formDefinition = formService.getDefinition(attribute.getFormDefinition());
 
 		List<IdmFormValueDto> results = new ArrayList<>();
 		Map<UUID, IdmFormValueDto> unprocessedPreviousValues = new LinkedHashMap<>(); // ordered by seq

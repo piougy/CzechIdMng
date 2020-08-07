@@ -16,10 +16,11 @@ import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Form definition service
+ * Form definition service - CRUD.
+ * Use {@link FormService} instead in your modules.
  * 
  * @author Radek Tomiška
- *
+ * @see FormService
  */
 public interface IdmFormDefinitionService extends 
 		EventableDtoService<IdmFormDefinitionDto, IdmFormDefinitionFilter>,

@@ -770,6 +770,16 @@ public interface FormService extends ScriptEnabled {
 	void deleteAttribute(IdmFormAttributeDto attribute, BasePermission... permission);
 	
 	/**
+	 * Deletes given form definition
+	 * 
+	 * @param formDefinition
+	 * @param permission base permissions to evaluate (AND)
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 10.5.0
+	 */
+	void deleteDefinition(IdmFormDefinitionDto formDefinition, BasePermission... permission);
+	
+	/**
 	 * Deletes given form value only. 
 	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 

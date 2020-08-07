@@ -1087,6 +1087,12 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional
+	public void deleteDefinition(IdmFormDefinitionDto formDefinition, BasePermission... permission) {
+		formDefinitionService.delete(formDefinition, permission);
+	}
+	
+	@Override
+	@Transactional
 	public void deleteValue(IdmFormValueDto formValue, BasePermission... permission) {
 		Assert.notNull(formValue, "Form value is required.");
 		Assert.notNull(formValue.getOwnerId(), "Owner id is required.");

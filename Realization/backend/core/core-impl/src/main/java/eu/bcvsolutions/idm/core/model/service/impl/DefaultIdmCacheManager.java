@@ -11,8 +11,14 @@ import java.util.stream.StreamSupport;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 
+import org.apache.commons.io.FileUtils;
+import org.ehcache.core.Ehcache;
+import org.ehcache.core.EhcacheBase;
+import org.ehcache.core.spi.store.Store.ValueHolder;
 import org.ehcache.core.statistics.CacheStatistics;
 import org.ehcache.core.statistics.TierStatistics;
+import org.ehcache.impl.internal.store.heap.OnHeapStore;
+import org.ehcache.sizeof.SizeOf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -145,6 +151,28 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
 		        CacheStatistics statistics = (CacheStatistics) field.get(object);
 		        //
 		        dto.setSize(((TierStatistics) statistics.getTierStatistics().get("OnHeap")).getMappings());
+		        //
+		        
+		        // TODO: cache size - return whole cache size for each item now ... how to fix it?
+//		        field = cache.getClass().getDeclaredField("ehCache");
+//		        field.setAccessible(true);
+//		        Ehcache ehCache = (Ehcache) field.get(cache);
+//		        //
+//		        field = EhcacheBase.class.getDeclaredField("store");
+//		        field.setAccessible(true);
+//		        //
+//		        Object store = field.get(ehCache);
+//		        //
+//		        if (store instanceof OnHeapStore) {
+//		        	OnHeapStore heapStore = (OnHeapStore) store;
+//		        	
+//		        	ValueHolder valueHolder = heapStore.get(cache.getName());
+//			        //
+//			        SizeOf sizeOf = SizeOf.newInstance();
+//			        //
+//			        System.out.println(cache.getName() + ": " + FileUtils.byteCountToDisplaySize(sizeOf.deepSizeOf(heapStore)));
+//		        }
+		        
 	        } catch (Exception ex) {
 		        LOG.debug("Cache [{}] size is not available", cache.getName(), ex);
 		        sizeAvailable = false;

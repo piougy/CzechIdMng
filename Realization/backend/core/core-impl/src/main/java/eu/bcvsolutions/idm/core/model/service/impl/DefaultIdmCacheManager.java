@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,6 +11,8 @@ import java.util.stream.StreamSupport;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 
+import org.ehcache.core.statistics.CacheStatistics;
+import org.ehcache.core.statistics.TierStatistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -34,12 +37,13 @@ import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 @Component("idmCacheManager")
 public class DefaultIdmCacheManager implements IdmCacheManager {
 
-    private final CacheManager jCacheManager;
-
-    private final Map<String, IdMCacheConfiguration> cacheConfigurations;
-
-    private static final String EMPTY_KEY_MSG = "Cache key cannot be empty";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmCacheManager.class);
+	private static final String EMPTY_KEY_MSG = "Cache key cannot be empty";
     private static final String EMPTY_NAME_MSG = "Cache name cannot be empty";
+	//
+    private final CacheManager jCacheManager;
+    private final Map<String, IdMCacheConfiguration> cacheConfigurations;
+    private boolean sizeAvailable = true; // optimize loading cache size
 
     @Autowired
     public DefaultIdmCacheManager(CacheManager springCacheManager, List<IdMCacheConfiguration> cacheConfigurations) {
@@ -123,15 +127,31 @@ public class DefaultIdmCacheManager implements IdmCacheManager {
     }
 
     private IdmCacheDto toDto(Cache<Object, Object> cache) {
-        final IdmCacheDto result = new IdmCacheDto();
-
-        result.setId(cache.getName());
-        result.setName(cache.getName());
+        IdmCacheDto dto = new IdmCacheDto();
+        dto.setId(cache.getName());
+        dto.setName(cache.getName());
         // There is no other way of determining which module this cache belongs to
         String[] split = StringUtils.split(cache.getName(), ":");
-        result.setModule(split != null && split.length > 0 ? split[0] : "");
+        dto.setModule(split != null && split.length > 0 ? split[0] : "");
         //
-        return result;
+        if (sizeAvailable) {
+	        try {
+	        	// set size, when local ehcache is used
+		        Field field = cache.getClass().getDeclaredField("statisticsBean");
+		        field.setAccessible(true);
+		        Object object = field.get(cache);
+		        field = object.getClass().getDeclaredField("cacheStatistics");
+		        field.setAccessible(true);
+		        CacheStatistics statistics = (CacheStatistics) field.get(object);
+		        //
+		        dto.setSize(((TierStatistics) statistics.getTierStatistics().get("OnHeap")).getMappings());
+	        } catch (Exception ex) {
+		        LOG.debug("Cache [{}] size is not available", cache.getName(), ex);
+		        sizeAvailable = false;
+		    }
+    	}
+        //
+        return dto;
     }
 
     private boolean isConfigLocalOnly(IdMCacheConfiguration configuration) {

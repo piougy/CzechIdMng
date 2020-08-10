@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * Bean representation. Used for registrable, configurable application components (module descriptors, processors ...) 
+ * Bean representation. Used for registrable, configurable application components (module descriptors, processors ...).
  * 
  * @author Radek Tomiška
  *

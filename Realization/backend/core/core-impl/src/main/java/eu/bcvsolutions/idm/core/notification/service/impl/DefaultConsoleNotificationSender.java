@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.notification.api.service.IdmConsoleLogService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
 
 /**
- * Prints notification to console and persists log
+ * Prints notification to console and persists log.
  * 
  * @author Radek Tomiška 
  *

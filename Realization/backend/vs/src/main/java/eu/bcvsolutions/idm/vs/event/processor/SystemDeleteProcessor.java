@@ -103,7 +103,7 @@ public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSyste
 		if (system.getConnectorKey() != null) {
 			String virtualSystemKey = MessageFormat.format("{0}:systemId={1}", system.getConnectorKey().getFullName(),
 					system.getId());
-			IdmFormDefinitionDto definition = this.formService.getDefinition(VsAccount.class, virtualSystemKey);
+			IdmFormDefinitionDto definition = formService.getDefinition(VsAccount.class, virtualSystemKey);
 			if (definition != null) {
 				formService.deleteDefinition(definition);
 			}

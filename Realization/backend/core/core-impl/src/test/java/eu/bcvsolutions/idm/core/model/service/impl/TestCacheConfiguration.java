@@ -8,6 +8,11 @@ import eu.bcvsolutions.idm.core.api.config.cache.IdMCacheConfiguration;
 import eu.bcvsolutions.idm.core.api.config.cache.LocalIdMCacheConfiguration;
 
 
+/**
+ * Caches used in tests.
+ * 
+ * @author Peter Štrunc
+ */
 @Profile("test")
 @Configuration
 public class TestCacheConfiguration {

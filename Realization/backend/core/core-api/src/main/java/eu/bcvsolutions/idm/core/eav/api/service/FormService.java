@@ -978,11 +978,7 @@ public interface FormService extends ScriptEnabled {
 	 * 
 	 * @param owner
 	 * @return
-<<<<<<< HEAD
-	 * @since 10.5.0
-=======
 	 * @since 10.4.2
->>>>>>> master
 	 * @see IdmFormDefinitionService#getOwnerType(Identifiable)
 	 */
 	String getOwnerType(Identifiable owner);
@@ -994,11 +990,7 @@ public interface FormService extends ScriptEnabled {
 	 * 
 	 * @param ownerType
 	 * @return
-<<<<<<< HEAD
-	 * @since 10.5.0
-=======
 	 * @since 10.4.2
->>>>>>> master
 	 * @see IdmFormDefinitionService#getOwnerType(Class)
 	 */
 	String getOwnerType(Class<? extends Identifiable> ownerType);
@@ -1007,11 +999,7 @@ public interface FormService extends ScriptEnabled {
 	 * Evict caches for given form definition.
 	 * 
 	 * @param definition form definition
-<<<<<<< HEAD
-	 * @since 10.5.0
-=======
 	 * @since 10.4.2
->>>>>>> master
 	 * @see IdmCacheManager#evictCache(String)
 	 */
 	void evictCache(IdmFormDefinitionDto definition);

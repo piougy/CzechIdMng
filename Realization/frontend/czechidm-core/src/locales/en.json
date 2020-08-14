@@ -6380,6 +6380,10 @@
           "assigned-roles": {
             "label": "Show assigned roles",
             "help": "Add assigned roles for newly created user and show assigned roles updated user."
+          },
+          "load-assigned-roles": {
+            "label": "Load assigned roles into projection",
+            "help": "Load all assigned roles - will be available in projection directly. Enable this feature, if projection supports to assign role directly without role requests. Is not supported in product provided projection and could be disabled."
           }
         }
       }

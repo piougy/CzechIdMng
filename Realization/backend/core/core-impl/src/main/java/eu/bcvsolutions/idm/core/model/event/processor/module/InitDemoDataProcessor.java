@@ -3,13 +3,13 @@ package eu.bcvsolutions.idm.core.model.event.processor.module;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitApplicationData;
@@ -56,7 +56,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * - demo eav (all available persistent types)
  * - demo users are created with product roles assigned
  * - demo tree structure is created
- * - TODO: demo form projection - externe user
  * 
  * @author Radek Tomiška 
  * @since 10.5.0
@@ -78,7 +77,9 @@ public class InitDemoDataProcessor extends AbstractInitApplicationProcessor {
 	public static final String FORM_ATTRIBUTE_DATE = "date";
 	public static final String FORM_ATTRIBUTE_LETTER = "letter";
 	//
+	@Autowired private ObjectMapper mapper;
 	@Autowired private LookupService lookupService;
+	@Autowired private FormService formService;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private RoleConfiguration roleConfiguration;
@@ -88,7 +89,6 @@ public class InitDemoDataProcessor extends AbstractInitApplicationProcessor {
 	@Autowired private IdmIdentityContractService identityContractService;
 	@Autowired private IdmContractGuaranteeService contractGuaranteeService;
 	@Autowired private ConfigurationService configurationService;	
-	@Autowired private FormService formService;
 	@Autowired private IdmFormProjectionService formProjectionService;	
 	
 	@Override
@@ -201,16 +201,20 @@ public class InitDemoDataProcessor extends AbstractInitApplicationProcessor {
 		externeProjection.setOwnerType(lookupService.getOwnerType(IdmIdentity.class));
 		externeProjection.setCode("identity-externe");
 		externeProjection.setRoute(IdentityFormProjectionRoute.PROJECTION_NAME);
-		externeProjection.setBasicFields( // TODO: better setter
-				StringUtils.join(
-						Lists.newArrayList(
-							IdmIdentity_.username.getName(), 
-							IdmIdentity_.firstName.getName(),
-							IdmIdentity_.lastName.getName()
-						),
-						","
-				)
-		);
+		try {
+			externeProjection.setBasicFields( // TODO: better setter
+					mapper.writeValueAsString(
+							Lists.newArrayList(
+								IdmIdentity_.username.getName(), 
+								IdmIdentity_.firstName.getName(),
+								IdmIdentity_.lastName.getName()
+							)
+					)
+			);
+		} catch (Exception ex) {
+			LOG.warn("Demo form proction will show all basic attributes.", ex);
+		}
+		externeProjection.getProperties().put(IdentityFormProjectionRoute.PARAMETER_LOAD_ASSIGNED_ROLES, false); // not available now in product projection
 		externeProjection = formProjectionService.save(externeProjection);
 		IdmIdentityDto externeIdentity = new IdmIdentityDto();
 		externeIdentity.setUsername("externeUser");

@@ -1094,4 +1094,27 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 		Assert.assertEquals(1, contracts.size());
 		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(otherContract.getId())));
 	}
+	
+	@Test
+	public void testLoadAssignedRoles() {
+		IdmFormProjectionDto projection = new IdmFormProjectionDto();
+		projection.setCode(getHelper().createName());
+		projection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+		projection = projectionService.save(projection);
+		//
+		// create identity with projection is defined
+		IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
+		identity.setFormProjection(projection.getId());
+		identity = identityService.save(identity);
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
+		getHelper().createIdentityRole(primeContract, getHelper().createRole());
+		//
+		IdmIdentityProjectionDto identityProjection = manager.get(identity.getId());
+		Assert.assertFalse(identityProjection.getIdentityRoles().isEmpty());
+		//
+		projection.getProperties().put(IdentityFormProjectionRoute.PARAMETER_LOAD_ASSIGNED_ROLES, false);
+		projectionService.save(projection);
+		identityProjection = manager.get(identity.getId());
+		Assert.assertTrue(identityProjection.getIdentityRoles().isEmpty());
+	}
 }

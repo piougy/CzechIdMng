@@ -154,8 +154,11 @@ public class ProcessSkippedAutomaticRoleByTreeTaskExecutor extends AbstractSched
 			automaticRoleTask.setRemoveNotProcessedIdentityRoles(true);
 			automaticRoleTask.setRequireNewTransaction(true);
 			automaticRoleTask.setLongRunningTaskId(getLongRunningTaskId()); // support to cancel task, when roles are removed
-			//
-			automaticRoleTask.end(Boolean.TRUE, null);
+			// remove previously assigned role, which was not processed by any automatic role
+			processedAutomaticRoles.forEach(automaticRole -> {
+				// new transaction is wrapped inside
+				automaticRoleTask.processIdentityRoles(processedIdentityRoles, automaticRole);
+			});
 		}
 		//
 		return super.end(result, ex);

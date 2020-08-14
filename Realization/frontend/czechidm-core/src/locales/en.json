@@ -1851,6 +1851,10 @@
       },
       "tabs": {
         "basic": "Basic information"
+      },
+      "roles": {
+        "title": "Roles",
+        "header": "Roles"
       }
     },
     "automaticRoles": {
@@ -3957,6 +3961,11 @@
     },
     "RoleCatalogueRole": {
       "_type": "Role assigned into catalogue",
+      "role": {
+        "label": "$t(entity.Role._type)",
+        "title": "Role in selected catalogue folder.",
+        "help": "Role in selected catalogue folder."
+      },
       "roleCatalogue": {
         "label": "$t(entity.RoleCatalogue._type)",
         "help": "Role will be in selected catalogue folder."

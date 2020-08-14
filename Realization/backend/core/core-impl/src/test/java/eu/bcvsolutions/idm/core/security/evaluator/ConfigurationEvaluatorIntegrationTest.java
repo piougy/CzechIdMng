@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.evaluator.configuration.ConfigurationEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Radek Tomiška
  *
  */
-public class ConfigurationEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class ConfigurationEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 	
 	@Autowired private TestHelper helper;
 	@Autowired private IdmIdentityService identityService;

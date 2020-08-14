@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Permission to role guarantee relations by relation's role
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class RoleGuaranteeByRoleEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class RoleGuaranteeByRoleEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private IdmRoleGuaranteeService service;
 	@Autowired private IdmRoleService roleService;
@@ -35,15 +35,9 @@ public class RoleGuaranteeByRoleEvaluatorIntegrationTest extends AbstractIntegra
 		IdmIdentityDto identity = getHelper().createIdentity();
 		List<IdmRoleGuaranteeDto> roleGuarantees = null;
 		IdmRoleDto role = getHelper().createRole();
-		IdmRoleGuaranteeDto roleGuarantee = null;
-		try {
-			getHelper().loginAdmin();
-			roleGuarantee = getHelper().createRoleGuarantee(role, identity);
-			getHelper().createIdentityRole(identity, role);
-			getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);
-		} finally {
-			logout();
-		}
+		IdmRoleGuaranteeDto roleGuarantee = getHelper().createRoleGuarantee(role, identity);
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.READ);
 		//
 		// check created identity doesn't have compositions
 		try {			
@@ -63,7 +57,7 @@ public class RoleGuaranteeByRoleEvaluatorIntegrationTest extends AbstractIntegra
 				RoleGuaranteeByRoleEvaluator.class);
 		//
 		try {
-			getHelper().login(identity.getUsername(), identity.getPassword());
+			getHelper().login(identity);
 			//
 			// evaluate	access
 			roleGuarantees = service.find(null, IdmBasePermission.READ).getContent();
@@ -80,7 +74,7 @@ public class RoleGuaranteeByRoleEvaluatorIntegrationTest extends AbstractIntegra
 		getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.UPDATE);
 		//
 		try {
-			getHelper().login(identity.getUsername(), identity.getPassword());
+			getHelper().login(identity);
 			//
 			Set<String> permissions = service.getPermissions(roleGuarantee);
 			Assert.assertEquals(4, permissions.size());

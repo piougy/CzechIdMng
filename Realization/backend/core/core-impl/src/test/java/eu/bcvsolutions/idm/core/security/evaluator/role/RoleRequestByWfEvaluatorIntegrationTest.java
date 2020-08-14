@@ -1,7 +1,13 @@
 package eu.bcvsolutions.idm.core.security.evaluator.role;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.util.List;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
@@ -24,10 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import java.util.List;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Test permissions for role requests by identity involved in a WF.
@@ -35,7 +38,7 @@ import static org.junit.Assert.fail;
  * @author Vít Švanda
  *
  */
-public class RoleRequestByWfEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class RoleRequestByWfEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	private static final String APPROVE_BY_HELPDESK_ROLE = "idm.sec.core.wf.approval.helpdesk.role";
 	private static final String APPROVE_BY_SECURITY_ENABLE = "idm.sec.core.wf.approval.security.enabled";

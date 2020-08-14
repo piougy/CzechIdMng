@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.service.RequestManager;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRequest;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Request by creator
@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class RequestByCreatorEvaluatorTest extends AbstractIntegrationTest {
+public class RequestByCreatorEvaluatorTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired
 	private RequestManager requestManager;

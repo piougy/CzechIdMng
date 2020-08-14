@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
@@ -23,8 +24,8 @@ import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
  */
 public interface AuthorizationManager {
 	
-	String PERMISSION_CACHE_NAME = "core:permission-cache"; // TODO: move core module descriptor to api
-	String AUTHORIZATION_POLICY_CACHE_NAME = "core:authorization-policy-cache"; // TODO: move core module descriptor to api
+	String PERMISSION_CACHE_NAME = String.format("%s:permission-cache", CoreModule.MODULE_ID);
+	String AUTHORIZATION_POLICY_CACHE_NAME = String.format("%s:authorization-policy-cache", CoreModule.MODULE_ID);
 	
 	/**
 	 * Return security predicate for given permissions and root by {@link BaseEntity} type.

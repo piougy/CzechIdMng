@@ -10,10 +10,10 @@ import NodeTable from './NodeTable';
 const uiKey = 'tree-node-content';
 
 /**
-* Nodes list
-*
-* @author Radek Tomiška
-*/
+ * Tree Nodes list.
+ *
+ * @author Radek Tomiška
+ */
 class Nodes extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -97,25 +97,29 @@ class Nodes extends Basic.AbstractContent {
           <Basic.Loading isStatic showLoading/>
           :
           <span>
-            <NodeTable uiKey={ uiKey } treeNodeManager={ this.getManager() } type={ type } activeTab={ 2 } rendered={ !isNoType }/>
-            <Basic.Alert
-              level="info"
-              rendered={ isNoType }
-              buttons={[
-                <Basic.Button
-                  level="primary"
-                  text={ this.i18n('content.tree.newType.label') }
-                  rendered={ SecurityManager.hasAuthority('TREE_TYPE_CREATE') }
-                  onClick={ this.onCreateType.bind(this) }/>
-              ]}>
-              { this.i18n('content.tree.typeNotFound') }
-              {' '}
-              {
-                !SecurityManager.hasAuthority('TREE_TYPE_CREATE')
-                ||
-                <a href="#" className="alert-link" onClick={ this.onCreateType.bind(this) }>{ this.i18n('content.tree.newType.title') }</a>
-              }
-            </Basic.Alert>
+            {
+              isNoType
+              ?
+              <Basic.Alert
+                level="info"
+                buttons={[
+                  <Basic.Button
+                    level="primary"
+                    text={ this.i18n('content.tree.newType.label') }
+                    rendered={ SecurityManager.hasAuthority('TREE_TYPE_CREATE') }
+                    onClick={ this.onCreateType.bind(this) }/>
+                ]}>
+                { this.i18n('content.tree.typeNotFound') }
+                {' '}
+                {
+                  !SecurityManager.hasAuthority('TREE_TYPE_CREATE')
+                  ||
+                  <a href="#" className="alert-link" onClick={ this.onCreateType.bind(this) }>{ this.i18n('content.tree.newType.title') }</a>
+                }
+              </Basic.Alert>
+              :
+              <NodeTable uiKey={ uiKey } treeNodeManager={ this.getManager() } type={ type } activeTab={ 2 }/>
+            }
           </span>
         }
       </Basic.Div>

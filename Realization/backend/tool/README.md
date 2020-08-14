@@ -343,6 +343,7 @@ Usable additional tool argument:
 | --- | :--- | :--- | :--- |
 | --node-home | path | Node home directory for build a project.<br />Global node instalation directory should contain executable node command.<br />For Windows <node-home>/node/node.exe.<br />For Linux <node-home>/node | Node and npm will be dowloaded and installed localy automaticaly into tool target folder (``<target>/npm``) by default |
 | -c,--clean | | Clean up dowloaded frontend libraries in node_modules. |  |
+| -r,--repository-location | path | Folder structure location. | ``../`` - when IdM tool is placed by example above. |
 
 #### Third party module dependencies
 

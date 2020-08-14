@@ -14,6 +14,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -55,6 +56,9 @@ public class IdentityMonitoredFieldsProcessor
 	 * Name of role. All identity with this role are recipient notification
 	 */
 	public static final String PROPERTY_RECIPIENTS_ROLE = "recipientsRole";
+	/**
+	 * @deprecated @since 10.5.0 - use {@link CoreModule#TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS}
+	 */
 	public static final String TOPIC = "identityMonitoredFieldsChanged";
 	public static final String EMAIL_TEMPLATE = "identityMonitoredFieldsChanged";
 
@@ -132,7 +136,7 @@ public class IdentityMonitoredFieldsProcessor
 			.addParameter("changedFields", changedFields)
 			.addParameter("url", configurationService.getFrontendUrl(String.format("identity/%s/profile", identity.getId())))
 			.build();
-			notificationManager.send(String.format("core:%s", TOPIC), message, recipients);
+			notificationManager.send(CoreModule.TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS, message, recipients);
 			
 		}
 

@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.delegation;
 
-import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
-import eu.bcvsolutions.idm.core.security.evaluator.identity.*;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +8,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmDelegationDefinitionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -23,7 +22,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.evaluator.delegation.DelegationDefinitionByDelegatorContractEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.core.security.evaluator.identity.IdentityContractByIdentityEvaluator;
+import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Delegation definition by contract evaluator test.
@@ -31,7 +32,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Vít Švanda
  */
 @Transactional
-public class DelegationDefinitionByDelegatorContractEvaluatorTest extends AbstractIntegrationTest {
+public class DelegationDefinitionByDelegatorContractEvaluatorTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired
 	private IdmIdentityService identityService;

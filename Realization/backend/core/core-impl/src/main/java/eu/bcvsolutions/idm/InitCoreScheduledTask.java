@@ -3,22 +3,22 @@ package eu.bcvsolutions.idm;
 import java.io.InputStream;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.scheduler.config.AbstractScheduledTaskInitializer;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitScheduledTaskProcessor;
+import eu.bcvsolutions.idm.core.scheduler.config.BaseScheduledTaskInitializer;
 
 /**
- * Implementation of {@link AbstractScheduledTaskInitializer} for initial core
+ * Implementation of {@link BaseScheduledTaskInitializer} for initial core
  * long running task.
  * 
+ * @see InitScheduledTaskProcessor
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
 @Component
-@DependsOn("initApplicationData")
 @ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
-public class InitCoreScheduledTask extends AbstractScheduledTaskInitializer {
+public class InitCoreScheduledTask extends BaseScheduledTaskInitializer {
 
 	private static final String CORE_SCHEDULED_TASK_XML = "CoreScheduledTasks.xml";
 	

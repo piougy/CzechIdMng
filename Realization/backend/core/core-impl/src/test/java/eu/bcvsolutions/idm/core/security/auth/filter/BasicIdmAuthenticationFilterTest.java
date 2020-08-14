@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.security.auth.filter;
 
-import static eu.bcvsolutions.idm.InitTestData.TEST_ADMIN_PASSWORD;
-import static eu.bcvsolutions.idm.InitTestData.TEST_ADMIN_USERNAME;
+import static eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor.TEST_ADMIN_PASSWORD;
+import static eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor.TEST_ADMIN_USERNAME;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

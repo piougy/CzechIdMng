@@ -24,11 +24,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
@@ -181,7 +181,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	private Authentication getAuthentication() {
 		
 		return new IdmJwtAuthentication(
-				identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME), 
+				identityService.getByUsername(InitTestDataProcessor.TEST_ADMIN_USERNAME), 
 				null, 
 				Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), 
 				"test");

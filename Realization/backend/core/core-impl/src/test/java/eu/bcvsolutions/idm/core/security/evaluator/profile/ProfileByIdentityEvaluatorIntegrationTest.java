@@ -18,16 +18,16 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmProfile;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.evaluator.identity.SelfIdentityEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
- * Permission to profile
+ * Permission to profile.
  * 
  * @author Radek Tomiška
  *
  */
 @Transactional
-public class ProfileByIdentityEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class ProfileByIdentityEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private IdmProfileService service;
 	

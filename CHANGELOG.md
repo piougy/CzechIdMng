@@ -6,10 +6,24 @@ All notable changes to this project will be documented in this file.
 ### Administrator
 - [#2413](https://redmine.czechidm.com/issues/2413) - New caches were registered:
   - ``core:token-cache`` - Cache stores logged user tokens. Cache is evicted automatically after token is changed. Cache expiration is 1 minute  - token expiration id prolonged automatically in one minute window, when token used.. **Memory usage per logged user is 25KB**.
+- [#812](https://redmine.czechidm.com/issues/812) - Init application data was refactored:
+  - default CzechIdM roles (e.g. ``superAdminRole``, ``userRole``) and other init data (e.g. default password policies) are created and updated after new version is installed, read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data).
+  - to disable updating (and creating) product provided init data set property ``idm.sec.core.init.data.enabled=false``.
+  - default administrator identity (with ``admin`` username) is created, only if no other identity with admin role (``superAdminRole`` by default configuration) exists.
+  - **``ProvisioningQueueTaskExecutor`` is not scheduled by default** - asynchronous system feature is not used and will be deprecated.
+  - **All HR processes ``HrEnableContractProcess``, ``HrEndContractProcess ``, ``HrContractExclusionProcess `` are scheduled by default now** - read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data#scheduled_tasks).
+
 
 ### Developer
 
 - [#2386](https://redmine.czechidm.com/issues/2386) - All additional methods defined in ``SysSystemAttributeMappingRepository`` are deprecated now - new properties was added into system attribute mapping filter and predicates are implemented in ``DefaultSysSystemAttributeMappingService#toPredicates`` method. Filter properties (builders) can be registered in custom module now.
+- [#812](https://redmine.czechidm.com/issues/812) - Init application data was refactored:
+  - default CzechIdM roles (e.g. ``superAdminRole``, ``userRole``) and other init data (e.g. default password policies) are created and updated after new version is installed, **read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data)**.
+  - Default user role (``userRole``) is configured for test usage now. Use new ``AbstractEvaluatorIntegrationTest`` superclass for authorization policies test, where default role should be disabled.
+  - **Role type enumeration is used now for product provided default roles**. It was used before for ``superAdminRole`` only - now is used for all product provided default roles and is used for update role authorization policies, when new CzechIdM version is installed, read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data).
+  - Components ``InitTestData``, ``InitDemoData`` are deprecated and they are not initialized during application starts. ``InitApplicationData`` publish ``INIT`` event type for main IdM module (``app``) only. Avoid ``InitApplicationData`` dependency in you module. Use [processors](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data) to create init, test or demo data in you custom module.
+  - Scheduled task initiation was moved into [processors](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data) with defined order and new **superclass ``BaseScheduledTaskInitializer`` was added - use this class in your module** for schedule default tasks and create new processor. ``AbstractScheduledTaskInitializer`` is deprecated now.
+  - Constant ``InitApplicationData#ADMIN_ROLE`` is deprecated, prevent to use it in your module. Admin role can be changed by configuration property ``idm.sec.core.role.admin=superAdminRole``.
 
 ## [10.4.2]
 

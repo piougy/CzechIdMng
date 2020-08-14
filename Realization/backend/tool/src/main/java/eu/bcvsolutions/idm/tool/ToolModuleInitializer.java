@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component;
  * Initialize Tool module
  *
  * @author BCV solutions s.r.o.
- *
+ * @deprecated @since 10.5.0 - unused since created
  */
+@Deprecated
 @Component
 @DependsOn("initApplicationData")
 public class ToolModuleInitializer implements ApplicationListener<ContextRefreshedEvent> {

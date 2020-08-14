@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,14 +16,18 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.SimplePluginRegistry;
 
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
+import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
+import eu.bcvsolutions.idm.core.api.event.ModuleDescriptorEvent;
+import eu.bcvsolutions.idm.core.api.event.ModuleDescriptorEvent.ModuleDescriptorEventType;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
-import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
+import eu.bcvsolutions.idm.core.model.event.processor.module.ModuleDisableProcessor;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
@@ -49,9 +53,8 @@ public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 		ALL_RESULT_CODES.add(Arrays.asList(CoreResultCode.values()));
 	}
 
-	@Mock
-	private ConfigurationService configurationService;
-
+	@Mock private ConfigurationService configurationService;
+	//
 	private DefaultModuleService defaultModuleService;
 
 	@Before
@@ -84,7 +87,11 @@ public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 
 	@Test(expected = ModuleNotDisableableException.class)
 	public void testIsDisableable() {
-		defaultModuleService.disable(ModuleDescriptorOne.MODULE_ID);
+		ModuleDisableProcessor disableProcessor = new ModuleDisableProcessor();
+		ModuleDescriptorDto moduleDescriptor = new ModuleDescriptorDto(ModuleDescriptorOne.MODULE_ID);
+		moduleDescriptor.setDisableable(false);
+		//
+		disableProcessor.process(new ModuleDescriptorEvent(ModuleDescriptorEventType.DISABLE, moduleDescriptor));
 	}
 
 	@Test

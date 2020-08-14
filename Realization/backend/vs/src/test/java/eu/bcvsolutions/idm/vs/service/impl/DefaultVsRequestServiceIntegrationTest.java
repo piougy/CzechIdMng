@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
@@ -34,6 +33,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -123,6 +123,8 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 	private IcConnectorFacade connectorFacade;
 	@Autowired
 	private IdmNotificationLogService notificationLogService;
+	@Autowired
+	private RoleConfiguration roleConfiguration;
 
 	@Before
 	public void init() {
@@ -927,9 +929,13 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		IdmRoleDto roleOne = helper.createRole(roleOneName);
 
 		// Create policy for vs evaluator and user role
-		helper.createAuthorizationPolicy(this.createDefaultRole().getId(),
-				VirtualSystemGroupPermission.VSREQUEST, VsRequest.class, VsRequestByImplementerEvaluator.class,
-				IdmBasePermission.ADMIN);
+		helper.createAuthorizationPolicy(
+				roleConfiguration.getDefaultRoleId(),
+				VirtualSystemGroupPermission.VSREQUEST, 
+				VsRequest.class, 
+				VsRequestByImplementerEvaluator.class,
+				IdmBasePermission.ADMIN
+		);
 
 		// Assign system to role
 		helper.createRoleSystem(roleOne, system);
@@ -964,21 +970,6 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		if (roleService.getByCode(roleOneName) != null) {
 			roleService.delete(roleService.getByCode(roleOneName));
 		}
-	}
-
-	/**
-	 * Method check  if exists role with name/code defined in {@link InitDemoData#DEFAULT_ROLE_NAME}
-	 * @return
-	 */
-	public IdmRoleDto createDefaultRole() {
-		IdmRoleDto defaultRole = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
-		if (defaultRole != null) {
-			return defaultRole;
-		}
-		//
-		defaultRole = new IdmRoleDto();
-		defaultRole.setCode(InitDemoData.DEFAULT_ROLE_NAME);
-		return roleService.save(defaultRole);
 	}
 
 }

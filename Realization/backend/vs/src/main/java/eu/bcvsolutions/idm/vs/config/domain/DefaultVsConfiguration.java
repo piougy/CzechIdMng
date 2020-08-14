@@ -44,4 +44,30 @@ public class DefaultVsConfiguration
 		}
 		return role;
 	}
+	
+	@Override
+	public String getImplementerRoleCode() {
+		String roleCode = getConfigurationService().getValue(PROPERTY_IMPLEMENTER_ROLE, DEFAULT_IMPLEMENTER_ROLE);
+		if (StringUtils.isBlank(roleCode)) {
+			LOG.debug("Implementer role is not configured, returning null. Change configuration [{}]", PROPERTY_IMPLEMENTER_ROLE);
+			return null;
+		}
+		//
+		return roleCode;
+	}
+	
+	@Override
+	public IdmRoleDto getImplementerRole() {
+		String roleCode = getImplementerRoleCode();
+		if (roleCode == null) {
+			return null;
+		}
+		// lookup - uuid or code could be given
+		IdmRoleDto role = (IdmRoleDto) lookupService.lookupDto(IdmRoleDto.class, roleCode);
+		if (role == null) {
+			LOG.warn("Implementer role with code [{}] not found, returning null. Change configuration [{}]", roleCode, PROPERTY_IMPLEMENTER_ROLE);
+			return null;
+		}
+		return role;
+	}
 }

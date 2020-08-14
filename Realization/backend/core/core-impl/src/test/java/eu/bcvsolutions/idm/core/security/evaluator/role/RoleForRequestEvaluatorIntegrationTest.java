@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Role - can be requested flag tests (security)
@@ -43,7 +43,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  */
 @Transactional
-public class RoleForRequestEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class RoleForRequestEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	private final String TEST_PWD = "aaaAAAa12345789000*bcv";
 	//

@@ -12,8 +12,8 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -31,9 +31,9 @@ public class OptimisticLockIntegrationTest extends AbstractIntegrationTest {
 	@Transactional
 	@Test(expected = ObjectOptimisticLockingFailureException.class)
 	public void testOptimisticLockException() {		
-		IdmIdentity identityOne = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identityOne = identityRepository.findOneByUsername(InitTestDataProcessor.TEST_USER_1);
 		entityManager.detach(identityOne);
-		IdmIdentity identityTwo = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identityTwo = identityRepository.findOneByUsername(InitTestDataProcessor.TEST_USER_1);
 		entityManager.detach(identityTwo);
 		assertNull(identityOne.getTitleAfter());
 		assertNull(identityOne.getTitleBefore());

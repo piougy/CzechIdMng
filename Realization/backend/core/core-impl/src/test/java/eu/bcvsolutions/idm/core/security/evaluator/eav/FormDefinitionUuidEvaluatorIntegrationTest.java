@@ -14,8 +14,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.evaluator.eav.FormDefinitionUuidEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Share definition by uuid
@@ -23,7 +22,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-public class FormDefinitionUuidEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class FormDefinitionUuidEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private FormService formService;
 	

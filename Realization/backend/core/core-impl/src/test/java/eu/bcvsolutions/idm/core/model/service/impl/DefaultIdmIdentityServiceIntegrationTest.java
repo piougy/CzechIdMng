@@ -24,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitDemoData;
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
@@ -62,6 +60,8 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractEnableProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractEndProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitDemoDataProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -104,7 +104,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		String username = identity.getUsername();
 		// eav
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PASSWORD));
 		value1.setValue("one");
 		formService.saveValues(identity.getId(), IdmIdentity.class, formDefinition, Lists.newArrayList(value1));
 		// role with guarantee
@@ -113,7 +113,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		// contract
 		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
 		// contract guarantee
-		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identityService.getByUsername(InitTestData.TEST_USER_1));
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identityService.getByUsername(InitTestDataProcessor.TEST_USER_1));
 		
 		contractGuaranteeService.save(new IdmContractGuaranteeDto(contract2.getId(), identity.getId()));
 		// assigned role

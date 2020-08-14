@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationClass;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -66,7 +67,7 @@ public interface FormService extends ScriptEnabled {
 	 * 
 	 * @since 10.4.2
 	 */
-	String FORM_DEFINITION_CACHE_NAME = "core:form-definition-cache"; // TODO: move core module descriptor to api
+	String FORM_DEFINITION_CACHE_NAME = String.format("%s:form-definition-cache", CoreModule.MODULE_ID);
 	
 	/**
 	 * Returns true, when given owner type support eav forms. If {@link AbstractDto} owner type is given, 

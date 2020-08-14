@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Tests for {@link DefaultJwtAuthenticationService}.
@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class DefaultJwtAuthenticationServiceTest extends AbstractIntegrationTest {
+public class DefaultJwtAuthenticationServiceTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private SecurityService securityService;
 	@Autowired private DefaultJwtAuthenticationService jwtAuthenticationService;

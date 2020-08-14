@@ -348,7 +348,7 @@ public class DefaultFormService implements FormService {
 		UUID definitionId = formDefinition.getId();
 		//
 		// and their attributes
-		if (formAttributes != null) {
+		if (CollectionUtils.isNotEmpty(formAttributes)) {
 			Short seq = 0;
 			for (IdmFormAttributeDto formAttribute : formAttributes) {
 				// default attribute order

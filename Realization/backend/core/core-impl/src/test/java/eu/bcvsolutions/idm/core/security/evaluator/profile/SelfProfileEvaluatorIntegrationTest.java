@@ -15,21 +15,21 @@ import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmProfile;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
- * Permission to profile
+ * Permission to profile.
  * 
  * @author Radek Tomiška
  *
  */
 @Transactional
-public class SelfProfileEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class SelfProfileEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private IdmProfileService service;
 	
 	@Test
-	public void testPolicy() {
+	public void testPolicy() {		
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityDto identityOther = getHelper().createIdentity();
 		IdmRoleDto role = getHelper().createRole();
@@ -41,7 +41,7 @@ public class SelfProfileEvaluatorIntegrationTest extends AbstractIntegrationTest
 		//
 		// check created identity doesn't have compositions
 		try {			
-			getHelper().login(identity.getUsername(), identity.getPassword());
+			getHelper().login(identity);
 			profiles = service.find(null, IdmBasePermission.READ).getContent();
 			Assert.assertTrue(profiles.isEmpty());	
 		} finally {
@@ -55,9 +55,9 @@ public class SelfProfileEvaluatorIntegrationTest extends AbstractIntegrationTest
 				IdmProfile.class,
 				SelfProfileEvaluator.class,
 				IdmBasePermission.READ);
-		//
+		//		
 		try {
-			getHelper().login(identity.getUsername(), identity.getPassword());
+			getHelper().login(identity);
 			//
 			// evaluate	access
 			profiles = service.find(null, IdmBasePermission.READ).getContent();

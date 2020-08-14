@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  *
  */
 @Transactional
-public class CountPermissionIntegrationTest extends AbstractIntegrationTest {
+public class CountPermissionIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmIdentityService service;

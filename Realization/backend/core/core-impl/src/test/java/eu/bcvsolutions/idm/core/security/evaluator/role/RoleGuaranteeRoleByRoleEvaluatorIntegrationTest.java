@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuaranteeRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Permission to role guarantee relations by relation's role
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class RoleGuaranteeRoleByRoleEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class RoleGuaranteeRoleByRoleEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private IdmRoleGuaranteeRoleService service;
 	@Autowired private IdmRoleService roleService;

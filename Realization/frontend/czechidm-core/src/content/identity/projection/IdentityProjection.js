@@ -23,6 +23,9 @@ class IdentityProjection extends AbstractIdentityProjection {
 
 }
 
+/**
+ * Lookout: this boiler plate is needed to copy, when AbstractIdentityProjection superclass is used => redux connection.
+ */
 function select(state, component) {
   const { entityId } = component.match.params;
   const profileUiKey = identityManager.resolveProfileUiKey(entityId);

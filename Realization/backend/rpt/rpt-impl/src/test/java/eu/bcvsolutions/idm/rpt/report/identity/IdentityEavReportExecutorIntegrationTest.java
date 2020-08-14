@@ -12,14 +12,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
@@ -38,8 +36,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.eav.IdentityFormValueEvaluator;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
@@ -47,7 +43,7 @@ import eu.bcvsolutions.idm.rpt.dto.RptIdentityWithFormValueDto;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * Report test
+ * Report test.
  *
  * @author Marek Klement
  * @author Radek Tomiška
@@ -55,27 +51,17 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 @Transactional
 public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private IdentityEavReportExecutor reportExecutor;
-	@Autowired
-	private IdentityEavReportXlsxRenderer xlsxRenderer;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private AttachmentManager attachmentManager;
-	@Autowired
-	private LoginService loginService;
-	@Autowired
-	private FormService formService;
-	@Qualifier("objectMapper")
-	@Autowired
-	private ObjectMapper mapper;
+	@Autowired private IdentityEavReportExecutor reportExecutor;
+	@Autowired private IdentityEavReportXlsxRenderer xlsxRenderer;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private AttachmentManager attachmentManager;
+	@Autowired private FormService formService;
+	@Autowired private ObjectMapper mapper;
 
 	@Before
 	public void before() {
 		// report checks authorization policies - we need to log in
-		loginService.login(new LoginDto(InitTestData.TEST_ADMIN_USERNAME,
-				new GuardedString(InitTestData.TEST_ADMIN_PASSWORD)));
+		getHelper().loginAdmin();
 	}
 
 	@After
@@ -207,12 +193,9 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 	@Test
 	public void testAuthorizationPolicies() throws IOException {
 		try {
-			//
-			GuardedString pwdOne = new GuardedString("check");
-			GuardedString pwdTwo = new GuardedString("check2");
 			// prepare test identities
-			IdmIdentityDto identityOne = getHelper().createIdentity(pwdOne);
-			IdmIdentityDto identityTwo = getHelper().createIdentity(pwdTwo);
+			IdmIdentityDto identityOne = getHelper().createIdentity();
+			IdmIdentityDto identityTwo = getHelper().createIdentity();
 			//
 			// assign role with no policy
 			IdmRoleDto role = getHelper().createRole();
@@ -266,8 +249,8 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 					code,
 					Lists.newArrayList(values));
 
-			loginService.logout();
-			loginService.login(new LoginDto(identityOne.getUsername(), pwdOne));
+			logout();
+			getHelper().login(identityOne);
 
 			// generate report
 			report = reportExecutor.generate(report);
@@ -282,7 +265,7 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 			// test
 			assertEquals(0, identities.size());
 
-			loginService.logout();
+			logout();
 			
 			getHelper().createBasePolicy(
 					roleRead.getId(), 
@@ -296,7 +279,7 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 					IdentityFormValueEvaluator.class,
 					IdmBasePermission.READ);
 			
-			loginService.login(new LoginDto(identityTwo.getUsername(), pwdTwo));
+			getHelper().login(identityTwo);
 
 			report = reportExecutor.generate(report);
 
@@ -311,7 +294,7 @@ public class IdentityEavReportExecutorIntegrationTest extends AbstractIntegratio
 			assertEquals(1, identitiesAgain.size());
 			attachmentManager.deleteAttachments(report);
 		} finally {
-			loginService.logout();
+			logout();
 		}
 
 	}

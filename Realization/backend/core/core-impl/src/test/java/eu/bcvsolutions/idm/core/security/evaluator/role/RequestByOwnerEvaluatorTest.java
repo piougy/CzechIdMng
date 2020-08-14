@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Request by owner target DTO
@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class RequestByOwnerEvaluatorTest extends AbstractIntegrationTest {
+public class RequestByOwnerEvaluatorTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired
 	private RequestManager requestManager;

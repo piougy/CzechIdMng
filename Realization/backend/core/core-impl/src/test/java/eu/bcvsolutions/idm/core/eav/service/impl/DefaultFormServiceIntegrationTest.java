@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
@@ -91,6 +90,7 @@ import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue;
 import eu.bcvsolutions.idm.core.model.entity.eav.IdmRoleFormValue_;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitDemoDataProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -247,7 +247,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(formDefinition);
 		Assert.assertEquals(IdmFormDefinitionService.DEFAULT_DEFINITION_CODE, formDefinition.getCode());
 		Assert.assertEquals(IdmFormDefinitionService.DEFAULT_DEFINITION_CODE, formDefinition.getName());
-		Assert.assertEquals(PersistentType.TEXT, formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE).getPersistentType());
+		Assert.assertEquals(PersistentType.TEXT, formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PHONE).getPersistentType());
 	}
 
 	@Test
@@ -378,14 +378,14 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		Identifiable owner = getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		// save value into default owner and default form definition
-		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE));
+		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PHONE));
 		value1.setValue(FORM_VALUE_ONE);
 
 		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1));
 
 		IdmFormInstanceDto savedValues = formService.getFormInstance(owner);
 		assertEquals(1, savedValues.getValues().size());
-		assertEquals(FORM_VALUE_ONE, savedValues.toSinglePersistentValue(InitDemoData.FORM_ATTRIBUTE_PHONE));
+		assertEquals(FORM_VALUE_ONE, savedValues.toSinglePersistentValue(InitDemoDataProcessor.FORM_ATTRIBUTE_PHONE));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -393,16 +393,16 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		Identifiable owner = getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		// save value into default owner and default form definition
-		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW));
+		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_WWW));
 		value1.setValue(FORM_VALUE_ONE);
-		IdmFormValueDto value2 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW));
+		IdmFormValueDto value2 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_WWW));
 		value2.setValue(FORM_VALUE_TWO);
 
 		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1, value2));
 
 		IdmFormInstanceDto savedValues = formService.getFormInstance(owner);
 		assertEquals(2, savedValues.getValues().size());
-		savedValues.toSinglePersistentValue(InitDemoData.FORM_ATTRIBUTE_WWW);
+		savedValues.toSinglePersistentValue(InitDemoDataProcessor.FORM_ATTRIBUTE_WWW);
 	}
 
 	@Test
@@ -410,14 +410,14 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		Identifiable owner = getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 		// save password
-		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PASSWORD));
 		value1.setValue(FORM_VALUE_ONE);
 
 		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1));
 
 		IdmFormInstanceDto savedValues = formService.getFormInstance(owner);
 		assertEquals(1, savedValues.getValues().size());
-		assertEquals(GuardedString.SECRED_PROXY_STRING, savedValues.toSinglePersistentValue(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		assertEquals(GuardedString.SECRED_PROXY_STRING, savedValues.toSinglePersistentValue(InitDemoDataProcessor.FORM_ATTRIBUTE_PASSWORD));
 	}
 
 	@Test(expected = ResultCodeException.class)
@@ -426,7 +426,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
 
 		// save password
-		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PASSWORD));
 		value1.setValue(FORM_VALUE_ONE);
 
 		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1));
@@ -441,7 +441,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	public void testSaveSingleAttributeValues() {
 		Identifiable owner = getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PHONE);
 		// save value
 		List<IdmFormValueDto> attributeValues = formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
 
@@ -458,7 +458,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	public void testSaveMultipleAttributeValuesToSingleAttribute() {
 		Identifiable owner = getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PHONE);
 		// save value
 		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
 	}
@@ -467,8 +467,8 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	public void testDeleteSingleAttributeValues() {
 		Identifiable owner = getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
-		IdmFormAttributeDto attributeWWW = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW);
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttributeDto attributeWWW = formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_WWW);
 		// save value
 		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
 		formService.saveValues(owner, attributeWWW, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
@@ -476,7 +476,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		List<IdmFormValueDto> attributeValues = formService.getValues(owner, attribute);
 		assertEquals(1, attributeValues.size());
 		assertEquals(FORM_VALUE_ONE, attributeValues.get(0).getValue());
-		List<IdmFormValueDto> attributeWWWValues = formService.getValues(owner, formDefinition, InitDemoData.FORM_ATTRIBUTE_WWW);
+		List<IdmFormValueDto> attributeWWWValues = formService.getValues(owner, formDefinition, InitDemoDataProcessor.FORM_ATTRIBUTE_WWW);
 		assertEquals(2, attributeWWWValues.size());
 		assertEquals(FORM_VALUE_ONE, attributeWWWValues.get(0).getValue());
 		//
@@ -493,15 +493,15 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	public void testEditMultipleAttributeValues() {
 		Identifiable owner = getHelper().createIdentity((GuardedString) null);
 		// save value
-		formService.saveValues(owner, InitDemoData.FORM_ATTRIBUTE_WWW, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
+		formService.saveValues(owner, InitDemoDataProcessor.FORM_ATTRIBUTE_WWW, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
 		//
-		List<IdmFormValueDto> attributeWWWValues = formService.getValues(owner, InitDemoData.FORM_ATTRIBUTE_WWW);
+		List<IdmFormValueDto> attributeWWWValues = formService.getValues(owner, InitDemoDataProcessor.FORM_ATTRIBUTE_WWW);
 		assertEquals(2, attributeWWWValues.size());
 		assertEquals(FORM_VALUE_ONE, attributeWWWValues.get(0).getValue());
 		// update
-		formService.saveValues(owner, InitDemoData.FORM_ATTRIBUTE_WWW, Lists.newArrayList(FORM_VALUE_TWO));
+		formService.saveValues(owner, InitDemoDataProcessor.FORM_ATTRIBUTE_WWW, Lists.newArrayList(FORM_VALUE_TWO));
 		//
-		attributeWWWValues = formService.getValues(owner, InitDemoData.FORM_ATTRIBUTE_WWW);
+		attributeWWWValues = formService.getValues(owner, InitDemoDataProcessor.FORM_ATTRIBUTE_WWW);
 		assertEquals(1, attributeWWWValues.size());
 		assertEquals(FORM_VALUE_TWO, attributeWWWValues.get(0).getValue());
 	}
@@ -512,7 +512,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		Identifiable ownerTwo = getHelper().createIdentity((GuardedString) null);
 		Identifiable ownerThree = getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(owner.getClass());
-		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_WWW);
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_WWW);
 		// save values
 		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
 		formService.saveValues(ownerTwo, attribute, Lists.newArrayList(FORM_VALUE_THREE, FORM_VALUE_TWO));
@@ -536,7 +536,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityDto ownerTwo = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityDto ownerThree = getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PHONE);
 		// save values
 		formService.saveValues(owner.getId(), IdmIdentity.class, attribute, Lists.newArrayList(FORM_VALUE_ONE));
 		formService.saveValues(ownerTwo.getId(), IdmIdentity.class, attribute, Lists.newArrayList(FORM_VALUE_TWO));
@@ -604,19 +604,19 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		Identifiable ownerTwo = getHelper().createIdentity((GuardedString) null);
 
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(owner.getClass());
-		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_DATETIME);
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_DATETIME);
 		// save values
 		ZonedDateTime now = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		ZonedDateTime tomorrow =  now.plusDays(1).truncatedTo(ChronoUnit.MILLIS);
 		formService.saveValues(owner, attribute, Lists.newArrayList(now));
 		formService.saveValues(ownerTwo, attribute, Lists.newArrayList(tomorrow));
 		//
-		Page<? extends Identifiable> owners = formService.findOwners(owner.getClass(), InitDemoData.FORM_ATTRIBUTE_DATETIME, now, null);
+		Page<? extends Identifiable> owners = formService.findOwners(owner.getClass(), InitDemoDataProcessor.FORM_ATTRIBUTE_DATETIME, now, null);
 		//
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(owner.getId(), owners.getContent().get(0).getId());
 		//
-		owners = formService.findOwners(owner.getClass(), InitDemoData.FORM_ATTRIBUTE_DATETIME, tomorrow, null);
+		owners = formService.findOwners(owner.getClass(), InitDemoDataProcessor.FORM_ATTRIBUTE_DATETIME, tomorrow, null);
 		//
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(ownerTwo.getId(), owners.getContent().get(0).getId());
@@ -631,19 +631,19 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityDto ownerTwo = getHelper().createIdentity((GuardedString) null);
 
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(owner.getClass());
-		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_UUID);
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_UUID);
 		// save values
 		UUID one = UUID.randomUUID();
 		UUID two = UUID.randomUUID();
 		formService.saveValues(owner, attribute, Lists.newArrayList(one));
 		formService.saveValues(ownerTwo, attribute, Lists.newArrayList(two));
 		//
-		Page<? extends Identifiable> owners = formService.findOwners(owner.getClass(), InitDemoData.FORM_ATTRIBUTE_UUID, one, null);
+		Page<? extends Identifiable> owners = formService.findOwners(owner.getClass(), InitDemoDataProcessor.FORM_ATTRIBUTE_UUID, one, null);
 		//
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(owner.getId(), owners.getContent().get(0).getId());
 		//
-		owners = formService.findOwners(owner.getClass(), InitDemoData.FORM_ATTRIBUTE_UUID, two, null);
+		owners = formService.findOwners(owner.getClass(), InitDemoDataProcessor.FORM_ATTRIBUTE_UUID, two, null);
 		//
 		assertEquals(1, owners.getTotalElements());
 		assertEquals(ownerTwo.getId(), owners.getContent().get(0).getId());
@@ -693,7 +693,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testFindAttribute() {
-		IdmFormAttributeDto attribute = formService.getAttribute(IdmIdentity.class, InitDemoData.FORM_ATTRIBUTE_DATETIME);
+		IdmFormAttributeDto attribute = formService.getAttribute(IdmIdentity.class, InitDemoDataProcessor.FORM_ATTRIBUTE_DATETIME);
 		//
 		assertNotNull(attribute);
 		assertEquals(PersistentType.DATETIME, attribute.getPersistentType());
@@ -766,7 +766,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 	public void testSaveValuesByOwnerId() {
 		Identifiable owner =getHelper().createIdentity((GuardedString) null);
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttributeDto attribute = formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PHONE);
 		// save value
 		List<IdmFormValueDto> attributeValues = formService.saveValues(
 				(UUID) owner.getId(), owner.getClass(), attribute, Lists.newArrayList(FORM_VALUE_ONE));

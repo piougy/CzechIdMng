@@ -21,11 +21,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.evaluator.CodeableEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.role.AuthorizationPolicyByRoleEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Test for RoleAccountEvaluator
@@ -33,11 +31,10 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Kučera
  *
  */
-public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 	
 	@Autowired private TestHelper helper;
 	@Autowired private IdmRoleService roleService;
-	@Autowired private LoginService loginService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 	@Autowired private IdmIdentityService identityService;
 	
@@ -47,7 +44,7 @@ public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrati
 	public void testRoleWithoutEvaluator() {
 		IdmIdentityDto identity = createIdentityWithRole(false);
 		try {
-			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+			getHelper().login(identity);
 			IdmRoleDto role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
 			
 			assertEquals(TEST_ROLE_ID, role.getId());
@@ -62,7 +59,7 @@ public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrati
 	public void testReadRoleWithEvaluator() {
 		IdmIdentityDto identity = createIdentityWithRole(true);
 		try {			
-			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+			getHelper().login(identity);
 			IdmRoleDto role = roleService.get(TEST_ROLE_ID, IdmBasePermission.READ);
 			
 			assertEquals(TEST_ROLE_ID, role.getId());
@@ -74,7 +71,6 @@ public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrati
 	}
 
 	private IdmIdentityDto createIdentityWithRole(boolean transitive) {
-		loginAsAdmin();
 		IdmRoleDto role = helper.createRole();
 		TEST_ROLE_ID = role.getId();
 		// self policy
@@ -110,7 +106,6 @@ public class RoleAccountByRoleEvaluatorIntegrationTest extends AbstractIntegrati
 		identity = identityService.save(identity);
 		// assign role
 		helper.createIdentityRole(identity, role);
-		logout();
 		//
 		// password is transient, some test except password back in identity
 		identity.setPassword(password);

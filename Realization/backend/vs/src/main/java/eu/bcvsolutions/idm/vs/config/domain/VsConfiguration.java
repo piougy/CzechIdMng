@@ -15,9 +15,15 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
  */
 public interface VsConfiguration extends Configurable {
 
-	public static final String PROPERTY_DEFAULT_ROLE = 
-			ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "vs.role.default";
-	public static final String DEFAULT_ROLE = "superAdminRole";
+	String PROPERTY_DEFAULT_ROLE = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "vs.role.default";
+	String DEFAULT_ROLE = "superAdminRole";
+	/**
+	 * Implementer  role - product provided role for implementers (approve vs request etc.).
+	 * 
+	 * @since 10.5.0
+	 */
+	String PROPERTY_IMPLEMENTER_ROLE = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "vs.role.implementer";
+	String DEFAULT_IMPLEMENTER_ROLE = "virtualSystemImplementerRole";
 	
 	@Override
 	default String getConfigurableType() {
@@ -39,4 +45,20 @@ public interface VsConfiguration extends Configurable {
 	 */
 	IdmRoleDto getDefaultRole();
 	
+	
+	/**
+	 * Implementer role code from configuration.
+	 * 
+	 * @return full role code
+	 * @since 10.5.0
+	 */
+	String getImplementerRoleCode();
+	
+	/**
+	 * Implementer  role - product provided role for implementers (approve vs request etc.).
+	 * 
+	 * @return configured role
+	 * @since 10.5.0
+	 */
+	IdmRoleDto getImplementerRole();
 }

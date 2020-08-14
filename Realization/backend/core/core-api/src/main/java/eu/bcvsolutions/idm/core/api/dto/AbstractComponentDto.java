@@ -21,6 +21,13 @@ public class AbstractComponentDto implements BaseDto {
 	private String description; // component description
 	private boolean disabled; // component is disabled
 	
+	public AbstractComponentDto() {
+	}
+	
+	public AbstractComponentDto(Serializable id) {
+		this.id = id == null ? null : id.toString();
+	}
+	
 	@Override
 	public String getId() {
 		return id;

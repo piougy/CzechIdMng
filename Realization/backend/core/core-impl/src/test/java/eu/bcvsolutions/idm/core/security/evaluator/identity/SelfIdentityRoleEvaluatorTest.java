@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Tests for {@link SelfIdentityRoleEvaluator}
@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class SelfIdentityRoleEvaluatorTest extends AbstractIntegrationTest {
+public class SelfIdentityRoleEvaluatorTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;

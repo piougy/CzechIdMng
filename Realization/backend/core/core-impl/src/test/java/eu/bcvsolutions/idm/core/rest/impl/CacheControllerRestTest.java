@@ -32,7 +32,9 @@ public class CacheControllerRestTest extends AbstractRestTest {
 	@Autowired private IdmCacheManager cacheManager;
 	
 	@Before
-    public void setup() {
+    public void setup() throws Exception {
+		super.setup();
+		//
     	cacheManager.evictAllCaches();
     }
 

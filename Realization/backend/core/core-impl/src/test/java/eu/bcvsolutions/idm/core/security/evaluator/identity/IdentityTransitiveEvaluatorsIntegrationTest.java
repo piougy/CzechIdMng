@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.collections.Lists;
 
-import eu.bcvsolutions.idm.InitDemoData;
-import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -29,6 +28,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.rest.impl.PasswordChangeController;
 import eu.bcvsolutions.idm.core.security.api.domain.ContractBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -36,20 +36,18 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
- * Test whole self identity profile read and password change
+ * Test whole self identity profile read and password change:
  * - based on default role inicialization, but default role could be inited here to
  * 
  * @author Radek Tomiška
  *
  */
 @Transactional
-public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegrationTest {
+public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmRoleService roleService;
@@ -58,14 +56,12 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 	@Autowired private PasswordChangeController passwordChangeController;
 	
 	private IdmIdentityDto prepareIdentityWithAssignedRole() {
-		loginAsAdmin();
 		// get default role
-		IdmRoleDto role = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
+		IdmRoleDto role = roleService.getByCode(RoleConfiguration.DEFAULT_DEFAULT_ROLE);
 		// prepare identity
-		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity();
 		// assign role
-		helper.createIdentityRole(identity, role);
-		logout();
+		getHelper().createIdentityRole(identity, role);
 		//
 		return identity;
 	}
@@ -243,7 +239,7 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractIntegra
 			passwordChangeDto.setIdm(true);
 			passwordChangeDto.setOldPassword(identity.getPassword());
 			passwordChangeDto.setNewPassword(new GuardedString("heslo2"));
-			passwordChangeController.passwordChange(InitTestData.TEST_ADMIN_USERNAME, passwordChangeDto);
+			passwordChangeController.passwordChange(InitTestDataProcessor.TEST_ADMIN_USERNAME, passwordChangeDto);
 		} finally {
 			logout();
 		}

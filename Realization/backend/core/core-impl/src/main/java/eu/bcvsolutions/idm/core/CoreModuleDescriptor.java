@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.PropertyModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
@@ -25,42 +26,14 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
  * Core module descriptor - required module
  * 
  * TODO: refactor to configuration
- * TODO: Split api / impl (see RptModuleDescriptor) - Core module descriptor should be in api
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-@PropertySource("classpath:module-" + CoreModuleDescriptor.MODULE_ID + ".properties")
-@ConfigurationProperties(prefix = "module." + CoreModuleDescriptor.MODULE_ID + ".build", ignoreUnknownFields = true, ignoreInvalidFields = true)
-public class CoreModuleDescriptor extends PropertyModuleDescriptor {
-
-	public static final String MODULE_ID = "core";
-	//
-	public static final String TOPIC_CHANGE_IDENTITY_ROLES = String.format("%s:changeIdentityRole", MODULE_ID);
-	public static final String TOPIC_CHANGE_IDENTITY_ROLES_IMPLEMENTER = String.format("%s:changeIdentityRoleImplementer", MODULE_ID);
-	public static final String TOPIC_REQUEST_REALIZED_APPLICANT = String.format("%s:roleRequestRealizedApplicant", MODULE_ID);
-	public static final String TOPIC_REQUEST_REALIZED_IMPLEMENTER = String.format("%s:roleRequestRealizedImplementer", MODULE_ID);
-	public static final String TOPIC_DISAPPROVE_IDENTITY_ROLES = String.format("%s:disapproveIdentityRole", MODULE_ID);
-	public static final String TOPIC_DISAPPROVE_IDENTITY_ROLES_IMPLEMENTER = String.format("%s:disapproveIdentityRoleImplementer", MODULE_ID);
-	public static final String TOPIC_RETURN_REQUEST_IDENTITY_ROLES = String.format("%s:returnRequestIdentityRole", MODULE_ID);		
-	public static final String TOPIC_RETURN_REQUEST_IDENTITY_ROLES_IMPLEMENTER = String.format("%s:returnRequestIdentityRoleImplementer", MODULE_ID);
-	public static final String TOPIC_WF_TASK_CREATED = String.format("%s:wfTaskCreated", MODULE_ID);
-	@Deprecated // @since 10.5.0 - not used in product - use TOPIC_WF_TASK_CREATED
-	public static final String TOPIC_WF_TASK_ASSIGNED = String.format("%s:wfTaskAssigned", MODULE_ID);
-	public static final String TOPIC_PASSWORD_EXPIRATION_WARNING = String.format("%s:passwordExpirationWarning", MODULE_ID);
-	public static final String TOPIC_PASSWORD_EXPIRED = String.format("%s:passwordExpired", MODULE_ID);
-	public static final String TOPIC_IDENTITY_MONITORED_CHANGED_FIELDS = String.format("%s:%s", MODULE_ID, IdentityMonitoredFieldsProcessor.TOPIC);
-	public static final String TOPIC_PASSWORD_CHANGED = String.format("%s:passwordChanged", MODULE_ID);
-	public static final String TOPIC_PASSWORD_SET = String.format("%s:passwordSet", MODULE_ID);
-	public static final String TOPIC_EVENT = String.format("%s:event", MODULE_ID);
-	public static final String TOPIC_LOGIN_BLOCKED = String.format("%s:loginBlocked", MODULE_ID);
-	public static final String TOPIC_BULK_ACTION_END = String.format("%s:bulkActionEnd", MODULE_ID);
-	public static final String TOPIC_DELEGATION_CREATED_TO_DELEGATE = String.format("%s:delegationCreatedToDelegate", MODULE_ID);
-	public static final String TOPIC_DELEGATION_CREATED_TO_DELEGATOR = String.format("%s:delegationCreatedToDelegator", MODULE_ID);
-	public static final String TOPIC_DELEGATION_DELETED_TO_DELEGATE = String.format("%s:delegationDeletedToDelegate", MODULE_ID);
-	public static final String TOPIC_DELEGATION_DELETED_TO_DELEGATOR = String.format("%s:delegationDeletedToDelegator", MODULE_ID);
-	public static final String TOPIC_DELEGATION_INSTANCE_CREATED_TO_DELEGATE = String.format("%s:delegationInstanceCreatedToDelegate", MODULE_ID);
+@PropertySource("classpath:module-" + CoreModule.MODULE_ID + ".properties")
+@ConfigurationProperties(prefix = "module." + CoreModule.MODULE_ID + ".build", ignoreUnknownFields = true, ignoreInvalidFields = true)
+public class CoreModuleDescriptor extends PropertyModuleDescriptor implements CoreModule {
 
 	@Override
 	public String getId() {
@@ -85,6 +58,7 @@ public class CoreModuleDescriptor extends PropertyModuleDescriptor {
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
 		// TODO: this doesn't make good sense now - should be moved to xml at all?
 		//

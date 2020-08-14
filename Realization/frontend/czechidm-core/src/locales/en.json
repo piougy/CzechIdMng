@@ -3920,7 +3920,7 @@
       },
       "preferredLanguage": {
         "label": "Prefered language",
-        "help": "This localization will be choosed after save and right after user log in."
+        "help": "This localization will be chosen after save and right after user log in."
       },
       "navigationCollapsed": {
         "label": "Collapse side menu",

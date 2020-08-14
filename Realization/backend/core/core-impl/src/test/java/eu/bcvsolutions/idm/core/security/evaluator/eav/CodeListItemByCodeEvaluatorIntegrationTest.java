@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.IdmCodeListItemService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmCodeListItem;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Authorization policy evaluator test.
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  */
 @Transactional
-public class CodeListItemByCodeEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class CodeListItemByCodeEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private CodeListManager codeListManager;
 	@Autowired private IdmCodeListItemService codeListItemService;

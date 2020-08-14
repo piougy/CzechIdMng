@@ -8,12 +8,13 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.scheduler.config.AbstractScheduledTaskInitializer;
 
 /**
- * Test initializer for test scheduled tasks
+ * Test initializer for test scheduled tasks.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @Component
+@SuppressWarnings("deprecation")
 @DependsOn("initApplicationData")
 public class InitTestScheduledTask extends AbstractScheduledTaskInitializer {
 

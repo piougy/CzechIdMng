@@ -26,12 +26,13 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.Lists;
-import eu.bcvsolutions.idm.InitTestData;
+
 import eu.bcvsolutions.idm.core.api.config.domain.RecaptchaConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.RecaptchaRequest;
@@ -110,7 +111,7 @@ public class DefaultRecaptchaRestTest extends AbstractRestTest {
 
 	private Authentication getAuthentication() {
 		return new IdmJwtAuthentication(
-			identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME),
+			identityService.getByUsername(InitTestDataProcessor.TEST_ADMIN_USERNAME),
 			null,
 			Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()),
 			"test");

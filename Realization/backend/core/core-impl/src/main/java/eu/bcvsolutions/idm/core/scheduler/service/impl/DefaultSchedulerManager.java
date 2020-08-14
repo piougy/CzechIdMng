@@ -564,7 +564,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 		if (StringUtils.isNotEmpty(text)) {
 			text = filter.getText().toLowerCase();
 			if (!task.getTaskType().getCanonicalName().toLowerCase().contains(text)
-					&& (task.getDescription() == null || !task.getDescription().toLowerCase().contains(text))) {
+					&& (StringUtils.isEmpty(task.getDescription()) || !task.getDescription().toLowerCase().contains(text))) {
 				return false;
 			}
 		}

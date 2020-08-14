@@ -15,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
@@ -150,7 +150,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 
 		IdmNotificationTemplateDto template = createTestTemplate();
 
-		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = identityService.getByUsername(InitTestDataProcessor.TEST_USER_1);
 
 		notificationManager.send(config.getTopic(), new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 
@@ -162,7 +162,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 	public void testFilterByDate() {
 		assertEquals(0, notificationRepository.count());
 		IdmNotificationTemplateDto template = createTestTemplate();
-		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = identityService.getByUsername(InitTestDataProcessor.TEST_USER_1);
 		NotificationConfigurationDto config = createConfig();
 		//
 		ZonedDateTime from = ZonedDateTime.now().minusDays(1);
@@ -190,14 +190,14 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 
-		filter.setSender(InitTestData.TEST_USER_2);
+		filter.setSender(InitTestDataProcessor.TEST_USER_2);
 		assertEquals(0, emailLogService.find(filter, null).getTotalElements());
-		filter.setSender(InitTestData.TEST_USER_1);
+		filter.setSender(InitTestDataProcessor.TEST_USER_1);
 		assertEquals(0, emailLogService.find(filter, null).getTotalElements());
 
 		// send some email
-		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
-		IdmIdentityDto identity2 = identityService.getByUsername(InitTestData.TEST_USER_2);
+		IdmIdentityDto identity = identityService.getByUsername(InitTestDataProcessor.TEST_USER_1);
+		IdmIdentityDto identity2 = identityService.getByUsername(InitTestDataProcessor.TEST_USER_2);
 
 		emailService.send(config.getTopic(), new IdmMessageDto.Builder().setTemplate(template).build(), identity);
 
@@ -212,7 +212,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 
 	@Test
 	public void testEmailFilterBySent() {
-		IdmIdentityDto identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		IdmIdentityDto identity = identityService.getByUsername(InitTestDataProcessor.TEST_USER_1);
 
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 		//

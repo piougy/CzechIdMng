@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component;
  * Initialize example module
  * 
  * @author Radek Tomiška
- *
+ * @deprecated @since 10.5.0 - unused since created
  */
+@Deprecated
 @Component
 @DependsOn("initApplicationData")
 public class ExampleModuleInitializer implements ApplicationListener<ContextRefreshedEvent> {

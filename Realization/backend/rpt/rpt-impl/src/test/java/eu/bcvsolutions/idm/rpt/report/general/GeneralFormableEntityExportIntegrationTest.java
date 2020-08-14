@@ -19,11 +19,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -35,8 +31,6 @@ import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.rpt.RptModuleDescriptor;
 import eu.bcvsolutions.idm.rpt.api.dto.RptRenderedReportDto;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
@@ -46,35 +40,24 @@ import eu.bcvsolutions.idm.rpt.api.service.RptReportService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
- * General formable entity export tests
+ * General formable entity export tests.
  * 
  * @author Peter
+ * @author Radek Tomiška
  */
 public class GeneralFormableEntityExportIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired
-	private BulkActionManager bulkActionManager;
-	@Autowired
-	private RptReportService reportService;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private LoginService loginService;
-	@Autowired
-	private FormService formService;
-	@Qualifier("objectMapper")
-	@Autowired
-	private ObjectMapper mapper;
-	@Autowired
-	ReportManager reportManager;
-	@Autowired
-	IdmFormAttributeService formAttributeService;
+	@Autowired private BulkActionManager bulkActionManager;
+	@Autowired private RptReportService reportService;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private FormService formService;
+	@Autowired private ReportManager reportManager;
+	@Autowired private IdmFormAttributeService formAttributeService;
 
 	@Before
 	public void before() {
 		// report checks authorization policies - we need to log in
-		loginService.login(new LoginDto(InitTestData.TEST_ADMIN_USERNAME,
-				new GuardedString(InitTestData.TEST_ADMIN_PASSWORD)));
+		getHelper().loginAdmin();
 	}
 
 	@After

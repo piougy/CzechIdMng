@@ -20,7 +20,6 @@ import com.nilhcem.fakesmtp.core.exception.BindPortException;
 import com.nilhcem.fakesmtp.core.exception.OutOfRangePortException;
 import com.nilhcem.fakesmtp.model.EmailModel;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -28,6 +27,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
 import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
@@ -157,7 +157,7 @@ public class NotificationSmtpTest extends AbstractNotificationTest {
 		identity = identityService.save(identity);
 
 		processInstanceService.startProcess(WF_NAME, null,
-				InitTestData.TEST_USER_1, null, null);
+				InitTestDataProcessor.TEST_USER_1, null, null);
 		// email is send by apache camel asynchronously
 		if (observer.getEmails().size() == currentEmails) {
 			observer.waitForMails();

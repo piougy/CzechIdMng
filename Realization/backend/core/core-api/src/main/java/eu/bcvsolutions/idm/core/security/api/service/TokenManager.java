@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
@@ -25,7 +26,7 @@ public interface TokenManager {
 	 * 
 	 * @since 10.5.0
 	 */
-	String TOKEN_CACHE_NAME = "core:token-cache"; // TODO: move core module descriptor to api
+	String TOKEN_CACHE_NAME = String.format("%s:token-cache", CoreModule.MODULE_ID);
 	
 	/**
 	 * Returns currently used token in security context

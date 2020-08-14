@@ -234,21 +234,25 @@ class RoleDetail extends Basic.AbstractContent {
                           hidden={!showEnvironment}
                           code="environment"
                           label={ this.i18n('entity.Role.environment.label') }
-                          helpBlock={ this.i18n(`entity.Role.environment.${ entity.environment ? 'helpCode' : 'help' }`,
-                            { escape: false, code: entity.code }) }
+                          helpBlock={
+                            this.i18n(
+                              `entity.Role.environment.${ entity.environment ? 'helpCode' : 'help' }`,
+                              { escape: false, code: entity.code }
+                            )
+                          }
                           max={ 255 }/>
                       </Basic.Col>
                       <Basic.Col lg={ 8 }>
+                        <Basic.EnumSelectBox
+                          ref="roleType"
+                          label={ this.i18n('entity.Role.roleType') }
+                          enum={ RoleTypeEnum }
+                          required
+                          rendered={ SecurityManager.hasAuthority('APP_ADMIN') && this.isDevelopment() }/>
                       </Basic.Col>
                     </Basic.Row>
 
-                    <Basic.EnumSelectBox
-                      ref="roleType"
-                      label={ this.i18n('entity.Role.roleType') }
-                      enum={ RoleTypeEnum }
-                      required
-                      readOnly={ !Utils.Entity.isNew(entity) }
-                      rendered={ false }/>
+
                     <Basic.EnumSelectBox
                       ref="priorityEnum"
                       label={ this.i18n('entity.Role.priorityEnum') }

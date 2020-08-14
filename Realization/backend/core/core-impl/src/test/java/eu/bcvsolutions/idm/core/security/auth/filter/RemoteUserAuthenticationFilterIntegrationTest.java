@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.security.auth.filter;
 
-import static eu.bcvsolutions.idm.InitTestData.TEST_ADMIN_USERNAME;
+import static eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor.TEST_ADMIN_USERNAME;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;

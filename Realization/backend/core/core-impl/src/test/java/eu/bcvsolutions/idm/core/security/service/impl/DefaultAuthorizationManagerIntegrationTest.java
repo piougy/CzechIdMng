@@ -41,25 +41,22 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizationEvaluatorDto;
-import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizationManager;
-import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
 import eu.bcvsolutions.idm.core.security.evaluator.UuidEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
- * Test for authorities evaluation
+ * Test for authorities evaluation.
  * 
  * @author Radek Tomiška
  *
  */
-public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrationTest {
+public class DefaultAuthorizationManagerIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private ApplicationContext context;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmAuthorizationPolicyService service;
-	@Autowired private LoginService loginService;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmIdentityContractService identityContractService;
@@ -70,6 +67,8 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 	
 	@Before
 	public void init() {		
+		super.disableDefaultRole();
+		//
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultAuthorizationManager.class);
 	}
 	
@@ -114,8 +113,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		assertFalse(manager.evaluate(role, IdmBasePermission.AUTOCOMPLETE));
 		//
 		try {
-			
-			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+			getHelper().login(identity);
 			//
 			// evaluate	access
 			assertTrue(manager.evaluate(role, IdmBasePermission.READ));
@@ -148,7 +146,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractIntegrat
 		assertEquals(0, roleService.find(filter, null, IdmBasePermission.AUTOCOMPLETE).getTotalElements());
 		//
 		try {			
-			loginService.login(new LoginDto(identity.getUsername(), identity.getPassword()));
+			getHelper().login(identity);
 			//
 			// evaluate	access
 			assertEquals(1, roleService.find(filter, null, IdmBasePermission.READ).getTotalElements());

@@ -11,14 +11,8 @@ import java.util.stream.StreamSupport;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 
-import org.apache.commons.io.FileUtils;
-import org.ehcache.core.Ehcache;
-import org.ehcache.core.EhcacheBase;
-import org.ehcache.core.spi.store.Store.ValueHolder;
 import org.ehcache.core.statistics.CacheStatistics;
 import org.ehcache.core.statistics.TierStatistics;
-import org.ehcache.impl.internal.store.heap.OnHeapStore;
-import org.ehcache.sizeof.SizeOf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;

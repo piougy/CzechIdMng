@@ -161,7 +161,7 @@ class DateTimePicker extends AbstractFormComponent {
     /* eslint-disable react/no-find-dom-node */
     const rect = ReactDOM.findDOMNode(this.refs.input).getBoundingClientRect();
     const pageHeight = document.documentElement.clientHeight;
-    const positionY = rect.y;
+    const positionY = rect.y ? rect.y : rect.top;
     const heightOfDialog = 250;
 
     // Should be dialog show above the component?

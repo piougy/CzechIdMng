@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
   - default administrator identity (with ``admin`` username) is created, only if no other identity with admin role (``superAdminRole`` by default configuration) exists.
   - **``ProvisioningQueueTaskExecutor`` is not scheduled by default** - asynchronous system feature is not used and will be deprecated.
   - **All HR processes ``HrEnableContractProcess``, ``HrEndContractProcess ``, ``HrContractExclusionProcess `` are scheduled by default now** - read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data#scheduled_tasks).
+- [#2404](https://redmine.czechidm.com/issues/2404) - **All automatic roles are assigned through asynchronous role requests now** (to preserve order of provisioning operations). When long running tasks (LRT) for processing automatic roles ends, then role requests are prepared only => roles will be assigned asynchronously and they are not available right after LRT ends.
 
 
 ### Developer
@@ -24,6 +25,7 @@ All notable changes to this project will be documented in this file.
   - Components ``InitTestData``, ``InitDemoData`` are deprecated and they are not initialized during application starts. ``InitApplicationData`` publish ``INIT`` event type for main IdM module (``app``) only. Avoid ``InitApplicationData`` dependency in you module. Use [processors](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data) to create init, test or demo data in you custom module. For example, **if your module init eav form definitions and attributes, then implement processor (see ``InitFormDefinitionProcessor``) with order (e.g. -175) before all [identities are created](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data).**
   - Scheduled task initiation was moved into [processors](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data) with defined order and new **superclass ``BaseScheduledTaskInitializer`` was added - use this class in your module** for schedule default tasks and create new processor. ``AbstractScheduledTaskInitializer`` is deprecated now.
   - Constant ``InitApplicationData#ADMIN_ROLE`` is deprecated, prevent to use it in your module. Admin role can be changed by configuration property ``idm.sec.core.role.admin=superAdminRole``.
+  - [#2404](https://redmine.czechidm.com/issues/2404) - **All automatic roles are assigned through asynchronous role requests now** (to preserve order of provisioning operations). When long running tasks (LRT) for processing automatic roles ends, then role requests are prepared only => roles will be assigned asynchronously and they are not available right after LRT ends.
 
 ## [10.4.2]
 

@@ -2941,6 +2941,22 @@
         "header": "User setting",
         "title": "User setting"
       },
+      "switch-user": {
+        "header": "Login as other user",
+        "title": "Login as other user",
+        "username": {
+          "label": "User",
+          "help": "Target user."
+        },
+        "button": {
+          "save": "Swith user",
+          "saving": "Login ...",
+          "logout": "Login back as"
+        },
+        "message": {
+          "success": "User [{{username}}] login."
+        }
+      },
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",

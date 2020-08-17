@@ -70,8 +70,12 @@ public class DefaultTokenManager implements TokenManager {
 		Assert.notNull(owner, "Owner is required.");
 		Assert.notNull(owner.getId(), "Owner identifier is required.");
 		//
-		token.setOwnerType(getOwnerType(owner));
-		token.setOwnerId(getOwnerId(owner));
+		if(token.getOwnerType() == null) {
+			token.setOwnerType(getOwnerType(owner));
+		}
+		if(token.getOwnerId() == null) {
+			token.setOwnerId(getOwnerId(owner));
+		}
 		if (token.getIssuedAt() == null) {
 			token.setIssuedAt(ZonedDateTime.now());
 		}

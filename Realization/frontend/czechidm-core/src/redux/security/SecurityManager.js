@@ -90,6 +90,45 @@ export default class SecurityManager {
     };
   }
 
+  /**
+   * Switch user
+   *
+   * @param  {string} username
+   * @return {action}
+   * @since 10.5.0
+   */
+  switchUser(username, cb = null) {
+    return (dispatch, getState) => {
+      dispatch(this.requestLogin());
+      dispatch(flashMessagesManager.hideAllMessages());
+      //
+      authenticateService.switchUser(username)
+        .then(json => {
+          this._handleUserAuthSuccess(dispatch, getState, cb, json);
+        })
+        .catch(error => dispatch(this.receiveLoginError(error, cb)));
+    };
+  }
+
+  /**
+   * Switch user logout
+   *
+   * @return {action}
+   * @since 10.5.0
+   */
+  switchUserLogout(cb = null) {
+    return (dispatch, getState) => {
+      dispatch(this.requestLogin());
+      dispatch(flashMessagesManager.hideAllMessages());
+      //
+      authenticateService.switchUserLogout()
+        .then(json => {
+          this._handleUserAuthSuccess(dispatch, getState, cb, json);
+        })
+        .catch(error => dispatch(this.receiveLoginError(error, cb)));
+    };
+  }
+
   _handleUserAuthSuccess(dispatch, getState, redirect, json) {
     const decoded = AuthenticateService.decodeToken(json.token);
     const identityId = decoded.currentIdentityId;
@@ -108,11 +147,14 @@ export default class SecurityManager {
           username: json.username,
           tokenCIDMST: json.token,
           tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
-          authorities: json.authorities.map(authority => authority.authority)
+          authorities: json.authorities.map(authority => authority.authority),
+          originalUsername: json.authentication.originalUsername
         };
         //
         // remove all messages (only logout could be fond in messages after logout)
         dispatch(flashMessagesManager.removeAllMessages());
+        // clean up previous redux state
+        dispatch(this.receiveLogout());
         //
         // init FE by saved profile on BE
         if (profile) {

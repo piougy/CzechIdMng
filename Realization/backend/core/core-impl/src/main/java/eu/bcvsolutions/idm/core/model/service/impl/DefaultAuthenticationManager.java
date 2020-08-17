@@ -193,7 +193,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			return;
 		}
 
-		
 		int currentUnsuccessfulAttempts = passwordDto.getUnsuccessfulAttempts();
 		int remainder = currentUnsuccessfulAttempts % maxUnsuccessfulAttempts;
 

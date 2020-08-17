@@ -1606,6 +1606,15 @@ module.exports = {
         order: 800
       },
       {
+        id: 'identity-menu-switch-user',
+        section: 'identity-menu',
+        labelKey: 'content.identity.switch-user.header',
+        icon: 'component:switch-user',
+        modal: 'switch-user-modal',
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ],
+        order: 810
+      },
+      {
         id: 'identity-menu-logout-separator',
         section: 'identity-menu',
         type: 'SEPARATOR',

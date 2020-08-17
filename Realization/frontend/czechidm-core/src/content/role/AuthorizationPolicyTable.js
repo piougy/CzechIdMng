@@ -651,18 +651,18 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
             <Basic.Modal.Footer>
               <Basic.Button
                 level="link"
-                onClick={this.closeDetail.bind(this)}
-                showLoading={_showLoading}>
-                {this.i18n('button.close')}
+                onClick={ this.closeDetail.bind(this) }
+                showLoading={ _showLoading }>
+                { this.i18n('button.close') }
               </Basic.Button>
               <Basic.Button
                 type="submit"
                 level="success"
-                showLoading={_showLoading}
+                showLoading={ _showLoading }
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
+                showLoadingText={ this.i18n('button.saving') }
                 rendered={ manager.canSave(detail.entity, _permissions) }>
-                {this.i18n('button.save')}
+                { this.i18n('button.save') }
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>

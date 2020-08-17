@@ -352,6 +352,10 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			accounts.add(account);
 			// find UID from system entity or from account
 			SysSystemDto system = DtoUtils.getEmbedded(account, AccAccount_.system);
+			if (account.getSystemEntity() == null) {
+				// hm ... throw exception?
+			}
+			
 			SysSystemEntityDto systemEntity = systemEntityService.get(account.getSystemEntity());
 			//
 			// Find mapped attributes (include overloaded attributes)

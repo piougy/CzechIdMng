@@ -509,8 +509,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 				public void run() {
 					// run as event creator
 					securityService.setAuthentication(new IdmJwtAuthentication(
-							new IdmIdentityDto(event.getCreatorId(), event.getCreator()), 
-							null, 
+							new IdmIdentityDto(event.getCreatorId(), event.getCreator()),
+							new IdmIdentityDto(event.getOriginalCreatorId(), event.getOriginalCreator()),
+							null,
+							ZonedDateTime.now(),
 							Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()),
 							null));
 					// run under original transaction id - asynchronous processing continue the "user" transaction

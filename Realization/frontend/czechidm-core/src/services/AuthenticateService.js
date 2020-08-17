@@ -40,6 +40,37 @@ export default class AuthenticateService {
       .then(this._handleOptionalErrorModel);
   }
 
+  /**
+   * Switch user.
+   *
+   * @param  {string} username target user
+   * @return {promise}
+   * @since 10.5.0
+   */
+  switchUser(username) {
+    return RestApiService
+      .put(`${ authPath }/switch-user?username=${ encodeURIComponent(username) }`)
+      .then(response => {
+        return response.json();
+      })
+      .then(this._handleOptionalErrorModel);
+  }
+
+  /**
+   * Switch user logout.
+   *
+   * @return {promise}
+   * @since 10.5.0
+   */
+  switchUserLogout() {
+    return RestApiService
+      .delete(`${ authPath }/switch-user`)
+      .then(response => {
+        return response.json();
+      })
+      .then(this._handleOptionalErrorModel);
+  }
+
   _handleOptionalErrorModel(jsonResponse) {
     if (Utils.Response.hasError(jsonResponse)) {
       throw Utils.Response.getFirstError(jsonResponse);

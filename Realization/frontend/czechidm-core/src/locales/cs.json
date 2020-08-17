@@ -2994,6 +2994,22 @@
         "header": "Uživatelské nastavení",
         "title": "Uživatelské nastavení"
       },
+      "switch-user": {
+        "header": "Přihlásit se jako jiný uživatel",
+        "title": "Přihlásit se jako jiný uživatel",
+        "username": {
+          "label": "Uživatel",
+          "help": "Uživatel, za kterého se chcete přihásit."
+        },
+        "button": {
+          "save": "Přepnout uživatele",
+          "saving": "Přepínám ...",
+          "logout": "Přihlásit se zpět"
+        },
+        "message": {
+          "success": "Přihlášen uživatel [{{username}}]."
+        }
+      },
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
@@ -7110,7 +7126,7 @@
     },
     "NULL_ATTRIBUTE": {
       "title": "Atribut je NULL",
-      "message": "Atribut 'null' je NULL."
+      "message": "Atribut [{{attribute}}] je NULL."
     },
     "ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED": {
       "title": "Špatná hodnota",

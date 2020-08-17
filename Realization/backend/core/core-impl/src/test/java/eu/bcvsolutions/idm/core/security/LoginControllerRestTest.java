@@ -3,12 +3,14 @@ package eu.bcvsolutions.idm.core.security;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,10 +27,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.dto.DefaultGrantedAuthorityDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.filter.IdmAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
@@ -49,6 +58,8 @@ public class LoginControllerRestTest extends AbstractRestTest {
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private LoginController loginController;
 	@Autowired private TokenManager tokenManager;
+	@Autowired private JwtAuthenticationMapper jwtTokenMapper;
+	@Autowired private IdmIdentityService identityService;
 	//
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -148,6 +159,127 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		//
 		tokenDto = tokenManager.getToken(tokenId);
 		Assert.assertTrue(tokenDto.isDisabled());
+	}
+	
+	@Test
+	public void testSwitchUser() throws Exception {
+		// login as admin		
+		Map<String, String> login = new HashMap<>();
+		login.put("username", TestHelper.ADMIN_USERNAME);
+		login.put("password", TestHelper.ADMIN_PASSWORD);
+		String response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		UUID tokenId = getTokenId(response);
+		String token = getToken(response);
+		//
+		Assert.assertNotNull(tokenId);
+		IdmTokenDto tokenDto = tokenManager.getToken(tokenId);
+		Assert.assertFalse(tokenDto.isDisabled());
+		List<DefaultGrantedAuthorityDto> dtoAuthorities = jwtTokenMapper.getDtoAuthorities(tokenDto);
+		//
+		// check token authorities - APP_ADMIN
+		Assert.assertTrue(dtoAuthorities.stream().anyMatch(a -> a.getAuthority().equals(IdmGroupPermission.APP_ADMIN)));
+		//
+		// create different identity - identity create
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(identity, role);
+		getHelper().createBasePolicy(role.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.ADMIN);
+		response = getMockMvc()
+				.perform(put(BaseController.BASE_PATH + "/authentication/switch-user?username=" + identity.getUsername())
+						.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		//
+		// preserve token id
+		UUID switchTokenId = getTokenId(response);
+		token = getToken(response);
+		Assert.assertEquals(tokenId, switchTokenId);
+		IdmTokenDto switchTokenDto = tokenManager.getToken(switchTokenId);
+		Assert.assertFalse(switchTokenDto.isDisabled());
+		dtoAuthorities = jwtTokenMapper.getDtoAuthorities(switchTokenDto);
+		//
+		// check authorities - no APP_ADMIN
+		Assert.assertTrue(dtoAuthorities.stream().allMatch(a -> !a.getAuthority().equals(IdmGroupPermission.APP_ADMIN)));
+		//
+		// check token => same owner, same id, different username in properties
+		Assert.assertEquals(tokenDto.getOwnerId(), switchTokenDto.getOwnerId());
+		Assert.assertEquals(identity.getUsername(), switchTokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_CURRENT_USERNAME));
+		Assert.assertEquals(TestHelper.ADMIN_USERNAME, switchTokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME));
+		//
+		// test create identity with switched token + check audit fields
+		IdmIdentityDto createIdentity = new IdmIdentityDto(getHelper().createName());
+		getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/identities")
+						.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token)
+						.content(mapper.writeValueAsString(createIdentity))
+						.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isCreated())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+	            .andReturn()
+	            .getResponse()
+	            .getContentAsString();
+		IdmIdentityDto createdIdentity = identityService.getByUsername(createIdentity.getUsername());
+		Assert.assertEquals(TestHelper.ADMIN_USERNAME, createdIdentity.getOriginalCreator());
+		Assert.assertEquals(identityService.getByUsername(TestHelper.ADMIN_USERNAME).getId(), createdIdentity.getOriginalCreatorId());
+		Assert.assertEquals(identity.getUsername(), createdIdentity.getCreator());
+		Assert.assertEquals(identity.getId(), createdIdentity.getCreatorId());
+		//
+		// switch logout => test token, authorities
+		response = getMockMvc()
+				.perform(delete(BaseController.BASE_PATH + "/authentication/switch-user")
+						.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		tokenId = getTokenId(response);
+		token = getToken(response);
+		//
+		Assert.assertNotNull(tokenId);
+		tokenDto = tokenManager.getToken(tokenId);
+		Assert.assertFalse(tokenDto.isDisabled());
+		dtoAuthorities = jwtTokenMapper.getDtoAuthorities(tokenDto);
+		//
+		// check token authorities - APP_ADMIN
+		Assert.assertTrue(dtoAuthorities.stream().anyMatch(a -> a.getAuthority().equals(IdmGroupPermission.APP_ADMIN)));
+		Assert.assertEquals(tokenDto.getOwnerId(), switchTokenDto.getOwnerId());
+		Assert.assertEquals(TestHelper.ADMIN_USERNAME, tokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_CURRENT_USERNAME));
+		Assert.assertEquals(TestHelper.ADMIN_USERNAME, tokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME));
+	}
+	
+	@Test
+	public void testSwitchWrongUser() throws Exception {
+		// login as admin		
+		Map<String, String> login = new HashMap<>();
+		login.put("username", TestHelper.ADMIN_USERNAME);
+		login.put("password", TestHelper.ADMIN_PASSWORD);
+		String response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		String token = getToken(response);
+		//
+		getMockMvc()
+		.perform(put(BaseController.BASE_PATH + "/authentication/switch-user?username=" + getHelper().createName())
+				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token))
+		.andExpect(status().isNotFound());
 	}
 	
 	private ResultActions tryLogin(String username, String password) throws Exception {

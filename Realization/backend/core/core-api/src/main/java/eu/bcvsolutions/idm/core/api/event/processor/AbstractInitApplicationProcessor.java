@@ -29,6 +29,7 @@ public abstract class AbstractInitApplicationProcessor
 	
 	public static final String PROPERTY_INIT_DATA_ENABLED = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.init.data.enabled";
 	public static final boolean DEFAULT_INIT_DATA_ENABLED = true;
+	protected static final String PRODUCT_PROVIDED_ROLE_DESCRIPTION = "Product provided role.";
 	//
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
 

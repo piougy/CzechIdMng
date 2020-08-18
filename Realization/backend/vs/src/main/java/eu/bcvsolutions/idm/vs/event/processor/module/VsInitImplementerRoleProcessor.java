@@ -68,6 +68,8 @@ public class VsInitImplementerRoleProcessor extends AbstractInitApplicationProce
 			}
 			implementerRole = new IdmRoleDto();
 			implementerRole.setCode(impementerRoleCode);
+			implementerRole.setName("Virtual system implementer");
+			implementerRole.setDescription(PRODUCT_PROVIDED_ROLE_DESCRIPTION);
 			implementerRole.setRoleType(RoleType.SYSTEM);
 			implementerRole = roleService.save(implementerRole);
 			//

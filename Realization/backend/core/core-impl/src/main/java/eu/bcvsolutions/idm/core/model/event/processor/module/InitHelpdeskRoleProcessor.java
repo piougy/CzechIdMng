@@ -67,6 +67,8 @@ public class InitHelpdeskRoleProcessor extends AbstractInitApplicationProcessor 
 			}
 			helpdeskRole = new IdmRoleDto();
 			helpdeskRole.setCode(helpdeskRoleCode);
+			helpdeskRole.setName("Helpdesk");
+			helpdeskRole.setDescription(PRODUCT_PROVIDED_ROLE_DESCRIPTION);
 			helpdeskRole.setRoleType(RoleType.SYSTEM);
 			helpdeskRole = roleService.save(helpdeskRole);
 			// 

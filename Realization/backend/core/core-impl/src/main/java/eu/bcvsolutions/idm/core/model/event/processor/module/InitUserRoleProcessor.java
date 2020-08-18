@@ -96,6 +96,8 @@ public class InitUserRoleProcessor extends AbstractInitApplicationProcessor {
 			}
 			userRole = new IdmRoleDto();
 			userRole.setCode(userRoleCode);
+			userRole.setName("User role");
+			userRole.setDescription(PRODUCT_PROVIDED_ROLE_DESCRIPTION);
 			userRole.setRoleType(RoleType.SYSTEM);
 			userRole = roleService.save(userRole);
 			// 

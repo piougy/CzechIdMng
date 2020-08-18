@@ -326,6 +326,8 @@ public class InitDemoDataProcessor extends AbstractInitApplicationProcessor {
 	private IdmRoleDto createRequestableCustomRole() {
 		IdmRoleDto role = new IdmRoleDto();
 		role.setCode("customRole");
+		role.setName("Custom role");
+		role.setDescription("Demo data.");
 		role.setCanBeRequested(true);
 		role = roleService.save(role);
 		//

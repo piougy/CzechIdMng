@@ -70,6 +70,8 @@ public class InitUserManagerRoleProcessor extends AbstractInitApplicationProcess
 			}
 			userManagerRole = new IdmRoleDto();
 			userManagerRole.setCode(userManagerRoleCode);
+			userManagerRole.setName("User manager");
+			userManagerRole.setDescription(PRODUCT_PROVIDED_ROLE_DESCRIPTION);
 			userManagerRole.setRoleType(RoleType.SYSTEM);
 			userManagerRole = roleService.save(userManagerRole);
 			//

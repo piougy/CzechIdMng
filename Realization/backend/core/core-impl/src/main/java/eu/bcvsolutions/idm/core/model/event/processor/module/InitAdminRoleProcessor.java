@@ -63,6 +63,8 @@ public class InitAdminRoleProcessor extends AbstractInitApplicationProcessor {
 			//
 			adminRole = new IdmRoleDto();
 			adminRole.setCode(adminRoleCode);
+			adminRole.setName("Super admin");
+			adminRole.setDescription(PRODUCT_PROVIDED_ROLE_DESCRIPTION);
 			adminRole.setRoleType(RoleType.SYSTEM);
 			adminRole = roleService.save(adminRole);
 			// 

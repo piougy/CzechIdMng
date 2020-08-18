@@ -2948,6 +2948,10 @@
           "label": "User",
           "help": "Target user."
         },
+        "switched": {
+          "label": "Logged as different user",
+          "title": "User [{{originalUsername}}] logged as [{{username}}]."
+        },
         "button": {
           "save": "Swith user",
           "saving": "Login ...",

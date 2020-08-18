@@ -137,6 +137,10 @@ public class DefaultLoginService implements LoginService {
 		IdmTokenDto switchedToken = jwtTokenMapper.createToken(identity, currentToken);
 		//
 		// login by updated token
+		LOG.info("Identity with username [{}] - login as switched user [{}].", 
+				properties.get(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME), 
+				identity.getUsername());
+		//
 		return login(identity, switchedToken);
 	}
 	
@@ -162,6 +166,8 @@ public class DefaultLoginService implements LoginService {
 		IdmTokenDto switchedToken = jwtTokenMapper.createToken(identity, currentToken);
 		//
 		// login by updated token
+		LOG.info("Identity with username [{}] - logout from switched user [{}].", originalUsername, securityService.getCurrentUsername());
+		//
 		return login(identity, switchedToken);
 	}
 

@@ -3001,6 +3001,10 @@
           "label": "Uživatel",
           "help": "Uživatel, za kterého se chcete přihásit."
         },
+        "switched": {
+          "label": "Přihlášení za jiného uživatele",
+          "title": "Uživatel [{{originalUsername}}] je přihlášen jako [{{username}}]."
+        },
         "button": {
           "save": "Přepnout uživatele",
           "saving": "Přepínám ...",

@@ -1,28 +1,25 @@
 package eu.bcvsolutions.idm.acc.dto;
 
-import java.util.UUID;
-
-import org.springframework.hateoas.core.Relation;
-
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
+import java.util.UUID;
+import org.springframework.hateoas.core.Relation;
 
 /**
  * DTO for entity {@link SysSystemMapping}
- * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
  *
+ * @author Ondrej Kopr <kopr@xyxy.cz>
  */
 
 @Relation(collectionRelation = "systemMappings")
 public class SysSystemMappingDto extends AbstractDto {
 
 	private static final long serialVersionUID = -3263064824050858302L;
-	
+
 	private String name;
 	private SystemEntityType entityType;
 	@Embedded(dtoClass = SysSchemaObjectClassDto.class)
@@ -36,6 +33,8 @@ public class SysSystemMappingDto extends AbstractDto {
 	private String mappingContextScript;
 	private boolean addContextContracts = false;
 	private boolean addContextIdentityRoles = false;
+	private boolean addContextIdentityRolesForSystem = false;
+	private boolean addContextConnectorObject = false;
 
 	public String getName() {
 		return name;
@@ -123,5 +122,21 @@ public class SysSystemMappingDto extends AbstractDto {
 
 	public void setAddContextIdentityRoles(boolean addContextIdentityRoles) {
 		this.addContextIdentityRoles = addContextIdentityRoles;
+	}
+
+	public boolean isAddContextIdentityRolesForSystem() {
+		return addContextIdentityRolesForSystem;
+	}
+
+	public void setAddContextIdentityRolesForSystem(boolean addContextIdentityRolesForSystem) {
+		this.addContextIdentityRolesForSystem = addContextIdentityRolesForSystem;
+	}
+
+	public boolean isAddContextConnectorObject() {
+		return addContextConnectorObject;
+	}
+
+	public void setAddContextConnectorObject(boolean addContextConnectorObject) {
+		this.addContextConnectorObject = addContextConnectorObject;
 	}
 }

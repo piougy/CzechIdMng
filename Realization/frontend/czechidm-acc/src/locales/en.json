@@ -808,11 +808,19 @@
         },
         "addContextContracts": {
           "label": "Add a contracts",
-          "help": "Loads all identity contracts and adds them to the context."
+          "help": "Loads all identity contracts and adds them to the context (<strong><small>context.getContracts()</small></strong>)."
         },
         "addContextIdentityRoles": {
           "label": "Add a roles",
-          "help": "Loads all assigned identity roles and adds them to the context."
+          "help": "Loads all assigned identity roles and adds them to the context (<strong><small>context.getIdentityRoles()</small></strong>)."
+        },
+        "addContextIdentityRolesForSystem": {
+          "label": "Add roles that assign this system",
+          "help": "Loads all assigned identity roles that this system assigns and adds them to the context (<strong><small>context.getIdentityRolesForSystem()</small></strong>)."
+        },
+        "addContextConnectorObject": {
+          "label": "Add an object from the target system",
+          "help": "Loads an object from the target system and adds it to the context (<strong><small>context.getConnectorObject()</small></strong>)."
         },
         "script": {
           "label": "The context build script",

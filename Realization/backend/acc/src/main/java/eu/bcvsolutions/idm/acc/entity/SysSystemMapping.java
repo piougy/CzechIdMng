@@ -49,13 +49,11 @@ public class SysSystemMapping extends AbstractEntity {
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
-	
 	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "entity_type", nullable = false)
 	private SystemEntityType entityType;
-	
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
@@ -63,45 +61,47 @@ public class SysSystemMapping extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSchemaObjectClass objectClass;
-
 	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "operation_type", nullable = false)
 	private SystemOperationType operationType;
-	
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "tree_type_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeType treeType;
-	
 	@Audited
 	@Column(name = "protection_enabled", nullable = true)
 	private boolean protectionEnabled = false;
-	
 	@Audited
 	@Column(name = "protection_interval", nullable = true)
 	private Integer protectionInterval;
-	
 	@Audited
 	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "can_be_acc_created_script")
 	private String canBeAccountCreatedScript;
-
 	@Audited
 	@Type(type = "org.hibernate.type.TextType")
 	@Column(name = "mapping_context_script")
 	private String mappingContextScript;
-
 	@Audited
 	@Column(name = "add_context_contracts", nullable = false)
+	// Add all identity contracts.
 	private boolean addContextContracts = false;
-
 	@Audited
 	@Column(name = "add_context_identity_roles", nullable = false)
+	// Add all identity roles.
 	private boolean addContextIdentityRoles = false;
+	@Audited
+	@Column(name = "add_context_roles_sys", nullable = false)
+	// Add identity roles only for this system.
+	private boolean addContextIdentityRolesForSystem = false;
+	@Audited
+	@Column(name = "add_context_con_obj", nullable = false)
+	// Add all connector object (calls connector).
+	private boolean addContextConnectorObject = false;
 
 	public void setName(String name) {
 		this.name = name;
@@ -197,5 +197,21 @@ public class SysSystemMapping extends AbstractEntity {
 
 	public void setAddContextIdentityRoles(boolean addContextIdentityRoles) {
 		this.addContextIdentityRoles = addContextIdentityRoles;
+	}
+
+	public boolean isAddContextIdentityRolesForSystem() {
+		return addContextIdentityRolesForSystem;
+	}
+
+	public void setAddContextIdentityRolesForSystem(boolean addContextIdentityRolesForSystem) {
+		this.addContextIdentityRolesForSystem = addContextIdentityRolesForSystem;
+	}
+
+	public boolean isAddContextConnectorObject() {
+		return addContextConnectorObject;
+	}
+
+	public void setAddContextConnectorObject(boolean addContextConnectorObject) {
+		this.addContextConnectorObject = addContextConnectorObject;
 	}
 }

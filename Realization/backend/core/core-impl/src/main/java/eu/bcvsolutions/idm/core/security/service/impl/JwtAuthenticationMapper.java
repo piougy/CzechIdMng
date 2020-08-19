@@ -2,6 +2,9 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,12 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -60,11 +58,12 @@ public class JwtAuthenticationMapper {
 	public static final String DEFAULT_SECRET_TOKEN = "idmSecret";
 	public static final String PROPERTY_AUTHORITIES = "authorities";
 	public static final String PROPERTY_CURRENT_USERNAME = "currentUsername";
+	// @since 10.5.0 - Token owner can be different than logger user (switched user).
+	public static final String PROPERTY_CURRENT_IDENTITY_ID = "currentIdentityId";
 	public static final String PROPERTY_ORIGINAL_USERNAME = "originalUsername";
 	public static final String PROPERTY_ORIGINAL_IDENTITY_ID = "originalIdentityId";
 	//
 	@Lazy
-	@Qualifier("objectMapper")
 	@Autowired private ObjectMapper mapper;
 	@Autowired private ConfigurationService configurationService;
 	@Autowired private TokenManager tokenManager;
@@ -159,9 +158,10 @@ public class JwtAuthenticationMapper {
 	 */
 	public IdmJwtAuthentication fromDto(IdmJwtAuthenticationDto dto) {
 		Assert.notNull(dto, "Authentication DTO is required to be transformed to authentication.");
+		UUID currentIdentityId = dto.getCurrentIdentityId();
 		Assert.notNull(dto.getCurrentIdentityId(), "Current identity identifier is required.");
 		//
-		IdmIdentityDto identity = new IdmIdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername());
+		IdmIdentityDto identity = new IdmIdentityDto(currentIdentityId, dto.getCurrentUsername());
 		// try to load token or create a new one
 		IdmTokenDto token = dto.getId() == null ? null : tokenManager.getToken(dto.getId());
 		if (token == null) {
@@ -173,8 +173,9 @@ public class JwtAuthenticationMapper {
 			token.setIssuedAt(dto.getIssuedAt());
 			token.setExpiration(dto.getExpiration());
 			ConfigurationMap properties = token.getProperties();
-			properties.put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId())));
+			properties.put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(currentIdentityId)));
 			properties.put(PROPERTY_CURRENT_USERNAME, identity.getUsername());
+			properties.put(PROPERTY_CURRENT_IDENTITY_ID, currentIdentityId);
 			properties.put(PROPERTY_ORIGINAL_USERNAME,  dto.getOriginalUsername());
 			properties.put(PROPERTY_ORIGINAL_IDENTITY_ID, dto.getOriginalIdentityId());
 			//
@@ -202,7 +203,7 @@ public class JwtAuthenticationMapper {
 				grantedAuthorities.add(new DefaultGrantedAuthority(a.getAuthority()));
 			}
 		} else {
-			grantedAuthorities.addAll(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(token.getOwnerId()));
+			grantedAuthorities.addAll(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(currentIdentityId));
 		}
 		authentication.setAuthorities(grantedAuthorities);
 		//
@@ -225,7 +226,7 @@ public class JwtAuthenticationMapper {
 		//
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
 				new IdmIdentityDto(
-						token.getOwnerId(),
+						token.getProperties().getUuid(PROPERTY_CURRENT_IDENTITY_ID),
 						token.getProperties().getString(PROPERTY_CURRENT_USERNAME)),
 				new IdmIdentityDto(
 						token.getProperties().getUuid(PROPERTY_ORIGINAL_IDENTITY_ID),
@@ -248,21 +249,33 @@ public class JwtAuthenticationMapper {
 	 */
 	public IdmTokenDto createToken(IdmIdentityDto identity, IdmTokenDto preparedToken) {
 		Assert.notNull(identity, "Identity is required.");
+		UUID identityId = identity.getId();
+		Assert.notNull(identityId, "Identity identifier is required.");
 		//
 		// persist token
 		IdmTokenDto token = new IdmTokenDto();
 		if (preparedToken != null) {
 			// fill optional token properties
+			token.setId(preparedToken.getId());
 			token.setModuleId(preparedToken.getModuleId());
 			token.setExternalId(preparedToken.getExternalId());
 			token.getProperties().putAll(preparedToken.getProperties());
 			token.setDisabled(preparedToken.isDisabled());
 			token.setIssuedAt(preparedToken.getIssuedAt());
+			token.setOwnerId(preparedToken.getOwnerId());
+			token.setOwnerType(preparedToken.getOwnerType());
+			token.setTokenType(preparedToken.getTokenType());
 		}
-		// required not overridable properties
-		token.setTokenType(AUTHENTICATION_TOKEN_NAME);
-		token.setOwnerId(identity.getId());
-		token.setOwnerType(tokenManager.getOwnerType(identity));
+		// required properties
+		if (token.getTokenType() == null) {
+			token.setTokenType(AUTHENTICATION_TOKEN_NAME);
+		}
+		if (token.getOwnerId() == null) {
+			token.setOwnerId(identityId);
+		}
+		if (token.getOwnerType() == null) {
+			token.setOwnerType(tokenManager.getOwnerType(identity));
+		}
 		if (token.getIssuedAt() == null) {
 			token.setIssuedAt(ZonedDateTime.now());
 		}
@@ -270,11 +283,12 @@ public class JwtAuthenticationMapper {
 		ConfigurationMap properties = token.getProperties();
 		properties.put(PROPERTY_AUTHORITIES, getDtoAuthorities(grantedAuthoritiesFactory.getGrantedAuthoritiesForIdentity(identity.getId())));
 		properties.put(PROPERTY_CURRENT_USERNAME, identity.getUsername());
-		properties.put(PROPERTY_ORIGINAL_USERNAME, identity.getUsername()); // TODO: not implemented now - current = original
-		properties.put(PROPERTY_ORIGINAL_IDENTITY_ID, identity.getId()); // TODO: not implemented now - current = original
+		properties.put(PROPERTY_CURRENT_IDENTITY_ID, identityId);
+		properties.putIfAbsent(PROPERTY_ORIGINAL_USERNAME, identity.getUsername()); // original user can be set in prepared token
+		properties.putIfAbsent(PROPERTY_ORIGINAL_IDENTITY_ID, identityId); // original user can be set in prepared token
 		//
 		if (token.getId() == null) {
-			// token id has to be written int token
+			// token id has to be written into token
 			token.setId(UUID.randomUUID());
 		}
 		token.setToken(getTokenHash(token));
@@ -354,7 +368,7 @@ public class JwtAuthenticationMapper {
 	}
 
 	/**
-	 * Convert token to authentication dto
+	 * Convert token to authentication dto.
 	 *
 	 * @param token
 	 * @return
@@ -364,7 +378,7 @@ public class JwtAuthenticationMapper {
 		//
 		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
 		authenticationDto.setCurrentUsername(token.getProperties().getString(PROPERTY_CURRENT_USERNAME));
-		authenticationDto.setCurrentIdentityId(token.getOwnerId());
+		authenticationDto.setCurrentIdentityId(token.getProperties().getUuid(PROPERTY_CURRENT_IDENTITY_ID));
 		authenticationDto.setOriginalUsername(token.getProperties().getString(PROPERTY_ORIGINAL_USERNAME));
 		authenticationDto.setOriginalIdentityId(token.getProperties().getUuid(PROPERTY_ORIGINAL_IDENTITY_ID));
 		authenticationDto.setExpiration(token.getExpiration());

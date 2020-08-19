@@ -7,23 +7,9 @@
   * 
   **/ 
 -->
-<tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="IdmTasks.xsd">
+<tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="IdmTasks.xsd">	
 	<task>
-		<description>Default</description>
-		<instanceId>idm-primary</instanceId>
-		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.ProvisioningQueueTaskExecutor</taskType>
-		
-		<triggers>
-			<trigger>
-				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
-				<cron>0 0/5 * * * ?</cron>
-				<state>ACTIVE</state>
-			</trigger>
-		</triggers>
-	</task>
-	
-	<task>
-		<description>Default</description>
+		<description>Retry failed operation in provisioning queue.</description>
 		<instanceId>idm-primary</instanceId>
 		<taskType>eu.bcvsolutions.idm.acc.scheduler.task.impl.RetryProvisioningTaskExecutor</taskType>
 		

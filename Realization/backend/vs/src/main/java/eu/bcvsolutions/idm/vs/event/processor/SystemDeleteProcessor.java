@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
-import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.vs.domain.VsRequestState;
 import eu.bcvsolutions.idm.vs.dto.filter.VsAccountFilter;
 import eu.bcvsolutions.idm.vs.dto.filter.VsRequestFilter;
@@ -30,35 +30,27 @@ import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 
 /**
- * Before system in acc delete - deletes all request archive in VS module
+ * Before system in acc delete - deletes all request archive in VS module.
  * 
  * @author svandav
- *
+ * @author Radek Tomiška
  */
 @Component("vsSystemDeleteProcessor")
 @Description("Ensures referential integrity. Cannot be disabled.")
 public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSystemDto> {
 
 	public static final String PROCESSOR_NAME = "system-delete-processor";
-	private final VsRequestService requestService;
-	private final VsAccountService accountService;
-	private final IdmFormDefinitionService formDefinitionService;
-	private final VsSystemImplementerService systemImplementerService;
-
 	@Autowired
-	public SystemDeleteProcessor(VsRequestService requestService, VsAccountService accountService,
-			IdmFormDefinitionService formDefinitionService, VsSystemImplementerService systemImplementerService) {
+	private VsRequestService requestService;
+	@Autowired
+	private VsAccountService accountService;
+	@Autowired
+	private FormService formService;
+	@Autowired
+	private VsSystemImplementerService systemImplementerService;
+
+	public SystemDeleteProcessor() {
 		super(SystemEventType.DELETE);
-		//
-		Assert.notNull(requestService, "Service is required.");
-		Assert.notNull(accountService, "Service is required.");
-		Assert.notNull(formDefinitionService, "Service is required.");
-		Assert.notNull(systemImplementerService, "Service is required.");
-		//
-		this.requestService = requestService;
-		this.accountService = accountService;
-		this.formDefinitionService = formDefinitionService;
-		this.systemImplementerService = systemImplementerService;
 	}
 
 	@Override
@@ -108,13 +100,12 @@ public class SystemDeleteProcessor extends AbstractEntityEventProcessor<SysSyste
 		});
 
 		// Delete vs account form definition
-		if(system.getConnectorKey() != null) {
+		if (system.getConnectorKey() != null) {
 			String virtualSystemKey = MessageFormat.format("{0}:systemId={1}", system.getConnectorKey().getFullName(),
 					system.getId());
-			IdmFormDefinitionDto definition = this.formDefinitionService.findOneByTypeAndCode(VsAccount.class.getName(),
-					virtualSystemKey);
+			IdmFormDefinitionDto definition = formService.getDefinition(VsAccount.class, virtualSystemKey);
 			if (definition != null) {
-				formDefinitionService.delete(definition);
+				formService.deleteDefinition(definition);
 			}
 		}
 

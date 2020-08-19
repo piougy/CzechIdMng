@@ -1,21 +1,27 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.text.MessageFormat;
-
 import java.time.LocalDate;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmPasswordDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.JwtAuthenticationService;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
@@ -27,6 +33,7 @@ import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
  * Default login service
  * 
  * @author svandav
+ * @author Radek Tomiška
  */
 @Service("loginService")
 public class DefaultLoginService implements LoginService {
@@ -35,18 +42,18 @@ public class DefaultLoginService implements LoginService {
 
 	@Autowired
 	private IdmIdentityService identityService;
-	
 	@Autowired
 	private JwtAuthenticationService jwtAuthenticationService;
-	
 	@Autowired
 	private IdmPasswordService passwordService;
-	
 	@Autowired
 	private SecurityService securityService;
-	
 	@Autowired
 	private TokenManager tokenManager;
+	@Autowired
+	private JwtAuthenticationMapper jwtTokenMapper;
+	@Autowired 
+	private OAuthAuthenticationManager oAuthAuthenticationManager;
 
 	@Override
 	public LoginDto login(LoginDto loginDto) {
@@ -77,8 +84,6 @@ public class DefaultLoginService implements LoginService {
 		
 		return loginDto;
 	}
-
-	
 
 	@Override
 	public LoginDto loginAuthenticatedUser() {
@@ -120,6 +125,51 @@ public class DefaultLoginService implements LoginService {
 	public void logout(IdmTokenDto token) {
 		jwtAuthenticationService.logout(token);
 	}
+	
+	@Override
+	public LoginDto switchUser(IdmIdentityDto identity) {
+		IdmTokenDto currentToken = tokenManager.getCurrentToken();
+		ConfigurationMap properties = currentToken.getProperties();
+		// Preserve the first original user => switch is available repetitively, but original user is preserved.
+		properties.putIfAbsent(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME, securityService.getCurrentUsername());
+		properties.putIfAbsent(JwtAuthenticationMapper.PROPERTY_ORIGINAL_IDENTITY_ID, securityService.getCurrentId());
+		currentToken.setProperties(properties);
+		IdmTokenDto switchedToken = jwtTokenMapper.createToken(identity, currentToken);
+		//
+		// login by updated token
+		LOG.info("Identity with username [{}] - login as switched user [{}].", 
+				properties.get(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME), 
+				identity.getUsername());
+		//
+		return login(identity, switchedToken);
+	}
+	
+	@Override
+	public LoginDto switchUserLogout() {
+		IdmTokenDto currentToken = tokenManager.getCurrentToken();
+		ConfigurationMap properties = currentToken.getProperties();
+		String originalUsername = properties.getString(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME);
+		//
+		if (StringUtils.isEmpty(originalUsername)) {
+			throw new ResultCodeException(CoreResultCode.NULL_ATTRIBUTE, ImmutableMap.of("attribute", "originalUsername"));
+		}
+		// change logged token authorities
+		IdmIdentityDto identity = identityService.getByCode(originalUsername);
+		if (identity == null) {
+			throw new EntityNotFoundException(IdmIdentity.class, originalUsername);
+		}
+		//
+		// Preserve the first original user => switch is available repetitively, but original user is preserved.
+		properties.remove(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME);
+		properties.remove(JwtAuthenticationMapper.PROPERTY_ORIGINAL_IDENTITY_ID);
+		currentToken.setProperties(properties);
+		IdmTokenDto switchedToken = jwtTokenMapper.createToken(identity, currentToken);
+		//
+		// login by updated token
+		LOG.info("Identity with username [{}] - logout from switched user [{}].", originalUsername, securityService.getCurrentUsername());
+		//
+		return login(identity, switchedToken);
+	}
 
 	/**
 	 * Validates given identity can log in
@@ -147,5 +197,20 @@ public class DefaultLoginService implements LoginService {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_EXPIRED);
 		}
 		return passwordService.checkPassword(loginDto.getPassword(), idmPassword);
+	}
+	
+	private LoginDto login(IdmIdentityDto identity, IdmTokenDto token) {
+		IdmJwtAuthentication authentication = jwtTokenMapper.fromDto(token);
+		//
+		oAuthAuthenticationManager.authenticate(authentication);
+		//
+		LoginDto loginDto = new LoginDto(identity.getUsername(), null);
+		loginDto.setAuthenticationModule(token.getModuleId());
+		IdmJwtAuthenticationDto authenticationDto = jwtTokenMapper.toDto(token);
+		loginDto.setAuthentication(authenticationDto);
+		loginDto.setToken(jwtTokenMapper.writeToken(authenticationDto));
+		loginDto.setAuthorities(jwtTokenMapper.getDtoAuthorities(token));
+		//
+		return loginDto;
 	}
 }

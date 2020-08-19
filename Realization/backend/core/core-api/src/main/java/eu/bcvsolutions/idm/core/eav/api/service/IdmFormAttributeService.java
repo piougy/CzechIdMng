@@ -7,10 +7,11 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Form attributes definition
+ * Form attributes definition - CRUD.
+ * Use {@link FormService} instead in your modules.
  * 
  * @author Radek Tomiška
- *
+ * @see FormService
  */
 public interface IdmFormAttributeService extends 
 		EventableDtoService<IdmFormAttributeDto, IdmFormAttributeFilter>,

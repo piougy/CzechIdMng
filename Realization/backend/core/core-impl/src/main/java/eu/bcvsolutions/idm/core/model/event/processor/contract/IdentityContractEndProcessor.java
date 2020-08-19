@@ -104,7 +104,8 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 		OperationResult result = process(
 				contract, 
 				(Boolean) event.getProperties().get(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION),
-				event.getPriority() // propagate event priority
+				event.getPriority(), // propagate event priority
+				event // propagate parent event
 			);
 		return new DefaultEventResult.Builder<>(event, this).setResult(result).build();
 	}
@@ -117,7 +118,7 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 	 * @return
 	 */
 	public OperationResult process(IdmIdentityContractDto contract, Boolean skipRecalculation) {
-		return process(contract, skipRecalculation, null);
+		return process(contract, skipRecalculation, null, null);
 	}
 	
 	/**
@@ -127,7 +128,11 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 	 * @param skipRecalculation Skip automatic role recalculation
 	 * @return
 	 */
-	private OperationResult process(IdmIdentityContractDto contract, Boolean skipRecalculation, PriorityType priority) {
+	private OperationResult process(
+			IdmIdentityContractDto contract, 
+			Boolean skipRecalculation, 
+			PriorityType priority,
+			EntityEvent<IdmIdentityContractDto> event) {
 		// update identity state
 		IdmIdentityDto identity = identityService.get(contract.getIdentity());
 		IdentityState newState = identityService.evaluateState(identity.getId());
@@ -141,6 +146,9 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 			identityEvent.getProperties().put(IdmAutomaticRoleAttributeService.SKIP_RECALCULATION, skipRecalculation);
 			if (priority != null) {
 				identityEvent.setPriority(priority);
+			}
+			if (event != null) {
+				identityEvent.setParentId(event.getId());
 			}
 			identityService.publish(identityEvent);
 		}
@@ -184,8 +192,13 @@ public class IdentityContractEndProcessor extends AbstractWorkflowEventProcessor
 				// start event with skip check authorities
 				RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
 				requestEvent.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
+				// set priority if given
 				if (priority != null) {
 					requestEvent.setPriority(priority);
+				}
+				// set parent (contract is disabled) event
+				if (event != null) {
+					requestEvent.setParentId(event.getId());
 				}
 				// prevent to start asynchronous event before previous update event is completed. 
 				requestEvent.setSuperOwnerId(identity.getId());

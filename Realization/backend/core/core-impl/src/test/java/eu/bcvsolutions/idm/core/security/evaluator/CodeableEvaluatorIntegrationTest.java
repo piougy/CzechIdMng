@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Codeable evaluator tests
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-public class CodeableEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class CodeableEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 	
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;

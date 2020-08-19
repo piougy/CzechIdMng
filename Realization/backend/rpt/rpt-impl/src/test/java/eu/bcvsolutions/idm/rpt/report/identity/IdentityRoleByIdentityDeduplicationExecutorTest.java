@@ -5,23 +5,21 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import java.time.LocalDate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -47,7 +45,6 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 
 	@Autowired 
 	private IdentityRoleByIdentityDeduplicationExecutor reportExecutor;
-	@Qualifier("objectMapper")
 	@Autowired
 	private ObjectMapper mapper;
 	@Autowired
@@ -57,7 +54,7 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 
 	@Before
 	public void before() {
-		getHelper().login(InitTestData.TEST_ADMIN_USERNAME, InitTestData.TEST_ADMIN_PASSWORD);
+		getHelper().loginAdmin();
 	}
 	
 	@After

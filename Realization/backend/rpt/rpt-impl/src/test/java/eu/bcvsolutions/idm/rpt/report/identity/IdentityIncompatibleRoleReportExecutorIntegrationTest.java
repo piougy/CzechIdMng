@@ -15,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
@@ -45,7 +45,7 @@ public class IdentityIncompatibleRoleReportExecutorIntegrationTest extends Abstr
 	@Before
 	public void before() {
 		// report checks authorization policies - we need to log in
-		loginService.login(new LoginDto(InitTestData.TEST_ADMIN_USERNAME, new GuardedString(InitTestData.TEST_ADMIN_PASSWORD)));
+		loginService.login(new LoginDto(InitTestDataProcessor.TEST_ADMIN_USERNAME, new GuardedString(InitTestDataProcessor.TEST_ADMIN_PASSWORD)));
 	}
 	
 	@After

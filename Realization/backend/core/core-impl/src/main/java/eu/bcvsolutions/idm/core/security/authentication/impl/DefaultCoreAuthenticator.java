@@ -32,8 +32,6 @@ public class DefaultCoreAuthenticator extends AbstractAuthenticator implements A
 	
 	@Autowired
 	public DefaultCoreAuthenticator(LoginService loginService) {
-		super();
-		//
 		Assert.notNull(loginService, "Service is required.");
 		//
 		this.loginService = loginService;
@@ -57,12 +55,13 @@ public class DefaultCoreAuthenticator extends AbstractAuthenticator implements A
 	@Override
 	public LoginDto authenticate(LoginDto loginDto) {
 		loginDto.setAuthenticationModule(this.getModule());
-		return this.loginService.login(loginDto);
+		//
+		return loginService.login(loginDto);
 	}
 	
 	@Override
 	public void logout(IdmTokenDto token) {
-		this.loginService.logout(token);
+		loginService.logout(token);
 	}
 
 	@Override

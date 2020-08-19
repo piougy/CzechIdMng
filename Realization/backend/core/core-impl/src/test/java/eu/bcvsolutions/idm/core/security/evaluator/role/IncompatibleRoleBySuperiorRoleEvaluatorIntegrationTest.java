@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIncompatibleRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Permission to role composition by composition's superior role
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class IncompatibleRoleBySuperiorRoleEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class IncompatibleRoleBySuperiorRoleEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private IdmIncompatibleRoleService service;
 	@Autowired private IdmRoleService roleService;
@@ -60,7 +60,7 @@ public class IncompatibleRoleBySuperiorRoleEvaluatorIntegrationTest extends Abst
 				IncompatibleRoleBySuperiorRoleEvaluator.class);
 		//
 		try {
-			getHelper().login(identity.getUsername(), identity.getPassword());
+			getHelper().login(identity);
 			//
 			// evaluate	access
 			getHelper().login(identity.getUsername(), identity.getPassword());

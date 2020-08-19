@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Tests for {@link SelfContractEvaluator}.
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  */
 @Transactional
-public class SelfContractEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class SelfContractEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired
 	private IdmIdentityContractService contractService;

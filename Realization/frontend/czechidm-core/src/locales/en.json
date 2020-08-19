@@ -266,7 +266,7 @@
     "selectAllRecordsWarning": "Performing a bulk operation [{{action}}] on currently filtered items. To this date <strong>{{date}}</strong> is actual count <strong class=\"highlight\">{{count}}</strong>. Processed items may be different.",
     "removedRecord": "The following entity will not be counted in the bulk job processing: <b>[{{entities}}]</b>.",
     "removedRecord_plural": "The following entities will not be included in the bulk job processing: <b>[{{entities}}]</b>.",
-    "created": "Bulk action [{{name}}] was successfully run in a long running task id: [{{longRunningTaskId}}]",
+    "created": "Bulk action [{{name}}] was successfully run as a long running task.",
     "message_empty": "Performing the bulk action [{{name}}].",
     "message": "Performing the bulk action [{{name}}] on select record: <b>[{{entities}}]</b>.",
     "message_plural": "Performing the bulk action [{{name}}] on {{count}} records: <b>[{{entities}}]</b>",
@@ -1654,7 +1654,12 @@
         },
         "organization": {
           "label": "Org. structure",
-          "placeholder": "Element in organization structure"
+          "placeholder": "Element in organization structure",
+          "option": {
+            "withoutWorkPosition": {
+              "label": "-- without work position in organization structure --"
+            }
+          }
         },
         "recursively": {
           "label": "Recursively",
@@ -1847,6 +1852,10 @@
       },
       "tabs": {
         "basic": "Basic information"
+      },
+      "roles": {
+        "title": "Roles",
+        "header": "Roles"
       }
     },
     "automaticRoles": {
@@ -2013,7 +2022,7 @@
       "header": "Delegations",
       "title": "Definitions of delegation",
       "label": "Delegations",
-      "detailHeader": "Delegation <small>({{delegator}} -> {{delegate}})</small>",
+      "detailHeader": "Delegation <small>({{delegator}} <strong class=\"highlight\">></strong> {{delegate}})</small>",
       "edit": {
         "title": "Detail for definition of delegation"
       },
@@ -2932,6 +2941,26 @@
       "profile-setting": {
         "header": "User setting",
         "title": "User setting"
+      },
+      "switch-user": {
+        "header": "Login as other user",
+        "title": "Login as other user",
+        "username": {
+          "label": "User",
+          "help": "Target user."
+        },
+        "switched": {
+          "label": "Logged as different user",
+          "title": "User [{{originalUsername}}] logged as [{{username}}]."
+        },
+        "button": {
+          "save": "Swith user",
+          "saving": "Login ...",
+          "logout": "Login back as"
+        },
+        "message": {
+          "success": "User [{{username}}] login."
+        }
       },
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
@@ -3916,7 +3945,7 @@
       },
       "preferredLanguage": {
         "label": "Prefered language",
-        "help": "This localization will be choosed after save and right after user log in."
+        "help": "This localization will be chosen after save and right after user log in."
       },
       "navigationCollapsed": {
         "label": "Collapse side menu",
@@ -3953,6 +3982,11 @@
     },
     "RoleCatalogueRole": {
       "_type": "Role assigned into catalogue",
+      "role": {
+        "label": "$t(entity.Role._type)",
+        "title": "Role in selected catalogue folder.",
+        "help": "Role in selected catalogue folder."
+      },
       "roleCatalogue": {
         "label": "$t(entity.RoleCatalogue._type)",
         "help": "Role will be in selected catalogue folder."
@@ -6367,6 +6401,10 @@
           "assigned-roles": {
             "label": "Show assigned roles",
             "help": "Add assigned roles for newly created user and show assigned roles updated user."
+          },
+          "load-assigned-roles": {
+            "label": "Load assigned roles into projection",
+            "help": "Load all assigned roles - will be available in projection directly. Enable this feature, if projection supports to assign role directly without role requests. Is not supported in product provided projection and could be disabled."
           }
         }
       }
@@ -7555,6 +7593,12 @@
     },
     "permission-cache": {
       "description": "Cache stores permissions (for data) of currently logged user. Cache is evicted after user log out. Cache expiration is 1 minute - if data structure is changed, then permissions are actualized after this duration. When authorization policies configuration is changed, cache is evicted (completely)."
+    },
+    "form-definition-cache": {
+      "description": "Cache stores form definitions (eav). Cache is evicted automatically after form definition or attribute is changed."
+    },
+    "token-cache": {
+      "description": "Cache stores logged user tokens. Cache is evicted automatically after token is changed. Cache expiration is 1 minute  - token expiration id prolonged automatically in one minute window, when token used."
     }
   }
 }

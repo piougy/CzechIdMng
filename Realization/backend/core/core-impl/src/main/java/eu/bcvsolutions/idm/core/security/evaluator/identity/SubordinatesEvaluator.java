@@ -62,6 +62,7 @@ public class SubordinatesEvaluator extends AbstractAuthorizationEvaluator<IdmIde
 		}
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setManagersFor(entity.getId());
+		filter.setValidContractManagers(Boolean.TRUE);
 		filter.setUsername(securityService.getUsername());
 		boolean isManager = identityService
 				.findIds(filter, PageRequest.of(0, 1))

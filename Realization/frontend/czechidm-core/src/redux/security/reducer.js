@@ -24,7 +24,8 @@ const INITIAL_STATE = {
     tokenCIDMST: null,
     authorities: [], // identity authorities
     profile: null, // identity profile @since 9.3.0
-    navigationCollapsed: false
+    navigationCollapsed: false,
+    originalUsername: null // before switch
   }
 };
 

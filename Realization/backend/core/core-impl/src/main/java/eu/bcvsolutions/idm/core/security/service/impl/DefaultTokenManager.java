@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,11 +14,13 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTokenFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmTokenService;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmToken_;
@@ -39,6 +41,7 @@ public class DefaultTokenManager implements TokenManager {
 	@Autowired private IdmTokenService tokenService;	
 	@Autowired private SecurityService securityService;
 	@Autowired private LookupService lookupService;
+	@Autowired private IdmCacheManager cacheManager;
 	
 	@Override
 	public IdmTokenDto getCurrentToken() {
@@ -67,8 +70,12 @@ public class DefaultTokenManager implements TokenManager {
 		Assert.notNull(owner, "Owner is required.");
 		Assert.notNull(owner.getId(), "Owner identifier is required.");
 		//
-		token.setOwnerType(getOwnerType(owner));
-		token.setOwnerId(getOwnerId(owner));
+		if(token.getOwnerType() == null) {
+			token.setOwnerType(getOwnerType(owner));
+		}
+		if(token.getOwnerId() == null) {
+			token.setOwnerId(getOwnerId(owner));
+		}
 		if (token.getIssuedAt() == null) {
 			token.setIssuedAt(ZonedDateTime.now());
 		}
@@ -78,7 +85,15 @@ public class DefaultTokenManager implements TokenManager {
 	
 	@Override
 	public IdmTokenDto getToken(UUID tokenId, BasePermission... permission) {
-		return tokenService.get(tokenId, permission);
+		ValueWrapper value = cacheManager.getValue(TOKEN_CACHE_NAME, tokenId);
+		if (value != null) {
+			return (IdmTokenDto) value.get();
+		}
+		//
+		IdmTokenDto token = tokenService.get(tokenId, permission);
+		cacheManager.cacheValue(TOKEN_CACHE_NAME, tokenId, token);
+		//
+		return token;
 	}
 	
 	@Override

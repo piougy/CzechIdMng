@@ -37,7 +37,7 @@ export default class DelegationDefinitionManager extends EntityManager {
     if (!entity || !entity._embedded || !entity._embedded.delegator) {
       return null;
     }
-    return `${this._getIdentityName(entity._embedded.delegator)} 🡆 ${this._getIdentityName(entity._embedded.delegate)}`;
+    return `${this._getIdentityName(entity._embedded.delegator)} > ${this._getIdentityName(entity._embedded.delegate)}`;
   }
 
   _getIdentityName(identity) {

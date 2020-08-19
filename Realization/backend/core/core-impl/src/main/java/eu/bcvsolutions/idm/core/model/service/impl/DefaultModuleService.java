@@ -5,14 +5,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.Plugin;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.dto.ModuleDescriptorDto;
+import eu.bcvsolutions.idm.core.api.event.ModuleDescriptorEvent;
+import eu.bcvsolutions.idm.core.api.event.ModuleDescriptorEvent.ModuleDescriptorEventType;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
@@ -30,12 +35,16 @@ public class DefaultModuleService implements ModuleService {
 	
 	private final PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
 	private final ConfigurationService configurationService;
+	//
+	@Autowired private ModelMapper mapper;
+	@Autowired private EntityEventManager entityEventManager;
 
-	public DefaultModuleService(PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry,
+	public DefaultModuleService(
+			PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry,
 			ConfigurationService configurationService) {
 		Assert.notNull(moduleDescriptorRegistry, "Module registry is required!");
 		Assert.notNull(configurationService, "ConfigurationService is required!");
-
+		//
 		this.moduleDescriptorRegistry = moduleDescriptorRegistry;
 		this.configurationService = configurationService;
 	}
@@ -93,18 +102,24 @@ public class DefaultModuleService implements ModuleService {
 	@Override
 	public void setEnabled(String moduleId, boolean enabled) {
 		ModuleDescriptor moduleDescriptor = moduleDescriptorRegistry.getPluginFor(moduleId);
+		ModuleDescriptorDto moduleDescriptorDto = null;
 		if (moduleDescriptor == null) {
 			LOG.info("Frontend module [{}] will be enabled [{}].", moduleId, enabled);
+			// FE module - create basic descriptor
+			moduleDescriptorDto = new ModuleDescriptorDto(moduleId);
+			moduleDescriptorDto.setDisableable(true);
+			moduleDescriptorDto.setDisabled(!configurationService.getBooleanValue(getModuleConfigurationProperty(moduleId, ConfigurationService.PROPERTY_ENABLED), false));
 		} else {
-			if (!enabled && !moduleDescriptor.isDisableable()) {
-				throw new ModuleNotDisableableException(moduleId);
-			}
 			LOG.info("Backend module [{}] will be enabled [{}].", moduleId, enabled);
 			//
-			// TODO: license check if module is enabling
-		}		
-		configurationService.setBooleanValue(
-				getModuleConfigurationProperty(moduleId, ConfigurationService.PROPERTY_ENABLED), enabled);
+			moduleDescriptorDto = toDto(moduleDescriptor);
+		}
+		//
+		ModuleDescriptorEvent event = new ModuleDescriptorEvent(
+				enabled ? ModuleDescriptorEventType.ENABLE : ModuleDescriptorEventType.DISABLE,
+				moduleDescriptorDto
+		);
+		entityEventManager.process(event);
 	}
 	
 	@Override
@@ -138,6 +153,17 @@ public class DefaultModuleService implements ModuleService {
 	public String getModuleConfigurationProperty(String moduleId, String property) {
 		return ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX //
 				+ moduleId + ConfigurationService.PROPERTY_SEPARATOR + property;
+	}
+	
+	/**
+	 * FIXME: DRY ModuleController#toResource => redesign to work with dto?
+	 */
+	private ModuleDescriptorDto toDto(ModuleDescriptor moduleDescriptor) {
+		ModuleDescriptorDto dto = mapper.map(moduleDescriptor,  ModuleDescriptorDto.class);
+		//
+		dto.setId(moduleDescriptor.getId());
+		dto.setDisabled(!isEnabled(moduleDescriptor));
+		return dto;
 	}
 
 }

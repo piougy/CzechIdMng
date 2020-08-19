@@ -47,6 +47,8 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
  * Automatic roles by tree structure recount while identity contract is saved, updated or deleted / disabled.
@@ -112,7 +114,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 		//
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 		//
-		if (!Objects.equals(newPosition, previousPosition) || validityChangedToValid) {
+		if (previous == null || !Objects.equals(newPosition, previousPosition) || validityChangedToValid) {
 			// work positions has some difference or validity changes
 			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByContract(contract.getId());
 			//
@@ -135,7 +137,8 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 						.collect(Collectors.toList());
 			}
 			//
-			Set<UUID> previousAutomaticRoles = assignedRoles.stream()
+			Set<UUID> previousAutomaticRoles = assignedRoles
+					.stream()
 					.filter(identityRole -> {
 						return identityRole.getAutomaticRole() != null;
 					})
@@ -144,7 +147,7 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 					})
 					.collect(Collectors.toSet());
 			Set<IdmRoleTreeNodeDto> addedAutomaticRoles = new HashSet<>();
-			if (newPosition != null) {
+			if (newPosition != null && contract.isValidNowOrInFuture()) {
 				addedAutomaticRoles = roleTreeNodeService.getAutomaticRolesByTreeNode(newPosition);
 			}
 			// prevent to remove newly added or still exists roles
@@ -234,8 +237,10 @@ public class IdentityContractUpdateByAutomaticRoleProcessor
 			// process validable change only
 			roleRequest.getConceptRoles().addAll(changeValidable(contract, identityRoleService.findAllByContract(contract.getId())));
 		}
-		// start request at end
-		roleRequestService.executeConceptsImmediate(contract.getIdentity(), roleRequest.getConceptRoles());
+		// start request at end asynchronously
+		roleRequest.setApplicant(contract.getIdentity());
+		RoleRequestEvent requestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+		roleRequestService.startConcepts(requestEvent, event);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

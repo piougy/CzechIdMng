@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl.role;
 
+import com.google.common.collect.Sets;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
@@ -24,25 +25,22 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.permissions.ChangeIdentityPermissionTest;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 import eu.bcvsolutions.idm.test.api.AbstractBulkActionTest;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import org.activiti.engine.task.IdentityLinkType;
-import org.assertj.core.util.Sets;
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Integration tests for {@link ManualWorkflowTaskDelegationBulkAction}
  *
  * @author Vít Švanda
- *
  */
 public class ManualWorkflowTaskDelegationBulkActionTest extends AbstractBulkActionTest {
 

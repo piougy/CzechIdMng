@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventExceptionService;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventPropertyService;
 import eu.bcvsolutions.idm.core.api.audit.service.IdmLoggingEventService;
@@ -18,6 +17,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.audit.task.impl.RemoveOldLogsTaskExecutor;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.scheduler.ObserveLongRunningTaskEndProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
@@ -51,7 +51,7 @@ public class RemoveOldLogsTaskExecutorTest extends AbstractIntegrationTest {
 
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
+		loginAsAdmin(InitTestDataProcessor.TEST_ADMIN_USERNAME);
 		manager = context.getAutowireCapableBeanFactory().createBean(DefaultSchedulerManager.class);
 	}
 	

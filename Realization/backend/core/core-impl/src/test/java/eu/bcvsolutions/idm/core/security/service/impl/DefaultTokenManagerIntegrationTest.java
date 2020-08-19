@@ -1,10 +1,9 @@
 package eu.bcvsolutions.idm.core.security.service.impl;
 
-import java.util.List;
-import java.util.UUID;
-
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,6 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -30,6 +33,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired private ApplicationContext context;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmCacheManager cacheManager;
 	//
 	private DefaultTokenManager manager;
 	
@@ -47,7 +52,7 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 	}
 	
 	@Test
-	public void testCruddToken() {
+	public void testCrudToken() {
 		IdmIdentityDto owner = new IdmIdentityDto(UUID.randomUUID());
 		IdmTokenDto token = createToken(owner, null, null);
 		//
@@ -228,5 +233,43 @@ public class DefaultTokenManagerIntegrationTest extends AbstractIntegrationTest 
 		return manager.saveToken(owner, token);
 	}
 	
+	@Test
+	public void testDisableTokenAfterIdentityIsDeleted() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmTokenDto token = createToken(identity, null, null);
+		Assert.assertFalse(token.isDisabled());
+		//
+		identityService.delete(identity);
+		//
+		token = manager.getToken(token.getId());
+		//
+		Assert.assertTrue(token.isDisabled());
+	}
 	
+	@Test
+	public void testDisableTokenAfterIdentityIsDisabled() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmTokenDto token = createToken(identity, null, null);
+		Assert.assertFalse(token.isDisabled());
+		//
+		identityService.disable(identity.getId());
+		//
+		token = manager.getToken(token.getId());
+		//
+		Assert.assertTrue(token.isDisabled());
+	}
+	
+	@Test
+	public void testEvictTokenCache() {
+		IdmIdentityDto owner = new IdmIdentityDto(UUID.randomUUID());
+		IdmTokenDto token = createToken(owner, null, null);
+		token = manager.getToken(token.getId());
+		//
+		Assert.assertNotNull(cacheManager.getValue(TokenManager.TOKEN_CACHE_NAME, token.getId()));
+		//
+		token.setDisabled(true);
+		manager.saveToken(owner, token);
+		//
+		Assert.assertNull(cacheManager.getValue(TokenManager.TOKEN_CACHE_NAME, token.getId()));
+	}
 }

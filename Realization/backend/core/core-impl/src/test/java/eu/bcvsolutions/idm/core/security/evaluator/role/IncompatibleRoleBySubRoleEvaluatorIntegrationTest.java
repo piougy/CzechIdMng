@@ -16,16 +16,16 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIncompatibleRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
- * Permission to incompatible role by sub role
+ * Permission to incompatible role by sub role.
  * 
  * @author Radek Tomiška
  *
  */
 @Transactional
-public class IncompatibleRoleBySubRoleEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class IncompatibleRoleBySubRoleEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private IdmIncompatibleRoleService service;
 	@Autowired private IdmRoleService roleService;

@@ -125,6 +125,24 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 			@PageableDefault Pageable pageable) {
 		return super.autocomplete(parameters, pageable);
 	}
+	
+	@Override
+	@ResponseBody
+	@RequestMapping(value = "/search/count", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.ROLETREENODE_COUNT + "')")
+	@ApiOperation(
+			value = "The number of entities that match the filter", 
+			nickname = "countRoleTreeNodes", 
+			tags = { IdmRoleTreeNodeController.TAG }, 
+			authorizations = { 
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLETREENODE_COUNT, description = "") }),
+				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+						@AuthorizationScope(scope = CoreGroupPermission.ROLETREENODE_COUNT, description = "") })
+				})
+	public long count(@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
+		return super.count(parameters);
+	}
 
 	@Override
 	@ResponseBody
@@ -170,7 +188,7 @@ public class IdmRoleTreeNodeController extends AbstractReadWriteDtoController<Id
 	public ResponseEntity<?> post(@Valid @RequestBody IdmRoleTreeNodeDto dto) {
 		Assert.notNull(dto, "DTO is required.");
 		IdmRoleTreeNodeDto result = requestService.createTreeAutomaticRole(dto);
-		if(result == null) {
+		if (result == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<>(toResource(result), HttpStatus.CREATED);

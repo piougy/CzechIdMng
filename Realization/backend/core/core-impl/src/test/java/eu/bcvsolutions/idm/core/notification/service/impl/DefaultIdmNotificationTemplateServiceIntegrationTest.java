@@ -24,11 +24,11 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.SpinalCase;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmEmailLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmMessageDto;
@@ -68,7 +68,7 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 	
 	@Before
 	public void init() {
-		loginAsAdmin(InitTestData.TEST_USER_1);
+		loginAsAdmin(InitTestDataProcessor.TEST_USER_1);
 		notificationTemplateService = context.getAutowireCapableBeanFactory().createBean(DefaultIdmNotificationTemplateService.class);
 	}
 	
@@ -172,7 +172,7 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 			assertEquals(1, files.length);
 			File backup = files[0];
 			assertTrue(backup.exists());
-			assertTrue(backup.getName().contains(SpinalCase.format(InitTestData.TEST_USER_1)));
+			assertTrue(backup.getName().contains(SpinalCase.format(InitTestDataProcessor.TEST_USER_1)));
 			assertTrue(backup.getName().contains(testTemplate.getCode()));
 		} catch (Exception e) {
 			fail();
@@ -216,7 +216,7 @@ public class DefaultIdmNotificationTemplateServiceIntegrationTest extends Abstra
 		assertEquals(1, files.length);
 		File backup = files[0];
 		assertTrue(backup.exists());
-		assertTrue(backup.getName().contains(SpinalCase.format(InitTestData.TEST_USER_1)));
+		assertTrue(backup.getName().contains(SpinalCase.format(InitTestDataProcessor.TEST_USER_1)));
 		assertTrue(backup.getName().contains(testTemplateNew.getCode()));
 	}
 

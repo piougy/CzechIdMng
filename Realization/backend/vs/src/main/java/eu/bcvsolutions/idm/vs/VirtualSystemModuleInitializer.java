@@ -6,11 +6,12 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 /**
- * Initialize Virtual system module
+ * Initialize Virtual system module.
  * 
  * @author Svanda
- *
+ * @deprecated @since 10.5.0 - unused since created
  */
+@Deprecated
 @Component
 @DependsOn("initApplicationData")
 public class VirtualSystemModuleInitializer implements ApplicationListener<ContextRefreshedEvent> {

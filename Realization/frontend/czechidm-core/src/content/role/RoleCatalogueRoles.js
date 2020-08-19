@@ -6,15 +6,12 @@ import SearchParameters from '../../domain/SearchParameters';
 import RoleCatalogueRoleTable from './RoleCatalogueRoleTable';
 
 /**
- * Role catalogues - role assigned to role catalogue
+ * Role catalogues - role assigned to role catalogue.
  *
  * @author Radek Tomiška
  */
 export default class RoleCatalogueRoles extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'content.role.catalogues';
@@ -26,17 +23,18 @@ export default class RoleCatalogueRoles extends Basic.AbstractContent {
 
   render() {
     const forceSearchParameters = new SearchParameters().setFilter('roleId', this.props.match.params.entityId);
+    //
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div className="tab-pane-table-body">
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
 
-        <Basic.ContentHeader icon="fa:list-alt" text={ this.i18n('header') } style={{ marginBottom: 0 }}/>
         <RoleCatalogueRoleTable
           uiKey="role-catalogue-role-table"
           forceSearchParameters={ forceSearchParameters }
           className="no-margin"
-          match={ this.props.match }/>
-      </div>
+          match={ this.props.match }
+          columns={[ 'roleCatalogue' ]}/>
+      </Basic.Div>
     );
   }
 }

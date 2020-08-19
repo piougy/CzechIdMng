@@ -26,9 +26,14 @@ class RoleCatalogueContent extends Basic.AbstractContent {
     return 'content.roleCatalogues';
   }
 
+  getNavigationKey() {
+    return 'role-catalogue-detail';
+  }
+
   componentDidMount() {
+    super.componentDidMount();
+    //
     const { entityId } = this.props.match.params;
-    this.selectNavigationItems(['role-catalogues', 'role-catalogue-detail']);
     //
     if (this._isNew()) {
       this.context.store.dispatch(roleCatalogueManager.receiveEntity(entityId, { }));

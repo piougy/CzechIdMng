@@ -22,6 +22,7 @@ import org.testng.collections.Lists;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EventConfiguration;
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
@@ -80,6 +81,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	@Autowired private IdmIdentityContractService contractService;
 	@Autowired private IdmRoleRequestService roleRequestService;
 	@Autowired private EventConfiguration eventConfiguration;
+	@Autowired private RoleConfiguration roleConfiguration;
 	//
 	private DefaultIdentityProjectionManager manager;
 	//
@@ -669,6 +671,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	
 	@Test
 	public void testGetProjectionWithoutContractAuthority() {
+		String defaultRoleCode = roleConfiguration.getDefaultRoleCode();
 		// create identity with update identity permission only
 		IdmIdentityDto identityLogged = getHelper().createIdentity(); // with password
 		IdmRoleDto role = getHelper().createRole();
@@ -717,9 +720,11 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 				.getContent();
 		// assigned roles
 		getHelper().createIdentityRole(projection.getIdentity(), role);
-		
-		getHelper().login(identityLogged);
 		try {
+			// empty property => disable default role
+			getHelper().setConfigurationValue(RoleConfiguration.PROPERTY_DEFAULT_ROLE, "");
+			//
+			getHelper().login(identityLogged);
 			IdmIdentityProjectionDto createdProjection = manager.get(projection, IdmBasePermission.READ);
 			//
 			Assert.assertNotNull(createdProjection);
@@ -737,11 +742,13 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 			Assert.assertFalse(createdProjection.getIdentityRoles().isEmpty());
 		} finally {
 			logout();
+			getHelper().setConfigurationValue(RoleConfiguration.PROPERTY_DEFAULT_ROLE, defaultRoleCode);
 		}
 	}
 	
 	@Test(expected = ForbiddenEntityException.class)
 	public void testSaveProjectionWithoutContractAuthority() {
+		String defaultRoleCode = roleConfiguration.getDefaultRoleCode();
 		// create identity with update identity permission only
 		IdmIdentityDto identityLogged = getHelper().createIdentity(); // with password
 		IdmRoleDto role = getHelper().createRole();
@@ -759,13 +766,18 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 		IdmIdentityProjectionDto projection = new IdmIdentityProjectionDto(identity);
 		projection.setContract(new IdmIdentityContractDto());
 		//
-		getHelper().login(identityLogged);
 		try {
+			// empty property => disable default role
+			getHelper().setConfigurationValue(RoleConfiguration.PROPERTY_DEFAULT_ROLE, "");
+			//
+			getHelper().login(identityLogged);
+			//
 			manager
 				.publish(new IdentityProjectionEvent(IdentityProjectionEventType.CREATE, projection), IdmBasePermission.CREATE)
 				.getContent();
 		} finally {
 			logout();
+			getHelper().setConfigurationValue(RoleConfiguration.PROPERTY_DEFAULT_ROLE, defaultRoleCode);
 		}
 	}
 	
@@ -1081,5 +1093,28 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 		contracts = contractService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(1, contracts.size());
 		Assert.assertTrue(contracts.stream().anyMatch(c -> c.getId().equals(otherContract.getId())));
+	}
+	
+	@Test
+	public void testLoadAssignedRoles() {
+		IdmFormProjectionDto projection = new IdmFormProjectionDto();
+		projection.setCode(getHelper().createName());
+		projection.setOwnerType(lookupService.getOwnerType(IdmIdentityDto.class));
+		projection = projectionService.save(projection);
+		//
+		// create identity with projection is defined
+		IdmIdentityDto identity = new IdmIdentityDto(getHelper().createName());
+		identity.setFormProjection(projection.getId());
+		identity = identityService.save(identity);
+		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
+		getHelper().createIdentityRole(primeContract, getHelper().createRole());
+		//
+		IdmIdentityProjectionDto identityProjection = manager.get(identity.getId());
+		Assert.assertFalse(identityProjection.getIdentityRoles().isEmpty());
+		//
+		projection.getProperties().put(IdentityFormProjectionRoute.PARAMETER_LOAD_ASSIGNED_ROLES, false);
+		projectionService.save(projection);
+		identityProjection = manager.get(identity.getId());
+		Assert.assertTrue(identityProjection.getIdentityRoles().isEmpty());
 	}
 }

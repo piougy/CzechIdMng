@@ -41,7 +41,7 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 			ZonedDateTime issuedAt,
 			Collection<GrantedAuthority> authorities,
 			String fromModule) {
-		this(null, currentIdentity, currentIdentity, expiration, ZonedDateTime.now(), authorities, fromModule);
+		this(null, currentIdentity, originalIdentity, expiration, ZonedDateTime.now(), authorities, fromModule);
 	}
 	
 	public IdmJwtAuthentication(

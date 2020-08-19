@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.InitDemoData;
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
@@ -22,8 +22,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Test permissions for role requests by identity 
@@ -31,9 +30,8 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Radek Tomiška
  *
  */
-public class RoleRequestByIdentityEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class RoleRequestByIdentityEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private LoginService loginService;
 	@Autowired private IdmRoleRequestService roleRequestService;
@@ -41,14 +39,14 @@ public class RoleRequestByIdentityEvaluatorIntegrationTest extends AbstractInteg
 	
 	@Test
 	public void testCanReadRoleRequestByIdentity() {
-		IdmIdentityDto identityOne = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identityOne = getHelper().createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity();
 		// create policy
-		IdmRoleDto role = helper.createRole();
-		helper.createUuidPolicy(role.getId(), identityOne.getId(), IdmBasePermission.READ);
-		helper.createIdentityRole(identityTwo, role);
-		helper.createIdentityRole(identityTwo, roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME));
-		IdmRoleRequestDto roleRequest = helper.assignRoles(helper.getPrimeContract(identityOne.getId()), role);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createUuidPolicy(role.getId(), identityOne.getId(), IdmBasePermission.READ);
+		getHelper().createIdentityRole(identityTwo, role);
+		getHelper().createIdentityRole(identityTwo, roleService.getByCode(RoleConfiguration.DEFAULT_DEFAULT_ROLE));
+		IdmRoleRequestDto roleRequest = getHelper().assignRoles(getHelper().getPrimeContract(identityOne.getId()), role);
 		//
 		try {			
 			loginService.login(new LoginDto(identityTwo.getUsername(), identityTwo.getPassword()));
@@ -70,12 +68,12 @@ public class RoleRequestByIdentityEvaluatorIntegrationTest extends AbstractInteg
 
 	@Test(expected = ForbiddenEntityException.class)
 	public void testCannotReadRoleRequestByIdentity() {
-		IdmIdentityDto identityOne = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identityOne = getHelper().createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity();
 		//
-		IdmRoleDto role = helper.createRole();
-		helper.createIdentityRole(identityTwo, role);
-		IdmRoleRequestDto roleRequest = helper.assignRoles(helper.getPrimeContract(identityOne.getId()), role);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createIdentityRole(identityTwo, role);
+		IdmRoleRequestDto roleRequest = getHelper().assignRoles(getHelper().getPrimeContract(identityOne.getId()), role);
 		//
 		try {			
 			loginService.login(new LoginDto(identityTwo.getUsername(), identityTwo.getPassword()));
@@ -88,8 +86,8 @@ public class RoleRequestByIdentityEvaluatorIntegrationTest extends AbstractInteg
 	
 	@Test(expected = ForbiddenEntityException.class)
 	public void testCannotCreateRoleRequestByIdentity() {
-		IdmIdentityDto identityOne = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identityOne = getHelper().createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity();
 		//
 		try {			
 			loginService.login(new LoginDto(identityOne.getUsername(), identityOne.getPassword()));
@@ -105,14 +103,14 @@ public class RoleRequestByIdentityEvaluatorIntegrationTest extends AbstractInteg
 	
 	@Test
 	public void testCreateRoleRequestForOtherIdentity() {
-		IdmIdentityDto identityOne = helper.createIdentity();
-		IdmIdentityDto identityTwo = helper.createIdentity();
+		IdmIdentityDto identityOne = getHelper().createIdentity();
+		IdmIdentityDto identityTwo = getHelper().createIdentity();
 		// create policy
-		IdmRoleDto role = helper.createRole();
-		helper.createUuidPolicy(role.getId(), identityTwo.getId(), IdentityBasePermission.CHANGEPERMISSION);
-		helper.createIdentityRole(identityOne, role);
+		IdmRoleDto role = getHelper().createRole();
+		getHelper().createUuidPolicy(role.getId(), identityTwo.getId(), IdentityBasePermission.CHANGEPERMISSION);
+		getHelper().createIdentityRole(identityOne, role);
 		// assign default role
-		helper.createIdentityRole(identityOne, roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME));
+		getHelper().createIdentityRole(identityOne, roleService.getByCode(RoleConfiguration.DEFAULT_DEFAULT_ROLE));
 		//
 		try {			
 			loginService.login(new LoginDto(identityOne.getUsername(), identityOne.getPassword()));

@@ -9,12 +9,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
@@ -60,7 +60,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		IdmIdentityDto identity = createIdentity(WF_TEST_IDENTITY_01);
 		//
-		processInstanceService.startProcess(WF_1_ENABLED_PROCESS_KEY, null, InitTestData.TEST_USER_1, null, null);
+		processInstanceService.startProcess(WF_1_ENABLED_PROCESS_KEY, null, InitTestDataProcessor.TEST_USER_1, null, null);
 		//
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(identity.getUsername());
@@ -77,7 +77,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		IdmIdentityDto identity = createIdentity(WF_TEST_IDENTITY_03);
 		//
-		processInstanceService.startProcess(WF_3_DISABLED_PROCESS_KEY, null, InitTestData.TEST_USER_1, null, null);
+		processInstanceService.startProcess(WF_3_DISABLED_PROCESS_KEY, null, InitTestDataProcessor.TEST_USER_1, null, null);
 		//
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(identity.getUsername());
@@ -92,7 +92,7 @@ public class SendNotificationFromTask extends AbstractCoreWorkflowIntegrationTes
 		//
 		IdmIdentityDto identity = createIdentity(WF_TEST_IDENTITY_02);
 		//
-		processInstanceService.startProcess(WF_2_FORM_DISABLED_PROCESS_KEY, null, InitTestData.TEST_USER_1, null, null);
+		processInstanceService.startProcess(WF_2_FORM_DISABLED_PROCESS_KEY, null, InitTestDataProcessor.TEST_USER_1, null, null);
 		//
 		IdmNotificationFilter filter = new IdmNotificationFilter();
 		filter.setRecipient(identity.getUsername());

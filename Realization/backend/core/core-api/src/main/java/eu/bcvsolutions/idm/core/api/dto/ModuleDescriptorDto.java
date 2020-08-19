@@ -19,6 +19,13 @@ public class ModuleDescriptorDto extends AbstractComponentDto {
 	private boolean disableable;
 	private boolean documentationAvailable;
 	
+	public ModuleDescriptorDto() {
+	}
+	
+	public ModuleDescriptorDto(String moduleIdentifier) {
+		super(moduleIdentifier);
+	}
+	
 	@Override
 	public String getModule() {
 		// id = module

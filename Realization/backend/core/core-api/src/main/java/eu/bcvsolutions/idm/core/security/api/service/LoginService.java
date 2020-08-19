@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.security.api.service;
 
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 
@@ -43,4 +44,21 @@ public interface LoginService {
 	 * @since 8.2.0
 	 */
 	void logout(IdmTokenDto token);
+	
+	/**
+	 * Login as other identity.
+	 * 
+	 * @param identity target identity
+	 * @return switched login dto
+	 * @since 10.5.0
+	 */
+	LoginDto switchUser(IdmIdentityDto identity);
+	
+	/**
+	 * Logout other identity - return back to original user.
+	 * 
+	 * @return switched login dto
+	 * @since 10.5.0
+	 */ 
+	LoginDto switchUserLogout();
 }

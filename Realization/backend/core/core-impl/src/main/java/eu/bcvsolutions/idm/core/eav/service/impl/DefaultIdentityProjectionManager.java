@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
@@ -442,8 +443,23 @@ public class DefaultIdentityProjectionManager implements IdentityProjectionManag
 	 * @return
 	 */
 	protected List<IdmIdentityRoleDto> getIdentityRoles(IdmIdentityProjectionDto dto, BasePermission... permission) {
+		// check all assigned roles has to be loaded
+		IdmIdentityDto identity = dto.getIdentity();
+		if (identity.getFormProjection() != null) {
+			IdmFormProjectionDto formProjection = lookupService.lookupEmbeddedDto(dto.getIdentity(), IdmIdentity_.formProjection);
+			ConfigurationMap properties = formProjection.getProperties();
+			//
+			if (properties.containsKey(IdentityFormProjectionRoute.PARAMETER_LOAD_ASSIGNED_ROLES) // backward compatible
+					&& !properties.getBooleanValue(IdentityFormProjectionRoute.PARAMETER_LOAD_ASSIGNED_ROLES)) {
+				LOG.debug("Projection [{}] does not load all assigned roles.", formProjection.getCode());
+				//
+				return Lists.newArrayList();
+			}
+		}
+		//
+		// load all assigned identity roles
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-		filter.setIdentityId(dto.getIdentity().getId());
+		filter.setIdentityId(identity.getId());
 		//
 		return Lists.newArrayList(identityRoleService.find(filter, null, permission).getContent());
 	}

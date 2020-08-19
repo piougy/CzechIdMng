@@ -297,7 +297,7 @@
     "removedRecord_1": "Do zpracování hromadné úlohy nebude započítána tato entita: <b>[{{entities}}]</b>.",
     "removedRecord_2": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
     "removedRecord_5": "Do zpracování hromadné úlohy nebudou započítány tyto entity: <b>[{{entities}}]</b>.",
-    "created": "Hromadná úloha [{{name}}] byla úspěšně spuštěna v dlouhotrvající úloze s id: [{{longRunningTaskId}}]",
+    "created": "Hromadná úloha [{{name}}] byla úspěšně spuštěna jako dlouhotrvající úloha.",
     "message_empty": "Provádíte hromadnou úlohu [{{name}}].",
     "message_1": "Provádíte hromadnou úlohu [{{name}}] nad vybraným záznamem: <b>[{{entities}}]</b>.",
     "message_2": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
@@ -1700,7 +1700,12 @@
         },
         "organization": {
           "label": "Org. struktura",
-          "placeholder": "Prvek v organizační struktuře"
+          "placeholder": "Prvek v organizační struktuře",
+          "option": {
+            "withoutWorkPosition": {
+              "label": "-- bez pracovní pozice v organizační struktuře --"
+            }
+          }
         },
         "recursively": {
           "label": "Rekurzivně",
@@ -1897,6 +1902,10 @@
       },
       "tabs": {
         "basic": "Základní informace"
+      },
+      "roles": {
+        "title": "Role v katalogu",
+        "header": "Role v katalogu"
       }
     },
     "automaticRoles": {
@@ -2063,7 +2072,7 @@
       "header": "Delegace",
       "title": "Definice delegací",
       "label": "Delegace",
-      "detailHeader": "Delegace <small>({{delegator}} 🡆 {{delegate}})</small>",
+      "detailHeader": "Delegace <small>({{delegator}} <strong class=\"highlight\">></strong> {{delegate}})</small>",
       "edit": {
         "title": "Detail definice delegace"
       },
@@ -2985,6 +2994,26 @@
       "profile-setting": {
         "header": "Uživatelské nastavení",
         "title": "Uživatelské nastavení"
+      },
+      "switch-user": {
+        "header": "Přihlásit se jako jiný uživatel",
+        "title": "Přihlásit se jako jiný uživatel",
+        "username": {
+          "label": "Uživatel",
+          "help": "Uživatel, za kterého se chcete přihásit."
+        },
+        "switched": {
+          "label": "Přihlášení za jiného uživatele",
+          "title": "Uživatel [{{originalUsername}}] je přihlášen jako [{{username}}]."
+        },
+        "button": {
+          "save": "Přepnout uživatele",
+          "saving": "Přepínám ...",
+          "logout": "Přihlásit se zpět"
+        },
+        "message": {
+          "success": "Přihlášen uživatel [{{username}}]."
+        }
       },
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
@@ -4006,6 +4035,11 @@
     },
     "RoleCatalogueRole": {
       "_type": "Role zařazena do katalogu",
+      "role": {
+        "label": "$t(entity.Role._type)",
+        "title": "Role zařazena ve složce katalogu.",
+        "help": "Role zařazena ve složce katalogu."
+      },
       "roleCatalogue": {
         "label": "$t(entity.RoleCatalogue._type)",
         "help": "Role bude zařazena do vybrané složky katalogu."
@@ -6419,6 +6453,10 @@
           "assigned-roles": {
             "label": "Zobrazit přiřazené role",
             "help": "Zobrazit možnost přiřadit role pro nového uživatele a zažádat o změnu rolí pro stávajícího."
+          },
+          "load-assigned-roles": {
+            "label": "Načítat přiřazené role do projekce",
+            "help": "Načítat všechny přiřazené role do projekce. Vhodné pouze pokud nejsou role přiřazovány přes žádosti o role, ale napřímo. V produktové projekci není podporováno vytvářet role napřímo a načítání je proto vhodné vypnout."
           }
         }
       }
@@ -7093,7 +7131,7 @@
     },
     "NULL_ATTRIBUTE": {
       "title": "Atribut je NULL",
-      "message": "Atribut 'null' je NULL."
+      "message": "Atribut [{{attribute}}] je NULL."
     },
     "ROLE_REQUEST_AUTOMATICALLY_NOT_ALLOWED": {
       "title": "Špatná hodnota",
@@ -7610,6 +7648,12 @@
     },
     "permission-cache": {
       "description": "Cache pro ukládání oprávnění (na data) přihlášeného uživatele. Cache je vyprázdněna po odhlášení uživatele. Platnost cache je 1 minuta - pokud se změní struktura dat ovlivňující oprávnění, jsou oprávnění aktualizována po uplynutí této doby. Pokud se změní konfigurace autorizačních politik, je tato cache vyprázdněna (kompletně)."
+    },
+    "form-definition-cache": {
+      "description": "Cache pro ukládání definic rozšířených (eav) atributů. Cache je vyprázdněna automaticky při každé změně definice či atributu formuláře."
+    },
+    "token-cache": {
+      "description": "Cache pro ukládání tokenů přihlášených uživatelů. Cache je vyprázdněna automaticky při každé změně tokenu. Platnost cache je 1 minuta - po jedné minutě je prodlužována platnost tokenu, pokud se token používá a cache se vyprázdní."
     }
   }
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import { Basic, Advanced, Managers, Utils } from 'czechidm-core';
+import { Basic, Advanced, Managers, Utils, Domain } from 'czechidm-core';
 import { AccountManager, SystemEntityManager, SystemManager } from '../../redux';
 import AccountTypeEnum from '../../domain/AccountTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
@@ -51,7 +51,7 @@ export class AccountTable extends Advanced.AbstractTableContent {
     this.setState({
       systemEntity: entity.systemEntity
     }, () => {
-      if (!Utils.Entity.isNew(entity)) {
+      if (!Utils.Entity.isNew(entity) && Managers.SecurityManager.hasAuthority('SYSTEM_READ')) {
         manager.getService()
           .getConnectorObject(entity.id)
           .then(json => {
@@ -265,18 +265,23 @@ export class AccountTable extends Advanced.AbstractTableContent {
                   manager={ systemManager }
                   label={ this.i18n('acc:entity.Account.system') }
                   readOnly={ !Utils.Entity.isNew(detail.entity) || systemId }
+                  forceSearchParameters={ new Domain.SearchParameters(Domain.SearchParameters.NAME_AUTOCOMPLETE) }
                   required/>
                 <Basic.TextField
                   ref="uid"
                   label={ this.i18n('acc:entity.Account.uid') }
                   required
                   max={ 1000 }/>
-                <Basic.SelectBox
-                  ref="systemEntity"
-                  manager={ systemEntityManager }
-                  label={ this.i18n('acc:entity.Account.systemEntity') }
-                  forceSearchParameters={ forceSystemEntitySearchParameters }
-                  onChange={ this.onChangeSystemEntity.bind(this) }/>
+                {
+                  !Managers.SecurityManager.hasAuthority('SYSTEMENTITY_READ')
+                  ||
+                  <Basic.SelectBox
+                    ref="systemEntity"
+                    manager={ systemEntityManager }
+                    label={ this.i18n('acc:entity.Account.systemEntity') }
+                    forceSearchParameters={ forceSystemEntitySearchParameters }
+                    onChange={ this.onChangeSystemEntity.bind(this) }/>
+                }
                 <Basic.EnumSelectBox
                   ref="accountType"
                   enum={ AccountTypeEnum }
@@ -301,26 +306,28 @@ export class AccountTable extends Advanced.AbstractTableContent {
 
               </Basic.AbstractForm>
 
-              <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>
+              <Basic.Div rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_READ')}>
+                <Basic.ContentHeader text={ this.i18n('acc:entity.SystemEntity.attributes') } rendered={ !Utils.Entity.isNew(detail.entity) }/>
 
-              <Basic.Table
-                showLoading={ !connectorObject && !this.state.hasOwnProperty('connectorObject') }
-                data={ connectorObject ? connectorObject.attributes : null }
-                noData={ this.i18n('component.basic.Table.noData') }
-                className="table-bordered"
-                rendered={ !Utils.Entity.isNew(detail.entity) }>
-                <Basic.Column property="name" header={ this.i18n('label.property') }/>
-                <Basic.Column
-                  property="values"
-                  header={ this.i18n('label.value') }
-                  cell={
-                    ({ rowIndex, data }) => {
-                      return (
-                        Utils.Ui.toStringValue(data[rowIndex].values)
-                      );
-                    }
-                  }/>
-              </Basic.Table>
+                <Basic.Table
+                  showLoading={ !connectorObject && !this.state.hasOwnProperty('connectorObject') }
+                  data={ connectorObject ? connectorObject.attributes : null }
+                  noData={ this.i18n('component.basic.Table.noData') }
+                  className="table-bordered"
+                  rendered={ !Utils.Entity.isNew(detail.entity) }>
+                  <Basic.Column property="name" header={ this.i18n('label.property') }/>
+                  <Basic.Column
+                    property="values"
+                    header={ this.i18n('label.value') }
+                    cell={
+                      ({ rowIndex, data }) => {
+                        return (
+                          Utils.Ui.toStringValue(data[rowIndex].values)
+                        );
+                      }
+                    }/>
+                </Basic.Table>
+              </Basic.Div>
 
             </Basic.Modal.Body>
 

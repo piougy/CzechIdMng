@@ -8,8 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.EmailNotificationSender;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmEmailLogService;
@@ -26,7 +26,7 @@ public class BasicEmailTest extends AbstractCoreWorkflowIntegrationTest {
 
 	private static final String PROCESS_KEY = "testEmailer";
 	private static final String EMAIL_TEXT = "wf_test";
-	private static final String EMAIL_RECIPIENT = InitTestData.TEST_USER_1;
+	private static final String EMAIL_RECIPIENT = InitTestDataProcessor.TEST_USER_1;
 	//
 	@Autowired private WorkflowDeploymentService processDeploymentService;
 	@Autowired private IdmEmailLogService emailLogService;

@@ -72,7 +72,7 @@
 	</task>
 
 	<task>
-		<description>Start of assigned role's validity.</description>
+		<description>Start of assigned role validity.</description>
 		<instanceId>idm-primary</instanceId>
 		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.IdentityRoleValidRequestTaskExecutor</taskType>
 		<parameters>
@@ -85,14 +85,14 @@
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
-				<cron>0 30 1 ? * *</cron>
+				<cron>0 45 0 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
 		</triggers>
 	</task>
 
 	<task>
-		<description>Start of contract's validity.</description>
+		<description>Start of contract validity - before end and expire.</description>
 		<instanceId>idm-primary</instanceId>
 		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEnableContractProcess</taskType>
 		<parameters>
@@ -105,21 +105,51 @@
 		<triggers>
 			<trigger>
 				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
-				<cron>0 45 1 ? * *</cron>
+				<cron>0 35 0 ? * *</cron>
 				<state>ACTIVE</state>
 			</trigger>
 		</triggers>
 	</task>
 
 	<task>
-		<description>Default</description>
+		<description>Exclude contract.</description>
 		<instanceId>idm-primary</instanceId>
 		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrContractExclusionProcess</taskType>
+		
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+		</parameters>
+
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 55 0 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>
 	</task>
 	<task>
-		<description>Default</description>
+		<description>End of contract validity - scheduled before default contract expiration (this task works with disabled state too).</description>
 		<instanceId>idm-primary</instanceId>
 		<taskType>eu.bcvsolutions.idm.core.scheduler.task.impl.hr.HrEndContractProcess</taskType>
+		
+		<parameters>
+			<parameter>
+				<key>core:instanceId</key>
+				<value>idm-primary</value>
+			</parameter>
+		</parameters>
+
+		<triggers>
+			<trigger>
+				<type>eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger</type>
+				<cron>0 50 0 ? * *</cron>
+				<state>ACTIVE</state>
+			</trigger>
+		</triggers>
 	</task>
 
 	<task>

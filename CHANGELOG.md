@@ -4,12 +4,34 @@ All notable changes to this project will be documented in this file.
 ## [10.5.0]
 
 ### Administrator
+- [#2413](https://redmine.czechidm.com/issues/2413) - New caches were registered:
+  - ``core:token-cache`` - Cache stores logged user tokens. Cache is evicted automatically after token is changed. Cache expiration is 1 minute  - token expiration id prolonged automatically in one minute window, when token used.. **Memory usage per logged user is 25KB**.
+- [#812](https://redmine.czechidm.com/issues/812) - Init application data was refactored:
+  - default CzechIdM roles (e.g. ``superAdminRole``, ``userRole``) and other init data (e.g. default password policies) are created and updated after new version is installed, read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data).
+  - to disable updating (and creating) product provided init data set property ``idm.sec.core.init.data.enabled=false``.
+  - default administrator identity (with ``admin`` username) is created, only if no other identity with admin role (``superAdminRole`` by default configuration) exists.
+  - **``ProvisioningQueueTaskExecutor`` is not scheduled by default** - asynchronous system feature is not used and will be deprecated.
+  - **All HR processes ``HrEnableContractProcess``, ``HrEndContractProcess ``, ``HrContractExclusionProcess `` are scheduled by default now** - read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data#scheduled_tasks).
+- [#2404](https://redmine.czechidm.com/issues/2404) - **All automatic roles are assigned through asynchronous role requests now** (to preserve order of provisioning operations). When long running tasks (LRT) for processing automatic roles ends, then role requests are prepared only => roles will be assigned asynchronously and they are not available right after LRT ends.
 
-- [#2386](https://redmine.czechidm.com/issues/2386) - New permissions for system attribute mapping. If you use some role that grant access to system agenda in IdM please update the role with new permissions for system attribute mapping entity. System attribute mapping allow ``CREATE`` ,``READ``, ``UPDATE`` and ``DELETE``.
 
 ### Developer
 
-- [#2386](https://redmine.czechidm.com/issues/2386) - service **SysSystemAttributeMappingService** now implement **AuthorizableService** interface and methods in repository **SysSystemAttributeMappingRepository** are deprecated now. Into filter for system attribute mapping was also added new properties used in old repository methods. Old methods in repository may not working correctly.
+- [#2386](https://redmine.czechidm.com/issues/2386) - All additional methods defined in ``SysSystemAttributeMappingRepository`` are deprecated now - new properties was added into system attribute mapping filter and predicates are implemented in ``DefaultSysSystemAttributeMappingService#toPredicates`` method. Filter properties (builders) can be registered in custom module now.
+- [#812](https://redmine.czechidm.com/issues/812) - Init application data was refactored:
+  - default CzechIdM roles (e.g. ``superAdminRole``, ``userRole``) and other init data (e.g. default password policies) are created and updated after new version is installed, **read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data)**.
+  - Default user role (``userRole``) is configured for test usage now. Use new ``AbstractEvaluatorIntegrationTest`` superclass for authorization policies test, where default role should be disabled.
+  - **Role type enumeration is used now for product provided default roles**. It was used before for ``superAdminRole`` only - now is used for all product provided default roles and is used for update role authorization policies, when new CzechIdM version is installed, read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data).
+  - Components ``InitTestData``, ``InitDemoData`` are deprecated and they are not initialized during application starts. ``InitApplicationData`` publish ``INIT`` event type for main IdM module (``app``) only. Avoid ``InitApplicationData`` dependency in you module. Use [processors](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data) to create init, test or demo data in you custom module. For example, **if your module init eav form definitions and attributes, then implement processor (see ``InitFormDefinitionProcessor``) with order (e.g. -175) before all [identities are created](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data).**
+  - Scheduled task initiation was moved into [processors](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data) with defined order and new **superclass ``BaseScheduledTaskInitializer`` was added - use this class in your module** for schedule default tasks and create new processor. ``AbstractScheduledTaskInitializer`` is deprecated now.
+  - Constant ``InitApplicationData#ADMIN_ROLE`` is deprecated, prevent to use it in your module. Admin role can be changed by configuration property ``idm.sec.core.role.admin=superAdminRole``.
+  - [#2404](https://redmine.czechidm.com/issues/2404) - **All automatic roles are assigned through asynchronous role requests now** (to preserve order of provisioning operations). When long running tasks (LRT) for processing automatic roles ends, then role requests are prepared only => roles will be assigned asynchronously and they are not available right after LRT ends.
+
+## [10.4.2]
+
+### Administrator
+- [#2366](https://redmine.czechidm.com/issues/2366) - New caches were registered:
+  - ``core:form-definition-cache`` - Cache stores form definitions (eav). Cache is evicted automatically after form definition or attribute is changed. **Memory usage per application is 25KB per definition with 10 attributes**.
 
 ## [10.4.1]
 
@@ -33,7 +55,7 @@ Beware on some more strict limitation for size of GET request on the Apache serv
 ### Developer
 
 - [#2158](https://redmine.czechidm.com/issues/2158) - ``Node version 12.16.3``, ``Npm 6.14.4``, ``Npx 6.14.4`` is used for developing and building CzechIdM.
-- [#2282](https://redmine.czechidm.com/issues/22828) - ``FilterNotSupportedException`` exception was added. Exception is thrown, when unsupported filter is used from REST or on service layer. Make sure **all used filters are [registered properly](https://wiki.czechidm.com/devel/documentation/architecture/dev/filters) in your custom module!**. Unsupported filter usage is not possible now - exception will be thrown instead of skipping filter usage silently.
+- [#2282](https://redmine.czechidm.com/issues/2282) - ``FilterNotSupportedException`` exception was added. Exception is thrown, when unsupported filter is used from REST or on service layer. Make sure **all used filters are [registered properly](https://wiki.czechidm.com/devel/documentation/architecture/dev/filters) in your custom module!**. Unsupported filter usage is not possible now - exception will be thrown instead of skipping filter usage silently.
 - [#2346](https://redmine.czechidm.com/issues/2346)
   - Skipping of sending notification after new workflow task was created not worked if ``default`` property (in task configuration) was used. You can fix this with using ``expression`` property instead ``default`` value in your workflow.
     <code><activiti:formProperty id="sendNotification" type="configuration" expression="false" writable="false"></activiti:formProperty></code>

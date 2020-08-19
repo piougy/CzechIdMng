@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Permission to role catalogue relations by relation's role
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  *
  */
 @Transactional
-public class RoleCatalogueRoleByRoleEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class RoleCatalogueRoleByRoleEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private IdmRoleCatalogueRoleService service;
 	@Autowired private IdmRoleService roleService;
@@ -67,7 +67,7 @@ public class RoleCatalogueRoleByRoleEvaluatorIntegrationTest extends AbstractInt
 				RoleCatalogueRoleByRoleEvaluator.class);
 		//
 		try {
-			getHelper().login(identity.getUsername(), identity.getPassword());
+			getHelper().login(identity);
 			//
 			// evaluate	access
 			roleCatalougueRoles = service.find(null, IdmBasePermission.READ).getContent();
@@ -84,7 +84,7 @@ public class RoleCatalogueRoleByRoleEvaluatorIntegrationTest extends AbstractInt
 		getHelper().createUuidPolicy(role.getId(), role.getId(), IdmBasePermission.UPDATE);
 		//
 		try {
-			getHelper().login(identity.getUsername(), identity.getPassword());
+			getHelper().login(identity);
 			//
 			Set<String> permissions = service.getPermissions(roleCatalogueRole);
 			Assert.assertEquals(4, permissions.size());

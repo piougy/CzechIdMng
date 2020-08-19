@@ -20,6 +20,7 @@ const codeListItemManager = new CodeListItemManager();
 * TODO: readme
 *
 * @author Radek Tomiška
+* @author Roman Kučera
 * @since 9.4.0
 */
 export default class CodeListSelect extends Basic.AbstractFormComponent {
@@ -259,7 +260,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
   }
 
   render() {
-    const { hidden, required, rendered, validationErrors, multiSelect, onChange, showOnlyIfOptionsExists } = this.props;
+    const { hidden, required, rendered, validationErrors, multiSelect, onChange, showOnlyIfOptionsExists, searchable } = this.props;
     const { options, value, disabled, readOnly } = this.state;
     const showLoading = this.props.showLoading || this.state.showLoading;
     //
@@ -285,6 +286,7 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
           options={ options }
           multiSelect={ multiSelect }
           onChange={ onChange }
+          searchable={ searchable }
         />
         <Basic.TextField
           ref="inputText"
@@ -348,7 +350,11 @@ CodeListSelect.propTypes = {
   /**
    * On chage seleceted value callback
    */
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  /**
+   * If this is false, then selectbox will not be searchable
+   */
+  searchable: PropTypes.bool
 };
 
 CodeListSelect.defaultProps = {
@@ -357,5 +363,6 @@ CodeListSelect.defaultProps = {
   useFirst: false,
   items: null,
   multiSelect: false,
-  showOnlyIfOptionsExists: false
+  showOnlyIfOptionsExists: false,
+  searchable: true
 };

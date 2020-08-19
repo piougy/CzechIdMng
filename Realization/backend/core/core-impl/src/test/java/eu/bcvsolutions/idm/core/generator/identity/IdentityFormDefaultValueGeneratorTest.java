@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,12 +20,14 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.ValueGeneratorDto;
 import eu.bcvsolutions.idm.core.api.generator.AbstractGeneratorTest;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.generator.identity.IdentityFormDefaultValueGenerator;
@@ -44,6 +47,13 @@ public class IdentityFormDefaultValueGeneratorTest extends AbstractGeneratorTest
 	private IdmFormDefinitionService formDefinitionService;
 	@Autowired
 	private IdmFormAttributeService formAttributeService;
+	@Autowired 
+	private IdmCacheManager cacheManager;
+	
+	@After
+	public void logout() {
+		cacheManager.evictCache(FormService.FORM_DEFINITION_CACHE_NAME);
+	}
 	
 	@Test
 	public void testGreenLine() {

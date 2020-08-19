@@ -23,10 +23,6 @@ const contractManager = new Managers.IdentityContractManager();
  */
 class ContractAccountsContent extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return manager;
   }

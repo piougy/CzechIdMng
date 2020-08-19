@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationClass;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -21,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
 import eu.bcvsolutions.idm.core.api.script.ScriptEnabled;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -59,6 +61,13 @@ public interface FormService extends ScriptEnabled {
 	 * Default definition name for type (if no name is given)
 	 */
 	String DEFAULT_DEFINITION_CODE = IdmFormDefinitionService.DEFAULT_DEFINITION_CODE;
+	
+	/**
+	 * Form definition cache - use form service to get cached definition. Prevent to use {@link IdmFormDefinitionService} directly.
+	 * 
+	 * @since 10.4.2
+	 */
+	String FORM_DEFINITION_CACHE_NAME = String.format("%s:form-definition-cache", CoreModule.MODULE_ID);
 	
 	/**
 	 * Returns true, when given owner type support eav forms. If {@link AbstractDto} owner type is given, 
@@ -762,6 +771,16 @@ public interface FormService extends ScriptEnabled {
 	void deleteAttribute(IdmFormAttributeDto attribute, BasePermission... permission);
 	
 	/**
+	 * Deletes given form definition
+	 * 
+	 * @param formDefinition
+	 * @param permission base permissions to evaluate (AND)
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 10.5.0
+	 */
+	void deleteDefinition(IdmFormDefinitionDto formDefinition, BasePermission... permission);
+	
+	/**
 	 * Deletes given form value only. 
 	 * 'EAV_SAVE' event <strong>is not</strong> published for value owner.
 	 * 
@@ -953,4 +972,36 @@ public interface FormService extends ScriptEnabled {
 	 * @since 10.3.0
 	 */
 	FormableEntity getEmptyOwner(IdmFormDefinitionDto formDefinition);
+	
+	/**
+	 * Returns owner type - owner type has to be entity class - dto class can be given.
+	 * Its used as default definition type for given owner type.
+	 * 
+	 * @param owner
+	 * @return
+	 * @since 10.4.2
+	 * @see IdmFormDefinitionService#getOwnerType(Identifiable)
+	 */
+	String getOwnerType(Identifiable owner);
+	
+	
+	/**
+	 * Returns owner type - owner type has to be entity class - dto class can be given.
+	 * Its used as default definition type for given owner type.
+	 * 
+	 * @param ownerType
+	 * @return
+	 * @since 10.4.2
+	 * @see IdmFormDefinitionService#getOwnerType(Class)
+	 */
+	String getOwnerType(Class<? extends Identifiable> ownerType);
+	
+	/**
+	 * Evict caches for given form definition.
+	 * 
+	 * @param definition form definition
+	 * @since 10.4.2
+	 * @see IdmCacheManager#evictCache(String)
+	 */
+	void evictCache(IdmFormDefinitionDto definition);
 }

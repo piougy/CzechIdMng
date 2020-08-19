@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -58,12 +59,26 @@ export class RoleCatalogueRoleTable extends Advanced.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, forceSearchParameters, _showLoading, _permissions, className } = this.props;
+    const {
+      uiKey,
+      forceSearchParameters,
+      _showLoading,
+      _permissions,
+      className,
+      columns
+    } = this.props;
     const { detail } = this.state;
-    const role = forceSearchParameters.getFilters().get('roleId');
+    let role = null;
+    if (forceSearchParameters.getFilters().has('roleId')) {
+      role = forceSearchParameters.getFilters().get('roleId');
+    }
+    let roleCatalogue = null;
+    if (forceSearchParameters.getFilters().has('roleCatalogueId')) {
+      roleCatalogue = forceSearchParameters.getFilters().get('roleCatalogueId');
+    }
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
@@ -84,7 +99,7 @@ export class RoleCatalogueRoleTable extends Advanced.AbstractTableContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={ this.showDetail.bind(this, { role }) }
+                onClick={ this.showDetail.bind(this, { role, roleCatalogue }) }
                 rendered={ manager.canSave() }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
@@ -107,10 +122,29 @@ export class RoleCatalogueRoleTable extends Advanced.AbstractTableContent {
             }
             sort={false}/>
           <Advanced.Column
+            property="role"
+            sortProperty="role.code"
+            face="text"
+            sort
+            rendered={ _.includes(columns, 'role') }
+            cell={
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                return (
+                  <Advanced.EntityInfo
+                    entityType="role"
+                    entityIdentifier={ entity.role }
+                    entity={ entity._embedded.role }
+                    face="popover"
+                    showIcon/>
+                );
+              }
+            }/>
+          <Advanced.Column
             property="roleCatalogue"
             sortProperty="roleCatalogue.name"
             face="text"
-            header={ this.i18n('entity.RoleCatalogueRole.roleCatalogue.label') }
+            rendered={ _.includes(columns, 'roleCatalogue') }
             sort
             cell={
               ({ rowIndex, data }) => {
@@ -154,7 +188,7 @@ export class RoleCatalogueRoleTable extends Advanced.AbstractTableContent {
                   ref="role"
                   manager={ roleManager }
                   label={ this.i18n('entity.RoleGuaranteeRole.role.label') }
-                  readOnly
+                  readOnly={ role !== null }
                   required/>
 
                 <Advanced.RoleCatalogueSelect
@@ -162,6 +196,7 @@ export class RoleCatalogueRoleTable extends Advanced.AbstractTableContent {
                   label={ this.i18n('entity.RoleCatalogueRole.roleCatalogue.label') }
                   helpBlock={ this.i18n('entity.RoleCatalogueRole.roleCatalogue.help') }
                   header={ this.i18n('entity.RoleCatalogueRole.roleCatalogue.label') }
+                  readOnly={ roleCatalogue !== null }
                   required/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
@@ -185,7 +220,7 @@ export class RoleCatalogueRoleTable extends Advanced.AbstractTableContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }
@@ -196,12 +231,17 @@ RoleCatalogueRoleTable.propTypes = {
    * "Hard filters"
    */
   forceSearchParameters: PropTypes.object,
+  /**
+   * Columns rendered in table
+   */
+  columns: PropTypes.arrayOf(PropTypes.string),
   //
   _showLoading: PropTypes.bool
 };
 
 RoleCatalogueRoleTable.defaultProps = {
   forceSearchParameters: null,
+  columns: ['role', 'roleCatalogue'],
   _showLoading: false
 };
 

@@ -57,7 +57,8 @@ public class DefaultIdmNotificationLogService
 		// sent state by related notifications
 		boolean hasSent = false;
 		boolean hasNotSent = false;
-		for(IdmNotification relatedNotification : entity.getRelatedNotifications()) {
+		// FIXME: move state check to @Formula => select is executed to each record now!
+		for (IdmNotification relatedNotification : entity.getRelatedNotifications()) {
 			hasSent = hasSent || (relatedNotification.getSent() != null);
 			hasNotSent = hasNotSent || (relatedNotification.getSent() == null);
 		}

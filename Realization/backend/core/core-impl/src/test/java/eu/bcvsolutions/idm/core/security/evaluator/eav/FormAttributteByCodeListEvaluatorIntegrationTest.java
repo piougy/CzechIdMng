@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Authorization policy evaluator test.
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  */
 @Transactional
-public class FormAttributteByCodeListEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class FormAttributteByCodeListEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private CodeListManager codeListManager;
 	@Autowired private FormService formService;

@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.domain.comparator.CodeableComparator;
 import eu.bcvsolutions.idm.core.api.dto.IdmConfigurationDto;
@@ -63,7 +63,7 @@ public class DefaultConfigurationService
 		extends AbstractEventableDtoService<IdmConfigurationDto, IdmConfiguration, DataFilter> 
 		implements IdmConfigurationService, ConfigurationService {
 
-	public static final String CACHE_NAME = CoreModuleDescriptor.MODULE_ID + ":configuration-cache";
+	public static final String CACHE_NAME = String.format("%s:configuration-cache", CoreModule.MODULE_ID);
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
 	//
 	private final IdmConfigurationRepository repository;
@@ -253,7 +253,7 @@ public class DefaultConfigurationService
 				confidential = false;
 				LOG.trace("Configuration value for key [{}] was found in database.", key);
 			}			
-		} else if(env != null) {
+		} else if (env != null) {
 			// try to find value in property configuration
 			value = env.getProperty(key);
 			confidential = shouldBeConfidential(key);

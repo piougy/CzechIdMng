@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractCoreWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
@@ -52,7 +52,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 
 	@Before
 	public void login() {
-		super.loginAsAdmin(InitTestData.TEST_USER_1);
+		super.loginAsAdmin(InitTestDataProcessor.TEST_USER_1);
 	}
 
 	@After
@@ -64,11 +64,11 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 	public void deployAndRunProcess() {
 		//Deploy process
 		//Start instance of process
-		ProcessInstance instance = processInstanceService.startProcess(PROCESS_KEY, null, InitTestData.TEST_USER_1, null,
+		ProcessInstance instance = processInstanceService.startProcess(PROCESS_KEY, null, InitTestDataProcessor.TEST_USER_1, null,
 				null);
 		logout();
 		// Log as user without ADMIN rights
-		loginAsNoAdmin(InitTestData.TEST_USER_1);
+		loginAsNoAdmin(InitTestDataProcessor.TEST_USER_1);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(instance.getId());
 		List<WorkflowProcessInstanceDto> processes = processInstanceService.find(filter, null, IdmBasePermission.READ).getContent();
@@ -79,7 +79,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 
 		this.logout();
 		// Log as user without ADMIN rights
-		loginAsNoAdmin(InitTestData.TEST_USER_2);
+		loginAsNoAdmin(InitTestDataProcessor.TEST_USER_2);
 		// Applicant for this process is testUser1. For testUser2 must be result
 		// null
 		historicProcessDto = historicProcessService.get(instance.getId());
@@ -87,7 +87,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 
 		this.logout();
 		// Log as ADMIN
-		loginAsAdmin(InitTestData.TEST_USER_2);
+		loginAsAdmin(InitTestDataProcessor.TEST_USER_2);
 		// Applicant for this process is testUser1. For testUser2 must be result
 		// null, but as ADMIN can see all historic processes
 		historicProcessDto = historicProcessService.get(instance.getId());
@@ -97,7 +97,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		assertNotNull(historicProcessService.getDiagram(instance.getId()));
 
 		this.logout();
-		this.loginAsAdmin(InitTestData.TEST_USER_1);
+		this.loginAsAdmin(InitTestDataProcessor.TEST_USER_1);
 
 		completeTasksAndCheckHistory();
 	}
@@ -116,16 +116,16 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		taskInstanceService.completeTask(taskId, null);
 
 		//Check task history
-		checkTaskHistory(taskId, InitTestData.TEST_USER_1);
+		checkTaskHistory(taskId, InitTestDataProcessor.TEST_USER_1);
 
 		//Second task is for testUser2 (is candidate) for testUser1 must be null
-		filter.setCandidateOrAssigned(InitTestData.TEST_USER_1);
+		filter.setCandidateOrAssigned(InitTestDataProcessor.TEST_USER_1);
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.find(filter, null).getContent();
 		assertEquals(0, tasks.size());
 
 		this.logout();
-		this.loginAsAdmin(InitTestData.TEST_USER_2);
-		filter.setCandidateOrAssigned(InitTestData.TEST_USER_2);
+		this.loginAsAdmin(InitTestDataProcessor.TEST_USER_2);
+		filter.setCandidateOrAssigned(InitTestDataProcessor.TEST_USER_2);
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.find(filter, null).getContent();
 		assertEquals(1, tasks.size());
 		assertEquals("userTaskSecond", tasks.get(0).getName());
@@ -133,7 +133,7 @@ public class HistoryProcessAndTaskTest extends AbstractCoreWorkflowIntegrationTe
 		taskInstanceService.completeTask(taskId, null);
 
 		//Check task history
-		checkTaskHistory(taskId, InitTestData.TEST_USER_2);
+		checkTaskHistory(taskId, InitTestDataProcessor.TEST_USER_2);
 
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.find(filter, null).getContent();
 		assertEquals(0, tasks.size());

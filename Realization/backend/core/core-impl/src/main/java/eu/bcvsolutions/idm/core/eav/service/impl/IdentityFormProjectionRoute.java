@@ -25,6 +25,7 @@ public class IdentityFormProjectionRoute extends AbstractFormProjectionRoute<Idm
 	public static final String PARAMETER_ALL_CONTRACTS = "all-contracts";
 	public static final String PARAMETER_OTHER_POSITION = "other-position";
 	public static final String PARAMETER_ASSIGNED_ROLES = "assigned-roles";
+	public static final String PARAMETER_LOAD_ASSIGNED_ROLES = "load-assigned-roles";
 	
 	@Override
 	public String getName() {
@@ -38,6 +39,7 @@ public class IdentityFormProjectionRoute extends AbstractFormProjectionRoute<Idm
 		parameters.add(PARAMETER_ALL_CONTRACTS);
 		parameters.add(PARAMETER_OTHER_POSITION);
 		parameters.add(PARAMETER_ASSIGNED_ROLES);
+		parameters.add(PARAMETER_LOAD_ASSIGNED_ROLES);
 		//
 		return parameters;
 	}
@@ -48,7 +50,8 @@ public class IdentityFormProjectionRoute extends AbstractFormProjectionRoute<Idm
 				new IdmFormAttributeDto(PARAMETER_PRIME_CONTRACT, PARAMETER_PRIME_CONTRACT, PersistentType.BOOLEAN),
 				new IdmFormAttributeDto(PARAMETER_ALL_CONTRACTS, PARAMETER_ALL_CONTRACTS, PersistentType.BOOLEAN),
 				new IdmFormAttributeDto(PARAMETER_OTHER_POSITION, PARAMETER_OTHER_POSITION, PersistentType.BOOLEAN),
-				new IdmFormAttributeDto(PARAMETER_ASSIGNED_ROLES, PARAMETER_ASSIGNED_ROLES, PersistentType.BOOLEAN)
+				new IdmFormAttributeDto(PARAMETER_ASSIGNED_ROLES, PARAMETER_ASSIGNED_ROLES, PersistentType.BOOLEAN),
+				new IdmFormAttributeDto(PARAMETER_LOAD_ASSIGNED_ROLES, PARAMETER_LOAD_ASSIGNED_ROLES, PersistentType.BOOLEAN)
 		);
 	}
 }

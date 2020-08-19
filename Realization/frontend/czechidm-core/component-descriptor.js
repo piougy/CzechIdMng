@@ -590,6 +590,12 @@ module.exports = {
       component: require('./src/components/advanced/Icon/IdentityIcon')
     },
     {
+      id: 'identity-switch-icon',
+      type: 'icon',
+      entityType: ['identity-switch', 'switch-user', 'switch-identity'],
+      component: require('./src/components/advanced/Icon/IdentitySwitchIcon')
+    },
+    {
       id: 'identities-icon',
       type: 'icon',
       entityType: ['identities'],
@@ -721,6 +727,11 @@ module.exports = {
       id: 'profile-modal',
       type: 'modal',
       component: require('./src/content/modals/Profile')
+    },
+    {
+      id: 'switch-user-modal',
+      type: 'modal',
+      component: require('./src/content/modals/SwitchUser')
     }
   ]
 };

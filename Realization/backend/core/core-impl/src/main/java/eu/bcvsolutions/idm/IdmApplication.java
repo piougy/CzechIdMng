@@ -17,12 +17,11 @@ import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.repository.ExtendedJpaRepositoryFactoryBean;
 
 /**
- * Application entry point
+ * Application entry point.
  * 
  * TODO: support other packages than 'eu.bcv ...' for component scanning 
  * 
  * @author Radek Tomiška
- *default-lazy-init
  */
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = { 

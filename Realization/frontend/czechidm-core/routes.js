@@ -311,6 +311,11 @@ module.exports = {
           path: 'detail',
           component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ]
+        },
+        {
+          path: 'roles',
+          component: require('./src/content/rolecatalogue/RoleCatalogueCatalogueRoles'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ'] } ]
         }
       ]
     },

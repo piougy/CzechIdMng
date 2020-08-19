@@ -26,6 +26,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.config.domain.ContractSliceConfiguration;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmContractSliceGuaranteeDto;
@@ -33,7 +35,9 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractGuaranteeFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmContractSliceGuaranteeFilter;
+import eu.bcvsolutions.idm.core.api.service.AutomaticRoleManager;
 import eu.bcvsolutions.idm.core.api.service.ContractSliceManager;
+import eu.bcvsolutions.idm.core.api.service.EntityStateManager;
 import eu.bcvsolutions.idm.core.api.service.IdmContractGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmContractSliceService;
@@ -70,6 +74,8 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 	private ContractSliceConfiguration contractSliceConfiguration;
 	@Autowired
 	private ApplicationContext applicationContext;
+	@Autowired 
+	private EntityStateManager entityStateManager;
 
 	@Override
 	@Transactional
@@ -97,11 +103,49 @@ public class DefaultContractSliceManager implements ContractSliceManager {
 				new IdentityContractEvent(isNew ? IdentityContractEventType.CREATE : IdentityContractEventType.UPDATE,
 						contract, ImmutableMap.copyOf(eventProperties)))
 				.getContent();
+		// We need to flag recalculation for contract immediately to prevent e.g. synchronization ends before flag is created by NOTIFY event asynchronously.
+		if (getBooleanProperty(AutomaticRoleManager.SKIP_RECALCULATION, eventProperties)) {
+			entityStateManager.createState(savedContract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
+		}
 
 		// Copy guarantees
 		copyGuarantees(slice, savedContract);
 
 		return savedContract;
+	}
+		
+	/**
+	 * Return true if event properties contains given property and this property is true.
+	 * If event does not contains this property, then return false.
+	 * 
+	 * TODO: Move to utils
+	 * @param property
+	 * @param properties
+	 * @return
+	 */
+	private boolean getBooleanProperty(String property, Map<String, Serializable> properties) {
+		Assert.notNull(property, "Name of event property cannot be null!");
+		if (properties == null) {
+			return false;
+		}
+
+		Object propertyValue = properties.get(property);
+
+		if (propertyValue == null) {
+			return false;
+		}
+		if (propertyValue instanceof String) {
+			return Boolean.parseBoolean((String) propertyValue);
+        }
+		//
+		Assert.isInstanceOf(Boolean.class, propertyValue, MessageFormat
+				.format("Property [{0}] must be Boolean, but is [{1}]!", property, propertyValue.getClass()));
+
+		if ((Boolean) propertyValue) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

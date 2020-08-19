@@ -18,12 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCatalogueDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCatalogueService;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue_;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
@@ -47,7 +47,7 @@ public class IdmRoleCatalogueControllerTest extends AbstractRestTest {
 	private TestHelper testHelper;
 	
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
+		return new IdmJwtAuthentication(identityService.getByUsername(InitTestDataProcessor.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
 	}
 	
 	@Before

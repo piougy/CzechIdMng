@@ -111,7 +111,7 @@ public class IdmFormProjectionDto
 	
 	/**
 	 * Rendered basic fields.
-	 * e.q. username, email
+	 * Json representation e.q. ["username", "email"]
 	 * 
 	 * @return attributes joined by comma
 	 */

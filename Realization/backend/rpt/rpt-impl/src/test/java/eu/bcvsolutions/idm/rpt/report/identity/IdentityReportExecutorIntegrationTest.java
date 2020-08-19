@@ -9,13 +9,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
@@ -23,6 +21,7 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
@@ -40,7 +39,6 @@ public class IdentityReportExecutorIntegrationTest extends AbstractIntegrationTe
 	@Autowired private IdentityReportExecutor reportExecutor;
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private AttachmentManager attachmentManager;
-	@Qualifier("objectMapper")
 	@Autowired private ObjectMapper mapper;
 	@Autowired private LoginService loginService;
 	@Autowired private IdentityReportXlsxRenderer xlsxRenderer;
@@ -48,7 +46,7 @@ public class IdentityReportExecutorIntegrationTest extends AbstractIntegrationTe
 	@Before
 	public void before() {
 		// report checks authorization policies - we need to log in
-		loginService.login(new LoginDto(InitTestData.TEST_ADMIN_USERNAME, new GuardedString(InitTestData.TEST_ADMIN_PASSWORD)));
+		loginService.login(new LoginDto(InitTestDataProcessor.TEST_ADMIN_USERNAME, new GuardedString(InitTestDataProcessor.TEST_ADMIN_PASSWORD)));
 	}
 	
 	@After

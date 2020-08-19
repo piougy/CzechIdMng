@@ -38,6 +38,7 @@ import org.springframework.util.ObjectUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationClass;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationClassProperty;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -54,9 +55,11 @@ import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.eav.api.domain.FormDefinitionCache;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.FormDefinitionAttributes;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -83,7 +86,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
- * Work with form definitions, attributes and their values
+ * Work with form definitions, attributes and their values.
  * 
  * @author Radek Tomiška
  *
@@ -91,6 +94,8 @@ import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 public class DefaultFormService implements FormService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormService.class);
+	private static final String CACHE_KEY_TYPE_PREFIX = "type-"; // cache by type
+	private static final String CACHE_KEY_UUID_PREFIX = "uuid-"; // cache by id
 	//
 	private final PluginRegistry<FormValueService<?>, Class<?>> formValueServices;
 	//
@@ -99,6 +104,7 @@ public class DefaultFormService implements FormService {
 	@Autowired private EntityEventManager entityEventManager;
 	@Autowired private LookupService lookupService;
 	@Autowired private AttachmentManager attachmentManager;
+	@Autowired private IdmCacheManager cacheManager;
 
 	@Autowired
 	public DefaultFormService(List<? extends FormValueService<?>> formValueServices) {
@@ -108,6 +114,10 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinitionDto getDefinition(UUID definitionId, BasePermission... permission) {
+		if (PermissionUtils.isEmpty(permission)) {
+			return getCachedDefinition(definitionId);
+		}
+		//
 		return formDefinitionService.get(definitionId, permission);
 	}
 
@@ -120,6 +130,10 @@ public class DefaultFormService implements FormService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmFormDefinitionDto> getDefinitions(String type, BasePermission... permission) {
+		if (PermissionUtils.isEmpty(permission)) {
+			return getCachedDefinitions(type).getDefinitions();
+		}
+		//
 		IdmFormDefinitionFilter filter = new IdmFormDefinitionFilter();
 		filter.setType(type);
 		//
@@ -136,11 +150,12 @@ public class DefaultFormService implements FormService {
 	public IdmFormDefinitionDto getDefinition(String type, String code, BasePermission... permission) {
 		IdmFormDefinitionDto formDefinition; 
 		if (StringUtils.isEmpty(code)) {
-			formDefinition = formDefinitionService.findOneByMain(type);
+			formDefinition = getCachedDefinitions(type).getMain();
 		} else {
-			formDefinition = formDefinitionService.findOneByTypeAndCode(type, code);
+			formDefinition = getCachedDefinitions(type).getByCode(code);
 		}
-		return formDefinitionService.checkAccess(formDefinition, permission);	}
+		return formDefinitionService.checkAccess(formDefinition, permission);	
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -245,6 +260,10 @@ public class DefaultFormService implements FormService {
 		IdmFormDefinitionDto definition = getDefinition(ownerType, definitionCode);
 		Assert.notNull(definition, "Definition is required.");
 		//
+		if (PermissionUtils.isEmpty(permission)) {
+			return definition.getMappedAttributeByCode(attributeCode);
+		}
+		//
 		return formAttributeService.findAttribute(
 				getDefaultDefinitionType(ownerType), 
 				definition.getCode(),
@@ -261,6 +280,13 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(formDefinition, "Definition is required.");
 		Assert.hasLength(attributeCode, "Form attribute code is required.");
 		//
+		if (PermissionUtils.isEmpty(permission)) {
+			IdmFormDefinitionDto cachedDefinition = getCachedDefinition(formDefinition.getId());
+			if (cachedDefinition != null) {
+				return cachedDefinition.getMappedAttributeByCode(attributeCode);
+			}
+		}
+		//
 		return formAttributeService.findAttribute(
 				formDefinition.getType(),
 				formDefinition.getCode(),
@@ -272,6 +298,13 @@ public class DefaultFormService implements FormService {
 	@Transactional(readOnly = true)
 	public List<IdmFormAttributeDto> getAttributes(IdmFormDefinitionDto formDefinition, BasePermission... permission) {
 		Assert.notNull(formDefinition, "Form definition is required.");
+		//
+		if (PermissionUtils.isEmpty(permission)) {
+			IdmFormDefinitionDto cachedDefinition = getCachedDefinition(formDefinition.getId());
+			if (cachedDefinition != null) {
+				return cachedDefinition.getFormAttributes(); // sorted already
+			}
+		}
 		//
 		IdmFormAttributeFilter filter = new IdmFormAttributeFilter();
 		filter.setDefinitionType(formDefinition.getType());
@@ -312,9 +345,10 @@ public class DefaultFormService implements FormService {
 		formDefinition.setCode(code);
 		formDefinition.setModule(module);
 		formDefinition = formDefinitionService.save(formDefinition, permission);
+		UUID definitionId = formDefinition.getId();
 		//
 		// and their attributes
-		if (formAttributes != null) {
+		if (CollectionUtils.isNotEmpty(formAttributes)) {
 			Short seq = 0;
 			for (IdmFormAttributeDto formAttribute : formAttributes) {
 				// default attribute order
@@ -322,10 +356,10 @@ public class DefaultFormService implements FormService {
 					formAttribute.setSeq(seq);
 					seq++;
 				}
-				formAttribute.setFormDefinition(formDefinition.getId());
+				formAttribute.setFormDefinition(definitionId);
 				formAttribute = formAttributeService.save(formAttribute, permission);
 			}
-			formDefinition = formDefinitionService.get(formDefinition);
+			formDefinition = getCachedDefinition(definitionId);
 		}
 		return formDefinition;
 	}
@@ -389,7 +423,7 @@ public class DefaultFormService implements FormService {
 			BasePermission... permission) {
 		IdmFormDefinitionDto formDefinition = null;
 		if (formDefinitionId != null) {
-			formDefinition = formDefinitionService.get(formDefinitionId);
+			formDefinition = getCachedDefinition(formDefinitionId);
 			if (formDefinition == null) {
 				throw new ResultCodeException(CoreResultCode.NOT_FOUND,
 						ImmutableMap.of("formDefinition", formDefinitionId));
@@ -527,7 +561,7 @@ public class DefaultFormService implements FormService {
 			List<IdmFormValueDto> newValues,
 			BasePermission... permission) {
 		//
-		IdmFormDefinitionDto formDefinition = formDefinitionService.get(attribute.getFormDefinition());
+		IdmFormDefinitionDto formDefinition = getCachedDefinition(attribute.getFormDefinition());
 		FormValueService<FormableEntity> formValueService = getFormValueService(ownerEntity);
 		List<IdmFormValueDto> results = new ArrayList<>();
 		Map<UUID, IdmFormValueDto> unprocessedPreviousValues = new LinkedHashMap<>(); // ordered by seq
@@ -835,7 +869,7 @@ public class DefaultFormService implements FormService {
 	public List<IdmFormValueDto> getValues(Identifiable owner, UUID formDefinitionId, BasePermission... permission) {
 		IdmFormDefinitionDto formDefinition = null;
 		if (formDefinitionId != null) {
-			formDefinition = formDefinitionService.get(formDefinitionId);
+			formDefinition = getCachedDefinition(formDefinitionId);
 			if (formDefinition == null) {
 				throw new ResultCodeException(CoreResultCode.NOT_FOUND,
 						ImmutableMap.of("formDefinition", formDefinitionId));
@@ -1053,6 +1087,12 @@ public class DefaultFormService implements FormService {
 	
 	@Override
 	@Transactional
+	public void deleteDefinition(IdmFormDefinitionDto formDefinition, BasePermission... permission) {
+		formDefinitionService.delete(formDefinition, permission);
+	}
+	
+	@Override
+	@Transactional
 	public void deleteValue(IdmFormValueDto formValue, BasePermission... permission) {
 		Assert.notNull(formValue, "Form value is required.");
 		Assert.notNull(formValue.getOwnerId(), "Owner id is required.");
@@ -1168,7 +1208,7 @@ public class DefaultFormService implements FormService {
 			IdmFormDefinitionDto formDefinition = null;
 			UUID definitionId = filter.getDefinitionId();
 			if (definitionId != null) {
-				formDefinition = formDefinitionService.get(definitionId);
+				formDefinition = getCachedDefinition(definitionId);
 			}
 			//
 			UUID attributeId = filter.getAttributeId();
@@ -1633,4 +1673,90 @@ public class DefaultFormService implements FormService {
 		//
 		return valueFilter;
 	}
+	
+	@Override
+	public String getOwnerType(Class<? extends Identifiable> ownerType) {
+		return formDefinitionService.getOwnerType(ownerType);
+	}
+	
+	@Override
+	public String getOwnerType(Identifiable owner) {
+		return formDefinitionService.getOwnerType(owner);
+	}
+	
+	@Override
+	public void evictCache(IdmFormDefinitionDto definition) {
+		Assert.notNull(definition, "Form definition is required.");
+		//
+		cacheManager.evictValue(FormService.FORM_DEFINITION_CACHE_NAME, getCacheKey(definition.getType()));
+		cacheManager.evictValue(FormService.FORM_DEFINITION_CACHE_NAME, getCacheKey(definition.getId()));
+	}
+	
+	private FormDefinitionCache getCachedDefinitions(String type) {
+		String cacheKey = getCacheKey(type);
+		ValueWrapper value = cacheManager.getValue(FORM_DEFINITION_CACHE_NAME, cacheKey);
+		if (value != null) {
+			return (FormDefinitionCache) value.get(); // never null
+		}
+		//
+		IdmFormDefinitionFilter filter = new IdmFormDefinitionFilter();
+		filter.setType(type);
+		List<IdmFormDefinitionDto> definitions = formDefinitionService
+				.find(
+					filter, 
+					PageRequest.of(0, Integer.MAX_VALUE, Sort.by(IdmFormDefinition_.code.getName()))
+				)
+				.getContent();
+		//
+		// cache definition by id
+		definitions.forEach(definition -> {
+			// set mapped attributes - required to cache form definition with attributes
+			IdmFormAttributeFilter attributeFilter = new IdmFormAttributeFilter();
+			attributeFilter.setDefinitionId(definition.getId());
+			definition.setTrimmed(false);
+			definition.setFormAttributes(
+					formAttributeService
+					.find(attributeFilter, PageRequest.of(0, Integer.MAX_VALUE, Sort.by(IdmFormAttribute_.seq.getName(), IdmFormAttribute_.name.getName())))
+					.getContent());
+			//
+			FormDefinitionCache cachedDefinition = new FormDefinitionCache();
+			cachedDefinition.putDefinition(definition);
+			//
+			cacheManager.cacheValue(FORM_DEFINITION_CACHE_NAME, getCacheKey(definition.getId()), cachedDefinition);
+		});
+		//
+		// cache by type
+		FormDefinitionCache cachedDefinitions = new FormDefinitionCache();
+		cachedDefinitions.putDefinitions(definitions);
+		cacheManager.cacheValue(FORM_DEFINITION_CACHE_NAME, cacheKey, cachedDefinitions);
+		//
+		return cachedDefinitions;
+	}
+	
+    private IdmFormDefinitionDto getCachedDefinition(UUID definitionId) {
+    	String cacheKey = getCacheKey(definitionId);
+    	ValueWrapper value = cacheManager.getValue(FORM_DEFINITION_CACHE_NAME, cacheKey);
+		if (value != null) {
+			return ((FormDefinitionCache) value.get()).getById(definitionId); // never null
+		}
+		//
+		IdmFormDefinitionDto definition = formDefinitionService.get(definitionId);
+		if (definition == null) {
+			// definition not found => not cached
+			return null;
+		}
+		FormDefinitionCache cachedDefinitions = new FormDefinitionCache();
+		cachedDefinitions.putDefinition(definition);
+		cacheManager.cacheValue(FORM_DEFINITION_CACHE_NAME, cacheKey, cachedDefinitions);
+		//
+		return cachedDefinitions.getById(definitionId);
+	}
+    
+    protected String getCacheKey(String type) {
+    	return String.format("%s%s", CACHE_KEY_TYPE_PREFIX, type);
+    }
+    
+    protected String getCacheKey(UUID definitionId) {
+    	return String.format("%s%s", CACHE_KEY_UUID_PREFIX, definitionId);
+    }
 }

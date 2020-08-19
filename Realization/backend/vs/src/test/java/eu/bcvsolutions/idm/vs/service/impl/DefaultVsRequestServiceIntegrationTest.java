@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.vs.service.impl;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.time.ZonedDateTime;
@@ -7,32 +9,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
-import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
-import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
-import org.checkerframework.checker.units.qual.s;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
@@ -40,6 +33,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -50,6 +44,10 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.eav.api.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -62,6 +60,7 @@ import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.vs.TestHelper;
+import eu.bcvsolutions.idm.vs.VirtualSystemModuleDescriptor;
 import eu.bcvsolutions.idm.vs.connector.basic.BasicVirtualConfiguration;
 import eu.bcvsolutions.idm.vs.domain.VirtualSystemGroupPermission;
 import eu.bcvsolutions.idm.vs.domain.VsOperationType;
@@ -78,9 +77,6 @@ import eu.bcvsolutions.idm.vs.entity.VsRequest;
 import eu.bcvsolutions.idm.vs.evaluator.VsRequestByImplementerEvaluator;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
-
-import static eu.bcvsolutions.idm.core.model.entity.IdmAutomaticRoleAttributeRuleRequest_.ATTRIBUTE_NAME;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Virtual system request test
@@ -127,6 +123,8 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 	private IcConnectorFacade connectorFacade;
 	@Autowired
 	private IdmNotificationLogService notificationLogService;
+	@Autowired
+	private RoleConfiguration roleConfiguration;
 
 	@Before
 	public void init() {
@@ -931,9 +929,13 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		IdmRoleDto roleOne = helper.createRole(roleOneName);
 
 		// Create policy for vs evaluator and user role
-		helper.createAuthorizationPolicy(this.createDefaultRole().getId(),
-				VirtualSystemGroupPermission.VSREQUEST, VsRequest.class, VsRequestByImplementerEvaluator.class,
-				IdmBasePermission.ADMIN);
+		helper.createAuthorizationPolicy(
+				roleConfiguration.getDefaultRoleId(),
+				VirtualSystemGroupPermission.VSREQUEST, 
+				VsRequest.class, 
+				VsRequestByImplementerEvaluator.class,
+				IdmBasePermission.ADMIN
+		);
 
 		// Assign system to role
 		helper.createRoleSystem(roleOne, system);
@@ -968,21 +970,6 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		if (roleService.getByCode(roleOneName) != null) {
 			roleService.delete(roleService.getByCode(roleOneName));
 		}
-	}
-
-	/**
-	 * Method check  if exists role with name/code defined in {@link InitDemoData#DEFAULT_ROLE_NAME}
-	 * @return
-	 */
-	public IdmRoleDto createDefaultRole() {
-		IdmRoleDto defaultRole = roleService.getByCode(InitDemoData.DEFAULT_ROLE_NAME);
-		if (defaultRole != null) {
-			return defaultRole;
-		}
-		//
-		defaultRole = new IdmRoleDto();
-		defaultRole.setCode(InitDemoData.DEFAULT_ROLE_NAME);
-		return roleService.save(defaultRole);
 	}
 
 }

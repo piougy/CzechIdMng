@@ -24,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitDemoData;
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
@@ -62,6 +60,8 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractEnableProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.contract.IdentityContractEndProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitDemoDataProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
@@ -104,7 +104,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		String username = identity.getUsername();
 		// eav
 		IdmFormDefinitionDto formDefinition = formService.getDefinition(IdmIdentity.class);
-		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		IdmFormValueDto value1 = new IdmFormValueDto(formDefinition.getMappedAttributeByCode(InitDemoDataProcessor.FORM_ATTRIBUTE_PASSWORD));
 		value1.setValue("one");
 		formService.saveValues(identity.getId(), IdmIdentity.class, formDefinition, Lists.newArrayList(value1));
 		// role with guarantee
@@ -113,7 +113,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		// contract
 		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
 		// contract guarantee
-		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identityService.getByUsername(InitTestData.TEST_USER_1));
+		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identityService.getByUsername(InitTestDataProcessor.TEST_USER_1));
 		
 		contractGuaranteeService.save(new IdmContractGuaranteeDto(contract2.getId(), identity.getId()));
 		// assigned role
@@ -128,31 +128,31 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		token.setTokenType("test");
 		token = tokenManager.saveToken(identity, token);
 		//
-		assertNotNull(tokenManager.getToken(token.getId()));
-		assertNotNull(profileService.findOneByIdentity(identity.getId()));
-		assertNotNull(identityService.getByUsername(username));
-		assertNotNull(passwordService.findOneByIdentity(identity.getId()));
-		assertEquals(1, formService.getValues(identity).size());
-		assertEquals(identity.getId(), roleGuaranteeService.findByRole(role.getId(), null).getContent().get(0).getGuarantee());
-		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
-		assertEquals(2, identityContractService.findAllByIdentity(identity.getId()).size()); // + default contract is created
+		Assert.assertNotNull(tokenManager.getToken(token.getId()));
+		Assert.assertNotNull(profileService.findOneByIdentity(identity.getId()));
+		Assert.assertNotNull(identityService.getByUsername(username));
+		Assert.assertNotNull(passwordService.findOneByIdentity(identity.getId()));
+		Assert.assertEquals(1, formService.getValues(identity).size());
+		Assert.assertEquals(identity.getId(), roleGuaranteeService.findByRole(role.getId(), null).getContent().get(0).getGuarantee());
+		Assert.assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
+		Assert.assertEquals(2, identityContractService.findAllByIdentity(identity.getId()).size()); // + default contract is created
 		IdmContractGuaranteeFilter filter = new IdmContractGuaranteeFilter();
 		filter.setIdentityContractId(contract2.getId());
 		List<IdmContractGuaranteeDto> guarantees = contractGuaranteeService.find(filter, null).getContent();
-		assertEquals(1, guarantees.size());
-		assertEquals(identity.getId(), guarantees.get(0).getGuarantee());
+		Assert.assertEquals(1, guarantees.size());
+		Assert.assertEquals(identity.getId(), guarantees.get(0).getGuarantee());
 		//
 		identityService.delete(identity);
 		role = roleService.get(role.getId());
 		//
-		assertEquals(0L, roleGuaranteeService.findByRole(role.getId(), null).getTotalElements());
-		assertNull(identityService.getByUsername(username));
-		assertNull(passwordService.findOneByIdentity(identity.getId()));
-		assertEquals(0, identityContractService.findAllByIdentity(identity.getId()).size());
-		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
-		assertEquals(0, contractGuaranteeService.find(filter, null).getTotalElements());
-		assertNull(profileService.findOneByIdentity(identity.getId()));
-		assertNull(tokenManager.getToken(token.getId()));
+		Assert.assertEquals(0L, roleGuaranteeService.findByRole(role.getId(), null).getTotalElements());
+		Assert.assertNull(identityService.getByUsername(username));
+		Assert.assertNull(passwordService.findOneByIdentity(identity.getId()));
+		Assert.assertEquals(0, identityContractService.findAllByIdentity(identity.getId()).size());
+		Assert.assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());
+		Assert.assertEquals(0, contractGuaranteeService.find(filter, null).getTotalElements());
+		Assert.assertNull(profileService.findOneByIdentity(identity.getId()));
+		Assert.assertTrue(tokenManager.getToken(token.getId()).isDisabled());
 	}
 	
 	@Test

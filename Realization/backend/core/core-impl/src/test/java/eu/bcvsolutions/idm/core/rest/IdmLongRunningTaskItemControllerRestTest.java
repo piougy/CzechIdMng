@@ -21,10 +21,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmProcessedTaskItemDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmScheduledTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmProcessedTaskItemService;
@@ -51,7 +51,7 @@ public class IdmLongRunningTaskItemControllerRestTest extends AbstractRestTest {
 	private String PATH = "/long-running-task-items";
 
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication(identityService.getByUsername(InitTestData.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
+		return new IdmJwtAuthentication(identityService.getByUsername(InitTestDataProcessor.TEST_ADMIN_USERNAME), null, Lists.newArrayList(IdmAuthorityUtils.getAdminAuthority()), "test");
 	}
 
 	@After

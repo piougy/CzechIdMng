@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.api.service.TokenManager;
 import eu.bcvsolutions.idm.core.security.evaluator.BasePermissionEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Base class for identity authorities processor tests. Provides helper methods
@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractIntegrationTest {
+public abstract class AbstractIdentityAuthoritiesProcessorTest extends AbstractEvaluatorIntegrationTest {
 	
 	@Autowired protected IdmIdentityService identityService;
 	@Autowired protected IdmRoleService roleService;

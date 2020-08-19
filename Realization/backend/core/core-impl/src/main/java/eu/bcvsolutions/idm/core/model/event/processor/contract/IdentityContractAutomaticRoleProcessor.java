@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractIdmAutomaticRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
@@ -26,7 +27,9 @@ import eu.bcvsolutions.idm.core.api.event.processor.IdentityContractProcessor;
 import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 
 /**
  * Recalculate automatic roles by attribute after identity contract is changed.
@@ -113,7 +116,10 @@ public class IdentityContractAutomaticRoleProcessor extends CoreEventProcessor<I
 		}
 		//
 		// Execute concepts
-		roleRequestService.executeConceptsImmediate(identityContract.getIdentity(), concepts);
+		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+		roleRequest.setConceptRoles(concepts);
+		roleRequest.setApplicant(identityContract.getIdentity());
+		roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), event);
 		//
 		return new DefaultEventResult<>(event, this);
 	}

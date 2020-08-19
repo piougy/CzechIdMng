@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Tests for {@link RoleByRoleCatalogueEvaluator}
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @since 10.3.0
  *
  */
-public class RoleByRoleCatalogueEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class RoleByRoleCatalogueEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired
 	private IdmRoleService roleService;

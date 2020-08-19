@@ -29,6 +29,7 @@ import NavigationSearch from './NavigationSearch';
 
 const componentService = new ComponentService();
 const identityManager = new IdentityManager();
+const securityManager = new SecurityManager();
 
 /**
  * Top navigation
@@ -368,6 +369,24 @@ export class Navigation extends Basic.AbstractContent {
     }));
   }
 
+  _onSwitchUserLogout(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const username = this.props.userContext.originalUsername;
+    //
+    this.context.store.dispatch(securityManager.switchUserLogout((result) => {
+      if (result) {
+        this.addMessage({
+          level: 'success',
+          key: 'core-switch-user-success',
+          message: this.i18n('content.identity.switch-user.message.success', { username })
+        });
+        this.context.history.replace(`/`);
+      }
+    }));
+  }
+
   render() {
     const { environment, userContext, navigationCollapsed, rendered, i18nReady } = this.props;
     //
@@ -426,12 +445,14 @@ export class Navigation extends Basic.AbstractContent {
     }
     //
     let identityMenu = null;
+    let isSwitchedUser = false;
     if (!userContext.isExpired && SecurityManager.isAuthenticated(userContext)) {
       const { identityMenuShowLoading } = this.state;
       // rename => move to modal component
       const { _imageUrl, identity } = this.props;
       //
       const identityItems = this.renderNavigationItems('identity-menu', false);
+      isSwitchedUser = userContext.originalUsername && userContext.originalUsername !== userContext.username;
       //
       identityMenu = (
         <li>
@@ -456,7 +477,7 @@ export class Navigation extends Basic.AbstractContent {
               });
             }}>
             <span>
-              <Basic.Icon value="user"/>
+              <Basic.Icon value={ isSwitchedUser ? 'component:switch-user' : 'component:identity' }/>
               <Basic.ShortText value={ userContext.username } cutChar="" maxLength="30"/>
               <span className="caret"/>
             </span>
@@ -499,6 +520,24 @@ export class Navigation extends Basic.AbstractContent {
                     </Basic.Div>
                     <Basic.Div>
                       { identityManager.getFullName(identity) }
+                    </Basic.Div>
+                    <Basic.Div rendered={ isSwitchedUser } >
+                      <Basic.Button
+                        level="success"
+                        buttonSize="xs"
+                        onClick={ this._onSwitchUserLogout.bind(this) }
+                        showLoading={ userContext.showLoading }>
+                        { this.i18n('content.identity.switch-user.button.logout') }
+                        <span style={{ marginLeft: 5 }}>
+                          (
+                          <Basic.ShortText
+                            value={ userContext.originalUsername }
+                            cutChar=""
+                            maxLength="30"
+                            style={{ fontSize: '1.1em', fontWeight: 'bold' }}/>
+                          )
+                        </span>
+                      </Basic.Button>
                     </Basic.Div>
                   </Basic.Div>
                 </Basic.Div>
@@ -549,6 +588,29 @@ export class Navigation extends Basic.AbstractContent {
                   className="navbar-form navbar-left"
                   rendered={ !userContext.isExpired && SecurityManager.isAuthenticated(userContext) }/>
                 { environmentLabel }
+                {
+                  !isSwitchedUser
+                  ||
+                  <Basic.Div className="navbar-text">
+                    <span
+                      className={
+                        isSwitchedUser
+                        ?
+                        'label label-warning'
+                        :
+                        ''
+                      }
+                      title={
+                        this.i18n('content.identity.switch-user.switched.title', {
+                          originalUsername: userContext.originalUsername,
+                          username: userContext.username
+                        })
+                      }>
+                      <Basic.Icon value="warning-sign"/>
+                      <span>{ this.i18n('content.identity.switch-user.switched.label') }</span>
+                    </span>
+                  </Basic.Div>
+                }
                 { flags }
                 <ul className="nav navbar-nav">
                   {

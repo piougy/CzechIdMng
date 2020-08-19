@@ -810,12 +810,21 @@ module.exports = {
               {
                 id: 'role-catalogue-detail',
                 type: 'TAB',
-                labelKey: 'content.roles.tabs.basic',
+                labelKey: 'content.roleCatalogues.tabs.basic',
                 order: 200,
                 path: '/role-catalogue/:entityId/detail',
                 icon: 'fa:newspaper-o',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ]
-              }
+              },
+              {
+                id: 'role-catalogue-catalogue-roles',
+                type: 'TAB',
+                labelKey: 'content.roleCatalogues.roles.title',
+                icon: 'component:roles',
+                order: 300,
+                path: '/role-catalogue/:entityId/roles',
+                access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_READ'] } ]
+              },
             ]
           }
         ]
@@ -1595,6 +1604,15 @@ module.exports = {
         modal: 'profile-modal',
         access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PROFILE_READ'] } ],
         order: 800
+      },
+      {
+        id: 'identity-menu-switch-user',
+        section: 'identity-menu',
+        labelKey: 'content.identity.switch-user.header',
+        icon: 'component:switch-user',
+        modal: 'switch-user-modal',
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ],
+        order: 810
       },
       {
         id: 'identity-menu-logout-separator',

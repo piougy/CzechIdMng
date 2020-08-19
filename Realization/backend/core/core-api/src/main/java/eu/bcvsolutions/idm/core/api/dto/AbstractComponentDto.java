@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * Bean representation. Used for registrable, configurable application components (module descriptors, processors ...) 
+ * Bean representation. Used for registrable, configurable application components (module descriptors, processors ...).
  * 
  * @author Radek Tomiška
  *
@@ -20,6 +20,13 @@ public class AbstractComponentDto implements BaseDto {
 	private String module; // component module
 	private String description; // component description
 	private boolean disabled; // component is disabled
+	
+	public AbstractComponentDto() {
+	}
+	
+	public AbstractComponentDto(Serializable id) {
+		this.id = id == null ? null : id.toString();
+	}
 	
 	@Override
 	public String getId() {

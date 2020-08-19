@@ -1011,6 +1011,46 @@ public class DefaultIdmRoleRequestService
 		//
 		return startRequestInternal(requestEvent);
 	}
+	
+	@Override
+	@Transactional
+	public IdmRoleRequestDto startConcepts(EntityEvent<IdmRoleRequestDto> requestEvent, EntityEvent<?> parentEvent) {
+		IdmRoleRequestDto roleRequest = requestEvent.getContent();
+		Assert.notNull(roleRequest, "Request is required.");
+		List<IdmConceptRoleRequestDto> concepts = roleRequest.getConceptRoles();
+		UUID applicant = roleRequest.getApplicant();
+		Assert.notNull(applicant, "Applicant is required.");
+		//
+		if (concepts == null || concepts.isEmpty()) {
+			LOG.debug("No concepts are given, request for applicant [{}] will be not executed, returning null.", applicant);
+			//
+			return null;
+		}
+		// set required request props and save request
+		roleRequest.setState(RoleRequestState.CONCEPT);
+		roleRequest.setExecuteImmediately(true); // without approval
+		roleRequest.setRequestedByType(RoleRequestedByType.AUTOMATICALLY);
+		roleRequest = save(roleRequest);
+		requestEvent.setContent(roleRequest);
+		//
+		for (IdmConceptRoleRequestDto concept : concepts) {
+			concept.setRoleRequest(roleRequest.getId());
+			//
+			conceptRoleRequestService.save(concept);
+		}
+		//
+		// start event with skip check authorities
+		requestEvent.getProperties().put(IdmIdentityRoleService.SKIP_CHECK_AUTHORITIES, Boolean.TRUE);
+		// set parent (contract is disabled) event
+		if (parentEvent != null) {
+			requestEvent.setParentId(parentEvent.getId());
+			requestEvent.setPriority(parentEvent.getPriority());
+		}
+		// prevent to start asynchronous event before previous update event is completed. 
+		requestEvent.setSuperOwnerId(applicant);
+		//
+		return startRequestInternal(requestEvent);
+	}
 
 	@Override
 	public IdmConceptRoleRequestDto createConcept(IdmRoleRequestDto roleRequest, IdmIdentityContractDto contract, UUID identityRoleId,
@@ -1044,7 +1084,6 @@ public class DefaultIdmRoleRequestService
 	private Session getHibernateSession() {
 		return (Session) this.getEntityManager().getDelegate();
 	}
-
 
 	/**
 	 * Remove identity-role by concept

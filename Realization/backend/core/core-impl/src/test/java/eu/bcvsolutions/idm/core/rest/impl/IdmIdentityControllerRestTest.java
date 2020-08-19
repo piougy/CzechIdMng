@@ -32,6 +32,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIncompatibleRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmProfileDto;
@@ -43,6 +44,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.DataFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoControllerRestTest;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmProfileService;
 import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityDisableBulkAction;
@@ -85,6 +87,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private IdmProfileService profileService;
 	@Autowired private IdmFormProjectionService formProjectionService;
+	@Autowired private IdmIdentityContractService contractService;
 	
 	@Override
 	protected AbstractReadWriteDtoController<IdmIdentityDto, ?> getController() {
@@ -668,8 +671,8 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 	 */
 	@Test
 	public void testFindByIds() {
-		IdmIdentityDto createdDto = createDto(prepareDto());
-		IdmIdentityDto createdDtoTwo = createDto(prepareDto());
+		IdmIdentityDto createdDto = createDto();
+		IdmIdentityDto createdDtoTwo = createDto();
 		// mock dto
 		createDto(prepareDto());
 		//
@@ -714,6 +717,46 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		Assert.assertEquals(1, results.size());
 		Assert.assertTrue(results.stream().allMatch(r -> r.getId().equals(createdDto.getId())));
 		
+	}
+	
+	@Test
+	public void testFindWithoutWorkPosition() {
+		String description = getHelper().createName();
+		//
+		// default contract => without position
+		IdmIdentityDto identity = prepareDto(); 
+		identity.setDescription(description);
+		IdmIdentityDto identityOne = createDto(identity);
+		Assert.assertEquals(IdentityState.CREATED, identityOne.getState());
+		//
+		// without contract
+		identity = prepareDto();
+		identity.setDescription(description);
+		identity = createDto(identity);
+		contractService.delete(getHelper().getPrimeContract(identity));
+		IdmIdentityDto identityTwo = identityService.get(identity);
+		Assert.assertEquals(IdentityState.NO_CONTRACT, identityTwo.getState());
+		//
+		// with default and contract with position
+		identity = prepareDto(); 
+		identity.setDescription(description);
+		IdmIdentityDto identityThree = createDto(identity);
+		getHelper().createIdentityContact(identityThree, getHelper().createTreeNode());
+		//
+		IdmIdentityFilter filter = new IdmIdentityFilter();
+		filter.setText(description);
+		filter.setWithoutWorkPosition(Boolean.TRUE);
+		List<IdmIdentityDto> results = find(filter);
+		//
+		Assert.assertEquals(2, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(identityOne.getId())));
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(identityTwo.getId())));
+		//
+		filter.setWithoutWorkPosition(Boolean.FALSE);
+		results = find(filter);
+		//
+		Assert.assertEquals(1, results.size());
+		Assert.assertTrue(results.stream().anyMatch(r -> r.getId().equals(identityThree.getId())));
 	}
 	
 	@Test

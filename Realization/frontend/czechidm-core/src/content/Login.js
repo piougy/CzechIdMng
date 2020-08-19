@@ -80,7 +80,7 @@ class Login extends Basic.AbstractContent {
                     ref="username"
                     labelSpan="col-sm-5"
                     componentSpan="col-sm-7"
-                    label={this.i18n('username') }
+                    label={ this.i18n('username') }
                     placeholder={ this.i18n('username') }
                     required/>
                   <Basic.TextField

@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
@@ -45,6 +46,7 @@ import eu.bcvsolutions.idm.core.security.evaluator.role.RoleCanBeRequestedEvalua
 public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmIdentityRoleDto> {
 
 	@Autowired private IdmIdentityRoleController controller;
+	@Autowired private RoleConfiguration roleConfiguration;
 	@Autowired private IdmRoleService roleService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
 	@Autowired private IdmAuthorizationPolicyService authorizationPolicyService;
@@ -280,73 +282,82 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 	
 	@Test
 	public void testFindCanBeRequestedRoles() throws Exception {
-		IdmRoleDto roleOne = createRole(true);
-		IdmRoleDto roleTwo = createRole(false); // other
+		String defaultRoleCode = roleConfiguration.getDefaultRoleCode();
 		//
-		IdmIdentityDto identity = getHelper().createIdentity();
-		IdmRoleDto assignedRole = getHelper().createRole();
-		//
-		getHelper().createIdentityRole(identity, assignedRole);
-		// 
-		// other identity - their identity roles we will read
-		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
-		getHelper().createIdentityRole(identityTwo, roleOne);
-		getHelper().createIdentityRole(identityTwo, roleTwo);
-		//
-		// create authorization policy - assign to role
-		getHelper().createAuthorizationPolicy(
-				assignedRole.getId(),
-				CoreGroupPermission.ROLE,
-				IdmRole.class,
-				RoleCanBeRequestedEvaluator.class,
-				RoleBasePermission.CANBEREQUESTED, IdmBasePermission.UPDATE, IdmBasePermission.READ);
-		// with update transitively
-		ConfigurationMap evaluatorProperties = new ConfigurationMap();
-		evaluatorProperties.put(IdentityRoleByRoleEvaluator.PARAMETER_CAN_BE_REQUESTED_ONLY, false);
-		IdmAuthorizationPolicyDto transientIdentityRolePolicy = getHelper().createAuthorizationPolicy(
-				assignedRole.getId(),
-				CoreGroupPermission.IDENTITYROLE,
-				IdmIdentityRole.class,
-				IdentityRoleByRoleEvaluator.class,
-				evaluatorProperties);
-		//
-		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
-		filter.setIdentityId(identityTwo.getId());
-		List<IdmIdentityRoleDto> identityRoles = find("can-be-requested", filter, getAuthentication(identity.getUsername()));
-		//
-		Assert.assertFalse(identityRoles.isEmpty());
-		Assert.assertEquals(1, identityRoles.size());
-		Assert.assertTrue(identityRoles.stream().anyMatch(r -> r.getRole().equals(roleOne.getId())));
-		//
-		List<String> permissions = getPermissions(identityRoles.get(0), getAuthentication(identity.getUsername()));
-		//
-		Assert.assertEquals(3, permissions.size());
-		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(RoleBasePermission.CANBEREQUESTED.name())));
-		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.UPDATE.name())));
-		Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.name())));
-		//
-		// can be requested only
-		evaluatorProperties = new ConfigurationMap();
-		evaluatorProperties.put(IdentityRoleByRoleEvaluator.PARAMETER_CAN_BE_REQUESTED_ONLY, true);
-		transientIdentityRolePolicy.setEvaluatorProperties(evaluatorProperties);
-		authorizationPolicyService.save(transientIdentityRolePolicy);
-		//
-		identityRoles = find("can-be-requested", filter, getAuthentication(identity.getUsername()));
-		//
-		Assert.assertFalse(identityRoles.isEmpty());
-		Assert.assertEquals(1, identityRoles.size());
-		Assert.assertTrue(identityRoles.stream().anyMatch(r -> r.getRole().equals(roleOne.getId())));
-		//
-		// read authority is not available now
 		try {
-			getHelper().login(identity);
+			// empty property => disable default role
+			getHelper().setConfigurationValue(RoleConfiguration.PROPERTY_DEFAULT_ROLE, "");
+			
+			IdmRoleDto roleOne = createRole(true);
+			IdmRoleDto roleTwo = createRole(false); // other
 			//
-			Set<String> canBeRequestedPermissions = identityRoleService.getPermissions(identityRoles.get(0).getId());
-			//		
-			Assert.assertEquals(1, canBeRequestedPermissions.size());
-			Assert.assertTrue(canBeRequestedPermissions.stream().anyMatch(p -> p.equals(RoleBasePermission.CANBEREQUESTED.name())));
+			IdmIdentityDto identity = getHelper().createIdentity();
+			IdmRoleDto assignedRole = getHelper().createRole();
+			//
+			getHelper().createIdentityRole(identity, assignedRole);
+			// 
+			// other identity - their identity roles we will read
+			IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
+			getHelper().createIdentityRole(identityTwo, roleOne);
+			getHelper().createIdentityRole(identityTwo, roleTwo);
+			//
+			// create authorization policy - assign to role
+			getHelper().createAuthorizationPolicy(
+					assignedRole.getId(),
+					CoreGroupPermission.ROLE,
+					IdmRole.class,
+					RoleCanBeRequestedEvaluator.class,
+					RoleBasePermission.CANBEREQUESTED, IdmBasePermission.UPDATE, IdmBasePermission.READ);
+			// with update transitively
+			ConfigurationMap evaluatorProperties = new ConfigurationMap();
+			evaluatorProperties.put(IdentityRoleByRoleEvaluator.PARAMETER_CAN_BE_REQUESTED_ONLY, false);
+			IdmAuthorizationPolicyDto transientIdentityRolePolicy = getHelper().createAuthorizationPolicy(
+					assignedRole.getId(),
+					CoreGroupPermission.IDENTITYROLE,
+					IdmIdentityRole.class,
+					IdentityRoleByRoleEvaluator.class,
+					evaluatorProperties);
+			//
+			IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
+			filter.setIdentityId(identityTwo.getId());
+			List<IdmIdentityRoleDto> identityRoles = find("can-be-requested", filter, getAuthentication(identity.getUsername()));
+			//
+			Assert.assertFalse(identityRoles.isEmpty());
+			Assert.assertEquals(1, identityRoles.size());
+			Assert.assertTrue(identityRoles.stream().anyMatch(r -> r.getRole().equals(roleOne.getId())));
+			//
+			List<String> permissions = getPermissions(identityRoles.get(0), getAuthentication(identity.getUsername()));
+			//
+			Assert.assertEquals(3, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(RoleBasePermission.CANBEREQUESTED.name())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.UPDATE.name())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.name())));
+			//
+			// can be requested only
+			evaluatorProperties = new ConfigurationMap();
+			evaluatorProperties.put(IdentityRoleByRoleEvaluator.PARAMETER_CAN_BE_REQUESTED_ONLY, true);
+			transientIdentityRolePolicy.setEvaluatorProperties(evaluatorProperties);
+			authorizationPolicyService.save(transientIdentityRolePolicy);
+			//
+			identityRoles = find("can-be-requested", filter, getAuthentication(identity.getUsername()));
+			//
+			Assert.assertFalse(identityRoles.isEmpty());
+			Assert.assertEquals(1, identityRoles.size());
+			Assert.assertTrue(identityRoles.stream().anyMatch(r -> r.getRole().equals(roleOne.getId())));
+			//
+			// read authority is not available now
+			try {
+				getHelper().login(identity);
+				//
+				Set<String> canBeRequestedPermissions = identityRoleService.getPermissions(identityRoles.get(0).getId());
+				//		
+				Assert.assertEquals(1, canBeRequestedPermissions.size());
+				Assert.assertTrue(canBeRequestedPermissions.stream().anyMatch(p -> p.equals(RoleBasePermission.CANBEREQUESTED.name())));
+			} finally {
+				logout();
+			}
 		} finally {
-			logout();
+			getHelper().setConfigurationValue(RoleConfiguration.PROPERTY_DEFAULT_ROLE, defaultRoleCode);
 		}
 	}
 	

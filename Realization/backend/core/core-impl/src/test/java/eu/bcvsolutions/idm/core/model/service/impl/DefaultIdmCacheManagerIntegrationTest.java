@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import javax.cache.CacheManager;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -15,34 +13,22 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Cache manager tests.
  * 
  * @author Peter Štrunc <peter.strunc@bcvsolutions.eu>
+ * @author Radek Tomiška
  */
 public class DefaultIdmCacheManagerIntegrationTest extends AbstractIntegrationTest {
 
-    public static final String CACHE_NAME_1 = "TEST_CACHE1";
-    public static final String CACHE_NAME_2 = "TEST_CACHE2";
-    public static final String CACHE_NAME_3 = "TEST_CACHE3";
-    public static final String CACHE_NAME_4 = "TEST_CACHE4";
-    public static final String CACHE_NAME_5 = "TEST_CACHE5";
+    public static final String CACHE_NAME_1 = "core:TEST_CACHE1";
+    public static final String CACHE_NAME_2 = "core:TEST_CACHE2";
+    public static final String CACHE_NAME_3 = "core:TEST_CACHE3";
+    public static final String CACHE_NAME_4 = "core:TEST_CACHE4";
+    public static final String CACHE_NAME_5 = "core:TEST_CACHE5";
 
-    @Autowired
-    private DefaultIdmCacheManager cacheManager;
-
-    @Autowired
-    private CacheManager jcacheManager;
-
+    @Autowired private DefaultIdmCacheManager cacheManager;
+    
     @Before
     public void setup() {
-        createCache(CACHE_NAME_1);
-        createCache(CACHE_NAME_2);
-        createCache(CACHE_NAME_3);
-        createCache(CACHE_NAME_4);
+    	cacheManager.evictAllCaches();
     }
-
-    private void createCache(String cacheName1) {
-        jcacheManager.getCache(cacheName1).clear();
-    }
-
-
 
     @Test
     public void testCacheInsert() {

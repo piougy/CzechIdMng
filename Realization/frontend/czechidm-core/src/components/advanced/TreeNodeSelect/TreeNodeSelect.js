@@ -13,10 +13,10 @@ const treeTypeManager = new TreeTypeManager(); // default manager in manager in 
 const treeNodeManager = new TreeNodeManager(); // default manager in manager in props is not given
 
 /**
-* Select tree node
-*
-* @author Radek Tomiška
-*/
+ * Select tree node.
+ *
+ * @author Radek Tomiška
+ */
 export default class TreeNodeSelect extends Basic.AbstractFormComponent {
 
   constructor(props, context) {
@@ -335,7 +335,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
     const { readOnly } = this.state;
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.LabelWrapper label={ showTreeType || this.getLabel() ? (<span style={{ visibility: 'hidden' }}>T</span>) : null }>
           <Basic.Button
             level="default"
@@ -346,7 +346,7 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
             titlePlacement="bottom"
             disabled={ readOnly }/>
         </Basic.LabelWrapper>
-      </div>
+      </Basic.Div>
     );
   }
 
@@ -361,7 +361,9 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
       hidden,
       multiSelect,
       validationErrors,
-      disableable
+      disableable,
+      additionalOptions,
+      onChange
     } = this.props;
     const {
       treeTypeId,
@@ -413,8 +415,8 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
         {
           !showTreeType || _forceTreeType
           ||
-          <div style={{ display: 'flex' }}>
-            <div style={{ flex: 1 }}>
+          <Basic.Div style={{ display: 'flex' }}>
+            <Basic.Div style={{ flex: 1 }}>
               <EntitySelectBox
                 entityType="treeType"
                 ref="treeType"
@@ -426,13 +428,13 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
                 validationErrors={ validationErrors }
                 readOnly={ readOnly }
                 disableable={ disableable }/>
-            </div>
+            </Basic.Div>
             { this._renderShowTreeIcon() }
-          </div>
+          </Basic.Div>
         }
 
-        <div style={ showTreeType ? {} : { display: 'flex' } }>
-          <div style={ showTreeType ? {} : { flex: 1 } }>
+        <Basic.Div style={ showTreeType ? {} : { display: 'flex' } }>
+          <Basic.Div style={ showTreeType ? {} : { flex: 1 } }>
             <EntitySelectBox
               entityType="treeNode"
               ref="treeNode"
@@ -446,14 +448,16 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               validationErrors={ validationErrors }
               value={ value }
               multiSelect={ multiSelect }
-              disableable={ disableable }/>
-          </div>
+              disableable={ disableable }
+              additionalOptions={ additionalOptions }
+              onChange={ onChange }/>
+          </Basic.Div>
           {
             showTreeType
             ||
             this._renderShowTreeIcon()
           }
-        </div>
+        </Basic.Div>
 
         <Basic.Modal
           show={ showTree }

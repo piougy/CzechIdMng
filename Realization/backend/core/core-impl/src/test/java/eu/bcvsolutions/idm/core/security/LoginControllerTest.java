@@ -7,7 +7,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -64,7 +64,7 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 	@Test(expected = AuthenticationException.class)
 	public void testBadCredentialsLogIn() {
 		LoginDto loginDto = new LoginDto();
-		loginDto.setUsername(InitTestData.TEST_ADMIN_USERNAME);
+		loginDto.setUsername(InitTestDataProcessor.TEST_ADMIN_USERNAME);
 		loginDto.setPassword(new GuardedString("wrong_pass"));
 		loginController.login(loginDto);
 	}

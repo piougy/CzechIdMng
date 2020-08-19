@@ -13,6 +13,7 @@ import ResultCodesModal from './ResultCodesModal';
  * Caches administration
  *
  * @author Peter Štrunc
+ * @author Radek Tomiška
  */
 class Caches extends Basic.AbstractContent {
 
@@ -101,45 +102,45 @@ class Caches extends Basic.AbstractContent {
     _caches.sort((one, two) => (one.name > two.name ? 1 : -1));
 
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
+      <Basic.Div>
+        <Helmet title={ this.i18n('title') } />
         <Basic.Confirm ref="confirm-evict" level="warning"/>
 
         <ResultCodesModal detail={ detail } />
 
         <Basic.Toolbar>
-          <div>
-            <div className="pull-right">
+          <Basic.Div>
+            <Basic.Div className="pull-right">
               <Basic.Button
                 level="warning"
-                onClick={this.onEvictAll.bind(this)}
+                onClick={ this.onEvictAll.bind(this) }
                 className="btn-xs"
-                title={this.i18n('button.evictAll')}
+                title={ this.i18n('button.evictAll') }
                 titlePlacement="bottom">
-                {this.i18n('button.evictAll')}
+                { this.i18n('button.evictAll') }
               </Basic.Button>
               <Advanced.RefreshButton
-                onClick={this.reload.bind(this)}
-                title={this.i18n('button.refresh')}
-                showLoading={showLoading}/>
-            </div>
-            <div className="clearfix"/>
-          </div>
+                onClick={ this.reload.bind(this) }
+                title={ this.i18n('button.refresh') }
+                showLoading={ showLoading }/>
+            </Basic.Div>
+            <Basic.Div className="clearfix"/>
+          </Basic.Div>
         </Basic.Toolbar>
 
         <Basic.Table
           ref="table"
-          data={_caches}
-          showLoading={showLoading}
-          noData={this.i18n('component.basic.Table.noData')}
-          rowClass={({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }>
+          data={ _caches }
+          showLoading={ showLoading }
+          noData={ this.i18n('component.basic.Table.noData') }
+          rowClass={ ({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }>
 
           <Basic.Column
-            header={this.i18n('entity.Cache.module')}
+            header={ this.i18n('entity.Cache.module') }
             className="text"
             sort
             cell={
-              ({rowIndex, data}) => {
+              ({ rowIndex, data }) => {
                 const { name } = data[rowIndex];
                 const [module] = name.split(':');
                 return (
@@ -147,38 +148,44 @@ class Caches extends Basic.AbstractContent {
                 );
               }
             }/>
-          <Basic.Column property="name" header={this.i18n('entity.Cache.name')}/>
+          <Basic.Column property="name" header={ this.i18n('entity.Cache.name') }/>
           <Basic.Column
-            header={this.i18n('entity.Cache.description')}
+            header={ this.i18n('entity.Cache.description') }
             className="text"
             cell={
               ({rowIndex, data}) => {
                 const { name } = data[rowIndex];
                 const [module, nameWithoutModule] = name.split(':');
                 return (
-                  this.i18n(`${module}:cache.${nameWithoutModule}.description`)
+                  this.i18n(`${ module }:cache.${ nameWithoutModule }.description`)
                 );
               }
             }/>
           <Basic.Column
-            header={this.i18n('label.action')}
+            header={ this.i18n('entity.Cache.size') }
+            property="size"
+            className="text"
+            width={ 150 }
+            rendered/>
+          <Basic.Column
+            header={ this.i18n('label.action') }
             className="action"
             cell={
               ({rowIndex, data}) => {
                 return (
                   <Basic.Button
                     level="warning"
-                    onClick={this.onEvict.bind(this, data[rowIndex])}
+                    onClick={ this.onEvict.bind(this, data[rowIndex]) }
                     className="btn-xs"
-                    title={this.i18n('button.evict')}
+                    title={ this.i18n('button.evict') }
                     titlePlacement="bottom">
-                    {this.i18n('button.evict')}
+                    { this.i18n('button.evict') }
                   </Basic.Button>
                 );
               }
             }/>
         </Basic.Table>
-      </div>
+      </Basic.Div>
     );
   }
 }

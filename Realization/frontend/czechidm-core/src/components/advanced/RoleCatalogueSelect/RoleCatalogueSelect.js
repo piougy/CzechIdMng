@@ -264,7 +264,7 @@ export default class RoleCatalogueSelect extends Basic.AbstractFormComponent {
               value={ value }
               multiSelect={ multiSelect }
               onChange={ onChange }
-              additionalOptions={ additionalOptions}/>
+              additionalOptions={ additionalOptions }/>
           </Basic.Div>
           { this._renderShowTreeIcon() }
         </Basic.Div>

@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.eav.api.service.IdmFormProjectionService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.test.api.AbstractEvaluatorIntegrationTest;
 
 /**
  * Authorization policy evaluator test.
@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  */
 @Transactional
-public class IdentityByFormProjectionEvaluatorIntegrationTest extends AbstractIntegrationTest {
+public class IdentityByFormProjectionEvaluatorIntegrationTest extends AbstractEvaluatorIntegrationTest {
 
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private LookupService lookupService;

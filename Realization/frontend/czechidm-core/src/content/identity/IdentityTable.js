@@ -141,7 +141,18 @@ export class IdentityTable extends Advanced.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.useFilterForm(this.refs.filterForm);
+    const filterData = SearchParameters.getFilterData(this.refs.filterForm);
+    //
+    // resolve additional filter options
+    if (this.refs.treeNodeId) {
+      const treeNodeId = this.refs.treeNodeId.getValue();
+      if (treeNodeId && treeNodeId.additionalOption) {
+        filterData.treeNodeId = null;
+        filterData.withoutWorkPosition = true;
+      }
+    }
+    //
+    this.refs.table.useFilterData(filterData);
   }
 
   cancelFilter(event) {
@@ -152,14 +163,57 @@ export class IdentityTable extends Advanced.AbstractTableContent {
       text: null,
       treeNodeId: null
     }, () => {
+      if (this.refs.treeNodeId) {
+        this.refs.treeNodeId.setValue(null);
+      }
       this.refs.table.cancelFilter(this.refs.filterForm);
     });
+  }
+
+  /**
+   * Loads filter from redux state or default.
+   */
+  loadFilter() {
+    if (!this.refs.filterForm) {
+      return;
+    }
+    //  filters from redux
+    const _searchParameters = this.getSearchParameters();
+    if (_searchParameters) {
+      const filterData = {};
+      _searchParameters.getFilters().forEach((v, k) => {
+        filterData[k] = v;
+      });
+      // set without work position
+      if (filterData.withoutWorkPosition) {
+        filterData.withoutWorkPosition = null;
+        filterData.treeNodeId = this._getWithoutWorkPositionOption();
+      }
+      //
+      this.refs.filterForm.setData(filterData);
+    }
   }
 
   closeAddModal() {
     this.setState({
       showAddModal: false
     });
+  }
+
+  onChangeWorkPosition(option) {
+    if (!option) {
+      const { uiKey, _searchParameters } = this.props;
+      // cleanup redux state search parameters for additional options
+      this.context.store.dispatch(manager.setSearchParameters(_searchParameters.clearFilter('withoutWorkPosition'), uiKey));
+    }
+  }
+
+  _getWithoutWorkPositionOption() {
+    return {
+      [Basic.SelectBox.NICE_LABEL]: this.i18n('filter.organization.option.withoutWorkPosition.label'),
+      [Basic.SelectBox.ITEM_FULL_KEY]: this.i18n('filter.organization.option.withoutWorkPosition.label'),
+      [Basic.SelectBox.ITEM_VALUE]: 'core:without-work-position'
+    };
   }
 
   render() {
@@ -237,7 +291,9 @@ export class IdentityTable extends Advanced.AbstractTableContent {
                       label={ null }
                       placeholder={ this.i18n('filter.organization.placeholder') }
                       rendered={ !treeNodeDisabled }
-                      forceSearchParameters={ forceTreeNodeSearchParams }/>
+                      forceSearchParameters={ forceTreeNodeSearchParams }
+                      additionalOptions={[ this._getWithoutWorkPositionOption() ]}
+                      onChange={ this.onChangeWorkPosition.bind(this) }/>
                   </Basic.Col>
                   <Basic.Col lg={ 6 }>
                     <Advanced.Filter.BooleanSelectBox

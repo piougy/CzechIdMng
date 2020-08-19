@@ -308,7 +308,7 @@ class Profile extends Basic.AbstractContent {
                       };
                     })
                   }
-                  onChange={ (option) => this.onSave({ defaultPageSize: option.value }) }/>
+                  onChange={ (option) => this.onSave({ defaultPageSize: option ? option.value : null }) }/>
 
                 <Basic.Checkbox
                   ref="navigationCollapsed"

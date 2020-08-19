@@ -34,7 +34,7 @@ public class IdmIdentityProjectionDto extends AbstractDto {
 	private IdmIdentityContractDto contract; // prime or first contract, which can be read
 	private List<IdmIdentityContractDto> otherContracts;
 	private List<IdmContractPositionDto> otherPositions;
-	private List<IdmIdentityRoleDto> identityRoles;
+	private List<IdmIdentityRoleDto> identityRoles; // all assigned identity roles
 	
 	public IdmIdentityProjectionDto() {
 	}

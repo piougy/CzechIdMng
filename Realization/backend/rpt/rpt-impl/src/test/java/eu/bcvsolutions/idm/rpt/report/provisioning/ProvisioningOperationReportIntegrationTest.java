@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysRoleSystemDto;
@@ -48,7 +47,6 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class ProvisioningOperationReportIntegrationTest extends AbstractIntegrationTest {
 
-	@Autowired private TestHelper helper;
 	@Autowired private ProvisioningOperationReportExecutor reportExecutor;
 	@Autowired private AttachmentManager attachmentManager;
 	@Autowired private ObjectMapper mapper;
@@ -59,12 +57,12 @@ public class ProvisioningOperationReportIntegrationTest extends AbstractIntegrat
 	@Autowired private SysProvisioningOperationService provisioningOperationService;
 	
 	public TestHelper getHelper() {
-		return helper;
+		return (TestHelper) super.getHelper();
 	}
 	
 	@Before
 	public void before() {
-		getHelper().login(InitTestData.TEST_ADMIN_USERNAME, InitTestData.TEST_ADMIN_PASSWORD);
+		getHelper().loginAdmin();
 	}
 	
 	@After

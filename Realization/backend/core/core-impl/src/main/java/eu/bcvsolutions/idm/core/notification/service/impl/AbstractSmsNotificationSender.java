@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -80,7 +81,7 @@ public abstract class AbstractSmsNotificationSender extends AbstractNotification
         // clear recipients so the first one is not present twice
         result.setRecipients(new ArrayList<>());
 
-        for (IdmSmsLogDto log: smsLogs) {
+        for (IdmSmsLogDto log : smsLogs) {
             result.getRecipients().addAll(log.getRecipients());
             result.setSent(result.getSent() == null ? null : log.getSent());
             // Set message
@@ -98,7 +99,10 @@ public abstract class AbstractSmsNotificationSender extends AbstractNotification
         //
         IdmSmsLogDto smsLogDto = new IdmSmsLogDto();
         // parent message
-        if (notification.getId() != null) {
+        UUID parent = notification.getParent(); // parent from merged sms log
+        if (parent != null) {        	
+        	smsLogDto.setParent(notification.getParent());
+        } else if (notification.getId() != null) { // or parent as notification log
             smsLogDto.setParent(notification.getId());
         }
         smsLogDto.setTopic(notification.getTopic());

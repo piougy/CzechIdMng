@@ -424,12 +424,15 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
     return formValue ? !!formValue.value : false;
   }
 
-  save(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    const { identityProjection, isNew, formProjection, editContracts } = this.state;
+  /**
+   * Returns true, when filled form is valid
+   *
+   * @return {Boolean} valid = true
+   */
+  isValid() {
+    const { identityProjection } = this.state;
     //
+    // form validation
     let isValid = true;
     if (!this.refs.form.isFormValid()
         || (this.refs.eav && !this.refs.eav.isValid())
@@ -441,12 +444,17 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         isValid = false;
       }
     }
-    if (!isValid) {
-      return;
-    }
     //
-    this.refs.form.processStarted();
+    return isValid;
+  }
+
+  /**
+   * Get identity projection (data) from form before send projection to BE (see #save) and after validation (see #isValid).
+   */
+  getIdentityProjection() {
+    const { identityProjection, isNew, formProjection, editContracts } = this.state;
     const data = this.refs.form.getData();
+    //
     if (this.refs.eav) {
       data._eav = this.refs.eav.getValues();
     }
@@ -549,8 +557,24 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       _identityProjection.identity.formProjection = formProjection ? formProjection.id : Utils.Ui.getUrlParameter(this.props.location, 'projection');
     }
     //
+    return _identityProjection;
+  }
+
+  save(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
+    // form validation
+    if (!this.isValid()) {
+      return;
+    }
+    // form show loading
+    this.refs.form.processStarted();
+    // get data from form
+    const identityProjection = this.getIdentityProjection();
     // post => save
-    this.context.store.dispatch(identityProjectionManager.saveProjection(_identityProjection, null, this.afterSave.bind(this)));
+    this.context.store.dispatch(identityProjectionManager.saveProjection(identityProjection, null, this.afterSave.bind(this)));
   }
 
   /**
@@ -575,6 +599,7 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
       });
       this.context.history.replace(identityManager.getDetailLink(identityProjection.identity));
       if (this.refs.form) {
+        // form show loading
         this.refs.form.processEnded();
       }
       // reload role requests, if new

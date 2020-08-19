@@ -221,7 +221,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		//
 		// clean previous state and create new LRT instance
 		DtoUtils.clearAuditFields(task);
+		// clear previous transaction context
+		task.getTaskProperties().remove(LongRunningTaskExecutor.PARAMETER_TRANSACTION_CONTEXT);
+		// new record
 		task.setId(null);
+		// clear state
 		task.clearState();
 		task.setResult(new OperationResult(OperationState.RUNNING)); // prevent to execute created task redundantly by asynchronous job
 		task = service.save(task); // persist new task

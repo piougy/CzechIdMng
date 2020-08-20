@@ -138,12 +138,24 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
         return;
       }
     }
+    if (this.refs.formProvisioningContext) {
+      if (!this.refs.formProvisioningContext.isFormValid()) {
+        this.setState({activeKey: 3});
+        return;
+      }
+    }
 
     const formEntity = this.refs.form.getData();
     if (this.refs.formAcm) {
       const acmData = this.refs.formAcm.getData(false);
       // Merge specific data to form.
       _.merge(formEntity, acmData);
+    }
+
+    if (this.refs.formProvisioningContext) {
+      const mappingContextData = this.refs.formProvisioningContext.getData(false);
+      // Merge context data to form.
+      _.merge(formEntity, mappingContextData);
     }
     if (formEntity.id === undefined) {
       this.context.store.dispatch(systemMappingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {

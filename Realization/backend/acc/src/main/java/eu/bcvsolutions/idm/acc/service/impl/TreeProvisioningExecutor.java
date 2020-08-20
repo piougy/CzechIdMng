@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -109,8 +110,8 @@ public class TreeProvisioningExecutor extends AbstractProvisioningExecutor<IdmTr
 	}
 	
 	@Override
-	protected Object getAttributeValue(String uid, IdmTreeNodeDto entity, AttributeMapping attribute, SysSystemDto system) {
-		Object idmValue = super.getAttributeValue(uid, entity, attribute, system);
+	protected Object getAttributeValue(String uid, IdmTreeNodeDto entity, AttributeMapping attribute, SysSystemDto system, MappingContext mappingContext) {
+		Object idmValue = super.getAttributeValue(uid, entity, attribute, system, mappingContext);
 
 		if (attribute.isEntityAttribute()
 				&& TreeSynchronizationExecutor.PARENT_FIELD.equals(attribute.getIdmPropertyName())) {

@@ -1,37 +1,20 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.plugin.core.OrderAwarePluginRegistry;
-import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 import com.google.common.collect.ImmutableMap;
-
+import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
+import eu.bcvsolutions.idm.acc.dto.AccIdentityAccountDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccIdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount_;
@@ -39,25 +22,59 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping_;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmExportImportDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ExportManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import java.io.PrintStream;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import org.apache.tomcat.util.log.SystemLogHandler;
+import static org.junit.Assert.assertNotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Default system entity handling
- * 
+ *
  * @author svandav
  * @author Ondrej Husnik
  *
@@ -78,6 +95,21 @@ public class DefaultSysSystemMappingService
 	@Autowired
 	@Lazy
 	private SysSchemaAttributeService attributeService;
+	@Lazy
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
+	@Lazy
+	@Autowired
+	private IdmIdentityContractService identityContractService;
+	@Lazy
+	@Autowired
+	private AccAccountService accountService;
+	@Lazy
+	@Autowired
+	private AccIdentityAccountService identityAccountService;
+	@Lazy
+	@Autowired
+	private SysSystemEntityService systemEntityService;
 
 	@Autowired
 	public DefaultSysSystemMappingService(SysSystemMappingRepository repository, EntityEventManager entityEventManager,
@@ -95,14 +127,14 @@ public class DefaultSysSystemMappingService
 		this.groovyScriptService = groovyScriptService;
 		this.pluginExecutors = OrderAwarePluginRegistry.create(evaluators);
 	}
-	
+
 	@Override
 	public SysSystemMappingDto save(SysSystemMappingDto dto, BasePermission... permission) {
 		SystemEntityType entityType = dto.getEntityType();
 		if (SystemOperationType.PROVISIONING == dto.getOperationType() && !entityType.isSupportsProvisioning()) {
 			throw new ResultCodeException(AccResultCode.PROVISIONING_NOT_SUPPORTS_ENTITY_TYPE, ImmutableMap.of("entityType", entityType));
 		}
-		
+
 		// Validate all sub attributes
 		getAttributeMappingService()
 				.findBySystemMapping(dto).forEach(attribute -> {
@@ -119,7 +151,7 @@ public class DefaultSysSystemMappingService
 		}
 		return repository.find(filter, pageable);
 	}
-	
+
 	/**
 	 * FIXME: refactor repository usage.
 	 */
@@ -208,11 +240,11 @@ public class DefaultSysSystemMappingService
 		EntityUtils.clearAuditFields(original);
 		return original;
 	}
-	
+
 	@Override
 	public void export(UUID id, IdmExportImportDto batch) {
 		super.export(id, batch);
-		
+
 		// Export mapped attributes
 		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
 		filter.setSystemMappingId(id);
@@ -230,7 +262,7 @@ public class DefaultSysSystemMappingService
 
 	/**
 	 * Validate system mapping
-	 * 
+	 *
 	 * @param id(UUID
 	 *            system mapping)
 	 */
@@ -253,7 +285,7 @@ public class DefaultSysSystemMappingService
 
 	/**
 	 * Validation of sync: Missing Identifier
-	 * 
+	 *
 	 * @param errors
 	 * @param systemMapping
 	 * @param attributesList
@@ -276,7 +308,7 @@ public class DefaultSysSystemMappingService
 
 	/**
 	 * Validation of sync
-	 * 
+	 *
 	 * @param errors
 	 * @param systemMapping
 	 * @param attributesList
@@ -362,8 +394,93 @@ public class DefaultSysSystemMappingService
 			attributeMappingService = applicationContext.getBean(SysSystemAttributeMappingService.class);
 		return attributeMappingService;
 	}
-	
-	
+
+	@Override
+	public MappingContext getMappingContext(SysSystemMappingDto mapping, SysSystemEntityDto systemEntity, AbstractDto dto, SysSystemDto system) {
+		Assert.notNull(mapping, "Mapping cannot be null!");
+		Assert.notNull(systemEntity, "System entity cannot be null!");
+		Assert.notNull(system, "System cannot be null!");
+
+		// Create new context.
+		MappingContext mappingContext = new MappingContext();
+
+		if (dto == null) {
+			return mappingContext;
+		}
+
+		if ((mapping.isAddContextIdentityRoles() || mapping.isAddContextIdentityRolesForSystem()) &&  dto instanceof IdmIdentityDto) {
+			IdmIdentityRoleFilter identityRoleFilter = new IdmIdentityRoleFilter();
+			identityRoleFilter.setIdentityId(dto.getId());
+			List<IdmIdentityRoleDto> identityRoles = identityRoleService
+					.find(identityRoleFilter,
+							PageRequest.of(0, Integer.MAX_VALUE, Sort.by(IdmIdentityRole_.created.getName())))
+					.getContent();
+			if (mapping.isAddContextIdentityRoles()) {
+				// Set all identity-roles to the context.
+				mappingContext.setIdentityRoles(identityRoles);
+			}
+			if (mapping.isAddContextIdentityRolesForSystem()) {
+				List<IdmIdentityRoleDto> identityRolesToProcess;
+
+				assertNotNull(system.getId());
+				List<IdmIdentityRoleDto> identityRolesForSystem = Lists.newArrayList();
+				AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
+				identityAccountFilter.setIdentityId(dto.getId());
+				identityAccountFilter.setSystemId(system.getId());
+				List<AccIdentityAccountDto> identityAccounts = identityAccountService.find(identityAccountFilter, null)
+						.getContent();
+
+				// Filtering only identity-roles for this system.
+				identityAccounts.forEach(identityAccount -> {
+					identityRolesForSystem.addAll(identityRoles.stream()
+							.filter(identityRole -> identityRole.getId().equals(identityAccount.getIdentityRole()))
+							.collect(Collectors.toList())
+					);
+				});
+				// Set identity-roles for this system to the context.
+				mappingContext.setIdentityRolesForSystem(identityRolesForSystem);
+			}
+		}
+
+		if (mapping.isAddContextContracts()  &&  dto instanceof IdmIdentityDto) {
+			// Set all identity contracts to the context.
+			mappingContext.setContracts(identityContractService.findAllByIdentity(dto.getId()));
+		}
+		if (mapping.isAddContextConnectorObject() && systemEntity != null) {
+			// Set connector object to the context.
+			mappingContext.setConnectorObject(systemEntityService.getConnectorObject(systemEntity));
+		}
+
+		String script = mapping.getMappingContextScript();
+
+		if (StringUtils.isEmpty(script)) {
+			return mappingContext;
+		} else {
+			Map<String, Object> variables = new HashMap<>();
+			variables.put(SysSystemAttributeMappingService.ACCOUNT_UID, systemEntity.getUid());
+			variables.put(SysSystemAttributeMappingService.SYSTEM_KEY, system);
+			variables.put(SysSystemAttributeMappingService.ENTITY_KEY, dto);
+			variables.put(SysSystemAttributeMappingService.CONTEXT_KEY, mappingContext);
+			// Add default script evaluator, for call another scripts
+			variables.put(AbstractScriptEvaluator.SCRIPT_EVALUATOR,
+					pluginExecutors.getPluginFor(IdmScriptCategory.MAPPING_CONTEXT));
+
+			// Add access for script evaluator
+			List<Class<?>> extraClass = new ArrayList<>();
+			extraClass.add(AbstractScriptEvaluator.Builder.class);
+			extraClass.add(IcConnectorObject.class);
+			//
+			Object result = groovyScriptService.evaluate(script, variables, extraClass);
+			if (result instanceof MappingContext) {
+				return (MappingContext) result;
+			} else {
+				throw new ProvisioningException(
+						AccResultCode.MAPPING_CONTEXT_SCRIPT_RETURNS_WRONG_TYPE,
+						ImmutableMap.of("system", system.getCode()));
+			}
+		}
+	}
+
 	@Override
 	@Transactional
 	public SysSystemMappingDto duplicateMapping(UUID id, SysSchemaObjectClassDto schema,
@@ -400,9 +517,9 @@ public class DefaultSysSystemMappingService
 
 		return mapping;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param name - name copy of which is to be created
 	 */
 	private String duplicateName(String name) {

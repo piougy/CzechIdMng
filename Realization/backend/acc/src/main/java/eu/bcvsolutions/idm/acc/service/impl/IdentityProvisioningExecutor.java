@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
@@ -190,7 +191,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 
 	@Override
 	protected Object getAttributeValue(String uid, IdmIdentityDto dto, AttributeMapping attribute,
-			SysSystemDto system) {
+			SysSystemDto system, MappingContext mappingContext) {
 		
 		if (attribute instanceof SysRoleSystemAttributeDto) {
 			SysRoleSystemAttributeDto roleSystemAttributeDto = (SysRoleSystemAttributeDto) attribute;
@@ -292,7 +293,7 @@ public class IdentityProvisioningExecutor extends AbstractProvisioningExecutor<I
 			BaseDto projection = lookupService.lookupEmbeddedDto(dto, IdmIdentity_.formProjection);
 			return attributeMappingService.transformValueToResource(uid, projection, attribute, dto);
 		}
-		return super.getAttributeValue(uid, dto, attribute, system);
+		return super.getAttributeValue(uid, dto, attribute, system, mappingContext);
 	}
 
 	public static AssignedRoleDto convertToAssignedRoleDto(IdmIdentityRoleDto identityRole) {

@@ -1,31 +1,12 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
@@ -93,6 +74,23 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Abstract service for do provisioning
@@ -102,8 +100,6 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  * @param <DTO>
  *            provisioned dto
- * @param <F>
- *            dto's accounts filter
  */
 public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> implements ProvisioningEntityExecutor<DTO> {
 
@@ -672,9 +668,12 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			// TODO: delete operation?
 			return null;
 		}
-		//
+		// Create mapping context from the script defined on the mapping and by checked options.
+		// This context will be propagate to all attributes (transformation to the system).
+		MappingContext mappingContext = systemMappingService.getMappingContext(mapping, systemEntity, dto, system);
+
 		Map<ProvisioningAttributeDto, Object> accountAttributes = prepareMappedAttributesValues(dto, operationType,
-				systemEntity, attributes);
+				systemEntity, attributes, mappingContext);
 		
 		UUID roleRequestId = null;
 		if(ProvisioningOperationType.DELETE == operationType) {
@@ -728,7 +727,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 * 
 	 * @param systemEntity
 	 * @param dto
-	 * @param provisioningType
+	 * @param operationType
 	 * @param attributes
 	 */
 	private void doProvisioning(SysSystemEntityDto systemEntity, DTO dto, UUID entityId,
@@ -753,7 +752,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 */
 	protected Map<ProvisioningAttributeDto, Object> prepareMappedAttributesValues(DTO dto,
 			ProvisioningOperationType operationType, SysSystemEntityDto systemEntity,
-			List<? extends AttributeMapping> attributes) {
+			List<? extends AttributeMapping> attributes, MappingContext mappingContext) {
 		AccAccountDto account = getAccountSystemEntity(systemEntity.getId());
 		String uid = systemEntity.getUid();
 		SysSystemDto system = DtoUtils.getEmbedded(systemEntity, SysSystemEntity_.system);
@@ -774,7 +773,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			if (attribute.isUid()) {
 				// TODO: now we set UID from SystemEntity, may be UID from
 				// AccAccount will be more correct
-				Object uidValue = getAttributeValue(uid, dto, attribute, system);
+				Object uidValue = getAttributeValue(uid, dto, attribute, system, mappingContext);
 				if (uidValue == null) {
 					throw new ProvisioningException(AccResultCode.PROVISIONING_GENERATED_UID_IS_NULL,
 							ImmutableMap.of("system", system.getName()));
@@ -788,7 +787,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 						schemaAttributeDto.getName(), schemaAttributeDto.getClassType()), uidValue);
 			} else {
 				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute,
-						schemaAttributeDto.getName(),schemaAttributeDto.getClassType()), getAttributeValue(uid, dto, attribute, system));
+						schemaAttributeDto.getName(),schemaAttributeDto.getClassType()), getAttributeValue(uid, dto, attribute, system, mappingContext));
 			}
 		});
 
@@ -819,7 +818,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 								&& schemaAttributeParent.equals(schemaAttribute)
 								&& attributeParent.getStrategyType() == attribute.getStrategyType();
 					}).forEach(attribute -> {
-						Object value = getAttributeValue(uid, dto, attribute, system);
+						Object value = getAttributeValue(uid, dto, attribute, system, mappingContext);
 						// We don`t want null item in list (problem with
 						// provisioning in IC)
 						if (value != null) {
@@ -843,8 +842,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 		return accountAttributes;
 	}
 
-	protected Object getAttributeValue(String uid, DTO dto, AttributeMapping attribute, SysSystemDto system) {
-		return attributeMappingService.getAttributeValue(uid, dto, attribute);
+	protected Object getAttributeValue(String uid, DTO dto, AttributeMapping attribute, SysSystemDto system, MappingContext mappingContext) {
+		return attributeMappingService.getAttributeValue(uid, dto, attribute, mappingContext);
 	}
 
 	@Override
@@ -918,10 +917,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	/**
 	 * Return all mapped attributes for this account (include overridden
 	 * attributes)
-	 * 
-	 * @param uid
+	 *
 	 * @param account
-	 * @param entity
 	 * @param system
 	 * @param entityType
 	 * @return
@@ -972,11 +969,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	/**
 	 * Create final list of attributes for provisioning.
-	 * 
-	 * @param identityAccount
-	 * @param defaultAttributes
-	 * @param overloadingAttributes
-	 * @return
+	 *
 	 */
 	@Override
 	public List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
@@ -1133,12 +1126,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	/**
 	 * Return list of all overloading attributes for given identity, system and
 	 * uid
-	 * 
-	 * @param identityAccount
-	 * @param uid
-	 * @param idenityAccoutnList
-	 * @param entityType
-	 * @return
+	 *
 	 */
 	protected abstract List<SysRoleSystemAttributeDto> findOverloadingAttributes(DTO dto, SysSystemDto system,
 			AccAccountDto account, SystemEntityType entityType);
@@ -1163,8 +1151,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	/**
 	 * Find list of {@link SysSystemAttributeMapping} by provisioning type and
 	 * entity type on given system
-	 * 
-	 * @param provisioningType
+	 *
 	 * @param entityType
 	 * @param system
 	 * @return
@@ -1286,7 +1273,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	/**
 	 * Method get {@link SysSystemDto} from {@link SysSchemaAttributeDto}.
 	 * 
-	 * @param attributeDto
+	 * @param attribute
 	 * @return
 	 */
 	protected SysSystemDto getSytemFromSchemaAttribute(SysSchemaAttributeDto attribute) {
@@ -1297,7 +1284,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	/**
 	 * Method get {@link SysSystemDto} from {@link SysSchemaObjectClassDto}.
 	 * 
-	 * @param schemaObjectClassDto
+	 * @param schemaObjectClass
 	 * @return
 	 */
 	protected SysSystemDto getSystemFromSchemaObjectClass(SysSchemaObjectClassDto schemaObjectClass) {
@@ -1307,11 +1294,7 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	/**
 	 * Update account UID in IDM
-	 * 
-	 * @param account
-	 * @param uid
-	 * @param uidValue
-	 * @return
+	 *
 	 */
 	private AccAccountDto updateAccountUid(AccAccountDto account, String uid, String uidValue) {
 		// If is value form UID attribute null, then we will use UID
@@ -1327,9 +1310,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 
 	/**
 	 * Method return schema attribute from interface attribute mapping. Schema
-	 * may be null from RoleSystemAttribute
-	 * 
-	 * @return
+	 * may be null from RoleSystemAttribute.
+	 *
 	 */
 	protected SysSchemaAttributeDto getSchemaAttribute(AttributeMapping attributeMapping) {
 		if (attributeMapping.getSchemaAttribute() != null) {
@@ -1361,9 +1343,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	
 	/**
 	 * Method returns schema attribute ID from interface attribute mapping. Schema
-	 * can be null for RoleSystemAttribute
-	 * 
-	 * @return
+	 * can be null for RoleSystemAttribute.
+	 *
 	 */
 	protected UUID getSchemaAttributeId(AttributeMapping attributeMapping) {
 		if (attributeMapping.getSchemaAttribute() != null) {
@@ -1384,11 +1365,6 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 * Transform password via transformation stored in {@link AttributeMapping}.
 	 * Script for transformation must return null or {@link GuardedString}.
 	 *
-	 * @param newPassword
-	 * @param mappedAttribute
-	 * @param uid
-	 * @param dto
-	 * @return
 	 */
 	private GuardedString transformPassword(GuardedString newPassword, AttributeMapping mappedAttribute, String uid, DTO dto) {
 		// transformed password must be type from schema (eq. GuardedString, String, ...)
@@ -1407,13 +1383,6 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	 * Prepare provisioning operation for additional password given in parameter.
 	 * Account object with password is not again transformed trough scripts.
 	 *
-	 * @param systemEntity
-	 * @param dto
-	 * @param entityId
-	 * @param operationType
-	 * @param systemMappingDto
-	 * @param accountObjectWithAnotherPassword
-	 * @return
 	 */
 	private SysProvisioningOperationDto prepareProvisioningOperationForAdditionalPassword(
 			SysSystemEntityDto systemEntity, DTO dto, UUID entityId, ProvisioningOperationType operationType,
@@ -1432,9 +1401,6 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 	/**
 	 * Method create result idm account. This class is used by password change, beacuse account is send back to core module.
 	 *
-	 * @param account
-	 * @param system
-	 * @return
 	 */
 	private IdmAccountDto createResultAccount(AccAccountDto account, SysSystemDto system) {
 		IdmAccountDto resultAccountDto = new IdmAccountDto();

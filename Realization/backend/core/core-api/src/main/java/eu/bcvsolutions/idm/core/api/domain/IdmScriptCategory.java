@@ -10,5 +10,6 @@ public enum IdmScriptCategory { // VS: TODO: Delete this enumeration (we need mo
 	DEFAULT, // default script
 	TRANSFORM_FROM, // script for transform from system 
 	TRANSFORM_TO, // script for transform to system
-	SYSTEM; // system script
+	SYSTEM, // system script
+	MAPPING_CONTEXT; // Build provisioning context.
 }

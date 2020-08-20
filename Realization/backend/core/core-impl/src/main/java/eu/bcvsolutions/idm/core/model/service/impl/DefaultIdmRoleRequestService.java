@@ -308,10 +308,7 @@ public class DefaultIdmRoleRequestService
 	/**
 	 * Internal start request. Start in new transaction
 	 *
-	 * @param requestId
-	 * @param checkRight
-	 *            - If is true, then will be check right for immediately execution
-	 *            (if is requires)
+	 * @param event
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public IdmRoleRequestDto startRequestNewTransactional(EntityEvent<IdmRoleRequestDto> event) {
@@ -1093,8 +1090,7 @@ public class DefaultIdmRoleRequestService
 	 *
 	 * @param concept
 	 * @param request
-	 * @param removedIdentityRoles
-	 * @param accounts
+	 * @param requestEvent
 	 */
 	private void removeAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
@@ -1141,7 +1137,7 @@ public class DefaultIdmRoleRequestService
 	 *
 	 * @param concept
 	 * @param request
-	 * @param updatedIdentityRoles
+	 * @param requestEvent
 	 */
 	private void updateAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request,
 			EntityEvent<IdmRoleRequestDto> requestEvent) {
@@ -1178,7 +1174,7 @@ public class DefaultIdmRoleRequestService
 	 *
 	 * @param concept
 	 * @param request
-	 * @param addedIdentityRoles
+	 * @param requestEvent
 	 */
 	private void createAssignedRole(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request, EntityEvent<IdmRoleRequestDto> requestEvent) {
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
@@ -1276,7 +1272,7 @@ public class DefaultIdmRoleRequestService
 	 * Trim request and his role concepts. Remove embedded objects. It is important
 	 * for minimize size of dto persisted for example in WF process.
 	 *
-	 * @param requestOriginal
+	 * @param request
 	 */
 	private void trimRequest(IdmRoleRequestDto request) {
 		request.setLog(null);
@@ -1291,7 +1287,7 @@ public class DefaultIdmRoleRequestService
 	 * This operation execute get to database and slows the whole process.
 	 *
 	 * @param concepts
-	 * @param identityId
+	 * @param allByIdentity
 	 * @return
 	 */
 	private List<IdmConceptRoleRequestDto> removeDuplicitiesSubRole(List<IdmConceptRoleRequestDto> concepts, List<IdmIdentityRoleDto> allByIdentity) {

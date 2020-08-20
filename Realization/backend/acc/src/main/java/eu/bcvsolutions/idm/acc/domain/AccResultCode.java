@@ -92,8 +92,9 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING(HttpStatus.CONFLICT, "For 'Provisionig' can exist only one mapped attribute to same schema attribute [%s]!"),
 	PROVISIONING_CONTROLLED_VALUE_IS_NOT_SERIALIZABLE(HttpStatus.BAD_REQUEST, "Controlled value [%s] for attribute [%s] on system [%s] is not serializable!"),
 	PROVISIONING_EX_ATTR_CONTROLED_VALUE_RECALC(HttpStatus.BAD_REQUEST, "Error occured durring recalculation controlled value of attribute [%s] on system [%s]!"),
+	MAPPING_CONTEXT_SCRIPT_RETURNS_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Script 'get mapping context' on the system [%s] must return 'MappingContext' type!"),
 	//
-	// Synchronization
+	// Synchronization,
 	SYNCHRONIZATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Synchronization [%s] not found!"),
 	SYNCHRONIZATION_IS_NOT_ENABLED(HttpStatus.LOCKED, "Synchronization [%s] is not enabled!"),
 	SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED(HttpStatus.LOCKED, "Synchronization [%s] cannot be started because system [%s] is disabled!"),

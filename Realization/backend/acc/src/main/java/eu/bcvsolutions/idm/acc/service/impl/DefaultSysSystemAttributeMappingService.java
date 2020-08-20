@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -139,7 +140,7 @@ public class DefaultSysSystemAttributeMappingService
 	private IdmFormDefinitionService formDefinitionService;
 	@Autowired
 	private IdmFormAttributeService formAttributeService;
-	
+
 
 	@Autowired
 	public DefaultSysSystemAttributeMappingService(SysSystemAttributeMappingRepository repository,
@@ -355,11 +356,17 @@ public class DefaultSysSystemAttributeMappingService
 
 	@Override
 	public Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping,
-			AbstractDto entity) {
+										   AbstractDto entity) {
+		return transformValueToResource(uid, value, attributeMapping, entity, null);
+	}
+
+	@Override
+	public Object transformValueToResource(String uid, Object value, AttributeMapping attributeMapping,
+			AbstractDto entity, MappingContext mappingContext) {
 		Assert.notNull(attributeMapping, "Attribute mapping is required.");
 		try {
 			return transformValueToResource(uid, value, attributeMapping.getTransformToResourceScript(), entity,
-					getSystemFromAttributeMapping(attributeMapping));
+					getSystemFromAttributeMapping(attributeMapping), mappingContext);
 		} catch (Exception e) {
 			Map<String, Object> logParams = createTransformationScriptFailureParams(e, attributeMapping);
 			ResultCodeException ex = new ResultCodeException(AccResultCode.GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED,
@@ -371,9 +378,16 @@ public class DefaultSysSystemAttributeMappingService
 
 	@Override
 	public Object transformValueToResource(String uid, Object value, String script, AbstractDto entity,
-			SysSystemDto system) {
+										   SysSystemDto system) {
+		return transformValueToResource(uid, value, script, entity, system, null);
+	}
+
+	@Override
+	public Object transformValueToResource(String uid, Object value, String script, AbstractDto entity,
+			SysSystemDto system, MappingContext mappingContext) {
 		if (!StringUtils.isEmpty(script)) {
 			Map<String, Object> variables = new HashMap<>();
+			variables.put(CONTEXT_KEY, mappingContext);
 			variables.put(ACCOUNT_UID, uid);
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, system);
@@ -725,7 +739,6 @@ public class DefaultSysSystemAttributeMappingService
 	 * @param uid               - Account identifier
 	 * @param entity
 	 * @param attributeHandling
-	 * @param idmValue
 	 * @return
 	 * @throws IntrospectionException
 	 * @throws IllegalAccessException
@@ -733,6 +746,23 @@ public class DefaultSysSystemAttributeMappingService
 	 */
 	@Override
 	public Object getAttributeValue(String uid, AbstractDto entity, AttributeMapping attributeHandling) {
+		return getAttributeValue(uid, entity, attributeHandling, null);
+	}
+
+	/**
+	 * Find value for this mapped attribute by property name. Returned value can be
+	 * list of objects. Returns transformed value.
+	 * 
+	 * @param uid               - Account identifier
+	 * @param entity
+	 * @param attributeHandling
+	 * @return
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	@Override
+	public Object getAttributeValue(String uid, AbstractDto entity, AttributeMapping attributeHandling, MappingContext mappingContext) {
 		Object idmValue = null;
 		//
 		if (attributeHandling.isPasswordAttribute()) {
@@ -797,7 +827,7 @@ public class DefaultSysSystemAttributeMappingService
 			// is null.
 			// It means attribute is static ... we will call transformation to resource.
 		}
-		return this.transformValueToResource(uid, idmValue, attributeHandling, entity);
+		return this.transformValueToResource(uid, idmValue, attributeHandling, entity, mappingContext);
 	}
 
 	@Override

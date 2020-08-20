@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
+import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -112,4 +114,15 @@ public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMa
 	 */
 	SysSystemMappingDto duplicateMapping(UUID id, SysSchemaObjectClassDto schema, Map<UUID, UUID> schemaAttributesIds,
 			Map<UUID, UUID> mappedAttributesIds, boolean usedInSameSystem);
+
+	/**
+	 * The context for the system mapping.
+	 *
+	 * @param mapping
+	 * @param systemEntity
+	 * @param dto
+	 * @param system
+	 * @return
+	 */
+	MappingContext getMappingContext(SysSystemMappingDto mapping, SysSystemEntityDto systemEntity, AbstractDto dto, SysSystemDto system);
 }

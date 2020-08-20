@@ -801,6 +801,38 @@
       "canBeAccountCreatedScript": {
         "label": "Can an account be created?",
         "help": "Account Management - allows you to disable the account creation (for that entity) on this system. The input parameter of this Groovy script is IdM entity 'entity', generated account identifier 'uid' and IdM system 'system'. Output value must be Boolean.TRUE or Boolean.FALSE!"
+      },
+      "mappingContext": {
+        "tab": {
+          "title": "Context"
+        },
+        "addContextContracts": {
+          "label": "Add a contracts",
+          "help": "Loads all identity contracts and adds them to the context."
+        },
+        "addContextIdentityRoles": {
+          "label": "Add a roles",
+          "help": "Loads all assigned identity roles and adds them to the context."
+        },
+        "addContextIdentityRolesForSystem": {
+          "label": "Add roles that assign this system",
+          "help": "Loads all assigned identity roles that this system assigns and adds them to the context."
+        },
+        "addContextConnectorObject": {
+          "label": "Add an object from the target system",
+          "help": "Loads an object from the target system and adds it to the context."
+        },
+        "suggestionInfo": {
+          "label": "You can use the suggestion (CTRL + SPACE) in the editor to find out what method the context object contains."
+        },
+        "script": {
+          "label": "The context build script",
+          "help": "Allows you to build your own provisioning context."
+        },
+        "scriptSelectBox": {
+          "label": "Available context scripts",
+          "help": "After selecting a script, the code for calling the given script, including sample parameters, is inserted."
+        }
       }
     },
     "SchemaAttribute": {

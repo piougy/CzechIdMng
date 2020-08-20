@@ -178,7 +178,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			IcConnectorObject existsConnectorObject = null;
 			// We do not want search account on the target system, when this is the first
 			// call the connector and auto mapping is not allowed.
-			if (!(isWish && !provisioningConfiguration.isAllowedAutoMappingOnExistingAccount())) {
+			if (!isWish || provisioningConfiguration.isAllowedAutoMappingOnExistingAccount()) {
 				IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 				existsConnectorObject = connectorFacade.readObject(system.getConnectorInstance(), connectorConfig,
 						objectClass, uidAttribute);
@@ -211,7 +211,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * Create object on target system
 	 * 
 	 * @param provisioningOperation
-	 * @param connectorConfig
 	 */
 	private void processCreate(SysProvisioningOperationDto provisioningOperation) {
 		SysSystemDto system = systemService.get(provisioningOperation.getSystem());
@@ -685,13 +684,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * Create IC attribute by schema attribute. IC attribute will be set with value
 	 * obtained form given entity. This value will be transformed to system value
 	 * first.
-	 * 
-	 * @param uid
-	 * @param entity
-	 * @param connectorObjectForCreate
-	 * @param attributeMapping
-	 * @param schemaAttribute
-	 * @param objectClassName
 	 */
 	private IcAttribute createAttribute(SysSchemaAttributeDto schemaAttribute, Object idmValue) {
 		if (!schemaAttribute.isCreateable()) {
@@ -702,13 +694,8 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 
 	/**
 	 * Update attribute on resource by given handling attribute and mapped value in
-	 * entity
-	 * 
-	 * @param uid
-	 * @param entity
-	 * @param attributeMapping
-	 * @param schemaAttribute
-	 * @param connectorObject
+	 * entity.
+	 *
 	 */
 	private IcAttribute updateAttribute(String uid, Object idmValue, SysSchemaAttributeDto schemaAttribute,
 			IcConnectorObject existsConnectorObject, SysSystemDto system,
@@ -800,12 +787,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	/**
 	 * Transform given password with script in attribute mapping.
 	 *
-	 * @param provisioningOperation
-	 * @param systemId
-	 * @param systemMappingId
-	 * @param schemaAttributeId
-	 * @param generatedPassword
-	 * @return
 	 */
 	private GuardedString transformPassword(SysProvisioningOperationDto provisioningOperation, UUID systemId, SysSystemAttributeMappingDto passwordAttribute, GuardedString generatedPassword) {
 		if (generatedPassword == null) {

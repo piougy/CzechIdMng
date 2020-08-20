@@ -885,7 +885,7 @@
       "transformationToResource": "Transform to system",
       "transformFromResourceScript": {
         "label": "Transformation from system",
-        "help": "Allows value to be transformed from system into a form suitable for CzechIdM. Input parameters of this Groovy script are value of the attribute 'attributeValue' and list 'icAttributes' of object attributes in system."
+        "help": "Allows value to be transformed from system into a form suitable for CzechIdM. Input parameters of this Groovy script are value of the attribute <strong>attributeValue</strong> and list <strong>icAttributes</strong> of object attributes in system."
       },
       "authenticationAttribute": {
         "label": "Authentication attr.",
@@ -893,7 +893,7 @@
       },
       "transformToResourceScript": {
         "label": "Transformation to system",
-        "help": "Allows value to be transformed from CzechIdM into a form suitable for connected system. Input parameters of this Groovy script are value of attribute 'attributeValue', IdM entity 'entity' and account identifier 'uid'. If output value is empty, system automatically uses available account identifier (uid)."
+        "help": "Allows value to be transformed from CzechIdM into a form suitable for connected system. Input parameters of this Groovy script are value of attribute <strong>attributeValue</strong>, IdM entity <strong>entity</strong>, account identifier <strong>uid</strong> and context <strong>context</strong>. If output value is empty, system automatically uses available account identifier (uid)."
       },
       "uid": {
         "label": "Identifier",

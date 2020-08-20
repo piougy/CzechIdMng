@@ -11,6 +11,7 @@ import { SystemMappingManager, SystemManager, SystemAttributeMappingManager, Sch
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 import ValidationMessageSystemMapping from './ValidationMessageSystemMapping';
+import MappingContextCompleters from 'czechidm-core/src/content/script/completers/MappingContextCompleters';
 
 const uiKey = 'system-mappings';
 const uiKeyAttributes = 'system-attribute-mappings';
@@ -224,46 +225,6 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
           this.addError(error);
         }
       });
-  }
-
-  _getContextCompleters() {
-    return [
-      {
-        name: 'context.getIdentityRoles()',
-        returnType: 'List<IdmIdentityRoleDto>',
-        description: 'Get all assigned identity roles.'
-      },
-      {
-        name: 'context.getIdentityRolesForSystem()',
-        returnType: 'List<IdmIdentityRoleDto>',
-        description: 'Get all assigned identity roles that this system assigns.'
-      },
-      {
-        name: 'context.getContracts()',
-        returnType: 'List<IdmIdentityContractDto>',
-        description: 'Get all assigned identity contracts.'
-      },
-      {
-        name: 'context.getConnectorObject()',
-        returnType: 'IcConnectorObject',
-        description: 'Get an object from the target system.'
-      },
-      {
-        name: 'context.put(key, value)',
-        returnType: 'void',
-        description: 'Put the value to the context.'
-      },
-      {
-        name: 'context.get(key)',
-        returnType: 'Object',
-        description: 'Get the value from the context.'
-      },
-      {
-        name: 'context.getContext()',
-        returnType: 'Map<String,Object>',
-        description: 'Get the whole context map.'
-      }
-    ];
   }
 
   render() {
@@ -583,7 +544,7 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                   </Basic.LabelWrapper>
                   <Advanced.ScriptArea
                     ref="mappingContextScript"
-                    completers={this._getContextCompleters()}
+                    completers={MappingContextCompleters.getCompleters()}
                     scriptCategory={Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.MAPPING_CONTEXT)}
                     headerText={this.i18n('acc:entity.SystemMapping.mappingContext.scriptSelectBox.label')}
                     helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.script.help')}

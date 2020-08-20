@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import Helmet from 'react-helmet';
+import MappingContextCompleters from './completers/MappingContextCompleters';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -119,9 +120,15 @@ export default class ScriptDetail extends Basic.AbstractContent {
     }
   }
 
+  _onChangeCategory(item) {
+    this.setState({localCategory: item ? item.value : null});
+  }
+
   render() {
     const { uiKey, entity } = this.props;
-    const { showLoading } = this.state;
+    const { showLoading, localCategory } = this.state;
+    // TODO: Runtime change of completers doesn't work, because ScriptArea component must be destroyed first.
+    const isCategoryMappingContext = localCategory ? (localCategory === 'MAPPING_CONTEXT') : (entity && entity.category === 'MAPPING_CONTEXT');
     //
     return (
       <div>
@@ -156,12 +163,14 @@ export default class ScriptDetail extends Basic.AbstractContent {
                   ref="category"
                   label={this.i18n('entity.Script.category')}
                   enum={ScriptCategoryEnum}
+                  onChange={this._onChangeCategory.bind(this)}
                   max={255}
                   required/>
                 <Advanced.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
                 <Basic.ScriptArea
                   ref="script"
                   mode="groovy"
+                  completers={isCategoryMappingContext ? MappingContextCompleters.getCompleters() : null}
                   height="25em"
                   helpBlock={this.i18n('entity.Script.script.help')}
                   label={this.i18n('entity.Script.script.label')}/>

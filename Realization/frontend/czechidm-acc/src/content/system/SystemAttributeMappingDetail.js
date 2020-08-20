@@ -3,12 +3,13 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Advanced, Utils, Domain, Managers, Enums } from 'czechidm-core';
-import { SystemMappingManager, SystemAttributeMappingManager, SchemaAttributeManager, AttributeControlledValueManager} from '../../redux';
+import { Advanced, Basic, Domain, Enums, Managers, Utils } from 'czechidm-core';
+import { AttributeControlledValueManager, SchemaAttributeManager, SystemAttributeMappingManager, SystemMappingManager } from '../../redux';
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import AttributeControlledValueTable from './AttributeControlledValueTable';
 import { RoleSystemAttributeTable } from '../role/RoleSystemAttributeTable';
+import MappingContextCompleters from 'czechidm-core/src/content/script/completers/MappingContextCompleters';
 
 const uiKey = 'system-attribute-mapping';
 const manager = new SystemAttributeMappingManager();
@@ -179,6 +180,51 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   _onChangeSelectTabs(activeKey) {
     this.setState({activeKey});
+  }
+
+  _getCompletersToResource() {
+    return [
+      {
+        name: 'uid',
+        returnType: 'String',
+        description: 'Identifier of the account for which provisioning is performed (AccAccount.uid).'
+      },
+      {
+        name: 'attributeValue',
+        returnType: 'Object',
+        description: 'The value of the selected entity/EAV attribute.'
+      },
+      {
+        name: 'system',
+        returnType: 'SysSystemDto',
+        description: 'DTO for this system.'
+      },
+      {
+        name: 'entity',
+        returnType: 'AbstractDto',
+        description: 'Entity for which provisioning is performed. Its specific type depends on the type of mapping (IdmIdentityDto / IdmRoleDto ...).'
+      }, ...MappingContextCompleters.getCompleters()
+    ];
+  }
+
+  _getCompletersFromResource() {
+    return [
+      {
+        name: 'attributeValue',
+        returnType: 'Object',
+        description: 'The value of the selected connector object attribute.'
+      },
+      {
+        name: 'system',
+        returnType: 'SysSystemDto',
+        description: 'DTO for this system.'
+      },
+      {
+        name: 'icAttributes',
+        returnType: 'List<IcAttribute>',
+        description: 'An attributes of object from the end system.'
+      }
+    ];
   }
 
   render() {
@@ -361,20 +407,22 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
                   </Basic.LabelWrapper>
                   <Advanced.ScriptArea
                     ref="transformFromResourceScript"
+                    completers={this._getCompletersFromResource()}
                     scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_FROM),
                       Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT)]}
                     headerText={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScriptSelectBox.label')}
                     label={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.help')}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.help',  { escape: false })}
                     scriptManager={scriptManager}
                     readOnly={_isDisabled}/>
                   <Advanced.ScriptArea
                     ref="transformToResourceScript"
                     rendered={!isMerge}
+                    completers={this._getCompletersToResource()}
                     scriptCategory={[Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.DEFAULT),
                       Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.TRANSFORM_TO)]}
                     headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
-                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help')}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help',  { escape: false })}
                     label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.label')}
                     scriptManager={scriptManager}
                     readOnly={_isDisabled}/>

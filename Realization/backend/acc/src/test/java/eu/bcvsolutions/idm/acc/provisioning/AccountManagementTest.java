@@ -786,6 +786,22 @@ public class AccountManagementTest extends AbstractIntegrationTest {
 		Assert.assertEquals(2, countIdentityAccountsWithRoleOne);
 	}
 
+	@Test
+	public void testMappingContext() {
+		SysSystemDto system = initData();
+		Assert.assertNotNull(system);
+
+		SysSystemMappingDto mapping = systemMappingService.findProvisioningMapping(system.getId(), SystemEntityType.ROLE);
+		Assert.assertNotNull(mapping);
+		mapping.setMappingContextScript("context.put(\"test\", \"testOne\");");
+		mapping = systemMappingService.save(mapping);
+
+
+
+		// Delete role mapping
+		systemMappingService.delete(mapping);
+	}
+
 	private SysSystemDto initData() {
 
 		// create test system

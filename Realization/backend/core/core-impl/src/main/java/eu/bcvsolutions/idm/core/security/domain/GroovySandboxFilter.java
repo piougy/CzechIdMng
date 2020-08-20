@@ -1,5 +1,11 @@
 package eu.bcvsolutions.idm.core.security.domain;
 
+import com.google.common.collect.Sets;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import groovy.lang.Closure;
+import groovy.lang.GString;
+import groovy.lang.Script;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.MessageFormat;
@@ -10,6 +16,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,22 +29,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.runtime.GStringImpl;
-import java.time.ZonedDateTime;
 import org.kohsuke.groovy.sandbox.GroovyValueFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-
-import com.google.common.collect.Sets;
-
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
-import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
-import groovy.lang.Closure;
-import groovy.lang.GString;
-import groovy.lang.Script;
 
 /**
  * This {@link org.kohsuke.groovy.sandbox.GroovyInterceptor} implements a
@@ -56,7 +53,7 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 			org.joda.time.LocalDate.class, OffsetTime.class, OffsetDateTime.class, Map.class, HashMap.class, List.class,
 			ArrayList.class, Set.class, HashSet.class, LoggerFactory.class, Logger.class,
 			ch.qos.logback.classic.Logger.class, GString.class, GStringImpl.class, MessageFormat.class, Arrays.class,
-			Collections.class, DtoUtils.class, StringUtils.class);
+			Collections.class, DtoUtils.class, StringUtils.class, Collection.class);
 
 	private final LinkedList<Set<Class<?>>> allowedCustomTypes = new LinkedList<>();
 
@@ -112,6 +109,24 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 		if (o instanceof Class && ALLOWED_TYPES.contains(o) || getCustomTypes().contains(o)) {
 			return o;
 		}
+
+		Class<?> finalTargetClass = targetClass;
+		if (ALLOWED_TYPES.stream()
+				.filter(allowedType -> !Object.class.equals(allowedType)) // Access directly via Object is not allowed.
+				.filter(allowedType -> allowedType.isAssignableFrom(finalTargetClass))
+				.findFirst()
+				.isPresent()) {
+			return o;
+		}
+
+		if (getCustomTypes().stream()
+				.filter(allowedType -> !Object.class.equals(allowedType)) // Access directly via Object is not allowed.
+				.filter(allowedType -> allowedType.isAssignableFrom(finalTargetClass))
+				.findFirst()
+				.isPresent()) {
+			return o;
+		}
+
 		if (o instanceof Script || o instanceof Closure) {
 			return o; // access to properties of compiled groovy script
 		}

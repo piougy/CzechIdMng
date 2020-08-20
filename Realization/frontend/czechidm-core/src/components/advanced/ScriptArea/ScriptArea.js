@@ -114,7 +114,7 @@ class ScriptArea extends Basic.ScriptArea {
   }
 
   render() {
-    const { scriptCategory, scriptManager, headerText, rendered, showScriptSelection } = this.props;
+    const { scriptCategory, scriptManager, headerText, rendered, showScriptSelection, completers } = this.props;
     const { showModal, script } = this.state;
     if (rendered === false) {
       return <div/>;
@@ -168,6 +168,7 @@ class ScriptArea extends Basic.ScriptArea {
                   readOnly
                   label={this.i18n('entity.Script.description')}/>
                 <Basic.ScriptArea
+                  completers={completers}
                   ref="script"
                   readOnly
                   label={this.i18n('entity.Script.script.label')}/>

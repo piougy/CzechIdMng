@@ -10,9 +10,49 @@ import Icon from '../Icon/Icon';
 import Modal from '../Modal/Modal';
 
 /**
+ * Script Area
+ *
  * @author Vít Švanda
  */
 class ScriptArea extends AbstractFormComponent {
+
+
+  componentDidMount() {
+    super.componentDidMount();
+    this.initCompleters();
+  }
+
+
+  initCompleters() {
+    const {completers} = this.props;
+
+    const component = this._getAceComponent();
+    if ( component ) {
+      let editor = component.editor;
+      // For prevent add a redundant completers.
+      const originalCompleters = editor.completers
+        .filter(completer => completer && !completer.hasOwnProperty('isCustomCompleter') || !completer.isCustomCompleter());
+      editor.completers = originalCompleters;
+      // Convert custom completers for Ace editor.
+      const customCompleters = this._getCustomCompleter(completers);
+      if ( customCompleters ) {
+        editor.completers = [...originalCompleters, customCompleters];
+      }
+
+      // Set size for suggestion dialog.
+      if ( !editor.completer ) {
+        // make sure completer is initialized
+        editor.execCommand('startAutocomplete');
+        editor.completer.detach();
+      }
+      editor.completer.popup.container.style.width = '40%';
+    }
+  }
+
+  _getAceComponent() {
+    const {showModalEditor} = this.state;
+    return this.refs[showModalEditor ? 'inputModal' : 'input'];
+  }
 
   getRequiredValidationSchema() {
     return Joi.string().required();
@@ -47,33 +87,69 @@ class ScriptArea extends AbstractFormComponent {
   }
 
   _showModalEditor() {
-    this.setState({showModalEditor: true}, ()=>{
-      // this.refs.inputModal.focus();
+    this.setState({showModalEditor: true}, () => {
+      setTimeout(() => {
+        this.initCompleters();
+      }, 10);
+    });
+  }
+
+
+  _getCustomCompleter(completers) {
+    if (!completers) {
+      return null;
+    }
+    return ({
+      getCompletions(editor, session, pos, prefix, callback) {
+
+        callback(null, completers.map((completer) => {
+            return {
+              caption: completer.name, // This value is show in the whispering dialog.
+              name: completer.name,
+              value: completer.value ? completer.value : completer.name, // This value will be pushed to the editor.
+              score: completer.score ? completer.score : 1000, // Order in the whispering dialog.
+              meta: completer.returnType, // Return type
+              description: completer.description // Help in the whispering dialog.
+            };
+          }
+        ));
+      },
+      getDocTooltip(item) {
+        return item.description;
+      },
+      isCustomCompleter() {
+        return true;
+      }
     });
   }
 
   _getAceEditor(AceEditor, mode, className, height, modal = false) {
+
     return (
       <AceEditor
-      ref={modal ? 'inputModal' : 'input'}
-      mode={mode}
-      width={null}
-      height={modal ? '40em' : height}
-      className={className}
-      title={this.getValidationResult() != null ? this.getValidationResult().message : ''}
-      readOnly={this.state.readOnly}
-      enableBasicAutocompletion
-      enableLiveAutocompletion
-      wrapEnabled={false}
-      theme="github"
-      onChange={this.onChange}
-      value={this.state.value || ''}
-      tabSize={4}
-      fontSize={14}
-      spellcheck
-      showGutter
-      editorProps={{$blockScrolling: true}}
-    />);
+        ref={modal ? 'inputModal' : 'input'}
+        mode={mode}
+        width={null}
+        height={modal ? '40em' : height}
+        className={className}
+        title={this.getValidationResult() != null ? this.getValidationResult().message : ''}
+        readOnly={this.state.readOnly}
+        enableBasicAutocompletion
+        enableLiveAutocompletion
+        wrapEnabled={false}
+        theme="github"
+        onChange={this.onChange}
+        value={this.state.value || ''}
+        tabSize={4}
+        fontSize={14}
+        spellcheck
+        showGutter
+        editorProps={{$blockScrolling: 'Infinity'}}
+        setOptions={{
+          enableBasicAutocompletion: true,
+          enableLiveAutocompletion: true
+        }}
+      />);
   }
 
   _getMaximalizationButton(showMaximalizationBtn) {
@@ -99,7 +175,7 @@ class ScriptArea extends AbstractFormComponent {
   }
 
   _getComponent(feedback) {
-    const { labelSpan, label, componentSpan, required, mode, height } = this.props;
+    const { labelSpan, label, componentSpan, required, mode, height, completers } = this.props;
     const {showModalEditor} = this.state;
     //
     const className = classNames('form-control');
@@ -134,7 +210,8 @@ class ScriptArea extends AbstractFormComponent {
           <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
               { this.getOptionsButton() }
-              {!showModalEditor ? AceEditorInstance : null }
+              {/* Editor cannot be hidden here if modal is show, because Ace editor will be null after closing the modal dialog. I need editor for set completers. */}
+              {AceEditorInstance}
               {
                 feedback
                 ||

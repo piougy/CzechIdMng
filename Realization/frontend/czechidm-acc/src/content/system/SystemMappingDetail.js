@@ -214,6 +214,46 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
       });
   }
 
+  _getContextCompleters() {
+    return [
+      {
+        name: 'context.getIdentityRoles()',
+        returnType: 'List<IdmIdentityRoleDto>',
+        description: 'Get all assigned identity roles.'
+      },
+      {
+        name: 'context.getIdentityRolesForSystem()',
+        returnType: 'List<IdmIdentityRoleDto>',
+        description: 'Get all assigned identity roles that this system assigns.'
+      },
+      {
+        name: 'context.getContracts()',
+        returnType: 'List<IdmIdentityContractDto>',
+        description: 'Get all assigned identity contracts.'
+      },
+      {
+        name: 'context.getConnectorObject()',
+        returnType: 'IcConnectorObject',
+        description: 'Get an object from the target system.'
+      },
+      {
+        name: 'context.put(key, value)',
+        returnType: 'void',
+        description: 'Put the value to the context.'
+      },
+      {
+        name: 'context.get(key)',
+        returnType: 'Object',
+        description: 'Get the value from the context.'
+      },
+      {
+        name: 'context.getContext()',
+        returnType: 'Map<String,Object>',
+        description: 'Get the whole context map.'
+      }
+    ];
+  }
+
   render() {
     const { _showLoading, _mapping } = this.props;
     const { _entityType, activeKey, validationError} = this.state;
@@ -247,7 +287,6 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
     const forceSearchParameters = new Domain.SearchParameters()
       .setFilter('systemMappingId', _mapping ? _mapping.id : Domain.SearchParameters.BLANK_UUID);
     const objectClassSearchParameters = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -463,6 +502,80 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                     headerText={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScriptSelectBox.label')}
                     helpBlock={this.i18n('acc:entity.SystemMapping.canBeAccountCreatedScript.help')}
                     label={this.i18n('acc:entity.SystemMapping.canBeAccountCreatedScript.label')}
+                    scriptManager={scriptManager} />
+                </Basic.AbstractForm>
+                <Basic.PanelFooter>
+                  <Basic.Button
+                    type="button"
+                    level="link"
+                    onClick={this.context.history.goBack}
+                    showLoading={_showLoading}>
+                    {this.i18n('button.back')}
+                  </Basic.Button>
+                  <Basic.Button
+                    level="success"
+                    type="submit"
+                    showLoading={ _showLoading }
+                    rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                    {this.i18n('button.saveAndContinue')}
+                  </Basic.Button>
+                </Basic.PanelFooter>
+              </Basic.Panel>
+            </form>
+          </Basic.Tab>
+          <Basic.Tab
+            eventKey={3}
+            title={this.i18n('acc:entity.SystemMapping.mappingContext.tab.title')}
+            rendered={isSelectedProvisioning}
+            className="bordered">
+            <form onSubmit={this.save.bind(this)}>
+              <Basic.Panel className="no-border">
+                <Basic.AbstractForm
+                  ref="formProvisioningContext"
+                  className="panel-body"
+                  data={ mapping }
+                  showLoading={ _showLoading }
+                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }>
+                  <Basic.Checkbox
+                    ref="addContextContracts"
+                    hidden={!isSelectedIdentity}
+                    label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextContracts.label')}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextContracts.help',  { escape: false })}
+                  />
+                  <Basic.Checkbox
+                    ref="addContextIdentityRoles"
+                    hidden={!isSelectedIdentity}
+                    label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRoles.label')}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRoles.help',  { escape: false })}
+                  />
+                  <Basic.Checkbox
+                    ref="addContextIdentityRolesForSystem"
+                    hidden={!isSelectedIdentity}
+                    label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRolesForSystem.label')}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRolesForSystem.help',  { escape: false })}
+                  />
+                  <Basic.Checkbox
+                    ref="addContextConnectorObject"
+                    label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextConnectorObject.label')}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextConnectorObject.help',  { escape: false })}
+                  />
+
+                  <Basic.LabelWrapper
+                    label=" ">
+                    <Basic.Alert
+                      key="suggestionInfo"
+                      level="info"
+                      icon="exclamation-sign"
+                      className="no-margin"
+                      text={this.i18n('acc:entity.SystemMapping.mappingContext.suggestionInfo.label')}/>
+                  </Basic.LabelWrapper>
+                  <Advanced.ScriptArea
+                    ref="mappingContextScript"
+                    completers={this._getContextCompleters()}
+                    scriptCategory={Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.MAPPING_CONTEXT)}
+                    headerText={this.i18n('acc:entity.SystemMapping.mappingContext.scriptSelectBox.label')}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.script.help')}
+                    label={this.i18n('acc:entity.SystemMapping.mappingContext.script.label')}
                     scriptManager={scriptManager} />
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>

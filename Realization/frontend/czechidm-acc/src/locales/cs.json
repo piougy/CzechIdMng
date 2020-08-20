@@ -809,19 +809,22 @@
         },
         "addContextContracts": {
           "label": "Přidat kontrakty",
-          "help": "Načte všechny kontrakty identity a přidá je do kontextu (<strong><small>context.getContracts()</small></strong>)."
+          "help": "Načte všechny kontrakty identity a přidá je do kontextu."
         },
         "addContextIdentityRoles": {
           "label": "Přidat role",
-          "help": "Načte všechny přiřazené role identity a přidá je do kontextu (<strong><small>context.getIdentityRoles()</small></strong>)."
+          "help": "Načte všechny přiřazené role identity a přidá je do kontextu."
         },
         "addContextIdentityRolesForSystem": {
           "label": "Přidat role přiřazující tento systém",
-          "help": "Načte všechny přiřazené role identity, které přiřazují tento systém a přidá je do kontextu (<strong><small>context.getIdentityRolesForSystem()</small></strong>)."
+          "help": "Načte všechny přiřazené role identity, které přiřazují tento systém a přidá je do kontextu."
         },
         "addContextConnectorObject": {
           "label": "Přidat objekt z koncového systému",
-          "help": "Načte objekt z koncového systému a přidá ho do kontextu (<strong><small>context.getConnectorObject()</small></strong>)."
+          "help": "Načte objekt z koncového systému a přidá ho do kontextu."
+        },
+        "suggestionInfo": {
+          "label": "Pro zjištění jaké metody obsahuje objekt kontextu, můžete v editoru použít našeptávač (CTRL + SPACE)."
         },
         "script": {
           "label": "Skript pro sestavení kontextu",

@@ -20,6 +20,7 @@ public class MappingContext {
 
 	private List<IdmIdentityContractDto> contracts;
 	private List<IdmIdentityRoleDto> identityRoles;
+	private List<IdmIdentityRoleDto> identityRolesForSystem;
 	private IcConnectorObject connectorObject;
 
 	private Map<String, Object> context;
@@ -62,5 +63,24 @@ public class MappingContext {
 
 	public IcConnectorObject getConnectorObject() {
 		return connectorObject;
+	}
+
+	public List<IdmIdentityRoleDto> getIdentityRolesForSystem() {
+		return identityRolesForSystem;
+	}
+
+	public void setIdentityRolesForSystem(List<IdmIdentityRoleDto> identityRolesForSystem) {
+		this.identityRolesForSystem = identityRolesForSystem;
+	}
+
+	@Override
+	public String toString() {
+		return "MappingContext{" +
+				"contracts=" + contracts +
+				", identityRoles=" + identityRoles +
+				", identityRolesForSystem=" + identityRolesForSystem +
+				", connectorObject=" + connectorObject +
+				", context=" + context +
+				'}';
 	}
 }

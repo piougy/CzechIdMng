@@ -1,32 +1,12 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import eu.bcvsolutions.idm.acc.domain.MappingContext;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
@@ -94,6 +74,23 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Abstract service for do provisioning
@@ -671,7 +668,8 @@ public abstract class AbstractProvisioningExecutor<DTO extends AbstractDto> impl
 			// TODO: delete operation?
 			return null;
 		}
-
+		// Create mapping context from the script defined on the mapping and by checked options.
+		// This context will be propagate to all attributes (transformation to the system).
 		MappingContext mappingContext = systemMappingService.getMappingContext(mapping, systemEntity, dto, system);
 
 		Map<ProvisioningAttributeDto, Object> accountAttributes = prepareMappedAttributesValues(dto, operationType,

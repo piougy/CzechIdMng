@@ -1,24 +1,24 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import static org.junit.Assert.assertEquals;
-
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
+import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 import java.util.UUID;
-
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import com.google.common.collect.ImmutableMap;
-
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
-import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 
@@ -116,7 +116,7 @@ public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 	public void testSecurityScriptInputVariableValid() {
 		String script = "return entity.username;";
 		groovyScriptService.validateScript(script);
-		IdmIdentity identity = new IdmIdentity();
+		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername(TEST_ONE);
 		String result = (String) groovyScriptService.evaluate(script, ImmutableMap.of("entity", identity));
 		assertEquals(TEST_ONE, result);
@@ -124,25 +124,34 @@ public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 
 	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptListDeepUnvalid() {
-		String script = "return entity.identityContract;";
+		String script = "return entity.getEavs().get(0);";
 		groovyScriptService.validateScript(script);
-		IdmIdentityRole role = new IdmIdentityRole();
-		role.setIdentityContract(new IdmIdentityContract());
-		role.setExternalId("sdsd");
+		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
+		role.getEavs().add(new IdmFormInstanceDto());
 		groovyScriptService.evaluate(script, ImmutableMap.of("entity", role));
 	}
 
 	@Test
-	public void testSecurityScriptListValid() {
-		String script = "return contract;";
+	public void testSecurityScriptAllowInheritedClass() {
+		String script = "return entity.getEavs().get(0);";
 		groovyScriptService.validateScript(script);
-		IdmIdentityRole role = new IdmIdentityRole();
-		role.setIdentityContract(new IdmIdentityContract(UUID.randomUUID()));
-		role.setExternalId("sdsd");
+		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
+		role.getEavs().add(new IdmFormInstanceDto());
+		Object result = groovyScriptService.evaluate(script, ImmutableMap.of("entity", role), Lists.newArrayList(BaseDto.class));
+
+		assertEquals(role.getEavs().get(0), result);
+	}
+
+	@Test
+	public void testSecurityScriptListValid() {
+		String script = "return formInstance;";
+		groovyScriptService.validateScript(script);
+		IdmIdentityRoleDto role = new IdmIdentityRoleDto();
+		role.getEavs().add(new IdmFormInstanceDto());
 		//
-		Object result = groovyScriptService.evaluate(script, ImmutableMap.of("entity", role, "contract", role.getIdentityContract()));
+		Object result = groovyScriptService.evaluate(script, ImmutableMap.of("entity", role, "formInstance", role.getEavs().get(0)));
 		//
-		assertEquals(role.getIdentityContract(), result);
+		assertEquals(role.getEavs().get(0), result);
 	}
 
 	@Test(expected = IdmSecurityException.class)

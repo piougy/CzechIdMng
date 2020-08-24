@@ -198,37 +198,20 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 		Assert.assertEquals("Wrong text filter description", true, result.getContent().contains(role5));
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void typeFilterTest(){
 		IdmRoleDto role = getHelper().createRole();
-		IdmRoleDto role2 = getHelper().createRole();
-		IdmRoleDto role3 = getHelper().createRole();
+		IdmRoleDto roleTwo = getHelper().createRole(); // other
 
 		RoleType type = RoleType.SYSTEM;
-		RoleType type2 = RoleType.SYSTEM;
-
-		role = roleService.get(role.getId());
 		role.setRoleType(type);
-		role = roleService.save(role);
-
-		role2 = roleService.get(role2.getId());
-		role2.setRoleType(type);
-		role2 = roleService.save(role2);
-
-		role3 = roleService.get(role3.getId());
-		role3.setRoleType(type2);
-		role3 = roleService.save(role3);
+		IdmRoleDto roleOne = roleService.save(role);
 
 		IdmRoleFilter filter = new IdmRoleFilter();
 		filter.setRoleType(type);
-		Page<IdmRoleDto> result = roleService.find(filter,null);
-		Assert.assertEquals("Wrong type #1", 2, result.getTotalElements());
-		Assert.assertTrue("Wrong type #1 contains", result.getContent().contains(role));
-		filter.setRoleType(type2);
-		result = roleService.find(filter,null);
-		Assert.assertEquals("Wrong type #2", 1, result.getTotalElements());
-		Assert.assertTrue("Wrong type #2 contains", result.getContent().contains(role3));
+		Page<IdmRoleDto> result = roleService.find(filter, null);
+		Assert.assertTrue(result.stream().anyMatch(r -> r.getId().equals(roleOne.getId())));
+		Assert.assertTrue(result.stream().allMatch(r -> !r.getId().equals(roleTwo.getId())));
 	}
 
 	@Test

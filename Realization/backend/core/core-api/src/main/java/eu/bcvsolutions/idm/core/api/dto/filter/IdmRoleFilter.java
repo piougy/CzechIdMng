@@ -36,7 +36,6 @@ public class IdmRoleFilter
 	public static final String PARAMETER_ENVIRONMENT = "environment"; // list - OR
 	public static final String PARAMETER_BASE_CODE = "baseCode";
 	public static final String PARAMETER_IDENTITY_ROLE_ATTRIBUTE_DEF = "identityRoleAttributeDefinition";
-	@Deprecated // unused since the start of project
 	public static final String PARAMETER_ROLE_TYPE = "roleType";
 	/**
 	 * Roles, which are not placed in any catalogue folder.
@@ -57,12 +56,10 @@ public class IdmRoleFilter
 		super(IdmRoleDto.class, data, parameterConverter);
 	}
 
-	@Deprecated
 	public RoleType getRoleType() {
 		return getParameterConverter().toEnum(getData(), PARAMETER_ROLE_TYPE, RoleType.class);
 	}
 
-	@Deprecated
 	public void setRoleType(RoleType roleType) {
 		set(PARAMETER_ROLE_TYPE, roleType);
 	}

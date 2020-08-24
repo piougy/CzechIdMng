@@ -27,7 +27,7 @@ All notable changes to this project will be documented in this file.
   - Scheduled task initiation was moved into [processors](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data) with defined order and new **superclass ``BaseScheduledTaskInitializer`` was added - use this class in your module** for schedule default tasks and create new processor. ``AbstractScheduledTaskInitializer`` is deprecated now.
   - Constant ``InitApplicationData#ADMIN_ROLE`` is deprecated, prevent to use it in your module. Admin role can be changed by configuration property ``idm.sec.core.role.admin=superAdminRole``.
   - [#2404](https://redmine.czechidm.com/issues/2404) - **All automatic roles are assigned through asynchronous role requests now** (to preserve order of provisioning operations). When long running tasks (LRT) for processing automatic roles ends, then role requests are prepared only => roles will be assigned asynchronously and they are not available right after LRT ends.
-
+ - [#2248](https://redmine.czechidm.com/issues/2248) - Synchronization - Extended attribute values are storing together with the entity now. This means that the event for IdmFormInstanceDto is published during synchronization now (for each formable item).
 ## [10.4.2]
 
 ### Administrator

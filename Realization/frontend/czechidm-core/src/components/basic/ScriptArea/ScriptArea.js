@@ -27,25 +27,28 @@ class ScriptArea extends AbstractFormComponent {
     const {completers} = this.props;
 
     const component = this._getAceComponent();
-    if ( component ) {
-      let editor = component.editor;
+    if (component) {
+      const editor = component.editor;
       // For prevent add a redundant completers.
       const originalCompleters = editor.completers
-        .filter(completer => completer && !completer.hasOwnProperty('isCustomCompleter') || !completer.isCustomCompleter());
+        .filter(completer => completer)
+        .filter(completer => !completer.hasOwnProperty('isCustomCompleter') || !completer.isCustomCompleter());
       editor.completers = originalCompleters;
       // Convert custom completers for Ace editor.
       const customCompleters = this._getCustomCompleter(completers);
-      if ( customCompleters ) {
+      if (customCompleters) {
         editor.completers = [...originalCompleters, customCompleters];
       }
 
       // Set size for suggestion dialog.
-      if ( !editor.completer ) {
+      if (!editor.completer) {
         // make sure completer is initialized
         editor.execCommand('startAutocomplete');
         editor.completer.detach();
       }
-      editor.completer.popup.container.style.width = '40%';
+      if (editor.completer && editor.completer.popup && editor.completer.popup.container) {
+        editor.completer.popup.container.style.width = '40%';
+      }
     }
   }
 
@@ -103,16 +106,15 @@ class ScriptArea extends AbstractFormComponent {
       getCompletions(editor, session, pos, prefix, callback) {
 
         callback(null, completers.map((completer) => {
-            return {
-              caption: completer.name, // This value is show in the whispering dialog.
-              name: completer.name,
-              value: completer.value ? completer.value : completer.name, // This value will be pushed to the editor.
-              score: completer.score ? completer.score : 1000, // Order in the whispering dialog.
-              meta: completer.returnType, // Return type
-              description: completer.description // Help in the whispering dialog.
-            };
-          }
-        ));
+          return {
+            caption: completer.name, // This value is show in the whispering dialog.
+            name: completer.name,
+            value: completer.value ? completer.value : completer.name, // This value will be pushed to the editor.
+            score: completer.score ? completer.score : 1000, // Order in the whispering dialog.
+            meta: completer.returnType, // Return type
+            description: completer.description // Help in the whispering dialog.
+          };
+        }));
       },
       getDocTooltip(item) {
         return item.description;
@@ -175,7 +177,7 @@ class ScriptArea extends AbstractFormComponent {
   }
 
   _getComponent(feedback) {
-    const { labelSpan, label, componentSpan, required, mode, height, completers } = this.props;
+    const { labelSpan, label, componentSpan, required, mode, height } = this.props;
     const {showModalEditor} = this.state;
     //
     const className = classNames('form-control');
@@ -186,8 +188,7 @@ class ScriptArea extends AbstractFormComponent {
     }
 
     // Workaround - Import for AceEditor must be here. When was on start, then not working tests (error is in AceEditor);
-    let AceEditor;
-    AceEditor = require('react-ace').default;
+    const AceEditor = require('react-ace').default;
     require('brace/mode/groovy');
     require('brace/mode/json');
     require('brace/mode/sqlserver');
@@ -210,7 +211,7 @@ class ScriptArea extends AbstractFormComponent {
           <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
               { this.getOptionsButton() }
-              {/* Editor cannot be hidden here if modal is show, because Ace editor will be null after closing the modal dialog. I need editor for set completers. */}
+              {/* Editor cannot be hidden here if modal is show, because Ace editor will be null after closing the modal dialog.*/}
               {AceEditorInstance}
               {
                 feedback
@@ -219,18 +220,18 @@ class ScriptArea extends AbstractFormComponent {
                 ||
                 <span className="form-control-feedback" style={{color: 'red', zIndex: 0}}>*</span>
               }
-            <Modal
-               show={showModalEditor}
-               dialogClassName="modal-large"
-               onHide={this._closeModalEditor.bind(this)}>
-              <Modal.Header text={label}/>
-              <Modal.Body style={{overflow: 'scroll'}}>
-                {AceEditorInstance}
-              </Modal.Body>
-              <Modal.Footer>
-                <Button level="link" onClick={this._closeModalEditor.bind(this)}>{this.i18n('button.close')}</Button>
-              </Modal.Footer>
-            </Modal>
+              <Modal
+                show={showModalEditor}
+                dialogClassName="modal-large"
+                onHide={this._closeModalEditor.bind(this)}>
+                <Modal.Header text={label}/>
+                <Modal.Body style={{overflow: 'scroll'}}>
+                  {AceEditorInstance}
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button level="link" onClick={this._closeModalEditor.bind(this)}>{this.i18n('button.close')}</Button>
+                </Modal.Footer>
+              </Modal>
             </span>
           </Tooltip>
           { !label ? this.renderHelpIcon() : null }

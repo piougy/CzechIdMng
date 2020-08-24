@@ -768,8 +768,7 @@ public class IdmRoleController extends AbstractEventableDtoController<IdmRoleDto
 		return toResources(incompatibleRoles, ResolvedIncompatibleRoleDto.class);
 	}
 
-	@Override
-	@SuppressWarnings("deprecation")
+	@Override	
 	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdmRoleFilter filter = new IdmRoleFilter(parameters, getParameterConverter());
 		//

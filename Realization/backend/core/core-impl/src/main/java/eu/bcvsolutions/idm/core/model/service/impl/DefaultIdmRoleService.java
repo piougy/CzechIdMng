@@ -181,7 +181,6 @@ public class DefaultIdmRoleService
 			predicates.add(builder.or(textPredicates.toArray(new Predicate[textPredicates.size()])));
 		}
 		// role type
-		@SuppressWarnings("deprecation")
 		RoleType roleType = filter.getRoleType();
 		if (roleType != null) {
 			predicates.add(builder.equal(root.get(IdmRole_.roleType), roleType));

@@ -424,7 +424,6 @@ public class IdmRequestRoleController extends AbstractRequestDtoController<IdmRo
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	protected IdmRoleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		// TODO: Call to filter from original controller -> make as public?
 		IdmRoleFilter filter = new IdmRoleFilter(parameters);

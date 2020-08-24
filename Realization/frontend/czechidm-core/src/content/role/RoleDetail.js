@@ -136,6 +136,8 @@ class RoleDetail extends Basic.AbstractContent {
         this._setSelectedEntity(newEntity);
       } else {
         this.context.history.replace(`${this.addRequestPrefix('role', this.props.match.params)}/${entity.id}/detail`);
+        // reload code (baseCode|environment) in form is needed ... TODO: data prop on form can be used instead.
+        this._setSelectedEntity(this._prepareEntity(entity));
       }
     });
   }
@@ -250,8 +252,10 @@ class RoleDetail extends Basic.AbstractContent {
                     <Basic.EnumSelectBox
                       ref="priorityEnum"
                       label={ this.i18n('entity.Role.priorityEnum') }
-                      enum={RolePriorityEnum}
-                      onChange={ this._onChangePriorityEnum.bind(this) }/>
+                      enum={ RolePriorityEnum }
+                      onChange={ this._onChangePriorityEnum.bind(this) }
+                      clearable={ false }
+                      required/>
                     <Basic.TextField
                       ref="priority"
                       label={ this.i18n('entity.Role.priority') }

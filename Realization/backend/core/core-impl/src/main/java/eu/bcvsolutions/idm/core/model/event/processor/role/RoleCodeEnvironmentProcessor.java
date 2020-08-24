@@ -86,8 +86,8 @@ public class RoleCodeEnvironmentProcessor
 						CoreResultCode.ROLE_CODE_ENVIRONMENT_CONFLICT, 
 						ImmutableMap.of(
 								"code", String.valueOf(role.getCode()),
-								"baseCode", String.valueOf(role.getBaseCode()),
-								"environment", String.valueOf(role.getEnvironment())
+								"environment", String.valueOf(role.getEnvironment()),
+								"baseCode", String.valueOf(role.getBaseCode())								
 								));
 			}
 			if (codeChanged) {

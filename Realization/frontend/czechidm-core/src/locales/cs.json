@@ -699,10 +699,7 @@
       "DELETE" : "Smazat"
     },
     "RoleTypeEnum": {
-      "SYSTEM": "Systémová",
-      "BUSINESS": "Business",
-      "TECHNICAL": "Technická",
-      "LOGIN": "Přihlašovací"
+      "SYSTEM": "Systémová"
     },
     "AutomaticRoleRequestTypeEnum": {
       "TREE": "Role dle stromové struktury",

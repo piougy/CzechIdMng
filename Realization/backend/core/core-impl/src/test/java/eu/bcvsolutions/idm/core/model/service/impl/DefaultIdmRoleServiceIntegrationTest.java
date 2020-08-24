@@ -205,8 +205,8 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 		IdmRoleDto role2 = getHelper().createRole();
 		IdmRoleDto role3 = getHelper().createRole();
 
-		RoleType type = RoleType.LOGIN;
-		RoleType type2 = RoleType.BUSINESS;
+		RoleType type = RoleType.SYSTEM;
+		RoleType type2 = RoleType.SYSTEM;
 
 		role = roleService.get(role.getId());
 		role.setRoleType(type);

@@ -43,7 +43,7 @@ public class IdmRoleDto extends FormableDto implements Disableable, Codeable, Ex
 	private String externalId;
     private boolean disabled;
     private boolean canBeRequested;
-    private RoleType roleType = RoleType.TECHNICAL;
+    private RoleType roleType;
     private int priority = 0;
     private boolean approveRemove;
     @Size(max = DefaultFieldLengths.DESCRIPTION)

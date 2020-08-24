@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { RoleManager} from '../../redux';
 import RoleDetail from './RoleDetail';
-import RoleTypeEnum from '../../enums/RoleTypeEnum';
 
 let roleManager = null;
 
@@ -31,7 +30,7 @@ class Content extends Basic.AbstractContent {
     // universal request manager (depends on existing of 'requestId' param)
     roleManager = this.getRequestManager(this.props.match.params, new RoleManager());
     if (this._isNew()) {
-      this.context.store.dispatch(roleManager.receiveEntity(entityId, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) }));
+      this.context.store.dispatch(roleManager.receiveEntity(entityId, { }));
     } else {
       this.context.store.dispatch(roleManager.fetchEntity(entityId, null, (entity, error) => {
         this.handleError(error);

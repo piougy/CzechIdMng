@@ -1,7 +1,31 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
+import org.springframework.plugin.core.PluginRegistry;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -47,30 +71,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.script.evaluator.AbstractScriptEvaluator;
 import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import java.io.PrintStream;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import org.apache.tomcat.util.log.SystemLogHandler;
-import static org.junit.Assert.assertNotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.plugin.core.OrderAwarePluginRegistry;
-import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * Default system entity handling
@@ -420,9 +420,7 @@ public class DefaultSysSystemMappingService
 				mappingContext.setIdentityRoles(identityRoles);
 			}
 			if (mapping.isAddContextIdentityRolesForSystem()) {
-				List<IdmIdentityRoleDto> identityRolesToProcess;
-
-				assertNotNull(system.getId());
+				Assert.notNull(system.getId(), "System identifier is required.");
 				List<IdmIdentityRoleDto> identityRolesForSystem = Lists.newArrayList();
 				AccIdentityAccountFilter identityAccountFilter = new AccIdentityAccountFilter();
 				identityAccountFilter.setIdentityId(dto.getId());

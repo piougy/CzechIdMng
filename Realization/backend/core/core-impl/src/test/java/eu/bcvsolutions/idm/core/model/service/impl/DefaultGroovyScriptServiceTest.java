@@ -1,10 +1,17 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import static org.junit.Assert.assertEquals;
+
+import org.junit.After;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -12,13 +19,6 @@ import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
-import java.util.UUID;
-import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 

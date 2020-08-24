@@ -666,10 +666,7 @@
       "DELETE" : "delete"
     },
     "RoleTypeEnum": {
-      "SYSTEM": "System",
-      "BUSINESS": "Business",
-      "TECHNICAL": "Technical",
-      "LOGIN": "Login"
+      "SYSTEM": "System"
     },
     "AutomaticRoleRequestTypeEnum": {
       "TREE": "Role by tree structure",

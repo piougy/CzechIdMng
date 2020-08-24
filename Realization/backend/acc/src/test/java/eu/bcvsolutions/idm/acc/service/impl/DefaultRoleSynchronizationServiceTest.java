@@ -620,11 +620,11 @@ public class DefaultRoleSynchronizationServiceTest extends AbstractIntegrationTe
 	private void initRoleData(){
 		deleteAllResourceData();
 		ZonedDateTime now = ZonedDateTime.now();
-		entityManager.persist(this.createRole("1", RoleType.TECHNICAL.name(), now.plusHours(1), 0));
-		entityManager.persist(this.createRole("2", RoleType.TECHNICAL.name(), now.plusHours(2), 0));
-		entityManager.persist(this.createRole("3", RoleType.TECHNICAL.name(), now.plusHours(3), 0));
+		entityManager.persist(this.createRole("1", RoleType.SYSTEM.name(), now.plusHours(1), 0));
+		entityManager.persist(this.createRole("2", RoleType.SYSTEM.name(), now.plusHours(2), 0));
+		entityManager.persist(this.createRole("3", RoleType.SYSTEM.name(), now.plusHours(3), 0));
 		entityManager.persist(this.createRole("4", RoleType.SYSTEM.name(), now.plusHours(4), 1));
-		entityManager.persist(this.createRole("5", RoleType.BUSINESS.name(), now.plusHours(5), 1));
+		entityManager.persist(this.createRole("5", RoleType.SYSTEM.name(), now.plusHours(5), 1));
 
 	}
 	

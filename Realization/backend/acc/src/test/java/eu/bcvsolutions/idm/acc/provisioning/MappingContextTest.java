@@ -1,12 +1,30 @@
 package eu.bcvsolutions.idm.acc.provisioning;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.transaction.Transactional;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
 import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.acc.TestHelper;
 import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
-import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
@@ -14,18 +32,10 @@ import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.AccRoleAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
-import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
-import eu.bcvsolutions.idm.core.api.dto.IdmContractPositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
@@ -34,27 +44,9 @@ import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.transaction.Transactional;
-import org.junit.After;
-import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 /**
  * Basic account management tests (tests for identity ACM are in {@link IdentityAccountManagementTest})
@@ -63,13 +55,8 @@ import org.springframework.data.domain.Sort;
  */
 public class MappingContextTest extends AbstractIntegrationTest {
 
-	private static final String ATTRIBUTE_NAME = "__NAME__";
-	private static final String ATTRIBUTE_EMAIL = "email";
-
 	@Autowired
 	private TestHelper helper;
-	@Autowired
-	private SysSystemService systemService;
 	@Autowired
 	private SysSystemMappingService systemMappingService;
 	@Autowired
@@ -316,7 +303,7 @@ public class MappingContextTest extends AbstractIntegrationTest {
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityContractDto primeContract = helper.getPrimeContract(identity);
 		assertNotNull(primeContract);
-		IdmContractPositionDto contractPosition = helper.createContractPosition(primeContract);
+		helper.createContractPosition(primeContract);
 
 		helper.createIdentityRole(identity, roleWithSystem, null, null);
 		Assert.fail("ProvisioningException: (Script 'get mapping context' must return 'MappingContext' type!) must be throw!");
@@ -343,7 +330,7 @@ public class MappingContextTest extends AbstractIntegrationTest {
 	private void createDescriptionAttribute(SysSystemDto system, SysSystemMappingDto mapping) {
 		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
-		schemaAttributeFilter.setName(helper.ATTRIBUTE_MAPPING_DESCRIPTION);
+		schemaAttributeFilter.setName(TestHelper.ATTRIBUTE_MAPPING_DESCRIPTION);
 		SysSchemaAttributeDto descriptionSchemaAttribute = schemaAttributeService.find(schemaAttributeFilter, null)
 				.getContent()
 				.get(0);
@@ -356,72 +343,6 @@ public class MappingContextTest extends AbstractIntegrationTest {
 		descriptionAttribute.setSystemMapping(mapping.getId());
 		descriptionAttribute.setTransformToResourceScript("return context.toString();");
 		descriptionAttribute = attributeMappingService.save(descriptionAttribute);
-	}
-
-	private SysSystemDto initIdentityData() {
-
-		// create test system
-		SysSystemDto system = helper.createSystem(TestResource.TABLE_NAME);
-		Assert.assertNotNull(system);
-
-		// generate schema for system
-		List<SysSchemaObjectClassDto> objectClasses = systemService.generateSchema(system);
-
-		// Create mapping
-		SysSystemMappingDto syncSystemMapping = new SysSystemMappingDto();
-		syncSystemMapping.setName("default_" + System.currentTimeMillis());
-		syncSystemMapping.setEntityType(SystemEntityType.IDENTITY);
-		syncSystemMapping.setOperationType(SystemOperationType.PROVISIONING);
-		syncSystemMapping.setObjectClass(objectClasses.get(0).getId());
-		final SysSystemMappingDto syncMapping = systemMappingService.save(syncSystemMapping);
-		createIdentityMapping(system, syncMapping);
-		return system;
-
-	}
-
-	private void createIdentityMapping(SysSystemDto system, final SysSystemMappingDto entityHandlingResult) {
-		SysSchemaAttributeFilter schemaAttributeFilter = new SysSchemaAttributeFilter();
-		schemaAttributeFilter.setSystemId(system.getId());
-
-		Page<SysSchemaAttributeDto> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
-		schemaAttributesPage.forEach(schemaAttr -> {
-			if (ATTRIBUTE_NAME.equals(schemaAttr.getName())) {
-				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
-				attributeMapping.setUid(true);
-				attributeMapping.setEntityAttribute(true);
-				attributeMapping.setIdmPropertyName("username");
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr.getId());
-				attributeMapping.setSystemMapping(entityHandlingResult.getId());
-				attributeMappingService.save(attributeMapping);
-
-			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
-				attributeMapping.setIdmPropertyName("firstName");
-				attributeMapping.setSchemaAttribute(schemaAttr.getId());
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSystemMapping(entityHandlingResult.getId());
-				attributeMappingService.save(attributeMapping);
-
-			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
-				attributeMapping.setIdmPropertyName("lastName");
-				attributeMapping.setTransformToResourceScript("return context.toString();");
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr.getId());
-				attributeMapping.setSystemMapping(entityHandlingResult.getId());
-				attributeMappingService.save(attributeMapping);
-
-			} else if (ATTRIBUTE_EMAIL.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSystemAttributeMappingDto attributeMapping = new SysSystemAttributeMappingDto();
-				attributeMapping.setIdmPropertyName("email");
-				attributeMapping.setName(schemaAttr.getName());
-				attributeMapping.setSchemaAttribute(schemaAttr.getId());
-				attributeMapping.setSystemMapping(entityHandlingResult.getId());
-				attributeMappingService.save(attributeMapping);
-
-			}
-		});
 	}
 
 	private MappingContextTest getBean() {

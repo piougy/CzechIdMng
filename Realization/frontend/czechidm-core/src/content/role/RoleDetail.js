@@ -98,10 +98,6 @@ class RoleDetail extends Basic.AbstractContent {
     }, () => {
       const entity = this.refs.form.getData();
       this.refs.form.processStarted();
-      // append selected authorities
-      if (this.refs.authorities) {
-        entity.authorities = this.refs.authorities.getSelectedAuthorities();
-      }
       //
       this.getLogger().debug('[RoleDetail] save entity', entity);
       if (Utils.Entity.isNew(entity)) {
@@ -132,7 +128,6 @@ class RoleDetail extends Basic.AbstractContent {
       } else if (afterAction === 'NEW') {
         const uuidId = uuid.v1();
         const newEntity = {
-          roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL),
           priority: `${RolePriorityEnum.getPriority(RolePriorityEnum.NONE)}`,
           priorityEnum: RolePriorityEnum.findKeyBySymbol(RolePriorityEnum.NONE)
         };
@@ -231,7 +226,7 @@ class RoleDetail extends Basic.AbstractContent {
                       <Basic.Col lg={ 4 }>
                         <Advanced.CodeListSelect
                           ref="environment"
-                          hidden={!showEnvironment}
+                          hidden={ !showEnvironment }
                           code="environment"
                           label={ this.i18n('entity.Role.environment.label') }
                           helpBlock={
@@ -247,8 +242,7 @@ class RoleDetail extends Basic.AbstractContent {
                           ref="roleType"
                           label={ this.i18n('entity.Role.roleType') }
                           enum={ RoleTypeEnum }
-                          required
-                          rendered={ SecurityManager.hasAuthority('APP_ADMIN') && this.isDevelopment() }/>
+                          useSymbol={ false }/>
                       </Basic.Col>
                     </Basic.Row>
 

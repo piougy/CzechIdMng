@@ -4,7 +4,6 @@ import AbstractEnum from './AbstractEnum';
  * OperationType for adit operation etc.
  *
  * @author Radek Tomiška
- * @deprecated
  */
 export default class RoleTypeEnum extends AbstractEnum {
 
@@ -28,11 +27,8 @@ export default class RoleTypeEnum extends AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.BUSINESS: {
+      case this.SYSTEM: {
         return 'info';
-      }
-      case this.TECHNICAL: {
-        return 'success';
       }
       default: {
         return 'default';
@@ -42,6 +38,3 @@ export default class RoleTypeEnum extends AbstractEnum {
 }
 
 RoleTypeEnum.SYSTEM = Symbol('SYSTEM');
-RoleTypeEnum.BUSINESS = Symbol('BUSINESS');
-RoleTypeEnum.TECHNICAL = Symbol('TECHNICAL');
-RoleTypeEnum.LOGIN = Symbol('LOGIN');

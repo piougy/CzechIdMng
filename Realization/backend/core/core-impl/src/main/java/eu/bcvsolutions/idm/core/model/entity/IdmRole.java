@@ -81,10 +81,9 @@ public class IdmRole extends AbstractEntity implements Codeable, FormableEntity,
 	private Long version; // Optimistic lock - will be used with ETag
 
 	@Audited
-	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(name = "role_type", nullable = false)
-	private RoleType roleType = RoleType.TECHNICAL;
+	@Column(name = "role_type")
+	private RoleType roleType;
 
 	@Audited
 	@NotNull

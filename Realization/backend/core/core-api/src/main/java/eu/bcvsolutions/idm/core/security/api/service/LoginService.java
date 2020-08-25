@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.security.api.service;
 
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
+import eu.bcvsolutions.idm.core.api.exception.ForbiddenEntityException;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 
 /**
@@ -49,10 +51,12 @@ public interface LoginService {
 	 * Login as other identity.
 	 * 
 	 * @param identity target identity
+	 * @param permission permissions to evaluate (AND)
 	 * @return switched login dto
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 * @since 10.5.0
 	 */
-	LoginDto switchUser(IdmIdentityDto identity);
+	LoginDto switchUser(IdmIdentityDto identity, BasePermission... permission);
 	
 	/**
 	 * Logout other identity - return back to original user.

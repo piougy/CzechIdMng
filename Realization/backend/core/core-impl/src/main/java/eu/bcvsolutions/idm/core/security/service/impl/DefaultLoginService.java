@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -20,6 +21,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
@@ -127,7 +129,10 @@ public class DefaultLoginService implements LoginService {
 	}
 	
 	@Override
-	public LoginDto switchUser(IdmIdentityDto identity) {
+	public LoginDto switchUser(IdmIdentityDto identity, BasePermission... permission) {
+		Assert.notNull(identity, "Target identity (to switch) is required.");
+		identityService.checkAccess(identity, permission);
+		//
 		IdmTokenDto currentToken = tokenManager.getCurrentToken();
 		ConfigurationMap properties = currentToken.getProperties();
 		// Preserve the first original user => switch is available repetitively, but original user is preserved.

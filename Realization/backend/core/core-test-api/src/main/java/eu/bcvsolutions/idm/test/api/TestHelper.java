@@ -384,7 +384,7 @@ public interface TestHelper {
 			boolean skipLongRunningTask);
 
 	/**
-	 * Creates simple uuid permission evaluator authorization policy
+	 * Creates simple uuid permission evaluator authorization policy.
 	 * 
 	 * @param roleId - assigned role
 	 * @param authorizableEntity added permission to
@@ -394,14 +394,14 @@ public interface TestHelper {
 	IdmAuthorizationPolicyDto createUuidPolicy(UUID roleId, UUID authorizableEntity, BasePermission... permission);
 	
 	/**
-	 * Creates simple uuid permission evaluator authorization policy
+	 * Creates simple uuid permission evaluator authorization policy,
 	 * 
-	 * @param roleId assigned role
+	 * @param role assigned role
 	 * @param authorizableEntity added permission to
 	 * @param permission
 	 * @return
 	 */
-	IdmAuthorizationPolicyDto createUuidPolicy(IdmRoleDto roleId, Identifiable authorizableEntity, BasePermission... permission);
+	IdmAuthorizationPolicyDto createUuidPolicy(IdmRoleDto role, Identifiable authorizableEntity, BasePermission... permission);
 
 	/**
 	 * Creates base permission evaluator authorization policy

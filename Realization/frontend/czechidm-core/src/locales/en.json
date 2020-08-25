@@ -1070,7 +1070,8 @@
       "CHANGEPHONE": "Change phone",
       "CHANGEEMAIL": "Change email",
       "CHANGEEXTERNALCODE": "Change personal number",
-      "CHANGEDESCRIPTION": "Change note"
+      "CHANGEDESCRIPTION": "Change note",
+      "SWITCHUSER": "Login as user (switch user)"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Permissions",

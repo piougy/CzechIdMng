@@ -1103,7 +1103,8 @@
       "CHANGEPHONE": "Změna telefonu",
       "CHANGEEMAIL": "Změna emailu",
       "CHANGEEXTERNALCODE": "Změna osobního čísla",
-      "CHANGEDESCRIPTION": "Změna popisu"
+      "CHANGEDESCRIPTION": "Změna popisu",
+      "SWITCHUSER": "Přihlásit se za uživatele"
     },
     "group": {
       "AUTHORIZATIONPOLICY": "Oprávnění",
@@ -3007,7 +3008,7 @@
         "button": {
           "save": "Přepnout uživatele",
           "saving": "Přepínám ...",
-          "logout": "Přihlásit se zpět"
+          "logout": "Přihlásit se zpět jako"
         },
         "message": {
           "success": "Přihlášen uživatel [{{username}}]."

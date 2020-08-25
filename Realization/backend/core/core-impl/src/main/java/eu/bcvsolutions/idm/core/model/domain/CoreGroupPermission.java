@@ -45,7 +45,8 @@ public enum CoreGroupPermission implements GroupPermission {
 			IdentityBasePermission.CHANGEPHONE,
 			IdentityBasePermission.CHANGEEMAIL,
 			IdentityBasePermission.CHANGEEXTERNALCODE,
-			IdentityBasePermission.CHANGEDESCRIPTION),
+			IdentityBasePermission.CHANGEDESCRIPTION,
+			IdentityBasePermission.SWITCHUSER),	
 	PROFILE(
 			IdmBasePermission.ADMIN, 
 			IdmBasePermission.COUNT, 
@@ -404,6 +405,7 @@ public enum CoreGroupPermission implements GroupPermission {
 	public static final String IDENTITY_CHANGEEMAIL = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEEMAIL";
 	public static final String IDENTITY_CHANGEEXTERNALCODE = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEEXTERNALCODE";
 	public static final String IDENTITY_CHANGEDESCRIPTION = "IDENTITY" + BasePermission.SEPARATOR + "CHANGEDESCRIPTION";
+	public static final String IDENTITY_SWITCHUSER = "IDENTITY" + BasePermission.SEPARATOR + "SWITCHUSER";
 	//
 	public static final String PROFILE_ADMIN = "PROFILE" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String PROFILE_COUNT = "PROFILE" + BasePermission.SEPARATOR + "COUNT";

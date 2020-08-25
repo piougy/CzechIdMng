@@ -1611,7 +1611,7 @@ module.exports = {
         labelKey: 'content.identity.switch-user.header',
         icon: 'component:switch-user',
         modal: 'switch-user-modal',
-        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['APP_ADMIN'] } ],
+        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITY_SWITCHUSER'] } ],
         order: 810
       },
       {

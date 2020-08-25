@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import * as Domain from '../../domain';
 import { SecurityManager } from '../../redux';
 
 const securityManager = new SecurityManager();
@@ -33,18 +34,17 @@ class SwitchUser extends Basic.AbstractContent {
     const username = this.refs.username.getValue();
     //
     this.context.store.dispatch(securityManager.switchUser(username, (result) => {
+      const { onHide } = this.props;
       if (result) {
-        //
-        const { onHide } = this.props;
-        //
         this.addMessage({
           level: 'success',
           key: 'core-switch-user-success',
           message: this.i18n('content.identity.switch-user.message.success', { username })
         });
         this.context.history.replace(`/`);
-        onHide();
       }
+      // modal is closed on error too => currently logged user is logout anyway
+      onHide();
     }));
   }
 
@@ -60,6 +60,8 @@ class SwitchUser extends Basic.AbstractContent {
     if (!rendered) {
       return null;
     }
+    //
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('_permission', 'SWITCHUSER');
     //
     return (
       <Basic.Modal
@@ -84,7 +86,8 @@ class SwitchUser extends Basic.AbstractContent {
                 helpBlock={ this.i18n('content.identity.switch-user.username.help') }
                 required
                 returnProperty="username"
-                emptyOptionLabel={ false }/>
+                emptyOptionLabel={ false }
+                forceSearchParameters={ forceSearchParameters }/>
 
             </Basic.AbstractForm>
           </Basic.Modal.Body>
@@ -101,7 +104,7 @@ class SwitchUser extends Basic.AbstractContent {
               showLoading={ showLoading }
               showLoadingIcon
               showLoadingText={ this.i18n('content.identity.switch-user.button.saving') }
-              rendered={ SecurityManager.hasAuthority('APP_ADMIN') }>
+              rendered={ SecurityManager.hasAuthority('IDENTITY_SWITCHUSER') }>
               { this.i18n('content.identity.switch-user.button.save') }
             </Basic.Button>
           </Basic.Modal.Footer>

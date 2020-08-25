@@ -19,9 +19,10 @@ import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
+import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
-import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginRequestDto;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
@@ -88,7 +89,7 @@ public class LoginController implements BaseController {
 			notes= "Login as other user (switch user).",
 			response = LoginDto.class,
 			tags = { LoginController.TAG } )
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')") // TODO: new authority
+	@PreAuthorize("hasAuthority('" + CoreGroupPermission.IDENTITY_SWITCHUSER + "')")
 	@RequestMapping(path = "/switch-user", method = RequestMethod.PUT)
 	public Resource<LoginDto> switchUser(
 			@ApiParam(value = "Switch to user by given username.", required = true)
@@ -98,11 +99,11 @@ public class LoginController implements BaseController {
 		if (identity == null) {
 			throw new EntityNotFoundException(IdmIdentity.class, username);
 		}
-		return new Resource<LoginDto>(loginService.switchUser(identity));
+		return new Resource<LoginDto>(loginService.switchUser(identity, IdentityBasePermission.SWITCHUSER));
 	}
 	
 	/**
-	 * Switch user - logout.
+	 * Switch user - logout. Available for all logged identities (without authority check).
 	 * 
 	 * @param username target user
 	 * @return new login dto

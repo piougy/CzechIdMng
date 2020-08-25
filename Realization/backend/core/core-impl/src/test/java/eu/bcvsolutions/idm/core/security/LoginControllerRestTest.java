@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.IdentityBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.dto.DefaultGrantedAuthorityDto;
@@ -277,9 +278,54 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		String token = getToken(response);
 		//
 		getMockMvc()
-		.perform(put(BaseController.BASE_PATH + "/authentication/switch-user?username=" + getHelper().createName())
+			.perform(put(BaseController.BASE_PATH + "/authentication/switch-user?username=" + getHelper().createName())
+					.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token))
+			.andExpect(status().isNotFound());
+	}
+	
+	/**
+	 * Login as user without SWITCHUSER permission to all user - just subordinateOne.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testSwitchWithoutPermission() throws Exception {
+		IdmIdentityDto manager = getHelper().createIdentity();
+		IdmIdentityDto subordinateOne = getHelper().createIdentity((GuardedString) null);
+		IdmIdentityDto otherIdentity = getHelper().createIdentity((GuardedString) null);
+		//
+		IdmRoleDto managerRole = getHelper().createRole();
+		getHelper().createUuidPolicy(managerRole, subordinateOne, IdentityBasePermission.SWITCHUSER);
+		getHelper().createIdentityRole(manager, managerRole);
+		//
+		// login
+		Map<String, String> login = new HashMap<>();
+		login.put("username", manager.getUsername());
+		login.put("password", manager.getPassword().asString());
+		String response = getMockMvc()
+				.perform(post(BaseController.BASE_PATH + "/authentication")
+				.content(serialize(login))
+				.contentType(TestHelper.HAL_CONTENT_TYPE))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(TestHelper.HAL_CONTENT_TYPE))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+		String token = getToken(response);
+		//
+		// cannot switch as other identity
+		getMockMvc()
+			.perform(put(BaseController.BASE_PATH + "/authentication/switch-user?username=" + otherIdentity.getUsername())
+					.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token))
+			.andExpect(status().isForbidden());
+		//
+		// can switch as subordinate
+		getMockMvc()
+		.perform(put(BaseController.BASE_PATH + "/authentication/switch-user?username=" + subordinateOne.getUsername())
 				.param(IdmAuthenticationFilter.AUTHENTICATION_TOKEN_NAME, token))
-		.andExpect(status().isNotFound());
+		.andExpect(status().isOk());
+		//
+		logout();
 	}
 	
 	private ResultActions tryLogin(String username, String password) throws Exception {

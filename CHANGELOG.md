@@ -13,6 +13,8 @@ All notable changes to this project will be documented in this file.
   - **``ProvisioningQueueTaskExecutor`` is not scheduled by default** - asynchronous system feature is not used and will be deprecated.
   - **All HR processes ``HrEnableContractProcess``, ``HrEndContractProcess ``, ``HrContractExclusionProcess `` are scheduled by default now** - read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data#scheduled_tasks).
 - [#2404](https://redmine.czechidm.com/issues/2404) - **All automatic roles are assigned through asynchronous role requests now** (to preserve order of provisioning operations). When long running tasks (LRT) for processing automatic roles ends, then role requests are prepared only => roles will be assigned asynchronously and they are not available right after LRT ends.
+- [#2441](https://redmine.czechidm.com/issues/2441) - [Default user role](https://wiki.czechidm.com/devel/documentation/security/dev/authorization#default_policies) supports business roles now.
+- Menu item **Task scheduler** moved higher in sidebar menu **Settings** - right after **Configuration** menu item.
 
 
 ### Developer

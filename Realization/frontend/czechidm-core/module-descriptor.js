@@ -1194,7 +1194,7 @@ module.exports = {
           {
             id: 'scheduler',
             labelKey: 'content.scheduler.title',
-            order: 55,
+            order: 15,
             path: '/scheduler/all-tasks',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['SCHEDULER_READ'] } ],
             icon: 'component:scheduled-tasks',

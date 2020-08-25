@@ -1,26 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.text.MessageFormat;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
@@ -52,6 +34,7 @@ import eu.bcvsolutions.idm.acc.service.api.SynchronizationEntityExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmTreeNodeFilter;
@@ -60,6 +43,7 @@ import eu.bcvsolutions.idm.core.api.service.IdmAutomaticRoleAttributeService;
 import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent;
 import eu.bcvsolutions.idm.core.model.event.TreeNodeEvent.TreeNodeEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -73,6 +57,21 @@ import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcLoginAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
+import java.text.MessageFormat;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Default implementation of tree sync.
@@ -243,12 +242,15 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		// Fill entity by mapped attribute
 		treeNode = fillEntity(mappedAttributes, uid, icAttributes, treeNode, true, context);
 		treeNode.setTreeType(this.getSystemMapping(mappedAttributes).getTreeType());
+		// Fill extended attributes to the entity. EAV attributes will be saved within entity.
+		if (treeNode instanceof FormableDto) {
+			FormableDto formableDto = (FormableDto) treeNode;
+			formableDto.getEavs().clear();
+			IdmFormInstanceDto formInstanceDto = fillExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, true, context);
+			formableDto.getEavs().add(formInstanceDto);
+		}
 		// Create new Entity
 		treeNode = this.save(treeNode, true, context);
-		// Update extended attribute (entity must be persisted first)
-		updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, true, context);
-		// Update confidential attribute (entity must be persisted first)
-		// updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode, true, context);
 
 		// Create new Entity account relation
 		EntityAccountDto entityAccount = this.createEntityAccountDto();
@@ -270,16 +272,7 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 	}
 
 	/**
-	 * Fill data from IC attributes to entity (EAV and confidential storage too)
-	 * 
-	 * @param account
-	 * @param entityType
-	 * @param uid
-	 * @param icAttributes
-	 * @param mappedAttributes
-	 * @param log
-	 * @param logItem
-	 * @param actionLogs
+	 * Fill data from IC attributes to entity (EAV and confidential storage too).
 	 */
 	@Override
 	protected void doUpdateEntity(SynchronizationContext context) {
@@ -306,13 +299,13 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 		if (treeNode != null) {
 			// Update entity
 			treeNode = fillEntity(mappedAttributes, uid, icAttributes, treeNode, false, context);
+			// Fill extended attributes to the entity. EAV attributes will be saved within entity.
+			treeNode.getEavs().clear();
+			IdmFormInstanceDto formInstanceDto = fillExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, false, context);
+			treeNode.getEavs().add(formInstanceDto);
 			if (context.isEntityDifferent()) {
 				treeNode = this.save(treeNode, true, context);
 			}
-			// Update extended attribute (entity must be persisted first)
-			updateExtendedAttributes(mappedAttributes, uid, icAttributes, treeNode, false, context);
-			// Update confidential attribute (entity must be persisted first)
-			// updateConfidentialAttributes(mappedAttributes, uid, icAttributes, treeNode, false, context);
 
 			// TreeNode Updated
 			addToItemLog(logItem, MessageFormat.format("TreeNode with id {0} was updated", treeNode.getId()));
@@ -436,7 +429,6 @@ public class TreeSynchronizationExecutor extends AbstractSynchronizationExecutor
 			AccAccountFilter accountFilter = new AccAccountFilter();
 			accountFilter.setUid(parentUid);
 			accountFilter.setSystemId(systemId);
-			transformedValue = null;
 			List<AccAccountDto> parentAccounts = accountService.find(accountFilter, null).getContent();
 			if (!parentAccounts.isEmpty()) {
 				UUID parentAccount = parentAccounts.get(0).getId();

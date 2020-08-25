@@ -63,6 +63,7 @@ import eu.bcvsolutions.idm.core.api.domain.Codeable;
 import eu.bcvsolutions.idm.core.api.domain.Loggable;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.FormableDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.dto.filter.CorrelationFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -78,6 +79,8 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ExceptionUtils;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormInstanceDto;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExecutor;
@@ -173,7 +176,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
 	@Autowired
-	private FormService formService;
+	protected FormService formService;
 	@Autowired
 	protected EntityEventManager entityEventManager;
 	@Autowired
@@ -1242,15 +1245,15 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 		DTO entity = this.createEntityDto();
 		// Fill entity by mapped attribute
 		entity = fillEntity(mappedAttributes, uid, icAttributes, entity, true, context);
-
+		// Fill extended attributes to the entity. EAV attributes will be saved within entity.
+		if (entity instanceof FormableDto) {
+			FormableDto formableDto = (FormableDto) entity;
+			formableDto.getEavs().clear();
+			IdmFormInstanceDto formInstanceDto = fillExtendedAttributes(mappedAttributes, uid, icAttributes, entity, true, context);
+			formableDto.getEavs().add(formInstanceDto);
+		}
 		// Create new entity
 		entity = this.save(entity, true, context);
-
-		// Update extended attribute (entity must be persisted first)
-		updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, true, context);
-		// Update confidential attribute (entity must be persisted first)
-		// updateConfidentialAttributes(mappedAttributes, uid, icAttributes, entity,
-		// true, context);
 
 		EntityAccountDto roleAccount = createEntityAccount(account, entity, context);
 		this.getEntityAccountService().save(roleAccount);
@@ -1316,13 +1319,16 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			entity = this.getService().get(entityId);
 		}
 		if (entity != null) {
-			// Update extended attribute
-			updateExtendedAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
-			// Update confidential attribute
-			// updateConfidentialAttributes(mappedAttributes, uid, icAttributes, entity,
-			// false, context);
-			// Update entity
+			// Fill entity
 			entity = fillEntity(mappedAttributes, uid, icAttributes, entity, false, context);
+			// Fill extended attributes to the entity. EAV attributes will be saved within entity.
+			if (entity instanceof FormableDto) {
+				FormableDto formableDto = (FormableDto) entity;
+				formableDto.getEavs().clear();
+				IdmFormInstanceDto formInstanceDto = fillExtendedAttributes(mappedAttributes, uid, icAttributes, entity, false, context);
+				formableDto.getEavs().add(formInstanceDto);
+			}
+			// Update entity
 			if (context.isEntityDifferent()) {
 				entity = this.save(entity, true, context);
 			}
@@ -1433,6 +1439,8 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			if (idmEx != e) {
 				addToItemLog(logItem, Throwables.getStackTraceAsString(idmEx));
 				ex = idmEx;
+			} else {
+				addToItemLog(logItem, Throwables.getStackTraceAsString(e));
 			}
 		} else {
 			addToItemLog(logItem, Throwables.getStackTraceAsString(e));
@@ -1629,7 +1637,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	}
 
 	/**
-	 * Update extended attribute for given entity. Entity must be persisted first.
+	 * Fill extended attribute for given entity. Entity must be persisted first.
 	 *
 	 * @param mappedAttributes
 	 * @param uid
@@ -1639,9 +1647,13 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param context
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	protected DTO updateExtendedAttributes(List<SysSystemAttributeMappingDto> mappedAttributes, String uid,
-			List<IcAttribute> icAttributes, DTO dto, boolean create, SynchronizationContext context) {
+	protected IdmFormInstanceDto fillExtendedAttributes(List<SysSystemAttributeMappingDto> mappedAttributes, String uid,
+														List<IcAttribute> icAttributes, DTO dto, boolean create, SynchronizationContext context) {
+
+		IdmFormInstanceDto formInstanceDto = new IdmFormInstanceDto();
+		IdmFormDefinitionDto formDefinitionDto = formService.getDefinition(context.getEntityType().getExtendedAttributeOwnerType());
+		formInstanceDto.setFormDefinition(formDefinitionDto);
+
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
 			// Only for extended attributes
@@ -1721,10 +1733,15 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 			}
 
 			if (context.isEntityDifferent()) {
-				formService.saveValues(dto, defAttribute, values);
+				List<IdmFormValueDto> formValues = values.stream().map(value -> {
+					IdmFormValueDto formValue = new IdmFormValueDto(defAttribute);
+					formValue.setValue(value);
+					return formValue;
+				}).collect(Collectors.toList());
+				formInstanceDto.getValues().addAll(formValues);
 			}
 		});
-		return dto;
+		return formInstanceDto;
 	}
 
 	/**

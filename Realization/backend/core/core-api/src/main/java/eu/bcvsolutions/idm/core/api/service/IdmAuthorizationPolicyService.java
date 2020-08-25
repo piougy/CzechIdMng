@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
@@ -49,19 +50,22 @@ public interface IdmAuthorizationPolicyService
 	
 	/**
 	 * Returns authorities from default user role by configuration {@value #PROPERTY_DEFAULT_ROLE} for given identity.
+	 * Sub roles are supported @since 10.5.0.
+	 * Authorities are loaded on login only.
 	 * 
-	 * Attention: Doesn't returns authorities from subroles
-	 * 
-	 * @return
+	 * @param identityId logged identity
+	 * @return default role authorities.
+	 * @see RoleConfiguration#getDefaultRole()
 	 */
 	Set<GrantedAuthority> getDefaultAuthorities(UUID identityId);
 	
 	/**
 	 * Returns policies from default user role by configuration {@value IdmRoleService#PROPERTY_DEFAULT_ROLE}.
+	 * Sub roles are supported @since 10.5.0.
 	 * 
-	 * Attention: Doesn't returns policies from subroles
-	 * 
+	 * @param entityType policies by given entity type (~authorizable type)
 	 * @return
+	 * @see RoleConfiguration#getDefaultRole()
 	 */
 	List<IdmAuthorizationPolicyDto> getDefaultPolicies(Class<? extends Identifiable> entityType);
 

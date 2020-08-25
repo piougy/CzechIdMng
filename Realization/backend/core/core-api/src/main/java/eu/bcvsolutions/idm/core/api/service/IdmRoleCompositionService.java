@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 
 /**
- * Operations with role composition
+ * Role composition (~ business roles).
  * 
  * @author Radek Tomiška
  * @since 9.0.0

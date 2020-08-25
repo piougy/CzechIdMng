@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +14,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
-import java.time.LocalDate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -29,11 +31,14 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractEventableDtoService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmAuthorizationPolicyService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmAuthorizationPolicy_;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole_;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuthorizationPolicyRepository;
 import eu.bcvsolutions.idm.core.security.api.domain.DefaultGrantedAuthority;
@@ -55,6 +60,8 @@ public class DefaultIdmAuthorizationPolicyService
 	private final IdmAuthorizationPolicyRepository repository;
 	private final IdmRoleService roleService;
 	private final ModuleService moduleService;
+	//
+	@Autowired private IdmRoleCompositionService roleCompositionService;
 	
 	public DefaultIdmAuthorizationPolicyService(
 			IdmAuthorizationPolicyRepository repository, 
@@ -149,7 +156,21 @@ public class DefaultIdmAuthorizationPolicyService
 			return Collections.<GrantedAuthority>emptySet();
 		}
 		//
-		Set<GrantedAuthority> defaultAuthorities = getEnabledRoleAuthorities(identityId, defaultRole.getId());
+		UUID defaultRoleId = defaultRole.getId();
+		Set<GrantedAuthority> defaultAuthorities = new HashSet<>();
+		// default role authorities
+		defaultAuthorities.addAll(getEnabledRoleAuthorities(identityId, defaultRoleId));
+		// all sub roles authorities
+		roleCompositionService
+			.findAllSubRoles(defaultRoleId)
+			.stream()
+			.filter(roleComposition -> {
+				IdmRoleDto subRole = DtoUtils.getEmbedded(roleComposition, IdmRoleComposition_.sub);
+				return !subRole.isDisabled();
+			})
+			.forEach(roleComposition -> {
+				defaultAuthorities.addAll(getEnabledRoleAuthorities(identityId, roleComposition.getSub()));
+			});
 		//
 		LOG.debug("Found [{}] default authorities", defaultAuthorities.size());
 		return defaultAuthorities;
@@ -168,15 +189,31 @@ public class DefaultIdmAuthorizationPolicyService
 			return Collections.<IdmAuthorizationPolicyDto>emptyList();
 		}
 		//
+		UUID defaultRoleId = defaultRole.getId();
 		IdmAuthorizationPolicyFilter filter = new IdmAuthorizationPolicyFilter();
-		filter.setRoleId(defaultRole.getId());
 		filter.setDisabled(Boolean.FALSE);
-		if(entityType != null) { // optional
+		if (entityType != null) { // optional
 			filter.setAuthorizableType(entityType.getCanonicalName());
 		}
-		List<IdmAuthorizationPolicyDto> defaultPolicies = find(filter, null).getContent();
+		// default role policies
+		filter.setRoleId(defaultRoleId);
+		List<IdmAuthorizationPolicyDto> defaultPolicies = new ArrayList<>();
+		defaultPolicies.addAll(find(filter, null).getContent());
+		// all sub roles policies
+		roleCompositionService
+			.findAllSubRoles(defaultRoleId)
+			.stream()
+			.filter(roleComposition -> {
+				IdmRoleDto subRole = DtoUtils.getEmbedded(roleComposition, IdmRoleComposition_.sub);
+				return !subRole.isDisabled();
+			})
+			.forEach(roleComposition -> {
+				filter.setRoleId(roleComposition.getSub());
+				defaultPolicies.addAll(find(filter, null).getContent());
+			});
 		//
 		LOG.debug("Found [{}] default policies", defaultPolicies.size());
+		//
 		return defaultPolicies;
 	}
 	
@@ -197,7 +234,7 @@ public class DefaultIdmAuthorizationPolicyService
 		final Set<GrantedAuthority> authorities = new HashSet<>();
 		// find all active policies and return their authority by authorizable type
 		for (IdmAuthorizationPolicyDto policy : policies) {
-			// evaluate policy permissions - authorities are eveluated on null entity
+			// evaluate policy permissions - authorities are evaluated on null entity
 			String groupPermission = policy.getGroupPermission();
 			Set<String> baseAuthorities = getAuthorizationManager().getAuthorities(identityId, policy);
 			//

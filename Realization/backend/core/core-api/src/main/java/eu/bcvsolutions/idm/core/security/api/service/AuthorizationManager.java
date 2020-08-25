@@ -58,6 +58,8 @@ public interface AuthorizationManager {
 	
 	/**
 	 * Returns authorities, what given identity could do with given domain authorizable type.
+	 * Be careful - returns authority as base permission (e.g. READ, UPDATE) - group is defined by given authorizableType input parameter.
+	 * 
 	 * 
 	 * @param identityId
 	 * @param authorizableType
@@ -67,6 +69,7 @@ public interface AuthorizationManager {
 	
 	/**
 	 * Returns base authorities configured for given policy. Authorities are used as "what given identity" could do - without entity is defined.
+	 * Be careful - returns authority as base permission (e.g. READ, UPDATE) - group is defined by given authorizableType input parameter.
 	 * 
 	 * @param identityId
 	 * @param policy

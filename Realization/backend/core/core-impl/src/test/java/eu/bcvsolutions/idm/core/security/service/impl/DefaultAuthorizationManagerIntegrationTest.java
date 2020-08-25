@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.config.cache.domain.ValueWrapper;
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.ContractState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
@@ -479,5 +480,55 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractEvaluato
 		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policyFour.getId()) || p.getId().equals(policyFive.getId())));
 		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policySix.getId())));
 		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policySeven.getId())));
+	}
+	
+	@Test
+	@Transactional
+	public void testDefaultRoleSubRoles() {
+		IdmIdentityDto identity = getHelper().createIdentity();
+		// create new default role with two enabled sub roles + one disabled.
+		IdmRoleDto defaultRole = getHelper().createRole();
+		IdmRoleDto subRoleOne = getHelper().createRole();
+		IdmRoleDto subRoleTwo = getHelper().createRole();
+		IdmRoleDto role = getHelper().createRole();
+		role.setDisabled(true);
+		IdmRoleDto disabledSubRole = roleService.save(role);
+		getHelper().createRoleComposition(defaultRole, subRoleOne);
+		getHelper().createRoleComposition(subRoleOne, subRoleTwo);
+		getHelper().createRoleComposition(defaultRole, disabledSubRole);
+		//
+		// create distinct authorization policies
+		IdmAuthorizationPolicyDto policyDefault = getHelper().createBasePolicy(defaultRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.CREATE);
+		IdmAuthorizationPolicyDto policyOne = getHelper().createBasePolicy(subRoleOne.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.UPDATE);
+		IdmAuthorizationPolicyDto policyTwo = getHelper().createBasePolicy(subRoleTwo.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.READ);
+		IdmAuthorizationPolicyDto policyDisabled =  getHelper().createBasePolicy(disabledSubRole.getId(), CoreGroupPermission.IDENTITY, IdmIdentity.class, IdmBasePermission.DELETE);
+		//
+		getHelper().setConfigurationValue(RoleConfiguration.PROPERTY_DEFAULT_ROLE, defaultRole.getCode());
+		//
+		List<IdmAuthorizationPolicyDto> enabledDistinctPolicies = manager.getEnabledDistinctPolicies(identity.getId(), IdmIdentity.class);
+		Assert.assertEquals(3, enabledDistinctPolicies.size());
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policyDefault.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policyOne.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().anyMatch(p -> p.getId().equals(policyTwo.getId())));
+		Assert.assertTrue(enabledDistinctPolicies.stream().allMatch(p -> !p.getId().equals(policyDisabled.getId())));
+		//
+		Set<String> authorities = manager.getAuthorities(identity.getId(), IdmIdentity.class);
+		Assert.assertEquals(3, authorities.size());
+		Assert.assertTrue(authorities.stream().anyMatch(a -> a.equals(IdmBasePermission.CREATE.getName())));
+		Assert.assertTrue(authorities.stream().anyMatch(a -> a.equals(IdmBasePermission.UPDATE.getName())));
+		Assert.assertTrue(authorities.stream().anyMatch(a -> a.equals(IdmBasePermission.READ.getName())));
+		Assert.assertTrue(authorities.stream().allMatch(a -> !a.equals(IdmBasePermission.DELETE.getName())));
+		//
+		try {
+			getHelper().login(identity);
+			Set<String> permissions = identityService.getPermissions(identity.getId());
+			Assert.assertEquals(3, permissions.size());
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.CREATE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.UPDATE.getName())));
+			Assert.assertTrue(permissions.stream().anyMatch(p -> p.equals(IdmBasePermission.READ.getName())));
+			Assert.assertTrue(permissions.stream().allMatch(p -> !p.equals(IdmBasePermission.DELETE.getName())));
+		} finally {
+			logout();
+		}
 	}
 }

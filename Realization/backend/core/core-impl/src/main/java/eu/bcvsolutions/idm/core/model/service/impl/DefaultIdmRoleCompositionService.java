@@ -45,7 +45,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Role composition
+ * Role composition (~ business roles).
  * 
  * @author Radek Tomiška
  * @since 9.0.0
@@ -73,12 +73,16 @@ public class DefaultIdmRoleCompositionService
 	public List<IdmRoleCompositionDto> findDirectSubRoles(UUID superiorId, BasePermission... permission) {
 		Assert.notNull(superiorId, "Superior role identifier is required.");
 		//
+		// TODO: Role composition cache - sub roles (cache value) by superior (cache key) + filter by superior id.
 		IdmRoleCompositionFilter filter = new IdmRoleCompositionFilter();
 		filter.setSuperiorId(superiorId);
 		//
 		return find(filter, null, permission).getContent();
 	}
 	
+	/**
+	 * TODO: Role composition cache - sub roles (cache value) by superior (cache key). 
+	 */
 	@Override
 	public List<IdmRoleCompositionDto> findAllSubRoles(UUID superiorId, BasePermission... permission) {
 		Assert.notNull(superiorId, "Superior role identifier is required.");
@@ -90,6 +94,9 @@ public class DefaultIdmRoleCompositionService
 		return results;
 	}
 	
+	/**
+	 * TODO: Role composition cache - superior roles (cache value) by sub (cache key). 
+	 */
 	@Override
 	public List<IdmRoleCompositionDto> findAllSuperiorRoles(UUID subId, BasePermission... permission) {
 		Assert.notNull(subId, "Sub role identifier is required.");

@@ -94,11 +94,19 @@ public interface SecurityService {
 	UUID getCurrentId();
 
 	/**
-	 * Returns originally logged identity's username (before identity was switched)
+	 * Returns originally logged identity's username (before identity was switched).
 	 * 
 	 * @return originally logged identity's username
 	 */
 	String getOriginalUsername();
+	
+	/**
+	 * Returns originally logged identity's id (before identity was switched).
+	 * 
+	 * @return originally logged identity's id
+	 * @since 10.5.0
+	 */
+	UUID getOriginalId();
 	
 	/**
 	 * Returns currently logged identity's authorities

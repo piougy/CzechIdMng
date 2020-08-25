@@ -36,9 +36,9 @@ public interface WorkflowTaskInstanceService extends ReadDtoService<WorkflowTask
 	 * 
 	 * @param taskId
 	 * @param decision
-	 * @param map
+	 * @param formData
 	 */
-	void completeTask(String taskId, String decision, Map<String, String> map);
+	void completeTask(String taskId, String decision, Map<String, String> formData);
 
 	/**
 	 * Complete task.

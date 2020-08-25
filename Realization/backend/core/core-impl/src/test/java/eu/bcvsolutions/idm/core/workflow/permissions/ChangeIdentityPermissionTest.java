@@ -55,14 +55,18 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.model.event.processor.module.InitTestDataProcessor;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
@@ -121,6 +125,10 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	private IdmIdentityRoleService identityRoleService;
 	@Autowired
 	private RuntimeService runtimeService;
+	@Autowired
+	private LoginService loginService;
+	@Autowired
+	private WorkflowHistoricTaskInstanceService workflowHistoricTaskInstanceService;
 
 	@Before
 	public void init() {
@@ -1693,6 +1701,111 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 			Assert.assertTrue(links.stream().anyMatch(l -> l.getUserId().equals(applicant.getId().toString())
 					&& l.getType().equals(IdentityLinkType.OWNER)));
 		});
+	}
+	
+	@Test
+	public void testSwitchUserAuditVariables() {
+		IdmIdentityDto adminOriginal = getHelper().createIdentity();
+		IdmIdentityDto adminSwitched = getHelper().createIdentity();
+		IdmIdentityDto adminHelpdesk = getHelper().createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto adminRole = roleConfiguration.getAdminRole();
+		getHelper().createIdentityRole(adminOriginal, adminRole);
+		getHelper().createIdentityRole(adminSwitched, adminRole);
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+		getHelper().createIdentityRole(adminHelpdesk, helpdeskRole);
+		IdmRoleRequestDto request = createRoleRequest(identity);
+		//
+		try {
+			getHelper().login(adminOriginal);
+			loginService.switchUser(adminSwitched);
+			//
+			IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+			request = roleRequestService.save(request);
+			IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+			concept = conceptRoleRequestService.save(concept);
+			roleRequestService.startRequestInternal(request.getId(), true);
+			request = roleRequestService.get(request.getId());
+			assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+			//
+			// check original identity is filled in process variables
+			WorkflowProcessInstanceDto workflowProcessInstanceDto = workflowProcessInstanceService.get(request.getWfProcessId());
+			Assert.assertEquals(adminSwitched.getId().toString(), workflowProcessInstanceDto.getProcessVariables().get(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER));
+			Assert.assertEquals(adminOriginal.getId().toString(), workflowProcessInstanceDto.getProcessVariables().get(WorkflowProcessInstanceService.ORIGINAL_IMPLEMENTER_IDENTIFIER));
+		} finally {
+			logout();
+		}		
+		//
+		try {
+			getHelper().login(adminOriginal);
+			loginService.switchUser(adminHelpdesk);
+			//
+			// complete the first task (~helpdesk)
+			WorkflowFilterDto taskFilter = new WorkflowFilterDto();
+			taskFilter.setCandidateOrAssigned(securityService.getCurrentUsername());
+			List<WorkflowTaskInstanceDto> tasks = workflowTaskInstanceService.find(taskFilter, null).getContent();
+			Assert.assertEquals(1, tasks.size());
+			Assert.assertEquals(identity.getId().toString(), tasks.get(0).getApplicant());
+			workflowTaskInstanceService.completeTask(tasks.get(0).getId(), "approve");
+			//
+			// check original identity is filled in task variables
+			WorkflowHistoricTaskInstanceDto workflowHistoricTaskInstanceDto = workflowHistoricTaskInstanceService.get(tasks.get(0).getId());
+			Assert.assertEquals(adminHelpdesk.getId().toString(), workflowHistoricTaskInstanceDto.getAssignee());
+			Assert.assertEquals(adminOriginal.getId(), workflowHistoricTaskInstanceDto.getVariables().get(WorkflowProcessInstanceService.ORIGINAL_IMPLEMENTER_IDENTIFIER));
+		} finally {
+			logout();
+		}
+	}
+	
+	@Test
+	public void testSwitchUserDeleteProcess() {
+		IdmIdentityDto adminOriginal = getHelper().createIdentity();
+		IdmIdentityDto adminSwitched = getHelper().createIdentity();
+		IdmIdentityDto adminHelpdesk = getHelper().createIdentity();
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto adminRole = roleConfiguration.getAdminRole();
+		getHelper().createIdentityRole(adminOriginal, adminRole);
+		getHelper().createIdentityRole(adminSwitched, adminRole);
+		IdmRoleDto helpdeskRole = getHelper().createRole();
+		configurationService.setValue(APPROVE_BY_HELPDESK_ROLE, helpdeskRole.getCode());
+		getHelper().createIdentityRole(adminHelpdesk, helpdeskRole);
+		IdmRoleRequestDto request = createRoleRequest(identity);
+		//
+		try {
+			getHelper().login(adminOriginal);
+			loginService.switchUser(adminSwitched);
+			//
+			IdmIdentityContractDto contract = getHelper().getPrimeContract(identity);
+			request = roleRequestService.save(request);
+			IdmConceptRoleRequestDto concept = createRoleConcept(adminRole, contract, request);
+			concept = conceptRoleRequestService.save(concept);
+			roleRequestService.startRequestInternal(request.getId(), true);
+			request = roleRequestService.get(request.getId());
+			assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+			//
+			// check original identity is filled in process variables
+			WorkflowProcessInstanceDto workflowProcessInstanceDto = workflowProcessInstanceService.get(request.getWfProcessId());
+			Assert.assertEquals(adminSwitched.getId().toString(), workflowProcessInstanceDto.getProcessVariables().get(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER));
+			Assert.assertEquals(adminOriginal.getId().toString(), workflowProcessInstanceDto.getProcessVariables().get(WorkflowProcessInstanceService.ORIGINAL_IMPLEMENTER_IDENTIFIER));
+		} finally {
+			logout();
+		}		
+		//
+		try {
+			getHelper().login(adminOriginal);
+			loginService.switchUser(adminHelpdesk);
+			//
+			// delete process
+			request = roleRequestService.get(request.getId());
+			Assert.assertEquals(RoleRequestState.IN_PROGRESS, request.getState());
+			workflowProcessInstanceService.delete(request.getWfProcessId(), null);
+			WorkflowHistoricProcessInstanceDto workflowHistoricProcessInstanceDto = workflowHistoricProcessInstanceService.get(request.getWfProcessId());
+			Assert.assertTrue(workflowHistoricProcessInstanceDto.getDeleteReason().contains(adminOriginal.getUsername()));
+			Assert.assertTrue(workflowHistoricProcessInstanceDto.getDeleteReason().contains(adminHelpdesk.getUsername()));
+		} finally {
+			logout();
+		}
 	}
 
 	/**

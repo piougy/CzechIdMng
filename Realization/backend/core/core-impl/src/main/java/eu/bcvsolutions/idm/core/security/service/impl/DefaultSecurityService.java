@@ -134,6 +134,19 @@ public class DefaultSecurityService implements SecurityService {
 		}
 		return null;
 	}
+	
+	@Override
+	public UUID getOriginalId() {
+		if (!isAuthenticated()) {
+			return null;
+		}
+		Authentication authentication = getAuthentication();
+		if (authentication instanceof AbstractAuthentication) {
+			IdmIdentityDto originalIdentity = ((AbstractAuthentication) authentication).getOriginalIdentity();
+			return originalIdentity == null ? null : originalIdentity.getId();
+		}
+		return null;
+	}
 
 	@Override
 	public Set<String> getAllAuthorities() {

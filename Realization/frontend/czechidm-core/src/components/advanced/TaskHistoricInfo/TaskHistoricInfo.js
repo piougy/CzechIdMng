@@ -66,12 +66,28 @@ export class TaskHistoricInfo extends AbstractEntityInfo {
       {
         label: this.i18n('content.task.historicInstance.assignee'),
         value: (<IdentityInfo entityIdentifier={task.taskAssignee} showLoading={!task} className="no-margin" face="popover"/>)
-      },
+      }
+    ];
+    if (task.variables && task.variables.originalImplementerIdentifier && task.variables.originalImplementerIdentifier !== task.taskAssignee) {
+      result.push(
+        {
+          label: this.i18n('content.task.historicInstance.originalImplementer'),
+          value: (
+            <IdentityInfo
+              entityIdentifier={ task.variables.originalImplementerIdentifier }
+              showLoading={ !task }
+              className="no-margin"
+              face="popover"/>
+          )
+        }
+      );
+    }
+    result.push(
       {
         label: this.i18n('content.task.historicInstance.endTime'),
         value: (<DateValue value={task.endTime} showTime/>)
       }
-    ];
+    );
     // Show task's end decision.
     // Beware, the decision definition is get from task variables. Can be slow and haven't exist in every situations!
     const decision = task.completeTaskDecision;

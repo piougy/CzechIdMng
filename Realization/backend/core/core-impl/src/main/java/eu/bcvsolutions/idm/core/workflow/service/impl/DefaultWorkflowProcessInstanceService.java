@@ -23,6 +23,7 @@ import org.activiti.engine.runtime.ProcessInstanceBuilder;
 import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -82,6 +83,7 @@ public class DefaultWorkflowProcessInstanceService
 			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");
 		UUID implementerId = securityService.getCurrentId();
+		UUID originalImplementerId = securityService.getOriginalId();
  
 		IdmIdentityDto applicantIdentity = null;
 		if (applicant != null) {
@@ -93,6 +95,7 @@ public class DefaultWorkflowProcessInstanceService
 				.variable(WorkflowProcessInstanceService.ACTIVITI_SKIP_EXPRESSION_ENABLED, Boolean.TRUE) // Allow skip expression on user task
 				.variable(WorkflowProcessInstanceService.OBJECT_IDENTIFIER, objectIdentifier)
 				.variable(WorkflowProcessInstanceService.IMPLEMENTER_IDENTIFIER, implementerId == null ? null : implementerId.toString())
+				.variable(WorkflowProcessInstanceService.ORIGINAL_IMPLEMENTER_IDENTIFIER, originalImplementerId == null ? null : originalImplementerId.toString())
 				.variable(WorkflowProcessInstanceService.APPLICANT_USERNAME, applicant)
 				.variable(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER,
 						applicantIdentity != null ? applicantIdentity.getId() : null);
@@ -112,6 +115,10 @@ public class DefaultWorkflowProcessInstanceService
 			if (implementerId != null) {
 				// Set current logged user (implementer) as starter of process.
 				runtimeService.addUserIdentityLink(instance.getId(), implementerId.toString(), IdentityLinkType.STARTER);
+			}
+			if (originalImplementerId != null && !originalImplementerId.equals(implementerId)) {
+				// Set original logged user (original implementer) as participant
+				runtimeService.addUserIdentityLink(instance.getId(), originalImplementerId.toString(), IdentityLinkType.PARTICIPANT);
 			}
 			// Search subprocesses and add create links to add access for applicant and implementer.
 			runtimeService
@@ -133,6 +140,12 @@ public class DefaultWorkflowProcessInstanceService
 							// Set implementer as starter of process.
 							runtimeService.addUserIdentityLink(subProcess.getProcessInstanceId(), value, IdentityLinkType.STARTER);
 							LOG.debug("StartProcesEventListener - set process [{}]-[{}] starter [{}]",
+									subProcess.getName(), subProcess.getProcessInstanceId(), value);
+						} else if (WorkflowProcessInstanceService.ORIGINAL_IMPLEMENTER_IDENTIFIER.equals(k)) {
+							String value = v == null ? null : v.toString();
+							// Set original implementer as participant of process.
+							runtimeService.addUserIdentityLink(subProcess.getProcessInstanceId(), value, IdentityLinkType.PARTICIPANT);
+							LOG.debug("StartProcesEventListener - set process [{}]-[{}] participant [{}]",
 									subProcess.getName(), subProcess.getProcessInstanceId(), value);
 						}
 					});
@@ -291,7 +304,18 @@ public class DefaultWorkflowProcessInstanceService
 			return null;
 		}
 		if (deleteReason == null) {
-			deleteReason = "Deleted by " + securityService.getUsername();
+			StringBuilder message = new StringBuilder("Deleted by [");
+			String username = securityService.getUsername();
+			message.append(username);
+			// resolve switched user
+			String originalUsername = securityService.getOriginalUsername();
+			if (StringUtils.isNotEmpty(originalUsername) && !StringUtils.equals(username, originalUsername)) {
+				message.append("], original user [");
+				message.append(originalUsername);
+			}
+			message.append("].");
+			//
+			deleteReason = message.toString();
 		}
 		
 		WorkflowFilterDto filter = new WorkflowFilterDto();

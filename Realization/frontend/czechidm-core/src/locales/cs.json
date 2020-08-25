@@ -1555,6 +1555,7 @@
       "historicInstance": {
         "name": "<strong>Tento úkol byl již vyřešen.</strong>",
         "assignee": "Vyřešeno uživatelem",
+        "originalImplementer": "Originální uživatel",
         "endTime": "Datum vyřešení",
         "result": "Způsob vyřešení",
         "process": "Úkol je součástí procesu"

@@ -32,6 +32,13 @@ public interface WorkflowProcessInstanceService extends ReadWriteDtoService<Work
 	String IMPLEMENTER_IDENTIFIER = "implementerIdentifier";
 	
 	/**
+	 * Original implementer is user before switch (For example original implementer is administrator switched to another user).
+	 * 
+	 * @since 10.5.0 - switch user feature implemented
+	 */
+	String ORIGINAL_IMPLEMENTER_IDENTIFIER = "originalImplementerIdentifier";
+	
+	/**
 	 * Name of the workflow variable which stores the operation result
 	 * 
 	 * of type {@link OperationResult}.

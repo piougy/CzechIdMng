@@ -20,6 +20,7 @@ import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
+import org.activiti.engine.task.TaskInfo;
 import org.activiti.engine.task.TaskQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,7 +61,6 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
-import org.activiti.engine.task.TaskInfo;
 
 /**
  * Default workflow task instance service
@@ -113,11 +113,20 @@ public class DefaultWorkflowTaskInstanceService extends
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData,
 			Map<String, Object> variables, BasePermission[] permission) {
-		String loggedUser = securityService.getCurrentId().toString();
+		UUID implementerId = securityService.getCurrentId();
+		String loggedUser = implementerId.toString();
+		UUID originalImplementerId = securityService.getOriginalId();
 		// Check if user can complete this task
 		if (!canExecute(this.get(taskId, permission), permission)) {
 			throw new ResultCodeException(CoreResultCode.FORBIDDEN,
 					"You do not have permission for execute task with ID: %s !", ImmutableMap.of("taskId", taskId));
+		}
+		// add original user into task variables
+		if (originalImplementerId != null && !originalImplementerId.equals(implementerId)) {
+			if (variables == null) {
+				variables = new HashMap<>();
+			}
+			variables.put(WorkflowProcessInstanceService.ORIGINAL_IMPLEMENTER_IDENTIFIER, originalImplementerId);
 		}
 		taskService.setAssignee(taskId, loggedUser);
 		taskService.setVariables(taskId, variables);

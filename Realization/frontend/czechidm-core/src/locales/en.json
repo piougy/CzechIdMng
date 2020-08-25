@@ -1509,6 +1509,7 @@
       "historicInstance": {
         "name": "<strong>This task has already been solved.</strong>",
         "assignee": "Resolved by",
+        "originalImplementer": "Original implementer",
         "endTime": "Date of resolution",
         "result": "Result",
         "process": "The task is part of the process"

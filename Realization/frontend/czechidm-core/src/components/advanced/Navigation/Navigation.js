@@ -521,25 +521,25 @@ export class Navigation extends Basic.AbstractContent {
                     <Basic.Div>
                       { identityManager.getFullName(identity) }
                     </Basic.Div>
-                    <Basic.Div rendered={ isSwitchedUser } >
-                      <Basic.Button
-                        level="success"
-                        buttonSize="xs"
-                        onClick={ this._onSwitchUserLogout.bind(this) }
-                        showLoading={ userContext.showLoading }>
-                        { this.i18n('content.identity.switch-user.button.logout') }
-                        <span style={{ marginLeft: 5 }}>
-                          (
-                          <Basic.ShortText
-                            value={ userContext.originalUsername }
-                            cutChar=""
-                            maxLength="30"
-                            style={{ fontSize: '1.1em', fontWeight: 'bold' }}/>
-                          )
-                        </span>
-                      </Basic.Button>
-                    </Basic.Div>
                   </Basic.Div>
+                </Basic.Div>
+                <Basic.Div rendered={ isSwitchedUser } style={{ marginTop: 5 }}>
+                  <Basic.Button
+                    level="success"
+                    buttonSize="xs"
+                    onClick={ this._onSwitchUserLogout.bind(this) }
+                    showLoading={ userContext.showLoading }>
+                    { this.i18n('content.identity.switch-user.button.logout') }
+                    <span style={{ marginLeft: 5 }}>
+                      (
+                      <Basic.ShortText
+                        value={ userContext.originalUsername }
+                        cutChar=""
+                        maxLength="30"
+                        style={{ fontSize: '1.1em', fontWeight: 'bold' }}/>
+                      )
+                    </span>
+                  </Basic.Button>
                 </Basic.Div>
               </li>
               { identityItems }

@@ -2267,6 +2267,10 @@
       "title": "Heslo nelze změnit",
       "message": "Heslo pro účet [{{uid}}] na systému [{{system}}] nelze změnit, protože účet na systému neexistuje (provisioning byl zrušen). Vytvořte účet (spuštěním provisioningu) pro možnost měnit heslo."
     },
+    "PROVISIONING_PASSWORD_SYSTEM_ENTITY_NOT_FOUND": {
+      "title": "Heslo nelze změnit",
+      "message": "Heslo pro účet [{{uid}}] na systému [{{system}}] nelze změnit, protože účet na systému neexistuje (provisioning byl zrušen). Spusťte provisioning pro možnost měnit heslo."
+    },
     "PROVISIONING_CREATE_ACCOUNT_UID_NOT_FOUND": {
       "title": "Účet nelze vytvořit",
       "message": "Účet [{{uid}}] na systému [{{system}}] nelze vytvořit. Atribut označený jako identifikátor chybí v atributech pro provisioning."

@@ -33,7 +33,7 @@ public class SysSystemDto extends FormableDto implements Codeable, Disableable {
 	private boolean readonly;
 	@ApiModelProperty(notes = "Just write operation is disabled on the system, ACM and wish is constructed, provisioning operation is available in queue.")
 	private boolean disabled;
-	@ApiModelProperty(notes = "Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created into quere, wish is not constructed.")
+	@ApiModelProperty(notes = "Provisioning is disabled on system - just account uid and ACM is executed. Provisioning operation is not created into queue, wish is not constructed.")
 	private boolean disabledProvisioning;  // @since 9.6.0
 	private boolean queue;
 	@JsonProperty(access = Access.READ_ONLY)

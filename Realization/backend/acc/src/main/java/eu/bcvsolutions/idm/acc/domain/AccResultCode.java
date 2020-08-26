@@ -55,6 +55,7 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_PASSWORD_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Password attribute must be GuardedString type!"),
 	PROVISIONING_PASSWORD_TRANSFORMATION_FAILED(HttpStatus.BAD_REQUEST, "Password transformation for uid [%s] doesn't return GuardedString! Mapped attribute: [%s]"),
 	PROVISIONING_PASSWORD_CREATE_ACCOUNT_UID_NOT_FOUND(HttpStatus.BAD_REQUEST, "Password for account [%s] on system [%s] cannot be changed. Account not exist on the target system (provisioning was canceled or skipped). Create account (execute provisioning) at first."),
+	PROVISIONING_PASSWORD_SYSTEM_ENTITY_NOT_FOUND(HttpStatus.BAD_REQUEST, "Password for account [%s] on system [%s] cannot be changed. Account not exist on the target system (provisioning was canceled or skipped). Create system entity (execute provisioning) at first."),
 	PROVISIONING_CREATE_ACCOUNT_UID_NOT_FOUND(HttpStatus.BAD_REQUEST, "Account [%s] on system [%s] cannot be created. UID attribute (mapped attribute marked as 'Is identifier') was not given in provisioning attributes."),
 	PROVISIONING_NEW_PASSWORD_FOR_ACCOUNT(HttpStatus.OK, "For object with uid [%s] on system [%s] was set password: [%s]."),
 	PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE(HttpStatus.BAD_REQUEST, "Schema attribute [%s] for entity [%s] is not updateable!"),

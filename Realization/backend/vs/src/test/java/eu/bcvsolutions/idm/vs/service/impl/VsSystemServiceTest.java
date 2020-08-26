@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,11 +68,6 @@ public class VsSystemServiceTest extends AbstractIntegrationTest {
 	private SysSystemService systemService;
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
-
-	@Before
-	public void init() {
-		loginAsAdmin();
-	}
 
 	@After
 	public void logout() {

@@ -7,6 +7,7 @@ import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -14,7 +15,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -24,10 +24,12 @@ import eu.bcvsolutions.idm.acc.dto.SysSchemaObjectClassDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemEntityFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemMappingFilter;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -72,11 +74,13 @@ import eu.bcvsolutions.idm.vs.dto.VsConnectorObjectDto;
 import eu.bcvsolutions.idm.vs.dto.VsRequestDto;
 import eu.bcvsolutions.idm.vs.dto.VsSystemDto;
 import eu.bcvsolutions.idm.vs.dto.filter.VsRequestFilter;
+import eu.bcvsolutions.idm.vs.dto.filter.VsSystemImplementerFilter;
 import eu.bcvsolutions.idm.vs.entity.VsAccount;
 import eu.bcvsolutions.idm.vs.entity.VsRequest;
 import eu.bcvsolutions.idm.vs.evaluator.VsRequestByImplementerEvaluator;
 import eu.bcvsolutions.idm.vs.service.api.VsAccountService;
 import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
+import eu.bcvsolutions.idm.vs.service.api.VsSystemImplementerService;
 
 /**
  * Virtual system request test
@@ -85,7 +89,6 @@ import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
  * @author Svanda
  * @author Patrik Stloukal
  */
-@Component
 public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationTest {
 
 	private static final String USER_ONE_NAME = "vsUserOne";
@@ -125,6 +128,10 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 	private IdmNotificationLogService notificationLogService;
 	@Autowired
 	private RoleConfiguration roleConfiguration;
+	@Autowired
+	private VsSystemImplementerService systemImplementerService;
+	@Autowired
+	private AccAccountService accAccountService;
 
 	@Before
 	public void init() {
@@ -149,6 +156,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		List<VsRequestDto> requests = requestService.find(requestFilter, null).getContent();
 		Assert.assertEquals(1, requests.size());
 		VsRequestDto request = requests.get(0);
+		UUID requestId = request.getId();
 		Assert.assertEquals(USER_ONE_NAME, request.getUid());
 		Assert.assertEquals(VsOperationType.CREATE, request.getOperationType());
 		Assert.assertEquals(VsRequestState.IN_PROGRESS, request.getState());
@@ -162,6 +170,31 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		Assert.assertEquals(VsRequestState.REALIZED, request.getState());
 		account = accountService.findByUidSystem(USER_ONE_NAME, system.getId());
 		Assert.assertNotNull("Account cannot be null, because request was realized!", account);
+
+		// test referential integrity - delete system 
+		String virtualSystemKey = MessageFormat.format("{0}:systemId={1}", system.getConnectorKey().getFullName(), system.getId()); // TODO: move to api
+		Assert.assertNotNull(formService.getDefinition(VsAccount.class, virtualSystemKey));
+		VsSystemImplementerFilter implementerFilter = new VsSystemImplementerFilter();
+		implementerFilter.setSystemId(system.getId());
+		Assert.assertNotEquals(0, systemImplementerService.count(implementerFilter));
+		// FIXME: why acc accounts are not deleted together with vs accounts?
+		AccAccountFilter accAccountFilter = new AccAccountFilter();
+		accAccountFilter.setSystemId(system.getId());
+		accAccountService.find(accAccountFilter, null).forEach(a -> {
+			accAccountService.delete(a);
+		});
+		requestService.find(requestFilter, null).forEach(r -> {
+			// delete account creates request in progress
+			if (!r.getId().equals(requestId)) {
+				requestService.delete(r);
+			}
+		});
+		Assert.assertNotNull(requestService.get(request));
+		systemService.delete(system);
+		Assert.assertNull(formService.getDefinition(VsAccount.class, virtualSystemKey));
+		Assert.assertNull(requestService.get(request));
+		Assert.assertNull(accountService.get(account));
+		Assert.assertEquals(0, systemImplementerService.count(implementerFilter));
 	}
 
 	@Test

@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.api.service.IdmPasswordService;
 import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManager;
+import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -83,7 +84,12 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 				}
 				// authentication trough chain
-				boolean successChainAuthentication = authenticationManager.validate(identity.getUsername(), passwordChangeDto.getOldPassword());
+				LoginDto loginDto = new LoginDto();
+				loginDto.setUsername(identity.getUsername());
+				loginDto.setPassword(passwordChangeDto.getOldPassword());
+				loginDto.setSkipMustChange(true); // password is changed => prevent to validate this flag again 
+				//
+				boolean successChainAuthentication = authenticationManager.validate(loginDto);
 				if (!successChainAuthentication) {
 					throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 				}

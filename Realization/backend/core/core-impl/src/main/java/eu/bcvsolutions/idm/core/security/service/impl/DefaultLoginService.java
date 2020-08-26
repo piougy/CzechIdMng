@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
 import eu.bcvsolutions.idm.core.security.api.service.JwtAuthenticationService;
 import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -193,15 +194,20 @@ public class DefaultLoginService implements LoginService {
 			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
 			return false;
 		}
-		// check if user must change password, skip this check if loginDto contains flag
-		if (idmPassword.isMustChange() && loginDto.isSkipMustChange()) {
-			throw new ResultCodeException(CoreResultCode.MUST_CHANGE_IDM_PASSWORD, ImmutableMap.of("user", identity.getUsername()));
-		}
 		// check if password expired
 		if (idmPassword.getValidTill() != null && idmPassword.getValidTill().isBefore(LocalDate.now())) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_EXPIRED);
 		}
-		return passwordService.checkPassword(loginDto.getPassword(), idmPassword);
+		if (!passwordService.checkPassword(loginDto.getPassword(), idmPassword)) {
+			// TODO: Exception should be thrown as for other states - returns false in this situation only.
+			return false;
+		}
+		// check if user must change password, skip this check if loginDto contains flag
+		if (idmPassword.isMustChange() && !loginDto.isSkipMustChange()) {
+			throw new MustChangePasswordException(identity.getUsername());
+		}
+		//
+		return true;
 	}
 	
 	private LoginDto login(IdmIdentityDto identity, IdmTokenDto token) {

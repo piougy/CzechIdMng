@@ -12,7 +12,7 @@ const manager = new PasswordManager();
 const identityManager = new IdentityManager();
 
 /**
- * Identity password tab with information about password metadata
+ * Identity password tab with information about password metadata.
  *
  * @author Ondrej Kopr
  */
@@ -110,14 +110,14 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
 
     if (entity === false) {
       return (
-        <div style={{ padding: 15 }}>
+        <Basic.Div style={{ padding: 15 }}>
           <Basic.Alert level="info" text={ this.i18n('noData') } style={{ margin: 0 }}/>
-        </div>
+        </Basic.Div>
       );
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
         <form onSubmit={ this.onSave.bind(this) }>
           <Basic.ContentHeader
@@ -210,6 +210,12 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
                 helpBlock={ this.i18n('passwordNeverExpires.help') }
                 label={ this.i18n('passwordNeverExpires.label') }/>
 
+              <Basic.Checkbox
+                ref="mustChange"
+                label={ this.i18n('entity.Password.mustChange.label') }
+                helpBlock={ this.i18n('entity.Password.mustChange.help') }
+                readOnly={ !canSave }/>
+
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button
@@ -231,7 +237,7 @@ class IdentityPasswordDetail extends Basic.AbstractContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-      </div>
+      </Basic.Div>
     );
   }
 }

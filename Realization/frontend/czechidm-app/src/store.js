@@ -5,7 +5,7 @@ import Immutable from 'immutable';
 import filter from 'redux-localstorage-filter';
 import persistState, { mergePersistedState } from 'redux-localstorage';
 import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
-import { Reducers, Managers, Basic, ConfigActions } from 'czechidm-core';
+import { Reducers } from 'czechidm-core';
 import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise';
 // this parts are genetater dynamicaly to dist - after build will be packed by browserify to sources
@@ -104,7 +104,7 @@ const reducer = compose(
     const result = merge({}, initialState, persistedState);
     if (persistedState.messages) {
       let composedMessages = new Immutable.OrderedMap({});
-      persistedState.messages.messages.map(message => {
+      persistedState.messages.messages.forEach(message => {
         composedMessages = composedMessages.set(message.id, message);
       });
       result.messages.messages = composedMessages;
@@ -117,7 +117,7 @@ const reducer = compose(
 const storage = compose(
   filter([
     // 'messages.messages',    // RT: flash messages are not persisted now => F5 => starts from scratch => prevent to see some obsolete error messages
-    'security.userContext'     // logged user context {username, token, etc}
+    'security.userContext' // logged user context {username, token, etc}
   ])
 )(adapter(window.localStorage));
 

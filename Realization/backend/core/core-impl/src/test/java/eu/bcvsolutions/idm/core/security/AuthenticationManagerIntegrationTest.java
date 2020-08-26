@@ -12,8 +12,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,61 +38,43 @@ import eu.bcvsolutions.idm.core.security.api.authentication.AuthenticationManage
 import eu.bcvsolutions.idm.core.security.api.authentication.Authenticator;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.dto.LoginDto;
+import eu.bcvsolutions.idm.core.security.api.exception.MustChangePasswordException;
+import eu.bcvsolutions.idm.core.security.api.service.LoginService;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.test.api.TestHelper;
 
 /**
  * Default test for {@link AuthenticationManager} and core {@link Authenticator}.
  * 
  * @author Ondrej Kopr
- *
+ * @author Radek Tomiška
  */
+@Transactional
 public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTest {
 	
-	@Autowired
-	private AuthenticationManager authenticationManager;
-	@Autowired
-	private IdmIdentityService identityService;
-	@Autowired
-	private IdmPasswordPolicyService passwordPolicyService;
-	@Autowired
-	private IdmNotificationLogService notificationLogService;
-	@Autowired
-	private TestHelper testHelper;
-	@Autowired
-	private IdmPasswordService passwordService;
+	@Autowired private AuthenticationManager authenticationManager;
+	@Autowired private IdmIdentityService identityService;
+	@Autowired private IdmPasswordPolicyService passwordPolicyService;
+	@Autowired private IdmNotificationLogService notificationLogService;
+	@Autowired private IdmPasswordService passwordService;
+	@Autowired private LoginService loginService;
 	
-	@Before
-	public void login() {
-		loginAsAdmin();
-	}
-	
-	@After
-	@Override
-	public void logout() {
-		super.logout();
-	}
-	
-	@Transactional
 	@Test(expected = AuthenticationException.class)
 	public void loginViaManagerBadCredentials() {
 		IdmIdentityDto identity = new IdmIdentityDto();
-		identity.setUsername("test_login_1");
-		identity.setLastName("test_login_1");
+		identity.setUsername(getHelper().createName());
+		identity.setLastName(getHelper().createName());
 		identity.setPassword(new GuardedString("test1234"));
-		identity = this.identityService.save(identity);
+		identity = identityService.save(identity);
 		
 		LoginDto loginDto = new LoginDto();
 		loginDto.setPassword(new GuardedString("test12345"));
-		loginDto.setUsername("test_login_1");
+		loginDto.setUsername(identity.getUsername());
 		
 		authenticationManager.authenticate(loginDto);
-		fail();
 	}
 	
 	@Test
-	@Transactional
 	public void loginViaManagerSuccesful() {
 		IdmIdentityDto identity = new IdmIdentityDto();
 		identity.setUsername("test_login_2");
@@ -117,14 +98,14 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 		String testPassword = "testPassword" + System.currentTimeMillis();
 
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
-		passwordPolicy.setName(testHelper.createName());
+		passwordPolicy.setName(getHelper().createName());
 		passwordPolicy.setDefaultPolicy(true);
 		passwordPolicy.setType(IdmPasswordPolicyType.VALIDATE);
 		passwordPolicy.setBlockLoginTime(2);
 		passwordPolicy.setMaxUnsuccessfulAttempts(4);
 		passwordPolicy = passwordPolicyService.save(passwordPolicy);
 
-		IdmIdentityDto identity = testHelper.createIdentity(new GuardedString(testPassword));
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString(testPassword));
 		logout();
 		
 		LoginDto loginDto = tryLogin(identity.getUsername(), testPassword);
@@ -189,7 +170,7 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 		}
 
 		String testPassword = "testPassword" + System.currentTimeMillis();
-		IdmIdentityDto identity = testHelper.createIdentity(new GuardedString(testPassword));
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString(testPassword));
 		logout();
 
 		LoginDto loginDto = tryLogin(identity.getUsername(), testPassword);
@@ -212,7 +193,7 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 	@Test
 	public void testBlockLoginCheckNotification() {
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
-		passwordPolicy.setName(testHelper.createName());
+		passwordPolicy.setName(getHelper().createName());
 		passwordPolicy.setDefaultPolicy(true);
 		passwordPolicy.setType(IdmPasswordPolicyType.VALIDATE);
 		passwordPolicy.setBlockLoginTime(2);
@@ -220,7 +201,7 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 		passwordPolicy = passwordPolicyService.save(passwordPolicy);
 
 		String testPassword = "testPassword" + System.currentTimeMillis();
-		IdmIdentityDto identity = testHelper.createIdentity(new GuardedString(testPassword));
+		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString(testPassword));
 		
 		LoginDto loginDto = tryLogin(identity.getUsername(), testPassword);
 		checkLoginDto(loginDto);
@@ -251,14 +232,14 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 	@Test
 	public void testNonExistingPassword() {
 		IdmPasswordPolicyDto passwordPolicy = new IdmPasswordPolicyDto();
-		passwordPolicy.setName(testHelper.createName());
+		passwordPolicy.setName(getHelper().createName());
 		passwordPolicy.setDefaultPolicy(true);
 		passwordPolicy.setType(IdmPasswordPolicyType.VALIDATE);
 		passwordPolicy.setBlockLoginTime(2);
 		passwordPolicy.setMaxUnsuccessfulAttempts(2);
 		passwordPolicy = passwordPolicyService.save(passwordPolicy);
 
-		IdmIdentityDto identity = testHelper.createIdentity(null, null);
+		IdmIdentityDto identity = getHelper().createIdentity(null, null);
 		IdmPasswordDto passwordDto = passwordService.findOneByIdentity(identity.getId());
 
 		assertNull(passwordDto);
@@ -565,6 +546,39 @@ public class AuthenticationManagerIntegrationTest extends AbstractIntegrationTes
 
 		assertTrue(newlySaved.isPasswordNeverExpires());
 		assertNull(passwordDto.getValidTill());
+	}
+	
+	@Test(expected = MustChangePasswordException.class)
+	public void testMustChangePasswordException() {
+		// create identity with must change password
+		IdmIdentityDto identity = getHelper().createIdentity("password");
+		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		password.setMustChange(true);
+		passwordService.save(password);
+		//
+		// try to login => exception
+		loginService.login(new LoginDto(identity));
+	}
+	
+	@Test
+	public void testMustChangePassword() {
+		// create identity with must change password
+		IdmIdentityDto identity = getHelper().createIdentity("password");
+		IdmPasswordDto password = passwordService.findOneByIdentity(identity.getId());
+		password.setMustChange(true);
+		passwordService.save(password);
+		//
+		// change password
+		PasswordChangeDto passwordChangeDto = new PasswordChangeDto();
+		passwordChangeDto.setAll(true);
+		passwordChangeDto.setIdm(true);
+		passwordChangeDto.setOldPassword(identity.getPassword());
+		passwordChangeDto.setNewPassword(identity.getPassword());
+		identityService.passwordChange(identity, passwordChangeDto);
+		//
+		// try to login => ok
+		LoginDto login = loginService.login(new LoginDto(identity));
+		Assert.assertNotNull(login.getToken());
 	}
 
 	private LoginDto tryLogin(String username, String password) {

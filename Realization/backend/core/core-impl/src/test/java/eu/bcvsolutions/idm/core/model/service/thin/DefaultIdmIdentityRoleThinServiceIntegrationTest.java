@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security.service.thin;
+package eu.bcvsolutions.idm.core.model.service.thin;
 
 import java.util.UUID;
 

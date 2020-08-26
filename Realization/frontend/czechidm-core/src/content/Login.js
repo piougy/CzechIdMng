@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import * as Basic from '../components/basic';
-import { SecurityManager } from '../redux';
+import { SecurityManager, DataManager } from '../redux';
 
 const securityManager = new SecurityManager();
+const dataManager = new DataManager();
 
 /**
- * Login box
+ * Login box.
  *
  * @author Radek Tomiška
  */
@@ -61,7 +62,14 @@ class Login extends Basic.AbstractContent {
       return;
     }
     const formData = this.refs.form.getData();
-    this.context.store.dispatch(securityManager.login(formData.username, formData.password));
+    const username = formData.username;
+    const password = formData.password;
+    this.context.store.dispatch(securityManager.login(username, password, (result, error) => {
+      if (error && error.statusEnum && error.statusEnum === 'MUST_CHANGE_IDM_PASSWORD') {
+        this.context.store.dispatch(dataManager.storeData(SecurityManager.PASSWORD_MUST_CHANGE, password));
+        this.context.history.replace(`/password/change?username=${ username }`);
+      }
+    }));
   }
 
   render() {

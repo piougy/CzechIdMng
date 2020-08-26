@@ -242,7 +242,7 @@ export default class SecurityManager {
       }
       // redirect after login, if needed
       if (redirect) {
-        redirect(false);
+        redirect(false, error);
       }
       dispatch({
         type: RECEIVE_LOGIN_ERROR
@@ -568,3 +568,4 @@ export default class SecurityManager {
 
 SecurityManager.ADMIN_PERMISSION = ADMIN_PERMISSION;
 SecurityManager.ADMIN_AUTHORITY = ADMIN_AUTHORITY;
+SecurityManager.PASSWORD_MUST_CHANGE = 'PASSWORD_MUST_CHANGE';

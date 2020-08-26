@@ -18,7 +18,7 @@ public interface LoginService {
 	int DEFAULT_EXPIRATION_TIMEOUT = 10 * 60 * 1000; // default is 10 minutes
 
 	/**
-	 * Login identity and returns assigned token
+	 * Login identity and returns assigned token.
 	 * 
 	 * @param loginDto
 	 * @return
@@ -27,7 +27,7 @@ public interface LoginService {
 
 	/**
 	 * Login with remote token an get the CIDMST token. Remote token can be obtained by external authentication system (e.g. OpenAM, OAuth).
-	 * Security context cointains logged identity thanks to authentication filters
+	 * Security context contains logged identity thanks to authentication filters.
 	 * 
 	 * @return
 	 */

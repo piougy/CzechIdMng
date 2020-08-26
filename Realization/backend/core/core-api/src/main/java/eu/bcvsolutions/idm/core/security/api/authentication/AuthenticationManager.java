@@ -33,8 +33,20 @@ public interface AuthenticationManager {
 	 * @param username
 	 * @param password
 	 * @return
+	 * @deprecated @since 10.5.0 - skip must change flag can be controlled
+	 * @see #validate(LoginDto)
 	 */
 	boolean validate(String username, GuardedString password);
+	
+	/**
+	 * Validate over all founded {@link Authenticator},
+	 * return true if authentication is success.
+	 * 
+	 * @param loginDto credentials
+	 * @return
+	 * @since 10.5.0
+	 */
+	boolean validate(LoginDto loginDto);
 	
 	/**
 	 * Logout - process logout over all registered {@link Authenticator}. 

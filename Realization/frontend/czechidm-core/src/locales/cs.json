@@ -4013,7 +4013,11 @@
       }
     },
     "Password": {
-      "_type": "Heslo uživatele"
+      "_type": "Heslo uživatele",
+      "mustChange": {
+        "label": "Vynucená změna hesla",
+        "help": "Vynucená změna hesla po prvním přihlášení."
+      }
     },
     "RoleCatalogue": {
       "_type": "Složka katalogu",

@@ -7,16 +7,17 @@ import * as Basic from '../components/basic';
 import * as Advanced from '../components/advanced';
 import * as Utils from '../utils';
 import { HelpContent } from '../domain';
-import { SecurityManager, IdentityManager, ConfigurationManager } from '../redux';
+import { SecurityManager, IdentityManager, ConfigurationManager, DataManager } from '../redux';
 
 const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 const PASSWORD_PREVALIDATION = 'PASSWORD_PREVALIDATION';
 
 const identityManager = new IdentityManager();
 const securityManager = new SecurityManager();
+const dataManager = new DataManager();
 
 /**
- * Public password change
+ * Public password change.
  *
  * @author Radek Tomiška
  */
@@ -46,8 +47,16 @@ class PasswordChange extends Basic.AbstractContent {
     if (query) {
       data.username = query.username;
     }
+    data.passwordOld = this.props.mustChangePassword;
+    dataManager.clearData(SecurityManager.PASSWORD_MUST_CHANGE);
     this.refs.form.setData(data);
-    this.refs.username.focus();
+    if (data.username && data.passwordOld) {
+      this.refs.passwords.focus();
+    } else if (data.username) {
+      this.refs.passwordOld.focus();
+    } else {
+      this.refs.username.focus();
+    }
     this._preValidate();
   }
 
@@ -353,7 +362,8 @@ function select(state) {
     i18nReady: state.config.get('i18nReady'),
     userContext: state.security.userContext,
     passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange'),
-    enabledPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.public.idm.enabled', true)
+    enabledPasswordChangeForIdm: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.passwordChange.public.idm.enabled', true),
+    mustChangePassword: DataManager.getData(state, SecurityManager.PASSWORD_MUST_CHANGE)
   };
 }
 

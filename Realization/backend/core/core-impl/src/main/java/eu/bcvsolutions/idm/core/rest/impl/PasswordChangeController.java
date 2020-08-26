@@ -107,7 +107,7 @@ public class PasswordChangeController {
 		try {
 			if (!securityService.isAuthenticated()) {
 				LoginDto loginDto = new LoginDto();
-				loginDto.setSkipMustChange(true);
+				loginDto.setSkipMustChange(true); // we are changing password => skip check
 				loginDto.setUsername(identity.getUsername());
 				loginDto.setPassword(passwordChangeDto.getOldPassword());
 				loginDto = authenticationManager.authenticate(loginDto);

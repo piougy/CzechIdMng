@@ -272,10 +272,6 @@ export default class FlashMessagesManager {
         dispatch({
           type: 'RECEIVE_LOGIN_EXPIRED'
         });
-      } else if (this._isPasswordChangeError(error)) {
-        dispatch(this._logoutImmediatelly());
-        const username = error.parameters.identity;
-        dispatch(push(`/password/change?name=${username}`));
       } else {
         dispatch(this.addMessage(errorMessage));
       }
@@ -310,19 +306,6 @@ export default class FlashMessagesManager {
         || error.statusEnum === 'LOG_IN'
         || error.statusEnum === 'AUTH_EXPIRED'
         || error.statusEnum === 'AUTHORITIES_CHANGED') {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Refurn true, if pasword has to be changed before usage of application
-   */
-  _isPasswordChangeError(error) {
-    if (!error.statusEnum) {
-      return false;
-    }
-    if (error.statusEnum === 'MUST_CHANGE_IDM_PASSWORD') {
       return true;
     }
     return false;

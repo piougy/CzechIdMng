@@ -255,6 +255,12 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(username);
 		loginDto.setPassword(password);
+		//
+		return validate(loginDto);
+	}
+	
+	@Override
+	public boolean validate(LoginDto loginDto) {
 		try {
 			this.authenticate(loginDto);
 		} catch (RuntimeException ex) {

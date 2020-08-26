@@ -3960,7 +3960,11 @@
       }
     },
     "Password": {
-      "_type": "User password"
+      "_type": "User password",
+      "mustChange": {
+        "label": "Password change is required",
+        "help": "Password change is required after first login."
+      }
     },
     "RoleCatalogue": {
       "_type": "Catalog folder",

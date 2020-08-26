@@ -177,7 +177,7 @@ public class DefaultVsRequestServiceIntegrationTest extends AbstractIntegrationT
 		VsSystemImplementerFilter implementerFilter = new VsSystemImplementerFilter();
 		implementerFilter.setSystemId(system.getId());
 		Assert.assertNotEquals(0, systemImplementerService.count(implementerFilter));
-		// FIXME: why acc accounts are not deleted together with vs accounts?
+		// clean up acc accounts
 		AccAccountFilter accAccountFilter = new AccAccountFilter();
 		accAccountFilter.setSystemId(system.getId());
 		accAccountService.find(accAccountFilter, null).forEach(a -> {

@@ -13,6 +13,11 @@ const uiKey = 'system-mappings-table';
 const manager = new SystemMappingManager();
 const systemManager = new SystemManager();
 
+/**
+ * System mapping list.
+ *
+ * @author Vít Švanda
+ */
 class SystemMappings extends Advanced.AbstractTableContent {
 
   getManager() {

@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.vs.service.api.VsRequestService;
 /**
  * Tests for VsRequestController and get method
  * 
- * TODO: I'm not able extends from AbstractReadWriteDtoControllerRestTest and test whole controller.
+ * {@link AbstractReadWriteDtoControllerRestTest} cannot be used => requests are executed in new transaction.
  *
  * @author Ondrej Kopr
  *

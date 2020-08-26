@@ -7,11 +7,11 @@ import _ from 'lodash';
 //
 import uuid from 'uuid';
 import { Basic, Domain, Managers, Utils, Advanced, Enums } from 'czechidm-core';
+import MappingContextCompleters from 'czechidm-core/src/content/script/completers/MappingContextCompleters';
 import { SystemMappingManager, SystemManager, SystemAttributeMappingManager, SchemaObjectClassManager } from '../../redux';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 import ValidationMessageSystemMapping from './ValidationMessageSystemMapping';
-import MappingContextCompleters from 'czechidm-core/src/content/script/completers/MappingContextCompleters';
 
 const uiKey = 'system-mappings';
 const uiKeyAttributes = 'system-attribute-mappings';
@@ -23,6 +23,11 @@ const schemaObjectClassManager = new SchemaObjectClassManager();
 const SYSTEM_MAPPING_VALIDATION = 'SYSTEM_MAPPING_VALIDATION';
 const scriptManager = new Managers.ScriptManager();
 
+/**
+ * System mapping detail.
+ *
+ * @author Vít Švanda
+ */
 class SystemMappingDetail extends Advanced.AbstractTableContent {
 
   getUiKey() {
@@ -513,24 +518,24 @@ class SystemMappingDetail extends Advanced.AbstractTableContent {
                     ref="addContextContracts"
                     hidden={!isSelectedIdentity}
                     label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextContracts.label')}
-                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextContracts.help',  { escape: false })}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextContracts.help', { escape: false })}
                   />
                   <Basic.Checkbox
                     ref="addContextIdentityRoles"
                     hidden={!isSelectedIdentity}
                     label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRoles.label')}
-                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRoles.help',  { escape: false })}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRoles.help', { escape: false })}
                   />
                   <Basic.Checkbox
                     ref="addContextIdentityRolesForSystem"
                     hidden={!isSelectedIdentity}
                     label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRolesForSystem.label')}
-                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRolesForSystem.help',  { escape: false })}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextIdentityRolesForSystem.help', { escape: false })}
                   />
                   <Basic.Checkbox
                     ref="addContextConnectorObject"
                     label={this.i18n('acc:entity.SystemMapping.mappingContext.addContextConnectorObject.label')}
-                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextConnectorObject.help',  { escape: false })}
+                    helpBlock={this.i18n('acc:entity.SystemMapping.mappingContext.addContextConnectorObject.help', { escape: false })}
                   />
 
                   <Basic.LabelWrapper

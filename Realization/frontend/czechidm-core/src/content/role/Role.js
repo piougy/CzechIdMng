@@ -59,11 +59,17 @@ class Role extends Basic.AbstractContent {
     return (
       <Basic.Div>
         <Advanced.DetailHeader
-          icon="component:role"
+          icon={
+            entity && entity.childrenCount > 0
+            ?
+            'component:business-role'
+            :
+            'component:role'
+          }
           entity={ entity }
           showLoading={ !entity && showLoading }
           back="/roles">
-          { manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header') }</small>
+          { manager.getNiceLabel(entity) } <small> { this.i18n('content.roles.edit.header') }</small>
         </Advanced.DetailHeader>
         <Basic.Row rendered={
           _requestsEnabled
@@ -88,7 +94,7 @@ class Role extends Basic.AbstractContent {
               ]}/>
           </Basic.Col>
         </Basic.Row>
-        <Advanced.TabPanel parentId={this.isRequest(this.props.match.params) ? 'request-roles' : 'roles'} match={ this.props.match }>
+        <Advanced.TabPanel parentId={ this.isRequest(this.props.match.params) ? 'request-roles' : 'roles' } match={ this.props.match }>
           { this.getRoutes() }
         </Advanced.TabPanel>
       </Basic.Div>

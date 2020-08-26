@@ -13,7 +13,7 @@ const manager = new SystemEntityManager();
 const systemManager = new SystemManager();
 
 /**
- * Entities in target system
+ * Entities in target system.
  *
  * @author Radek Tomiška
  */

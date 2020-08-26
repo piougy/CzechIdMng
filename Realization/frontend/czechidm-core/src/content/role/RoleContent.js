@@ -50,7 +50,7 @@ class Content extends Basic.AbstractContent {
     }
     return (
       <Basic.Row>
-        <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
+        <div className={ this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12' }>
           {
             !role
             ||

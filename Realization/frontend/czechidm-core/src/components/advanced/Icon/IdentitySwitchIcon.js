@@ -13,7 +13,7 @@ export default class IdentitySwitchIcon extends AbstractIcon {
 
   renderIcon() {
     return (
-      <Basic.Icon icon="fa:user-clock"/>
+      <Basic.Icon icon="fa:user-secret"/>
     );
   }
 }

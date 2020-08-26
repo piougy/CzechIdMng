@@ -32,15 +32,15 @@ public interface SysSystemAttributeMappingService
 		CloneableService<SysSystemAttributeMappingDto>,
 		AuthorizableService<SysSystemAttributeMappingDto> {
 
-	static String ATTRIBUTE_VALUE_KEY = "attributeValue";
-	static String SYSTEM_KEY = "system";
-	static String IC_ATTRIBUTES_KEY = "icAttributes";
-	static String ENTITY_KEY = "entity";
-	static String ACCOUNT_UID = "uid";
-	static String MAPPING_SCRIPT_FAIL_MESSAGE_KEY = "origMessage";
-	static String MAPPING_SCRIPT_FAIL_IDM_PATH_KEY = "idmPath";
-	static String MAPPING_SCRIPT_FAIL_SCRIPT_PATH_KEY = "scriptPath";
-	static String CONTEXT_KEY = "context";
+	String ATTRIBUTE_VALUE_KEY = "attributeValue";
+	String SYSTEM_KEY = "system";
+	String IC_ATTRIBUTES_KEY = "icAttributes";
+	String ENTITY_KEY = "entity";
+	String ACCOUNT_UID = "uid";
+	String MAPPING_SCRIPT_FAIL_MESSAGE_KEY = "origMessage";
+	String MAPPING_SCRIPT_FAIL_IDM_PATH_KEY = "idmPath";
+	String MAPPING_SCRIPT_FAIL_SCRIPT_PATH_KEY = "scriptPath";
+	String CONTEXT_KEY = "context";
 	
 
 	/**

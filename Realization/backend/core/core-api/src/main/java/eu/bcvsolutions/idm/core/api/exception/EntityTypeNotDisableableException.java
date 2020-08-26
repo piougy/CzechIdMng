@@ -22,7 +22,7 @@ public class EntityTypeNotDisableableException extends ResultCodeException {
 	}
 	
 	public EntityTypeNotDisableableException(String entityType, Exception ex) {
-		super(CoreResultCode.ENTITY_TYPE_NOT_EXTERNAL_CODEABLE, ImmutableMap.of(
+		super(CoreResultCode.ENTITY_TYPE_NOT_DISABLEABLE, ImmutableMap.of(
 				"entityType", String.valueOf(entityType)
 				), ex);
 		this.entityType = entityType;

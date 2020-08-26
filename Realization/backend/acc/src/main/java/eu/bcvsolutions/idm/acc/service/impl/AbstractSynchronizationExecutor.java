@@ -1647,6 +1647,7 @@ public abstract class AbstractSynchronizationExecutor<DTO extends AbstractDto>
 	 * @param context
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected IdmFormInstanceDto fillExtendedAttributes(List<SysSystemAttributeMappingDto> mappedAttributes, String uid,
 														List<IcAttribute> icAttributes, DTO dto, boolean create, SynchronizationContext context) {
 

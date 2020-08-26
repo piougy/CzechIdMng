@@ -7300,6 +7300,10 @@
       "title": "Business role is used by concurrent task",
       "message": "Business role [{{roleCompositionId}}] is used by concurrent task [{{taskId}}], wait for task completion."
     },
+    "ROLE_COMPOSITION_RUN_CONCURRENTLY": {
+      "title": "Business roles are processed",
+      "message": "Business role will be processed asynchronously on background."
+    },
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Role is removed by concurrent task",
       "message": "Business role [{{roleCompositionId}}] is removed by concurrent task [{{taskId}}]."

@@ -7352,6 +7352,10 @@
       "title": "Business role je využívána jiným procesem",
       "message": "Business role [{{roleCompositionId}}] je využívána souběžně úlohou [{{taskId}}], počkejte na dokončení."
     },
+    "ROLE_COMPOSITION_RUN_CONCURRENTLY": {
+      "title": "Business role jsou ve zpracování",
+      "message": "Business role bude zpracována asznchronně na pozadí."
+    },
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Business role je mazána jiným procesem",
       "message": "Business role [{{roleCompositionId}}] je mazána souběžnou úlohou [{{taskId}}]."

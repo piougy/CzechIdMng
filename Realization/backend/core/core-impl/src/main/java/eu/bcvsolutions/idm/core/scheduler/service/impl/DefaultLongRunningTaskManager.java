@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -261,6 +262,13 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		} catch (ConcurrentExecutionException ex) {
 			// task can be executed later, e.g. after previous task ends
 			markTaskAsCreated(persistTask);
+			//
+			throw ex;
+		} catch (ResultCodeException ex) {
+			// task can be executed later, e.g. after previous task ends
+			if (ex.getStatus() == HttpStatus.ACCEPTED) {
+				markTaskAsCreated(persistTask);
+			}
 			//
 			throw ex;
 		}

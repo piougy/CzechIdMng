@@ -6,9 +6,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -23,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
@@ -31,6 +34,8 @@ import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
 
 /**
@@ -40,6 +45,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.0.0
  */
+@DisallowConcurrentExecution
 @Component(AddNewRoleCompositionTaskExecutor.TASK_NAME)
 public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmRoleDto> {
 
@@ -61,6 +67,37 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		super.init(properties);
 		//
 		this.setRoleCompositionId(getParameterConverter().toUuid(properties, PARAMETER_ROLE_COMPOSITION_ID));
+	}
+	
+	/**
+	 * Automatic role addition can be start, if previously LRT ended.
+	 */
+	@Override
+	public void validate(IdmLongRunningTaskDto task) {
+		super.validate(task);
+		//
+		IdmLongRunningTaskFilter filter = new IdmLongRunningTaskFilter();
+		filter.setTaskType(this.getClass().getCanonicalName());
+		filter.setRunning(Boolean.TRUE);
+		//
+		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
+			throw new ResultCodeException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
+					ImmutableMap.of(
+							"taskId", longRunningTaskId.toString(),
+							"roleCompositionId", roleCompositionId.toString()
+					)
+			);
+		}
+		//
+		filter.setTaskType(AddNewRoleCompositionTaskExecutor.class.getCanonicalName());
+		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
+			throw new ResultCodeException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
+					ImmutableMap.of(
+							"taskId", longRunningTaskId.toString(),
+							"roleCompositionId", roleCompositionId.toString()
+					)
+			);
+		}
 	}
 	
 	/**

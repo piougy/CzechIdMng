@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.quartz.DisallowConcurrentExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +44,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefu
  * @author Radek Tomiška
  * @since 9.0.0
  */
+@DisallowConcurrentExecution
 @Component(RemoveRoleCompositionTaskExecutor.TASK_NAME)
 public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatefulExecutor<IdmIdentityRoleDto> {
 
@@ -74,6 +76,7 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	public void validate(IdmLongRunningTaskDto task) {
 		super.validate(task);
 		//
+		// composition is already deleted
 		IdmRoleCompositionDto roleComposition = roleCompositionService.get(roleCompositionId);
 		if (roleComposition == null) {
 			throw new EntityNotFoundException(IdmRoleComposition.class, roleCompositionId);
@@ -83,23 +86,23 @@ public class RemoveRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 		filter.setTaskType(this.getClass().getCanonicalName());
 		filter.setRunning(Boolean.TRUE);
 		//
-		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
-			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_COMPOSITION_ID).equals(roleCompositionId)) {
-				throw new ResultCodeException(CoreResultCode.ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY,
-						ImmutableMap.of(
-								"roleCompositionId", roleCompositionId.toString(),
-								"taskId", longRunningTask.getId().toString()));
-			}
+		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
+			throw new ResultCodeException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
+					ImmutableMap.of(
+							"taskId", longRunningTaskId.toString(),
+							"roleCompositionId", roleCompositionId.toString()
+					)
+			);
 		}
 		//
 		filter.setTaskType(AddNewRoleCompositionTaskExecutor.class.getCanonicalName());
-		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
-			if (longRunningTask.getTaskProperties().get(PARAMETER_ROLE_COMPOSITION_ID).equals(roleCompositionId)) {
-				throw new ResultCodeException(CoreResultCode.ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING,
-						ImmutableMap.of(
-								"roleCompositionId", roleCompositionId.toString(),
-								"taskId", longRunningTask.getId().toString()));
-			}
+		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
+			throw new ResultCodeException(CoreResultCode.ROLE_COMPOSITION_RUN_CONCURRENTLY,
+					ImmutableMap.of(
+							"taskId", longRunningTaskId.toString(),
+							"roleCompositionId", roleCompositionId.toString()
+					)
+			);
 		}
 	}
 	

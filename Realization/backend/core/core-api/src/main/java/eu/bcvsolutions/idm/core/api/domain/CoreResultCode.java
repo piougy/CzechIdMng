@@ -327,9 +327,10 @@ public enum CoreResultCode implements ResultCode {
 	REQUEST_ITEM_WRONG_FORM_DEFINITON_IN_VALUES(HttpStatus.BAD_REQUEST, "Request item [%s] could not be saved, because is contains attribute values with wrong form definition! Currently using form definition in the role [%s] is [%s]!"),
 	//
 	// Role composition
+	ROLE_COMPOSITION_RUN_CONCURRENTLY(HttpStatus.ACCEPTED, "Other role composition is already in processing by task [%s]. Role composition [%s] will be processed asynchronously."),
 	ROLE_COMPOSITION_ASSIGN_ROLE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Role [%s] by role composition was not assigned."),
 	ROLE_COMPOSITION_ASSIGNED_ROLE_REMOVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Identity role [%s] was not removed."),
-	ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Role composition [%s] is removed in concurent task [%s]"),
+	ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY(HttpStatus.BAD_REQUEST, "Role composition [%s] is removed in concurent task [%s]."),
 	ROLE_COMPOSITION_REMOVE_TASK_ADD_RUNNING(HttpStatus.BAD_REQUEST, "Role composition [%s] is added in concurent task [%s], wait for task is complete, before composition can be removed."),
 	ROLE_COMPOSITION_REMOVE_HAS_ASSIGNED_ROLES(HttpStatus.CONFLICT, "Remove role composition [%s] is not complete, some identity roles [%s] were assigned to identities in the meantime."),
 	//

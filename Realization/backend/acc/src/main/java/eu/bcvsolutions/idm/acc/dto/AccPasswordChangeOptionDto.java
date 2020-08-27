@@ -40,7 +40,7 @@ public class AccPasswordChangeOptionDto implements Serializable {
 		this.setNiceLabel(uniformPassword);
 		this.id = uniformPassword.getId();
 
-		this.accounts = Lists.newArrayList();
+		this.accounts = Lists.newArrayListWithExpectedSize(accounts.size());
 		for (AccAccountDto account : accounts) {
 			this.accounts.add(account.getId().toString());
 		}
@@ -53,7 +53,7 @@ public class AccPasswordChangeOptionDto implements Serializable {
 
 		this.id = account.getId();
 
-		this.accounts = Lists.newArrayList();
+		this.accounts = Lists.newArrayListWithExpectedSize(0);
 		this.accounts.add(account.getId().toString());
 	}
 	

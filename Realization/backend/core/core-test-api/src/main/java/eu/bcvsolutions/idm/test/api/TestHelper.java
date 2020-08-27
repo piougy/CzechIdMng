@@ -11,8 +11,10 @@ import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
+import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
@@ -34,6 +36,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -978,4 +982,25 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmFormDefinitionDto createFormDefinition(String type);
+
+	/**
+	 * Method create and save {@link IdmScriptAuthority} for script id given in parameter
+	 *
+	 * @param scriptId
+	 * @param type
+	 * @param className
+	 * @param service
+	 * @return
+	 */
+	IdmScriptAuthorityDto createScriptAuthority(UUID scriptId, ScriptAuthorityType type, String className, String service);
+
+	/**
+	 * Creates script in given {@link IdmScriptCategory} with lines
+	 *
+	 * @param code
+	 * @param category
+	 * @param lines
+	 * @return
+	 */
+	IdmScriptDto createScript(String code, IdmScriptCategory category, String ...lines);
 }

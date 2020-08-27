@@ -397,6 +397,9 @@
           "attributeOverridden": {
             "header": "Atribut je použit (přetížen) na těchto rolích",
             "label": "Kde je atribut použit?"
+          },
+          "passwordFilter": {
+            "label": "Password filter"
           }
         }
       },
@@ -673,6 +676,36 @@
           "name": "Stav všech aktivních synchronizací"
           }
         }
+      },
+      "uniformPassword": {
+        "header": "Systém jednotného hesla",
+        "title": "Systém jednotného hesla",
+        "create": {
+          "header": "Nová definice jednotného hesla"
+        },
+        "edit": {
+          "header": "Editace definice jednotného hesla"
+        },
+        "basic": "Základní informace",
+        "system": "Navázané systémy",
+        "filter": {
+          "text": "Název jednotného hesla"
+        },
+        "save": {
+          "success": "Definice jednotného hesla byla úspěšně uložena"
+        }
+      },
+      "uniformPasswordSystem": {
+        "detail": "Navázané systémy",
+        "save": {
+          "success": "Navázaný systém byl úspěšně uložen."
+        },
+        "create": {
+          "header": "Nová vazba na systém"
+        },
+        "edit": {
+          "header": "Editace vazby na systém"
+        }
       }
   },
   "entity": {
@@ -923,6 +956,20 @@
       "passwordAttribute": {
         "label": "Atribut s heslem",
         "help": "Atribut bude obsahovat hodnotu hesla. Tento atribut není možné přetížit v mapování u rolí. Do transformace bude poslána hodnota hesla v objektu GuardedString. Skript musí vracet null, nebo tento objekt."
+      },
+      "passwordFilter": {
+        "passwordFilter": {
+          "label": "Aktivní password filter",
+          "help": "Na systému je aktivní password filter"
+        },
+        "echoTimeout": {
+          "label": "Timeout (vteřiny)",
+          "help": "Po vytvoření záznamu s echem jsou všechny stejné požadavky na změnu hesla v definovaném timeoutu označeny jako echo."
+        },
+        "transformationUidScript": {
+          "label": "Transformační skript identifikátoru ze systému",
+          "help": "Skript hledá dle intifikátoru zaslaného z password filtru odpovídající identitu v IdM. Výstup skriptu musí být IdmIdentityDto. Skriptu jsou předány následující parametry: 'system' systém ze kterého přišel požadavek na změnu hesla, 'username' identifikátor zaslaný z koncového systému, 'logIdentifier' identifikátor pomocí kterého jsou spojeny požadavky ze systému do IdM a 'systemAttributeMapping' který obsahuje mapování atributu ve kterém je difinované nastavení password filteru v IdM."
+        }
       }
     },
     "RoleSystemAttribute": {
@@ -949,7 +996,22 @@
       "uid": "Identifikátor účtu",
       "inProtection": "Je chráněn před smazáním",
       "endOfProtection": "Chráněn do",
-      "targetEntity": "Entita (IdM)"
+      "targetEntity": "Entita (IdM)",
+      "echo": {
+        "label": "Echo",
+        "changed": {
+          "label": "Provedena změna hesla",
+          "true": "ano",
+          "false": "ne"
+        },
+        "changeDate": "Datum provedení změny",
+        "validityChecked": {
+          "label": "Provedena úspěšná validace hesla",
+          "true": "ano",
+          "false": "ne"
+        },
+        "validateDate": "Datum provedení validace"
+      }
     },
     "IdentityAccount": {
       "_type": "Účet identity na koncovém systému",
@@ -1203,6 +1265,26 @@
       "value": "Hodnota",
       "created": "Vytvořeno",
       "creator": "Vytvořil"
+    },
+    "UniformPassword": {
+      "code": "Kód",
+      "timeout": {
+        "label": "Timeout (vteřiny)",
+        "helpBlock": "Časové okno ve kterém dvě stejné hesla budou označeny jako echo."
+      },
+      "changeInIdm": {
+        "label": "Změnit heslo v IdM",
+        "helpBlock": "Změna hesla pro tuto definici bude provedena i v IdM."
+      },
+      "description": "Popis",
+      "disabled": {
+        "label": "Neaktivní",
+        "helpBlock": "Neaktivní jednotná změna hesla nebude vyhodnocována, ani nebudou sjednoceny volby na formuláři se změnou hesla."
+      }
+    },
+    "UniformPasswordSystem": {
+      "system": "Systém",
+      "uniformPassword": "Password filtr"
     }
   },
   "enums" : {
@@ -1368,6 +1450,10 @@
     }
   },
   "permission": {
+    "base" : {
+      "PASSWORDFILTERCHANGE": "Password filter - změna hesla",
+      "PASSWORDFILTERVALIDATE": "Password filter - validace hesla"
+    },
     "group": {
       "ACCOUNT": "Účty na koncových systémech",
       "ROLEACCOUNT": "Účty pro role",
@@ -1383,7 +1469,8 @@
       "PROVISIONINGBREAK": "Provisioning - brzda",
       "PROVISIONINGOPERATION": "Provisioning - operace ve frontě",
       "PROVISIONINGARCHIVE": "Provisioning - archív",
-      "SYSTEMATTRIBUTEMAPPING": "Mapované atributy systému"
+      "SYSTEMATTRIBUTEMAPPING": "Mapované atributy systému",
+      "UNIFORMPASSWORD": "Systém jednotného hesla"
     }
   },
   "eav": {
@@ -2638,6 +2725,22 @@
     "ROLE_REQUEST_OPERATION_CANCELED": {
       "title": "Provisioning operace byla zrušena!",
       "message": "Provisioning operace na systému [{{system}}] byla zrušena!"
+    },
+    "PASSWORD_FILTER_SYSTEM_NOT_FOUND": {
+      "title": "Systém nebyl nalezen!",
+      "message": "Systém pro identifikátor [{{resource}}] nebyl nalezen!"
+    },
+    "PASSWORD_FILTER_DEFINITION_NOT_FOUND": {
+      "title": "Pro systém nebyl nalezena aktivní definice password filteru!",
+      "message": "Pro systém [{{systemId}}] nebyla nalezena aktivní definice filteru!"
+    },
+    "PASSWORD_FILTER_IDENTITY_NOT_FOUND": {
+      "title": "Identita nebyla nalezena!",
+      "message": "Identita s identifikátorem [{{identifier}}] nebyla nalezena!"
+    },
+    "PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST": {
+      "title": "Žádost o změnu hesla neprošla validací!",
+      "message": "Žádost pro identitu [{{identifier}}] neprošla validací! Pro více informací zkontrolujte log aplikace."
     }
   },
   "processor": {
@@ -2664,6 +2767,9 @@
     },
     "provisioning-cache": {
       "description": "Cache slouží pro ukládání provedených operací provisioningu. Toto značně urychluje vyhodnocování brzdy provisioningu, která se na základě obsahu této cache rozhodouje, zda operaci zablokuje, či nikoliv. Po vyprázdnění cache může dočasně dojít ke zpomalení provisioningu u těch systémů, které mají aktivovanou brzdu provisioningu."
+    },
+    "password-filter-echo-cache": {
+      "description": "Cache slouží k uložení záznamů o provedených změn hesel pomocí password filteru (ECH). Pomocí této cache nejsou prováděny duplicitní požadavky na změnu hesla proti IdM a koncovým systémům."
     },
     "sync-mapping-cache": {
       "description": "Cache slouží pro ukládání hodnot namapovaných atributů v probíhající synchronizaci."

@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningBreakConfigDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccUniformPasswordSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncConfigFilter;
@@ -22,6 +23,7 @@ import eu.bcvsolutions.idm.acc.event.SystemEvent.SystemEventType;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
+import eu.bcvsolutions.idm.acc.service.api.AccUniformPasswordSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBreakConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
@@ -56,6 +58,8 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 	private final ConfidentialStorage confidentialStorage;
 	@Autowired
 	private SysProvisioningOperationService provisioningOperationService;
+	@Autowired
+	private AccUniformPasswordSystemService passwordFilterSystemService;
 
 	@Autowired
 	public SystemDeleteProcessor(SysSystemService service,
@@ -135,6 +139,13 @@ public class SystemDeleteProcessor extends CoreEventProcessor<SysSystemDto> {
 		//
 		// deletes all confidential values
 		confidentialStorage.deleteAll(system.getId(), SysSystem.class);
+		//
+		// Delete connected uniform password. Or throw error at the beginning?
+		AccUniformPasswordSystemFilter uniformPasswordSystemFilter = new AccUniformPasswordSystemFilter();
+		uniformPasswordSystemFilter.setSystemId(system.getId());
+		passwordFilterSystemService.find(uniformPasswordSystemFilter, null).forEach(uniformPasswordSystem -> {
+			passwordFilterSystemService.delete(uniformPasswordSystem);
+		});
 		//
 		// deletes identity
 		service.deleteInternal(system);

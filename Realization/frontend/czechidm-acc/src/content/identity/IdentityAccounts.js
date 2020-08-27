@@ -81,7 +81,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
     const accountSearchParameters = new Domain.SearchParameters().setFilter('entityType',
       SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
     const forceAccountSearchParameters = new Domain.SearchParameters().setFilter('identity', entityId).setFilter('entityType',
-      SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
+      SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY)).setFilter('includeEcho', true);
     const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('entityType',
       SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
     //
@@ -100,7 +100,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
               showLoading={ _showLoading }
               forceSearchParameters={ forceAccountSearchParameters }
               forceSystemEntitySearchParameters={ forceSystemEntitySearchParameters }
-              columns={ _.difference(AccountTable.defaultProps.columns, ['entityType', 'systemEntity']) }
+              columns={ _.union(_.difference(AccountTable.defaultProps.columns, ['entityType', 'systemEntity']), ['echo']) }
               showAddButton={ false }/>
           </Basic.Tab>
           <Basic.Tab eventKey={2} title={this.i18n('identity-accounts')}>

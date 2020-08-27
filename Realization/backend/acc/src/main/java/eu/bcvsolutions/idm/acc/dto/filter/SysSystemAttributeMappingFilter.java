@@ -27,6 +27,7 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 	private SystemEntityType entityType;
 	private String name;
 	private Boolean authenticationAttribute;
+	private Boolean passwordFilter;
 
 	public Boolean getIsUid() {
 		return isUid;
@@ -131,4 +132,13 @@ public class SysSystemAttributeMappingFilter extends QuickFilter {
 	public void setAuthenticationAttribute(Boolean authenticationAttribute) {
 		this.authenticationAttribute = authenticationAttribute;
 	}
+
+	public Boolean getPasswordFilter() {
+		return passwordFilter;
+	}
+
+	public void setPasswordFilter(Boolean passwordFilter) {
+		this.passwordFilter = passwordFilter;
+	}
+	
 }

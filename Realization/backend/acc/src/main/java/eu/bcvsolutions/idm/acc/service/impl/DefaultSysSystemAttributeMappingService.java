@@ -219,7 +219,6 @@ public class DefaultSysSystemAttributeMappingService
 			Subquery<SysSystemMapping> subquerySystemMapping = query.subquery(SysSystemMapping.class);
 			Root<SysSystemMapping> subRootSystemMapping = subquerySystemMapping.from(SysSystemMapping.class);
 			subquerySystemMapping.select(subRootSystemMapping);
-			subquerySystemMapping.where(builder.equal(root.get(SysSystemAttributeMapping_.systemMapping), subRootSystemMapping)); // correlation attr;
 
             Subquery<SysSchemaObjectClass> subqueryObjectClass = query.subquery(SysSchemaObjectClass.class);
 			Root<SysSchemaObjectClass> subRootObjectClass = subqueryObjectClass.from(SysSchemaObjectClass.class);
@@ -321,6 +320,14 @@ public class DefaultSysSystemAttributeMappingService
 				predicates.add(builder.isFalse(root.get(SysSystemAttributeMapping_.authenticationAttribute)));
 			} else {
 				predicates.add(builder.isTrue(root.get(SysSystemAttributeMapping_.authenticationAttribute)));
+			}
+		}
+
+		if (filter.getPasswordFilter() != null) {
+			if (BooleanUtils.isFalse(filter.getPasswordFilter())) {
+				predicates.add(builder.isFalse(root.get(SysSystemAttributeMapping_.passwordFilter)));
+			} else {
+				predicates.add(builder.isTrue(root.get(SysSystemAttributeMapping_.passwordFilter)));
 			}
 		}
 

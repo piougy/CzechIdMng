@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -37,12 +38,14 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.AccPasswordFilterRequestDto;
 import eu.bcvsolutions.idm.acc.dto.SysConnectorServerDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncItemLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSyncLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.service.api.PasswordFilterManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -98,9 +101,11 @@ import io.swagger.annotations.AuthorizationScope;;
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SysSystemController extends AbstractReadWriteDtoController<SysSystemDto, SysSystemFilter> {
-	
+
+	public static final String PASSWORD_FILTER_BASE_ENDPOINT = "/password-filter";
+
 	protected static final String TAG = "Systems";
-	//
+
 	private final SysSystemService systemService;
 	private final IcConfigurationFacade icConfiguration;
 	private final ConfidentialStorage confidentialStorage;
@@ -112,6 +117,8 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 	private SysSyncLogService syncLogService;
 	@Autowired
 	private LongPollingManager longPollingManager;
+	@Autowired
+	private PasswordFilterManager passwordFilterManager;
 	
 	@Autowired
 	public SysSystemController(
@@ -934,7 +941,47 @@ public class SysSystemController extends AbstractReadWriteDtoController<SysSyste
 
 		return result.getResult();
 	}
-	
+
+	@ResponseBody
+	@ResponseStatus(code = HttpStatus.OK)
+	@RequestMapping(value = PASSWORD_FILTER_BASE_ENDPOINT + "/validate", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_PASSWORDFILTERVALIDATE + "')")
+	@ApiOperation(
+			value = "Validate password request from resources with password filters including check for unform password defintions", 
+			nickname = "validate",
+			tags = { AccUniformPasswordController.TAG },
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_PASSWORDFILTERVALIDATE, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_PASSWORDFILTERVALIDATE, description = "")})
+					})
+	public ResponseEntity<?> validate(
+			@RequestBody @Valid AccPasswordFilterRequestDto request) {
+		passwordFilterManager.validate(request);
+		return new ResponseEntity<Object>(HttpStatus.OK);
+	}
+
+	@ResponseBody
+	@ResponseStatus(code = HttpStatus.OK)
+	@RequestMapping(value = PASSWORD_FILTER_BASE_ENDPOINT + "/change", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_PASSWORDFILTERCHANGE + "')")
+	@ApiOperation(
+			value = "Change pasword given from resources with applied password filters including uniform password defintions", 
+			nickname = "change",
+			tags = { AccUniformPasswordController.TAG },
+			authorizations = { 
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_PASSWORDFILTERCHANGE, description = "")}),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = AccGroupPermission.SYSTEM_PASSWORDFILTERCHANGE, description = "")})
+					})
+	public ResponseEntity<?> change(
+			@RequestBody @Valid AccPasswordFilterRequestDto request) {
+		passwordFilterManager.change(request);
+		return new ResponseEntity<Object>(HttpStatus.OK);
+	}
+
 	@Scheduled(fixedDelay = 2000)
 	public synchronized void checkDeferredRequests() {
 		longPollingManager.checkDeferredRequests(SysSystemDto.class);

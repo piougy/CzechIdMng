@@ -295,7 +295,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
 				result = new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build();
 				break;
-			}		
+			}
 			// It not possible to get operation from embedded, because missing request
 			SysProvisioningOperationDto operation = executeInternal(provisioningOperation); // not run in transaction
 			result = operation.getResult();

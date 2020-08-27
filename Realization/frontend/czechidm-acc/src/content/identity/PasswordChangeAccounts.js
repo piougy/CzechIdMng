@@ -2,14 +2,14 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 //
-import { Basic, Domain, Utils, Managers } from 'czechidm-core';
+import { Basic, Utils, Managers } from 'czechidm-core';
 import PasswordChangeForm from 'czechidm-core/src/content/identity/PasswordChangeForm';
-import { AccountManager } from '../../redux';
+import { UniformPasswordManager } from '../../redux';
 //
 const IDM_NAME = Utils.Config.getConfig('app.name', 'CzechIdM');
 const RESOURCE_IDM = `0:${IDM_NAME}`;
 //
-const accountManager = new AccountManager();
+const uniformPasswordManager = new UniformPasswordManager();
 const identityManager = new Managers.IdentityManager();
 
 /**
@@ -23,14 +23,8 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     super.componentDidMount();
     //
     const { entityId } = this.props.match.params;
-    const defaultSearchParameters = accountManager
-      .getDefaultSearchParameters()
-      .setName(Domain.SearchParameters.NAME_AUTOCOMPLETE)
-      .setSize(1000) // TODO: now this is maximum
-      .setFilter('ownership', true)
-      .setFilter('supportChangePassword', true)
-      .setFilter('identity', entityId);
-    this.context.store.dispatch(accountManager.fetchEntities(defaultSearchParameters, `${ entityId }-accounts`, (accounts, error) => {
+
+    this.context.store.dispatch(uniformPasswordManager.fetchPasswordChangeOptions(entityId, `${ entityId }-account-options`, (accounts, error) => {
       // Prevent to show error, when logged identity cannot read identity accounts => password change for IdM only.
       if (error && error.statusCode !== 403) {
         this.addError(error);
@@ -42,26 +36,30 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     const { entityId } = this.props.match.params;
     const { accounts, showLoading } = this.props;
 
-    if (showLoading) {
+    if (showLoading || accounts == null) {
       return null;
     }
 
     const identity = identityManager.getEntity(this.context.store.getState(), entityId);
-    const options = [
-      { value: RESOURCE_IDM, niceLabel: `${ IDM_NAME }${ identity ? ` (${ identity.username })` : '' }` }
-    ];
+    const options = [ ];
 
+    let changeInIdm = false;
     accounts.forEach(acc => {
-      // Skip account in protection
-      if (acc.inProtection) {
-        return;
+      if (acc.changeInIdm) {
+        changeInIdm = true;
       }
-      const niceLabel = `${ acc._embedded.system.name } (${ acc.uid })`;
       options.push({
-        value: acc.id,
-        niceLabel
+        value: acc.id, // Id is there only as unique key, ID can be id of unifrom password or account id
+        accounts: acc.accounts,
+        idm: acc.changeInIdm,
+        niceLabel: acc.niceLabel
       });
     });
+    if (changeInIdm === false) {
+      options.push({
+        value: RESOURCE_IDM, accounts: RESOURCE_IDM, idm: true, niceLabel: `${ IDM_NAME }${ identity ? ` (${ identity.username })` : '' }`
+      });
+    }
 
     return options;
   }
@@ -70,11 +68,12 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     const { passwordChangeType, userContext, requireOldPassword, showLoading } = this.props;
     const { entityId } = this.props.match.params;
     const options = this._getOptions();
+
     //
     return (
       <Basic.Div>
         {
-          showLoading
+          showLoading || !options
           ?
           <Basic.Loading isStatic show/>
           :
@@ -106,8 +105,8 @@ function select(state, component) {
   const { entityId } = component.match.params;
   return {
     userContext: state.security.userContext,
-    accounts: accountManager.getEntities(state, `${entityId}-accounts`),
-    showLoading: accountManager.isShowLoading(state, `${entityId}-accounts`)
+    accounts: uniformPasswordManager.getPasswordChangeOptions(state, `${entityId}-account-options`),
+    showLoading: uniformPasswordManager.isShowLoading(state, `${entityId}-account-options`)
   };
 }
 export default connect(select)(PasswordChangeAccounts);

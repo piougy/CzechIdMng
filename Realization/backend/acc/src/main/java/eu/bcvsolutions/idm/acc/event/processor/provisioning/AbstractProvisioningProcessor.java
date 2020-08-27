@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
@@ -13,12 +15,19 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.PasswordFilterManager;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -32,8 +41,10 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
 /**
@@ -50,6 +61,9 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	protected final SysSystemService systemService;
 	private final SysSystemEntityService systemEntityService;
 	protected final SysProvisioningOperationService provisioningOperationService;
+	@Autowired private SysSystemAttributeMappingService systemAttributeMappingService;
+	@Autowired private AccAccountService accountService;
+	@Autowired private PasswordFilterManager passwordFilterManager;
 
 	public AbstractProvisioningProcessor(
 			IcConnectorFacade connectorFacade,
@@ -88,6 +102,8 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		IcObjectClass objectClass = connectorObject.getObjectClass();
 		SysSystemEntityDto systemEntity = systemEntityService.getByProvisioningOperation(provisioningOperation);
+		boolean processEcho = false; // If exists password in attributes and system support password filter set also echo
+		List<UUID> accountIds = null;
 		LOG.debug("Start provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
 				systemEntity.getUid(),
@@ -110,6 +126,22 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			// convert confidential string to guarded strings before provisioning realization
 			connectorObject = provisioningOperationService.getFullConnectorObject(provisioningOperation);
 			provisioningOperation.getProvisioningContext().setConnectorObject(connectorObject);
+			
+			for (IcAttribute attribute : connectorObject.getAttributes()) {
+				if (attribute.getName().equals(ProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME)
+						&& attribute instanceof IcPasswordAttribute) {
+					if (this.hasSystemPasswordFilter(system)) {
+						IcPasswordAttributeImpl password = ((IcPasswordAttributeImpl) attribute);
+						accountIds = getAccounts(system.getId(), systemEntity.getId());
+						for (UUID accountId : accountIds) {
+							passwordFilterManager.setEchoForChange(accountId, password.getPasswordValue());
+						}
+						processEcho = true;
+					}
+					break;
+				}
+			}
+
 			//
 			IcUidAttribute resultUid = processInternal(provisioningOperation, connectorConfig);
 			// update system entity, when identifier on target system differs
@@ -131,6 +163,12 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			provisioningOperation = provisioningOperationService.handleSuccessful(provisioningOperation);
 		} catch (Exception ex) {
 			provisioningOperation = provisioningOperationService.handleFailed(provisioningOperation, ex);
+			if (processEcho) {
+				// Clear echo record about password change
+				accountIds.forEach(accountId -> {
+					passwordFilterManager.clearChangedEcho(accountId);
+				});
+			}
 		}
 
 		// set operation back to content
@@ -197,5 +235,33 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			
 		}
 		return finalAttributes;
+	}
+
+	/**
+	 * Check if exists enabled password filter definition on system
+	 *
+	 * @param system
+	 * @return
+	 */
+	private boolean hasSystemPasswordFilter(SysSystemDto system) {
+		SysSystemAttributeMappingFilter filter = new SysSystemAttributeMappingFilter();
+		filter.setSystemId(system.getId());
+		filter.setPasswordFilter(Boolean.TRUE);
+		return systemAttributeMappingService.count(filter) > 0;
+	}
+
+	/**
+	 * Get accounts for system id and system edntity id
+	 *
+	 * @param systemId
+	 * @param systemEntityId
+	 * @return
+	 */
+	private List<UUID> getAccounts(UUID systemId, UUID systemEntityId) {
+		AccAccountFilter filter = new AccAccountFilter();
+		filter.setSystemEntityId(systemEntityId);
+		filter.setEntityType(SystemEntityType.IDENTITY);
+		filter.setSystemId(systemId);
+		return accountService.findIds(filter, null).getContent();
 	}
 }

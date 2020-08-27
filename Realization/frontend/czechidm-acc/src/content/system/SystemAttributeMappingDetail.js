@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import Joi from 'joi';
 //
 import { Advanced, Basic, Domain, Enums, Managers, Utils } from 'czechidm-core';
 import { AttributeControlledValueManager, SchemaAttributeManager, SystemAttributeMappingManager, SystemMappingManager } from '../../redux';
@@ -29,6 +30,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
       activeKey: 1,
       strategyType: null
     };
+    this.scriptManager = new Managers.ScriptManager();
   }
 
   getManager() {
@@ -80,7 +82,8 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
           systemMapping: props.location.query.mappingId,
           objectClassId: props.location.query.objectClassId,
           cached: true,
-          strategyType: AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.SET)
+          strategyType: AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.SET),
+          echoTimeout: 180 // Standard timeout for echo - 3 min
         }
       });
     //  this.context.store.dispatch(systemMappingManager.fetchEntity(props.location.query.mappingId));
@@ -97,6 +100,14 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
 
   save(event) {
     const formEntity = this.refs.form.getData();
+    // Password filter is active only for password attributes
+    if (this.refs.formPasswordFilter) {
+      const formPasswordFilter = this.refs.formPasswordFilter.getData();
+      // Update attribute by password filter form
+      formEntity.passwordFilter = formPasswordFilter.passwordFilter;
+      formEntity.echoTimeout = formPasswordFilter.echoTimeout;
+      formEntity.transformationUidScript = formPasswordFilter.transformationUidScript;
+    }
     //
     super.save(formEntity, event);
   }
@@ -260,6 +271,7 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
     const isSynchronization = _systemMapping && _systemMapping.operationType && _systemMapping.operationType === 'SYNCHRONIZATION' ? true : false;
     const strategyTypeTemp = strategyType ? strategyType : attribute.strategyType;
     const isMerge = strategyTypeTemp === AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.MERGE);
+    const showPasswordFilter = passwordAttribute && !isSynchronization && _systemMapping && _systemMapping.entityType === 'IDENTITY';
 
     return (
       <div>
@@ -503,6 +515,57 @@ class SystemAttributeMappingDetail extends Advanced.AbstractTableContent {
               showRowSelection={false}
               forceSearchParameters={ overriddenForceSearchParameters }
               match={ this.props.match }/>
+          </Basic.Tab>
+          <Basic.Tab eventKey={ 4 } rendered={ showPasswordFilter } title={ this.i18n('tabs.passwordFilter.label') } className="bordered">
+            <form onSubmit={ this.save.bind(this) }>
+              <Basic.Panel className="no-border last" style={{ marginBottom: 0, paddingRight: 15, paddingLeft: 15, paddingTop: 15 }}>
+                <Basic.AbstractForm
+                  ref="formPasswordFilter"
+                  data={ attribute }
+                  showLoading={ _showLoading }
+                  readOnly={ !Managers.SecurityManager.hasAnyAuthority(['SYSTEMATTRIBUTEMAPPING_UPDATE']) }>
+                  <Basic.Checkbox
+                    ref="passwordFilter"
+                    label={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.passwordFilter.label') }
+                    helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.passwordFilter.help') }/>
+                  <Basic.TextField
+                    ref="echoTimeout"
+                    label={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.echoTimeout.label') }
+                    helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.echoTimeout.help') }
+                    type="number"
+                    validation={Joi.number()
+                      .allow(null)
+                      .integer()
+                      .min(1)
+                      .max(2147483647)}
+                    required/>
+                  <Advanced.ScriptArea
+                    ref="transformationUidScript"
+                    scriptCategory={ [Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.SYSTEM),
+                      Enums.ScriptCategoryEnum.findKeyBySymbol(Enums.ScriptCategoryEnum.SYSTEM)] }
+                    headerText={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.transformationUidScript.label') }
+                    helpBlock={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.transformationUidScript.help') }
+                    label={ this.i18n('acc:entity.SystemAttributeMapping.passwordFilter.transformationUidScript.label') }
+                    scriptManager={ this.scriptManager }/>
+                </Basic.AbstractForm>
+                <Basic.PanelFooter>
+                  <Basic.Button
+                    type="button"
+                    level="link"
+                    onClick={this.context.history.goBack}
+                    showLoading={_showLoading}>
+                    {this.i18n('button.back')}
+                  </Basic.Button>
+                  <Basic.Button
+                    level="success"
+                    type="submit"
+                    showLoading={ _showLoading }
+                    rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEMATTRIBUTEMAPPING_UPDATE']) }>
+                    {this.i18n('button.save')}
+                  </Basic.Button>
+                </Basic.PanelFooter>
+              </Basic.Panel>
+            </form>
           </Basic.Tab>
         </Basic.Tabs>
       </div>

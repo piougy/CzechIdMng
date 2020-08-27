@@ -346,6 +346,7 @@ public class AccAccountController extends AbstractReadWriteDtoController<AccAcco
 		filter.setAccountType(getParameterConverter().toEnum(parameters, "accountType", AccountType.class));
 		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
 		filter.setSupportChangePassword(getParameterConverter().toBoolean(parameters, "supportChangePassword"));
+		filter.setIncludeEcho(getParameterConverter().toBoolean(parameters, "includeEcho"));
 		filter.setEntityType(getParameterConverter().toEnum(parameters, "entityType", SystemEntityType.class));
 		//
 		return filter;

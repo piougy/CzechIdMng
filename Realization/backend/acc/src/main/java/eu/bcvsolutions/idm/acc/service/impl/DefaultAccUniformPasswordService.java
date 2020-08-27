@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +19,11 @@ import eu.bcvsolutions.idm.acc.dto.AccAccountDto;
 import eu.bcvsolutions.idm.acc.dto.AccPasswordChangeOptionDto;
 import eu.bcvsolutions.idm.acc.dto.AccUniformPasswordDto;
 import eu.bcvsolutions.idm.acc.dto.AccUniformPasswordSystemDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemDto;
 import eu.bcvsolutions.idm.acc.dto.filter.AccAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccUniformPasswordFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.AccUniformPasswordSystemFilter;
+import eu.bcvsolutions.idm.acc.entity.AccAccount_;
 import eu.bcvsolutions.idm.acc.entity.AccUniformPassword;
 import eu.bcvsolutions.idm.acc.entity.AccUniformPasswordSystem_;
 import eu.bcvsolutions.idm.acc.repository.AccUniformPasswordRepository;
@@ -100,7 +104,9 @@ public class DefaultAccUniformPasswordService
 
 			if (CollectionUtils.isEmpty(uniformBySystem)) {
 				// Simple account as option
-				result.add(new AccPasswordChangeOptionDto(account));
+				AccPasswordChangeOptionDto optionDto = new AccPasswordChangeOptionDto(account);
+				optionDto.setNiceLabel(getNiceLabelForOption(account));
+				result.add(optionDto);
 				continue;
 			}
 
@@ -121,6 +127,7 @@ public class DefaultAccUniformPasswordService
 				// There is also needed 
 				AccUniformPasswordDto uniformPasswordDto = entry.getKey();
 				AccPasswordChangeOptionDto optionDto = new AccPasswordChangeOptionDto(uniformPasswordDto, entry.getValue());
+				optionDto.setNiceLabel(getNiceLabelForOption(uniformPasswordDto));
 				optionDto.setChangeInIdm(uniformPasswordDto.isChangeInIdm());
 				
 				result.add(optionDto);
@@ -128,5 +135,36 @@ public class DefaultAccUniformPasswordService
 		}
 
 		return result;
+	}
+
+	/**
+	 * Compose nice label for password option from {@link AccAccountDto}
+	 *
+	 * @param account
+	 * @return
+	 */
+	private String getNiceLabelForOption(AccAccountDto account) {
+		SysSystemDto systemDto = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class, null);
+		if (systemDto != null) {
+			return MessageFormat.format("{0} ({1})", systemDto.getCode(), account.getUid());
+		}
+
+		// Fallback for nice label
+		return account.getUid();
+	}
+
+	/**
+	 * Compose nice label for password option from {@link AccUniformPasswordDto}
+	 *
+	 * @param uniformPassword
+	 * @return
+	 */
+	private String getNiceLabelForOption(AccUniformPasswordDto uniformPassword) {
+		String description = uniformPassword.getDescription();
+		if (StringUtils.isBlank(description)) {
+			return MessageFormat.format("{0}", uniformPassword.getCode());
+		} else {
+			return MessageFormat.format("{0} ({1})", uniformPassword.getCode(), uniformPassword.getDescription());
+		}
 	}
 }

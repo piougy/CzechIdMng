@@ -1,17 +1,12 @@
 package eu.bcvsolutions.idm.acc.dto;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.hateoas.core.Relation;
 
 import com.google.common.collect.Lists;
-
-import eu.bcvsolutions.idm.acc.entity.AccAccount_;
-import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 
 /**
  * Password change option that unite all {@link AccAccountDto} by {@link AccUniformPasswordDto}
@@ -37,7 +32,6 @@ public class AccPasswordChangeOptionDto implements Serializable {
 	public AccPasswordChangeOptionDto(AccUniformPasswordDto uniformPassword, List<AccAccountDto> accounts) {
 		super();
 
-		this.setNiceLabel(uniformPassword);
 		this.id = uniformPassword.getId();
 
 		this.accounts = Lists.newArrayListWithExpectedSize(accounts.size());
@@ -48,8 +42,6 @@ public class AccPasswordChangeOptionDto implements Serializable {
 
 	public AccPasswordChangeOptionDto(AccAccountDto account) {
 		super();
-
-		this.setNiceLabel(account);
 
 		this.id = account.getId();
 
@@ -71,26 +63,6 @@ public class AccPasswordChangeOptionDto implements Serializable {
 
 	public void setNiceLabel(String niceLabel) {
 		this.niceLabel = niceLabel;
-	}
-
-	public final void setNiceLabel(AccAccountDto account) {
-		SysSystemDto systemDto = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class, null);
-		if (systemDto != null) {
-			this.niceLabel = MessageFormat.format("{0} ({1})", systemDto.getCode(), account.getUid());
-			return;
-		}
-
-		// Fallback for nice label
-		this.niceLabel = account.getUid();
-	}
-
-	public final void setNiceLabel(AccUniformPasswordDto uniformPassword) {
-		String description = uniformPassword.getDescription();
-		if (StringUtils.isBlank(description)) {
-			this.niceLabel = MessageFormat.format("{0}", uniformPassword.getCode());
-		} else {
-			this.niceLabel = MessageFormat.format("{0} ({1})", uniformPassword.getCode(), uniformPassword.getDescription());
-		}
 	}
 
 	public boolean isChangeInIdm() {

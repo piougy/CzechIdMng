@@ -1174,7 +1174,8 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
         showLoading={ showLoading }
         showLoadingIcon
         showLoadingText={ this.i18n('button.saving') }
-        rendered={ identityProjectionManager.canSave(isNew ? null : identityProjection) }>
+        rendered={ identityProjectionManager.canSave(isNew ? null : identityProjection) }
+        onClick={ this.save.bind(this) }>
         { this.i18n('button.save') }
       </Basic.Button>
     );
@@ -1235,21 +1236,20 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
 
             { this.renderHeader() }
 
-            <form onSubmit={ this.save.bind(this) }>
-              {
-                !identityProjection
-                ?
-                <Basic.Panel rendered={ identityProjection === null || identityProjection === undefined }>
-                  <Basic.Loading isStatic show/>
-                </Basic.Panel>
-                :
-                <Basic.Panel className="last">
-                  <Basic.PanelBody>
-                    <Basic.AbstractForm
-                      ref="form"
-                      data={ identityProjection }
-                      style={{ padding: 0 }}>
-
+            {
+              !identityProjection
+              ?
+              <Basic.Panel rendered={ identityProjection === null || identityProjection === undefined }>
+                <Basic.Loading isStatic show/>
+              </Basic.Panel>
+              :
+              <Basic.Panel className="last">
+                <Basic.PanelBody>
+                  <Basic.AbstractForm
+                    ref="form"
+                    data={ identityProjection }
+                    style={{ padding: 0 }}>
+                    <form onSubmit={ this.save.bind(this) }>
                       { this.renderIdentity() }
 
                       { this.renderPassword() }
@@ -1259,21 +1259,25 @@ export default class AbstractIdentityProjection extends Basic.AbstractContent {
                       { this.renderAllContracts() }
 
                       {
-                        isNew
-                        ||
-                        this.renderAssignedRoles()
+                        /* onEnter action - is needed because buttons are outside html form
+                          (complex component with tables and filters bellow need to be outside too to prevent form submit) */
                       }
-
-                    </Basic.AbstractForm>
-                  </Basic.PanelBody>
-                  <Basic.PanelFooter>
-                    { this.renderBackButton() }
-                    { this.renderAdditionalButtons() }
-                    { this.renderSaveButton() }
-                  </Basic.PanelFooter>
-                </Basic.Panel>
-              }
-            </form>
+                      <input type="submit" className="hidden"/>
+                    </form>
+                    {
+                      isNew
+                      ||
+                      this.renderAssignedRoles()
+                    }
+                  </Basic.AbstractForm>
+                </Basic.PanelBody>
+                <Basic.PanelFooter>
+                  { this.renderBackButton() }
+                  { this.renderAdditionalButtons() }
+                  { this.renderSaveButton() }
+                </Basic.PanelFooter>
+              </Basic.Panel>
+            }
           </Basic.Div>
         </Basic.Row>
       </Basic.Div>

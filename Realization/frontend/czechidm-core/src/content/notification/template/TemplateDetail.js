@@ -224,8 +224,12 @@ export default class TemplateDetail extends Basic.AbstractContent {
               rendered={SecurityManager.hasAuthority(Utils.Entity.isNew(entity) ? 'NOTIFICATIONTEMPLATE_CREATE' : 'NOTIFICATIONTEMPLATE_UPDATE')}
               pullRight
               dropup>
-              <Basic.MenuItem eventKey="1" onClick={this.onRedeployOrBackup.bind(this, 'redeploy')}>{this.i18n('action.redeploy.action')}</Basic.MenuItem>
-              <Basic.MenuItem eventKey="2" onClick={this.onRedeployOrBackup.bind(this, 'backup')}>{this.i18n('action.backup.action')}</Basic.MenuItem>
+              <Basic.MenuItem eventKey="1" onClick={ this.onRedeployOrBackup.bind(this, 'redeploy') }>
+                { this.i18n('action.redeploy.action') }
+              </Basic.MenuItem>
+              <Basic.MenuItem eventKey="2" onClick={ this.onRedeployOrBackup.bind(this, 'backup') }>
+                { this.i18n('action.backup.action') }
+              </Basic.MenuItem>
             </Basic.SplitButton>
 
           </Basic.PanelFooter>

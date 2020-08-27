@@ -55,6 +55,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.IdentityProvisioningExecutor;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.domain.IdentityState;
 import eu.bcvsolutions.idm.core.api.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.IdmAccountDto;
@@ -75,6 +76,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationLogDto;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
 import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationLogService;
+import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -429,6 +431,8 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 		IdmRoleDto role = initRole(system);
 
 		IdmIdentityDto identity = helper.createIdentity();
+		identity.setState(IdentityState.VALID); // => new password is sent for valid identity only
+		identityService.save(identity);
 		
 		// Break the system (change the password column to not exists) - we need make a exception.
 		IdmFormDefinitionDto savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
@@ -452,9 +456,73 @@ public class IdentityPasswordProvisioningTest extends AbstractIntegrationTest {
 
 		List<IdmNotificationLogDto> notifications = notificationLogService.find(notificationFilter, null)//
 				.getContent()//
-				.stream().filter(notification -> "email".equals(notification.getType()))//
+				.stream().filter(notification -> IdmEmailLog.NOTIFICATION_TYPE.equals(notification.getType()))//
 				.collect(Collectors.toList());
 		assertEquals(0, notifications.size());
+	}
+	
+	@Test
+	public void testSendPasswordNotificationCreateCancelled() {
+		// init readOnly system
+		SysSystemDto system = initSystem();
+		system.setReadonly(true);
+		system = systemService.save(system);
+		IdmRoleDto role = initRole(system);
+		IdmIdentityDto identity = helper.createIdentity();
+		IdmIdentityRoleDto identityRole = helper.createIdentityRole(identity, role); // CREATE operation
+		checkIdentityAccount(identity, identityRole, 1);
+		identity.setState(IdentityState.VALID); // => new password is sent for valid identity only
+		identity.setFirstName(getHelper().createName());
+		identityService.save(identity); // UPDATE operation
+		//
+		AccAccountDto account = accountService.getAccount(identity.getUsername(), system.getId());
+		Assert.assertNotNull(account);
+		TestResource entityOnSystem = helper.findResource(account.getUid());
+		Assert.assertNull(entityOnSystem);
+		//
+		// Check for send password notification
+		IdmNotificationFilter notificationFilter = new IdmNotificationFilter();
+		notificationFilter.setTopic(AccModuleDescriptor.TOPIC_NEW_PASSWORD);
+		notificationFilter.setRecipient(identity.getUsername());
+
+		List<IdmNotificationLogDto> notifications = notificationLogService.find(notificationFilter, null)//
+				.getContent()//
+				.stream().filter(notification -> IdmEmailLog.NOTIFICATION_TYPE.equals(notification.getType()))//
+				.collect(Collectors.toList());
+		Assert.assertTrue(notifications.isEmpty());
+		//
+		// cancel the first provisioning operation
+		SysProvisioningOperationFilter filter = new SysProvisioningOperationFilter();
+		filter.setEntityType(SystemEntityType.IDENTITY);
+		filter.setEntityIdentifier(identity.getId());
+		List<SysProvisioningOperationDto> operations = provisioningOperationService.find(filter, null).getContent();
+		Assert.assertEquals(2, operations.size());
+		Assert.assertTrue(operations.stream().allMatch(o -> o.getResultState() == OperationState.NOT_EXECUTED)); // ~ readonly
+		SysProvisioningOperationDto createOperation = operations.stream().filter(o -> o.getOperationType() == ProvisioningEventType.CREATE).findFirst().get();
+		SysProvisioningOperationDto updateOperation = operations.stream().filter(o -> o.getOperationType() == ProvisioningEventType.UPDATE).findFirst().get();
+		//
+		// active system
+		system.setReadonly(false);
+		system = systemService.save(system);
+		//
+		// cancel the first operation
+		provisioningExecutor.cancel(createOperation);
+		operations = provisioningOperationService.find(filter, null).getContent();
+		Assert.assertEquals(1, operations.size());
+		notifications = notificationLogService.find(notificationFilter, null)//
+				.getContent()//
+				.stream().filter(notification -> IdmEmailLog.NOTIFICATION_TYPE.equals(notification.getType()))//
+				.collect(Collectors.toList());
+		Assert.assertTrue(notifications.isEmpty());
+		//
+		provisioningExecutor.execute(updateOperation);
+		operations = provisioningOperationService.find(filter, null).getContent();
+		Assert.assertTrue(operations.isEmpty());
+		notifications = notificationLogService.find(notificationFilter, null)//
+				.getContent()//
+				.stream().filter(notification -> IdmEmailLog.NOTIFICATION_TYPE.equals(notification.getType()))//
+				.collect(Collectors.toList());
+		Assert.assertEquals(1, notifications.size());
 	}
 
 	@Test

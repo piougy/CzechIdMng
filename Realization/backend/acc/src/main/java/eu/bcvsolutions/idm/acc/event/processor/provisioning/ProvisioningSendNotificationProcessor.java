@@ -50,7 +50,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 			SysProvisioningOperationService provisioningOperationService,
 			IdmIdentityService identityService,
 			SysSystemService systemService) {
-		super(ProvisioningEventType.CREATE);
+		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE); // Listen both types => see #conditional.
 		//
 		Assert.notNull(notificationManager, "Manager is required.");
 		Assert.notNull(provisioningOperationService, "Service is required.");
@@ -67,7 +67,32 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	public String getName() {
 		return PROCESSOR_NAME;
 	}
+	
+	@Override
+	public boolean conditional(EntityEvent<SysProvisioningOperationDto> event) {
+		if (!super.conditional(event)) {
+			return false;
+		}
+		SysProvisioningOperationDto provisioningOperation = event.getContent();
+		
+		// Notification can be send, only when account is created => update can be switched to create, if target account does not exist.
+		// @see PrepareConnectorObjectProcessor
+		if (provisioningOperation.getOperationType() != ProvisioningEventType.CREATE) {
+			return false;
+		}
+		
+		// Notification can be send only if provisioning operation ended successfully!
+		if (OperationState.EXECUTED != provisioningOperation.getResultState()) {
+			LOG.warn(
+					"Notification with password wasn't send, because provisioning result wasn't in the EXECUTED state [{}]!",
+					provisioningOperation.getResultState());
 
+			return false;
+		}
+
+		return true;
+	}
+	
 	@Override
 	public EventResult<SysProvisioningOperationDto> process(EntityEvent<SysProvisioningOperationDto> event) {
 		SysProvisioningOperationDto provisioningOperation = event.getContent();
@@ -76,10 +101,9 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
 			identity = identityService.get(provisioningOperation.getEntityIdentifier());
 		}
-		// TODO: identity or email null, send message to actual log user?
+		//
 		if (identity != null && identity.getState() != IdentityState.CREATED) {
 			for (IcAttribute attribute : provisioningOperationService.getFullConnectorObject(provisioningOperation).getAttributes()) {
-				// TODO: send password always, when create?
 				if (attribute instanceof IcPasswordAttribute && attribute.getValue() != null) {
 					GuardedString password = ((IcPasswordAttribute) attribute).getPasswordValue();
 					//
@@ -101,24 +125,6 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 			}
 		}
 		return new DefaultEventResult<>(event, this);
-	}
-	
-	@Override
-	public boolean conditional(EntityEvent<SysProvisioningOperationDto> event) {
-		if (!super.conditional(event)) {
-			return false;
-		}
-		SysProvisioningOperationDto provisioningOperation = event.getContent();
-		// Notification can be send only if provisioning operation ended successfully!
-		if (OperationState.EXECUTED != provisioningOperation.getResultState()) {
-			LOG.warn(
-					"Notification with password wasn't send, because provisioning result wasn't in the EXECUTED state [{}]!",
-					provisioningOperation.getResultState());
-
-			return false;
-		}
-
-		return true;
 	}
 	
 	@Override

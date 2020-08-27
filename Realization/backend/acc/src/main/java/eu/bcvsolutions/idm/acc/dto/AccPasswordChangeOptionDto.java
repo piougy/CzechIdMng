@@ -73,7 +73,7 @@ public class AccPasswordChangeOptionDto implements Serializable {
 		this.niceLabel = niceLabel;
 	}
 
-	public void setNiceLabel(AccAccountDto account) {
+	public final void setNiceLabel(AccAccountDto account) {
 		SysSystemDto systemDto = DtoUtils.getEmbedded(account, AccAccount_.system, SysSystemDto.class, null);
 		if (systemDto != null) {
 			this.niceLabel = MessageFormat.format("{0} ({1})", systemDto.getCode(), account.getUid());
@@ -84,7 +84,7 @@ public class AccPasswordChangeOptionDto implements Serializable {
 		this.niceLabel = account.getUid();
 	}
 
-	public void setNiceLabel(AccUniformPasswordDto uniformPassword) {
+	public final void setNiceLabel(AccUniformPasswordDto uniformPassword) {
 		String description = uniformPassword.getDescription();
 		if (StringUtils.isBlank(description)) {
 			this.niceLabel = MessageFormat.format("{0}", uniformPassword.getCode());

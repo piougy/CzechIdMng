@@ -343,12 +343,13 @@ public class DefaultPasswordFilterManager implements PasswordFilterManager {
 
 		if (finalAccounts.isEmpty()) {
 			LOG.info("Password change will be processed only trough IdM. For identity [{}] and system [{}]. {}",
-					identity.getUsername(), system.getCode(),
-					Strings.join(finalAccounts, ','),
+					identity.getUsername(),
+					system.getCode(),
 					request.getLogMetadata());
 		} else {
 			LOG.info("Password change will be processed. For identity [{}] and system [{}] was found these accounts for change [{}]. {}",
-					identity.getUsername(), system.getCode(),
+					identity.getUsername(),
+					system.getCode(),
 					Strings.join(accountsIds, ','),
 					request.getLogMetadata());
 		}

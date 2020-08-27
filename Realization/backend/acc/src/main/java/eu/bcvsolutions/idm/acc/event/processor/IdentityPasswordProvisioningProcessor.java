@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.event.processor;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -123,7 +124,7 @@ public class IdentityPasswordProvisioningProcessor
 	 * @return
 	 */
 	private boolean isAccountManaged(UUID accountId, List<UUID> managedAccounts) {
-		if (managedAccounts == null) {
+		if (CollectionUtils.isEmpty(managedAccounts)) {
 			AccAccountFilter filter = new AccAccountFilter();
 			filter.setId(accountId);
 			filter.setSupportPasswordFilter(Boolean.TRUE);

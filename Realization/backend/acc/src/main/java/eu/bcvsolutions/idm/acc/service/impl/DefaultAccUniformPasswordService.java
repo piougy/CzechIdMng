@@ -76,7 +76,7 @@ public class DefaultAccUniformPasswordService
 		
 		AccUniformPasswordSystemFilter filter = new AccUniformPasswordSystemFilter();
 		filter.setIdentityId(identity.getId());
-		filter.setUniformPasswordDisabled(false);
+		filter.setUniformPasswordDisabled(Boolean.FALSE);
 		List<AccUniformPasswordSystemDto> uniformPasswordSystems = this.uniformPasswordSystemService.find(filter, null).getContent();
 
 		// Group uniform password system by uniform password definition
@@ -84,10 +84,10 @@ public class DefaultAccUniformPasswordService
 
 		// Same behavior as previous versions
 		AccAccountFilter accountFilter = new AccAccountFilter();
-		accountFilter.setOwnership(true);
-		accountFilter.setSupportChangePassword(true);
+		accountFilter.setOwnership(Boolean.TRUE);
+		accountFilter.setSupportChangePassword(Boolean.TRUE);
 		accountFilter.setIdentityId(identity.getId());
-		accountFilter.setInProtection(false);
+		accountFilter.setInProtection(Boolean.FALSE);
 
 		// Include given permissions
 		List<AccAccountDto> accounts = accountService.find(accountFilter, null, permissions).getContent();

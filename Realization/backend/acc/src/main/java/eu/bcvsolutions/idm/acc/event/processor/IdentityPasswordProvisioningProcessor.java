@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.event.processor;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -75,7 +74,9 @@ public class IdentityPasswordProvisioningProcessor
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
 		Assert.notNull(passwordChangeDto, "Password change dto is required.");
 		GuardedString password = passwordChangeDto.getNewPassword();
-		List<UUID> givenManagedAccounts = this.getListProperty(PasswordFilterManager.MANAGED_ACCOUNTS, event, UUID.class);
+		List<UUID> givenManagedAccounts = event.getProperties().get(PasswordFilterManager.MANAGED_ACCOUNTS) == null
+				? null
+				:this.getListProperty(PasswordFilterManager.MANAGED_ACCOUNTS, event, UUID.class);
 		//
 		// Process echos for managed accounts
 		List<UUID> managedAccounts = Lists.newArrayList();
@@ -124,7 +125,7 @@ public class IdentityPasswordProvisioningProcessor
 	 * @return
 	 */
 	private boolean isAccountManaged(UUID accountId, List<UUID> managedAccounts) {
-		if (CollectionUtils.isEmpty(managedAccounts)) {
+		if (managedAccounts == null) {
 			AccAccountFilter filter = new AccAccountFilter();
 			filter.setId(accountId);
 			filter.setSupportPasswordFilter(Boolean.TRUE);

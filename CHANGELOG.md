@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Developer
 
+- [#2325](https://redmine.czechidm.com/issues/2325) - Frontend component ``PasswordChangeAccounts`` was changed and now support uniform password. Options now contain array of accounts instead simple account ID. Please if add own password ccomponent or override the product component update the behavior with options like in produkct component.
 - [#2386](https://redmine.czechidm.com/issues/2386) - All additional methods defined in ``SysSystemAttributeMappingRepository`` are deprecated now - new properties was added into system attribute mapping filter and predicates are implemented in ``DefaultSysSystemAttributeMappingService#toPredicates`` method. Filter properties (builders) can be registered in custom module now.
 - [#812](https://redmine.czechidm.com/issues/812) - Init application data was refactored:
   - default CzechIdM roles (e.g. ``superAdminRole``, ``userRole``) and other init data (e.g. default password policies) are created and updated after new version is installed, **read more in [documentation](https://wiki.czechidm.com/devel/documentation/architecture/dev/events/init-data)**.

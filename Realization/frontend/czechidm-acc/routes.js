@@ -332,6 +332,33 @@ module.exports = {
       path: 'provisioning',
       component: require('./src/content/provisioning/AuditProvisioningOperations'),
       access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PROVISIONINGOPERATION_READ', 'PROVISIONINGARCHIVE_READ'] } ],
+    },
+    {
+      path: 'uniform-password/:entityId/new',
+      component: require('./src/content/uniformpassword/UniformPasswordContent'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLE_CREATE'] } ],
+    },
+    {
+      path: 'uniform-password',
+      component: require('./src/content/uniformpassword/UniformPasswords'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORDFILTER_READ'] } ]
+    },
+    {
+      path: 'uniform-password/:entityId/',
+      component: require('./src/content/uniformpassword/UniformPassword'),
+      access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORDFILTER_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/uniformpassword/UniformPasswordContent'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORDFILTER_READ'] } ]
+        },
+        {
+          path: 'systems',
+          component: require('./src/content/uniformpassword/UniformPasswordSystems'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['PASSWORDFILTER_READ'] } ]
+        }
+      ]
     }
   ]
 };

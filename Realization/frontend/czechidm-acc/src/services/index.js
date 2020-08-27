@@ -22,6 +22,8 @@ import ProvisioningBreakRecipientService from './ProvisioningBreakRecipientServi
 import ContractAccountService from './ContractAccountService';
 import ContractSliceAccountService from './ContractSliceAccountService';
 import AttributeControlledValueService from './AttributeControlledValueService';
+import UniformPasswordService from './UniformPasswordService';
+import UniformPasswordSystemService from './UniformPasswordSystemService';
 
 const ServiceRoot = {
   SystemService,
@@ -47,7 +49,9 @@ const ServiceRoot = {
   ProvisioningBreakRecipientService,
   ContractAccountService,
   ContractSliceAccountService,
-  AttributeControlledValueService
+  AttributeControlledValueService,
+  UniformPasswordService,
+  UniformPasswordSystemService
 };
 
 ServiceRoot.version = '0.1.0';

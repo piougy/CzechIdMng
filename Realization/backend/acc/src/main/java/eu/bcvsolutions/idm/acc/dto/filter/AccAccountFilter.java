@@ -28,6 +28,10 @@ public class AccAccountFilter extends DataFilter {
 	private Boolean ownership;
 	private Boolean supportChangePassword;
 	private SystemEntityType entityType;
+	private Boolean inProtection;
+	private UUID uniformPasswordId; // Used for unite password change and validate
+	private Boolean supportPasswordFilter;
+	private Boolean includeEcho; // Returned account will contains echo record in embedded
 	
 	public AccAccountFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -100,4 +104,37 @@ public class AccAccountFilter extends DataFilter {
 	public SystemEntityType getEntityType() {
 		return entityType;
 	}
+
+	public Boolean getInProtection() {
+		return inProtection;
+	}
+
+	public void setInProtection(Boolean inProtection) {
+		this.inProtection = inProtection;
+	}
+
+	public UUID getUniformPasswordId() {
+		return uniformPasswordId;
+	}
+
+	public void setUniformPasswordId(UUID uniformPasswordId) {
+		this.uniformPasswordId = uniformPasswordId;
+	}
+
+	public Boolean getSupportPasswordFilter() {
+		return supportPasswordFilter;
+	}
+
+	public void setSupportPasswordFilter(Boolean supportPasswordFilter) {
+		this.supportPasswordFilter = supportPasswordFilter;
+	}
+
+	public Boolean getIncludeEcho() {
+		return includeEcho;
+	}
+
+	public void setIncludeEcho(Boolean includeEcho) {
+		this.includeEcho = includeEcho;
+	}
+
 }

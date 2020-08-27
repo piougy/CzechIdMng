@@ -313,6 +313,7 @@ public class DefaultIdmPasswordPolicyService
 			boolean prevalidation) {
 		Assert.notNull(passwordPolicyList, "Password policy list is required.");
 		Assert.notNull(passwordValidationDto, "Password validation dto is required.");
+		IdmIdentityDto identity = passwordValidationDto.getIdentity();
 		
 		// default password policy is used when list of password policies is empty, or for get maximum equals password
 		IdmPasswordPolicyDto defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
@@ -330,9 +331,12 @@ public class DefaultIdmPasswordPolicyService
 			return;
 		}
 
-		IdmPasswordDto oldPassword = passwordValidationDto.getOldPassword() != null
-				? passwordService.get(passwordValidationDto.getOldPassword())
-				: null;
+		IdmPasswordDto oldPassword = null;
+		// For checking with old password identity must has ID (for create doesn't exists ID)
+		if (identity != null && identity.getId() != null) {
+			oldPassword = passwordService.findOneByIdentity(identity.getId());
+		}
+
 		String password = passwordValidationDto.getPassword().asString();
 
 		ZonedDateTime now = ZonedDateTime.now();
@@ -534,7 +538,6 @@ public class DefaultIdmPasswordPolicyService
 		// in some case (tests) are save identity in one transaction and id doesn't exist
 		if (!prevalidation && defaultPolicy != null) {
 			Integer maxHistorySimilar = defaultPolicy.getMaxHistorySimilar();
-			IdmIdentityDto identity = passwordValidationDto.getIdentity();
 			if (maxHistorySimilar != null && identity != null && identity.getId() != null) {
 				boolean checkHistory = passwordHistoryService.checkHistory(passwordValidationDto.getIdentity().getId(), maxHistorySimilar, passwordValidationDto.getPassword());
 				

@@ -110,4 +110,9 @@ public abstract class AbstractIdentityPasswordValidateProcessor
 	}
 
 	protected abstract boolean requiresOriginalPassword();
+
+	@Override
+	public boolean conditional(EntityEvent<IdmIdentityDto> event) {
+		return super.conditional(event) && !getBooleanProperty(IdentityProcessor.SKIP_PASSWORD_VALIDATION, event.getProperties());
+	}
 }

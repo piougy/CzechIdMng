@@ -31,7 +31,7 @@ class PasswordChangeContent extends Basic.AbstractContent {
     //
     const identity = identityManager.getEntity(this.context.store.getState(), entityId);
     const options = [
-      { value: RESOURCE_IDM, niceLabel: `${IDM_NAME}${ identity ? ` (${ identity.username })` : '' }` }
+      { value: RESOURCE_IDM, accounts: RESOURCE_IDM, idm: true, niceLabel: `${IDM_NAME}${ identity ? ` (${ identity.username })` : '' }` }
     ];
     return (
       <PasswordChangeForm

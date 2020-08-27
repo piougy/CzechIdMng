@@ -397,6 +397,9 @@
           "attributeOverridden": {
             "header": "Attribute is used in these roles",
             "label": "Where is attribute used?"
+          },
+          "passwordFilter": {
+            "label": "Password filter"
           }
         }
       },
@@ -672,6 +675,36 @@
          "name": "Status of all active synchronizations"
          }
        }
+     },
+     "uniformPassword": {
+       "header": "Uniform password system",
+       "title": "Uniform password system",
+       "create": {
+         "header": "New uniform password"
+       },
+       "edit": {
+         "header": "Edit uniform password"
+       },
+       "basic": "Basic information",
+       "system": "Connected system",
+       "filter": {
+         "text": "Name of password filter"
+       },
+       "save": {
+         "success": "Uniform password was successfully saved."
+       }
+     },
+     "uniformPasswordSystem": {
+       "detail": "Connected system",
+       "save": {
+         "success": "Connected system was successfully saved."
+       },
+       "create": {
+         "header": "New connected system"
+       },
+       "edit": {
+         "header": "Edit system connection"
+       }
      }
   },
   "entity": {
@@ -922,6 +955,20 @@
       "passwordAttribute": {
         "label": "Attribute with password",
         "help": "Attribute will contain value of password. The attribute can't be override by role mapping. Into transformation will be add password in object GuardedString. Script must return null, or GuardedString."
+      },
+      "passwordFilter": {
+        "passwordFilter": {
+          "label": "Active password filter",
+          "help": "The password filter is active on the system"
+        },
+        "echoTimeout": {
+          "label": "Timeout (seconds)",
+          "help": "After creating an echo record, all the same password change requests are marked as echo in the defined timeout."
+        },
+        "transformationUidScript": {
+          "label": "Transformation script for identifier from system",
+          "help": "Script find identity in IdM by given identifier from system. Returned must be IdmIdentityDto.  To script is given these parameters: 'system' the system from which the password change request came, 'username' identifier given from system, 'logIdentifier' log identifier that connects request from pasword filter with IdM and 'systemAttributeMapping' which contains an attribute mapping in which the password filter setting in IdM is defined."
+        }
       }
     },
     "RoleSystemAttribute": {
@@ -948,7 +995,22 @@
     "uid": "Account identifier",
     "inProtection": "Is protected from delete",
     "endOfProtection": "Protected until",
-    "targetEntity": "Entity (IdM)"
+    "targetEntity": "Entity (IdM)",
+    "echo": {
+      "label": "Echo",
+      "changed": {
+        "label": "Password changed",
+        "true": "yes",
+        "false": "no"
+      },
+      "changeDate": "Changed date",
+      "validityChecked": {
+        "label": "Performed successful password validation",
+        "true": "yes",
+        "false": "no"
+      },
+      "validateDate": "Validation date"
+    }
   },
     "IdentityAccount": {
       "_type": "Identity account in system",
@@ -1202,6 +1264,26 @@
       "value": "Value",
       "created": "Created",
       "creator": "Creator"
+    },
+    "UniformPassword": {
+      "code": "Code",
+      "timeout": {
+        "label": "Timeout (seconds)",
+        "helpBlock": "Time window in which two identical passwords will be marked as echo."
+      },
+      "changeInIdm": {
+        "label": "Change password through IdM",
+        "helpBlock": "Password change for the password filter definition will be also made through IdM."
+      },
+      "description": "Description",
+      "disabled": {
+        "label": "Disabled",
+        "helpBlock": "Disabled uniform password change will not be evaluated. The options on the password change form will not be unified."
+      }
+    },
+    "UniformPasswordSystem": {
+      "system": "System",
+      "uniformPassword": "Password filter"
     }
   },
   "enums" : {
@@ -1367,6 +1449,10 @@
     }
   },
   "permission": {
+    "base" : {
+      "PASSWORDFILTERCHANGE": "Password filter - password change",
+      "PASSWORDFILTERVALIDATE": "Password filter - password validation"
+    },
     "group": {
       "ACCOUNT": "Accounts in systems",
       "ROLEACCOUNT": "Role accounts",
@@ -1381,7 +1467,8 @@
       "PROVISIONINGBREAK": "Provisioning - brake",
       "PROVISIONINGOPERATION": "Provisioning - operations in queue",
       "PROVISIONINGARCHIVE": "Provisioning - archive",
-      "SYSTEMATTRIBUTEMAPPING": "Mapping atribute in system"
+      "SYSTEMATTRIBUTEMAPPING": "Mapping atribute in system",
+      "UNIFORMPASSWORD": "Uniform password system"
     }
   },
   "eav": {
@@ -2636,6 +2723,22 @@
     "ROLE_REQUEST_OPERATION_CANCELED": {
       "title": "Provisioning operation was canceled!",
       "message": "Provisioning operation on the system [{{system}}] were canceled!"
+    },
+    "PASSWORD_FILTER_SYSTEM_NOT_FOUND": {
+      "title": "System not found!",
+      "message": "System for identifier [{{resource}}] not found!"
+    },
+    "PASSWORD_FILTER_DEFINITION_NOT_FOUND": {
+      "title": "For system not found active password filter definition!",
+      "message": "For system [{{systemId}}] not found active password filter definition!"
+    },
+    "PASSWORD_FILTER_IDENTITY_NOT_FOUND": {
+      "title": "Identity not found!",
+      "message": "Identity with identifier [{{identifier}}] not found!"
+    },
+    "PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST": {
+      "title": "Request for password change was not validated!",
+      "message": "Request for identifier [{{identifier}}] didn't pass by validation! For more information check application log."
     }
   },
   "processor": {
@@ -2662,6 +2765,9 @@
     },
     "provisioning-cache": {
       "description": "Stores executed provisioning operations. This drastically speeds up provisioning brake. Evicting this cach may temporarilly slow down provisioning execution for systems, which have provisioning brake enabled."
+    },
+    "password-filter-echo-cache": {
+      "description": "Cache stores records about processed password changes with password filter (ECHO's). The cache prevents made duplicit password request through IdM and systems."
     },
     "sync-mapping-cache": {
       "description": "Cache stores mapped attribute values during synchronization."

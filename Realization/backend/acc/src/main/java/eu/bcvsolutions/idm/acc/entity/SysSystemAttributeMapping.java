@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * to idm entity
  * 
  * @author svandav
+ * @author Ondrej Kopr
  *
  */
 @Entity
@@ -123,7 +124,20 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 	@Audited
 	@Column(name = "evict_contr_values_cache")
 	private boolean evictControlledValuesCache = true;
-	
+
+	@Audited
+	@Column(name = "password_filter", nullable = false)
+	private boolean passwordFilter = false;
+
+	@Audited
+	@Type(type = "org.hibernate.type.TextType")
+	@Column(name = "transformation_uid_script")
+	private String transformationUidScript;
+
+	@Audited
+	@Column(name = "echo_timeout", nullable = false)
+	private long echoTimeout = 180;
+
 	public String getIdmPropertyName() {
 		return idmPropertyName;
 	}
@@ -274,5 +288,29 @@ public class SysSystemAttributeMapping extends AbstractEntity {
 
 	public void setPasswordAttribute(boolean passwordAttribute) {
 		this.passwordAttribute = passwordAttribute;
+	}
+
+	public boolean isPasswordFilter() {
+		return passwordFilter;
+	}
+
+	public void setPasswordFilter(boolean passwordFilter) {
+		this.passwordFilter = passwordFilter;
+	}
+
+	public String getTransformationUidScript() {
+		return transformationUidScript;
+	}
+
+	public void setTransformationUidScript(String transformationUidScript) {
+		this.transformationUidScript = transformationUidScript;
+	}
+
+	public long getEchoTimeout() {
+		return echoTimeout;
+	}
+
+	public void setEchoTimeout(long echoTimeout) {
+		this.echoTimeout = echoTimeout;
 	}
 }

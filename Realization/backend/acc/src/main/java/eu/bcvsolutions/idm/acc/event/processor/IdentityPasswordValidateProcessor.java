@@ -43,7 +43,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  * Processor with password validation. Get all accounts and their distinct
  * systems.
  * 
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 @Component("accIdentityPasswordValidateProcessor")
@@ -201,4 +201,8 @@ public class IdentityPasswordValidateProcessor
 		return ProvisioningEvent.DEFAULT_PASSWORD_VALIDATION_ORDER;
 	}
 
+	@Override
+	public boolean conditional(EntityEvent<IdmIdentityDto> event) {
+		return super.conditional(event) && !getBooleanProperty(IdentityProcessor.SKIP_PASSWORD_VALIDATION, event.getProperties());
+	}
 }

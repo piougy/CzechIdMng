@@ -27,6 +27,7 @@ public class AccAccountDto extends AbstractDto {
 	private static final long serialVersionUID = 1L;
 
 	public static final String PROPERTY_END_OF_PROTECTION = "endOfProtection";
+	public static final String PROPERTY_ECHO = "echo";
 
 	private String uid;
 	private AccountType accountType;

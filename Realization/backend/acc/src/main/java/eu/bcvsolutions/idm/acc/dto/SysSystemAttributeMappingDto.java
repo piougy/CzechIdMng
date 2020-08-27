@@ -9,6 +9,12 @@ import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
+/**
+ * Attribute mapping for {@link SysSystemMappingDto}
+ *
+ * @author Ondrej Kopr
+ *
+ */
 @Relation(collectionRelation = "systemAttributeMappings")
 public class SysSystemAttributeMappingDto extends AbstractDto implements AttributeMapping {
 
@@ -35,6 +41,9 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	private boolean sendOnPasswordChange = false;
 	private boolean cached = true;
 	private boolean evictControlledValuesCache = true;
+	private boolean passwordFilter = false;
+	private String transformationUidScript;
+	private long echoTimeout = 180;
 
 	@Override
 	public String getName() {
@@ -217,4 +226,29 @@ public class SysSystemAttributeMappingDto extends AbstractDto implements Attribu
 	public void setPasswordAttribute(boolean passwordAttribute) {
 		this.passwordAttribute = passwordAttribute;
 	}
+
+	public boolean isPasswordFilter() {
+		return passwordFilter;
+	}
+
+	public void setPasswordFilter(boolean passwordFilter) {
+		this.passwordFilter = passwordFilter;
+	}
+
+	public String getTransformationUidScript() {
+		return transformationUidScript;
+	}
+
+	public void setTransformationUidScript(String transformationUidScript) {
+		this.transformationUidScript = transformationUidScript;
+	}
+
+	public long getEchoTimeout() {
+		return echoTimeout;
+	}
+
+	public void setEchoTimeout(long echoTimeout) {
+		this.echoTimeout = echoTimeout;
+	}
+
 }

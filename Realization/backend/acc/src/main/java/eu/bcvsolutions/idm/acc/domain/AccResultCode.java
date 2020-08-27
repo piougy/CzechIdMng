@@ -152,7 +152,12 @@ public enum AccResultCode implements ResultCode {
 	// System mapping
 	SYSTEM_MAPPING_DELETE_BULK_ACTION_MAPPING_IN_USE(HttpStatus.FOUND, "Mapping [%s] is used in [%s] synchronization or provisioning settings!"),
 	// Groovy script
-	GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED(HttpStatus.BAD_REQUEST, "Attribute transformation script failed! Reason: [%s] IdM location: [%s] Script location: [%s]");
+	GROOVY_SCRIPT_ATTR_TRANSFORMATION_FAILED(HttpStatus.BAD_REQUEST, "Attribute transformation script failed! Reason: [%s] IdM location: [%s] Script location: [%s]"),
+	// Password filter
+	PASSWORD_FILTER_SYSTEM_NOT_FOUND(HttpStatus.NOT_FOUND, "System in IdM for identifier: [%s] not found."),
+	PASSWORD_FILTER_DEFINITION_NOT_FOUND(HttpStatus.NOT_FOUND, "For system [%s] doesn't exist password filter definition."),
+	PASSWORD_FILTER_IDENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "Identity for identifier [%s] not found."),
+	PASSWORD_FILTER_NOT_VALID_CHANGE_REQUEST(HttpStatus.FORBIDDEN, "Echo validation in password change for identity id [%s] didn't pass by check. See IdM log for more information.");
 
 	private final HttpStatus status;
 	private final String message;

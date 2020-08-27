@@ -23,6 +23,9 @@ public enum AccGroupPermission implements GroupPermission {
 			IdmBasePermission.READ,
 			IdmBasePermission.CREATE,
 			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE,
+			SystemBasePermission.PASSWORDFILTERCHANGE,
+			SystemBasePermission.PASSWORDFILTERVALIDATE,
 			IdmBasePermission.DELETE),
 	// RT: commented till system agenda will be secured properly
 	// SYSTEMATTRIBUTEMAPPING(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.CREATE, IdmBasePermission.UPDATE, IdmBasePermission.DELETE),
@@ -50,7 +53,15 @@ public enum AccGroupPermission implements GroupPermission {
 	PROVISIONINGARCHIVE(
 			IdmBasePermission.ADMIN,
 			IdmBasePermission.COUNT,
-			IdmBasePermission.READ);
+			IdmBasePermission.READ),
+	UNIFORMPASSWORD(
+			IdmBasePermission.ADMIN,
+			IdmBasePermission.COUNT,
+			IdmBasePermission.AUTOCOMPLETE,
+			IdmBasePermission.READ,
+			IdmBasePermission.CREATE,
+			IdmBasePermission.UPDATE,
+			IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -61,6 +72,8 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String SYSTEM_CREATE = "SYSTEM" + BasePermission.SEPARATOR + "CREATE";
 	public static final String SYSTEM_UPDATE = "SYSTEM" + BasePermission.SEPARATOR + "UPDATE";
 	public static final String SYSTEM_DELETE = "SYSTEM" + BasePermission.SEPARATOR + "DELETE";
+	public static final String SYSTEM_PASSWORDFILTERCHANGE = "SYSTEM" + BasePermission.SEPARATOR + "PASSWORDFILTERCHANGE";
+	public static final String SYSTEM_PASSWORDFILTERVALIDATE = "SYSTEM" + BasePermission.SEPARATOR + "PASSWORDFILTERVALIDATE";
 	//
 	// RT: commented till system agenda will be secured properly
 //	public static final String SYSTEM_ATTRIBUTE_MAPPING_READ = "SYSTEMATTRIBUTEMAPPING" + BasePermission.SEPARATOR + "READ";
@@ -128,7 +141,15 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String PROVISIONING_ARCHIVE_COUNT = "PROVISIONINGARCHIVE" + BasePermission.SEPARATOR + "COUNT";
 	public static final String PROVISIONING_ARCHIVE_READ = "PROVISIONINGARCHIVE" + BasePermission.SEPARATOR + "READ";
 	public static final String PROVISIONING_ARCHIVE_DELETE = "PROVISIONINGARCHIVE" + BasePermission.SEPARATOR + "DELETE";
-	
+	//
+	public static final String UNIFORM_PASSWORD_ADMIN = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String UNIFORM_PASSWORD_COUNT = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "COUNT";
+	public static final String UNIFORM_PASSWORD_AUTOCOMPLETE = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "AUTOCOMPLETE";
+	public static final String UNIFORM_PASSWORD_READ = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "READ";
+	public static final String UNIFORM_PASSWORD_CREATE = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "CREATE";
+	public static final String UNIFORM_PASSWORD_UPDATE = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "UPDATE";
+	public static final String UNIFORM_PASSWORD_DELETE = "UNIFORMPASSWORD" + BasePermission.SEPARATOR + "DELETE";
+
 	private final List<BasePermission> permissions;
 
 	private AccGroupPermission(BasePermission... permissions) {

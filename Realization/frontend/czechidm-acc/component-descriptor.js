@@ -68,6 +68,13 @@ module.exports = {
       manager: require('./src/redux').ProvisioningBreakRecipientManager
     },
     {
+      id: 'echo-item-info',
+      type: 'entity-info',
+      entityType: ['echo', 'echoItem'],
+      component: require('./src/components/EchoItemInfo/EchoItemInfo').default,
+      manager: null
+    },
+    {
       id: 'system-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'UUID',

@@ -88,9 +88,12 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       accounts: []
     };
 
+
     options.forEach(resourceValue => {
       if (resourceValue.value === RESOURCE_IDM) {
         requestData.idm = true;
+      } else if (_.isArray(resourceValue.value)) {
+        requestData.accounts = requestData.accounts.concat(resourceValue.value);
       } else {
         requestData.accounts.push(resourceValue.value);
       }
@@ -138,6 +141,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       });
   }
 
+
   save(event) {
     if (event) {
       event.preventDefault();
@@ -173,10 +177,16 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
       requestData.idm = true;
     } else {
       formData.accounts.forEach(resourceValue => {
-        if (resourceValue === RESOURCE_IDM) {
+        const value = resourceValue.accounts;
+        const idm = resourceValue.idm;
+        if (idm || value === RESOURCE_IDM) {
           requestData.idm = true;
+        }
+
+        if (_.isArray(value)) {
+          requestData.accounts = requestData.accounts.concat(value);
         } else {
-          requestData.accounts.push(resourceValue);
+          requestData.accounts.push(value);
         }
       });
     }
@@ -335,6 +345,7 @@ class PasswordChangeComponent extends Basic.AbstractFormComponent {
             multiSelect
             options={ accountOptions }
             required
+            useObject
             disabled={ (passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)) || !accountsExits }
             onChange={ this._preValidate.bind(this) }/>
 
@@ -391,12 +402,14 @@ PasswordChangeComponent.propTypes = {
   userContext: PropTypes.object,
   accountOptions: PropTypes.object,
   entityId: PropTypes.string,
-  _permissions: PropTypes.arrayOf(PropTypes.string)
+  _permissions: PropTypes.arrayOf(PropTypes.string),
+  prepareAccounts: PropTypes.func
 };
 PasswordChangeComponent.defaultProps = {
   requireOldPassword: true,
   userContext: null,
-  _permissions: undefined
+  _permissions: undefined,
+  prepareAccounts: null
 };
 
 function select(state, component) {

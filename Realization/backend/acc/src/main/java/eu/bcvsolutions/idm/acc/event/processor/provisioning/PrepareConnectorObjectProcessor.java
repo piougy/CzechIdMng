@@ -231,7 +231,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			List<SysSystemAttributeMappingDto> passwordAttributes = attributeMappingService
 					.getAllPasswordAttributes(system.getId(), mapping.getId());
 			final GuardedString generatedPassword;
-			// if exists at least one password attribute generate password
+			// If exists at least one password attribute generate password and try set echos for current system
 			if (!passwordAttributes.isEmpty()) {
 				generatedPassword = generatePassword(system);
 			} else {

@@ -25,9 +25,11 @@ import eu.bcvsolutions.idm.core.api.domain.AutomaticRoleAttributeRuleType;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.Identifiable;
+import eu.bcvsolutions.idm.core.api.domain.IdmScriptCategory;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.domain.RecursionType;
 import eu.bcvsolutions.idm.core.api.domain.RoleRequestedByType;
+import eu.bcvsolutions.idm.core.api.domain.ScriptAuthorityType;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmAutomaticRoleAttributeRuleDto;
@@ -50,6 +52,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleGuaranteeRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleTreeNodeDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptAuthorityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmScriptDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeNodeDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
@@ -83,6 +87,8 @@ import eu.bcvsolutions.idm.core.api.service.IdmRoleGuaranteeService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleTreeNodeService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptAuthorityService;
+import eu.bcvsolutions.idm.core.api.service.IdmScriptService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.api.service.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
@@ -149,6 +155,8 @@ public class DefaultTestHelper implements TestHelper {
 	@Autowired private ModuleService moduleService;
 	@Autowired private IdmPasswordService passwordService;
 	@Autowired private FilterManager filterManager;
+	@Autowired private IdmScriptAuthorityService scriptAuthorityService;
+	@Autowired private IdmScriptService scriptService;
 	
 	@Override
 	public LoginDto loginAdmin() {
@@ -997,5 +1005,37 @@ public class DefaultTestHelper implements TestHelper {
 		def.setMain(isMain);
 		def = formDefinitionService.save(def);
 		return def;
+	}
+
+	@Override
+	public IdmScriptAuthorityDto createScriptAuthority(UUID scriptId, ScriptAuthorityType type, String className,
+			String service) {
+		IdmScriptAuthorityDto auth = new IdmScriptAuthorityDto();
+		auth.setClassName(className);
+		auth.setType(type);
+		auth.setScript(scriptId);
+		if (type == ScriptAuthorityType.SERVICE) {
+			auth.setService(service);
+		}
+		return scriptAuthorityService.saveInternal(auth);
+	}
+
+	@Override
+	public IdmScriptDto createScript(String code, IdmScriptCategory category, String... lines) {
+		IdmScriptDto scriptDto = scriptService.getByCode(code);
+		if (scriptDto == null) {
+			scriptDto = new IdmScriptDto();
+		}
+		scriptDto.setCode(code);
+		scriptDto.setName(code);
+		scriptDto.setCategory(category);
+
+		StringBuilder sb = new StringBuilder();
+		for (String line :  lines) {
+			sb.append(line);
+			sb.append(System.lineSeparator());
+		}
+		scriptDto.setScript(sb.toString());
+		return scriptService.save(scriptDto);
 	}
 }

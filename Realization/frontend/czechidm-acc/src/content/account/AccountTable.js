@@ -124,7 +124,8 @@ export class AccountTable extends Advanced.AbstractTableContent {
       columns,
       _permissions,
       showAddButton,
-      className
+      className,
+      _showEchoMetadata
     } = this.props;
     const { detail, systemEntity, connectorObject } = this.state;
     //
@@ -237,6 +238,25 @@ export class AccountTable extends Advanced.AbstractTableContent {
             sort
             sortProperty="systemEntity.uid"
             face="text" />
+          <Advanced.Column
+            property="_embedded.echo.accountId"
+            rendered={ _.includes(columns, 'echo') && _showEchoMetadata }
+            header={ this.i18n('acc:entity.Account.echo.label') }
+            cell={
+              ({rowIndex, data}) => {
+                const echo = data[rowIndex]._embedded.echo;
+                if (echo) {
+                  return (
+                    <Advanced.EntityInfo
+                      entityType="echo"
+                      entity={ echo }
+                      face="popover"
+                      showIcon/>
+                  );
+                }
+                return null;
+              }
+            }/>
         </Advanced.Table>
 
         <Basic.Modal
@@ -378,7 +398,8 @@ function select(state, component) {
     i18nReady: state.config.get('i18nReady'),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
     _searchParameters: Utils.Ui.getSearchParameters(state, uiKey),
-    _permissions: Utils.Permission.getPermissions(state, `${uiKey}-detail`)
+    _permissions: Utils.Permission.getPermissions(state, `${uiKey}-detail`),
+    _showEchoMetadata: Managers.ConfigurationManager.showSystemInformation(state)
   };
 }
 

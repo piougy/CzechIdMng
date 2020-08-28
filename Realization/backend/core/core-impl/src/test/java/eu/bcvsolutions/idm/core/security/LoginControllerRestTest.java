@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import eu.bcvsolutions.idm.core.api.config.domain.RoleConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
@@ -61,6 +62,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 	@Autowired private TokenManager tokenManager;
 	@Autowired private JwtAuthenticationMapper jwtTokenMapper;
 	@Autowired private IdmIdentityService identityService;
+	@Autowired private RoleConfiguration roleConfiguration;
 	//
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -164,10 +166,13 @@ public class LoginControllerRestTest extends AbstractRestTest {
 	
 	@Test
 	public void testSwitchUser() throws Exception {
-		// login as admin		
+		IdmIdentityDto manager = getHelper().createIdentity();
+		getHelper().createIdentityRole(manager, roleConfiguration.getAdminRole());
+		//
+		// login as manager		
 		Map<String, String> login = new HashMap<>();
-		login.put("username", TestHelper.ADMIN_USERNAME);
-		login.put("password", TestHelper.ADMIN_PASSWORD);
+		login.put("username", manager.getUsername());
+		login.put("password", manager.getPassword().asString());
 		String response = getMockMvc()
 				.perform(post(BaseController.BASE_PATH + "/authentication")
 				.content(serialize(login))
@@ -216,7 +221,7 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		// check token => same owner, same id, different username in properties
 		Assert.assertEquals(tokenDto.getOwnerId(), switchTokenDto.getOwnerId());
 		Assert.assertEquals(identity.getUsername(), switchTokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_CURRENT_USERNAME));
-		Assert.assertEquals(TestHelper.ADMIN_USERNAME, switchTokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME));
+		Assert.assertEquals(manager.getUsername(), switchTokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME));
 		//
 		// test create identity with switched token + check audit fields
 		IdmIdentityDto createIdentity = new IdmIdentityDto(getHelper().createName());
@@ -231,10 +236,14 @@ public class LoginControllerRestTest extends AbstractRestTest {
 	            .getResponse()
 	            .getContentAsString();
 		IdmIdentityDto createdIdentity = identityService.getByUsername(createIdentity.getUsername());
-		Assert.assertEquals(TestHelper.ADMIN_USERNAME, createdIdentity.getOriginalCreator());
-		Assert.assertEquals(identityService.getByUsername(TestHelper.ADMIN_USERNAME).getId(), createdIdentity.getOriginalCreatorId());
+		Assert.assertEquals(manager.getUsername(), createdIdentity.getOriginalCreator());
+		Assert.assertEquals(manager.getId(), createdIdentity.getOriginalCreatorId());
 		Assert.assertEquals(identity.getUsername(), createdIdentity.getCreator());
 		Assert.assertEquals(identity.getId(), createdIdentity.getCreatorId());
+		//
+		// rename identity - use id in logout phase
+		manager.setUsername(getHelper().createName());
+		manager = identityService.save(manager);
 		//
 		// switch logout => test token, authorities
 		response = getMockMvc()
@@ -256,8 +265,8 @@ public class LoginControllerRestTest extends AbstractRestTest {
 		// check token authorities - APP_ADMIN
 		Assert.assertTrue(dtoAuthorities.stream().anyMatch(a -> a.getAuthority().equals(IdmGroupPermission.APP_ADMIN)));
 		Assert.assertEquals(tokenDto.getOwnerId(), switchTokenDto.getOwnerId());
-		Assert.assertEquals(TestHelper.ADMIN_USERNAME, tokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_CURRENT_USERNAME));
-		Assert.assertEquals(TestHelper.ADMIN_USERNAME, tokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME));
+		Assert.assertEquals(manager.getUsername(), tokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_CURRENT_USERNAME));
+		Assert.assertEquals(manager.getUsername(), tokenDto.getProperties().getString(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME));
 	}
 	
 	@Test

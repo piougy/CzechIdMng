@@ -2,8 +2,8 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -155,14 +155,15 @@ public class DefaultLoginService implements LoginService {
 		IdmTokenDto currentToken = tokenManager.getCurrentToken();
 		ConfigurationMap properties = currentToken.getProperties();
 		String originalUsername = properties.getString(JwtAuthenticationMapper.PROPERTY_ORIGINAL_USERNAME);
+		UUID originalId = properties.getUuid(JwtAuthenticationMapper.PROPERTY_ORIGINAL_IDENTITY_ID);
 		//
-		if (StringUtils.isEmpty(originalUsername)) {
+		if (originalId == null) {
 			throw new ResultCodeException(CoreResultCode.NULL_ATTRIBUTE, ImmutableMap.of("attribute", "originalUsername"));
 		}
 		// change logged token authorities
-		IdmIdentityDto identity = identityService.getByCode(originalUsername);
+		IdmIdentityDto identity = identityService.get(originalId);
 		if (identity == null) {
-			throw new EntityNotFoundException(IdmIdentity.class, originalUsername);
+			throw new EntityNotFoundException(IdmIdentity.class, originalId);
 		}
 		//
 		// Preserve the first original user => switch is available repetitively, but original user is preserved.

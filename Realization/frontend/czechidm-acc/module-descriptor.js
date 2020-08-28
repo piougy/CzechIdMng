@@ -126,7 +126,8 @@ module.exports = {
           },
           {
             id: 'uniform-password',
-            labelKey: 'acc:content.uniformPassword.title',
+            labelKey: 'acc:content.uniformPassword.label',
+            titleKey: 'acc:content.uniformPassword.title',
             order: 20,
             priority: 0,
             path: '/uniform-password',

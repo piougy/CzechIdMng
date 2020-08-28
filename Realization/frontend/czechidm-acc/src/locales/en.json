@@ -678,6 +678,7 @@
      },
      "uniformPassword": {
        "header": "Uniform password system",
+       "label": "Uniform password",
        "title": "Uniform password system",
        "create": {
          "header": "New uniform password"

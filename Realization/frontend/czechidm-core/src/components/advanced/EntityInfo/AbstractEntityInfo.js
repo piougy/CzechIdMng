@@ -274,8 +274,14 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     );
   }
 
-  _renderSystemInformationIcon() {
+  _renderSystemInformationIcon(entity) {
     const { showSystemInformation, showAuditableInfo } = this.state;
+    const _entity = entity || this.getEntity();
+    //
+    // auditable info will be hidden, when no audit info is available
+    if (!_entity || (!_entity.id && !_entity.created && !_entity.modified && !_entity.transactionId)) {
+      return null;
+    }
     //
     return (
       <Basic.Icon
@@ -425,7 +431,7 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
                 ||
                 <Basic.Label text={ this.i18n('label.disabled') } className="label-disabled"/>
               }
-              { this._renderSystemInformationIcon() }
+              { this._renderSystemInformationIcon(_entity) }
               { this._renderSystemCollapsIcon() }
             </Basic.Div>
           </Basic.Div>

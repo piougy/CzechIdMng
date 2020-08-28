@@ -679,6 +679,7 @@
       },
       "uniformPassword": {
         "header": "Systém jednotného hesla",
+        "label": "Jednotné heslo",
         "title": "Systém jednotného hesla",
         "create": {
           "header": "Nová definice jednotného hesla"

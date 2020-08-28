@@ -219,6 +219,7 @@ class DelegationDefinitionDetail extends Basic.AbstractContent {
                 rendered={!!_selectedType}
                 onChange={ this._onChangeDelegator.bind(this) }
                 label={ this.i18n('entity.DelegationDefinition.delegator.label') }
+                disableable={ false }
                 required/>
               <Advanced.EntitySelectBox
                 ref="delegatorContract"

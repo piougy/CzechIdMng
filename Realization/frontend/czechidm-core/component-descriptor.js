@@ -359,6 +359,15 @@ module.exports = {
       manager: require('./src/redux').IdentityManager
     },
     {
+      id: 'identity-allow-disabled-select-form-value',
+      type: 'form-attribute-renderer',
+      persistentType: 'UUID',
+      faceType: 'IDENTITY-ALLOW-DISABLED-SELECT',
+      component: require('./src/components/advanced/Form/IdentityAllowDisabledSelectFormAttributeRenderer'),
+      labelKey: 'core:component.advanced.EavForm.faceType.IDENTITY-ALLOW-DISABLED-SELECT',
+      manager: require('./src/redux').IdentityManager
+    },
+    {
       id: 'role-select-form-value',
       type: 'form-attribute-renderer',
       persistentType: 'UUID',

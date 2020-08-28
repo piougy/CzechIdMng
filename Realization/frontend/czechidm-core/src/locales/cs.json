@@ -605,6 +605,7 @@
           "TEXTAREA": "Textové pole (TextArea)",
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Výběr identit (SelectBox)",
+          "IDENTITY-SELECT": "Výběr identit včetně neaktivních (SelectBox)",
           "ROLE-SELECT": "Výběr rolí (SelectBox)",
           "CAN-BE-REQUESTED-ROLE-SELECT": "Výběr rolí dostupných pro žádost (SelectBox)",
           "FORM-DEFINITION-SELECT": "Výběr definice formuláře (SelectBox)",

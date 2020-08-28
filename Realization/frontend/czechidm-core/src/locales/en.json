@@ -572,6 +572,7 @@
           "TEXTAREA": "TextArea",
           "RICHTEXTAREA": "WYSIWYG editor",
           "IDENTITY-SELECT": "Select identity (SelectBox)",
+          "IDENTITY-SELECT": "Select identity, disabled included (SelectBox)",
           "ROLE-SELECT": "Select role (SelectBox)",
           "CAN-BE-REQUESTED-ROLE-SELECT": "Select role available for request (SelectBox)",
           "FORM-DEFINITION-SELECT": "Select form definition (SelectBox)",

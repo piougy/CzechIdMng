@@ -246,7 +246,7 @@ public class ManualWorkflowTaskDelegationBulkAction extends AbstractBulkAction<W
 				CANDIDATE_OR_ASSIGNED_FILTER_FIELD,
 				CANDIDATE_OR_ASSIGNED_FILTER_FIELD,
 				PersistentType.UUID);
-		roles.setFaceType(BaseFaceType.IDENTITY_SELECT);
+		roles.setFaceType(BaseFaceType.IDENTITY_ALLOW_DISABLED_SELECT);
 		roles.setMultiple(false);
 		roles.setRequired(true);
 		return roles;

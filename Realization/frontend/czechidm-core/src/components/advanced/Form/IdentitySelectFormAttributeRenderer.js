@@ -32,6 +32,16 @@ export default class IdentitySelectFormAttributeRenderer extends SelectBoxFormAt
     return false;
   }
 
+  /**
+   * Can select disabled identity.
+   *
+   * @return {Boolean} true by deafult => disabled identity cannot be selected
+   * @since 10.5.0
+   */
+  isDisableable() {
+    return true;
+  }
+
   renderSingleInput(originalValues) {
     const { attribute, values, uiKey, validationErrors, className, style, component } = this.props;
     const showOriginalValue = !!originalValues;
@@ -64,7 +74,8 @@ export default class IdentitySelectFormAttributeRenderer extends SelectBoxFormAt
         multiSelect={ attribute.multiple }
         validationErrors={ validationErrors }
         className={ className }
-        style={ style}/>
+        style={ style }
+        disableable={ this.isDisableable() }/>
     );
   }
 

@@ -743,7 +743,7 @@ SelectBox.propTypes = {
    */
   valueComponent: PropTypes.func,
   /**
-   * If disabled option can be selected.
+   * If disabled option can be selected. false => can be selected.
    */
   disableable: PropTypes.bool,
   /**

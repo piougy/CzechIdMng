@@ -14,7 +14,7 @@ const PASSWORD_PREVALIDATION = 'PASSWORD_PREVALIDATION';
 const identityManager = new IdentityManager();
 
 /**
- * Create identity form
+ * Create identity form.
  *
  * @author Radek Tomiška
  */
@@ -110,7 +110,7 @@ class Create extends Basic.AbstractContent {
     // add data from child component to formData
     formData.password = this.refs.passwords.getValue();
 
-    if (!this.refs.passwords.validate()) {
+    if (!this.refs.passwords.isValid()) {
       return;
     }
     //

@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
 import eu.bcvsolutions.idm.core.api.dto.IdmAuthorizationPolicyDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmAuthorizationPolicyFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
@@ -274,5 +276,18 @@ public class IdmAuthorizationPolicyController extends AbstractReadWriteDtoContro
 			notes = "Returns all types, with securing data support (by authorization policies).")
 	public Resources<AuthorizableType> getAuthorizableTypes() {
 		return new Resources<>(authorizationManager.getAuthorizableTypes());
+	}
+	
+	@Override
+	protected IdmAuthorizationPolicyFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmAuthorizationPolicyFilter filter = new IdmAuthorizationPolicyFilter(parameters, getParameterConverter());
+		//
+		// role and identity decorator
+		filter.setIdentityId(getParameterConverter().toEntityUuid(
+				parameters, IdmAuthorizationPolicyFilter.PARAMETER_IDENTITY_ID, IdmIdentityDto.class));
+		filter.setRoleId(getParameterConverter().toEntityUuid(
+				parameters, IdmAuthorizationPolicyFilter.PARAMETER_ROLE_ID, IdmRoleDto.class));
+		//
+		return filter;
 	}
 }

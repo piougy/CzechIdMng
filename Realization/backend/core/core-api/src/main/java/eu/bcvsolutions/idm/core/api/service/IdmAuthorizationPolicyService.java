@@ -18,8 +18,9 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
  * @author Radek Tomiška
  *
  */
-public interface IdmAuthorizationPolicyService
-		extends ReadWriteDtoService<IdmAuthorizationPolicyDto, IdmAuthorizationPolicyFilter>,
+public interface IdmAuthorizationPolicyService extends 
+		ReadWriteDtoService<IdmAuthorizationPolicyDto, 
+		IdmAuthorizationPolicyFilter>,
 		AuthorizableService<IdmAuthorizationPolicyDto> {
 	
 	/**
@@ -77,6 +78,4 @@ public interface IdmAuthorizationPolicyService
 	 * @return
 	 */
 	Set<GrantedAuthority> getGrantedAuthorities(UUID identityId, List<IdmAuthorizationPolicyDto> policies);
-	
-	
 }

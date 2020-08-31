@@ -3094,6 +3094,11 @@
           }
         }
       },
+      "authorization-policies": {
+        "label": "Autorizační politiky",
+        "header": "Přidělená oprávnění <small>dle přiřazených rolí</small>",
+        "title": "Autorizační politiky"
+      },
       "passwordChange": {
         "header": "Změna hesla",
         "title": "Změna hesla",

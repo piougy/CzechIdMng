@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 
@@ -36,7 +37,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
 		@Index(name = "idx_idm_author_policy_role", columnList = "role_id"),
 		@Index(name = "idx_idm_author_policy_a_t", columnList = "authorizable_type")
 })
-public class IdmAuthorizationPolicy extends AbstractEntity implements AuthorizationPolicy {
+public class IdmAuthorizationPolicy extends AbstractEntity implements AuthorizationPolicy, Disableable {
 	
 	private static final long serialVersionUID = -5925961560301302926L;
 
@@ -96,10 +97,12 @@ public class IdmAuthorizationPolicy extends AbstractEntity implements Authorizat
 		this.role = role;
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
 	}

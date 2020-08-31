@@ -38,7 +38,7 @@ class IdentityProvisioningOperations extends Advanced.AbstractTableContent {
     columns = _.difference(columns, ['entityType', 'entityIdentifier']);
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.ContentHeader>
           { this.i18n('header', { escape: false }) }
         </Basic.ContentHeader>
@@ -48,7 +48,7 @@ class IdentityProvisioningOperations extends Advanced.AbstractTableContent {
           forceSearchParameters={ forceSearchParameters }
           columns={ columns }
           showDeleteAllButton={ false }/>
-      </div>
+      </Basic.Div>
     );
   }
 }

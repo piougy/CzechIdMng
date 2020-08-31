@@ -61,9 +61,21 @@ module.exports = {
           access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYROLE_READ' ] } ]
         },
         {
-          path: 'authorities',
-          component: require('./src/content/identity/IdentityAuthorities'),
-          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ' ] } ]
+          path: 'authority/',
+          component: require('./src/content/identity/authority/IdentityAuthorityRoutes'),
+          access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ' ] } ],
+          childRoutes: [
+            {
+              path: 'authorities',
+              component: require('./src/content/identity/authority/IdentityAuthorities'),
+              access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
+            },
+            {
+              path: 'authorization-policies',
+              component: require('./src/content/identity/authority/IdentityAuthorizationPolicies'),
+              access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
+            }
+          ]
         },
         {
           path: 'contracts',

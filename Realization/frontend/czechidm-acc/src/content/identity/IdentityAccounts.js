@@ -16,7 +16,7 @@ const accountManager = new AccountManager();
 const identityManager = new Managers.IdentityManager();
 
 /**
- * System accounts
+ * System accounts.
  *
  * @author Radek Tomiška
  */
@@ -86,13 +86,11 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
       SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.Tabs
-          style={{ paddingTop: 15 }}
-        >
+        <Basic.Tabs style={{ paddingTop: 15 }}>
           <Basic.Tab eventKey={1} title={this.i18n('header')}>
             <AccountTableComponent
               ref="accountTable"
@@ -248,7 +246,7 @@ class IdentityAccountsContent extends Advanced.AbstractTableContent {
             </Basic.Modal>
           </Basic.Tab>
         </Basic.Tabs>
-      </div>
+      </Basic.Div>
     );
   }
 }

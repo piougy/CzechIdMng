@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.domain.Requestable;
 import eu.bcvsolutions.idm.core.security.api.domain.AuthorizationPolicy;
@@ -28,7 +29,7 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizationEvaluator;
  *
  */
 @Relation(collectionRelation = "authorizationPolicies")
-public class IdmAuthorizationPolicyDto extends AbstractDto implements AuthorizationPolicy, Requestable {
+public class IdmAuthorizationPolicyDto extends AbstractDto implements AuthorizationPolicy, Requestable, Disableable {
 
 	private static final long serialVersionUID = 1515971437827128049L;
 
@@ -69,10 +70,12 @@ public class IdmAuthorizationPolicyDto extends AbstractDto implements Authorizat
 		this.role = role;
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
 	}

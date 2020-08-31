@@ -8,7 +8,7 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 /**
  * Loading indicator.
  *
- * Lookout: prevent to use Basic.Div inside => cicrular reference.
+ * Be careful: prevent to use Basic.Div inside => cicrular reference.
  *
  * @author Radek Tomiška
  */
@@ -53,7 +53,18 @@ class Loading extends AbstractComponent {
   }
 
   render() {
-    const { rendered, className, containerClassName, showAnimation, isStatic, loadingTitle, style, containerTitle } = this.props;
+    const {
+      rendered,
+      className,
+      containerClassName,
+      showAnimation,
+      isStatic,
+      loadingTitle,
+      style,
+      containerTitle,
+      onClick
+    } = this.props;
+    //
     if (!rendered) {
       return null;
     }
@@ -71,7 +82,15 @@ class Loading extends AbstractComponent {
       { static: isStatic }
     );
     return (
-      <div ref="container" className={ _containerClassNames } style={ style } title={ containerTitle }>
+      <div
+        ref="container"
+        className={ _containerClassNames }
+        style={ style }
+        title={ containerTitle }
+        role="button"
+        tabIndex="0"
+        onClick={ onClick }
+        onKeyPress={ null }>
         {
           showLoading
           ?

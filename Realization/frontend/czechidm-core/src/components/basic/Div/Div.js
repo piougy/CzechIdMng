@@ -19,7 +19,8 @@ export default class Div extends AbstractComponent {
       showLoading,
       showAnimation,
       style,
-      title
+      title,
+      onClick
     } = this.props;
     //
     if (!rendered) {
@@ -32,7 +33,8 @@ export default class Div extends AbstractComponent {
         showAnimation={ showAnimation }
         style={ style }
         containerClassName={ className }
-        containerTitle={ title }>
+        containerTitle={ title }
+        onClick={ onClick }>
         { this.props.children }
       </Loading>
     );

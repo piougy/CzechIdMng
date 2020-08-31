@@ -11,7 +11,9 @@ import { DataManager, RoleManager } from '../../redux';
 const roleManager = new RoleManager();
 
 /**
-* Panel of identities
+* Panel of authorities - identity get authorities after login.
+*
+* @author Radek Tomiška
 */
 export class AuthoritiesPanel extends Basic.AbstractContextComponent {
 
@@ -41,7 +43,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     let filledAuthorities = new Immutable.OrderedMap();
     if (availableAuthorities) {
       // sort authorities by name
-      availableAuthorities = _.sortBy(availableAuthorities, function sort(authority) {
+      availableAuthorities = _.sortBy(availableAuthorities, authority => {
         return authority.name;
       });
       const authorityNames = !authorities ? [] : authorities.map(authority => {
@@ -49,10 +51,15 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
       });
       availableAuthorities.forEach(authorityGroup => {
         let permissions = new Immutable.OrderedMap();
+        let groupUsed = false;
         authorityGroup.permissions.forEach(permission => {
-          permissions = permissions.set(permission.name, _.includes(authorityNames, `${authorityGroup.name}_${permission.name}`));
+          const selected = _.includes(authorityNames, `${authorityGroup.name}_${permission.name}`);
+          groupUsed = groupUsed || selected;
+          permissions = permissions.set(permission.name, selected);
         });
-        filledAuthorities = filledAuthorities.set(authorityGroup.name, permissions);
+        if (groupUsed) {
+          filledAuthorities = filledAuthorities.set(authorityGroup.name, permissions);
+        }
       });
     }
     return filledAuthorities;
@@ -64,7 +71,9 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     }
     const { openedAuthorities } = this.state;
     this.setState({
-      openedAuthorities: openedAuthorities.has(authorityGroup) ? openedAuthorities.delete(authorityGroup) : openedAuthorities.clear().add(authorityGroup)
+      openedAuthorities: openedAuthorities.has(authorityGroup)
+        ? openedAuthorities.delete(authorityGroup)
+        : openedAuthorities.clear().add(authorityGroup)
     });
   }
 
@@ -91,7 +100,10 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     const authorityGroup = availableAuthorities.find(a => {
       return a.name === authorityGroupName;
     });
-    return this.i18n(`${authorityGroup.module ? authorityGroup.module : 'core'}:permission.group.${authorityGroup.name}`, { defaultValue: authorityGroupName});
+    return this.i18n(
+      `${ authorityGroup.module ? authorityGroup.module : 'core' }:permission.group.${ authorityGroup.name }`,
+      { defaultValue: authorityGroupName}
+    );
   }
 
   render() {
@@ -109,61 +121,79 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         {
           !filledAuthorities
           ||
-          filledAuthorities.map((permissions, authorityGroupName) => {
+          [...filledAuthorities.map((permissions, authorityGroupName) => {
             return (
-              <div>
+              <Basic.Div>
                 <Basic.Panel style={{ marginBottom: 2 }}>
                   <Basic.PanelHeader style={{ padding: '0 10px 0 0' }}>
-                    <div className="pull-left">
-                      <div style={{ padding: '8px 15px', cursor: 'pointer' }} onClick={this.onAuthorityGroupToogle.bind(this, authorityGroupName)}>
+                    <Basic.Div className="pull-left">
+                      <Basic.Div
+                        style={{ padding: '8px 15px', cursor: 'pointer' }}
+                        onClick={ this.onAuthorityGroupToogle.bind(this, authorityGroupName) }>
                         {/* TODO: create basic checkbox component */}
-                        <Basic.Icon value="fa:check-square-o" rendered={ this.isAllAuthorityGroupSelected(authorityGroupName) }/>
-                        <Basic.Icon value="fa:minus-square-o" rendered={ this.isSomeAuthorityGroupSelected(authorityGroupName) && !this.isAllAuthorityGroupSelected(authorityGroupName) }/>
-                        <Basic.Icon value="fa:square-o" rendered={ !this.isSomeAuthorityGroupSelected(authorityGroupName) }/>
+                        <Basic.Icon
+                          value="fa:check-square-o"
+                          rendered={ this.isAllAuthorityGroupSelected(authorityGroupName) }/>
+                        <Basic.Icon
+                          value="fa:minus-square-o"
+                          rendered={
+                            this.isSomeAuthorityGroupSelected(authorityGroupName)
+                              && !this.isAllAuthorityGroupSelected(authorityGroupName)
+                          }/>
+                        <Basic.Icon
+                          value="fa:square-o"
+                          rendered={ !this.isSomeAuthorityGroupSelected(authorityGroupName) }/>
                         {' '}
                         { this._authorityGroupI18n(authorityGroupName)}
-                      </div>
-                    </div>
-                    <div className="pull-right">
+                      </Basic.Div>
+                    </Basic.Div>
+                    <Basic.Div className="pull-right">
                       <Basic.Button
                         className="btn-xs"
-                        onClick={this.onAuthorityGroupToogle.bind(this, authorityGroupName)}
+                        onClick={
+                          this.onAuthorityGroupToogle.bind(this, authorityGroupName)
+                        }
                         style={{ display: 'inline-block', marginTop: 6 }}
-                        title={openedAuthorities.has(authorityGroupName) ? this.i18n('content.roles.setting.authority.group.hide') : this.i18n('content.roles.setting.authority.group.show') }
+                        title={
+                          openedAuthorities.has(authorityGroupName)
+                          ?
+                          this.i18n('content.roles.setting.authority.group.hide')
+                          :
+                          this.i18n('content.roles.setting.authority.group.show')
+                        }
                         titleDelayShow={ 500 }
                         titlePlacement="bottom">
-                        <Basic.Icon value={openedAuthorities.has(authorityGroupName) ? 'fa:angle-double-up' : 'fa:angle-double-down'}/>
+                        <Basic.Icon value={ openedAuthorities.has(authorityGroupName) ? 'fa:angle-double-up' : 'fa:angle-double-down' }/>
                       </Basic.Button>
-                    </div>
-                    <div className="clearfix"></div>
+                    </Basic.Div>
+                    <Basic.Div className="clearfix"/>
                   </Basic.PanelHeader>
-                  <Basic.Collapse in={openedAuthorities.has(authorityGroupName)}>
+                  <Basic.Collapse in={ openedAuthorities.has(authorityGroupName) }>
                     <Basic.PanelBody style={{ paddingTop: 0, paddingBottom: 0 }}>
                       {
-                        permissions.map((selected, permission) => {
+                        [...permissions.map((selected, permission) => {
                           return (
-                            <div style={{ padding: '8px 0px'}}>
-                              {/* TODO: create basic checkbox component */}
+                            <Basic.Div style={{ padding: '8px 0px'}} title={ `${ authorityGroupName }_${ permission }` }>
                               <Basic.Icon value="fa:check-square-o" rendered={ selected }/>
                               <Basic.Icon value="fa:square-o" rendered={ !selected }/>
                               {' '}
-                              { this.i18n('permission.base.' + permission)}
-                            </div>
+                              { this.i18n(`permission.base.${ permission }`)}
+                            </Basic.Div>
                           );
-                        })
+                        }).values()]
                       }
                     </Basic.PanelBody>
                   </Basic.Collapse>
                 </Basic.Panel>
-              </div>
+              </Basic.Div>
             );
-          })
+          }).values()]
         }
-      </div>
+      </Basic.Div>
     );
   }
 }

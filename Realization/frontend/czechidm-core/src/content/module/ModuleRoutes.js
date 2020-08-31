@@ -4,7 +4,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 
 /**
- * Modules agendas entry point
+ * Modules agendas entry point.
  *
  * @author Radek Tomiška
  */

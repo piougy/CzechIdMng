@@ -152,13 +152,35 @@ module.exports = {
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['IDENTITYROLE_READ'] } ]
                   },
                   {
-                    id: 'profile-authorities',
+                    id: 'profile-authority',
                     type: 'TAB',
                     labelKey: 'content.identity.authorities.label',
                     titleKey: 'content.identity.authorities.title',
                     order: 40,
-                    path: '/identity/:entityId/authorities',
-                    access: [ { type: 'DENY_ALL', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
+                    path: '/identity/:entityId/authority/authorities',
+                    access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ],
+                    items: [
+                      {
+                        id: 'profile-authorities',
+                        type: 'TAB',
+                        labelKey: 'content.identity.authorities.label',
+                        titleKey: 'content.identity.authorities.title',
+                        order: 10,
+                        icon: '',
+                        path: '/identity/:entityId/authority/authorities',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
+                      },
+                      {
+                        id: 'profile-authorization-policies',
+                        type: 'TAB',
+                        labelKey: 'content.identity.authorization-policies.label',
+                        titleKey: 'content.identity.authorization-policies.title',
+                        order: 10,
+                        icon: '',
+                        path: '/identity/:entityId/authority/authorization-policies',
+                        access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ]
+                      }
+                    ]
                   },
                   {
                     id: 'profile-contracts',

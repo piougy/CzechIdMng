@@ -615,7 +615,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                     <Basic.TextArea
                       ref="description"
                       label={this.i18n('entity.AuthorizationPolicy.description.label')}
-                      max={2000}/>
+                      max={ 2000 }/>
                     <Basic.Checkbox
                       ref="disabled"
                       label={ this.i18n('entity.AuthorizationPolicy.disabled.label') }
@@ -725,7 +725,7 @@ class Filter extends Advanced.Filter {
     return (
       <Advanced.Filter onSubmit={ onSubmit }>
         <Basic.AbstractForm ref="filterForm">
-          <Basic.Row>
+          <Basic.Row className="last">
             <Basic.Col lg={ 4 }>
               <Advanced.Filter.TextField
                 ref="text"

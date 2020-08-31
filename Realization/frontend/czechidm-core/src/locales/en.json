@@ -3041,6 +3041,11 @@
           }
         }
       },
+      "authorization-policies": {
+        "label": "Permissions",
+        "header": "Permissions <small>by assigned roles</small>",
+        "title": "Permissions"
+      },
       "passwordChange": {
         "header": "Password change",
         "title": "Password change",

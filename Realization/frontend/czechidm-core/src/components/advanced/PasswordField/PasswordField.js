@@ -5,9 +5,9 @@ import * as Basic from '../../basic';
 
 /**
  * Component with two TextField and password estimator.
- * TODO: - isValid method is not supported
  *
  * @author Ondřej Kopr
+ * @author Radek Tomiška
  */
 class PasswordField extends Basic.AbstractFormComponent {
 
@@ -29,26 +29,41 @@ class PasswordField extends Basic.AbstractFormComponent {
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (this.props.newPassword !== nextProps.newPassword) {
-      this.refs.newPassword.setValue(nextProps.newPassword);
+      if (this.refs.newPassword) {
+        this.refs.newPassword.setValue(nextProps.newPassword);
+      }
       this._updatePasswordForValidation(nextProps.newPassword);
-      this.refs.newPasswordAgain.setValue(nextProps.newPasswordAgain);
+      if (this.refs.newPasswordAgain) {
+        this.refs.newPasswordAgain.setValue(nextProps.newPasswordAgain);
+      }
     }
   }
 
   getValue() {
+    if (!this.refs.newPassword) {
+      // not rendered => not filled
+      return undefined;
+    }
+    //
     return this.refs.newPassword.getValue();
   }
 
   setValue(value) {
-    this.refs.newPassword.setValue(value);
-    this.refs.newPasswordAgain.setValue(value);
+    if (this.refs.newPassword) {
+      this.refs.newPassword.setValue(value);
+    }
+    if (this.refs.newPasswordAgain) {
+      this.refs.newPasswordAgain.setValue(value);
+    }
   }
 
   /**
    * Focus input field
    */
   focus() {
-    this.refs.newPassword.focus();
+    if (this.refs.newPassword) {
+      this.refs.newPassword.focus();
+    }
   }
 
   _updatePasswordForValidation(value) {
@@ -64,8 +79,16 @@ class PasswordField extends Basic.AbstractFormComponent {
     });
   }
 
+  isValid() {
+    return this.validate();
+  }
+
   validate(showValidationError) {
     const showValidations = showValidationError != null ? showValidationError : true;
+    if (!this.refs.newPassword) {
+      // not rendered => valid
+      return true;
+    }
     if (!this.refs.newPassword.validate() || !this.refs.newPasswordAgain.validate()) {
       return false;
     }
@@ -131,7 +154,7 @@ class PasswordField extends Basic.AbstractFormComponent {
     }
     //
     return (
-      <div className={ hidden ? 'hidden' : '' }>
+      <Basic.Div className={ hidden ? 'hidden' : '' }>
         <Basic.TextField
           type={ type }
           ref="newPassword"
@@ -142,9 +165,9 @@ class PasswordField extends Basic.AbstractFormComponent {
           required={ required }
           labelSpan={ labelSpan }
           componentSpan={ componentSpan }
-          disabled={disabled}
+          disabled={ disabled }
           style={{ marginBottom: 0 }}/>
-        <div className="form-group" style={{ margin: 0 }}>
+        <Basic.Div className="form-group" style={{ margin: 0 }}>
           {
             !labelSpan
             ||
@@ -154,10 +177,10 @@ class PasswordField extends Basic.AbstractFormComponent {
             max={5}
             initialStrength={0}
             opacity={1}
-            value={passwordForValidation}
+            value={ passwordForValidation }
             isIcon={false}
-            spanClassName={componentSpan} />
-        </div>
+            spanClassName={ componentSpan } />
+        </Basic.Div>
         <Basic.TextField
           type={type}
           ref="newPasswordAgain"
@@ -165,12 +188,12 @@ class PasswordField extends Basic.AbstractFormComponent {
           readOnly={ readOnly }
           validate={ this._validatePassword.bind(this, 'newPassword', false) }
           label={ this._newPasswordAgainLabel(newPasswordAgainLabel) }
-          required={required}
+          required={ required }
           labelSpan={ labelSpan }
           componentSpan={ componentSpan }
-          disabled={disabled}
+          disabled={ disabled }
           helpBlock={ helpBlock }/>
-      </div>
+      </Basic.Div>
     );
   }
 }

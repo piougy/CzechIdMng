@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
+import classNames from 'classnames';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -110,9 +111,16 @@ class NodeTable extends Advanced.AbstractTableContent {
     const { treeNodeManager, uiKey } = this.props;
     const selectedEntities = treeNodeManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: treeNodeManager.getNiceLabel(selectedEntities[0]), records: treeNodeManager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: treeNodeManager.getNiceLabels(selectedEntities).join(', ') })
+    this.refs[`confirm-${ bulkActionValue }`].show(
+      this.i18n(`action.${ bulkActionValue }.message`, {
+        count: selectedEntities.length,
+        record: treeNodeManager.getNiceLabel(selectedEntities[0]),
+        records: treeNodeManager.getNiceLabels(selectedEntities).join(', ')
+      }),
+      this.i18n(`action.${ bulkActionValue }.header`, {
+        count: selectedEntities.length,
+        records: treeNodeManager.getNiceLabels(selectedEntities).join(', ')
+      })
     ).then(() => {
       this.context.store.dispatch(treeNodeManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
         if (entity && error) {
@@ -235,8 +243,10 @@ class NodeTable extends Advanced.AbstractTableContent {
         <TypeConfiguration treeTypeId={ type.id }/>
 
         <Basic.Panel>
-          <Basic.Row>{/* FIXME: resposive design - wrong wrapping on mobile */}
-            <Basic.Col lg={ 3 } style={{ paddingRight: 0 }}>
+          <Basic.Row className={ showTree ? 'tree-select-wrapper' : '' }>
+            <Basic.Col
+              lg={ 3 }
+              className="tree-select-tree-container">
               <Advanced.Tree
                 ref="organizationTree"
                 uiKey="organization-tree"
@@ -262,7 +272,9 @@ class NodeTable extends Advanced.AbstractTableContent {
                 }
               />
             </Basic.Col>
-            <Basic.Col lg={ 9 } style={{ paddingLeft: 0 }}>
+            <Basic.Col
+              lg={ 9 }
+              className="tree-select-table-container">
               <Basic.Confirm ref="confirm-delete" level="danger"/>
 
               <Basic.Tabs
@@ -270,7 +282,10 @@ class NodeTable extends Advanced.AbstractTableContent {
                 onSelect={ this._onChangeSelectTabs.bind(this) }
                 className="tab-embedded"
                 style={{ marginBottom: 0 }}>
-                <Basic.Tab eventKey={ 2} title={ this.i18n('tab.nodes') } style={{ borderBottom: 0, borderRight: 0, borderRadius: 0 }}>
+                <Basic.Tab
+                  eventKey={ 2 }
+                  title={ this.i18n('tab.nodes') }
+                  style={{ borderBottom: 0, borderRight: 0, borderRadius: 0 }}>
 
                   { this._renderSelectedNode() }
 

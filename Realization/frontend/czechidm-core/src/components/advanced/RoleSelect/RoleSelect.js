@@ -564,8 +564,7 @@ export default class RoleSelect extends Basic.AbstractFormComponent {
                 <Table
                   ref="table"
                   condensed
-                  className={ showTree ? '' : 'marginable' }
-                  style={ showTree ? { borderLeft: '1px solid #ddd' } : {} }
+                  className={ showTree ? 'show-tree' : 'marginable' }
                   forceSearchParameters={ _tableForceSearchParameters }
                   uiKey={ `${this.getUiKey()}-table` }
                   manager={ this.getManager() }

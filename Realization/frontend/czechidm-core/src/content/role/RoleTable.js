@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import uuid from 'uuid';
+import classNames from 'classnames';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -262,7 +263,8 @@ class RoleTable extends Advanced.AbstractTableContent {
     const _showTree = showCatalogue && SecurityManager.hasAuthority('ROLECATALOGUE_AUTOCOMPLETE');
     //
     return (
-      <Basic.Row>
+      <Basic.Row
+        className={ _showTree ? 'tree-select-wrapper' : '' }>
         <Basic.Confirm ref="confirm-new-request" level="success">
           <Basic.AbstractForm ref="new-request-form" uiKey="confirm-new-request" >
             <Basic.TextField
@@ -273,11 +275,10 @@ class RoleTable extends Advanced.AbstractTableContent {
           </Basic.AbstractForm>
         </Basic.Confirm>
 
-        {/* FIXME: resposive design - wrong wrapping on mobile */}
         <Basic.Col
           lg={ 3 }
-          style={ _showTree ? { paddingRight: 0 } : {} }
-          rendered={ _showTree }>
+          rendered={ _showTree }
+          className="tree-select-tree-container">
           <Advanced.Tree
             ref="roleCatalogueTree"
             uiKey="role-catalogue-tree"
@@ -287,7 +288,9 @@ class RoleTable extends Advanced.AbstractTableContent {
             rendered={ _showTree }/>
         </Basic.Col>
 
-        <Basic.Col lg={ !_showTree ? 12 : 9 } style={ _showTree ? { paddingLeft: 0 } : {} }>
+        <Basic.Col
+          lg={ !_showTree ? 12 : 9 }
+          className="tree-select-table-container">
           <Basic.Confirm ref="confirm-delete" level="danger"/>
 
           <Advanced.Table
@@ -295,10 +298,16 @@ class RoleTable extends Advanced.AbstractTableContent {
             uiKey={ uiKey }
             manager={ roleManager }
             rowClass={ ({rowIndex, data}) => Utils.Ui.getRowClass(data[rowIndex]) }
+            className={
+              _showTree
+              ?
+              classNames('show-tree', className)
+              :
+              className
+            }
             filterOpened={ filterOpened }
             forceSearchParameters={ forceSearchParameters }
             showRowSelection
-            style={ !_showTree ? {} : { borderLeft: '1px solid #ddd' } }
             showLoading={ showLoading }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -358,8 +367,7 @@ class RoleTable extends Advanced.AbstractTableContent {
                 </Basic.Button>
               </span>
             ]}
-            _searchParameters={ this.getSearchParameters() }
-            className={ className }>
+            _searchParameters={ this.getSearchParameters() }>
 
             <Advanced.Column
               header=""

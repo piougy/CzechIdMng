@@ -33,7 +33,7 @@ export default class IdentitySelectFormAttributeRenderer extends SelectBoxFormAt
   }
 
   /**
-   * Can select disabled identity.
+   * Cannot select disabled identity.
    *
    * @return {Boolean} true by deafult => disabled identity cannot be selected
    * @since 10.5.0

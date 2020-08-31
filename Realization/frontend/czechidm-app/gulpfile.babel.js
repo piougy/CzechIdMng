@@ -452,17 +452,15 @@ gulp.task('styles', () => {
 });
 
 gulp.task('htmlReplace', () => {
-  const config = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
-  //
   return gulp.src(['index.html'])
     .pipe(htmlReplace(
       {
         icon: {
-          src: `${config.theme }/images/favicon.ico`,
+          src: `images/favicon.ico`,
           tpl: '<link rel="shortcut icon" href="%s" type="image/x-icon" />'
         },
         favicon: {
-          src: `${config.theme }/images/favicon.gif`,
+          src: `images/favicon.gif`,
           tpl: '<link rel="icon" href="%s" type="image/gif" />'
         },
         css: ['css/main.css', 'css/google.fonts.css'],

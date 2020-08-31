@@ -31,7 +31,8 @@ export default class IdentityAuthorizationPolicies extends Basic.AbstractContent
         <AuthorizationPolicyTable
           uiKey="identity-authorization-policies-table"
           forceSearchParameters={ forceSearchParameters }
-          match={ this.props.match }/>
+          match={ this.props.match }
+          columns={ ['authorizableType', 'basePermissions', 'evaluatorType', 'evaluatorProperties', 'role', 'description', 'disabled', 'seq'] }/>
       </Basic.Div>
     );
   }

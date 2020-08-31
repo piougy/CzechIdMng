@@ -31,7 +31,8 @@ export default class AuthorizationPolicies extends Basic.AbstractContent {
             uiKey="role-authorization-policies-table"
             forceSearchParameters={ forceSearchParameters }
             match={ this.props.match }
-            className="no-margin"/>
+            className="no-margin"
+            columns={ ['authorizableType', 'basePermissions', 'evaluatorType', 'evaluatorProperties', 'description', 'disabled', 'seq'] }/>
         </Basic.Panel>
 
       </Basic.Div>

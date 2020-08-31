@@ -157,6 +157,7 @@ module.exports = {
                     labelKey: 'content.identity.authorities.label',
                     titleKey: 'content.identity.authorities.title',
                     order: 40,
+                    icon: 'fa:shield-alt',
                     path: '/identity/:entityId/authority/authorities',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['AUTHORIZATIONPOLICY_READ'] } ],
                     items: [

@@ -532,6 +532,26 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
               }
             }/>
           <Advanced.Column
+            header={this.i18n('entity.Role._type')}
+            sort
+            sortProperty="role.name"
+            cell={
+              /* eslint-disable react/no-multi-comp */
+              ({ rowIndex, data }) => {
+                const entity = data[rowIndex];
+                //
+                return (
+                  <Advanced.EntityInfo
+                    entityType="role"
+                    entityIdentifier={ entity.role }
+                    entity={ entity._embedded.role }
+                    face="popover"
+                    showIcon/>
+                );
+              }
+            }
+            rendered={ _.includes(columns, 'role') }/>
+          <Advanced.Column
             property="description"
             header={ this.i18n('entity.AuthorizationPolicy.description.label') }
             face="text"
@@ -685,7 +705,7 @@ AuthorizationPolicyTable.propTypes = {
 };
 
 AuthorizationPolicyTable.defaultProps = {
-  columns: ['disabled', 'description', 'seq', 'authorizableType', 'evaluatorType', 'evaluatorProperties', 'basePermissions'],
+  columns: ['authorizableType', 'basePermissions', 'evaluatorType', 'evaluatorProperties', 'role', 'description', 'disabled', 'seq'],
   forceSearchParameters: null,
   _showLoading: false,
   _permissions: null

@@ -50,7 +50,7 @@ export default class IdentityAuthorityRoutes extends Basic.AbstractContent {
   render() {
     return (
       <Basic.Div>
-        { this.renderContentHeader({ help: this.getHelp() }) }
+        { this.renderContentHeader({ help: this.getHelp(), icon: 'fa:shield-alt' }) }
 
         <Advanced.TabPanel position="top" parentId="profile-authority" match={ this.props.match }>
           { this.getRoutes() }

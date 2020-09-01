@@ -701,6 +701,10 @@ AuthorizationPolicyTable.propTypes = {
    * "Hard filters"
    */
   forceSearchParameters: PropTypes.object,
+  /**
+   * Button for create user will be shown
+   */
+  showAddButton: PropTypes.bool,
   //
   _showLoading: PropTypes.bool,
   _permissions: PropTypes.arrayOf(PropTypes.string)
@@ -711,7 +715,8 @@ AuthorizationPolicyTable.defaultProps = {
   forceSearchParameters: null,
   _showLoading: false,
   _permissions: null,
-  showRowSelection: true
+  showRowSelection: true,
+  showAddButton: true
 };
 
 function select(state, component) {

@@ -93,6 +93,7 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_DUPLICATE_ATTRIBUTE_MAPPING(HttpStatus.CONFLICT, "For 'Provisionig' can exist only one mapped attribute to same schema attribute [%s]!"),
 	PROVISIONING_CONTROLLED_VALUE_IS_NOT_SERIALIZABLE(HttpStatus.BAD_REQUEST, "Controlled value [%s] for attribute [%s] on system [%s] is not serializable!"),
 	PROVISIONING_EX_ATTR_CONTROLED_VALUE_RECALC(HttpStatus.BAD_REQUEST, "Error occured durring recalculation controlled value of attribute [%s] on system [%s]!"),
+	PROVISONING_OPERATION_RETRY_CANCEL_NOT_FOUND(HttpStatus.NO_CONTENT, "Provisioning operation [%s] not found - was processed in batch."),
 	MAPPING_CONTEXT_SCRIPT_RETURNS_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Script 'get mapping context' on the system [%s] must return 'MappingContext' type!"),
 	//
 	// Synchronization,

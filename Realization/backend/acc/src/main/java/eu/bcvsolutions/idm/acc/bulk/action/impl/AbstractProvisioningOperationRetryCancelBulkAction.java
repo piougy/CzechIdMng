@@ -6,9 +6,11 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SysProvisioningOperationDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SysProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
@@ -16,6 +18,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
@@ -55,7 +58,19 @@ public abstract class AbstractProvisioningOperationRetryCancelBulkAction extends
 
 				// There must be log item and update state, some provisioning operation are processed by 
 				// batch and it not exists
-				this.logItemProcessed(dto, new OperationResult.Builder(OperationState.NOT_EXECUTED).build());
+				if (!isRetryWholeBatchAttribute()) {
+					this.logItemProcessed(dto, new OperationResult.Builder(OperationState.NOT_EXECUTED).build());
+				} else {
+					this.logItemProcessed(
+							dto, 
+							new OperationResult
+								.Builder(OperationState.EXECUTED)
+								.setModel(new DefaultResultModel(
+										AccResultCode.PROVISONING_OPERATION_RETRY_CANCEL_NOT_FOUND,
+										ImmutableMap.of("provisioningOperation", entityId.toString())))
+								.build()
+					);
+				}
 				if (!updateState()) {
 					return new OperationResult.Builder(OperationState.CANCELED).build();
 				}

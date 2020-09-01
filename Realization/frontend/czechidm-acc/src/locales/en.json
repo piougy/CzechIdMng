@@ -2633,6 +2633,10 @@
       "title": "Mapping attribute is duplicated",
       "message": "Schema attribute can be mapped only once (in provisioning mapping)!"
     },
+    "PROVISONING_OPERATION_RETRY_CANCEL_NOT_FOUND": {
+      "title": "Provisioning operation was already processed or canceled",
+      "message": "Provisioning operation was processed in batch."
+    },
     "SYSTEM_MAPPING_NOT_FOUND": {
       "title": "Cannot find system mapping",
       "message": "Cannot find system mapping on system [{{systemId}}] for object class name [{{objectClassName}}]."

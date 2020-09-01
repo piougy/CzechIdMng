@@ -2635,6 +2635,10 @@
       "title": "Duplicitní atributu mapování",
       "message": "Provisioning mapování může obsahovat pouze jeden atribut, mapující stejný schéma atribut!"
     },
+    "PROVISONING_OPERATION_RETRY_CANCEL_NOT_FOUND": {
+      "title": "Operace pro provisioning byla již zpracována či zrušena",
+      "message": "Byly zpracovány všechny operace pro dané entity na koncovém systému v čase, jakém byly zaznamenány do fronty."
+    },
     "SYSTEM_MAPPING_NOT_FOUND": {
       "title": "Nenalezeno systémové mapování",
       "message": "Nenalezeno systémové mapování na systému [{{systemId}}] pro 'object class name' [{{objectClassName}}]."

@@ -263,7 +263,7 @@ public class ProvisioningOperationRetryBulkActionTest extends AbstractBulkAction
 		bulkAction.setProperties(properties);
 
 		IdmBulkActionDto processAction = bulkActionManager.processAction(bulkAction);
-		checkResultLrt(processAction, 1l, null, null);
+		checkResultLrt(processAction, 4l, null, null);
 		checkProcessItemsCount(processAction, operations.size());
 
 		List<SysProvisioningOperationDto> newOperations = provisioningOperationService.find(filter, null).getContent();

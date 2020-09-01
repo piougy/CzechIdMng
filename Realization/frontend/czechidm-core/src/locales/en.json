@@ -2164,7 +2164,7 @@
         "success": "Code list [{{record}}] successfully saved"
       },
       "items": {
-        "header": "Items",
+        "header": "Code list items",
         "title": "Code list items",
         "edit": {
           "title": "Code list value detail",
@@ -5355,8 +5355,8 @@
         "help": "System value. Unigue in code list scope."
       },
       "name": {
-        "label": "Value",
-        "help": "User friendly code list value (name). Visible in select boxes."
+        "label": "Name",
+        "help": "User friendly code list name (value ). Visible in select boxes."
       },
       "description": {
         "label": "$t(entity.description.label)"

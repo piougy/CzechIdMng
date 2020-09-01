@@ -437,7 +437,7 @@ module.exports = {
                 labelKey: 'content.tree.node.detail.label',
                 order: 10,
                 path: '/tree/nodes/:entityId/detail',
-                icon: 'fa:newspaper-o',
+                icon: 'component:basic-info',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['TREENODE_READ'] } ]
               },
               {
@@ -509,7 +509,7 @@ module.exports = {
                 labelKey: 'content.roles.tabs.basic',
                 order: 100,
                 path: '/role/:entityId/detail',
-                icon: 'fa:newspaper-o'
+                icon: 'component:basic-info'
               },
               {
                 id: 'role-eav',
@@ -673,7 +673,7 @@ module.exports = {
                 labelKey: 'content.roles.tabs.basic',
                 order: 100,
                 path: 'requests/:requestId/role/:entityId/detail',
-                icon: 'fa:newspaper-o'
+                icon: 'component:basic-info'
               },
               {
                 id: 'request-role-compositions',
@@ -836,7 +836,7 @@ module.exports = {
                 labelKey: 'content.roleCatalogues.tabs.basic',
                 order: 200,
                 path: '/role-catalogue/:entityId/detail',
-                icon: 'fa:newspaper-o',
+                icon: 'component:basic-info',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['ROLECATALOGUE_READ'] } ]
               },
               {
@@ -1255,7 +1255,7 @@ module.exports = {
                     labelKey: 'content.scheduler.all-tasks.tabs.basic',
                     order: 100,
                     path: '/scheduler/all-tasks/:entityId/detail',
-                    icon: 'fa:newspaper-o'
+                    icon: 'component:basic-info'
                   },
                   {
                     id: 'long-running-task-items',
@@ -1394,6 +1394,7 @@ module.exports = {
             titleKey: 'content.code-lists.title',
             order: 35,
             path: '/code-lists',
+            icon: 'component:codelists',
             access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CODELIST_READ'] } ],
             items: [
               {
@@ -1401,7 +1402,7 @@ module.exports = {
                 labelKey: 'content.code-lists.detail.title',
                 order: 10,
                 path: '/code-lists/:entityId/detail',
-                icon: '',
+                icon: 'component:basic-info',
                 type: 'TAB',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CODELIST_READ'] } ]
               },
@@ -1411,7 +1412,7 @@ module.exports = {
                 titleKey: 'content.code-lists.items.title',
                 order: 100,
                 path: '/code-lists/:entityId/items',
-                icon: '',
+                icon: 'component:codelist-items',
                 type: 'TAB',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['CODELISTITEM_READ'] } ]
               },
@@ -1420,7 +1421,6 @@ module.exports = {
                 labelKey: 'content.code-lists.attributes.title',
                 order: 200,
                 path: '/code-lists/:entityId/attributes',
-                icon: '',
                 type: 'TAB',
                 access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMATTRIBUTE_READ'] } ]
               }
@@ -1518,7 +1518,7 @@ module.exports = {
                     labelKey: 'content.form-projections.detail.title',
                     order: 10,
                     path: '/form-projections/:entityId/detail',
-                    icon: 'fa:newspaper-o',
+                    icon: 'component:basic-info',
                     type: 'TAB',
                     access: [ { type: 'HAS_ANY_AUTHORITY', authorities: ['FORMPROJECTION_READ'] } ]
                   },

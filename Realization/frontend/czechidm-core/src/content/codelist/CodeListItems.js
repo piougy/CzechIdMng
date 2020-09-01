@@ -8,14 +8,15 @@ import { CodeListManager } from '../../redux';
 const manager = new CodeListManager();
 
 /**
-* Codel list items
-*
-* @since 9.4.0
-*/
+ * Codel list items.
+ *
+ * @author Radek Tomiška
+ * @since 9.4.0
+ */
 class CodeListItems extends Basic.AbstractContent {
 
   getContentKey() {
-    return 'content.code-lists';
+    return 'content.code-lists.items';
   }
 
   getNavigationKey() {
@@ -26,18 +27,16 @@ class CodeListItems extends Basic.AbstractContent {
     const { entity, showLoading } = this.props;
     //
     return (
-      <Basic.Panel className={'no-border last'}>
-        <Basic.PanelHeader text={this.i18n('content.code-lists.items.title')} />
-        <Basic.PanelBody style={{ padding: 0 }}>
-          {
-            !entity || showLoading
-            ?
-            <Basic.Loading isStatic show />
-            :
-            <CodeListItemTable uiKey={ `code-list-item-${ entity.id }-table` } codeList={ entity } />
-          }
-        </Basic.PanelBody>
-      </Basic.Panel>
+      <Basic.Div>
+        { this.renderContentHeader({ style: { marginBottom: 0 }}) }
+        {
+          !entity || showLoading
+          ?
+          <Basic.Loading isStatic show />
+          :
+          <CodeListItemTable uiKey={ `code-list-item-${ entity.id }-table` } codeList={ entity } />
+        }
+      </Basic.Div>
     );
   }
 }

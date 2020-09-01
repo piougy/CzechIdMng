@@ -9,7 +9,7 @@ import { CodeListManager } from '../../redux';
 const manager = new CodeListManager();
 
 /**
-* CodeList detail
+* CodeList detail.
 *
 * @author Radek Tomiška
 * @since 9.4.0

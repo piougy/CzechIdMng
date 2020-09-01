@@ -4,7 +4,7 @@ import * as Basic from '../../components/basic';
 import CodeListTable from './CodeListTable';
 
 /**
- * Code lists and items
+ * Code lists and items.
  *
  * @author Radek Tomiška
  * @since 9.4.0

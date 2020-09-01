@@ -13,11 +13,11 @@ const manager = new CodeListItemManager();
 const codeListManager = new CodeListManager();
 
 /**
-* Table of code list items
-*
-* @author Radek Tomiška
-* @since 9.4.0
-*/
+ * Table of code list items.
+ *
+ * @author Radek Tomiška
+ * @since 9.4.0
+ */
 class CodeListItemTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -112,6 +112,10 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
     if (!error) {
       this.addMessage({ message: this.i18n('save.success', { count: 1, record: this.getManager().getNiceLabel(entity) }) });
       this.refs.table.reload();
+      // clean up codelist in redux state => enforce loading
+      if (entity._embedded && entity._embedded.codeList) {
+        this.context.store.dispatch(codeListManager.clearCodeList(entity._embedded.codeList.code));
+      }
     }
     //
     super.afterSave(entity, error);
@@ -130,15 +134,14 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
     }
     //
     return (
-      <div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
+      <Basic.Div>
         <Advanced.Table
           ref="table"
           uiKey={ uiKey }
           showRowSelection
           manager={ this.getManager() }
           forceSearchParameters={ new Domain.SearchParameters().setFilter('codeListId', codeList.id) }
-          rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+          rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
           className="no-margin"
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -156,11 +159,6 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          actions={
-            [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-            ]
-          }
           buttons={
             [
               <Basic.Button
@@ -175,7 +173,16 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
               </Basic.Button>
             ]
           }
-          filterOpened={!filterOpened}>
+          afterBulkAction={
+            (processedBulkAction) => {
+              // clean all codelists in redux state, after delete bulk action ends
+              if (processedBulkAction.id === 'core-code-list-item-delete-bulk-action') {
+                this.context.store.dispatch(codeListManager.clearCodeLists());
+              }
+            }
+          }
+          filterOpened={ !filterOpened }
+          _searchParameters={ this.getSearchParameters() }>
           <Advanced.Column
             header=""
             className="detail-button"
@@ -188,8 +195,7 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
                 );
               }
             }
-            sort={false}
-            _searchParameters={ this.getSearchParameters() }/>
+            sort={ false }/>
           <Advanced.Column property="code" sort/>
           <Advanced.Column property="name" sort/>
         </Advanced.Table>
@@ -237,14 +243,14 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
                   helpBlock={this.i18n('entity.CodeListItem.name.help')}
                   max={ 255 }
                   required/>
-                <div style={ formInstance.getAttributes().size > 0 ? {} : { display: 'none' }}>
+                <Basic.Div style={ formInstance.getAttributes().size > 0 ? {} : { display: 'none' }}>
                   <Basic.ContentHeader text={ this.i18n('content.code-lists.attributes.header') }/>
                   <Advanced.EavForm
                     ref="formInstance"
                     formInstance={ formInstance }
                     useDefaultValue
                     readOnly={ !manager.canSave(detail.entity, _permissions) }/>
-                </div>
+                </Basic.Div>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -267,7 +273,7 @@ class CodeListItemTable extends Advanced.AbstractTableContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
-      </div>
+      </Basic.Div>
     );
   }
 }

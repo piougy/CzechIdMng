@@ -2214,7 +2214,7 @@
         "success": "Číselník [{{record}}] byl úspěšně uložen"
       },
       "items": {
-        "header": "Položky",
+        "header": "Položky číselníku ",
         "title": "Položky číselníku",
         "edit": {
           "title": "Detail hodnoty číselníku",
@@ -5407,8 +5407,8 @@
         "help": "Systémová hodnota. Unikátní v rámci číselníku."
       },
       "name": {
-        "label": "Hodnota",
-        "help": "Hodnota bude zobrazen uživateli ve výběrech jako název položky."
+        "label": "Název",
+        "help": "Název (hodnota) bude zobrazen uživateli ve výběrech jako název položky."
       },
       "description": {
         "label": "$t(entity.description.label)"

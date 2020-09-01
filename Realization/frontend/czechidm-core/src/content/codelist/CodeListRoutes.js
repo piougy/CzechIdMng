@@ -10,7 +10,7 @@ import CodeListDetail from './CodeListDetail';
 const manager = new CodeListManager();
 
 /**
- * Code list detail with registered tabs
+ * Code list detail with registered tabs.
  *
  * @author Radek Tomiška
  * @since 9.4.0
@@ -44,7 +44,7 @@ class CodeListRoutes extends Basic.AbstractContent {
   render() {
     const { entity } = this.props;
     return (
-      <div>
+      <Basic.Div>
         {
           this._getIsNew()
           ?
@@ -55,7 +55,8 @@ class CodeListRoutes extends Basic.AbstractContent {
         <Advanced.DetailHeader
           entity={ entity }
           back="/code-lists"
-          rendered={ !this._getIsNew() && entity }>
+          rendered={ !this._getIsNew() && entity }
+          icon="component:codelist">
           <span>{ manager.getNiceLabel(entity) } <small>{ this.i18n('edit.title') }</small></span>
         </Advanced.DetailHeader>
         {
@@ -67,7 +68,7 @@ class CodeListRoutes extends Basic.AbstractContent {
             { this.getRoutes() }
           </Advanced.TabPanel>
         }
-      </div>
+      </Basic.Div>
     );
   }
 }

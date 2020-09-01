@@ -4,20 +4,19 @@ import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 import * as Domain from '../../../domain';
-import { CodeListItemManager } from '../../../redux';
+import { CodeListItemManager, CodeListManager } from '../../../redux';
 
 const codeListItemManager = new CodeListItemManager();
+const codeListManager = new CodeListManager();
 
 /**
 * Code list select
 * - render enum select box with available code list items (options)
 * - decorator only - if code list is not available (204), then text box is shown
 * - multiSelect - used only if code list definition is available
+* - redux state is used for prevent redundant code list loading, when force search parameters are not used (~ common code lists)
 *
 * TODO: creatable?
-* TODO: big code list - pagination
-* TODO: use redux data, when force search parameters are empty?
-* TODO: readme
 *
 * @author Radek Tomiška
 * @author Roman Kučera
@@ -160,8 +159,9 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
 
   _loadOptions(props = null) {
     const _props = props || this.props;
-    const { code, forceSearchParameters, useFirst, items } = _props;
-    if (!_props.rendered) {
+    const { code, forceSearchParameters, useFirst, items, rendered } = _props;
+    //
+    if (!rendered) {
       // component is not rendered ... loading is not needed
       return;
     }
@@ -182,39 +182,51 @@ export default class CodeListSelect extends Basic.AbstractFormComponent {
       let _forceSearchParameters = null;
       if (forceSearchParameters) {
         _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination
-      }
-      searchParameters = codeListItemManager.mergeSearchParameters(searchParameters, _forceSearchParameters);
-      this.context.store.dispatch(codeListItemManager.fetchEntities(searchParameters, `${ this.getUiKey() }-${ code }`, (json, error) => {
-        if (!error) {
-          const data = json._embedded[codeListItemManager.getCollectionType()] || [];
-          //
-          this._setOptions(data, useFirst);
-        } else {
-          if (error.statusCode === 400 || error.statusCode === 403) {
-            // FIXME: 204 / 404 - codelist doesn't found
-            // FIXME: 403 - input only?
-            this.addErrorMessage({
-              level: 'error',
-              key: 'error-code-list-load',
-              hidden: true
-            }, error);
+        searchParameters = codeListItemManager.mergeSearchParameters(searchParameters, _forceSearchParameters);
+        this.context.store.dispatch(codeListItemManager.fetchEntities(searchParameters, `${ this.getUiKey() }-${ code }`, (json, error) => {
+          if (!error) {
+            const data = json._embedded[codeListItemManager.getCollectionType()] || [];
+            //
+            this._setOptions(data, useFirst);
           } else {
-            this.addErrorMessage({
-              level: 'error',
-              key: 'error-code-list-load'
-            }, error);
+            this._handleError(error);
           }
-          this.setState({
-            options: [],
-            showLoading: false
-          }, () => {
-            // TODO: enum refresh - normalize item has to be called.
-            const { value } = this.state;
-            this.refs.inputEnum.setValue(value);
-            this.refs.inputText.setValue(value);
-          });
-        }
-      }));
+        }));
+      } else {
+        this.context.store.dispatch(codeListManager.fetchCodeListIfNeeded(code, (json, error) => {
+          if (!error) {
+            this._setOptions(json, useFirst);
+          } else {
+            this._handleError(error);
+          }
+        }));
+      }
+    });
+  }
+
+  _handleError(error) {
+    if (error.statusCode === 400 || error.statusCode === 403) {
+      // FIXME: 204 / 404 - codelist doesn't found
+      // FIXME: 403 - input only?
+      this.addErrorMessage({
+        level: 'error',
+        key: 'error-code-list-load',
+        hidden: true
+      }, error);
+    } else {
+      this.addErrorMessage({
+        level: 'error',
+        key: 'error-code-list-load'
+      }, error);
+    }
+    this.setState({
+      options: [],
+      showLoading: false
+    }, () => {
+      // TODO: enum refresh - normalize item has to be called.
+      const { value } = this.state;
+      this.refs.inputEnum.setValue(value);
+      this.refs.inputText.setValue(value);
     });
   }
 

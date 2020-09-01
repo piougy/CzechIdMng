@@ -26,7 +26,8 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | className | string | Css | |
 | header | oneOfType([string, element]) | Table header |  |
 | hover | bool | Activate table hover (highligth selected row) | true |
-| prohibitedActions | arrayOf(string) | Prohibited actions. Defines array an keys of a bulk actions, that shouldn't be visible in this table. | [] ||
+| prohibitedActions | arrayOf(string) | Prohibited actions. Defines array an keys of a bulk actions, that shouldn't be visible in this table. | [] |
+| afterBulkAction | func | Callback after bulk action ends - called only if LRT detail is shown till end. Return 'false' in your callback, when standard table reload is not needed after end. | ||
 
 # AdvancedColumn Component
 

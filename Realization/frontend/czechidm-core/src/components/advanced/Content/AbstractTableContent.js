@@ -168,15 +168,19 @@ export default class AbstractTableContent extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * @deprecated @since 10.6.0 - BE bulk actions are provided and this method is not called. Use 'AdvancedTable#afterBulkAction' callback instead.
+   */
   afterDelete() {
     this.refs.table.reload();
   }
 
   /**
-   * Before delete
+   * Before delete.
    *
    * @param bulkActionValue
    * @param selectedEntities
+   * @deprecated @since 10.6.0 - BE bulk actions are provided and this method is not called. Use bulk action validation instead.
    */
   beforeDelete() {
     // By default nothing

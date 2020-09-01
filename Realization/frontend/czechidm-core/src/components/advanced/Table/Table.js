@@ -220,6 +220,58 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return _.includes(selectedRows, identifier);
   }
 
+  prevalidateBulkAction(bulkAction, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const _searchParameters = this._mergeSearchParameters(this.props._searchParameters);
+
+    const { selectedRows, removedRows } = this.state;
+
+    if (bulkAction) {
+      const bulkActionToProcess = {
+        ...bulkAction
+      };
+      const { manager } = this.props;
+      // remove unnecessary attributes
+      delete bulkActionToProcess.formAttributes;
+      delete bulkActionToProcess.longRunningTaskId;
+      delete bulkActionToProcess.permissions;
+      //
+      bulkActionToProcess.properties = this.refs.bulkActionAttributes.getValues();
+      if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
+        bulkActionToProcess.filter = _searchParameters.getFilters().toJSON();
+        bulkActionToProcess.removeIdentifiers = removedRows.toArray();
+      } else {
+        bulkActionToProcess.identifiers = selectedRows;
+      }
+      //
+      this.setState({
+        bulkActionShowLoading: true
+      }, () => {
+        this.context.store.dispatch(manager.prevalidateBulkAction(bulkActionToProcess, (resultModel, error) => {
+          if (error) {
+            this.addErrorMessage({}, error);
+            this.setState({
+              bulkActionShowLoading: false
+            });
+          } else if (resultModel) {
+            const { backendBulkAction } = this.state;
+            backendBulkAction.prevalidateResult = resultModel;
+            this.setState({
+              bulkActionShowLoading: false,
+              backendBulkAction
+            });
+          } else {
+            this.setState({
+              bulkActionShowLoading: false
+            });
+          }
+        }));
+      });
+    }
+  }
+
   processBulkAction(bulkAction, event) {
     if (event) {
       event.preventDefault();
@@ -277,55 +329,21 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
   }
 
-  prevalidateBulkAction(bulkAction, event) {
-    if (event) {
-      event.preventDefault();
+  /**
+   * Callback after bulk action ends - called only if LRT detail is shown till end.
+   *
+   * @param  {object} processedBulkAction currently processed bulk action
+   * @since 10.6.0
+   */
+  _afterBulkAction(processedBulkAction) {
+    const { afterBulkAction } = this.props;
+    let isReload = true;
+    if (afterBulkAction) {
+      isReload = afterBulkAction(processedBulkAction);
     }
-    const _searchParameters = this._mergeSearchParameters(this.props._searchParameters);
-
-    const { selectedRows, removedRows } = this.state;
-
-    if (bulkAction) {
-      const bulkActionToProcess = {
-        ...bulkAction
-      };
-      const { manager } = this.props;
-      // remove unnecessary attributes
-      delete bulkActionToProcess.formAttributes;
-      delete bulkActionToProcess.longRunningTaskId;
-      delete bulkActionToProcess.permissions;
-      //
-      bulkActionToProcess.properties = this.refs.bulkActionAttributes.getValues();
-      if (_.includes(selectedRows, Basic.Table.SELECT_ALL)) {
-        bulkActionToProcess.filter = _searchParameters.getFilters().toJSON();
-        bulkActionToProcess.removeIdentifiers = removedRows.toArray();
-      } else {
-        bulkActionToProcess.identifiers = selectedRows;
-      }
-      //
-      this.setState({
-        bulkActionShowLoading: true
-      }, () => {
-        this.context.store.dispatch(manager.prevalidateBulkAction(bulkActionToProcess, (resultModel, error) => {
-          if (error) {
-            this.addErrorMessage({}, error);
-            this.setState({
-              bulkActionShowLoading: false
-            });
-          } else if (resultModel) {
-            const { backendBulkAction } = this.state;
-            backendBulkAction.prevalidateResult = resultModel;
-            this.setState({
-              bulkActionShowLoading: false,
-              backendBulkAction
-            });
-          } else {
-            this.setState({
-              bulkActionShowLoading: false
-            });
-          }
-        }));
-      });
+    //
+    if (isReload !== false) { // null + undefined + true
+      this.reload();
     }
   }
 
@@ -679,7 +697,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               entityIdentifier={ backendBulkAction.longRunningTaskId }
               header={ this.i18n(`${backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.label`)}
               showProperties={ false }
-              onComplete={ () => this.reload() }
+              onComplete={ () => this._afterBulkAction(backendBulkAction) }
               footerButtons={
                 <Basic.Button
                   level="link"
@@ -1272,8 +1290,6 @@ AdvancedTable.propTypes = {
   buttons: PropTypes.arrayOf(PropTypes.element),
   /**
    * If table data is empty, then this text will be shown
-   *
-   * @type {string}
    */
   noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   /**
@@ -1316,6 +1332,10 @@ AdvancedTable.propTypes = {
    * Prohibited actions. Defines array an keys of a bulk actions, that shouldn't be visible in this table.
    */
   prohibitedActions: PropTypes.arrayOf(PropTypes.string),
+  /**
+   * Callback after bulk action ends - called only if LRT detail is shown till end. Return 'false' in your callback, when standard table reload is not needed after end.
+   */
+  afterBulkAction: PropTypes.func,
 
   //
   // Private properties, which are used internally for async data fetching

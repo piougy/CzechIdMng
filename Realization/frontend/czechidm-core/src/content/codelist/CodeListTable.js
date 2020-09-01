@@ -11,11 +11,11 @@ import { CodeListManager } from '../../redux';
 const manager = new CodeListManager();
 
 /**
-* Table of code lists
-*
-* @author Radek Tomiška
-* @since 9.4.0
-*/
+ * Table of code lists
+ *
+ * @author Radek Tomiška
+ * @since 9.4.0
+ */
 export class CodeListTable extends Advanced.AbstractTableContent {
 
   constructor(props, context) {
@@ -62,7 +62,6 @@ export class CodeListTable extends Advanced.AbstractTableContent {
     //
     return (
       <Basic.Div>
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Advanced.Table
           ref="table"
           uiKey={ this.getUiKey() }
@@ -96,6 +95,14 @@ export class CodeListTable extends Advanced.AbstractTableContent {
                 { this.i18n('button.add') }
               </Basic.Button>
             ]
+          }
+          afterBulkAction={
+            (processedBulkAction) => {
+              // clean all codelists in redux state, after delete bulk action ends
+              if (processedBulkAction.id === 'core-code-list-delete-bulk-action') {
+                this.context.store.dispatch(this.getManager().clearCodeLists());
+              }
+            }
           }
           filterOpened={ filterOpened }
           _searchParameters={ this.getSearchParameters() }>

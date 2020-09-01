@@ -741,6 +741,18 @@ module.exports = {
       id: 'switch-user-modal',
       type: 'modal',
       component: require('./src/content/modals/SwitchUser')
+    },
+    {
+      id: 'codelist-icon',
+      type: 'icon',
+      entityType: ['codelist', 'codelists', 'codelist-item', 'codelist-items'],
+      component: 'fa:list-ol'
+    },
+    {
+      id: 'basic-info-icon',
+      type: 'icon',
+      entityType: ['basic-info', 'basic-tab'],
+      component: 'fa:newspaper-o'
     }
   ]
 };

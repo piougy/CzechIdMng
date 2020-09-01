@@ -8,7 +8,7 @@ import { CodeListManager } from '../../redux';
 const manager = new CodeListManager();
 
 /**
-* Attributes for the code list
+* Attributes for the code list.
 *
 * @author Radek Tomiška
 * @since 9.4.0
@@ -31,7 +31,7 @@ class CodeListAttributes extends Basic.AbstractContent {
     const { entity, showLoading } = this.props;
     //
     return (
-      <Basic.Panel className={'no-border last'}>
+      <Basic.Panel className="no-border last">
         <Basic.PanelHeader text={this.i18n('content.code-lists.attributes.title')} />
         <Basic.PanelBody style={{ padding: 0 }}>
           {

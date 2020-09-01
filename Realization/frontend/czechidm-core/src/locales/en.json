@@ -5859,6 +5859,11 @@
             "help": "From whom tasks should be assigned."
           }
         }
+      },
+      "core-identity-evaluate-state-bulk-action": {
+        "label": "Recalculate identity state",
+        "help": "Recalculate identity state (according to its current contracts).",
+        "icon": "fa:user-cog"
       }
     },
     "authorization-evaluator": {

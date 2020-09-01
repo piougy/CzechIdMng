@@ -5911,6 +5911,11 @@
             "help": "Od koho se mají úkoly přesunout."
           }
         }
+      },
+      "core-identity-evaluate-state-bulk-action": {
+        "label": "Přepočítat stav uživatele",
+        "help": "Přepočítá stav dle aktuálních kontraktů.",
+        "icon": "fa:user-cog"
       }
     },
     "authorization-evaluator": {

@@ -25,7 +25,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Enabled(CoreModuleDescriptor.MODULE_ID)
 @Component("identityEnableBulkAction")
 @Description("Enable given identities.")

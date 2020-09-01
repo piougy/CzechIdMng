@@ -329,7 +329,9 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
       allAuthorities,
       availableAuthorities,
       _permissions,
-      className } = this.props;
+      className,
+      showAddButton,
+      showRowSelection } = this.props;
     const { detail, evaluatorType, authorizableType } = this.state;
     //
     if (!manager || !roleManager) {
@@ -375,7 +377,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
           uiKey={ uiKey }
           manager={ manager }
           forceSearchParameters={ forceSearchParameters }
-          showRowSelection={ manager.canDelete() }
+          showRowSelection={ manager.canDelete() && showRowSelection }
           className={ className }
           filterOpened
           rowClass={
@@ -402,7 +404,7 @@ export class AuthorizationPolicyTable extends Advanced.AbstractTableContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={ this.showDetail.bind(this, { evaluatorType: DEFAULT_EVALUATOR_TYPE }) }
-                rendered={ _supportedEvaluators.length > 0 && manager.canSave() }>
+                rendered={ _supportedEvaluators.length > 0 && manager.canSave() && showAddButton }>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -708,7 +710,8 @@ AuthorizationPolicyTable.defaultProps = {
   columns: ['authorizableType', 'basePermissions', 'evaluatorType', 'evaluatorProperties', 'role', 'description', 'disabled', 'seq'],
   forceSearchParameters: null,
   _showLoading: false,
-  _permissions: null
+  _permissions: null,
+  showRowSelection: true
 };
 
 function select(state, component) {

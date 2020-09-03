@@ -39,6 +39,12 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Use `{}` brackets
 * Don't use abbreviations for fields, variables etc.
 * Don't use camelCase in package names
+* Configuration
+  * Use ``Configurable`` interface for configurations.
+  *  If the name of a configuration item contains the ``password`` or ``token`` chain, the value of the configuration item is hidden in the rest interface listing (or rather replaced with substitute characters).
+  * It is better to use constants for configuration properties (keys), e.g. ``ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.delete"`` - using separator ot other constant in key name is not preferred - configuration property can be simply found by key suffix (``"ctrl-f" + "core.identity.delete"``). Another benefit - key is readable without finding other constant or string concatiation in code. 
+  * Configuration properties (constants in code) should start with ``PROPERTY_`` prefix.
+  * Registrable component parameters configurable by eav form (constants in code) should start with ``PARAMETER_`` prefix.
 * Database
   * [Convention](https://wiki.czechidm.com/devel/documentation/conventions/dev/database-conventions)
   * `Entity` / `Dto` has to contain jsr303 validations
@@ -56,10 +62,10 @@ If you’d like an enhancement to be made to CzechIdM, pull requests are most we
 * Java
   * Class - fields first, then constructors, then public methods, then private methods
   * ``final`` modifier only there, when is needed (its discutable, but we are using it this way)
-  * keep formatting like author - e.g. inline @Autocomplete, stream formatting
+  * keep formatting like author (author = by added source code amount in class) - e.g. inline @Autocomplete, stream formatting
 * Modules
   * Spring bean names, component names, services, entities etc. should start with module identifier prefix.
-  * Registrable bean names (e.g. ``AuthorizationEvaluator``, ``FilterBuilder``, ``IdmAuthenticationFilter`` ...) should start with module prefix ``core-sso-authentication-filter``. This name could be used as bean name in Spring context.
+  * Registrable component bean names (e.g. ``AuthorizationEvaluator``, ``FilterBuilder``, ``IdmAuthenticationFilter`` ...) should start with module prefix ``core-sso-authentication-filter``. This name could be used as bean name in Spring context.
   * Use interfaces and classes from `idm-core-api` module dependency. If some API is missing (its only in `idm-core-impl`), contact us. Only exception is entity + jpa metamodel usage.
   * Rest endpoints should start with module identifier prefix e.g. <server>/api/v1/crt/certificates.
   * When backend bulk actions are supported, then ``DataFilter`` (with data usage only) has to be used in underlying service (enable bulk action serialization and deserialization from database).

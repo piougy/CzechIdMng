@@ -188,17 +188,7 @@ Example of ``settings.xml``:
   <servers>
     <!-- Nexus servers -->
     <server>
-      <id>maven-releases</id>
-      <username>username</username>
-      <password>password</password>
-    </server>
-    <server>
       <id>nexus</id>
-      <username>username</username>
-      <password>password</password>
-    </server>
-    <server>
-      <id>nexus-public</id>
       <username>username</username>
       <password>password</password>
     </server>
@@ -207,6 +197,14 @@ Example of ``settings.xml``:
   <pluginGroups>
      <pluginGroup>external.atlassian.jgitflow</pluginGroup>
   </pluginGroups>
+
+  <mirrors>
+    <mirror>
+      <id>nexus</id>
+      <mirrorOf>*</mirrorOf>
+      <url>https://nexus.bcvsolutions.eu/repository/maven-all/</url>
+    </mirror>
+  </mirrors>
 
   <profiles>
     <profile>
@@ -219,7 +217,7 @@ Example of ``settings.xml``:
           <snapshots><enabled>true</enabled></snapshots>
         </repository>
         <repository>
-          <id>maven-releases</id>
+          <id>maven-release</id>
           <url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>

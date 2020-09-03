@@ -345,7 +345,7 @@ Usable additional tool argument:
 
 Third party module dependencies are inluded in target build automatically:
 - Product modules (``core``, ``acc`` etc.) are not defined as maven dependencies. These libraries are installed from product placed in product folder. **Product dependency should be defined as provided in module dependencies**.
-- libraries added into ``modules`` folder are **copied from ``modules`` forder directly**. Benefit: snapshot module version can be added there => build can be done even library (or whole module) is not available in local or nexus repository),
+- libraries added into ``modules`` folder are **copied from ``modules`` forder directly**. Benefit: snapshot module version can be added there => build can be done even library (or whole module) is not available in local or nexus repository => **see settings.xml above to resolve private artefacts**),
 - other 3th party libraries are included:
   - library scope is preserved (e.g. provided libraries are supported),
   - library has to be available in maven repository (local or nexus),

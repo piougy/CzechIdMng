@@ -219,7 +219,7 @@ Example of ``settings.xml``:
           <snapshots><enabled>true</enabled></snapshots>
         </repository>
         <repository>
-          <id>maven-release</id>
+          <id>maven-releases</id>
           <url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>

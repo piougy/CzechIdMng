@@ -188,10 +188,6 @@ Example of ``settings.xml``:
   <servers>
     <!-- Nexus servers -->
     <server>
-      <id>maven-releases/id>
-      <username>username</username>
-      <password>password</password>
-    </server>    <server>
       <id>maven-releases</id>
       <username>username</username>
       <password>password</password>

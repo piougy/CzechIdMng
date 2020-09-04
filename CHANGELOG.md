@@ -34,8 +34,13 @@ All notable changes to this project will be documented in this file.
 ## [10.4.2]
 
 ### Administrator
+
 - [#2366](https://redmine.czechidm.com/issues/2366) - New caches were registered:
   - ``core:form-definition-cache`` - Cache stores form definitions (eav). Cache is evicted automatically after form definition or attribute is changed. **Memory usage per application is 25KB per definition with 10 attributes**.
+
+### Developer
+
+- [#2366](https://redmine.czechidm.com/issues/2366) - new cache ``core:form-definition-cache`` for form definitions was registered and used in ``FormService``. Use ``FormService`` in your modules - prevent to use any other service (e.g. ``IdmFormDefinitionService``) if it is possible. When you will create (or already have) integration test which creates (updates, delete) form definitions and this test is transactional (~rollback after test ends), then don't forget to clean up this (or all) caches (=> because rollback will be done).
 
 ## [10.4.1]
 

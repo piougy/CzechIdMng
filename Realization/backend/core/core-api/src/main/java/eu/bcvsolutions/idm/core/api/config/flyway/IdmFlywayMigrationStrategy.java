@@ -38,10 +38,13 @@ public class IdmFlywayMigrationStrategy implements FlywayMigrationStrategy {
 			.configure()
 			.configuration(flyway.getConfiguration())
 			.locations(resolveLocations(dbName, flyway.getConfiguration().getLocations()))
-			// we wrongly added core 8.00.001 script (to history) to avoid 
+			// We wrongly added core 8.00.001 script (to history) to avoid 
 			// flyway error (IllegalArgumentException: Comparison method violates its general contract!),
-			// this created new issue => has to be set to true
+			// this created this new issue => has to be set to true.
 			.ignoreIgnoredMigrations(true)
+			// When wrong change script is added and replace with new one (delete wrong, add new one with new number),
+			// then mission removed change script will be ignored.
+			.ignoreMissingMigrations(true)
 			.load()
 			.migrate();
 	}

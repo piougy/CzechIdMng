@@ -1195,6 +1195,15 @@ module.exports = {
                 access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
               },
               {
+                id: 'bulk-actions',
+                labelKey: 'content.system.bulk-actions.title',
+                order: 45,
+                path: '/modules/bulk-actions',
+                icon: '',
+                type: 'TAB',
+                access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
+              },
+              {
                 id: 'available-services',
                 labelKey: 'content.system.available-services.title',
                 order: 50,

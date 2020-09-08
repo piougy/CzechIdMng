@@ -62,7 +62,8 @@ class Loading extends AbstractComponent {
       loadingTitle,
       style,
       containerTitle,
-      onClick
+      onClick,
+      ...others
     } = this.props;
     //
     if (!rendered) {
@@ -81,16 +82,18 @@ class Loading extends AbstractComponent {
       { hidden: !showLoading },
       { static: isStatic }
     );
+    // onClick required props
+    others.onClick = onClick;
+    others.tabIndex = others.tabIndex || (onClick ? 0 : null);
+    others.role = others.role || (onClick ? 'button' : null);
+    //
     return (
       <div
         ref="container"
         className={ _containerClassNames }
         style={ style }
         title={ containerTitle }
-        role="button"
-        tabIndex="0"
-        onClick={ onClick }
-        onKeyPress={ null }>
+        { ...others }>
         {
           showLoading
           ?

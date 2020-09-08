@@ -131,10 +131,11 @@ public interface Configurable {
 	 * @return
 	 */
 	default List<String> getPropertyNames() {
-		List<String> properties = new ArrayList<>();
-		properties.add(ConfigurationService.PROPERTY_ENABLED);
-		properties.add(ConfigurationService.PROPERTY_ORDER);
-		return properties;
+		List<String> propertyNames = new ArrayList<>();
+		propertyNames.add(ConfigurationService.PROPERTY_ENABLED);
+		propertyNames.add(ConfigurationService.PROPERTY_ORDER);
+		//
+		return propertyNames;
 	}
 	
 	/**
@@ -158,7 +159,7 @@ public interface Configurable {
 	}
 	
 	/**
-	 * Returns whole property name with prefix in configuration
+	 * Returns full property name with prefix in configuration
 	 * 
 	 * @param propertyName without prefix
 	 * @return

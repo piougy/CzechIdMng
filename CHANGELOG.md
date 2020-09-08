@@ -1,9 +1,22 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+
+## [10.6.0]
+
+### Administrator
+
+- [#1981](https://redmine.czechidm.com/issues/1981) - Design of bulk actions used in tables was changed. Filter is now expanded to the top and quick buttons are shown for the first five actions (by default), next actions are in drop down menu. Bulk action order was changed too. Order, icon, level, enforce quick button or disable bulk action can be configured by application setting. Quick button count (or disable quick buttons) can be configured by application setting too.
+
+### Developer
+
+- [#1981](https://redmine.czechidm.com/issues/1981) - Bulk action configuration is available now under configurable component type ``bulk-action``. Bulk action order, icon, level, enforce quick button or disable bulk action at all can be configured by application setting.
+- [#1981](https://redmine.czechidm.com/issues/1981) - Configuration property ``idm.pub.core.identity.delete`` is deprecated now - action can be disabled by bulk action configurable api - **use ``idm.sec.core.bulk-action.identity-delete-bulk-action.enabled=false``** instead.
+
 ## [10.5.0]
 
 ### Administrator
+
 - [#2413](https://redmine.czechidm.com/issues/2413) - New caches were registered:
   - ``core:token-cache`` - Cache stores logged user tokens. Cache is evicted automatically after token is changed. Cache expiration is 1 minute  - token expiration id prolonged automatically in one minute window, when token used.. **Memory usage per logged user is 25KB**.
 - [#812](https://redmine.czechidm.com/issues/812) - Init application data was refactored:
@@ -31,6 +44,7 @@ All notable changes to this project will be documented in this file.
   - Constant ``InitApplicationData#ADMIN_ROLE`` is deprecated, prevent to use it in your module. Admin role can be changed by configuration property ``idm.sec.core.role.admin=superAdminRole``.
   - [#2404](https://redmine.czechidm.com/issues/2404) - **All automatic roles are assigned through asynchronous role requests now** (to preserve order of provisioning operations). When long running tasks (LRT) for processing automatic roles ends, then role requests are prepared only => roles will be assigned asynchronously and they are not available right after LRT ends.
  - [#2248](https://redmine.czechidm.com/issues/2248) - Synchronization - Extended attribute values are storing together with the entity now. This means that the event for IdmFormInstanceDto is published during synchronization now (for each formable item).
+
 ## [10.4.2]
 
 ### Administrator

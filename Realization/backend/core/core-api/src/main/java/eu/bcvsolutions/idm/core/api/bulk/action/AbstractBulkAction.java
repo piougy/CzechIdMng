@@ -153,6 +153,20 @@ public abstract class AbstractBulkAction<DTO extends AbstractDto, F extends Base
 	}
 	
 	@Override
+	public List<String> getPropertyNames() {
+		List<String> propertyNames = super.getPropertyNames();
+		//
+		propertyNames.add(ConfigurationService.PROPERTY_ENABLED);
+		propertyNames.add(ConfigurationService.PROPERTY_ORDER);
+		propertyNames.add(ConfigurationService.PROPERTY_LEVEL);
+		propertyNames.add(ConfigurationService.PROPERTY_ICON);
+		propertyNames.add(PROPERTY_DELETE_ACTION);
+		propertyNames.add(PROPERTY_QUICK_BUTTON);
+		//
+		return propertyNames;
+	}
+	
+	@Override
 	protected OperationResult end(OperationResult result, Exception ex) {
 		OperationResult end = null;
 		if (result != null && result.getException() != null) {

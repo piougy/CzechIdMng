@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto.filter;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.util.LinkedMultiValueMap;
@@ -13,18 +12,16 @@ import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 /**
  * Entity event processors filter.
  * 
- * FIXME: use data filter properties
- * 
  * @author Radek Tomiška
  */
 public class EntityEventProcessorFilter extends DataFilter {
 
-	Class<? extends Serializable> contentClass;
-	private String entityType; // equals - simple name
-	private List<String> eventTypes; // and - processor has to support all
-	private String name; // equals
-	private String module; // equals
-	private String description; // like
+	public static final String PARAMETER_NAME = "name";  // equals
+	public static final String PARAMETER_MODULE = "module"; // equals
+	public static final String PARAMETER_DESCRIPTION  = "description"; // like	
+	public static final String PARAMETER_EVENT_TYPES  = "eventTypes"; // and - processor has to support all
+	public static final String PARAMETER_ENTITY_TYPE  = "entityType"; // equals
+	public static final String PARAMETER_CONTENT_CLASS  = "contentClass"; // equals
 
 	public EntityEventProcessorFilter() {
 		this(new LinkedMultiValueMap<>());
@@ -38,54 +35,52 @@ public class EntityEventProcessorFilter extends DataFilter {
         super(EntityEventProcessorDto.class , data, parameterConverter);
     }
 	
+	@SuppressWarnings("unchecked")
 	public Class<? extends Serializable> getContentClass() {
-		return contentClass;
+		return (Class<? extends Serializable>) getData().getFirst(PARAMETER_CONTENT_CLASS);
 	}
 
 	public void setContentClass(Class<? extends Serializable> contentClass) {
-		this.contentClass = contentClass;
+		set(PARAMETER_CONTENT_CLASS, contentClass);
 	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getModule() {
-		return module;
-	}
-
-	public void setModule(String module) {
-		this.module = module;
-	}
-
+	
 	public String getEntityType() {
-		return entityType;
+		return getParameterConverter().toString(getData(), PARAMETER_ENTITY_TYPE);
 	}
 
 	public void setEntityType(String entityType) {
-		this.entityType = entityType;
+		set(PARAMETER_ENTITY_TYPE, entityType);
 	}
 
 	public List<String> getEventTypes() {
-		if (eventTypes == null) {
-			eventTypes = new ArrayList<>();
-		}
-		return eventTypes;
+		return getParameterConverter().toStrings(getData(), PARAMETER_EVENT_TYPES);
 	}
 	
 	public void setEventTypes(List<String> eventTypes) {
-		this.eventTypes = eventTypes;
+		put(PARAMETER_EVENT_TYPES, eventTypes);
+	}
+	
+	public String getName() {
+		return getParameterConverter().toString(getData(), PARAMETER_NAME);
+	}
+
+	public void setName(String name) {
+		set(PARAMETER_NAME, name);
+	}
+
+	public String getDescription() {
+		return getParameterConverter().toString(getData(), PARAMETER_DESCRIPTION);
+	}
+
+	public void setDescription(String description) {
+		set(PARAMETER_DESCRIPTION, description);
+	}
+
+	public String getModule() {
+		return getParameterConverter().toString(getData(), PARAMETER_MODULE);
+	}
+
+	public void setModule(String module) {
+		set(PARAMETER_MODULE, module);
 	}
 }

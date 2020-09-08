@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.scheduler.api.service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -33,26 +32,6 @@ public interface LongRunningTaskExecutor<V> extends Callable<V>, Configurable {
 	 * @return
 	 */
 	String getId();
-
-	/**
-	 * Returns task name (task class name by default)
-	 * @return
-	 */
-	String getName();
-	
-	/**
-	 * Module identifier
-	 * 
-	 * @return
-	 */
-	String getModule();
-	
-	/**
-	 * Returns configurable properties names for this task
-	 * 
-	 * @return
-	 */
-	List<String> getPropertyNames();
 	
 	/**
 	 * Initialize task executor before task is processed.

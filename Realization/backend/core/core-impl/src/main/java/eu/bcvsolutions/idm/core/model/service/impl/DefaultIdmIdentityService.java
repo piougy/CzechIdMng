@@ -72,8 +72,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Operations with IdmIdentity
- * - supports {@link IdentityEvent}
+ * Operations with IdmIdentity.
+ * Supports {@link IdentityEvent}.
  * 
  * @author Radek Tomiška
  * @see IdentityProcessor
@@ -84,7 +84,7 @@ public class DefaultIdmIdentityService
 		implements IdmIdentityService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
-
+	//
 	private final IdmIdentityRepository repository;
 	private final EntityEventManager entityEventManager;
 	//

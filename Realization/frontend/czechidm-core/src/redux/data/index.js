@@ -84,6 +84,7 @@ import AvailableServiceManager from './AvailableServiceManager';
 import ImportLogManager from './ImportLogManager';
 import DelegationDefinitionManager from './DelegationDefinitionManager';
 import DelegationManager from './DelegationManager';
+import BulkActionManager from './BulkActionManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -164,7 +165,8 @@ const ManagerRoot = {
   AvailableServiceManager,
   ImportLogManager,
   DelegationDefinitionManager,
-  DelegationManager
+  DelegationManager,
+  BulkActionManager
 };
 
 ManagerRoot.version = '10.4.0';

@@ -17,7 +17,7 @@ const treeTypeManager = new TreeTypeManager();
 const identityManager = new IdentityManager();
 
 /**
-* Table of tree nodes
+* Table of tree nodes.
 *
 * @author Radek Tomiška
 */
@@ -292,7 +292,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                   <Advanced.Table
                     ref="table"
                     uiKey={ uiKey }
-                    forceSearchParameters={new SearchParameters().setFilter('treeTypeId', type.id) }
+                    forceSearchParameters={ new SearchParameters().setFilter('treeTypeId', type.id) }
                     manager={ treeNodeManager }
                     showRowSelection={ SecurityManager.hasAuthority('TREENODE_DELETE') }
                     rowClass={ ({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; } }
@@ -334,10 +334,17 @@ class NodeTable extends Advanced.AbstractTableContent {
                         </Basic.AbstractForm>
                       </Advanced.Filter>
                     }
-                    filterOpened={filterOpened}
+                    filterOpened={ filterOpened }
                     actions={
                       [
-                        { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+                        {
+                          value: 'delete',
+                          niceLabel: this.i18n('action.delete.action'),
+                          level: 'danger',
+                          icon: 'fa:trash',
+                          action: this.onDelete.bind(this),
+                          disabled: false
+                        }
                       ]
                     }
                     buttons={
@@ -349,7 +356,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                           onClick={ this.showDetail.bind(this, {}) }
                           rendered={ SecurityManager.hasAuthority('TREENODE_CREATE') }
                           icon="fa:plus">
-                          {this.i18n('button.add')}
+                          { this.i18n('button.add') }
                         </Basic.Button>
                       ]
                     }
@@ -390,7 +397,7 @@ class NodeTable extends Advanced.AbstractTableContent {
                   rendered={ SecurityManager.hasAuthority('IDENTITY_READ') }>
                   <IdentityTable
                     ref="identityTable"
-                    uiKey={ `${uiKey}-identity` }
+                    uiKey={ `${ uiKey }-identity` }
                     identityManager={ identityManager }
                     filterOpened={ filterOpened }
                     showAddButton={ false }

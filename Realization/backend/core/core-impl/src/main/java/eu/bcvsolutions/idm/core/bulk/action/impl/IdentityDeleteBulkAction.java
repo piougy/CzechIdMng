@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  *
  */
 
+@SuppressWarnings("deprecation")
 @Component("identityDeleteBulkAction")
 @Description("Delete given identities.")
 @Enabled(module = CoreModuleDescriptor.MODULE_ID, property = IdentityConfiguration.PROPERTY_IDENTITY_DELETE)

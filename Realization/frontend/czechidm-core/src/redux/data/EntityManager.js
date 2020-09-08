@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Immutable from 'immutable';
 //
 import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
@@ -24,7 +25,6 @@ export const PROCESS_BULK_ACTION = 'PROCESS_BULK_ACTION';
 export const STOP_BULK_ACTION = 'STOP_BULK_ACTION';
 export const RECEIVE_PERMISSIONS = 'RECEIVE_PERMISSIONS';
 export const EMPTY = 'VOID_ACTION'; // dispatch cannot return null
-
 /**
  * Encapsulate redux action for entity type
  *
@@ -198,6 +198,16 @@ export default class EntityManager {
       return `${this.getEntityType()}-${id}`;
     }
     return this.getEntityType();
+  }
+
+  /**
+   * All bulk astions are under this key in redux state.
+   *
+   * @return {string} key in redux store
+   * @since 10.6.0
+   */
+  getBulkActionContainerUiKey() {
+    return 'bulk-actions';
   }
 
   /**
@@ -1399,7 +1409,8 @@ export default class EntityManager {
     const uiKey = this.getUiKeyForBulkActions();
     //
     return (dispatch, getState) => {
-      const actions = DataManager.getData(getState(), uiKey);
+      const allActions = DataManager.getData(getState(), this.getBulkActionContainerUiKey()) || new Immutable.Map({});
+      const actions = allActions.get(uiKey);
       if (actions) {
         if (cb) {
           cb(actions, null);
@@ -1408,12 +1419,25 @@ export default class EntityManager {
         dispatch(this.dataManager.requestData(uiKey));
         this.getService().getAvailableBulkActions()
           .then(json => {
+            dispatch(this.dataManager.receiveData(this.getBulkActionContainerUiKey(), allActions.set(uiKey, json), cb));
             dispatch(this.dataManager.receiveData(uiKey, json, cb));
           })
           .catch(error => {
             dispatch(this.receiveError(null, uiKey, error, cb));
           });
       }
+    };
+  }
+
+  /**
+   * Clear all loaded bulk actions in redux state.
+   *
+   * @return {action}
+   * @since 10.6.0
+   */
+  clearBulkActions() {
+    return (dispatch) => {
+      dispatch(this.dataManager.clearData(this.getBulkActionContainerUiKey()));
     };
   }
 

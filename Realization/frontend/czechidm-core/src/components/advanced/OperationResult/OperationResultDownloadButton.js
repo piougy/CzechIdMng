@@ -49,7 +49,7 @@ export default class OperationResultDownloadButton extends Basic.AbstractContext
       <a
         key={ `attachment-download-${attachmentId}` }
         href={ completeDownloadUrl }
-        style={style}
+        style={{ color: 'white', ...style }}
         title={ this.i18n('button.download')}
         className={`btn ${btnSize} btn-primary`}>
         <Basic.Icon value="fa:download" />

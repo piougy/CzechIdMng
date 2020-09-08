@@ -96,7 +96,8 @@ export default class Icon extends AbstractComponent {
       style,
       disabled,
       title,
-      onClick
+      onClick,
+      level
     } = this.props;
     //
     // without icon defined returns null
@@ -104,9 +105,12 @@ export default class Icon extends AbstractComponent {
       return null;
     }
     //
-    let classNames;
+    let classNames = classnames(
+      `icon-${ level }`,
+    );
     if (showLoading) {
       classNames = classnames(
+        classNames,
         'fa',
         'fa-refresh',
         'fa-spin',
@@ -114,10 +118,11 @@ export default class Icon extends AbstractComponent {
       );
     } else {
       classNames = classnames(
-        { glyphicon: _type === TYPE_GLYPHICON},
-        { [`glyphicon-${ _icon}`]: _type === TYPE_GLYPHICON},
-        { fa: _type === TYPE_FONT_AWESOME},
-        { [`fa-${ _icon}`]: _type === TYPE_FONT_AWESOME},
+        classNames,
+        { glyphicon: _type === TYPE_GLYPHICON },
+        { [`glyphicon-${ _icon}`]: _type === TYPE_GLYPHICON },
+        { fa: _type === TYPE_FONT_AWESOME },
+        { [`fa-${ _icon}`]: _type === TYPE_FONT_AWESOME },
         { disabled: disabled === true },
         className,
       );
@@ -161,11 +166,16 @@ Icon.propTypes = {
   /**
    * Standard onClick callback
    */
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
+  /**
+   * Icon level (~color) / css / class
+   */
+  level: PropTypes.oneOf(['default', 'success', 'warning', 'info', 'danger', 'error', 'primary'])
 };
 
 Icon.defaultProps = {
   ...AbstractComponent.defaultProps,
   type: TYPE_GLYPHICON,
-  dibaled: false
+  dibaled: false,
+  level: 'default'
 };

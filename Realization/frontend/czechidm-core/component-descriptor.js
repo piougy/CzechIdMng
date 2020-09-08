@@ -753,6 +753,18 @@ module.exports = {
       type: 'icon',
       entityType: ['basic-info', 'basic-tab'],
       component: 'fa:newspaper-o'
+    },
+    {
+      id: 'identity-role-add-icon',
+      type: 'icon',
+      entityType: ['identity-role-add'],
+      component: require('./src/components/advanced/Icon/IdentityRoleAddIcon')
+    },
+    {
+      id: 'identity-role-remove-icon',
+      type: 'icon',
+      entityType: ['identity-role-remove'],
+      component: require('./src/components/advanced/Icon/IdentityRoleRemoveIcon')
     }
   ]
 };

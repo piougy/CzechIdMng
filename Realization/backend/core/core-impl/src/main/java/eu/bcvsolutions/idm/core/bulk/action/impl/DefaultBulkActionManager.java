@@ -1,9 +1,16 @@
 package eu.bcvsolutions.idm.core.bulk.action.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.core.OrderComparator;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -13,34 +20,44 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.bulk.action.AbstractBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
+import eu.bcvsolutions.idm.core.api.bulk.action.IdmBulkAction;
 import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
+import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BulkActionFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Implementation of manager for bulk action.
- * 
- * TODO: find with filter / agenda on FE.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
 @Service("bulkActionManager")
 public class DefaultBulkActionManager implements BulkActionManager {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultBulkActionManager.class);
+	//
 	private final PluginRegistry<AbstractBulkAction<? extends BaseDto, ? extends BaseFilter>, Class<? extends BaseEntity>> pluginExecutors;
 	private final LongRunningTaskManager taskManager;
 	private final EnabledEvaluator enabledEvaluator;
+	private final ParameterConverter parameterConverter;
+	//
+	@Autowired private ApplicationContext context;
+	@Autowired @Lazy private ConfigurationService configurationService;
 	
 	@Autowired
 	public DefaultBulkActionManager(
@@ -51,6 +68,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		//
 		this.taskManager = taskManager;
 		this.enabledEvaluator = enabledEvaluator;
+		this.parameterConverter = new ParameterConverter(); // lookup service is not needed now
 	}
 	
 	@Override
@@ -111,6 +129,7 @@ public class DefaultBulkActionManager implements BulkActionManager {
 					return action;
 				})
 				.map(this::toDto)
+				.sorted(OrderComparator.INSTANCE)
 				.collect(Collectors.toList());
 	}
 	
@@ -123,7 +142,40 @@ public class DefaultBulkActionManager implements BulkActionManager {
 					return action;
 				})
 				.map(this::toDto)
+				.sorted(OrderComparator.INSTANCE)
 				.collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<IdmBulkActionDto> find(BulkActionFilter filter) {
+		List<IdmBulkActionDto> dtos = new ArrayList<>();
+		pluginExecutors
+			.getPlugins()
+			.stream()
+			.forEach(action -> {
+				// bulk actions depends on module - we could not call any processor method
+				if (enabledEvaluator.isEnabled(action)) {
+					IdmBulkActionDto dto = toDto(action);
+					//
+					if (passFilter(dto, filter)) {
+						dtos.add(dto);
+					}
+				}
+			});
+		//
+		// sort by order
+		Collections.sort(dtos, new Comparator<IdmBulkActionDto>() {
+
+			@Override
+			public int compare(IdmBulkActionDto one, IdmBulkActionDto two) {
+				return Integer.compare(one.getOrder(),two.getOrder());
+			}
+			
+		});
+		//
+		LOG.debug("Returning [{}] registered bulk actions", dtos.size());
+		//
+		return dtos;
 	}
 
 	/**
@@ -224,9 +276,14 @@ public class DefaultBulkActionManager implements BulkActionManager {
 	@Override
 	public IdmBulkActionDto toDto(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action) {
 		IdmBulkActionDto actionDto = new IdmBulkActionDto();
-		actionDto.setId(action.getName()); // FIXME: spring bean name 
+		actionDto.setId(action.getId());
 		if (action.getService() != null && action.getService().getEntityClass() != null) {
-			actionDto.setEntityClass(action.getService().getEntityClass().getName());
+			actionDto.setEntityClass(action.getService().getEntityClass().getCanonicalName());
+		} else {
+			Class<? extends BaseEntity> entityClass = action.getEntityClass();
+			if (entityClass != null) {
+				actionDto.setEntityClass(entityClass.getCanonicalName());
+			}			
 		}
 		if (action.getDtoClass() != null) {
 			actionDto.setDtoClass(action.getDtoClass().getName());
@@ -242,9 +299,42 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		actionDto.setShowWithoutSelection(action.showWithoutSelection());
 		actionDto.setShowWithSelection(action.showWithSelection());
 		actionDto.setDisabled(action.isDisabled());
+		ConfigurationMap configurationMap = action.getConfigurationMap();
+		//
+		// set configurable properties
+		actionDto.setIcon(parameterConverter.toString(configurationMap, ConfigurationService.PROPERTY_ICON));
+		actionDto.setOrder((int) parameterConverter.toLong(configurationMap, ConfigurationService.PROPERTY_ORDER, action.getOrder())); // FIXME: add ParameterConverter#toInteger method instead.
+		actionDto.setDeleteAction(parameterConverter.toBoolean(configurationMap, IdmBulkAction.PROPERTY_DELETE_ACTION, action.isDeleteAction()));
+		actionDto.setQuickButton(parameterConverter.toBoolean(configurationMap, IdmBulkAction.PROPERTY_QUICK_BUTTON, action.isQuickButton()));
 		actionDto.setLevel(action.getLevel());
+		try {
+			NotificationLevel level = parameterConverter.toEnum(configurationMap, ConfigurationService.PROPERTY_LEVEL, NotificationLevel.class);
+			if (level != null) {
+				actionDto.setLevel(level);
+			}
+		} catch (ResultCodeException ex) {
+			LOG.warn("Configuration property [{}] is wrongly configured, given [{}]. Default action level [{}] will be used.", 
+					action.getConfigurationPropertyName(ConfigurationService.PROPERTY_LEVEL),
+					configurationMap.get(ConfigurationService.PROPERTY_LEVEL),
+					action.getLevel());
+		}
 		//
 		return actionDto;
+	}
+	
+	@Override
+	public void enable(String bulkActionId) {
+		setEnabled(bulkActionId, true);
+	}
+
+	@Override
+	public void disable(String bulkActionId) {
+		setEnabled(bulkActionId, false);
+	}
+
+	@Override
+	public void setEnabled(String bulkActionId, boolean enabled) {
+		setEnabled(getAction(bulkActionId), enabled);
 	}
 	
 	/**
@@ -257,7 +347,9 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		return pluginExecutors
 				.getPluginsFor(entity)
 				.stream()
-				.filter(action -> enabledEvaluator.isEnabled(action))
+				.filter(enabledEvaluator::isEnabled)
+				.filter(action -> !action.isDisabled())
+				.sorted(OrderComparator.INSTANCE)
 				.collect(Collectors.toList());
 	}
 	
@@ -271,9 +363,76 @@ public class DefaultBulkActionManager implements BulkActionManager {
 		return pluginExecutors
 				.getPlugins()
 				.stream()
-				.filter(action -> enabledEvaluator.isEnabled(action))
+				.filter(enabledEvaluator::isEnabled)
+				.filter(action -> !action.isDisabled())
 				.filter(action -> !action.isGeneric()) // Generic actions are not supported for DTO now.
 				.filter(action -> dtoClass.equals(action.getDtoClass()))
 				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Returns true, when given processor pass given filter.
+	 * 
+	 * @param action
+	 * @param filter
+	 * @return
+	 */
+	private boolean passFilter(IdmBulkActionDto action, BulkActionFilter filter) {
+		if (filter == null) {
+			// empty filter
+			return true;
+		}
+		// id - not supported
+		if (filter.getId() != null) {
+			throw new UnsupportedOperationException("Filtering bulk actions by [id] is not supported.");
+		}
+		// text - lowercase like in name, description, entity class - canonical name
+		String text = filter.getText();
+		if (StringUtils.isNotEmpty(text)) {
+			text = text.toLowerCase();
+			if (!action.getName().toLowerCase().contains(text)
+					&& (action.getDescription() == null || !action.getDescription().toLowerCase().contains(text))
+					&& (action.getEntityClass() == null || !action.getEntityClass().toLowerCase().contains(text))) {
+				return false;
+			}
+		}
+		// action name
+		String name = filter.getName();
+		if (StringUtils.isNotEmpty(name) && !action.getName().equals(name)) {
+			return false; 
+		}
+		// module id
+		String module = filter.getModule();
+		if (StringUtils.isNotEmpty(module) && !module.equals(action.getModule())) {
+			return false;
+		}
+		// description - like
+		String description = filter.getDescription();
+		if (StringUtils.isNotEmpty(description) 
+				&& !StringUtils.contains(description, action.getDescription())) {
+			return false;
+		}
+		// entity class name
+		String entityClass = filter.getEntityClass();
+		String actionEntityClass = action.getEntityClass();
+		if (StringUtils.isNotEmpty(entityClass)
+				&& StringUtils.isNotEmpty(actionEntityClass) // generic bulk actions
+				&& !entityClass.equals(actionEntityClass)) {
+			return false;
+		}
+		//
+		return true;
+	}
+	
+	private IdmBulkAction<?, ?> getAction(String bulkActionId) {
+		Assert.notNull(bulkActionId, "Bulk action identifier is required.");
+		//
+		return (IdmBulkAction<?, ?>) context.getBean(bulkActionId);
+	}
+	
+	private void setEnabled(IdmBulkAction<?, ?> action, boolean enabled) {
+		String enabledPropertyName = action.getConfigurationPropertyName(ConfigurationService.PROPERTY_ENABLED);
+		//
+		configurationService.setBooleanValue(enabledPropertyName, enabled);
 	}
 }

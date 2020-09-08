@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.core.Ordered;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.domain.ConfigurationMap;
  * @author Radek Tomiška
  */
 @Relation(collectionRelation = "entityEventProcessors")
-public class EntityEventProcessorDto extends AbstractComponentDto {
+public class EntityEventProcessorDto extends AbstractComponentDto implements Ordered {
 
 	private static final long serialVersionUID = 1L;
 	//
@@ -49,6 +50,7 @@ public class EntityEventProcessorDto extends AbstractComponentDto {
 		this.eventTypes = eventTypes;
 	}
 
+	@Override
 	public int getOrder() {
 		return order;
 	}

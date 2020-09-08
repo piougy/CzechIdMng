@@ -34,7 +34,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * filter builders's administration.
+ * Filter builder administration.
  *
  * @author Kolychev Artem
  * @since 9.7.7

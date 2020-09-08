@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
- * Public configuration for identity
+ * Public configuration for identity.
  * 
  * @see PrivateIdentityConfiguration
  * @author Radek Tomiška
@@ -16,10 +16,14 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 public interface IdentityConfiguration extends Configurable {
 	
 	/**
-	 * Supports identity delete operation
+	 * Supports identity delete operation.
+	 * 
+	 * @deprecated @since 10.6.0 - action can be disabled by bulk action configurable api - use 'idm.sec.core.bulk-action.identity-delete-bulk-action.enabled=false'.
 	 */
+	@Deprecated
 	String PROPERTY_IDENTITY_DELETE = 
 			ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX + "core.identity.delete";
+	@Deprecated
 	boolean DEFAULT_IDENTITY_DELETE = true;
 	
 	/**

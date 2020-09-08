@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.core.Ordered;
 import org.springframework.hateoas.core.Relation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,7 +33,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @JsonInclude(Include.NON_NULL)
 @Relation(collectionRelation = "bulkOperations")
-public class IdmBulkActionDto extends AbstractComponentDto {
+public class IdmBulkActionDto extends AbstractComponentDto implements Ordered {
 
 	private static final long serialVersionUID = 1L;
 
@@ -58,6 +59,14 @@ public class IdmBulkActionDto extends AbstractComponentDto {
 	private boolean showWithSelection;
 	@ApiModelProperty(notes = "Action level - decorator only (label with color).")
 	private NotificationLevel level;
+	@ApiModelProperty(notes = "Action order - order in selectbox on FE.")
+	private int order;
+	@ApiModelProperty(notes = "Action deletes records. This action will be sorted on the end section on FE.")
+	private boolean deleteAction;
+	@ApiModelProperty(notes = "Action FE icon. Icon from locale will be used by default.")
+	private String icon;
+	@ApiModelProperty(notes = "Action will be included in quick buttons on FE. Action can be shown as quick button, when icon is defined (in locale or by icon property).")
+	private boolean quickButton = false;
 
 	public UUID getLongRunningTaskId() {
 		return longRunningTaskId;
@@ -184,5 +193,88 @@ public class IdmBulkActionDto extends AbstractComponentDto {
 
 	public void setDtoClass(String dtoClass) {
 		this.dtoClass = dtoClass;
+	}
+	
+	/**
+	 * Action order.
+	 * 
+	 * @param order action order
+	 * @since 10.6.0
+	 */
+	public void setOrder(int order) {
+		this.order = order;
+	}
+	
+	/**
+	 * Action order.
+	 * 
+	 * @return order action order
+	 * @since 10.6.0
+	 */
+	@Override
+	public int getOrder() {
+		return order;
+	}
+	
+	/**
+	 * Action deletes records. This action will be sorted on the end section on FE.
+	 * 
+	 * @return false by default. true - action deletes records
+	 * @since 10.6.0
+	 */
+	public boolean isDeleteAction() {
+		return deleteAction;
+	}
+	
+	/**
+	 * Action deletes records. This action will be sorted on the end section on FE.
+	 * 
+	 * @param deleteAction true - action deletes records
+	 * @since 10.6.0
+	 */
+	public void setDeleteAction(boolean deleteAction) {
+		this.deleteAction = deleteAction;
+	}
+
+	/**
+	 * Action FE icon. Icon from locale will be used by default.
+	 * 
+	 * @return configured icon (e.g. fa:plus)
+	 * @since 10.6.0
+	 */
+	public String getIcon() {
+		return icon;
+	}
+
+	/**
+	 * Action FE icon. Icon from locale will be used by default.
+	 * 
+	 * @param icon configured icon (e.g. fa:plus)
+	 * @since 10.6.0
+	 */
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
+	/**
+	 * Action will be included in quick buttons on FE. 
+	 * Action can be shown as quick button, when icon is defined (in locale or by icon property).
+	 * 
+	 * @return true - action button will be shown, if icon is defined.
+	 * @since 10.6.0
+	 */
+	public boolean isQuickButton() {
+		return quickButton;
+	}
+
+	/**
+	 * Action will be included in quick buttons on FE. 
+	 * Action can be shown as quick button, when icon is defined (in locale or by icon property).
+	 * 
+	 * @param quickAccess true - action button will be shown, if icon is defined.
+	 * @since 10.6.0
+	 */
+	public void setQuickButton(boolean quickButton) {
+		this.quickButton = quickButton;
 	}
 }

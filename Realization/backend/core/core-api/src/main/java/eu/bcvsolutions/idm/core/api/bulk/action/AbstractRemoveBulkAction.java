@@ -77,5 +77,9 @@ public abstract class AbstractRemoveBulkAction<DTO extends AbstractDto, F extend
 	public NotificationLevel getLevel() {
 		return NotificationLevel.ERROR;
 	}
-
+	
+	@Override
+	public boolean isDeleteAction() {
+		return true;
+	}
 }

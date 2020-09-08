@@ -67,6 +67,6 @@ public class IdentityEvaluateStateBulkAction extends AbstractBulkAction<IdmIdent
 	
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 500;
+		return super.getOrder() + 3000;
 	}
 }

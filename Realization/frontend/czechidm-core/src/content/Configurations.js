@@ -10,6 +10,7 @@ import * as Utils from '../utils';
 
 const uiKey = 'configuration_table';
 const manager = new ConfigurationManager();
+const dataManager = new DataManager();
 
 const IDM_CONFIGURATION_PREFIX = 'idm.';
 
@@ -178,6 +179,8 @@ class Configurations extends Advanced.AbstractTableContent {
     this.refs.table.reload();
     // reload public configurations
     this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
+    // reload all bulk actions
+    this.context.store.dispatch(this.getManager().clearBulkActions());
   }
 
   _forceSave(entity) {
@@ -208,6 +211,8 @@ class Configurations extends Advanced.AbstractTableContent {
       this.refs.table.reload();
       // reload public configurations
       this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
+      // reload all bulk actions
+      this.context.store.dispatch(this.getManager().clearBulkActions());
     }
   }
 
@@ -363,6 +368,14 @@ class Configurations extends Advanced.AbstractTableContent {
                   </span>
                 </span>
               ]
+            }
+            afterBulkAction={
+              (processedBulkAction) => {
+                // clean all bulk actions in redux
+                if (processedBulkAction.id === 'configuration-delete-bulk-action') {
+                  this.context.store.dispatch(this.getManager().clearBulkActions());
+                }
+              }
             }
             _searchParameters={ this.getSearchParameters()} >
             <Advanced.Column

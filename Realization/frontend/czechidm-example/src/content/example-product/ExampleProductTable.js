@@ -106,7 +106,14 @@ export class ExampleProductTable extends Advanced.AbstractTableContent {
           }
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
+              {
+                value: 'delete',
+                niceLabel: this.i18n('action.delete.action'),
+                action: this.onDelete.bind(this),
+                disabled: false,
+                level: 'danger',
+                icon: 'fa:trash'
+              },
             ]
           }
           buttons={

@@ -5,6 +5,15 @@
   .advanced-table-heading {
     min-height: 25px;
     _height: 25px;
+    display: flex;
+
+    .bulk-action-container {
+      flex: 1;
+    }
+
+    .button-container {
+      text-align: right;
+    }
   }
 
   .bulk-action {
@@ -26,6 +35,49 @@
     .Select-value, .Select-placeholder {
       line-height: 20px;
       color: @idm-text-color;
+    }
+
+    .dropdown {
+      .dropdown-toogle-icon {
+        cursor: pointer;
+        padding: 4px 10px 4px 10px;
+        margin-top: 1px;
+        margin-right: 7px;
+        color: #aaa;
+        border-radius: 3px;
+
+        &:hover {
+          background-color: #ddd;
+        }
+      }
+
+      &.open {
+        .dropdown-toogle-icon {
+          background-color: #ddd;
+        }
+      }
+    }
+
+    .dropdown-menu {
+      .divider {
+        margin: 5px 0;
+      }
+
+      > li > a {
+        padding: 7px 15px;
+
+        .fa, .glyphicon, .fa-layers {
+          width: 18px;
+          margin-right: 5px;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  &.quick-button-supported {
+    .bulk-action {
+      width: auto;
     }
   }
 
@@ -63,5 +115,15 @@
   td .column-face-bool,
   td .column-face-boolean {
     text-align: center;
+  }
+}
+
+.bulk-action-button {
+  margin-right: 7px;
+  padding-left: 10px;
+  padding-right: 10px;
+
+  .fa, .glyphicon {
+    width: 18px;
   }
 }

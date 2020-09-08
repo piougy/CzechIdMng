@@ -87,6 +87,7 @@ import AvailableServiceService from './AvailableServiceService';
 import ImportLogService from './ImportLogService';
 import DelegationDefinitionService from './DelegationDefinitionService';
 import DelegationService from './DelegationService';
+import BulkActionService from './BulkActionService';
 
 const ServiceRoot = {
   RestApiService,
@@ -170,7 +171,8 @@ const ServiceRoot = {
   AvailableServiceService,
   ImportLogService,
   DelegationDefinitionService,
-  DelegationService
+  DelegationService,
+  BulkActionService
 };
 
 ServiceRoot.version = '10.4.0';

@@ -10,36 +10,55 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.service.Configurable;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
-import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 
 /**
- * Interface for bulk operation
+ * Interface for bulk operation.
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
+public interface IdmBulkAction<DTO extends BaseDto, F extends BaseFilter> extends 
+		LongRunningTaskExecutor<OperationResult>,
+		Plugin<Class<? extends BaseEntity>>, 
+		Ordered, 
+		Configurable {
 
-public interface IdmBulkAction<DTO extends BaseDto, F extends BaseFilter>
-		extends Plugin<Class<? extends BaseEntity>>, Ordered {
-
+	/**
+	 * Default bulk action order
+	 */
 	int DEFAULT_ORDER = 0;
-	String PARAMETER_BULK_ACTION = "core:bulkAction"; // Persisted bulk action dto.
-	
 	/**
-	 * Get list of form attributes
-	 *
-	 * @return
+	 * Persisted bulk action dto in LRT parameters (run bulk action async from LRT queue).
 	 */
-	List<IdmFormAttributeDto> getFormAttributes();
+	String PARAMETER_BULK_ACTION = "core:bulkAction";
+	/**
+	 * Configurable property for include action in delete action menu (bottom).
+	 * 
+	 * @since 10.6.0
+	 */
+	String PROPERTY_DELETE_ACTION = "deleteAction";
+	/**
+	 * Configurable property for include action in quick access buttons.
+	 * 
+	 * @since 10.6.0
+	 */
+	String PROPERTY_QUICK_BUTTON = "quickButton";
+	/**
+	 * Bulk action configurable type.
+	 * 
+	 * @since 10.6.0
+	 */
+	String CONFIGURABLE_TYPE = "bulk-action";
 
-	/**
-	 * Get name of bulk action
-	 *
-	 * @return
-	 */
-	String getName();
+	@Override
+	default String getConfigurableType() {
+		return CONFIGURABLE_TYPE;
+	}
 	
 	/**
 	 * Get bulk action
@@ -54,13 +73,6 @@ public interface IdmBulkAction<DTO extends BaseDto, F extends BaseFilter>
 	 * @param action
 	 */
 	void setAction(IdmBulkActionDto action);
-	
-	/**
-	 * Get module
-	 *
-	 * @return
-	 */
-	String getModule();
 	
 	/**
 	 * Return service. With the service will be executed bulk action.
@@ -99,7 +111,7 @@ public interface IdmBulkAction<DTO extends BaseDto, F extends BaseFilter>
 	 *
 	 * @return
 	 */
-	public boolean isGeneric();
+	boolean isGeneric();
 	
 	/**
 	 * Returns {@code true}, when action can be executed without items are selected.
@@ -131,5 +143,27 @@ public interface IdmBulkAction<DTO extends BaseDto, F extends BaseFilter>
 	 */
 	default NotificationLevel getLevel() {
 		return NotificationLevel.SUCCESS;
+	}
+	
+	/**
+	 * Action deletes records. This action will be sorted on the end section on FE.
+	 * 
+	 * @return false by default. true - action deletes records
+	 * @since 10.6.0
+	 */
+	default boolean isDeleteAction() {
+		return false;
+	}
+	
+	/**
+	 * Action will be included in quick buttons on FE. 
+	 * Action can be shown as quick button, when icon is defined (in locale or by icon property).
+	 * Returns {@code false} by default.
+	 * 
+	 * @return true - action button will be shown, if icon is defined.
+	 * @since 10.6.0
+	 */
+	default boolean isQuickButton() {
+		return false;
 	}
 }

@@ -12,7 +12,6 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.bcvsolutions.idm.core.api.bulk.action.BulkActionManager;
+import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BulkActionFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
@@ -39,77 +38,69 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Entity event procesor's administration.
+ * Bulk action administration.
  * 
- * Be careful: page and size is not implemented in find methods
- * 
- * TODO: change processors order
+ * Be careful: page and size is not implemented in find methods.
  * 
  * @author Radek Tomiška
- *
+ * @since 10.6.0
  */
 @RestController
-@RequestMapping(value = BaseController.BASE_PATH + "/entity-event-processors")
+@RequestMapping(value = BaseController.BASE_PATH + "/bulk-actions")
 @Api(
-		value = EntityEventProcessorController.TAG, 
-		description = "Configure event processing", 
-		tags = { EntityEventProcessorController.TAG }, 
+		value = BulkActionController.TAG, 
+		description = "Configure bulk actions", 
+		tags = { BulkActionController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class EntityEventProcessorController {
+public class BulkActionController {
 
-	protected static final String TAG = "Entity event processors";
-	private final EntityEventManager entityEventManager;
+	protected static final String TAG = "Bulk action administration";	
 	//
+	@Autowired private BulkActionManager bulkActionManager;
 	@Autowired private PagedResourcesAssembler<Object> pagedResourcesAssembler;
 	@Autowired private ObjectMapper mapper;
 	@Autowired private LookupService lookupService;
 	//
 	private FilterConverter filterConverter;
 	
-	@Autowired
-	public EntityEventProcessorController(EntityEventManager entityEventManager) {
-		Assert.notNull(entityEventManager, "EntityEventManager is required");
-		//
-		this.entityEventManager = entityEventManager;
-	}
-	
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_READ + "')")
 	@ApiOperation(
-			value = "Find all processors", 
-			nickname = "findAllEntityEventProcessors", 
-			tags = { EntityEventProcessorController.TAG }, 
+			value = "Find all bulk actions", 
+			nickname = "findAllBulkActions", 
+			tags = { BulkActionController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") }),
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
 						@AuthorizationScope(scope = CoreGroupPermission.MODULE_READ, description = "") })
 				},
-			notes = "Returns all registered entity event processors with state properties (disabled, order).")
+			notes = "Returns all registered bulk actions with state properties (disabled, order).")
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Resources<?> find(
 			@RequestParam(required = false) MultiValueMap<String, Object> parameters) {
-		List<EntityEventProcessorDto> records = entityEventManager.find(toFilter(parameters));
+		List<IdmBulkActionDto> records = bulkActionManager.find(toFilter(parameters));
 		PageImpl page = new PageImpl(records, PageRequest.of(0, records.size() == 0 ? 10 : records.size()), records.size());
 		if (page.getContent().isEmpty()) {
-			return pagedResourcesAssembler.toEmptyResource(page, EntityEventProcessorDto.class);
+			return pagedResourcesAssembler.toEmptyResource(page, IdmBulkActionDto.class);
 		}
 		return pagedResourcesAssembler.toResource(page);
 	}
-
+	
 	/**
-	 * Enable event processor
-	 * @param processorId
+	 * Enable bulk action.
+	 * 
+	 * @param bulkActionId
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "/{processorId}/enable", method = { RequestMethod.PATCH, RequestMethod.PUT })
+	@RequestMapping(value = "/{bulkActionId}/enable", method = { RequestMethod.PATCH, RequestMethod.PUT })
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	@ApiOperation(
-			value = "Enable processor",
-			nickname = "enableProcessor",
-			tags = { EntityEventProcessorController.TAG },
+			value = "Enable bulk action",
+			nickname = "enableBulkAction",
+			tags = { BulkActionController.TAG },
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") }),
@@ -117,22 +108,23 @@ public class EntityEventProcessorController {
 							@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") })
 			})
 	public void enable(
-			@ApiParam(value = "Processor's identifier.", required = true)
-			@PathVariable @NotNull String processorId) {
-		entityEventManager.enable(processorId);
+			@ApiParam(value = "Bulk action identifier.", required = true)
+			@PathVariable @NotNull String bulkActionId) {
+		bulkActionManager.enable(bulkActionId);
 	}
 	
 	/**
-	 * Disable event processor
-	 * @param processorId
+	 * Disable bulk action.
+	 * 
+	 * @param bulkActionId
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "/{processorId}/disable", method = { RequestMethod.PATCH, RequestMethod.PUT })
+	@RequestMapping(value = "/{bulkActionId}/disable", method = { RequestMethod.PATCH, RequestMethod.PUT })
 	@PreAuthorize("hasAuthority('" + CoreGroupPermission.MODULE_UPDATE + "')")
 	@ApiOperation(
-			value = "Disable processor",
-			nickname = "disableProcessor",
-			tags = { EntityEventProcessorController.TAG },
+			value = "Disable bulk action",
+			nickname = "disableBulkAction",
+			tags = { BulkActionController.TAG },
 			authorizations = {
 					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = {
 							@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") }),
@@ -140,13 +132,13 @@ public class EntityEventProcessorController {
 							@AuthorizationScope(scope = CoreGroupPermission.MODULE_UPDATE, description = "") })
 			})
 	public void disable(
-			@ApiParam(value = "Processor's identifier.", required = true)
-			@PathVariable @NotNull String processorId) {
-		entityEventManager.disable(processorId);
+			@ApiParam(value = "Bulk action identifier.", required = true)
+			@PathVariable @NotNull String bulkActionId) {
+		bulkActionManager.disable(bulkActionId);
 	}
 
 	/**
-	 * Return parameter converter helper
+	 * Return parameter converter helper.
 	 * 
 	 * @return
 	 */
@@ -157,7 +149,7 @@ public class EntityEventProcessorController {
 		return filterConverter;
 	}
 	
-	private EntityEventProcessorFilter toFilter(MultiValueMap<String, Object> parameters) {
-		return new EntityEventProcessorFilter(parameters, getParameterConverter());
+	private BulkActionFilter toFilter(MultiValueMap<String, Object> parameters) {
+		return new BulkActionFilter(parameters, getParameterConverter());
 	}
 }

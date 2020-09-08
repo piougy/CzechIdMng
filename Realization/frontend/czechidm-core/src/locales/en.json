@@ -60,7 +60,8 @@
     "no": "No",
     "readOnly": "Read only",
     "removed": "Removed",
-    "waiting": "Waiting"
+    "waiting": "Waiting",
+    "next": "Next"
   },
   "button": {
     "activate": "Activate",
@@ -271,7 +272,9 @@
     "message": "Performing the bulk action [{{name}}] on select record: <b>[{{entities}}]</b>.",
     "message_plural": "Performing the bulk action [{{name}}] on {{count}} records: <b>[{{entities}}]</b>",
     "button": {
-      "execute": "Execute"
+      "execute": "Execute",
+      "next": "Next operation",
+      "all": "All operations"
     },
     "insufficientReadPermission": "You don't have sufficient rights to view the progress of the bulk operation."
   },
@@ -470,10 +473,10 @@
       },
       "Table": {
         "bulk-action": {
-          "selection_empty": "Select operation or records ...",
-          "selection_0": "Select operation or records ...",
-          "selection": "Operation with selected record:",
-          "selection_plural": "Operation with ({{count}}) selected records:",
+          "selection_empty": "Select operation",
+          "selection_0": "Select operation",
+          "selection": "Operation with selected record",
+          "selection_plural": "Operation with ({{count}}) selected records",
           "notImplemented": "Sorry, this operation is not available yet."
         },
         "error": {
@@ -3358,6 +3361,24 @@
           }
         }
       },
+      "bulk-actions": {
+        "header": "Bulk actions",
+        "title": "Bulk actions",
+        "filter": {
+          "text": {
+            "placeholder": "Name, entity or action type, description (like)"
+          },
+          "module": {
+            "placeholder": "Module"
+          },
+          "entityClass": {
+            "placeholder": "Entity type"
+          }
+        },
+        "emptyEntityClass": {
+          "header": "Common action <small>action can be executed for different entity types</small>"
+        }
+      },
       "available-services": {
         "header": "Available services",
         "title": "Available services",
@@ -4967,6 +4988,44 @@
         "label": "Filter type"
       }
     },
+    "BulkAction": {
+      "name": {
+        "label": "Name"
+      },
+      "module": {
+        "label": "Module"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "entityClass": {
+        "label": "Entity type"
+      },
+      "order": {
+        "label": "Order"
+      },
+      "disabled": {
+        "label": "$t(label.disabled)"
+      },
+      "level": {
+        "label": "Level"
+      },
+      "deleteAction": {
+        "label": "Delete action",
+        "title": "Action deletes records",
+        "help": "Action deletes records. Action will be in bottom menu section, is action is included in menu."
+      },
+      "icon": {
+        "label": "Icon",
+        "title": "Icon on frontend",
+        "help": "Icon on frontend. Icon libraries can be used: component:, fa:, glyph:."
+      },
+      "quickButton": {
+        "label": "Button",
+        "title": "Render action as button",
+        "help": "Render action as quick button.The first available actions are rendered as buttons, if icon is defined. This configuration enforces rendering action as quick button (order is ignored)."
+      }
+    },
     "AvailableServices": {
       "methodName": {
         "label": "Method name",
@@ -5645,7 +5704,7 @@
       },
       "identity-add-role-bulk-action": {
         "label": "Roles assignment",
-        "icon": "fa:plus-square",
+        "icon": "component:identity-role-add",
         "attributes": {
           "role": {
             "label": "Roles",
@@ -5669,19 +5728,9 @@
           }
         }
       },
-      "core-identity-change-user-type-bulk-action": {
-        "label": "Change user type",
-        "icon": "component:identity-projection",
-        "attributes": {
-          "user-type": {
-            "label": "User type",
-            "help": "New user type."
-          }
-        }
-      },
       "identity-remove-role-bulk-action": {
         "label": "Role removing",
-        "icon": "fa:minus-square",
+        "icon": "component:identity-role-remove",
         "attributes": {
           "role": {
             "label": "Roles",
@@ -5694,6 +5743,16 @@
           "maincontract": {
             "label": "Remove only from the main contract",
             "help": "Removing role/s will only be done from the main contract."
+          }
+        }
+      },
+      "core-identity-change-user-type-bulk-action": {
+        "label": "Change user type",
+        "icon": "component:identity-projection",
+        "attributes": {
+          "user-type": {
+            "label": "User type",
+            "help": "New user type."
           }
         }
       },

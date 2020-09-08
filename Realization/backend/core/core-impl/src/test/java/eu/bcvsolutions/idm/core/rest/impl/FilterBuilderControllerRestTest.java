@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.FilterBuilderFilter;
@@ -30,7 +31,8 @@ import eu.bcvsolutions.idm.test.api.TestHelper;
  * @author Radek Tomiška
  *
  */
-public class FilterBuilderControllerRestTest extends AbstractRestTest{
+@Transactional
+public class FilterBuilderControllerRestTest extends AbstractRestTest {
 
 	@Autowired private DefaultManagersFilter defaultManagersFilter;
 	@Autowired private GuaranteeManagersFilter guaranteeManagersFilter;

@@ -68,7 +68,7 @@ class Table extends AbstractComponent {
       const { data } = this.props;
       if (data && data.length !== 0) {
         // we can not use just first object, because first row could not contain all properties filled
-        data.map(row => {
+        data.forEach(row => {
           for (const property in row) {
             if (!row.hasOwnProperty(property)) {
               continue;
@@ -107,7 +107,7 @@ class Table extends AbstractComponent {
           if (!propertyValue.hasOwnProperty(nestedProperty)) {
             continue;
           }
-          properties = this._appendProperty(properties, nestedProperty, propertyValue[nestedProperty], propertyPrefix + property + '.');
+          properties = this._appendProperty(properties, nestedProperty, propertyValue[nestedProperty], `${ propertyPrefix }${ property }.`);
         }
       } else {
         properties.push(propertyPrefix + property);
@@ -145,21 +145,19 @@ class Table extends AbstractComponent {
     let newSelectedRows;
     if (selectRowCb != null) {
       newSelectedRows = selectRowCb(rowIndex, selected);
-    } else {
-      if (rowIndex !== undefined && rowIndex !== null && rowIndex > -1) {
-        const recordId = this.getIdentifier(rowIndex);
-        newSelectedRows = (selected ? this.state.selectedRows.add(recordId) : this.state.selectedRows.remove(recordId));
-      } else { // de/select all
-        newSelectedRows = this.state.selectedRows;
-        const { data } = this.props;
-        //
-        for (let i = 0; i < data.length; i++) {
-          if (this._showRowSelection({ ...this.props, rowIndex: i })) {
-            if (selected) {
-              newSelectedRows = newSelectedRows.add(this.getIdentifier(i));
-            } else {
-              newSelectedRows = newSelectedRows.remove(this.getIdentifier(i));
-            }
+    } else if (rowIndex !== undefined && rowIndex !== null && rowIndex > -1) {
+      const recordId = this.getIdentifier(rowIndex);
+      newSelectedRows = (selected ? this.state.selectedRows.add(recordId) : this.state.selectedRows.remove(recordId));
+    } else { // de/select all
+      newSelectedRows = this.state.selectedRows;
+      const { data } = this.props;
+      //
+      for (let i = 0; i < data.length; i++) {
+        if (this._showRowSelection({ ...this.props, rowIndex: i })) {
+          if (selected) {
+            newSelectedRows = newSelectedRows.add(this.getIdentifier(i));
+          } else {
+            newSelectedRows = newSelectedRows.remove(this.getIdentifier(i));
           }
         }
       }
@@ -173,8 +171,10 @@ class Table extends AbstractComponent {
    * Clears row selection
    */
   clearSelectedRows() {
+    const { selectedRows } = this.state;
+    //
     this.setState({
-      selectedRows: this.state.selectedRows.clear()
+      selectedRows: selectedRows.clear()
     });
   }
 
@@ -205,7 +205,7 @@ class Table extends AbstractComponent {
         if (!selectedRows.has(this.getIdentifier(i))) {
           return false;
         }
-        enabledRowsCount++;
+        enabledRowsCount += 1;
       }
     }
     return enabledRowsCount > 0;
@@ -239,12 +239,12 @@ class Table extends AbstractComponent {
       <thead key="basic-table-header">
         <Row
           key="row-header"
-          columns={headerColumns}
-          rowIndex={-1}
-          showLoading={showLoading}
-          showRowSelection={showRowSelection}
-          onRowSelect={showRowSelection ? this.selectRow.bind(this) : null}
-          selected={this._isAllRowsSelected()}
+          columns={ headerColumns }
+          rowIndex={ -1 }
+          showLoading={ showLoading }
+          showRowSelection={ showRowSelection }
+          onRowSelect={ showRowSelection ? this.selectRow.bind(this) : null }
+          selected={ this._isAllRowsSelected() }
           data={ data }/>
       </thead>
     );

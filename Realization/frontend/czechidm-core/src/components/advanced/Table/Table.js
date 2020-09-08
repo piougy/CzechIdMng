@@ -6,6 +6,7 @@ import _ from 'lodash';
 import Immutable from 'immutable';
 import moment from 'moment';
 import classnames from 'classnames';
+import { Dropdown, MenuItem } from 'react-bootstrap';
 //
 import * as Basic from '../../basic';
 import * as Utils from '../../../utils';
@@ -25,6 +26,7 @@ import EavAttributeForm from '../Form/EavAttributeForm';
 import LongRunningTask from '../LongRunningTask/LongRunningTask';
 import { selectEntities } from '../../../redux/selectors';
 
+const DEFAULT_QUICK_BUTTON_COUNT = 5;
 const auditManager = new AuditManager();
 const dataManager = new DataManager();
 
@@ -99,13 +101,20 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         } else {
           // TODO: react elements are stored in state ... redesign raw data and move cached actions into reducer
           const _actions = actions
-            .sort((one, two) => this._getBulkActionLabel(one).localeCompare(this._getBulkActionLabel(two)))
             .map(backendBulkAction => {
-              const iconKey = `${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }.icon`;
-              const icon = this.i18n(iconKey);
+              const actionKey = `${ backendBulkAction.module }:eav.bulk-action.${ backendBulkAction.name }`;
+              const iconKey = `${ actionKey }.icon`;
+              const icon = backendBulkAction.icon || this.i18n(iconKey);
               const label = this._getBulkActionLabel(backendBulkAction);
               return {
                 value: backendBulkAction.name,
+                order: backendBulkAction.order,
+                actionKey,
+                icon,
+                label,
+                level: backendBulkAction.level && backendBulkAction.level !== 'SUCCESS' ? backendBulkAction.level.toLowerCase() : 'default',
+                deleteAction: backendBulkAction.deleteAction,
+                quickButton: backendBulkAction.quickButton,
                 niceLabel: (
                   <span key={ `b-a-${backendBulkAction.name}` }>
                     <Basic.Icon
@@ -113,7 +122,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                       rendered={ backendBulkAction.module + icon !== iconKey }
                       style={{ marginRight: 5, width: 18, textAlign: 'center' }}/>
                     { label }
-                  </span>),
+                  </span>
+                ),
                 action: this.showBulkActionDetail.bind(this, backendBulkAction),
                 disabled: !SecurityManager.hasAllAuthorities(backendBulkAction.authorities),
                 showWithSelection: backendBulkAction.showWithSelection,
@@ -646,6 +656,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     });
   }
 
+  _sortActions(one, two) {
+    if (one.order === two.order) {
+      return this._getBulkActionLabel(one).localeCompare(this._getBulkActionLabel(two));
+    }
+    //
+    return one.order - two.order;
+  }
+
   _renderPrevalidateMessages(backendBulkAction) {
     if (!backendBulkAction.prevalidateResult) {
       return null;
@@ -821,6 +839,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       _total,
       _showLoading,
       _error,
+      _quickButtonCount,
+      _menuIncluded,
       manager,
       pagination,
       onRowClick,
@@ -847,7 +867,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       className,
       uuidEnd,
       hover,
-      sizeOptions
+      sizeOptions,
+      quickButtonCount
     } = this.props;
     const {
       filterOpened,
@@ -922,32 +943,32 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         cell = column.props.cell;
       } else if (column.type.__AdvancedColumnLink__) {
         cell = (
-          <Basic.BasicTable.LinkCell to={column.props.to} target={column.props.target} access={column.props.access} {...commonProps}/>
+          <Basic.BasicTable.LinkCell to={ column.props.to } target={ column.props.target } access={ column.props.access } {...commonProps}/>
         );
       } else {
         switch (column.props.face) {
           case 'text': {
             cell = (
-              <Basic.BasicTable.TextCell {...commonProps} maxLength={ column.props.maxLength }/>
+              <Basic.BasicTable.TextCell { ...commonProps } maxLength={ column.props.maxLength }/>
             );
             break;
           }
           case 'date': {
             cell = (
-              <Basic.BasicTable.DateCell format={this.i18n('format.date')} {...commonProps}/>
+              <Basic.BasicTable.DateCell format={ this.i18n('format.date') } { ...commonProps }/>
             );
             break;
           }
           case 'datetime': {
             cell = (
-              <Basic.BasicTable.DateCell format={this.i18n('format.datetime')} {...commonProps}/>
+              <Basic.BasicTable.DateCell format={ this.i18n('format.datetime') } { ...commonProps }/>
             );
             break;
           }
           case 'bool':
           case 'boolean': {
             cell = (
-              <Basic.BasicTable.BooleanCell {...commonProps}/>
+              <Basic.BasicTable.BooleanCell { ...commonProps }/>
             );
             break;
           }
@@ -965,14 +986,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       // add target column with cell by data type
       renderedColumns.push(
         <Basic.BasicTable.Column
-          key={key}
-          property={column.props.property}
-          rendered={column.props.rendered}
-          className={column.props.className}
-          width={column.props.width}
+          key={ key }
+          property={ column.props.property }
+          rendered={ column.props.rendered }
+          className={ column.props.className }
+          width={ column.props.width }
           header={ columnHeader }
           title={ columnTitle }
-          cell={cell}/>
+          cell={ cell }/>
       );
     }
     //
@@ -1012,27 +1033,203 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     //
     const _isLoading = (_showLoading || showLoading) && !hideTableShowLoading;
     //
+    // resolve bulk actions
+    let processActions = selectedRows.length <= 0 ? _actionsWithoutSelection : _actionsWithSelection;
+    // quick action buttons - configured
+    let buttonActions = processActions.filter(a => a.quickButton);
+    processActions = processActions.filter(a => !a.quickButton);
+    // delete actions has own menu (at end)
+    let deleteActions = processActions.filter(a => a.deleteAction);
+    processActions = processActions.filter(a => !a.deleteAction);
+    // normal menu actions
+    let menuActions = [];
+    //
+    // add quick buttons - by order
+    let buttonActionCount = DEFAULT_QUICK_BUTTON_COUNT;
+    if (!Utils.Ui.isEmpty(quickButtonCount)) {
+      buttonActionCount = quickButtonCount;
+    } else if (!Utils.Ui.isEmpty(_quickButtonCount)) {
+      buttonActionCount = parseInt(_quickButtonCount, 10);
+    }
+    for (let i = 0; i < processActions.length; i++) {
+      const action = processActions[i];
+      if (action.icon === null || action.icon === undefined) {
+        menuActions.push(action);
+        // icon is required to quick access button
+        continue;
+      }
+      // add quick button
+      if (buttonActions.length >= buttonActionCount) {
+        menuActions.push(action);
+      } else {
+        buttonActions.push(action);
+      }
+    }
+    if (buttonActions.length < buttonActionCount) {
+      const newDeleteActions = [];
+      // try to add delete button to quick ...
+      for (let i = 0; i < deleteActions.length; i++) {
+        const action = deleteActions[i];
+        if (action.icon === null || action.icon === undefined) {
+          newDeleteActions.push(action);
+          // icon is required to quick access button
+          continue;
+        }
+        //
+        if (buttonActions.length >= buttonActionCount) {
+          newDeleteActions.push(action);
+        } else {
+          buttonActions.push(action);
+        }
+      }
+      deleteActions = newDeleteActions;
+    }
+    // sort buttons by order and locale
+    buttonActions = buttonActions.sort(this._sortActions.bind(this));
+    menuActions = menuActions.sort(this._sortActions.bind(this));
+    deleteActions = deleteActions.sort(this._sortActions.bind(this));
+    // new quick buttons will be rendered
+    const showBulkActionSelect = buttonActionCount === 0 || buttonActions.length === 0;
+    // included buttons action in menu
+    let buttonMenuIncludedActions = null;
+    if (_menuIncluded && buttonActions.length > 0) {
+      buttonMenuIncludedActions = buttonActions.map(action => (
+        <MenuItem
+          title={ this.isDevelopment() ? `Action order: ${ action.order }, Action key: ${ action.actionKey }` : null }
+          onClick={ this.onBulkAction.bind(this, action) }>
+          <Basic.Icon icon={ action.icon } level={ action.level }/>
+          { action.label || action.niceLabel }
+        </MenuItem>
+      ));
+      if (menuActions.length > 0 || deleteActions.length > 0) {
+        buttonMenuIncludedActions.push(<MenuItem divider />);
+        buttonMenuIncludedActions.push(
+          <MenuItem header>
+            { this.i18n(`bulkAction.button.next`) }
+          </MenuItem>
+        );
+        buttonMenuIncludedActions.push(<MenuItem divider />);
+      }
+    }
+    //
     return (
-      <Basic.Div className={ classnames('advanced-table', className) } style={ style }>
+      <Basic.Div
+        className={
+          classnames(
+            'advanced-table',
+            { 'bulk-action-supported': manager.supportsBulkAction() },
+            { 'quick-button-supported': !showBulkActionSelect },
+            className
+          )
+        }
+        style={ style }>
         {
           (!filter && (_actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0))
           ||
-          <Basic.Toolbar container={ this } viewportOffsetTop={ filterViewportOffsetTop } rendered={ showToolbar }>
-            <Basic.Div className="advanced-table-heading">
-              <Basic.Div className="pull-left">
-                <Basic.EnumSelectBox
-                  onChange={ this.onBulkAction.bind(this) }
-                  ref="bulkActionSelect"
-                  componentSpan=""
-                  className={ _actionClassName }
-                  multiSelect={ false }
-                  options={ selectedRows.length <= 0 ? _actionsWithoutSelection : _actionsWithSelection }
-                  placeholder={ this.i18n(`bulk-action.selection${ selectedRows.length === 0 ? '_empty' : '' }`, { count }) }
-                  rendered={ _actions.length > 0 && showRowSelection }
-                  searchable={ false }
-                  emptyOptionLabel={ false }/>
+          <Basic.Toolbar
+            container={ this }
+            viewportOffsetTop={ filterViewportOffsetTop }
+            rendered={ showToolbar }
+            className="collapse-top">
+            <Basic.Collapse in={ filterOpened } rendered={ showFilter }>
+              <Basic.Div showLoading={ _isLoading } showAnimation={ false }>
+                { filter }
               </Basic.Div>
-              <Basic.Div className="pull-right">
+            </Basic.Collapse>
+            <Basic.Div className="advanced-table-heading">
+              <Basic.Div className="bulk-action-container">
+                {
+                  showBulkActionSelect
+                  ?
+                  <Basic.EnumSelectBox
+                    onChange={ this.onBulkAction.bind(this) }
+                    ref="bulkActionSelect"
+                    componentSpan=""
+                    className={ _actionClassName }
+                    multiSelect={ false }
+                    options={ selectedRows.length <= 0 ? _actionsWithoutSelection : _actionsWithSelection }
+                    placeholder={ this.i18n(`bulk-action.selection${ selectedRows.length === 0 ? '_empty' : '' }`, { count }) }
+                    rendered={ _actions.length > 0 && showRowSelection }
+                    searchable={ false }
+                    emptyOptionLabel={ false }/>
+                  :
+                  <Basic.Div
+                    className={ _actionClassName }
+                    rendered={ _actions.length > 0 && showRowSelection }>
+                    {
+                      buttonActions.map(action => {
+                        return (
+                          <Basic.Button
+                            buttonSize="xs"
+                            className="bulk-action-button"
+                            title={
+                              this.isDevelopment()
+                              ?
+                              `${ action.label || action.niceLabel } - Action order: ${ action.order }, Action key: ${ action.actionKey }`
+                              :
+                              (action.label || action.niceLabel)
+                            }
+                            titlePlacement="bottom"
+                            onClick={ this.onBulkAction.bind(this, action) }>
+                            <Basic.Icon icon={ action.icon } level={ action.level }/>
+                          </Basic.Button>
+                        );
+                      })
+                    }
+                    {
+                      (menuActions.length === 0 && deleteActions.length === 0 && (!_menuIncluded || buttonActions.length === 0))
+                      ||
+                      <Dropdown>
+                        <Basic.Icon
+                          className="dropdown-toogle-icon"
+                          bsRole="toggle"
+                          value="fa:ellipsis-v"
+                          title={ _menuIncluded ? this.i18n(`bulkAction.button.all`) : this.i18n(`bulkAction.button.next`) }/>
+
+                        <Dropdown.Menu>
+                          <MenuItem header>
+                            { this.i18n(`bulk-action.selection${ selectedRows.length === 0 ? '_empty' : '' }`, { count }) }
+                          </MenuItem>
+                          <MenuItem divider />
+                          {
+                            buttonMenuIncludedActions
+                          }
+                          {
+                            menuActions.map(action => {
+                              return (
+                                <MenuItem
+                                  title={ this.isDevelopment() ? `Action order: ${ action.order }, Action key: ${ action.actionKey }` : null }
+                                  onClick={ this.onBulkAction.bind(this, action) }>
+                                  <Basic.Icon icon={ action.icon } level={ action.level }/>
+                                  { action.label || action.niceLabel }
+                                </MenuItem>
+                              );
+                            })
+                          }
+                          {
+                            deleteActions.length === 0 || menuActions.length === 0
+                            ||
+                            <MenuItem divider />
+                          }
+                          {
+                            deleteActions.map(action => {
+                              return (
+                                <MenuItem
+                                  title={ this.isDevelopment() ? `Action order: ${ action.order }` : null }
+                                  onClick={ this.onBulkAction.bind(this, action) }>
+                                  <Basic.Icon icon={ action.icon } level={ action.level }/>
+                                  { action.label || action.niceLabel }
+                                </MenuItem>
+                              );
+                            })
+                          }
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    }
+                  </Basic.Div>
+                }
+              </Basic.Div>
+              <Basic.Div className="button-container">
                 { buttons }
 
                 <Filter.ToogleButton
@@ -1049,13 +1246,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   showLoading={ _showLoading }
                   rendered={ showRefreshButton }/>
               </Basic.Div>
-              <Basic.Div className="clearfix"></Basic.Div>
             </Basic.Div>
-            <Basic.Collapse in={ filterOpened } rendered={ showFilter }>
-              <Basic.Div showLoading={ _isLoading } showAnimation={ false }>
-                { filter }
-              </Basic.Div>
-            </Basic.Collapse>
           </Basic.Toolbar>
         }
         {
@@ -1336,6 +1527,14 @@ AdvancedTable.propTypes = {
    * Callback after bulk action ends - called only if LRT detail is shown till end. Return 'false' in your callback, when standard table reload is not needed after end.
    */
   afterBulkAction: PropTypes.func,
+  /**
+   * Count of quick access buttons for bulk actions in tables - the first count of bulk actions will be shown as button - next action will be rendered in drop down select box.
+   * Bulk action icon is required for quick access button - action without icon will be rendered in select box.
+   * Bulk action can enforce showing in quick access button (by bulk action configuration).
+   *
+   * @since 10.6.0
+   */
+  quickButtonCount: PropTypes.number,
 
   //
   // Private properties, which are used internally for async data fetching
@@ -1361,6 +1560,7 @@ AdvancedTable.defaultProps = {
   _searchParameters: null,
   _error: null,
   _backendBulkActions: null,
+  _quickButtonCount: null,
   pagination: true,
   showRowSelection: false,
   showFilter: true,
@@ -1376,7 +1576,8 @@ AdvancedTable.defaultProps = {
   uuidEnd: false,
   initialReload: true,
   hover: true,
-  prohibitedActions: []
+  prohibitedActions: [],
+  quickButtonCount: null
 };
 
 const makeMapStateToProps = () => {
@@ -1389,7 +1590,9 @@ const makeMapStateToProps = () => {
       appShowId: ConfigurationManager.showId(state),
       showTransactionId: ConfigurationManager.showTransactionId(state),
       defaultPageSize: ConfigurationManager.getDefaultPageSize(state),
-      sizeOptions: ConfigurationManager.getSizeOptions(state)
+      sizeOptions: ConfigurationManager.getSizeOptions(state),
+      _quickButtonCount: ConfigurationManager.getPublicValue(state, 'idm.pub.app.show.table.quickButton.count'),
+      _menuIncluded: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.app.show.table.quickButton.menuIncluded', false)
     };
     //
     if (!ui) {

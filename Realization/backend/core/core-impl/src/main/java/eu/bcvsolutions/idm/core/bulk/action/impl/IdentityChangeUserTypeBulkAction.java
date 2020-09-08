@@ -32,10 +32,11 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
  */
 @Enabled(CoreModuleDescriptor.MODULE_ID)
 @Component(IdentityChangeUserTypeBulkAction.NAME)
-@Description("Change user type of the idetity bulk action.")
+@Description(IdentityChangeUserTypeBulkAction.DESCRIPTION)
 public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIdentityDto, IdmIdentityFilter> {
 
 	public static final String NAME = "core-identity-change-user-type-bulk-action";
+	public static final String DESCRIPTION = "Change user type of the idetity bulk action."; // just for test purposes
 	public static final String PROPERTY_USER_TYPE = "user-type";
 
 	@Autowired
@@ -99,7 +100,7 @@ public class IdentityChangeUserTypeBulkAction extends AbstractBulkAction<IdmIden
 
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 400;
+		return super.getOrder() + 450;
 	}
 
 	@Override

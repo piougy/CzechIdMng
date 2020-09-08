@@ -342,7 +342,7 @@ public interface EntityEventManager extends ScriptEnabled {
 	void enable(String processorId);
 
 	/**
-	 * Disable given module. Throws {@link IllegalArgumentException} when processorId is not installed.
+	 * Disable given processor. Throws {@link IllegalArgumentException} when processorId is not installed.
 	 * 
 	 * @param processorId
 	 */

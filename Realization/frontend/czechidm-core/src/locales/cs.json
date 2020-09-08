@@ -60,7 +60,8 @@
     "no": "Ne",
     "readOnly": "Pouze pro čtení",
     "removed": "Odebráno",
-    "waiting": "Čeká"
+    "waiting": "Čeká",
+    "next": "Další"
   },
   "button": {
     "activate": "Aktivovat",
@@ -303,7 +304,9 @@
     "message_2": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
     "message_5": "Provádíte hromadnou úlohu [{{name}}] nad {{count}} záznamy: <b>[{{entities}}]</b>",
     "button": {
-      "execute": "Spustit"
+      "execute": "Spustit",
+      "next": "Další operace",
+      "all": "Všechny operace"
     },
     "insufficientReadPermission": "Nemáte dostatečná práva pro zobrazení průběhu hromadné operace."
   },
@@ -502,11 +505,11 @@
       },
       "Table": {
         "bulk-action": {
-          "selection_empty": "Vyberte akci nebo záznamy ...",
-          "selection_0": "Vyberte akci nebo záznamy ...",
-          "selection_1": "Operace s vybraným záznamem:",
-          "selection_2": "Operace s vybranými záznamy ({{count}}):",
-          "selection_5": "Operace s vybranými záznamy ({{count}}):",
+          "selection_empty": "Vyberte akci.",
+          "selection_0": "Vyberte akci",
+          "selection_1": "Operace s vybraným záznamem",
+          "selection_2": "Operace s vybranými záznamy ({{count}})",
+          "selection_5": "Operace s vybranými záznamy ({{count}})",
           "notImplemented": "Omlouváme se, tato operace nebyla prozatím implementována."
         },
         "error": {
@@ -3411,6 +3414,24 @@
           }
         }
       },
+      "bulk-actions": {
+        "header": "Hromadné akce",
+        "title": "Hromadné akce",
+        "filter": {
+          "text": {
+            "placeholder": "Název, typ entity či akce, popis (like)"
+          },
+          "module": {
+            "placeholder": "Modul"
+          },
+          "entityClass": {
+            "placeholder": "Typ entity"
+          }
+        },
+        "emptyEntityClass": {
+          "header": "Akce pro různé entity <small>akce může být spuštěna pro více typů entit</small>"
+        }
+      },
       "available-services": {
         "header": "Dostupné služby",
         "title": "Dostupné služby",
@@ -4994,7 +5015,7 @@
       "eventType": "Typ události",
       "eventTypes": "Typy událostí",
       "order": "Pořadí",
-      "disabled": "Neaktivní",
+      "disabled": "$t(label.disabled)",
       "disableable": "Nelze vypnout",
       "closeable": "Uzavírá zpracování"
     },
@@ -5017,6 +5038,44 @@
       },
       "filterBuilderClass": {
         "label": "Typ filtru"
+      }
+    },
+    "BulkAction": {
+      "name": {
+        "label": "Název"
+      },
+      "module": {
+        "label": "Modul"
+      },
+      "description": {
+        "label": "Popis"
+      },
+      "entityClass": {
+        "label": "Typ entity"
+      },
+      "order": {
+        "label": "Pořadí"
+      },
+      "disabled": {
+        "label": "$t(label.disabled)"
+      },
+      "level": {
+        "label": "Level"
+      },
+      "deleteAction": {
+        "label": "Akce pro mazání",
+        "title": "Akce slouží k mazání záznamů",
+        "help": "Akce slouží k mazání záznamů. Pokud je zobrazena v menu, bude v sekci na konci menu."
+      },
+      "icon": {
+        "label": "Ikona",
+        "title": "Ikona na frontendu",
+        "help": "Ikona na frontendu. Lze použít knihovny ikon: component:, fa:, glyph:."
+      },
+      "quickButton": {
+        "label": "Tlačítko",
+        "title": "Zobrazit akci jako tlačítko",
+        "help": "Zobrazit akci jako rychlé tlačítko. První dostupné akce jsou zobrazeny jako tlačítka, pokud mají definovanou ikonu. Touto volbou je možné akci zobrazit jako tlačítko bez ohledu na pořadí akce."
       }
     },
     "AvailableServices": {
@@ -5697,7 +5756,7 @@
       },
       "identity-add-role-bulk-action": {
         "label": "Přidělení rolí",
-        "icon": "fa:plus-square",
+        "icon": "component:identity-role-add",
         "attributes": {
           "role": {
             "label": "Role",
@@ -5723,7 +5782,7 @@
       },
       "identity-remove-role-bulk-action": {
         "label": "Odebrání rolí",
-        "icon": "fa:minus-square",
+        "icon": "component:identity-role-remove",
         "attributes": {
           "role": {
             "label": "Role",

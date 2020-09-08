@@ -146,14 +146,14 @@ public class ParameterConverter {
 	 * 
 	 * @param parameters
 	 * @param parameterName
-	 * @param deafultValue
+	 * @param defaultValue
 	 * @return
 	 */
-	public boolean toBoolean(Map<String, Object> parameters, String parameterName, boolean deafultValue) {
+	public boolean toBoolean(Map<String, Object> parameters, String parameterName, boolean defaultValue) {
 		Assert.notNull(parameters, "Input parameters are required.");
 		//
 		Boolean result = toBoolean(parameters, parameterName);
-		return result == null ? deafultValue : result;
+		return result == null ? defaultValue : result;
 	}
 	
 	/**
@@ -210,6 +210,21 @@ public class ParameterConverter {
 			}		
 		}
 		return null;
+	}
+	
+	/**
+	 * Converts parameter to {@code Long} from given parameters.
+	 * 
+	 * @param parameters map
+	 * @param parameterName parameter or property name
+	 * @param defaultValue default value
+	 * @return parameter value or default value, if parameters value is not set
+	 * @since 10.6.0
+	 */
+	public long toLong(Map<String, Object> parameters, String parameterName, long defaultValue) {
+		Long result = toLong(parameters, parameterName);
+		//
+		return result == null ? defaultValue : result;
 	}
 	
 	/**

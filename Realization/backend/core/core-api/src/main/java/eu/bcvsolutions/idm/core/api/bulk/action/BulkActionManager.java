@@ -6,13 +6,14 @@ import eu.bcvsolutions.idm.core.api.bulk.action.dto.IdmBulkActionDto;
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BulkActionFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Interface for bulk action manager
  *
  * @author Ondrej Kopr <kopr@xyxy.cz>
- *
+ * @author Radek Tomiška
  */
 public interface BulkActionManager {
 
@@ -25,12 +26,21 @@ public interface BulkActionManager {
 	List<IdmBulkActionDto> getAvailableActions(Class<? extends BaseEntity> entity);
 	
 	/**
-	 * Get all available bulk actions for given entity
+	 * Get all available bulk actions for given entity.
 	 *
 	 * @param dtoClass action for given dtoClass
 	 * @return available bulk actions.
 	 */
-	public List<IdmBulkActionDto> getAvailableActionsForDto(Class<? extends BaseDto> dtoClass);
+	List<IdmBulkActionDto> getAvailableActionsForDto(Class<? extends BaseDto> dtoClass);
+	
+	/**
+	 * Returns all registered bulk actions by given filter.
+	 * 
+	 * @param filter filter
+	 * @return registered bulk actions by filter
+	 * @since 10.6.0
+	 */
+	List<IdmBulkActionDto> find(BulkActionFilter filter);
 	
 	/**
 	 * Process bulk action in new long running task
@@ -57,6 +67,32 @@ public interface BulkActionManager {
 	 * @param action
 	 * @return 
 	 */
-	public IdmBulkActionDto toDto(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action);
+	IdmBulkActionDto toDto(AbstractBulkAction<? extends BaseDto, ? extends BaseFilter> action);
 	
+	/**
+	 * Enable given bulk action. 
+	 * Throws {@link IllegalArgumentException} when bulkActionId is not installed.
+	 * 
+	 * @param bulkActionId id ~ bean name
+	 * @since 10.6.0
+	 */
+	void enable(String bulkActionId);
+
+	/**
+	 * Disable given bulk action. 
+	 * Throws {@link IllegalArgumentException} when bulkActionId is not installed.
+	 * 
+	 * @param bulkActionId id ~ bean name
+	 * @since 10.6.0
+	 */
+	void disable(String bulkActionId);
+
+	/**
+	 * Enable / disable given bulk action.
+	 *
+	 * @param bulkActionId id ~ bean name
+	 * @param enabled true - enabled, false - disabled
+	 * @since 10.6.0
+	 */
+	void setEnabled(String bulkActionId, boolean enabled);
 }

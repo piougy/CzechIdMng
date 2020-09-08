@@ -129,14 +129,14 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
     }
     //
     return (
-      <div>
+      <Basic.Div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-deactivate" level="warning"/>
         <Basic.Confirm ref="confirm-activate" level="success"/>
 
         <Basic.Toolbar>
-          <div>
-            <div className="pull-right">
+          <Basic.Div>
+            <Basic.Div className="pull-right">
               <Advanced.Filter.ToogleButton
                 filterOpen={ (open) => this.setState({ filterOpened: open }) }
                 filterOpened={ filterOpened }
@@ -146,11 +146,11 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                 onClick={ this.fetchEntities.bind(this, _searchParameters) }
                 title={ this.i18n('button.refresh') }
                 showLoading={ showLoading }/>
-            </div>
-            <div className="clearfix" />
-          </div>
+            </Basic.Div>
+            <Basic.Div className="clearfix" />
+          </Basic.Div>
           <Basic.Collapse in={filterOpened}>
-            <div>
+            <Basic.Div>
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
@@ -187,7 +187,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Advanced.Filter>
-            </div>
+            </Basic.Div>
           </Basic.Collapse>
         </Basic.Toolbar>
 
@@ -201,7 +201,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
         {
           showLoading || _processors.size === 0
           ||
-          <div>
+          <Basic.Div>
             {
               [..._entityTypes.map((entityType) => (
                 <div className="tab-pane-table-body" style={{ marginBottom: 15 }}>
@@ -216,7 +216,7 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                     <Basic.Column property="name" header={ this.i18n('entity.EntityEventProcessor.name') } width="30%"/>
                     <Basic.Column
                       property="description"
-                      header={this.i18n('entity.EntityEventProcessor.description')}
+                      header={ this.i18n('entity.EntityEventProcessor.description') }
                       cell={
                         ({ rowIndex, data, property }) => {
                           const values = [];
@@ -257,11 +257,14 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                           return data[rowIndex][property].join(', ');
                         }
                       }/>
-                    <Basic.Column property="order" header={this.i18n('entity.EntityEventProcessor.order')} width={100}/>
+                    <Basic.Column
+                      property="order"
+                      header={ this.i18n('entity.EntityEventProcessor.order') }
+                      width={ 100 }/>
                     <Basic.Column
                       property="disabled"
-                      header={<Basic.Cell className="column-face-bool">{this.i18n('entity.EntityEventProcessor.disabled')}</Basic.Cell>}
-                      cell={<Basic.BooleanCell className="column-face-bool"/>}
+                      header={ <Basic.Cell className="column-face-bool">{ this.i18n('entity.EntityEventProcessor.disabled') }</Basic.Cell> }
+                      cell={ <Basic.BooleanCell className="column-face-bool"/> }
                       width={ 100 }/>
                     <Basic.Column
                       header={ this.i18n('entity.id.label') }
@@ -275,31 +278,31 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
                         )
                       }/>
                     <Basic.Column
-                      header={this.i18n('label.action')}
+                      header={ this.i18n('label.action') }
                       className="action"
                       cell={
-                        ({rowIndex, data}) => {
+                        ({ rowIndex, data }) => {
                           if (!data[rowIndex].disabled) {
                             return (
                               <Basic.Button
                                 level="warning"
-                                onClick={this.onEnable.bind(this, data[rowIndex], false)}
+                                onClick={ this.onEnable.bind(this, data[rowIndex], false) }
                                 className="btn-xs"
-                                title={this.i18n('button.deactivate')}
+                                title={ this.i18n('button.deactivate') }
                                 titlePlacement="bottom"
-                                rendered={data[rowIndex].disableable}>
-                                {this.i18n('button.deactivate')}
+                                rendered={ data[rowIndex].disableable }>
+                                { this.i18n('button.deactivate') }
                               </Basic.Button>
                             );
                           }
                           return (
                             <Basic.Button
                               level="success"
-                              onClick={this.onEnable.bind(this, data[rowIndex], true)}
+                              onClick={ this.onEnable.bind(this, data[rowIndex], true) }
                               className="btn-xs"
-                              title={this.i18n('button.activate')}
+                              title={ this.i18n('button.activate') }
                               titlePlacement="bottom">
-                              {this.i18n('button.activate')}
+                              { this.i18n('button.activate') }
                             </Basic.Button>
                           );
                         }
@@ -309,9 +312,9 @@ class EntityEventProcessors extends Advanced.AbstractTableContent {
               )).values()]
             }
             <Basic.Pagination total={ processors.length } />
-          </div>
+          </Basic.Div>
         }
-      </div>
+      </Basic.Div>
     );
   }
 }

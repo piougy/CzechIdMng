@@ -656,6 +656,11 @@ module.exports = {
           access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
         },
         {
+          path: 'bulk-actions',
+          component: require('./src/content/module/BulkActions'),
+          access: [{type: 'HAS_ANY_AUTHORITY', authorities: ['MODULE_READ']}]
+        },
+        {
           path: 'available-services',
           component: require('./src/content/module/AvailableServices'),
           access: [{type: 'IS_AUTHENTICATED'}]

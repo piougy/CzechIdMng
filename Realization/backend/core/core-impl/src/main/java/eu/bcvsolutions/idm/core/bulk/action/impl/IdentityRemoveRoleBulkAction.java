@@ -313,7 +313,7 @@ public class IdentityRemoveRoleBulkAction extends AbstractBulkAction<IdmIdentity
 
 	@Override
 	public int getOrder() {
-		return super.getOrder() + 500;
+		return super.getOrder() + 400;
 	}
 	
 	@Override

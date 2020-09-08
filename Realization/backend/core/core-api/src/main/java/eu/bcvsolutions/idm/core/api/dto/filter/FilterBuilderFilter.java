@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
- * Filter builder filter
+ * Filter builder filter.
  *
  * @author Kolychev Artem
  * @author Radek Tomiška

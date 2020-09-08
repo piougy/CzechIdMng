@@ -62,6 +62,11 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 		this.attachmentManager = attachmentManager;
 		this.mapper = mapper;
 	}
+	
+	@Override
+	public String getName() {
+		return REPORT_NAME;
+	}
 
 	@Override
 	protected boolean start() {
@@ -210,10 +215,9 @@ public class AbstractEntityExport <D extends AbstractDto, F extends BaseFilter> 
 			getLongRunningTaskService().save(task);
 		}
 	}
-
-
+	
 	@Override
-	public String getName() {
-		return REPORT_NAME;
+	public int getOrder() {
+		return DEFAULT_ORDER + 5000;
 	}
 }

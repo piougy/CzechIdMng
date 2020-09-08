@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
  */
 public interface ReportExecutor extends Configurable, Plugin<String>, LongRunningTaskExecutor<RptReportDto> {
 	
-	static final String CONFIGURABLE_TYPE = "report-executor";
+	String CONFIGURABLE_TYPE = "report-executor";
 
 	@Override
 	default String getConfigurableType() {

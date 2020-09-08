@@ -27,7 +27,8 @@ Encapsulates all features from BasicTable component. All BasicTable parameters a
 | header | oneOfType([string, element]) | Table header |  |
 | hover | bool | Activate table hover (highligth selected row) | true |
 | prohibitedActions | arrayOf(string) | Prohibited actions. Defines array an keys of a bulk actions, that shouldn't be visible in this table. | [] |
-| afterBulkAction | func | Callback after bulk action ends - called only if LRT detail is shown till end. Return 'false' in your callback, when standard table reload is not needed after end. | ||
+| afterBulkAction | func | Callback after bulk action ends - called only if LRT detail is shown till end. Return 'false' in your callback, when standard table reload is not needed after end. | |
+| quickAccessButtonCount | number | Count of quick access buttons for bulk actions in tables - the first count of bulk actions will be shown as button - next action will be rendered in drop down select box. Bulk action icon is required for quick access button - action without icon will be rendered in select box. Bulk action can enforce showing in quick access button (by bulk action configuration). | by BE configuration property ``idm.pub.app.show.table.quickAccessButton.count=5`` |
 
 # AdvancedColumn Component
 

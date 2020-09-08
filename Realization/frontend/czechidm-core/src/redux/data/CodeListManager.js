@@ -37,6 +37,12 @@ export default class CodeListManager extends EntityManager {
     return 'code';
   }
 
+  /**
+   * All codelists are under this key in redux state.
+   *
+   * @return {string} key in redux store
+   * @since 10.6.0
+   */
   getCodeListContainerUiKey() {
     return 'codelist-data';
   }

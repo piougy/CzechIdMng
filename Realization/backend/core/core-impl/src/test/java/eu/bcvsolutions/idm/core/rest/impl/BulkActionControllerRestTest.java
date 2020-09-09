@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.CoreModule;
@@ -22,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BulkActionFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.bulk.action.impl.IdentityChangeUserTypeBulkAction;
+import eu.bcvsolutions.idm.core.bulk.action.impl.MockBulkAction;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
@@ -42,6 +44,7 @@ public class BulkActionControllerRestTest extends AbstractRestTest {
 	@Autowired private BulkActionManager manager;
 	@Autowired private IdentityChangeUserTypeBulkAction bulkAction;
 	@Autowired private ConfigurationService configurationService;
+	@Autowired @Qualifier(MockBulkAction.NAME) private MockBulkAction mockBulkAction;
 	
 	@Test
 	public void testEnable() throws Exception {
@@ -78,6 +81,28 @@ public class BulkActionControllerRestTest extends AbstractRestTest {
 			Assert.assertFalse(results.get(0).isDisabled());
 		} finally {
 			manager.enable(bulkAction.getId());
+		}
+	}
+	
+	@Test
+	public void testFindEnabledActions() throws Exception {
+		try {
+			getHelper().setConfigurationValue(MockBulkAction.PROPERTY_ADDITIONAL_ENABLED, true);
+			//
+			BulkActionFilter filter = new BulkActionFilter();
+			filter.setName(mockBulkAction.getId());
+			List<IdmBulkActionDto> results = find(filter);
+			//
+			Assert.assertFalse(results.isEmpty());
+			Assert.assertEquals(mockBulkAction.getId(), results.get(0).getName());
+			Assert.assertFalse(results.get(0).isDisabled());
+			//
+			getHelper().setConfigurationValue(MockBulkAction.PROPERTY_ADDITIONAL_ENABLED, false);
+			//
+			results = find(filter);
+			Assert.assertTrue(results.isEmpty());
+		} finally {
+			getHelper().setConfigurationValue(MockBulkAction.PROPERTY_ADDITIONAL_ENABLED, true);
 		}
 	}
 	

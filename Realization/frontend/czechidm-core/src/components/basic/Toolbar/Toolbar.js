@@ -8,7 +8,7 @@ import Loading from '../Loading/Loading';
 
 
 /**
- * Toolbal panel.
+ * Toolbar panel.
  *
  * @author Radek Tomiška
  */
@@ -25,15 +25,15 @@ export default class Toolbar extends AbstractComponent {
       className
     );
     let render = (
-      <div className={classNames} {...other}>
-        <Loading className="simple" showLoading={showLoading} showAnimation={false}>
-          {this.props.children}
+      <div className={ classNames } { ...other }>
+        <Loading className="simple" showLoading={ showLoading } showAnimation={ false }>
+          { this.props.children }
         </Loading>
       </div>
     );
     if (viewportOffsetTop !== undefined) { // affix decorator, when viewportOffsetTop is defined
       render = (
-        <AutoAffix viewportOffsetTop={viewportOffsetTop} container={container}>
+        <AutoAffix viewportOffsetTop={ viewportOffsetTop } container={ container }>
           {render}
         </AutoAffix>
       );

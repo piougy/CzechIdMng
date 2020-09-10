@@ -7,7 +7,7 @@ import * as Basic from '../components/basic';
 import { HelpContent } from '../domain';
 
 /**
- * Flash messages history
+ * Flash messages history. Messages from FE only.
  *
  * @author Radek Tomiška
  */
@@ -34,7 +34,7 @@ class Messages extends Basic.AbstractContent {
     helpContent = helpContent.setHeader(
       <span>
         <Basic.Icon value="envelope"/>
-        {' '}
+        { ' ' }
         { this.i18n('help.header') }
       </span>
     );
@@ -47,17 +47,19 @@ class Messages extends Basic.AbstractContent {
     const messages = [];
     const isEmpty = !this.props.messages || !this.props.messages.length;
     if (isEmpty) {
-      messages.push(<Basic.Alert icon="ok" level="success" text={this.i18n('content.messages.empty')}/>);
+      messages.push(
+        <Basic.Alert icon="ok" level="success" text={ this.i18n('content.messages.empty') }/>
+      );
     } else {
       for (let i = 0; i < this.props.messages.length; i++) {
         const m = this.getFlashManager().createMessage(this.props.messages[i]);
         const key = `flash-message-${ m.id }`;
         messages.push(
           <Basic.FlashMessage
-            key={key}
-            message={m}
+            key={ key }
+            message={ m }
             showDate
-            onClose={this.removeMessage.bind(this, m.id)}/>
+            onClose={ this.removeMessage.bind(this, m.id) }/>
         );
       }
     }
@@ -66,8 +68,8 @@ class Messages extends Basic.AbstractContent {
       <span>
         <span>
           <Basic.Icon value="envelope"/>
-          {' '}
-          {this.i18n('content.messages.header')}
+          { ' ' }
+          { this.i18n('content.messages.header') }
         </span>
         {
           isEmpty
@@ -90,19 +92,19 @@ class Messages extends Basic.AbstractContent {
     return (
       <Basic.Row>
         <div className="col-lg-offset-2 col-lg-8">
-          <Helmet title={this.i18n('navigation.menu.messages')} />
+          <Helmet title={ this.i18n('navigation.menu.messages') } />
           <Basic.Panel>
-            <Basic.PanelHeader text={panelText} help={ this.getHelp() }/>
-            <Basic.Toolbar viewportOffsetTop={0} container={this} rendered={!isEmpty}>
+            <Basic.PanelHeader text={ panelText } help={ this.getHelp() }/>
+            <Basic.Toolbar viewportOffsetTop={ 0 } container={ this } rendered={ !isEmpty }>
               <div className="pull-right">
-                <Basic.Button level="warning" className="btn-xs" onClick={this.removeAllMessages.bind(this)}>
-                  {this.i18n('content.messages.button.removeAll')}
+                <Basic.Button level="warning" className="btn-xs" onClick={ this.removeAllMessages.bind(this) }>
+                  { this.i18n('content.messages.button.removeAll') }
                 </Basic.Button>
               </div>
               <div className="clearfix"/>
             </Basic.Toolbar>
 
-            {messages}
+            { messages }
           </Basic.Panel>
         </div>
       </Basic.Row>

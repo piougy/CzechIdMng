@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import _ from 'lodash';
@@ -7,6 +8,7 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Loading from '../Loading/Loading';
 import HelpIcon from '../HelpIcon/HelpIcon';
 import Icon from '../Icon/Icon';
+import Div from '../Div/Div';
 
 const SUPPORTED_SIZES = ['lg', 'large', 'sm', 'small'];
 
@@ -21,6 +23,32 @@ const SUPPORTED_SIZES = ['lg', 'large', 'sm', 'small'];
  */
 export default class BasicModal extends AbstractComponent {
 
+  constructor(props, context) {
+    super(props, context);
+    //
+    this.modalRef = React.createRef();
+    //
+    this.state = {
+      bodyStyle: {}
+    };
+  }
+
+  /**
+   * Add event listener
+   */
+  componentDidMount() {
+    // FIXME: how to get modal.scrollTop() on resize event => returns 0 alltime
+    window.addEventListener('resize', this._setFooterStyle.bind(this, null));
+  }
+
+  /**
+   * Remove event listener
+   */
+  componentWillUnmount() {
+    // FIXME: how to get modal.scrollTop() on resize event => returns 0 alltime
+    window.removeEventListener('resize', this._setFooterStyle.bind(this, null));
+  }
+
   /**
    * Fix modal backdrop size
    */
@@ -30,15 +58,76 @@ export default class BasicModal extends AbstractComponent {
       $('.modal-backdrop').css({
         bottom: 0 - $(window).scrollTop()
       });
-    }
-    // original
-    if (onEnter) {
+      this._setFooterStyle(onEnter);
+    } else if (onEnter) {
+      // by props
       onEnter();
     }
   }
 
+  _onExit(onExit) {
+    this.setState({
+      bodyStyle: {}
+    }, () => {
+      // original
+      if (onExit) {
+        onExit();
+      }
+    });
+  }
+
+  _setFooterStyle(cb, event) {
+    // TODO: Using of findDOMNode is not recommended. Find a another solution.
+    /* eslint-disable react/no-find-dom-node */
+    const modal = $(ReactDOM.findDOMNode(this.modalRef.current));
+    const modalDialog = modal.find('.modal-dialog');
+    const modalFooter = modal.find('.modal-footer');
+    //
+    // single footer can be affixed only
+    if (modalFooter.length !== 1) {
+      return;
+    }
+    //
+    const heightDifference = modalDialog.height() - $(window).height();
+    const footerBottom = heightDifference - (event ? event.target.scrollTop : 0);
+    //
+    if (heightDifference > 0) {
+      const footerHeight = modalFooter.outerHeight();
+      const modalMargin = (parseInt(modalDialog.css('margin-bottom'), 10) - 1) || 29; // FIXME: -1 => border bottom
+      //
+      this.setState({
+        bodyStyle: {
+          paddingBottom: footerHeight
+        }
+      }, () => {
+        modalFooter.css({
+          position: 'absolute',
+          bottom:
+            footerBottom +
+            (modalMargin - (footerBottom < -modalMargin ? (footerBottom + modalMargin) : 0)), // on end -> between dialog margin
+          backgroundColor: 'white',
+          width: '100%',
+          borderRadius: '0px 0px 6px 6px' // FIXME: by modal radius
+        });
+        if (cb) {
+          cb();
+        }
+      });
+    } else {
+      this.setState({
+        bodyStyle: {}
+      }, () => {
+        if (cb) {
+          cb();
+        }
+      });
+    }
+  }
+
   render() {
-    const { rendered, bsSize, showLoading, onEnter, enforceFocus, container, ...others } = this.props;
+    const { rendered, bsSize, showLoading, onEnter, onExit, enforceFocus, container, ...others } = this.props;
+    const { bodyStyle } = this.state;
+    //
     if (!rendered) {
       return null;
     }
@@ -47,7 +136,14 @@ export default class BasicModal extends AbstractComponent {
     }
     // disabled enforceFocus - input in popover cannot be selected otherwise
     return (
-      <Modal onEnter={ this._onEnter.bind(this, onEnter) } enforceFocus={ enforceFocus } container={ container } { ...others } >
+      <Modal
+        ref={ this.modalRef }
+        onScroll={ this._setFooterStyle.bind(this, null) }
+        onEnter={ this._onEnter.bind(this, onEnter) }
+        onExit={ this._onExit.bind(this, onExit) }
+        enforceFocus={ enforceFocus }
+        container={ container }
+        { ...others }>
         {
           showLoading
           ?
@@ -58,9 +154,11 @@ export default class BasicModal extends AbstractComponent {
           null
         }
         {/* prevent exception, when parent component is touching to childerns ref etc.*/}
-        <div className={showLoading ? 'hidden' : ''}>
-          {this.props.children}
-        </div>
+        <Div
+          style={ bodyStyle }
+          className={ showLoading ? 'hidden' : '' }>
+          { this.props.children }
+        </Div>
       </Modal>
     );
   }
@@ -72,6 +170,10 @@ BasicModal.propTypes = {
    * Callback fired before the Modal transitions in
    */
   onEnter: PropTypes.func,
+  /**
+   * Callback fired after the Modal transitions out
+   */
+  onExit: PropTypes.func,
   /**
    * Component size variations.
    */
@@ -99,7 +201,7 @@ class BasicModalHeader extends AbstractComponent {
     }
     return (
       <Modal.Header {...others}>
-        <div className="pull-left">
+        <Div className="pull-left">
           <Icon type="fa" icon="refresh" showLoading rendered={ showLoading } />
           {
             showLoading || text
@@ -118,17 +220,17 @@ class BasicModalHeader extends AbstractComponent {
             null
           }
           { children }
-        </div>
+        </Div>
         {
           help
           ?
-          <div className="pull-right">
+          <Div className="pull-right">
             <HelpIcon content={help}/>
-          </div>
+          </Div>
           :
           null
         }
-        <div className="clearfix"/>
+        <Div className="clearfix"/>
       </Modal.Header>
     );
   }

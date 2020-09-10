@@ -55,6 +55,17 @@ export class IdentityTable extends Advanced.AbstractTableContent {
         this.addError(error);
       }
     }));
+    // window.addEventListener('scroll', this.handleScroll.bind(this));
+  }
+
+  componentWillUnmount() {
+    // window.removeEventListener('scroll', this.handleScroll.bind(this));
+  }
+
+  handleScroll(event) {
+    this.setState({
+      footerStyle: { position: 'absolute', bottom: 500 - window.scrollY, backgroundColor: 'white', widht: '100%' }
+    });
   }
 
   getContentKey() {
@@ -416,59 +427,61 @@ export class IdentityTable extends Advanced.AbstractTableContent {
             closeButton
             icon="fa:user-plus"
             text={ this.i18n('action.add.header') }/>
-          <Basic.Div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', margin: '25px 0' }}>
-            {
-              !projections
-              ||
-              projections.map(projection => (
+          <Basic.Modal.Body>
+            <Basic.Div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', margin: '10px 0' }}>
+              {
+                !projections
+                ||
+                projections.map(projection => (
+                  <Basic.Button
+                    className="btn-lg"
+                    level={ projectionManager.getLocalization(projection, 'level', 'default') }
+                    title={ projectionManager.getLocalization(projection, 'help') }
+                    titlePlacement="bottom"
+                    style={{ minWidth: 240, height: 125, margin: 15 }}
+                    onClick={ (event) => {
+                      if (event) {
+                        event.preventDefault();
+                      }
+                      const newIdentity = {
+                        id: uuid.v1(),
+                        username: this.refs.text.getValue(),
+                        formProjection: projection.id
+                      };
+                      this.context.store.dispatch(identityProjectionManager.receiveEntity(newIdentity.id, {
+                        id: newIdentity.id,
+                        identity: newIdentity
+                      }));
+                      const route = Utils.Ui.getRouteUrl(projection.route);
+                      this.context.history.push(`${ route }/${ newIdentity.id }?new=1&projection=${ encodeURIComponent(projection.id) }`);
+                    }}>
+                    <Basic.Icon
+                      icon={ projectionManager.getLocalization(projection, 'icon', 'fa:user-plus') }
+                      style={{ display: 'block', marginBottom: 10 }}
+                      className="fa-2x"/>
+                    { projectionManager.getLocalization(projection, 'label', projection.code) }
+                  </Basic.Button>
+                ))
+              }
+            </Basic.Div>
+            <Basic.Div style={{ margin: '0 75px' }} rendered={ isDefaultFormProjection }>
+              <Basic.Div className="text-divider">
+                <span>{ this.i18n('action.add.or') }</span>
+              </Basic.Div>
+              <Basic.Div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
                 <Basic.Button
-                  className="btn-lg"
-                  level={ projectionManager.getLocalization(projection, 'level', 'default') }
-                  title={ projectionManager.getLocalization(projection, 'help') }
-                  titlePlacement="bottom"
-                  style={{ minWidth: 240, height: 125, margin: 15 }}
+                  level="link"
                   onClick={ (event) => {
                     if (event) {
                       event.preventDefault();
                     }
-                    const newIdentity = {
-                      id: uuid.v1(),
-                      username: this.refs.text.getValue(),
-                      formProjection: projection.id
-                    };
-                    this.context.store.dispatch(identityProjectionManager.receiveEntity(newIdentity.id, {
-                      id: newIdentity.id,
-                      identity: newIdentity
-                    }));
-                    const route = Utils.Ui.getRouteUrl(projection.route);
-                    this.context.history.push(`${ route }/${ newIdentity.id }?new=1&projection=${ encodeURIComponent(projection.id) }`);
+                    this.context.history.push(`/identity/new?id=${ uuid.v1() }`);
                   }}>
-                  <Basic.Icon
-                    icon={ projectionManager.getLocalization(projection, 'icon', 'fa:user-plus') }
-                    style={{ display: 'block', marginBottom: 10 }}
-                    className="fa-2x"/>
-                  { projectionManager.getLocalization(projection, 'label', projection.code) }
+                  { this.i18n('action.add.default') }
                 </Basic.Button>
-              ))
-            }
-          </Basic.Div>
-          <Basic.Div style={{ margin: '0 75px' }} rendered={ isDefaultFormProjection }>
-            <Basic.Div className="text-divider">
-              <span>{ this.i18n('action.add.or') }</span>
+              </Basic.Div>
             </Basic.Div>
-            <Basic.Div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 25 }}>
-              <Basic.Button
-                level="link"
-                onClick={ (event) => {
-                  if (event) {
-                    event.preventDefault();
-                  }
-                  this.context.history.push(`/identity/new?id=${ uuid.v1() }`);
-                }}>
-                { this.i18n('action.add.default') }
-              </Basic.Button>
-            </Basic.Div>
-          </Basic.Div>
+          </Basic.Modal.Body>
           <Basic.Modal.Footer>
             <Basic.Button
               level="link"

@@ -119,12 +119,19 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
         <Basic.Loading showLoading isStatic/>
       );
     }
+    if (!filledAuthorities) {
+      return (
+        <Basic.Loading isStatic show/>
+      );
+    }
     //
     return (
       <Basic.Div>
         {
-          !filledAuthorities
-          ||
+          filledAuthorities.size === 0
+          ?
+          <Basic.Alert level="info" text={ this.i18n('component.basic.Table.noData') } className="no-margin"/>
+          :
           [...filledAuthorities.map((permissions, authorityGroupName) => {
             return (
               <Basic.Div>

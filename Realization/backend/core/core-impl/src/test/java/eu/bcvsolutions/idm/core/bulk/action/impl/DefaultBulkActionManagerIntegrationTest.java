@@ -36,7 +36,7 @@ public class DefaultBulkActionManagerIntegrationTest extends AbstractBulkActionT
 	
 	@Test(expected = ResultCodeException.class)
 	public void testActionWithoutFilterAndWithoutSelection() {
-		IdmBulkActionDto dto = findBulkAction(IdmIdentity.class, MockBulkAction.class.getCanonicalName());
+		IdmBulkActionDto dto = findBulkAction(IdmIdentity.class, MockBulkAction.NAME);
 		//
 		manager.processAction(dto);
 	}

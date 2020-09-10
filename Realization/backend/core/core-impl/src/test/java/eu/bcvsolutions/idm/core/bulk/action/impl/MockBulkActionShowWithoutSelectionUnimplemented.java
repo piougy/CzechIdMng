@@ -14,6 +14,11 @@ import org.springframework.stereotype.Component;
 public class MockBulkActionShowWithoutSelectionUnimplemented extends MockBulkAction {
 	
 	@Override
+	public String getName() {
+		return this.getClass().getCanonicalName();
+	}
+	
+	@Override
 	public boolean showWithoutSelection() {
 		return true;
 	}

@@ -25,6 +25,11 @@ public class MockBulkActionShowWithoutSelection extends MockBulkAction {
 	}
 	
 	@Override
+	public String getName() {
+		return this.getClass().getCanonicalName();
+	}
+	
+	@Override
 	protected List<UUID> getAllEntities(IdmBulkActionDto action, StringBuilder description) {
 		return new ArrayList<>();
 	}

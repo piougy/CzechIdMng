@@ -124,7 +124,7 @@ public class IdentityRemoveRoleBulkActionTest extends AbstractBulkActionTest {
 			identity = identityService.save(identity);
 
 			// create second contract
-			IdmIdentityContractDto contact = getHelper().createIdentityContact(identity);
+			IdmIdentityContractDto contact = getHelper().createContract(identity);
 			contact.setValidTill(LocalDate.now().plusDays(5));
 			contact.setExterne(true);
 			contact = identityContractService.save(contact);

@@ -1123,7 +1123,7 @@ public class DefaultFormServiceIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityDto ownerIdentity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto ownerRole = getHelper().createRole();
 		IdmTreeNodeDto ownerTreeNode = getHelper().createTreeNode();
-		IdmIdentityContractDto ownerIdentityContract = getHelper().createIdentityContact(ownerIdentity);
+		IdmIdentityContractDto ownerIdentityContract = getHelper().createContract(ownerIdentity);
 		//
 		Assert.assertEquals(1, prepareDataAndFind(IdmIdentity.class, ownerIdentity));
 		Assert.assertEquals(1, prepareDataAndFind(IdmRole.class, ownerRole));

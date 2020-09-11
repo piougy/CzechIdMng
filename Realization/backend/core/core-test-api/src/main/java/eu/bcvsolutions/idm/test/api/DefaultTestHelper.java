@@ -561,23 +561,42 @@ public class DefaultTestHelper implements TestHelper {
 	}
 
 	@Override
+	@Deprecated
 	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity) {
 		return createIdentityContact(identity, null);
 	}
 
 	@Override
+	@Deprecated
 	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position) {
 		return createIdentityContact(identity, position, null, null);
 	}
 
 	@Override
+	@Deprecated
 	public IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill) {
+		return createContract(identity, position, validFrom, validTill);
+	}
+	
+	@Override
+	public IdmIdentityContractDto createContract(IdmIdentityDto identity) {
+		return createContract(identity, null);
+	}
+
+	@Override
+	public IdmIdentityContractDto createContract(IdmIdentityDto identity, IdmTreeNodeDto position) {
+		return createContract(identity, position, null, null);
+	}
+
+	@Override
+	public IdmIdentityContractDto createContract(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill) {
 		IdmIdentityContractDto contract = new IdmIdentityContractDto();
 		contract.setIdentity(identity.getId());
 		contract.setPosition(createName());
 		contract.setWorkPosition(position == null ? null : position.getId());
 		contract.setValidFrom(validFrom);
 		contract.setValidTill(validTill);
+		//
 		return identityContractService.save(contract);
 	}
 	
@@ -607,9 +626,14 @@ public class DefaultTestHelper implements TestHelper {
 		return contractSliceService.save(contract);
 	}
 
-
 	@Override
+	@Deprecated
 	public void deleteIdentityContact(UUID id) {
+		deleteContract(id);
+	}
+	
+	@Override
+	public void deleteContract(UUID id) {
 		identityContractService.deleteById(id);
 	}
 	

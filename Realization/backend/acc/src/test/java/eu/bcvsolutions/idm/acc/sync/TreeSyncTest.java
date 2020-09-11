@@ -250,7 +250,7 @@ public class TreeSyncTest extends AbstractIntegrationTest {
 		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, parentNode, RecursionType.DOWN, true);
 		// create identity with contract on node
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		getHelper().createIdentityContact(identity, node);
+		getHelper().createContract(identity, node);
 		// no role should be assigned now
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertTrue(assignedRoles.isEmpty());

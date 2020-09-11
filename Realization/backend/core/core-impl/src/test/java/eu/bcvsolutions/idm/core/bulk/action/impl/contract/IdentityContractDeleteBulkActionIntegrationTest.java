@@ -87,7 +87,7 @@ public class IdentityContractDeleteBulkActionIntegrationTest extends AbstractBul
 		//
 		IdmIdentityDto owner = getHelper().createIdentity((GuardedString) null);
 		for (int i = 0; i < count; i++) {
-			results.add(getHelper().createIdentityContact(owner));
+			results.add(getHelper().createContract(owner));
 		}
 		//
 		return results;

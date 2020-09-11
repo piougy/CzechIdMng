@@ -53,14 +53,14 @@ public class DefaultContractByManagerFilterIntegrationTest extends ContractByGua
 		//
 		IdmTreeTypeDto structure = getHelper().createTreeType();
 		IdmTreeNodeDto managerOnePosition = getHelper().createTreeNode(structure, null); 
-		getHelper().createIdentityContact(managerOne, managerOnePosition);
+		getHelper().createContract(managerOne, managerOnePosition);
 		IdmTreeNodeDto managerTwoPosition = getHelper().createTreeNode(structure, null); 
-		getHelper().createIdentityContact(managerTwo, managerTwoPosition);
+		getHelper().createContract(managerTwo, managerTwoPosition);
 		//
 		IdmTreeNodeDto subordinateOnePositionOne = getHelper().createTreeNode(structure, managerOnePosition);
 		IdmTreeNodeDto subordinateOnePositionTwo = getHelper().createTreeNode(structure, managerTwoPosition);
-		IdmIdentityContractDto contractOne = getHelper().createIdentityContact(subordinate, subordinateOnePositionOne);
-		IdmIdentityContractDto contractTwo = getHelper().createIdentityContact(subordinate, subordinateOnePositionTwo);
+		IdmIdentityContractDto contractOne = getHelper().createContract(subordinate, subordinateOnePositionOne);
+		IdmIdentityContractDto contractTwo = getHelper().createContract(subordinate, subordinateOnePositionTwo);
 		//
 		IdmIdentityContractFilter filter = new IdmIdentityContractFilter();
 		filter.setIncludeGuarantees(false);

@@ -379,7 +379,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	public void testCreateIdentityRoleWithoutRequiredValue() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmRoleDto role = createRoleWithAttributes();
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();
 		identityRole.setIdentityContract(identityContact.getId());
@@ -391,7 +391,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	public void testCreateIdentityRoleWithRequiredValue() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmRoleDto role = createRoleWithAttributes();
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		IdmFormDefinitionDto definition = formService.getDefinition(role.getIdentityRoleAttributeDefinition());
 		IdmFormAttributeDto ipAttributeDto = definition.getFormAttributes().stream() //
 				.filter(attribute -> IP.equals(attribute.getCode())) //
@@ -425,7 +425,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	public void testCreateConceptRoleWithoutRequiredValue() throws Exception {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmRoleDto role = createRoleWithAttributes();
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		
 		IdmRoleRequestDto roleRequest = getHelper().createRoleRequest(identityContact, role);
 		
@@ -450,7 +450,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	public void testCreateConceptRoleWithRequiredValue() throws Exception {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmRoleDto role = createRoleWithAttributes();
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		IdmFormDefinitionDto definition = formService.getDefinition(role.getIdentityRoleAttributeDefinition());
 		IdmFormAttributeDto ipAttributeDto = definition.getFormAttributes().stream() //
 				.filter(attribute -> IP.equals(attribute.getCode())) //
@@ -513,7 +513,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	public void testExecuteRoleRequestValue() throws Exception {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmRoleDto role = createRoleWithAttributes();
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		IdmFormDefinitionDto definition = formService.getDefinition(role.getIdentityRoleAttributeDefinition());
 		IdmFormAttributeDto ipAttributeDto = definition.getFormAttributes().stream() //
 				.filter(attribute -> IP.equals(attribute.getCode())) //
@@ -568,7 +568,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	public void testChangeIdentityRoleValue() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmRoleDto role = createRoleWithAttributes();
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		IdmFormDefinitionDto definition = formService.getDefinition(role.getIdentityRoleAttributeDefinition());
 		IdmFormAttributeDto ipAttributeDto = definition.getFormAttributes().stream() //
 				.filter(attribute -> IP.equals(attribute.getCode())) //
@@ -659,7 +659,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractRestTest {
 	public void testRemoveIdentityRoleValue() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmRoleDto role = createRoleWithAttributes(false);
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		IdmFormDefinitionDto definition = formService.getDefinition(role.getIdentityRoleAttributeDefinition());
 		IdmFormAttributeDto ipAttributeDto = definition.getFormAttributes().stream() //
 				.filter(attribute -> IP.equals(attribute.getCode())) //

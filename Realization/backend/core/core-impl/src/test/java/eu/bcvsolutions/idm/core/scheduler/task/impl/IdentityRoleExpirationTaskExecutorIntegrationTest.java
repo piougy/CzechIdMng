@@ -44,7 +44,7 @@ public class IdentityRoleExpirationTaskExecutorIntegrationTest extends AbstractI
 		IdmIdentityDto identity = getHelper().createIdentity();
 		
 		// Identity contract
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		
 		// Role on contract
 		IdmIdentityRoleDto identityRole = new IdmIdentityRoleDto();

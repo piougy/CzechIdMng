@@ -244,7 +244,7 @@ public class DefaultAuthorizationManagerIntegrationTest extends AbstractEvaluato
 			IdmIdentityDto identity = getHelper().createIdentity();
 			// assign role
 			getHelper().createIdentityRole(identity, role);
-			IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+			IdmIdentityContractDto contract = getHelper().createContract(identity);
 			contract.setState(ContractState.DISABLED);	
 			identityContractService.save(contract);
 			getHelper().createIdentityRole(contract, role2);

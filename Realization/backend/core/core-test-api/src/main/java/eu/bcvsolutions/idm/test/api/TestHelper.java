@@ -546,14 +546,6 @@ public interface TestHelper {
 	 * @return
 	 */
 	IdmPasswordDto getPassword(IdmIdentityDto identity);
-
-	/**
-	 * Creates simple identity contract
-	 *
-	 * @param identity
-	 * @return
-	 */
-	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity);
 	
 	/**
 	 * Creates simple identity contract slice
@@ -590,31 +582,86 @@ public interface TestHelper {
 			LocalDate validFrom, LocalDate contractValidFrom, LocalDate contractValidTill);
 	
 	/**
+	 * Creates simple identity contract.
+	 *
+	 * @param identity
+	 * @return
+	 * @deprecated @since 10.6.0 use {@link #createContact(IdmIdentityDto)}
+	 */
+	@Deprecated
+	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity);
+	
+	/**
+	 * Creates simple identity contract.
+	 *
+	 * @param identity
+	 * @return
+	 * @since 10.6.0
+	 */
+	IdmIdentityContractDto createContract(IdmIdentityDto identity);
+	
+	/**
 	 * Creates identity contract on given position
 	 *
 	 * @param identity
 	 * @param position
 	 * @return
+	 * @deprecated @since 10.6.0 use {@link #createContract(IdmIdentityDto, IdmTreeNodeDto)}
 	 */
+	@Deprecated
 	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position);
-
+	
 	/**
 	 * Creates identity contract on given position
+	 *
+	 * @param identity
+	 * @param position
+	 * @return
+	 * @since 10.6.0
+	 */
+	IdmIdentityContractDto createContract(IdmIdentityDto identity, IdmTreeNodeDto position);
+
+	/**
+	 * Creates identity contract on given position.
 	 *
 	 * @param identity
 	 * @param position
 	 * @param validFrom
 	 * @param validTill
 	 * @return
+	 * @deprecated @since 10.6.0 use {@link #createContract(IdmIdentityDto, IdmTreeNodeDto, LocalDate, LocalDate)}
 	 */
+	@Deprecated
 	IdmIdentityContractDto createIdentityContact(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill);
 
 	/**
-	 * Deletes identity's contract
+	 * Creates identity contract on given position.
+	 *
+	 * @param identity
+	 * @param position
+	 * @param validFrom
+	 * @param validTill
+	 * @return
+	 * @since 10.6.0
+	 */
+	IdmIdentityContractDto createContract(IdmIdentityDto identity, IdmTreeNodeDto position, LocalDate validFrom, LocalDate validTill);
+	
+	/**
+	 * Deletes identity's contract.
 	 *
 	 * @param id
+	 * @deprecated @since 10.6.0 use {@link #deleteContract(UUID)}
 	 */
+	@Deprecated 
 	void deleteIdentityContact(UUID id);
+	
+	/**
+	 * Deletes identity's contract.
+	 *
+	 * @param id
+	 * @since 10.6.0
+	 */
+	void deleteContract(UUID id);
 	
 	/**
 	 * Creates identity contract's guarantee

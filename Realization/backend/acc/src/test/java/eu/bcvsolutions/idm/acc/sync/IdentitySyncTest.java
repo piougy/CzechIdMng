@@ -537,8 +537,8 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		
 		
 		IdmIdentityContractDto validContract = helper.getPrimeContract(identityDto);
-		IdmIdentityContractDto validFutureContract = helper.createIdentityContact(identityDto, null, LocalDate.now().plusDays(10), null);
-		helper.createIdentityContact(identityDto, null, null, LocalDate.now().minusDays(1));
+		IdmIdentityContractDto validFutureContract = helper.createContract(identityDto, null, LocalDate.now().plusDays(10), null);
+		helper.createContract(identityDto, null, null, LocalDate.now().minusDays(1));
 		
 		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identityDto.getId());
 		Assert.assertEquals(3, contracts.size());
@@ -1041,9 +1041,9 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		identity1.setUsername(user1 + System.currentTimeMillis());
 		identity1 = identityService.save(identity1);
 
-		helper.createIdentityContact(identity1);
-		helper.createIdentityContact(identity2);
-		helper.createIdentityContact(identity3);
+		helper.createContract(identity1);
+		helper.createContract(identity2);
+		helper.createContract(identity3);
 
 		List<IdmIdentityRoleDto> identityRoles1 = identityRoleService.findAllByIdentity(identity1.getId());
 		List<IdmIdentityRoleDto> identityRoles2 = identityRoleService.findAllByIdentity(identity2.getId());
@@ -1125,9 +1125,9 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		identity1.setUsername(user1 + System.currentTimeMillis());
 		identity1 = identityService.save(identity1);
 
-		helper.createIdentityContact(identity1);
-		helper.createIdentityContact(identity2);
-		helper.createIdentityContact(identity3);
+		helper.createContract(identity1);
+		helper.createContract(identity2);
+		helper.createContract(identity3);
 
 		List<IdmIdentityRoleDto> identityRoles1 = identityRoleService.findAllByIdentity(identity1.getId());
 		List<IdmIdentityRoleDto> identityRoles2 = identityRoleService.findAllByIdentity(identity2.getId());
@@ -2251,7 +2251,7 @@ public class IdentitySyncTest extends AbstractIntegrationTest {
 		primeContract = contractService.save(primeContract);
 
 		// create second invalid contract, which is newer than the first
-		helper.createIdentityContact(identity, null, null, validTillNewer);
+		helper.createContract(identity, null, null, validTillNewer);
 
 		helper.startSynchronization(config);
 

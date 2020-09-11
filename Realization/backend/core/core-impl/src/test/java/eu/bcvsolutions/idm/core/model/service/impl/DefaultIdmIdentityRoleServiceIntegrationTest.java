@@ -378,7 +378,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 	public void testMarkDuplicatesOneConcept() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
 		IdmRoleDto role = getHelper().createRole();
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 
 		IdmConceptRoleRequestDto concept = new IdmConceptRoleRequestDto();
 		concept.setId(UUID.randomUUID());
@@ -402,7 +402,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
 		IdmRoleDto role = getHelper().createRole();
 		IdmRoleDto secondRole = getHelper().createRole();
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		UUID roleId = role.getId();
 		UUID contractId = contract.getId();
 
@@ -480,7 +480,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 	public void testMarkDuplicatesBetweenConceptsWithDelete() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
 		IdmRoleDto role = getHelper().createRole();
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		UUID roleId = role.getId();
 		UUID contractId = contract.getId();
 
@@ -522,7 +522,7 @@ public class DefaultIdmIdentityRoleServiceIntegrationTest extends AbstractIntegr
 	public void testMarkDuplicatesBothSame() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString)null);
 		IdmRoleDto role = getHelper().createRole();
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		UUID roleId = role.getId();
 		UUID contractId = contract.getId();
 

@@ -125,8 +125,8 @@ public class IdentityAddRoleBulkActionTest extends AbstractBulkActionTest {
 	public void processBulkActionByIdsWithoutValidityIsGiven() {
 		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identityOne);
-		IdmIdentityContractDto otherValidContract = getHelper().createIdentityContact(identityOne, null, LocalDate.now().plusDays(1), LocalDate.now().plusDays(2));
-		IdmIdentityContractDto otherInvalidContract = getHelper().createIdentityContact(identityOne, null, null, LocalDate.now().minusDays(1));
+		IdmIdentityContractDto otherValidContract = getHelper().createContract(identityOne, null, LocalDate.now().plusDays(1), LocalDate.now().plusDays(2));
+		IdmIdentityContractDto otherInvalidContract = getHelper().createContract(identityOne, null, null, LocalDate.now().minusDays(1));
 		
 		IdmRoleDto roleOne = getHelper().createRole();
 		
@@ -170,7 +170,7 @@ public class IdentityAddRoleBulkActionTest extends AbstractBulkActionTest {
 			identity = identityService.save(identity);
 
 			// create second contract
-			IdmIdentityContractDto contact = getHelper().createIdentityContact(identity);
+			IdmIdentityContractDto contact = getHelper().createContract(identity);
 			contact.setExterne(true);
 			contact = identityContractService.save(contact);
 		}
@@ -222,7 +222,7 @@ public class IdentityAddRoleBulkActionTest extends AbstractBulkActionTest {
 			identity = identityService.save(identity);
 
 			// create second contract
-			IdmIdentityContractDto contact = getHelper().createIdentityContact(identity);
+			IdmIdentityContractDto contact = getHelper().createContract(identity);
 			contact.setExterne(true);
 			contact = identityContractService.save(contact);
 		}

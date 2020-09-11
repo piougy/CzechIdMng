@@ -47,7 +47,7 @@ public class IdmFormValueControllerRestTest extends AbstractRestTest {
 	public void findValues() throws Exception {
 		IdmIdentityDto ownerIdentity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto ownerRole = getHelper().createRole();
-		IdmIdentityContractDto ownerIdentityContract = getHelper().createIdentityContact(ownerIdentity);
+		IdmIdentityContractDto ownerIdentityContract = getHelper().createContract(ownerIdentity);
 		IdmTreeNodeDto ownerTreeNode = null;
 		try {
 			getHelper().loginAdmin();

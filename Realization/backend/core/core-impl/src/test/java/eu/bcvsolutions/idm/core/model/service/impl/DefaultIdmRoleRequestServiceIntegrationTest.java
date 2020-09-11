@@ -457,7 +457,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 			roleFormAttributeService.addAttributeToSubdefintion(roleOneFinal, attribute);
 		});
 
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		this.getHelper().createIdentityRole(identityContact, roleOne);
 		this.getHelper().createIdentityRole(identityContact, roleTwo);
 
@@ -467,7 +467,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
 		List<UUID> identityRolesId = allByIdentity.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
 
-		IdmIdentityContractDto identityContractDto = getHelper().createIdentityContact(identityDto);
+		IdmIdentityContractDto identityContractDto = getHelper().createContract(identityDto);
 		IdmRoleRequestDto createdRequest = roleRequestService.createRequest(identityContractDto);
 
 		IdmRoleRequestByIdentityDto requestByIdentityDto = new IdmRoleRequestByIdentityDto();
@@ -556,7 +556,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 			}
 		});
 
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		this.getHelper().createIdentityRole(identityContact, roleOne);
 		this.getHelper().createIdentityRole(identityContact, roleTwo);
 
@@ -566,7 +566,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
 		List<UUID> identityRolesId = allByIdentity.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
 
-		IdmIdentityContractDto identityContractDto = getHelper().createIdentityContact(identityDto);
+		IdmIdentityContractDto identityContractDto = getHelper().createContract(identityDto);
 		IdmRoleRequestDto createdRequest = roleRequestService.createRequest(identityContractDto);
 
 		IdmRoleRequestByIdentityDto requestByIdentityDto = new IdmRoleRequestByIdentityDto();
@@ -622,7 +622,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		attribute = formService.getAttribute(definition, attributeCode);
 		assertNotNull(attribute);
 
-		IdmIdentityContractDto identityContact = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContact = getHelper().createContract(identity);
 		IdmIdentityRoleDto identityRoleDto = this.getHelper().createIdentityRole(identityContact, role);
 
 		// Add attachment to identity role
@@ -654,7 +654,7 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		List<IdmIdentityRoleDto> allByIdentity = identityRoleService.findAllByIdentity(identity.getId());
 		List<UUID> identityRolesId = allByIdentity.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
 
-		IdmIdentityContractDto identityContractDto = getHelper().createIdentityContact(identityDto);
+		IdmIdentityContractDto identityContractDto = getHelper().createContract(identityDto);
 		IdmRoleRequestDto createdRequest = roleRequestService.createRequest(identityContractDto);
 
 		IdmRoleRequestByIdentityDto requestByIdentityDto = new IdmRoleRequestByIdentityDto();

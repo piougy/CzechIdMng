@@ -75,7 +75,7 @@ public class ManualWorkflowTaskDelegationBulkActionTest extends AbstractBulkActi
 		IdmRoleDto roleOne = getHelper().createRole();
 		IdmIdentityDto delegator = getHelper().createIdentity();
 		IdmIdentityDto subordinate = getHelper().createIdentity();
-		IdmIdentityContractDto subordinateContract = getHelper().createIdentityContact(subordinate);
+		IdmIdentityContractDto subordinateContract = getHelper().createContract(subordinate);
 		getHelper().createContractGuarantee(subordinateContract, delegator);
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
@@ -135,7 +135,7 @@ public class ManualWorkflowTaskDelegationBulkActionTest extends AbstractBulkActi
 		IdmRoleDto roleOne = getHelper().createRole();
 		IdmIdentityDto delegator = getHelper().createIdentity();
 		IdmIdentityDto subordinate = getHelper().createIdentity();
-		IdmIdentityContractDto subordinateContract = getHelper().createIdentityContact(subordinate);
+		IdmIdentityContractDto subordinateContract = getHelper().createContract(subordinate);
 		getHelper().createContractGuarantee(subordinateContract, delegator);
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
@@ -189,7 +189,7 @@ public class ManualWorkflowTaskDelegationBulkActionTest extends AbstractBulkActi
 		IdmRoleDto roleOne = getHelper().createRole();
 		IdmIdentityDto delegator = getHelper().createIdentity();
 		IdmIdentityDto subordinate = getHelper().createIdentity();
-		IdmIdentityContractDto subordinateContract = getHelper().createIdentityContact(subordinate);
+		IdmIdentityContractDto subordinateContract = getHelper().createContract(subordinate);
 		getHelper().createContractGuarantee(subordinateContract, delegator);
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();
@@ -248,7 +248,7 @@ public class ManualWorkflowTaskDelegationBulkActionTest extends AbstractBulkActi
 		IdmRoleDto roleOne = getHelper().createRole();
 		IdmIdentityDto delegator = getHelper().createIdentity();
 		IdmIdentityDto subordinate = getHelper().createIdentity();
-		IdmIdentityContractDto subordinateContract = getHelper().createIdentityContact(subordinate);
+		IdmIdentityContractDto subordinateContract = getHelper().createContract(subordinate);
 		getHelper().createContractGuarantee(subordinateContract, delegator);
 
 		WorkflowFilterDto taskFilter = new WorkflowFilterDto();

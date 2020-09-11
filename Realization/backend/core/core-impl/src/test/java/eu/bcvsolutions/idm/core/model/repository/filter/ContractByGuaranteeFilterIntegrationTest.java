@@ -47,7 +47,7 @@ public class ContractByGuaranteeFilterIntegrationTest extends AbstractIntegratio
 		IdmIdentityDto managerTwo = getHelper().createIdentity((GuardedString) null);
 		// contracts
 		IdmIdentityContractDto contractOne = getHelper().getPrimeContract(subordinate);
-		IdmIdentityContractDto contractTwo = getHelper().createIdentityContact(subordinate);
+		IdmIdentityContractDto contractTwo = getHelper().createContract(subordinate);
 		//
 		getHelper().createContractGuarantee(contractOne.getId(), managerOne.getId());
 		getHelper().createContractGuarantee(contractTwo.getId(), managerTwo.getId());

@@ -35,7 +35,7 @@ public class ContractGuaranteeByIdentityContractEvaluatorIntegrationTest extends
 	public void testCrud() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
-		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto otherContract = getHelper().createContract(identity);
 		List<IdmContractGuaranteeDto> guarantees = null;
 		IdmRoleDto role = getHelper().createRole();
 		

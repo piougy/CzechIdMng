@@ -44,7 +44,7 @@ public class IdmContractPositionControllerRestTest extends AbstractReadWriteDtoC
 	public void testFilterByContract() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
-		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto otherContract = getHelper().createContract(identity);
 		//
 		IdmContractPositionDto dtoOne = createDto(new IdmContractPositionDto(primeContract.getId(), null));
 		createDto(new IdmContractPositionDto(otherContract.getId(), null)); // other

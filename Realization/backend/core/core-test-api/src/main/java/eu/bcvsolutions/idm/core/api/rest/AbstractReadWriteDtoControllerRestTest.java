@@ -923,7 +923,7 @@ public abstract class AbstractReadWriteDtoControllerRestTest<DTO extends Abstrac
 						IdmBasePermission.READ);
 				// create test identity
 				IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-				IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+				IdmIdentityContractDto contract = getHelper().createContract(identity);
 				getHelper().createIdentityRole(contract, readRole);
 				authentication = getAuthentication(identity.getUsername());
 			}

@@ -255,7 +255,7 @@ public class IdentityTransitiveEvaluatorsIntegrationTest extends AbstractEvaluat
 		//
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
 		Assert.assertNotNull(primeContract);
-		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto otherContract = getHelper().createContract(identity);
 		getHelper().createContractGuarantee(otherContract, manager);
 		//
 		getHelper().createIdentityRole(identity, selfRole);

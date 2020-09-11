@@ -9,5 +9,5 @@ import eu.bcvsolutions.idm.test.api.AbstractConfigurableIntegrationTest;
  *
  */
 public class CoreConfigurableIntegrationTest extends AbstractConfigurableIntegrationTest {
-
+	
 }

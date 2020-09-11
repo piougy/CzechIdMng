@@ -37,16 +37,14 @@ export default class BasicModal extends AbstractComponent {
    * Add event listener
    */
   componentDidMount() {
-    // FIXME: how to get modal.scrollTop() on resize event => returns 0 alltime
-    window.addEventListener('resize', this._setFooterStyle.bind(this, null));
+    window.addEventListener('resize', this._setFooterStyle.bind(this, null, null));
   }
 
   /**
    * Remove event listener
    */
   componentWillUnmount() {
-    // FIXME: how to get modal.scrollTop() on resize event => returns 0 alltime
-    window.removeEventListener('resize', this._setFooterStyle.bind(this, null));
+    window.removeEventListener('resize', this._setFooterStyle.bind(this, null, null));
   }
 
   /**
@@ -95,39 +93,29 @@ export default class BasicModal extends AbstractComponent {
     //
     const heightDifference = modalDialog.height() - $(window).height();
     const footerBottom = heightDifference - (event ? event.target.scrollTop : 0);
+    const footerHeight = modalFooter.outerHeight();
+    const modalMargin = (parseInt(modalDialog.css('margin-bottom'), 10) - 1) || 29; // FIXME: -1 => border bottom
     //
-    if (heightDifference > 0) {
-      const footerHeight = modalFooter.outerHeight();
-      const modalMargin = (parseInt(modalDialog.css('margin-bottom'), 10) - 1) || 29; // FIXME: -1 => border bottom
-      //
-      this.setState({
-        bodyStyle: {
-          paddingBottom: footerHeight
-        }
-      }, () => {
-        modalFooter.css({
-          position: 'absolute',
-          bottom:
-            footerBottom +
-            (modalMargin - (footerBottom < -modalMargin ? (footerBottom + modalMargin) : 0)), // on end -> between dialog margin
-          backgroundColor: 'white',
-          width: '100%',
-          borderRadius: '0px 0px 6px 6px', // FIXME: by modal radius
-          zIndex: 3 // confidential, validations etc. uses 2
-        });
-        if (cb) {
-          cb();
-        }
+    // console.log('heightDifference', heightDifference);
+    this.setState({
+      bodyStyle: {
+        paddingBottom: footerHeight
+      }
+    }, () => {
+      modalFooter.css({
+        position: 'absolute',
+        bottom:
+          footerBottom +
+          (modalMargin - (footerBottom < -modalMargin ? (footerBottom + modalMargin) : 0)), // on end -> between dialog margin
+        backgroundColor: 'white',
+        width: '100%',
+        borderRadius: '0px 0px 6px 6px', // FIXME: by modal radius
+        zIndex: 3 // confidential, validations etc. uses 2
       });
-    } else {
-      this.setState({
-        bodyStyle: {}
-      }, () => {
-        if (cb) {
-          cb();
-        }
-      });
-    }
+      if (cb) {
+        cb();
+      }
+    });
   }
 
   render() {
@@ -153,7 +141,7 @@ export default class BasicModal extends AbstractComponent {
         {
           showLoading
           ?
-          <Modal.Body>
+          <Modal.Body onResize={ () => alert('fuj')}>
             <Loading isStatic showLoading/>
           </Modal.Body>
           :

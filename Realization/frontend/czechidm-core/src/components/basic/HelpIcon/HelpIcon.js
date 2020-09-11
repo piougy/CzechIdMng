@@ -74,7 +74,7 @@ export default class HelpIcon extends AbstractContextComponent {
 
     return (
       <span className="help-icon-container" {...others}>
-        <Tooltip placement={titlePlacement} id={`button-tooltip`} value={this.i18n('component.basic.HelpIcon.title')}>
+        <Tooltip placement={titlePlacement} id="button-tooltip" value={this.i18n('component.basic.HelpIcon.title')}>
           <a href="#" onClick={this.open.bind(this)} className="help-icon">
             <Icon icon="question-sign"/>
           </a>

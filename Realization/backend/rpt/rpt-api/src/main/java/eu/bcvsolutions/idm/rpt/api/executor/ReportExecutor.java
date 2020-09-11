@@ -4,7 +4,7 @@ import org.springframework.plugin.core.Plugin;
 
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.service.Configurable;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 
 /**
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
  * @author Radek Tomiška
  *
  */
-public interface ReportExecutor extends Configurable, Plugin<String>, LongRunningTaskExecutor<RptReportDto> {
+public interface ReportExecutor extends Configurable, Plugin<String>, SchedulableTaskExecutor<RptReportDto> {
 	
 	String CONFIGURABLE_TYPE = "report-executor";
 

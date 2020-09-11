@@ -77,6 +77,12 @@ export default class FormAttributeManager extends EntityManager {
       key = `${ FormAttributeManager.getLocalizationPrefix(_formDefinition, formAttribute, false) }.${ property }`;
       keyWithModule = `${ FormAttributeManager.getLocalizationPrefix(_formDefinition, formAttribute, true) }.${ property }`;
       localizeMessage = this.i18n(keyWithModule);
+      //
+      // try to find common attributes localization in core by default
+      if (formAttribute !== null && (key === null || key === localizeMessage || keyWithModule === localizeMessage)) {
+        key = `eav.attributes.${ Utils.Ui.spinalCase(formAttribute.code) }.${ property }`;
+        localizeMessage = this.i18n(key);
+      }
     }
     //
     // if localized message is exactly same as key, that means message isn't localized

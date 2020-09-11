@@ -58,7 +58,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.api.utils.PermissionUtils;
 
 /**
- * Default implementation {@link LongRunningTaskManager}
+ * Default implementation {@link LongRunningTaskManager}.
  *
  * @author Radek Tomiška
  *
@@ -258,7 +258,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		IdmLongRunningTaskDto persistTask = resolveLongRunningTask(taskExecutor, null, OperationState.RUNNING);
 		//
 		try {
-			taskExecutor.validate(resolveLongRunningTask(taskExecutor, null, OperationState.RUNNING));
+			taskExecutor.validate(persistTask);
 		} catch (ConcurrentExecutionException ex) {
 			// task can be executed later, e.g. after previous task ends
 			markTaskAsCreated(persistTask);
@@ -454,6 +454,14 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		Assert.notNull(futureTask, "Long running future task is required.");
 		//
 		return getLongRunningTask(futureTask.getExecutor(), permission);
+	}
+	
+	@Override
+	@Transactional
+	public IdmLongRunningTaskDto saveLongRunningTask(IdmLongRunningTaskDto longRunningTask, BasePermission... permission) {
+		Assert.notNull(longRunningTask, "Long running task is required.");
+		//
+		return service.save(longRunningTask, permission);
 	}
 	
 	@Override

@@ -5686,6 +5686,12 @@
     }
   },
   "eav": {
+    "attributes": {
+      "core-topic-report-generate-success": {
+        "label": "Notication",
+        "help": "Send notification to given topic (by notification configuration) after report is successfuly created. Notification is sent to report creator by default. If report is scheduled, recipient has to be configured in notification configuration (report creator is system)."
+      }
+    },
     "bulk-action": {
       "identity-disable-bulk-action": {
         "label": "Deactivate - (manually)",

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.eav.service.impl;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -240,6 +241,10 @@ public class DefaultIdmFormDefinitionService
 			formDefinition.setCode(definition.getCode());
 			formDefinition.setName(definition.getName());
 			formDefinition.setDescription(definition.getDescription());
+			formDefinition.setModule(definition.getModule());
+			// 
+			formDefinition = save(formDefinition);
+		} else if (!Objects.equals(formDefinition.getModule(), definition.getModule())) {
 			formDefinition.setModule(definition.getModule());
 			// 
 			formDefinition = save(formDefinition);

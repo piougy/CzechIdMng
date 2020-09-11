@@ -13,7 +13,7 @@ module.exports = {
         id: 'rpt-reports',
         type: 'DYNAMIC',
         section: 'main',
-        icon: 'fa:line-chart',
+        icon: 'component:report',
         labelKey: 'rpt:content.reports.label',
         titleKey: 'rpt:content.reports.title',
         order: 1800,

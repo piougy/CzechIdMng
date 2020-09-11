@@ -175,10 +175,12 @@ export class AuditableInfo extends Basic.AbstractContextComponent {
   }
 
   _renderPopover(entity) {
+    const { placement } = this.props;
+    //
     return (
       <Basic.Popover
         trigger={ ['click'] }
-        placement="left"
+        placement={ placement }
         value={ this._renderFull(entity) }
         className="abstract-entity-info-popover">
         {
@@ -247,13 +249,20 @@ AuditableInfo.propTypes = {
       label: PropTypes.string,
       value: PropTypes.object,
     })
-  )
+  ),
+  /**
+   * Popover placement.
+   *
+   * @since 10.6.0
+   */
+  placement: PropTypes.oneOf(['left', 'right', 'top', 'bottom'])
 };
 AuditableInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   entity: null,
   face: 'popover',
-  showAuditLink: true
+  showAuditLink: true,
+  placement: 'left'
 };
 
 function select(state) {

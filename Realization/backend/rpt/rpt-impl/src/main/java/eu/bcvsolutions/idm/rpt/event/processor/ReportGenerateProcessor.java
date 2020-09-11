@@ -43,6 +43,7 @@ public class ReportGenerateProcessor
 		// execute LRT
 		try {
 			// we want be sure event is suspended
+			// suspended event is resurected, after report is successfully generated async (see AbstractReportExecutor#end)
 			return new DefaultEventResult
 					.Builder<>(event, this)
 					.setSuspended(true)

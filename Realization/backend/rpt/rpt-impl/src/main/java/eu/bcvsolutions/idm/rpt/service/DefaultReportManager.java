@@ -1,9 +1,13 @@
 package eu.bcvsolutions.idm.rpt.service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +23,13 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDefinitionDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormDto;
+import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormValueDto;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
@@ -56,6 +66,8 @@ public class DefaultReportManager implements ReportManager {
 	private final EnabledEvaluator enabledEvaluator;
 	private final EntityEventManager entityEventManager;
     private final LongRunningTaskManager taskManager;
+    //
+    @Autowired private LookupService lookupService;
 	
 	@Autowired
 	public DefaultReportManager(
@@ -83,6 +95,9 @@ public class DefaultReportManager implements ReportManager {
 		this.taskManager = taskManager;
 	}
 	
+	/**
+	 * Publish event only.
+	 */
 	@Override
 	public RptReportDto generate(RptReportDto report) {
 		Assert.notNull(report, "Report is required!");
@@ -93,6 +108,9 @@ public class DefaultReportManager implements ReportManager {
 		return entityEventManager.process(new ReportEvent(ReportEventType.GENERATE, report)).getContent();
 	}
 	
+	/**
+	 * Generate report.
+	 */
 	@Override
 	public void generate(EntityEvent<RptReportDto> event) {
 		Assert.notNull(event, "Report event is required!");
@@ -110,9 +128,13 @@ public class DefaultReportManager implements ReportManager {
 		executor.setEvent(event);
 		// check if lrt for report is already prepared by scheduler
 		boolean newTask = true;
+		//
 		if (report.getLongRunningTask() != null) {
 			// preserve exists lrt - execute only
 			executor.setLongRunningTaskId(report.getLongRunningTask());
+			//
+			report = initFormTask(report, executor);
+			//
 			newTask = false;
 		}
 		// set lrt into report for getting state
@@ -121,6 +143,9 @@ public class DefaultReportManager implements ReportManager {
 		if (newTask) {
 			report.setLongRunningTask(lrt.getExecutor().getLongRunningTaskId());
 			fillReportName(report, executor);
+			//
+			saveTaskProperties(report);
+			//
 			reportService.save(report);
 		}
 	}
@@ -243,5 +268,96 @@ public class DefaultReportManager implements ReportManager {
 		}
 		// executor's name as default
 		return executor.getName();
+	}
+	
+	/**
+	 * Transfer task properties to report filter parameter (eav).
+	 * 
+	 * @param task
+	 * @param report
+	 */
+	private RptReportDto initFormTask(RptReportDto report, ReportExecutor reportExecutor) {
+		UUID longRunningTaskId = report.getLongRunningTask();
+		if (longRunningTaskId == null) {
+			// no lrt
+			return report;
+		}
+		
+		IdmFormDefinitionDto formDefinition = reportExecutor.getFormDefinition();
+		IdmLongRunningTaskDto task = taskManager.getLongRunningTask(longRunningTaskId);
+		//
+		// publish new event and stop current LRT process (event has to be initialized at first)
+		task.setRunning(false);
+		task = taskManager.saveLongRunningTask(task);
+		//
+		List<IdmFormValueDto> values = task
+				.getTaskProperties()
+				.entrySet()
+				.stream()
+				.map(entry -> {
+					IdmFormAttributeDto formAttribute = formDefinition.getMappedAttributeByCode(entry.getKey());
+					if (formAttribute == null) {
+						return null;
+					}
+					String propertyKey = entry.getKey();
+					Object propertyValue = entry.getValue();
+					if (!(propertyValue instanceof Serializable)) {
+						LOG.warn("Long running task property [{}] is not serializable, cannot be used in report parameters.", propertyKey);
+						return null;
+					}
+					//
+					IdmFormValueDto value = new IdmFormValueDto(formAttribute);
+					value.setValue((Serializable) propertyValue);
+					//
+					return value;
+				})
+				.filter(Objects::nonNull)
+				.filter(value -> !value.isEmpty())
+				.collect(Collectors.toList());
+		//
+		if (values.isEmpty()) {
+			// no filled values
+			return report;
+		}
+		//
+		IdmFormDto reportFilter = new IdmFormDto();
+		reportFilter.setFormDefinition(formDefinition.getId());
+		reportFilter.setValues(values);
+		report.setFilter(reportFilter);
+		//
+		return reportService.save(report);
+	}
+	
+	/**
+	 * Transfer report filter parameter (eav) to task properties.
+	 * 
+	 * @param task
+	 * @param report
+	 */
+	private void saveTaskProperties(RptReportDto report) {
+		UUID longRunningTaskId = report.getLongRunningTask();
+		IdmFormDto reportFilter = report.getFilter();
+		if (reportFilter == null || longRunningTaskId == null) {
+			// no properties
+			return;
+		}
+		//
+		Map<String, Object> taskProperties = new HashMap<>();
+		reportFilter
+			.getValues()
+			.stream()
+			.filter(value -> !value.isEmpty())
+			.forEach(value -> {
+				IdmFormAttributeDto formAttribute = lookupService.lookupEmbeddedDto(value, IdmFormValueDto.PROPERTY_FORM_ATTRIBUTE);
+				//
+				// report can have single definition only => attribute code is unique
+				taskProperties.put(formAttribute.getCode(), value.getValue());
+			});
+		// save filled task properties
+		if (!taskProperties.isEmpty()) {
+			IdmLongRunningTaskDto task = taskManager.getLongRunningTask(longRunningTaskId);
+			task.setTaskProperties(taskProperties);
+			taskManager.saveLongRunningTask(task);
+		}
 	}
 }

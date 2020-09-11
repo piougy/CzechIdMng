@@ -30,31 +30,35 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableTaskExe
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
- * Task change all values in confidential storage with new key from file or application properties.
- * This task required start this task after you change key to new.
+ * Task change all values in confidential storage with new key from file or
+ * application properties. This task required start this task after you change
+ * key to new.
  * 
- * TODO: change parameter oldKey to input type password (now isn't this required because as parameter is send old key)
+ * TODO: change parameter oldKey to input type password (now isn't this required
+ * because as parameter is send old key)
  *
- * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Ondrej Kopr
  *
  */
 @DisallowConcurrentExecution
 @Component(ChangeConfidentialStorageKeyTaskExecutor.TASK_NAME)
 public class ChangeConfidentialStorageKeyTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ChangeConfidentialStorageKeyTaskExecutor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory
+			.getLogger(ChangeConfidentialStorageKeyTaskExecutor.class);
 	public static final String TASK_NAME = "core-change-confidential-storage-key-long-running-task";
 	public static String PARAMETER_OLD_CONFIDENTIAL_KEY = "oldCryptKey";
 
 	private GuardedString oldCryptKey = null;
 	private int PAGE_SIZE = 100;
-	private int KEY_LENGTH = 16;
+	private int KEY_LENGTH_MIN = 16;
+	private int KEY_LENGTH_MAX = 32;
 
 	@Autowired
 	private IdmConfidentialStorageValueService confidetialStorageValueService;
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
-	
+
 	@Override
 	public String getName() {
 		return TASK_NAME;
@@ -65,17 +69,22 @@ public class ChangeConfidentialStorageKeyTaskExecutor extends AbstractSchedulabl
 		super.init(properties);
 		//
 		String oldKeyInString = getParameterConverter().toString(properties, PARAMETER_OLD_CONFIDENTIAL_KEY);
-		
+
 		if (oldKeyInString == null || oldKeyInString.isEmpty()) {
-			LOG.error("Old key cannot be null or empty.");
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Old key cannot be null or empty.");
+			this.oldCryptKey = null;
+			return;
 		}
-		if (oldKeyInString.length() != KEY_LENGTH) {
-			LOG.error("Length of old key has to be [{}] characters.", KEY_LENGTH);
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE,
-					MessageFormat.format("Length of old key has to be [{0}] characters.", KEY_LENGTH));
+
+		int keyLength = oldKeyInString.length();
+		if (keyLength == KEY_LENGTH_MIN || keyLength == KEY_LENGTH_MAX) {
+			this.oldCryptKey = new GuardedString(oldKeyInString);
+		} else {
+			LOG.error("Length of old key must be between [{}] and [{}] characters, or empty. Given length [{}].",
+					KEY_LENGTH_MIN, KEY_LENGTH_MAX, keyLength);
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, MessageFormat.format(
+					"Length of old key must be between [{0}] and [{1}] characters, or empty. Given length [{2}].",
+					KEY_LENGTH_MIN, KEY_LENGTH_MAX, keyLength));
 		}
-		this.oldCryptKey = new GuardedString(oldKeyInString);
 	}
 
 	@Override
@@ -92,19 +101,15 @@ public class ChangeConfidentialStorageKeyTaskExecutor extends AbstractSchedulabl
 		counter = 0L;
 		//
 		do {
-			Page<IdmConfidentialStorageValueDto> values = confidetialStorageValueService.find(
-					PageRequest.of(
-							page, 
-							PAGE_SIZE, 
-							new Sort(Direction.ASC, AbstractEntity_.id.getName())
-					)
-			);
+			Page<IdmConfidentialStorageValueDto> values = confidetialStorageValueService
+					.find(PageRequest.of(page, PAGE_SIZE, new Sort(Direction.ASC, AbstractEntity_.id.getName())));
 			//
 			if (count == null) {
 				count = values.getTotalElements();
 			}
 			//
-			for (Iterator<IdmConfidentialStorageValueDto> iterator = values.iterator(); iterator.hasNext() && canContinue;) {
+			for (Iterator<IdmConfidentialStorageValueDto> iterator = values.iterator(); iterator.hasNext()
+					&& canContinue;) {
 				IdmConfidentialStorageValueDto value = iterator.next();
 				Assert.notNull(value, "Value is required.");
 				Assert.notNull(value.getId(), "Value identifier is required.");
@@ -116,27 +121,26 @@ public class ChangeConfidentialStorageKeyTaskExecutor extends AbstractSchedulabl
 					this.logItemProcessed(value, new OperationResult.Builder(OperationState.EXECUTED).build());
 				} catch (Exception ex) {
 					LOG.error("Error during change confidential storage key. For key [{}].", value.getKey(), ex);
-					this.logItemProcessed(value, new OperationResult.Builder(OperationState.EXCEPTION).setCause(ex).build());
+					this.logItemProcessed(value,
+							new OperationResult.Builder(OperationState.EXCEPTION).setCause(ex).build());
 				}
 				//
- 				canContinue &= this.updateState();
+				canContinue &= this.updateState();
 			}
-			canContinue &= values.hasNext();			
+			canContinue &= values.hasNext();
 			++page;
 			//
 		} while (canContinue);
 
 		return Boolean.TRUE;
 	}
-	
+
 	@Override
 	public List<IdmFormAttributeDto> getFormAttributes() {
-		IdmFormAttributeDto oldKey = new IdmFormAttributeDto(
-				PARAMETER_OLD_CONFIDENTIAL_KEY,
-				PARAMETER_OLD_CONFIDENTIAL_KEY, 
-				PersistentType.TEXT);
-		oldKey.setRequired(true);
-		oldKey.setConfidential(true); // just decorator - serializable values are used anyway
+		IdmFormAttributeDto oldKey = new IdmFormAttributeDto(PARAMETER_OLD_CONFIDENTIAL_KEY,
+				PARAMETER_OLD_CONFIDENTIAL_KEY, PersistentType.TEXT);
+		oldKey.setRequired(false); // Key isn't required for encrypt unencrypted confidential storage
+		oldKey.setConfidential(true); // Just decorator - serializable values are used anyway
 		//
 		return Lists.newArrayList(oldKey);
 	}

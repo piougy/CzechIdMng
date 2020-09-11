@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.text.MessageFormat;
 import java.util.UUID;
 
@@ -65,8 +66,12 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 			storage.setOwnerId(ownerId);
 			storage.setKey(key);
 		}
+
+		byte[] newIV = generateIV();
+		// Set new IV vector
+		storage.setIv(newIV);
 		// set storage value
-		storage.setValue(toStorageValue(value));
+		storage.setValue(toStorageValue(value, newIV));
 		// persist
 		repository.save(storage);
 	}
@@ -83,17 +88,44 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Transactional
 	public void changeCryptKey(IdmConfidentialStorageValueDto value, GuardedString oldCryptKey) {
 		Assert.notNull(value, "Value is required.");
-		Assert.notNull(oldCryptKey, "Old crypt key is required.");
 		//
 		IdmConfidentialStorageValue storage = getStorageValue(value.getOwnerId(), value.getOwnerType(), value.getKey());
 		Assert.notNull(storage, "Storage is required.");
 		//
 		// decrypt value with old key
-		byte[] decryptedValue = cryptService.decryptWithKey(storage.getValue(), oldCryptKey);
-		//
+		byte[] decryptedValue = cryptService.decryptWithKey(storage.getValue(), oldCryptKey, value.getIv());
+
+		// Create new IV
+		byte[] newIV = generateIV();
+		storage.setIv(newIV);
+
 		// and crypt value with new key
-		storage.setValue(cryptService.encrypt(decryptedValue));
+		storage.setValue(cryptService.encrypt(decryptedValue, newIV));
 		// persist new value
+		repository.save(storage);
+	}
+
+	@Override
+	@Transactional
+	public void renewVector(IdmConfidentialStorageValueDto value) {
+		Assert.notNull(value, "Value is required.");
+
+		IdmConfidentialStorageValue storage = getStorageValue(value.getOwnerId(), value.getOwnerType(), value.getKey());
+		Assert.notNull(storage, "Storage is required.");
+
+		byte[] decryptedValue = null;
+		// Vector may not exists inside value (behavior before version 10.6.0)
+		if (value.getIv() == null) {
+			decryptedValue = cryptService.decrypt(storage.getValue());
+		} else {
+			decryptedValue = cryptService.decrypt(storage.getValue(), value.getIv());
+		}
+
+		// Renew the vector
+		byte[] newIV = generateIV();
+		storage.setIv(newIV);
+
+		storage.setValue(cryptService.encrypt(decryptedValue, newIV));
 		repository.save(storage);
 	}
 	
@@ -145,7 +177,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		Assert.hasLength(key, "Key is required.");
 		//
 		IdmConfidentialStorageValue storageValue = getStorageValue(ownerId, ownerType, key);
-		return storageValue == null ? null : fromStorageValue(storageValue.getValue());
+		return storageValue == null ? null : fromStorageValue(storageValue.getValue(), storageValue.getIv());
 	}
 	
 	@Override
@@ -276,15 +308,15 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	/**
 	 * Converts storage byte value to Serializable
 	 * 
-	 * @param type
 	 * @param value
+	 * @param iv
 	 * @return
 	 */
-	private Serializable fromStorageValue(byte[] value) {
+	private Serializable fromStorageValue(byte[] value, byte[] iv) {
 		if (value == null) {
 			return null;
 		}
-		byte [] decryptValue = cryptService.decrypt(value);
+		byte [] decryptValue = cryptService.decrypt(value, iv);
 	    return SerializationUtils.deserialize(decryptValue);
 	}
 
@@ -292,11 +324,12 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	 * Converts serializable to storage byte value
 	 * 
 	 * @param value
+	 * @param iv
 	 * @return
 	 */
-	private byte[] toStorageValue(Serializable value) {
+	private byte[] toStorageValue(Serializable value, byte[] iv) {
 		byte [] serializedValue = SerializationUtils.serialize(value);
-		return cryptService.encrypt(serializedValue);
+		return cryptService.encrypt(serializedValue, iv);
 	}
 	
 	/**
@@ -325,5 +358,17 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 			lookupService = context.getBean(LookupService.class);
 		}
 		return lookupService;
+	}
+
+	/**
+	 * Generate new IV vector with 16 byte length
+	 *
+	 * @return
+	 */
+	private byte[] generateIV() {
+		byte[] newIV = new byte[16];
+		SecureRandom s = new SecureRandom();
+		s.nextBytes(newIV);
+		return newIV;
 	}
 }

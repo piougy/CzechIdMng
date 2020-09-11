@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,6 +16,7 @@ import java.util.UUID;
 import javax.crypto.BadPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmConfidentialStorageValueFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmConfidentialStorageValueService;
+import eu.bcvsolutions.idm.core.api.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.audit.rest.impl.IdmAuditController;
@@ -59,6 +65,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Autowired private IdmIdentityService identityService;
 	@Autowired private IdmAuditService auditService;
 	@Autowired private IdmAuditController auditController;
+	@Autowired private IdmConfigurationService configurationService;
 	//
 	private DefaultIdmConfidentialStorage confidentalStorage;
 	
@@ -391,7 +398,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		Assert.assertEquals(passwordThree, serializable);
 
 		String newKey = getHelper().createName();
-		newKey = newKey.substring(newKey.length() - 16);
+		newKey = StringUtils.substring(newKey, 0, 16);
 		
 		this.changeCypherKey(newKey);
 
@@ -431,21 +438,159 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	}
 	
 	@Transactional
-	@Test(expected = ResultCodeException.class)
+	@Test
 	public void testRunChangeConfidetialKeyWithoutKey() {
 		runChangeConfidentialStorageKeyTask(null);
 	}
 	
 	@Transactional
-	@Test(expected = ResultCodeException.class)
+	@Test
 	public void testRunChangeConfidetialKeyEmptyKey() {
 		runChangeConfidentialStorageKeyTask("");
 	}
 	
 	@Transactional
 	@Test(expected = ResultCodeException.class)
-	public void testRunChangeConfidetialKeySmallKey() {
-		runChangeConfidentialStorageKeyTask("123456789");
+	public void testRunChangeConfidetial30Key() {
+		runChangeConfidentialStorageKeyTask("abcdefghijklmnopabcdefghijklmn");
+	}
+
+	@Transactional
+	@Test(expected = ResultCodeException.class)
+	public void testRunChangeConfidetial35Key() {
+		String oldKey = "abcdefghijklmnopabcdefghijklmnop11";
+		runChangeConfidentialStorageKeyTask(oldKey);
+	}
+
+	@Transactional
+	@Test(expected = ResultCodeException.class)
+	public void testRunChangeConfidetial15Key() {
+		String oldKey = "abcdefghijklmnopabcdefghijklmnop11";
+		runChangeConfidentialStorageKeyTask(oldKey);
+	}
+
+	@Transactional
+	@Test
+	public void testChangeConfidentialStorageBackToBack() {
+		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
+		String keyOne = "abcdefghijklmnopabcdefghijklmnop";
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, keyOne);
+		runChangeConfidentialStorageKeyTask(originalKey);
+
+		IdmIdentityDto identity = getHelper().createIdentity(getHelper().createName(), null);
+
+		String password = "testPassword-" + getHelper().createName();
+		
+		confidentalStorage.saveGuardedString(identity.getId(), IdmIdentity.class, identity.getUsername(), new GuardedString(password));
+
+		Serializable serializable = confidentalStorage.get(identity.getId(), IdmIdentity.class, identity.getUsername());
+		Assert.assertEquals(password, serializable);
+		IdmConfidentialStorageValueDto valueDto = getConfidentialValueForIdentity(identity);
+
+		byte[] valueOriginal = valueDto.getValue();
+
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, originalKey);
+		runChangeConfidentialStorageKeyTask(keyOne);
+
+		valueDto = getConfidentialValueForIdentity(identity);
+		
+		assertNotEquals(valueOriginal, valueDto.getValue());
+
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, keyOne);
+		runChangeConfidentialStorageKeyTask(originalKey);
+
+		valueDto = getConfidentialValueForIdentity(identity);
+		assertNotEquals(valueOriginal, valueDto.getValue());
+
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, originalKey);
+		runChangeConfidentialStorageKeyTask(keyOne);
+	}
+
+	@Transactional
+	@Test
+	public void testChangeIvVector() {
+		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
+		String keyOne = "1234567890abcdef";
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, keyOne);
+		runChangeConfidentialStorageKeyTask(originalKey);
+
+		IdmIdentityDto identity = getHelper().createIdentity(getHelper().createName(), null);
+		String password = "testPassword-" + getHelper().createName();
+		confidentalStorage.saveGuardedString(identity.getId(), IdmIdentity.class, identity.getUsername(), new GuardedString(password));
+
+		Serializable serializable = confidentalStorage.get(identity.getId(), IdmIdentity.class, identity.getUsername());
+		Assert.assertEquals(password, serializable);
+		IdmConfidentialStorageValueDto valueDto = getConfidentialValueForIdentity(identity);
+
+		byte[] originalIV = valueDto.getIv();
+
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, originalKey);
+		runChangeConfidentialStorageKeyTask(keyOne);
+
+		valueDto = getConfidentialValueForIdentity(identity);
+		
+		assertNotEquals(originalIV, valueDto.getIv());
+
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, keyOne);
+		runChangeConfidentialStorageKeyTask(originalKey);
+	}
+
+	@Transactional
+	@Test
+	public void testCheckValueAfterChangeKey() {
+		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
+		String keyOne = "1234567890abcdef";
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, keyOne);
+		runChangeConfidentialStorageKeyTask(originalKey);
+
+		IdmIdentityDto identity = getHelper().createIdentity(getHelper().createName(), null);
+		String password = "testPassword-" + getHelper().createName();
+		confidentalStorage.saveGuardedString(identity.getId(), IdmIdentity.class, identity.getUsername(), new GuardedString(password));
+
+		Serializable serializable = confidentalStorage.get(identity.getId(), IdmIdentity.class, identity.getUsername());
+		assertEquals(password, serializable);
+
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, originalKey);
+		runChangeConfidentialStorageKeyTask(keyOne);
+
+		serializable = confidentalStorage.get(identity, identity.getUsername());
+		assertEquals(password, serializable);
+
+		configurationService.setValue(CryptService.APPLICATION_PROPERTIES_KEY, keyOne);
+		runChangeConfidentialStorageKeyTask(originalKey);
+
+		serializable = confidentalStorage.get(identity, identity.getUsername());
+		assertEquals(password, serializable);
+	}
+
+	@Transactional
+	@Test
+	public void testRenewVector() {
+		String originalKey = configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY);
+		assertFalse(StringUtils.isEmpty(originalKey));
+		assertEquals(originalKey, configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY));
+
+		IdmIdentityDto identity = getHelper().createIdentity(getHelper().createName(), null);
+		String password = "testPassword-" + getHelper().createName();
+		confidentalStorage.saveGuardedString(identity.getId(), IdmIdentity.class, identity.getUsername(), new GuardedString(password));
+
+		assertEquals(originalKey, configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY));
+
+		IdmConfidentialStorageValueDto valueDto = getConfidentialValueForIdentity(identity);
+		byte[] originalIV = valueDto.getIv();
+
+		Serializable serializable = confidentalStorage.get(identity.getId(), IdmIdentity.class, identity.getUsername());
+		assertEquals(password, serializable);
+		confidentalStorage.renewVector(valueDto);
+		
+		assertEquals(originalKey, configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY));
+
+		valueDto = getConfidentialValueForIdentity(identity);
+		assertEquals(originalKey, configurationService.getValue(CryptService.APPLICATION_PROPERTIES_KEY));
+		assertNotEquals(originalIV, valueDto.getIv());
+
+		serializable = confidentalStorage.get(identity.getId(), IdmIdentity.class, identity.getUsername());
+		assertEquals(password, serializable);
 	}
 
 	@Test
@@ -537,5 +682,19 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			Assert.fail("Problem with set field 'key', Exception: " + e.getLocalizedMessage());
 		}
+	}
+
+	/**
+	 * Return confidential storage value for given identity.
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	private IdmConfidentialStorageValueDto getConfidentialValueForIdentity(IdmIdentityDto identity) {
+		IdmConfidentialStorageValueFilter filter = new IdmConfidentialStorageValueFilter();
+		filter.setOwnerId(identity.getId());
+		List<IdmConfidentialStorageValueDto> content = conidentialStorageValueService.find(filter, null).getContent();
+		assertEquals(1, content.size());
+		return content.get(0);
 	}
 }

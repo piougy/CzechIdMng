@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.rpt.api.dto.RptReportExecutorDto;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportRendererDto;
 
 /**
- * Generates and renders reports
+ * Generates and renders reports.
  * 
  * @author Radek Tomiška
  *
@@ -29,7 +29,8 @@ public interface ReportManager {
 	
 	/**
 	 * Generate given report. Report has to be persisted before.
-	 * This method generates persisted report only
+	 * This method generates persisted report only.
+	 * Do not call this method directly.
 	 * 
 	 * @param event
 	 */

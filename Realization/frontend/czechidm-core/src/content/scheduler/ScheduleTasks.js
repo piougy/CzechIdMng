@@ -462,7 +462,15 @@ class ScheduleTasks extends Advanced.AbstractTableContent {
           }
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+              {
+                value: 'delete',
+                niceLabel: this.i18n('action.delete.action'),
+                action: this.onDelete.bind(this),
+                deleteAction: true,
+                icon: 'fa:trash',
+                level: 'danger',
+                disabled: false
+              }
             ]
           }
           filter={

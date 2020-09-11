@@ -62,7 +62,7 @@ export class ReportInfo extends Advanced.AbstractEntityInfo {
    * @param  {object} entity
    */
   getEntityIcon() {
-    return 'fa:line-chart';
+    return 'component:report';
   }
 }
 

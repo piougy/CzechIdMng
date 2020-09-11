@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
@@ -32,10 +33,12 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Read notification recipients
+ * Read notification recipients.
+ * 
+ * TODO: count, test
  * 
  * @author Peter Sourek
- *
+ * @author Radek Tomiška
  */
 @RestController
 @RequestMapping(value = BaseDtoController.BASE_PATH + "/notification-recipients")
@@ -114,4 +117,15 @@ public class IdmNotificationRecipientController extends AbstractReadDtoControlle
 		return super.get(backendId);
 	}
 
+	@Override
+	protected IdmNotificationRecipientFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdmNotificationRecipientFilter filter = new IdmNotificationRecipientFilter(parameters, getParameterConverter());
+		filter.setIdentityRecipient(getParameterConverter().toEntityUuid(
+				parameters, 
+				IdmNotificationRecipientFilter.PARAMETER_IDENTITY_RECIPIENT, 
+				IdmIdentityDto.class
+		));
+		//
+		return filter;
+	}
 }

@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.AbstractComponentDto;
 import eu.bcvsolutions.idm.core.api.dto.FilterBuilderDto;
@@ -140,7 +141,8 @@ public class DefaultFilterManager implements FilterManager {
 			FilterBuilder filterBuilder = getBuilder(key);
 			//
 			if (filterBuilder == null) {
-				if (ignoredFilterProperties.contains(filterProperty)) {
+				if (ignoredFilterProperties.contains(filterProperty) 
+						|| filterProperty.startsWith(String.format("%s:", CoreModule.MODULE_ID))) {
 					LOG.trace("Pageable or internal property [{}] will be ignored by filters.", filterProperty);
 					continue;
 				}

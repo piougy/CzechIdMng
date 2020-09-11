@@ -35,12 +35,12 @@ class LongRunningTask extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entity, _entity } = this.props;
+    const { entity, _entity, supportedTasks } = this.props;
     if (entity || _entity) {
       this.setRefresh(entity || _entity);
     }
     this._loadEntity();
-    if (SecurityManager.hasAuthority('SCHEDULER_READ')) {
+    if (!supportedTasks && SecurityManager.hasAuthority('SCHEDULER_READ')) {
       this.context.store.dispatch(schedulerManager.fetchSupportedTasks());
     }
   }
@@ -103,9 +103,10 @@ class LongRunningTask extends Basic.AbstractContent {
   }
 
   onCancel(task) {
+    const { supportedTasks, _supportedTasks } = this.props;
     // show confirm message for deleting entity or entities
     this.refs['confirm-cancel'].show(
-      this.i18n(`action.task-cancel.message`, { record: manager.getNiceLabel(task, this.props.supportedTasks) }),
+      this.i18n(`action.task-cancel.message`, { record: manager.getNiceLabel(task, supportedTasks || _supportedTasks) }),
       this.i18n(`action.task-cancel.header`)
     ).then(() => {
       const uiKey = manager.resolveUiKey(null, task.id);
@@ -113,7 +114,7 @@ class LongRunningTask extends Basic.AbstractContent {
         this.addMessage({
           level: 'info',
           message: this.i18n(`action.task-cancel.success`, {
-            record: manager.getNiceLabel(task, this.props.supportedTasks)
+            record: manager.getNiceLabel(task, supportedTasks || _supportedTasks)
           })
         });
       }));
@@ -123,9 +124,10 @@ class LongRunningTask extends Basic.AbstractContent {
   }
 
   onInterrupt(task) {
+    const { supportedTasks, _supportedTasks } = this.props;
     // show confirm message for deleting entity or entities
     this.refs['confirm-interrupt'].show(
-      this.i18n(`action.task-interrupt.message`, { record: manager.getNiceLabel(task, this.props.supportedTasks) }),
+      this.i18n(`action.task-interrupt.message`, { record: manager.getNiceLabel(task, supportedTasks || _supportedTasks) }),
       this.i18n(`action.task-interrupt.header`)
     ).then(() => {
       const uiKey = manager.resolveUiKey(null, task.id);
@@ -133,7 +135,7 @@ class LongRunningTask extends Basic.AbstractContent {
         this.addMessage({
           level: 'info',
           message: this.i18n(`action.task-interrupt.success`, {
-            record: manager.getNiceLabel(task, this.props.supportedTasks)
+            record: manager.getNiceLabel(task, supportedTasks || _supportedTasks)
           })
         });
       }));
@@ -231,7 +233,8 @@ class LongRunningTask extends Basic.AbstractContent {
       header,
       footerButtons,
       showProperties,
-      supportedTasks
+      supportedTasks,
+      _supportedTasks
     } = this.props;
     const _entity = this.getEntity();
     //
@@ -244,7 +247,7 @@ class LongRunningTask extends Basic.AbstractContent {
           header
           ||
           <span>
-            <LongRunningTaskName entity={ _entity } supportedTasks={ supportedTasks } showTaskType={ false }/>
+            <LongRunningTaskName entity={ _entity } supportedTasks={ supportedTasks || _supportedTasks } showTaskType={ false }/>
             {' '}
             <small>{ _entity.taskDescription }</small>
           </span>
@@ -256,7 +259,7 @@ class LongRunningTask extends Basic.AbstractContent {
             <LongRunningTaskProperties
               key={ `lrt-eav-${ _entity.id }` }
               entity={ _entity }
-              supportedTasks={ supportedTasks } />
+              supportedTasks={ supportedTasks || _supportedTasks } />
           }
           <ProgressBar
             style={{ marginTop: 15, marginBottom: 0 }}
@@ -362,6 +365,10 @@ LongRunningTask.propTypes = {
    */
   showProperties: PropTypes.bool,
   /**
+   * Externally loaded supported tasks
+   */
+  supportedTasks: PropTypes.arrayOf(PropTypes.object),
+  /**
    * Internal entity loaded by given identifier
    */
   _entity: PropTypes.object,
@@ -403,7 +410,7 @@ function select(state, component) {
     instanceId: ConfigurationManager.getPublicValue(state, 'idm.pub.app.instanceId'),
     _entity,
     _showLoading,
-    supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS)
+    _supportedTasks: DataManager.getData(state, SchedulerManager.UI_KEY_SUPPORTED_TASKS)
   };
 }
 

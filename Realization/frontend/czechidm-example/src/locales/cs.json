@@ -202,6 +202,19 @@
       "example-form-combined-identity-projection": {
         "help": "Ukázka projekce pro založení uživatele pouze se zadáným uživaleským jménem a plnou editací."
       }
+    },
+    "eu-bcvsolutions-idm-rpt-entity-rptreport": {
+      "example-identity-report": {
+        "label": "Ukázkový report uživatelů",
+        "help": "Ukázkový report aktivních, neaktivních nebo všech uživatelů.",
+        "icon": "component:report",
+        "attributes": {
+          "disabled": {
+            "label": "$t(label.disabled)",
+            "help": "Report aktivních, neaktivních nebo všech uživatelů."
+          }
+        }
+      }
     }
   },
   "error": {

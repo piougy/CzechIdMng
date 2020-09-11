@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.rpt.api.dto.RptReportDto;
 
 /**
- * Generated report filter
+ * Generated report filter.
  * 
  * @author Radek Tomiška
  *

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -42,6 +44,12 @@ public class ReportGenerateEndProcessor
 	public EventResult<RptReportDto> process(EntityEvent<RptReportDto> event) {
 		RptReportDto report = event.getContent();
 		report = reportService.saveInternal(report);
+		OperationResult result = report.getResult();
+		if (result == null) {
+			report.setResult(new OperationResult(OperationState.EXECUTED));// end => executed
+		} else {
+			result.setState(OperationState.EXECUTED);
+		}
 		event.setContent(report);
 		//
 		return new DefaultEventResult<>(event, this);	

@@ -11,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import javax.validation.constraints.NotEmpty;
@@ -61,6 +63,7 @@ public class RptReport extends AbstractEntity implements FormableEntity, Attacha
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmAttachment data; // json data as string as stored in attachment manager
 	
+	@NotFound(action = NotFoundAction.IGNORE)
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@SuppressWarnings("deprecation")
 	@ManyToOne(fetch = FetchType.LAZY)

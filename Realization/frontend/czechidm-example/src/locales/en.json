@@ -202,6 +202,19 @@
       "example-form-combined-identity-projection": {
         "help": "Example projection - combines creating user with login only and full edit by default product form."
       }
+    },
+    "eu-bcvsolutions-idm-rpt-entity-rptreport": {
+      "example-identity-report": {
+        "label": "Example user report",
+        "help": "Example - report active, inactive or all users.",
+        "icon": "component:report",
+        "attributes": {
+          "disabled": {
+            "label": "$t(label.disabled)",
+            "help": "Report active, inactive or all users."
+          }
+        }
+      }
     }
   },
   "error": {

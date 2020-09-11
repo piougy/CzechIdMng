@@ -94,7 +94,7 @@ public interface LongRunningTaskManager {
 	 * 
 	 * @param longRunningTaskId
 	 * @param permission permissions to evaluate (AND)
-	 * @return
+	 * @return task
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	IdmLongRunningTaskDto getLongRunningTask(UUID longRunningTaskId, BasePermission... permission);
@@ -105,7 +105,7 @@ public interface LongRunningTaskManager {
 	 * 
 	 * @param taskExecutor
 	 * @param permission permissions to evaluate (AND)
-	 * @return
+	 * @return task
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	IdmLongRunningTaskDto getLongRunningTask(LongRunningTaskExecutor<?> taskExecutor, BasePermission... permission);
@@ -116,10 +116,21 @@ public interface LongRunningTaskManager {
 	 * 
 	 * @param futureTask
 	 * @param permission permissions to evaluate (AND)
-	 * @return
+	 * @return task
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 */
 	IdmLongRunningTaskDto getLongRunningTask(LongRunningFutureTask<?> futureTask, BasePermission... permission);
+	
+	/**
+	 * Save long running task.
+	 * 
+	 * @param longRunningTask task to save
+	 * @param permission permissions to evaluate (AND)
+	 * @return saved task
+	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @since 10.6.0
+	 */
+	IdmLongRunningTaskDto saveLongRunningTask(IdmLongRunningTaskDto longRunningTask, BasePermission... permission);
 	
 	/**
 	 * Returns page of long running tasks by given filter, authorization permission will be evaluated. 

@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 
 - [#1981](https://redmine.czechidm.com/issues/1981) - Bulk action configuration is available now under configurable component type ``bulk-action``. Bulk action order, icon, level, enforce quick button or disable bulk action at all can be configured by application setting.
 - [#1981](https://redmine.czechidm.com/issues/1981) - Configuration property ``idm.pub.core.identity.delete`` is deprecated now - action can be disabled by bulk action configurable api - **use ``idm.sec.core.bulk-action.identity-delete-bulk-action.enabled=false``** instead.
+- [#2074](https://redmine.czechidm.com/issues/2074) - Report executor (``ReportExecutor``) extends schedulable long running task (``SchedulableTaskExecutor``) now. Report can be scheduled from long running task agenda and result can be sent as notification by topic setting.
+- [#2074](https://redmine.czechidm.com/issues/2074) - **Report parameters can be localized from custom module now**.
 
 ## [10.5.0]
 

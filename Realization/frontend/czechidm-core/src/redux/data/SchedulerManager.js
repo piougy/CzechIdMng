@@ -69,7 +69,8 @@ export default class SchedulerManager extends EntityManager {
     //
     return (dispatch, getState) => {
       const loaded = DataManager.getData(getState(), uiKey);
-      if (loaded) {
+      const showLoading = DataManager.isShowLoading(getState(), uiKey);
+      if (loaded || showLoading) {
         // we dont need to load them again - change depends on BE restart
       } else {
         dispatch(this.dataManager.requestData(uiKey));

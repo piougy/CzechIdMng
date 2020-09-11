@@ -122,7 +122,7 @@ public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	private boolean checkEnabledProperties(String[] properties) throws ConfigurationDisabledException {
 		Assert.notNull(properties, "Properties are required.");
 		//
-		for(String property : properties) {
+		for (String property : properties) {
 			if (!configurationService.getBooleanValue(property, false)) {
 				throw new ConfigurationDisabledException(property);
 			}

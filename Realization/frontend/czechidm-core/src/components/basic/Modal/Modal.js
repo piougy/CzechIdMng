@@ -88,6 +88,11 @@ export default class BasicModal extends AbstractComponent {
       return;
     }
     //
+    // inner scroll event (e.g. on txt area)
+    if (event && !$(event.target).hasClass('modal')) {
+      return;
+    }
+    //
     const heightDifference = modalDialog.height() - $(window).height();
     const footerBottom = heightDifference - (event ? event.target.scrollTop : 0);
     //
@@ -107,7 +112,8 @@ export default class BasicModal extends AbstractComponent {
             (modalMargin - (footerBottom < -modalMargin ? (footerBottom + modalMargin) : 0)), // on end -> between dialog margin
           backgroundColor: 'white',
           width: '100%',
-          borderRadius: '0px 0px 6px 6px' // FIXME: by modal radius
+          borderRadius: '0px 0px 6px 6px', // FIXME: by modal radius
+          zIndex: 3 // confidential, validations etc. uses 2
         });
         if (cb) {
           cb();
@@ -195,42 +201,37 @@ BasicModal.defaultProps = {
  */
 class BasicModalHeader extends AbstractComponent {
   render() {
-    const { rendered, text, children, help, showLoading, icon, ...others } = this.props;
+    const { rendered, text, children, help, showLoading, icon, buttons, ...others } = this.props;
     if (!rendered) {
       return null;
     }
     return (
-      <Modal.Header {...others}>
-        <Div className="pull-left">
+      <Modal.Header { ...others }>
+        <Div style={{ display: 'flex', alignItems: 'center' }}>
           <Icon type="fa" icon="refresh" showLoading rendered={ showLoading } />
-          {
-            showLoading || text
-            ?
-            <h2>
-              <Icon value={ icon } showLoading={ showLoading } style={{ marginRight: 5 }}/>
-              {
-                React.isValidElement(text)
-                ?
-                text
-                :
-                <span dangerouslySetInnerHTML={{__html: text}}/>
-              }
-            </h2>
-            :
-            null
-          }
-          { children }
-        </Div>
-        {
-          help
-          ?
-          <Div className="pull-right">
-            <HelpIcon content={help}/>
+          <Div style={{ flex: 1 }}>
+            {
+              showLoading || text
+              ?
+              <h2>
+                <Icon value={ icon } showLoading={ showLoading } style={{ marginRight: 5 }}/>
+                {
+                  React.isValidElement(text)
+                  ?
+                  text
+                  :
+                  <span dangerouslySetInnerHTML={{ __html: text }}/>
+                }
+              </h2>
+              :
+              null
+            }
+            { children }
           </Div>
-          :
-          null
-        }
-        <Div className="clearfix"/>
+          { buttons }
+          <HelpIcon content={ help }/>
+        </Div>
+
       </Modal.Header>
     );
   }

@@ -78,7 +78,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 	public void testReferentialIntegrityDeleteNodeWithContracts() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
-		getHelper().createIdentityContact(identity, treeNode);
+		getHelper().createContract(identity, treeNode);
 	    // tree node cannot be deleted, when some contract are defined on this node
 	    service.delete(treeNode);
 	}
@@ -98,7 +98,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 	public void testReferentialIntegrityDeleteNodeWithContractPositions() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		getHelper().createContractPosition(contract, treeNode);
 	    // tree node cannot be deleted, when some contract are defined on this node
 	    service.delete(treeNode);
@@ -343,7 +343,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, parentNode, RecursionType.DOWN, true);
 		// create identity with contract on node
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		getHelper().createIdentityContact(identity, node);
+		getHelper().createContract(identity, node);
 		// no role should be assigned now
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertTrue(assignedRoles.isEmpty());
@@ -395,7 +395,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
 		// create identity with contract on node
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		getHelper().createIdentityContact(identity, parentNode);
+		getHelper().createContract(identity, parentNode);
 		// no role should be assigned now
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertTrue(assignedRoles.isEmpty());
@@ -426,7 +426,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
 		// create identity with contract on node
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		getHelper().createIdentityContact(identity, parentNode, null, LocalDate.now().minusDays(1));
+		getHelper().createContract(identity, parentNode, null, LocalDate.now().minusDays(1));
 		// no role should be assigned now
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertTrue(assignedRoles.isEmpty());
@@ -530,7 +530,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
 		// create identity with contract on node
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, null, null, LocalDate.now().minusDays(1));
+		IdmIdentityContractDto contract = getHelper().createContract(identity, null, null, LocalDate.now().minusDays(1));
 		getHelper().createContractPosition(contract, parentNode);
 		// no role should be assigned now
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
@@ -566,7 +566,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
 		// create identity with contract on node
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		getHelper().createIdentityContact(identity, parentNode);
+		getHelper().createContract(identity, parentNode);
 		// no role should be assigned now
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
 		Assert.assertTrue(assignedRoles.isEmpty());
@@ -683,7 +683,7 @@ public class DefaultIdmTreeNodeServiceIntegrationTest extends AbstractIntegratio
 		IdmRoleTreeNodeDto automaticRole = getHelper().createRoleTreeNode(role, node, RecursionType.UP, true);
 		// create identity with contract on node
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, parentNode);
+		IdmIdentityContractDto contract = getHelper().createContract(identity, parentNode);
 		entityStateManager.createState(contract, OperationState.BLOCKED, CoreResultCode.AUTOMATIC_ROLE_SKIPPED, null);
 		Assert.assertEquals(1, entityStateManager.findStates(contract, null).getTotalElements());
 		// no role should be assigned now

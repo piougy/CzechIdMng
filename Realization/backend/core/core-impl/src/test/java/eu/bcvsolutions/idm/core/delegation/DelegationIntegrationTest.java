@@ -91,7 +91,7 @@ public class DelegationIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityDto delegator = getHelper().createIdentity();
 		IdmIdentityDto delegate = getHelper().createIdentity();
 		IdmIdentityDto subordinate = getHelper().createIdentity();
-		IdmIdentityContractDto subordinateContract = getHelper().createIdentityContact(subordinate);
+		IdmIdentityContractDto subordinateContract = getHelper().createContract(subordinate);
 		getHelper().createContractGuarantee(subordinateContract, delegator);
 
 		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
@@ -179,7 +179,7 @@ public class DelegationIntegrationTest extends AbstractIntegrationTest {
 		IdmIdentityDto delegateOne = getHelper().createIdentity();
 		IdmIdentityDto delegateTwo = getHelper().createIdentity();
 		IdmIdentityDto subordinate = getHelper().createIdentity();
-		IdmIdentityContractDto subordinateContract = getHelper().createIdentityContact(subordinate);
+		IdmIdentityContractDto subordinateContract = getHelper().createContract(subordinate);
 		getHelper().createContractGuarantee(subordinateContract, delegator);
 
 		IdmIdentityFilter identityFilter = new IdmIdentityFilter();
@@ -274,10 +274,10 @@ public class DelegationIntegrationTest extends AbstractIntegrationTest {
 
 		IdmRoleDto role = getHelper().createRole(priorityForApprovingByManager);
 		IdmIdentityDto delegator = getHelper().createIdentity();
-		IdmIdentityContractDto delegatorContract = getHelper().createIdentityContact(delegator);
+		IdmIdentityContractDto delegatorContract = getHelper().createContract(delegator);
 		IdmIdentityDto delegateOne = getHelper().createIdentity();
 		IdmIdentityDto subordinate = getHelper().createIdentity();
-		IdmIdentityContractDto subordinateContract = getHelper().createIdentityContact(subordinate);
+		IdmIdentityContractDto subordinateContract = getHelper().createContract(subordinate);
 		getHelper().createContractGuarantee(subordinateContract, delegator);
 
 		IdmIdentityFilter identityFilter = new IdmIdentityFilter();

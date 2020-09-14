@@ -599,7 +599,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		IdmTreeNodeDto treeNodeTwoSub = getHelper().createTreeNode(treeTypeTwo, treeNodeTwo);
 		//
 		IdmIdentityDto identityOne = getHelper().createIdentity((GuardedString) null);
-		getHelper().createIdentityContact(identityOne, treeNodeOneSub);
+		getHelper().createContract(identityOne, treeNodeOneSub);
 		//
 		// FIXME: map parameter values in filter into data
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
@@ -610,7 +610,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		Assert.assertTrue(identities.isEmpty());
 		//
 		IdmIdentityDto identityTwo = getHelper().createIdentity((GuardedString) null);
-		getHelper().createIdentityContact(identityTwo, treeNodeTwoSub);
+		getHelper().createContract(identityTwo, treeNodeTwoSub);
 		//
 		identities = find(parameters);
 		//
@@ -741,7 +741,7 @@ public class IdmIdentityControllerRestTest extends AbstractReadWriteDtoControlle
 		identity = prepareDto(); 
 		identity.setDescription(description);
 		IdmIdentityDto identityThree = createDto(identity);
-		getHelper().createIdentityContact(identityThree, getHelper().createTreeNode());
+		getHelper().createContract(identityThree, getHelper().createTreeNode());
 		//
 		IdmIdentityFilter filter = new IdmIdentityFilter();
 		filter.setText(description);

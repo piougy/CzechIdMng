@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity_;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
@@ -47,6 +48,10 @@ public class DefaultIdmNotificationRecipientService
 		if (StringUtils.isNotEmpty(text)) {
 			text = text.toLowerCase();
 			predicates.add(builder.like(builder.lower(root.get(IdmNotificationRecipient_.realRecipient)), "%" + text + "%"));
+		}
+		UUID notification = filter.getNotification();
+		if (notification != null) {
+			predicates.add(builder.equal(root.get(IdmNotificationRecipient_.notification).get(AbstractEntity_.id), notification));
 		}
 		//
 		UUID identityRecipient = filter.getIdentityRecipient();

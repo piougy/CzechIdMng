@@ -35,7 +35,7 @@ public class ContractPositionByIdentityContractEvaluatorIntegrationTest extends 
 	public void testCrud() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
-		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto otherContract = getHelper().createContract(identity);
 		List<IdmContractPositionDto> positions = null;
 		IdmRoleDto role = getHelper().createRole();
 		

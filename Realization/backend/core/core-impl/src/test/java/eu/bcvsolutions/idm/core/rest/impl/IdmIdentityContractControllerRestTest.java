@@ -66,8 +66,8 @@ public class IdmIdentityContractControllerRestTest extends AbstractReadWriteDtoC
 	public void testFindByRole() {
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		//
-		IdmIdentityContractDto contractOne = getHelper().createIdentityContact(identity);
-		IdmIdentityContractDto contractTwo = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contractOne = getHelper().createContract(identity);
+		IdmIdentityContractDto contractTwo = getHelper().createContract(identity);
 		IdmRoleDto roleOne = getHelper().createRole();
 		IdmRoleDto roleTwo = getHelper().createRole();
 		getHelper().createIdentityRole(contractOne, roleOne);

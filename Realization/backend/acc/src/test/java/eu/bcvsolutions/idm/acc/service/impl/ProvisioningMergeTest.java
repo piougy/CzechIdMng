@@ -1209,7 +1209,7 @@ public class ProvisioningMergeTest extends AbstractIntegrationTest {
 		
 		IdmIdentityDto identity = this.getHelper().createIdentity();
 		IdmIdentityContractDto contractOne = this.getHelper().getPrimeContract(identity);
-		IdmIdentityContractDto contractTwo = this.getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contractTwo = this.getHelper().createContract(identity);
 		// Set contract one as excluded
 		contractOne.setState(ContractState.EXCLUDED);
 		contractOne = identityContractService.save(contractOne);

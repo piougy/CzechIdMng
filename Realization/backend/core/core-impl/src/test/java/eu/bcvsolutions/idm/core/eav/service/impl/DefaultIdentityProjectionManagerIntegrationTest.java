@@ -1055,7 +1055,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	public void testPreventToDeleteOtherContractWhenPrimeContractIsChanged() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
-		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto otherContract = getHelper().createContract(identity);
 		
 		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(2, contracts.size());
@@ -1078,7 +1078,7 @@ public class DefaultIdentityProjectionManagerIntegrationTest extends AbstractRes
 	public void testDeleteOtherContractWhenPrimeContractIsChanged() {
 		IdmIdentityDto identity = getHelper().createIdentity();
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity);
-		IdmIdentityContractDto otherContract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto otherContract = getHelper().createContract(identity);
 		
 		List<IdmIdentityContractDto> contracts = contractService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(2, contracts.size());

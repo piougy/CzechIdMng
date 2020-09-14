@@ -135,7 +135,7 @@ public class MappingContextTest extends AbstractIntegrationTest {
 		IdmRoleDto roleWithSystem = helper.createRole();
 		helper.createRoleSystem(roleWithSystem, system);
 		IdmIdentityDto identity = helper.createIdentity();
-		helper.createIdentityContact(identity, null, LocalDate.now(), null);
+		helper.createContract(identity, null, LocalDate.now(), null);
 		List<IdmIdentityContractDto> contracts = identityContractService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(2, contracts.size());
 
@@ -257,7 +257,7 @@ public class MappingContextTest extends AbstractIntegrationTest {
 		IdmRoleDto roleWithSystem = helper.createRole();
 		helper.createRoleSystem(roleWithSystem, system);
 		IdmIdentityDto identity = helper.createIdentity();
-		helper.createIdentityContact(identity, null, LocalDate.now(), null);
+		helper.createContract(identity, null, LocalDate.now(), null);
 		List<IdmIdentityContractDto> contracts = identityContractService.findAllByIdentity(identity.getId());
 		Assert.assertEquals(2, contracts.size());
 

@@ -43,7 +43,7 @@ public class SubordinateContractEvaluatorIntegrationTest extends AbstractEvaluat
 		IdmIdentityDto managerOne = getHelper().createIdentity();
 		IdmIdentityDto managerTwo = getHelper().createIdentity();
 		IdmIdentityContractDto primeContact = getHelper().getPrimeContract(subordinateOne);
-		IdmIdentityContractDto otherContact = getHelper().createIdentityContact(subordinateOne);// other contract
+		IdmIdentityContractDto otherContact = getHelper().createContract(subordinateOne);// other contract
 		getHelper().createContractGuarantee(primeContact, managerOne);
 		getHelper().createContractGuarantee(getHelper().getPrimeContract(subordinateTwo), managerTwo);
 		IdmIdentityRoleDto assignedRolePrime = getHelper().createIdentityRole(primeContact, getHelper().createRole());

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import _ from 'lodash';
+import ReactResizeDetector from 'react-resize-detector';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Loading from '../Loading/Loading';
@@ -37,16 +38,14 @@ export default class BasicModal extends AbstractComponent {
    * Add event listener
    */
   componentDidMount() {
-    // FIXME: how to get modal.scrollTop() on resize event => returns 0 alltime
-    window.addEventListener('resize', this._setFooterStyle.bind(this, null));
+    window.addEventListener('resize', this._setFooterStyle.bind(this, null, null));
   }
 
   /**
    * Remove event listener
    */
   componentWillUnmount() {
-    // FIXME: how to get modal.scrollTop() on resize event => returns 0 alltime
-    window.removeEventListener('resize', this._setFooterStyle.bind(this, null));
+    window.removeEventListener('resize', this._setFooterStyle.bind(this, null, null));
   }
 
   /**
@@ -95,39 +94,40 @@ export default class BasicModal extends AbstractComponent {
     //
     const heightDifference = modalDialog.height() - $(window).height();
     const footerBottom = heightDifference - (event ? event.target.scrollTop : 0);
+    const footerHeight = modalFooter.outerHeight();
+    const modalMargin = (parseInt(modalDialog.css('margin-bottom'), 10) - 1) || 29; // FIXME: -1 => border bottom
+    const _fixedBottom = footerBottom +
+      (modalMargin - (footerBottom < -modalMargin ? (footerBottom + modalMargin) : 0)); // on end -> between dialog margin
+    const { fixedBottom } = this.state;
     //
-    if (heightDifference > 0) {
-      const footerHeight = modalFooter.outerHeight();
-      const modalMargin = (parseInt(modalDialog.css('margin-bottom'), 10) - 1) || 29; // FIXME: -1 => border bottom
-      //
-      this.setState({
-        bodyStyle: {
-          paddingBottom: footerHeight
-        }
-      }, () => {
-        modalFooter.css({
-          position: 'absolute',
-          bottom:
-            footerBottom +
-            (modalMargin - (footerBottom < -modalMargin ? (footerBottom + modalMargin) : 0)), // on end -> between dialog margin
-          backgroundColor: 'white',
-          width: '100%',
-          borderRadius: '0px 0px 6px 6px', // FIXME: by modal radius
-          zIndex: 3 // confidential, validations etc. uses 2
-        });
-        if (cb) {
-          cb();
-        }
-      });
-    } else {
-      this.setState({
-        bodyStyle: {}
-      }, () => {
-        if (cb) {
-          cb();
-        }
-      });
+    if (fixedBottom === _fixedBottom) {
+      // => no change
+      return;
     }
+    //
+    // console.log('_fixedBottom', _fixedBottom);
+    this.setState({
+      fixedBottom: _fixedBottom,
+      bodyStyle: {
+        paddingBottom: footerHeight
+      }
+    }, () => {
+      modalFooter.css({
+        position: 'absolute',
+        bottom: _fixedBottom,
+        backgroundColor: 'white',
+        width: '100%',
+        borderRadius: '0px 0px 6px 6px', // FIXME: by modal radius
+        zIndex: 3 // confidential, validations etc. uses 2
+      });
+      if (cb) {
+        cb();
+      }
+    });
+  }
+
+  onResize() {
+    this._setFooterStyle(null, null);
   }
 
   render() {
@@ -163,6 +163,7 @@ export default class BasicModal extends AbstractComponent {
         <Div
           style={ bodyStyle }
           className={ showLoading ? 'hidden' : '' }>
+          <ReactResizeDetector handleHeight onResize={ this.onResize.bind(this) } />
           { this.props.children }
         </Div>
       </Modal>

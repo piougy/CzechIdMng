@@ -99,41 +99,41 @@ public abstract class AbstractWorkingPositionFilterIntegrationTest extends Abstr
 		//
 		structureOne = getHelper().createTreeType();
 		IdmTreeNodeDto managerOnePosition = getHelper().createTreeNode(structureOne, null); 
-		getHelper().createIdentityContact(managerOne, managerOnePosition);
-		getHelper().createIdentityContact(invalidManagerExpiredContract, managerOnePosition, null, LocalDate.now().minusDays(1));
-		getHelper().createIdentityContact(invalidManagerDisabledIdentity, managerOnePosition);
-		IdmIdentityContractDto exclededContract = getHelper().createIdentityContact(invalidManagerExcludedContract, managerOnePosition);
+		getHelper().createContract(managerOne, managerOnePosition);
+		getHelper().createContract(invalidManagerExpiredContract, managerOnePosition, null, LocalDate.now().minusDays(1));
+		getHelper().createContract(invalidManagerDisabledIdentity, managerOnePosition);
+		IdmIdentityContractDto exclededContract = getHelper().createContract(invalidManagerExcludedContract, managerOnePosition);
 		exclededContract.setState(ContractState.EXCLUDED);
 		getHelper().getService(IdmIdentityContractService.class).save(exclededContract);
-		IdmIdentityContractDto disabledContract = getHelper().createIdentityContact(invalidManagerDisabledContract, managerOnePosition);
+		IdmIdentityContractDto disabledContract = getHelper().createContract(invalidManagerDisabledContract, managerOnePosition);
 		disabledContract.setState(ContractState.EXCLUDED);
 		getHelper().getService(IdmIdentityContractService.class).save(disabledContract);
 		IdmTreeNodeDto managerThreePosition = getHelper().createTreeNode(structureOne, null); 
-		managerThreeContract = getHelper().createIdentityContact(managerThree, managerThreePosition);
+		managerThreeContract = getHelper().createContract(managerThree, managerThreePosition);
 		//
 		getHelper().getService(IdmIdentityService.class).disable(disabledGuarantee.getId());
 		getHelper().getService(IdmIdentityService.class).disable(invalidManagerDisabledIdentity.getId());
 		//
 		structureTwo = getHelper().createTreeType();
 		IdmTreeNodeDto managerTwoPosition = getHelper().createTreeNode(structureTwo, null); 
-		managerTwoContract = getHelper().createIdentityContact(managerTwo, managerTwoPosition);
+		managerTwoContract = getHelper().createContract(managerTwo, managerTwoPosition);
 		// subordinate one
 		IdmTreeNodeDto subordinateOnePositionOne = createPosition(structureOne, managerOnePosition);
-		contractOne = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionOne);
+		contractOne = getHelper().createContract(subordinateOne, subordinateOnePositionOne);
 		getHelper().createContractGuarantee(contractOne.getId(), guaranteeThree.getId());
 		IdmTreeNodeDto subordinateOnePositionTwo = createPosition(structureTwo, managerTwoPosition); 
-		contractTwo = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionTwo, LocalDate.now().plusDays(1), null);
+		contractTwo = getHelper().createContract(subordinateOne, subordinateOnePositionTwo, LocalDate.now().plusDays(1), null);
 		IdmTreeNodeDto subordinateOnePositionThree = createPosition(structureOne, managerThreePosition); 
-		contractFourDisabled = getHelper().createIdentityContact(subordinateOne, subordinateOnePositionThree, null, LocalDate.now().minusDays(2));
+		contractFourDisabled = getHelper().createContract(subordinateOne, subordinateOnePositionThree, null, LocalDate.now().minusDays(2));
 		getHelper().createContractGuarantee(contractTwo.getId(), guaranteeFour.getId());
 		getHelper().createContractGuarantee(contractTwo.getId(), disabledGuarantee.getId());
 		getHelper().createContractGuarantee(contractFourDisabled.getId(), guaranteeFive.getId());
 		// subordinate two
 		IdmTreeNodeDto subordinateTwoPosition = createPosition(structureOne, subordinateOnePositionOne);
-		contractSubordinateTwo = getHelper().createIdentityContact(subordinateTwo, subordinateTwoPosition);
+		contractSubordinateTwo = getHelper().createContract(subordinateTwo, subordinateTwoPosition);
 		getHelper().createContractGuarantee(contractSubordinateTwo.getId(), guaranteeFour.getId());
 		// subordinate three
-		contractThree = getHelper().createIdentityContact(subordinateThree);
+		contractThree = getHelper().createContract(subordinateThree);
 		getHelper().createContractGuarantee(contractThree.getId(), managerOne.getId());
 	}
 	

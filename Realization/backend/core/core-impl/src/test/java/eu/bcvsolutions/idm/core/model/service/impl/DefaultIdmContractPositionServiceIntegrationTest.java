@@ -58,7 +58,7 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 	public void testReferentialIntegritye() {
 		// prepare data
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		IdmContractPositionDto contractPosition = getHelper().createContractPosition(contract);
 		IdmRoleDto role = getHelper().createRole();
 		//
@@ -75,7 +75,7 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 	public void testReferentialIntegrityOnContractDelete() {
 		// prepare data
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		getHelper().createContractPosition(contract);
 		//
 		IdmContractPositionFilter positionFilter = new IdmContractPositionFilter();
@@ -83,7 +83,7 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		List<IdmContractPositionDto> positions = service.find(positionFilter, null).getContent();
 		Assert.assertEquals(1, positions.size());
 		//
-		getHelper().deleteIdentityContact(contract.getId());
+		getHelper().deleteContract(contract.getId());
 		//
 		positions = service.find(positionFilter, null).getContent();
 		Assert.assertTrue(positions.isEmpty());
@@ -262,7 +262,7 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		getHelper().createAutomaticRole(role, treeNode);
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, null, null, LocalDate.now().minusDays(1));
+		IdmIdentityContractDto contract = getHelper().createContract(identity, null, null, LocalDate.now().minusDays(1));
 		IdmContractPositionDto position = getHelper().createContractPosition(contract, null);
 		//
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
@@ -281,7 +281,7 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		getHelper().createAutomaticRole(role, treeNode);
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		contract.setState(ContractState.DISABLED);
 		contract = contractService.save(contract);
 		IdmContractPositionDto position = getHelper().createContractPosition(contract, null);
@@ -302,7 +302,7 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		IdmRoleTreeNodeDto automaticRole = getHelper().createAutomaticRole(role, treeNode);
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, null, LocalDate.now().plusDays(2), null);
+		IdmIdentityContractDto contract = getHelper().createContract(identity, null, LocalDate.now().plusDays(2), null);
 		IdmContractPositionDto position = getHelper().createContractPosition(contract, null);
 		//
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
@@ -323,7 +323,7 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		getHelper().createAutomaticRole(role, treeNode);
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, null, null, LocalDate.now().minusDays(2));
+		IdmIdentityContractDto contract = getHelper().createContract(identity, null, null, LocalDate.now().minusDays(2));
 		IdmContractPositionDto position = getHelper().createContractPosition(contract, null);
 		//
 		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
@@ -407,7 +407,7 @@ public class DefaultIdmContractPositionServiceIntegrationTest extends AbstractIn
 		IdmRoleTreeNodeDto automaticRoleTwo = getHelper().createAutomaticRole(role, node);
 		// create identity
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity, node);
+		IdmIdentityContractDto contract = getHelper().createContract(identity, node);
 		getHelper().createContractPosition(contract, node);
 		//
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();

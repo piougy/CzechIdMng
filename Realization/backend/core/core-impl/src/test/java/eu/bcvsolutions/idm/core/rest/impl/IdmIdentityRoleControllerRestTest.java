@@ -92,7 +92,7 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		IdmIdentityDto identity = getHelper().createIdentity();
 		getHelper().createIdentityRole(identity, getHelper().createRole()); // valid
 		IdmIdentityRoleDto inValidByDate = getHelper().createIdentityRole(identity, getHelper().createRole(), null, LocalDate.now().minusDays(2));
-		IdmIdentityContractDto invalidContract = getHelper().createIdentityContact(identity, null, null, LocalDate.now().minusDays(2));
+		IdmIdentityContractDto invalidContract = getHelper().createContract(identity, null, null, LocalDate.now().minusDays(2));
 		IdmIdentityRoleDto inValidByContract = getHelper().createIdentityRole(invalidContract, getHelper().createRole());
 		//
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();
@@ -246,7 +246,7 @@ public class IdmIdentityRoleControllerRestTest extends AbstractReadWriteDtoContr
 		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
 		IdmIdentityRoleDto validRole = getHelper().createIdentityRole(identity, getHelper().createRole()); // valid
 		getHelper().createIdentityRole(identity, getHelper().createRole(), null, LocalDate.now().minusDays(2)); // inValidByDate
-		IdmIdentityContractDto invalidContract = getHelper().createIdentityContact(identity, null, null, LocalDate.now().minusDays(2));
+		IdmIdentityContractDto invalidContract = getHelper().createContract(identity, null, null, LocalDate.now().minusDays(2));
 		getHelper().createIdentityRole(invalidContract, getHelper().createRole()); // inValidByContract
 		//
 		IdmIdentityRoleFilter filter = new IdmIdentityRoleFilter();

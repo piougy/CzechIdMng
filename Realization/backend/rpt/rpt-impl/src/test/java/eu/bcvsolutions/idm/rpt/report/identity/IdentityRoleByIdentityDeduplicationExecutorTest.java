@@ -67,7 +67,7 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 		String roleCode = "test-" + System.currentTimeMillis(); 
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
-		IdmIdentityContractDto contact = getHelper().createIdentityContact(identity, treeNode);
+		IdmIdentityContractDto contact = getHelper().createContract(identity, treeNode);
 		
 		IdmRoleDto role = getHelper().createRole(roleCode);
 
@@ -113,7 +113,7 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 		String roleCode = "test-" + System.currentTimeMillis(); 
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
-		IdmIdentityContractDto contact = getHelper().createIdentityContact(identity, treeNode);
+		IdmIdentityContractDto contact = getHelper().createContract(identity, treeNode);
 		
 		IdmRoleDto role = getHelper().createRole(roleCode);
 
@@ -155,7 +155,7 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 		String roleCode = "test-" + System.currentTimeMillis(); 
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
-		IdmIdentityContractDto contact = getHelper().createIdentityContact(identity, treeNode);
+		IdmIdentityContractDto contact = getHelper().createContract(identity, treeNode);
 		
 		IdmRoleDto role = getHelper().createRole(roleCode);
 
@@ -206,8 +206,8 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 		String roleCode = "test-" + System.currentTimeMillis(); 
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
-		IdmIdentityContractDto contactOne = getHelper().createIdentityContact(identity, treeNode);
-		IdmIdentityContractDto contactTwo = getHelper().createIdentityContact(identity, treeNode);
+		IdmIdentityContractDto contactOne = getHelper().createContract(identity, treeNode);
+		IdmIdentityContractDto contactTwo = getHelper().createContract(identity, treeNode);
 		
 		IdmRoleDto role = getHelper().createRole(roleCode);
 
@@ -240,8 +240,8 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 		String roleCode = "test-" + System.currentTimeMillis(); 
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
-		IdmIdentityContractDto contactOne = getHelper().createIdentityContact(identity, treeNode);
-		IdmIdentityContractDto contactTwo = getHelper().createIdentityContact(identity, treeNode);
+		IdmIdentityContractDto contactOne = getHelper().createContract(identity, treeNode);
+		IdmIdentityContractDto contactTwo = getHelper().createContract(identity, treeNode);
 		
 		IdmRoleDto role = getHelper().createRole(roleCode);
 
@@ -291,7 +291,7 @@ public class IdentityRoleByIdentityDeduplicationExecutorTest extends AbstractInt
 	public void testRenderers() {
 		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
-		IdmIdentityContractDto contact = getHelper().createIdentityContact(identity, treeNode);
+		IdmIdentityContractDto contact = getHelper().createContract(identity, treeNode);
 		
 		IdmRoleDto role = getHelper().createRole();
 

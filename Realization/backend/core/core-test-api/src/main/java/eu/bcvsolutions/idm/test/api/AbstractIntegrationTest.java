@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.test.api;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.junit.After;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -16,6 +17,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -24,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.service.IdmCacheManager;
 import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -45,10 +48,13 @@ import eu.bcvsolutions.idm.core.security.api.utils.IdmAuthorityUtils;
 @Rollback(true)
 public abstract class AbstractIntegrationTest {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractIntegrationTest.class);
+	//
 	@Autowired private TestHelper helper;
 	@Autowired private PlatformTransactionManager platformTransactionManager;
 	@Autowired private LookupService lookupService;
 	@Autowired private ModuleService moduleService;
+	@Autowired private IdmCacheManager cacheManager;
 	//
 	private TransactionTemplate template;
 
@@ -61,6 +67,24 @@ public abstract class AbstractIntegrationTest {
 		// and we want build artifact without waiting (e.q. when hotfix needs to be released).
 	    Boolean documentationOnly = Boolean.valueOf(System.getProperty("documentationOnly", "false"));
 	    Assume.assumeFalse(documentationOnly);
+	}
+	
+	/**
+	 * Evict all caches after @Transactional + @Rollback(true) test ends.
+	 */
+	@After
+	public void evictCaches() {
+		Transactional transactional = this.getClass().getAnnotation(Transactional.class);
+		if (transactional == null) {
+			return;
+		}
+		Rollback rollback = this.getClass().getAnnotation(Rollback.class);
+		if (rollback == null || !rollback.value()) {
+			return;
+		}
+		//
+		cacheManager.evictAllCaches();
+		LOG.debug("All caches are evicted.");
 	}
 
 	/**

@@ -77,8 +77,8 @@ public class IdentityByTreeNodeEvaluatorIntegrationTest extends AbstractEvaluato
 		IdmIdentityDto identity = prepareIdentityOnWorkPosition(position);
 
 		// Two different contract
-		getHelper().createIdentityContact(identity, positionTwo);
-		getHelper().createIdentityContact(identity, null);
+		getHelper().createContract(identity, positionTwo);
+		getHelper().createContract(identity, null);
 
 		IdmIdentityDto administrator = getHelper().createIdentity();
 		try {
@@ -212,7 +212,7 @@ public class IdentityByTreeNodeEvaluatorIntegrationTest extends AbstractEvaluato
 			getHelper().logout();
 		}
 
-		IdmIdentityContractDto newContract = getHelper().createIdentityContact(identity, position);
+		IdmIdentityContractDto newContract = getHelper().createContract(identity, position);
 
 		try {
 			getHelper().login(administrator);

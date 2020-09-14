@@ -111,9 +111,9 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		IdmRoleDto role = getHelper().createRole();
 		getHelper().createRoleGuarantee(role, identity);
 		// contract
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		// contract guarantee
-		IdmIdentityContractDto contract2 = getHelper().createIdentityContact(identityService.getByUsername(InitTestDataProcessor.TEST_USER_1));
+		IdmIdentityContractDto contract2 = getHelper().createContract(identityService.getByUsername(InitTestDataProcessor.TEST_USER_1));
 		
 		contractGuaranteeService.save(new IdmContractGuaranteeDto(contract2.getId(), identity.getId()));
 		// assigned role
@@ -321,7 +321,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		Assert.assertTrue(identity.isDisabled());
 		Assert.assertEquals(IdentityState.NO_CONTRACT, identity.getState());
 		//
-		contract = getHelper().createIdentityContact(identity, null, LocalDate.now().plusDays(1), null);
+		contract = getHelper().createContract(identity, null, LocalDate.now().plusDays(1), null);
 		//
 		identity = identityService.get(identity.getId());
 		Assert.assertTrue(identity.isDisabled());
@@ -336,7 +336,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		getHelper().createIdentityRole(identity, role);
 		getHelper().createIdentityRole(identity, role);
 		getHelper().createIdentityRole(identity, role, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1));
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto contract = getHelper().createContract(identity);
 		getHelper().createIdentityRole(contract, role);
 		getHelper().createIdentityRole(contract, role);
 		getHelper().createIdentityRole(contract, role, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1));
@@ -358,7 +358,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		IdmIdentityDto validIdentity = getHelper().createIdentity((GuardedString) null);
 		IdmRoleDto role = getHelper().createRole();
 		getHelper().createIdentityRole(validIdentity, role, LocalDate.now().plusDays(1), null);
-		IdmIdentityContractDto contract = getHelper().createIdentityContact(validIdentity, null, LocalDate.now().minusDays(1), null);
+		IdmIdentityContractDto contract = getHelper().createContract(validIdentity, null, LocalDate.now().minusDays(1), null);
 		getHelper().createIdentityRole(contract, role);
 		getHelper().createIdentityRole(contract, role);
 		getHelper().createIdentityRole(contract, role, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1));

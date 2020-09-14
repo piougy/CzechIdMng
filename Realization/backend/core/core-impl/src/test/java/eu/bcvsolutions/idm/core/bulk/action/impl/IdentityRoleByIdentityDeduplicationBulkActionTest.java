@@ -116,7 +116,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	public void testTwoManuallyTwoContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
-		IdmIdentityContractDto secondContract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto secondContract = getHelper().createContract(identity);
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity.getId());
 		IdmIdentityRoleDto one = getHelper().createIdentityRole(primeContract, role);
 		IdmIdentityRoleDto two = getHelper().createIdentityRole(secondContract, role);
@@ -150,7 +150,7 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 	public void testFourManuallyTwoContract() {
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmRoleDto role = getHelper().createRole();
-		IdmIdentityContractDto secondContract = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto secondContract = getHelper().createContract(identity);
 		IdmIdentityContractDto primeContract = getHelper().getPrimeContract(identity.getId());
 		IdmIdentityRoleDto primaryContractOne = getHelper().createIdentityRole(primeContract, role);
 		IdmIdentityRoleDto primaryContractTwo = getHelper().createIdentityRole(primeContract, role);
@@ -334,8 +334,8 @@ public class IdentityRoleByIdentityDeduplicationBulkActionTest extends AbstractB
 
 		IdmIdentityDto identity = getHelper().createIdentity(new GuardedString());
 		IdmIdentityContractDto primary = getHelper().getPrimeContract(identity);
-		IdmIdentityContractDto identityContactOne = getHelper().createIdentityContact(identity);
-		IdmIdentityContractDto identityContactTwo = getHelper().createIdentityContact(identity);
+		IdmIdentityContractDto identityContactOne = getHelper().createContract(identity);
+		IdmIdentityContractDto identityContactTwo = getHelper().createContract(identity);
 
 		identity.setDescription(automaticRoleValue);
 		identity.setTitleAfter(automaticRoleValue);

@@ -693,6 +693,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
+	@Transactional
 	public IdmRoleRequestDto createRequest(IdmIdentityContractDto contract, IdmRoleDto... roles) {
 		Assert.notNull(contract, "Contract must be filled for create role request!");
 		IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
@@ -709,6 +710,7 @@ public class DefaultIdmRoleRequestService
 	}
 
 	@Override
+	@Transactional
 	public IdmRoleRequestDto copyRolesByIdentity(IdmRoleRequestByIdentityDto requestByIdentityDto) {
 		Assert.notNull(requestByIdentityDto, "Request by identity must exist!");
 		Assert.notNull(requestByIdentityDto.getIdentityContract(), "Contract must be filled for create role request!");

@@ -25,13 +25,13 @@ describe('Basic Confirm', function confirmTest() {
   });*/
 
   it('- is not shown by default', function test() {
-    const confirm = TestUtils.renderIntoDocument(<Basic.Confirm/>);
+    const confirm = TestUtils.renderIntoDocument(<Basic.Confirm affixFooter={ false }/>);
     expect(confirm.props.show).to.be.false();
     expect(confirm.state.show).to.be.false();
   });
 
   it('- texts check', function test() {
-    const confirm = TestUtils.renderIntoDocument(<Basic.Confirm />);
+    const confirm = TestUtils.renderIntoDocument(<Basic.Confirm affixFooter={ false } />);
     confirm.show('Message', 'Title');
     expect(confirm.state.show).to.be.true();
     expect(confirm.state.message).to.equal('Message');
@@ -42,7 +42,7 @@ describe('Basic Confirm', function confirmTest() {
 
   it('- promise execution check - on confirm click', function test(done) {
     this.result = null;
-    const confirm = TestUtils.renderIntoDocument(<Basic.Confirm />);
+    const confirm = TestUtils.renderIntoDocument(<Basic.Confirm affixFooter={ false } />);
     confirm.show('Message', 'Title')
     .then(() => {
       done();
@@ -54,7 +54,7 @@ describe('Basic Confirm', function confirmTest() {
 
   it('- promise execution check - on confirm click', function test(done) {
     this.result = null;
-    const confirm = TestUtils.renderIntoDocument(<Basic.Confirm />);
+    const confirm = TestUtils.renderIntoDocument(<Basic.Confirm affixFooter={ false } />);
     confirm.show('Message', 'Title')
     .then(() => {
       done(new Error('confirm should be rejected - confirmed instead'));

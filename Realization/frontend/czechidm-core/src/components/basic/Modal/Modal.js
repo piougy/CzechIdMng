@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import _ from 'lodash';
+import ReactResizeDetector from 'react-resize-detector';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Loading from '../Loading/Loading';
@@ -95,18 +96,25 @@ export default class BasicModal extends AbstractComponent {
     const footerBottom = heightDifference - (event ? event.target.scrollTop : 0);
     const footerHeight = modalFooter.outerHeight();
     const modalMargin = (parseInt(modalDialog.css('margin-bottom'), 10) - 1) || 29; // FIXME: -1 => border bottom
+    const _fixedBottom = footerBottom +
+      (modalMargin - (footerBottom < -modalMargin ? (footerBottom + modalMargin) : 0)); // on end -> between dialog margin
+    const { fixedBottom } = this.state;
     //
-    // console.log('heightDifference', heightDifference);
+    if (fixedBottom === _fixedBottom) {
+      // => no change
+      return;
+    }
+    //
+    // console.log('_fixedBottom', _fixedBottom);
     this.setState({
+      fixedBottom: _fixedBottom,
       bodyStyle: {
         paddingBottom: footerHeight
       }
     }, () => {
       modalFooter.css({
         position: 'absolute',
-        bottom:
-          footerBottom +
-          (modalMargin - (footerBottom < -modalMargin ? (footerBottom + modalMargin) : 0)), // on end -> between dialog margin
+        bottom: _fixedBottom,
         backgroundColor: 'white',
         width: '100%',
         borderRadius: '0px 0px 6px 6px', // FIXME: by modal radius
@@ -116,6 +124,10 @@ export default class BasicModal extends AbstractComponent {
         cb();
       }
     });
+  }
+
+  onResize() {
+    this._setFooterStyle(null, null);
   }
 
   render() {
@@ -141,7 +153,7 @@ export default class BasicModal extends AbstractComponent {
         {
           showLoading
           ?
-          <Modal.Body onResize={ () => alert('fuj')}>
+          <Modal.Body>
             <Loading isStatic showLoading/>
           </Modal.Body>
           :
@@ -151,6 +163,7 @@ export default class BasicModal extends AbstractComponent {
         <Div
           style={ bodyStyle }
           className={ showLoading ? 'hidden' : '' }>
+          <ReactResizeDetector handleHeight onResize={ this.onResize.bind(this) } />
           { this.props.children }
         </Div>
       </Modal>

@@ -139,7 +139,8 @@ public class ChangeIdentityPermissionTest extends AbstractCoreWorkflowIntegratio
 	}
 
 	@After
-	public void logout() {
+	@Override
+	public void evictCaches() {
 		getHelper().setConfigurationValue(APPROVE_BY_SECURITY_ENABLE, false);
 		getHelper().setConfigurationValue(APPROVE_BY_MANAGER_ENABLE, false);
 		getHelper().setConfigurationValue(APPROVE_BY_HELPDESK_ENABLE, false);

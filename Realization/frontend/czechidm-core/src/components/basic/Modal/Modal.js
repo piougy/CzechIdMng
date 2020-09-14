@@ -38,6 +38,11 @@ export default class BasicModal extends AbstractComponent {
    * Add event listener
    */
   componentDidMount() {
+    const { affixFooter } = this.props;
+    if (!affixFooter) {
+      // affix footer is disabled
+      return;
+    }
     window.addEventListener('resize', this._setFooterStyle.bind(this, null, null));
   }
 
@@ -45,6 +50,11 @@ export default class BasicModal extends AbstractComponent {
    * Remove event listener
    */
   componentWillUnmount() {
+    const { affixFooter } = this.props;
+    if (!affixFooter) {
+      // affix footer is disabled
+      return;
+    }
     window.removeEventListener('resize', this._setFooterStyle.bind(this, null, null));
   }
 
@@ -76,6 +86,12 @@ export default class BasicModal extends AbstractComponent {
   }
 
   _setFooterStyle(cb, event) {
+    const { affixFooter } = this.props;
+    if (!affixFooter) {
+      // affix footer is disabled
+      return;
+    }
+    //
     // TODO: Using of findDOMNode is not recommended. Find a another solution.
     /* eslint-disable react/no-find-dom-node */
     const modal = $(ReactDOM.findDOMNode(this.modalRef.current));
@@ -126,12 +142,25 @@ export default class BasicModal extends AbstractComponent {
     });
   }
 
+  /**
+   * Resize modal body ~ content
+   */
   onResize() {
     this._setFooterStyle(null, null);
   }
 
   render() {
-    const { rendered, bsSize, showLoading, onEnter, onExit, enforceFocus, container, ...others } = this.props;
+    const {
+      rendered,
+      bsSize,
+      showLoading,
+      onEnter,
+      onExit,
+      enforceFocus,
+      container,
+      affixFooter,
+      ...others
+    } = this.props;
     const { bodyStyle } = this.state;
     //
     if (!rendered) {
@@ -144,7 +173,7 @@ export default class BasicModal extends AbstractComponent {
     return (
       <Modal
         ref={ this.modalRef }
-        onScroll={ this._setFooterStyle.bind(this, null) }
+        onScroll={ affixFooter ? this._setFooterStyle.bind(this, null) : null }
         onEnter={ this._onEnter.bind(this, onEnter) }
         onExit={ this._onExit.bind(this, onExit) }
         enforceFocus={ enforceFocus }
@@ -163,7 +192,11 @@ export default class BasicModal extends AbstractComponent {
         <Div
           style={ bodyStyle }
           className={ showLoading ? 'hidden' : '' }>
-          <ReactResizeDetector handleHeight onResize={ this.onResize.bind(this) } />
+          {
+            !affixFooter
+            ||
+            <ReactResizeDetector handleHeight onResize={ this.onResize.bind(this) } />
+          }
           { this.props.children }
         </Div>
       </Modal>
@@ -184,8 +217,11 @@ BasicModal.propTypes = {
   /**
    * Component size variations.
    */
-  bsSize: PropTypes.oneOf(_.concat(SUPPORTED_SIZES, 'default'))
-
+  bsSize: PropTypes.oneOf(_.concat(SUPPORTED_SIZES, 'default')),
+  /**
+   * Footer (~with buttons) will be affixed on the bottom.
+   */
+  affixFooter: PropTypes.bool
   /**
    * ... and other react bootstap modal props
    */
@@ -194,11 +230,14 @@ BasicModal.propTypes = {
 BasicModal.defaultProps = {
   ...AbstractComponent.defaultProps,
   bsSize: 'default',
-  enforceFocus: false
+  enforceFocus: false,
+  affixFooter: true
 };
 
 /**
- * FIXME: show loading icon has to be in <h2> tag
+ * Modal header
+ *
+ * @author Radek Tomiška
  */
 class BasicModalHeader extends AbstractComponent {
   render() {
@@ -241,9 +280,12 @@ class BasicModalHeader extends AbstractComponent {
 BasicModalHeader.propTypes = {
   ...AbstractComponent.propTypes,
   /**
-   * Header text
+   * Header text.
    */
-  text: PropTypes.any
+  text: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node
+  ])
 };
 
 BasicModalHeader.defaultProps = {

@@ -69,7 +69,7 @@
         "header": "Schéma systému",
         "title": "Schéma systému",
         "schemaObjectClassesHeader": "Typy objektů <small>na koncovém systému</small>",
-        "generateSchemaBtn": "Generovat schema",
+        "generateSchemaBtn": "Generovat schéma",
         "generateSchemaBtnTooltip": "Vygeneruje a uloží schéma do tohoto systému. Schéma se získá z napojeného konektoru, dle aktuální konfigurace. Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě.",
         "edit": {
           "header": "Detail typu objektu na koncovém systému"
@@ -2279,6 +2279,77 @@
         "label": "Opakovat provisioning operace (retry)",
         "help": "Opakovat neprovedené operace uložené ve frontě provisioningu (retry mechanismus). Při selhání provisioning operace se automaticky naplánuje čas dalšího pokusu. Tato úloha spustí operace v naplánovaném časem dalšího pokusu.",
         "icon": "component:scheduled-task"
+      }
+    }
+  },
+  "wizard": {
+    "create-system": {
+      "name": "Průvodce napojením systému",
+      "steps": {
+        "systemDetail": {
+          "name":  "Název systému",
+          "help": "V tomto kroku <strong>zvolte název systému</strong> tak, jak chcete aby se zobrazoval v IdM."
+        },
+        "connector": {
+          "name":  "Konektor",
+          "help": "<strong>Konektor umožňuje komunikaci s externím systémem.</strong> Vyberte konektor systému, který chcete napojit. Následně vyplňte nezbytné konfigurační položky.",
+          "validation": {
+            "missingConnectorKey": {
+              "title": "Konektor není vyplněn!",
+              "text": "Vyberte konektor systému, který chcete napojit!"
+            }
+          }
+        },
+        "schemas": {
+          "name":  "Schéma",
+          "help": "<strong>Schéma představuje strukturu externího systému.</strong> Je generováno na základě Vámi vybraného konektoru a konfigurace. Pokud byla konfigurace konektoru vyplěnna správně, mělo by stačit pouze stisknout talčítko <strong>'Generovat schéma'</strong>.",
+          "validation": {
+            "missingSchema": {
+              "title": "Není vytvořné, žádně schéma!",
+              "text": "Stiskněte 'Generovat schéma' a nebo jej vytvořte ručně."
+            }
+          }
+        },
+        "schemaNew": {
+          "name":  "Schéma"
+        },
+        "schema": {
+          "name":  "Schéma"
+        },
+        "schemaAttributeNew": {
+          "name":  "Atribut schéma"
+        },
+        "schemaAttribute": {
+          "name":  "Atribut schéma"
+        },
+        "mapping": {
+          "name":  "Mapování",
+          "help": "<strong>Mapování určuje zdali chceme z externího systému data extrahovat (synchronizace), či je do něj zapisovat (provisioning).</strong> Mapování dále definuje, s jakým typem objektu chceme v IdM pracovat (identita, role, kontrakt ...)."
+        },
+        "mappingNew": {
+          "name":  "Mapování"
+        },
+        "mappingAttributes": {
+          "name":  "Atributy",
+          "help": "<strong>V mapování atributů vytváříme vazby mezi atributy externího systému a atributy v IdM.</strong> Nejdůležitějším atributem je atribut, který slouží jako primární klíč (PK) daného účtu. Tento atribut musí být označen jako <strong>'Je identifikátorem'</strong>."
+        },
+        "mappingAttribute": {
+          "name":  "Atribut"
+        },
+        "mappingAttributeNew": {
+          "name":  "Atribut"
+        },
+        "sync": {
+          "name":  "Synchronizace",
+          "help": "<strong>V konfiguraci synchronizace vytváříme pravidla, jak se mají načítat data z externího systému.</strong> Synchronizaci můžete spustit po dokončení průvodce na záložce <strong>'Synchronizace'</strong> přímo u systému."
+        },
+        "syncNew": {
+          "name":  "Synchronizace"
+        },
+        "summary": {
+          "name":  "Shrnutí",
+          "text": "<h2>Gratulejeme,</h2><h3>Váš nový systém <strong>{{systemName}}</strong> byl úspěšně vytvořen.</h3><br/><br/>Po dokončení budete přesměrování na detail nového systému."
+        }
       }
     }
   },

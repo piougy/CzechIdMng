@@ -109,6 +109,10 @@ class SystemDetail extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
+    if (afterAction === 'CONTINUE' && this.isWizard()) {
+      // In wizard is continue mode not supported.
+      return;
+    }
     const entity = this.refs.form.getData();
 
     if (!this.refs.form.isFormValid()) {
@@ -170,7 +174,13 @@ class SystemDetail extends Basic.AbstractContent {
 
       this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       //
-      if (afterAction === 'CLOSE') {
+      if (this.isWizard()) {
+        // Set system to the wizard context.
+        this.context.wizardContext.entity = entity;
+        if (this.context.wizardContext.callBackNext) {
+          this.context.wizardContext.callBackNext();
+        }
+      } else if (afterAction === 'CLOSE') {
         // reload options with remote connectors
 
         this.context.history.replace(`/systems`);
@@ -181,6 +191,13 @@ class SystemDetail extends Basic.AbstractContent {
         this.context.history.replace(`/system/${entity.id}/detail`);
       }
     });
+  }
+
+  wizardNext() {
+    if (!this.isWizard()) {
+      return null;
+    }
+    this.save( 'WIZARD_NEXT');
   }
 
   render() {
@@ -204,11 +221,11 @@ class SystemDetail extends Basic.AbstractContent {
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
         <form onSubmit={this.save.bind(this, 'CONTINUE')}>
-          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
-            <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
+          <Basic.Panel className={Utils.Entity.isNew(entity) && !this.isWizard() ? '' : 'no-border last'}>
+            <Basic.PanelHeader rendered={!this.isWizard()} text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody
-              style={ Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }
+              style={ Utils.Entity.isNew(entity) && !this.isWizard() ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 } }
               showLoading={ _showLoading } >
               <Basic.AbstractForm
                 ref="form"
@@ -266,6 +283,7 @@ class SystemDetail extends Basic.AbstractContent {
                   ref="passwordPolicyValidate"
                   label={this.i18n('acc:entity.System.passwordPolicyValidate')}
                   placeholder={this.i18n('acc:entity.System.passwordPolicyValidate')}
+                  hidden={this.isWizard()}
                   manager={this.passwordPolicyManager}
                   forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
                     .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.VALIDATE))}/>
@@ -273,6 +291,7 @@ class SystemDetail extends Basic.AbstractContent {
                   ref="passwordPolicyGenerate"
                   label={this.i18n('acc:entity.System.passwordPolicyGenerate')}
                   placeholder={this.i18n('acc:entity.System.passwordPolicyGenerate')}
+                  hidden={this.isWizard()}
                   manager={this.passwordPolicyManager}
                   forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
                     .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.GENERATE))}/>
@@ -311,23 +330,27 @@ class SystemDetail extends Basic.AbstractContent {
                 <Basic.Checkbox
                   ref="queue"
                   label={this.i18n('acc:entity.System.queue.label')}
+                  hidden={this.isWizard()}
                   helpBlock={this.i18n('acc:entity.System.queue.help')}/>
                 <Basic.Checkbox
                   ref="createOperation"
                   label={this.i18n('acc:entity.BlockedOperation.createOperation.label')}
+                  hidden={this.isWizard()}
                   helpBlock={this.i18n('acc:entity.BlockedOperation.createOperation.help')}/>
                 <Basic.Checkbox
                   ref="updateOperation"
                   label={ this.i18n('acc:entity.BlockedOperation.updateOperation.label') }
+                  hidden={this.isWizard()}
                   helpBlock={ this.i18n('acc:entity.BlockedOperation.updateOperation.help') }/>
                 <Basic.Checkbox
                   ref="deleteOperation"
                   label={ this.i18n('acc:entity.BlockedOperation.deleteOperation.label') }
+                  hidden={this.isWizard()}
                   helpBlock={ this.i18n('acc:entity.BlockedOperation.deleteOperation.help') }/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 
-            <Basic.PanelFooter>
+            <Basic.PanelFooter rendered={!this.isWizard()}>
               <Basic.Button type="button" level="link" onClick={this.context.history.goBack}>{this.i18n('button.back')}</Basic.Button>
 
               <Basic.SplitButton
@@ -376,4 +399,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SystemDetail);
+export default connect(select, null, null, { forwardRef: true})(SystemDetail);

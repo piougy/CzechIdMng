@@ -69,7 +69,7 @@
         "header": "System scheme",
         "title": "Scheme",
         "schemaObjectClassesHeader": "Object types in system",
-        "generateSchemaBtn": "Generate scheme",
+        "generateSchemaBtn": "Generate the scheme",
         "generateSchemaBtnTooltip": "Generates and saves system scheme. Scheme is obtained from connector used by current configuration. When generating scheme, if object or attribute with the same name is found, it will be replaced by the current value in system. Other objects and attributes will remain unchanged.",
         "edit": {
           "header": "Object type details in system"
@@ -2277,6 +2277,77 @@
         "label": "Retry provisioning periodically",
         "help": "Retry failed operations in provisioning queue. Failed provisioning operations are automatically scheduled. This task runs such operations at scheduled time.",
         "icon": "component:scheduled-task"
+      }
+    }
+  },
+  "wizard": {
+    "create-system": {
+      "name": "System wizard",
+      "steps": {
+        "systemDetail": {
+          "name": "System name",
+          "help": "In this step, <strong>select the system name</strong> as you want it to appear in IdM."
+        },
+        "connector": {
+          "name": "Connector",
+          "help": "<strong>Connector allows communication with an external system.</strong> Select the system connector you want to connect. Then fill in the necessary configuration items.",
+          "validation": {
+            "missingConnectorKey": {
+              "title": "Connector not filled!",
+              "text": "Select the system connector you want to connect!"
+            }
+          }
+        },
+        "schemes": {
+          "name": "Schema",
+          "help": "<strong>The schema represents the structure of the external system.</strong> It is generated based on the connector and configuration you selected. If the connector configuration was completed correctly, all you have to do is press the <strong>'Generate the schema'</strong> button.",
+          "validation": {
+            "missingSchema": {
+              "title": "No scheme created!",
+              "text": "Press 'Generate the schema' or create it manually."
+            }
+          }
+        },
+        "schemaNew": {
+          "name": "Schema"
+        },
+        "schema": {
+          "name": "Schema"
+        },
+        "schemaAttributeNew": {
+          "name": "Schema attribute"
+        },
+        "schemaAttribute": {
+          "name": "Schema attribute"
+        },
+        "mapping": {
+          "name": "Mapping",
+          "help": "<strong>Mapping determines whether we want to extract data from the external system (synchronization) or write it to it (provisioning).</strong> The mapping further defines what type of object we want to work with in IdM (identity, role , contract ...). "
+        },
+        "mappingNew": {
+          "name": "Mapping"
+        },
+        "mappingAttributes": {
+          "name": "Attributes",
+          "help": "<strong>In attribute mapping, we create a link between an external system attribute and an attribute in IdM.</strong>"
+        },
+        "mappingAttribute": {
+          "name": "Attribute"
+        },
+        "mappingAttributeNew": {
+          "name": "Attribute"
+        },
+        "sync": {
+          "name": "Sync",
+          "help": "<strong>In the sync configuration, we create rules for retrieving data from the external system.</strong> You can start sync after completing the wizard on the <strong>'Synchronization'</strong> tab right on your system."
+        },
+        "syncNew": {
+          "name": "Sync"
+        },
+        "summary": {
+          "name": "Summary",
+          "text": "<h2>Congratulations,</h2> <h3>Your new system <strong>{{systemName}}</strong> has been successfully created.</h3><br/><br/>When wizard done, you will be redirected to the detail of the new system."
+        }
       }
     }
   },

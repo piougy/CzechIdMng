@@ -439,6 +439,15 @@
             "title": "Skrýt heslo"
           }
         }
+      },
+      "Wizard": {
+        "defaultHeader": "Průvodce",
+        "button": {
+          "next": "Další",
+          "previous": "Předchozí",
+          "finish": "Dokončit",
+          "skip": "Přeskočit"
+        }
       }
     },
     "advanced": {

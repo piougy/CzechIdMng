@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import { Basic, Advanced, Utils, Managers, Domain } from 'czechidm-core';
+import { Advanced, Basic, Domain, Managers, Utils } from 'czechidm-core';
 import uuid from 'uuid';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
+import SystemWizard from '../wizard/SystemWizard';
 //
 
 /**
@@ -94,6 +95,16 @@ export class SystemTable extends Advanced.AbstractTableContent {
   getTableButtons(showAddButton) {
     return (
       [
+        <Basic.Button
+          level="success"
+          key="add_button"
+          style={{marginRight: 5}}
+          className="btn-xs"
+          onClick={ this.props.showWizardDetail }
+          rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
+          icon="fa:list-ol">
+          { this.i18n('button.add') }
+        </Basic.Button>,
         <Basic.Button
           level="success"
           key="add_button"

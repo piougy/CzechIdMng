@@ -407,6 +407,15 @@
             "title": "Hide password"
           }
         }
+      },
+      "Wizard": {
+        "defaultHeader": "Wizard",
+        "button": {
+          "next": "Next",
+          "previous": "Previous",
+          "finish": "Finish",
+          "skip": "Skip"
+        }
       }
     },
     "advanced": {

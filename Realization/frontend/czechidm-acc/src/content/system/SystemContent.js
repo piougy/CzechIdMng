@@ -39,16 +39,17 @@ class SystemContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading, availableFrameworks } = this.props;
+    const { entity, showLoading, availableFrameworks, wizardStepId } = this.props;
+
     return (
       <Basic.Row>
-        <div className={ this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12' }>
+        <div className={ this._isNew() && !this.isWizard() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12' }>
           {
             showLoading || !availableFrameworks
             ?
             <Basic.Loading isStatic showLoading />
             :
-            <SystemDetail uiKey="system-detail" entity={ entity } />
+            <SystemDetail ref="systemDetail" uiKey="system-detail" entity={ entity } wizardStepId={wizardStepId} />
           }
         </div>
       </Basic.Row>
@@ -74,4 +75,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SystemContent);
+export default connect(select, null, null, { forwardRef: true})(SystemContent);

@@ -48,6 +48,7 @@ import Link from './Link/Link';
 import ShortText from './ShortText/ShortText';
 import Div from './Div/Div';
 import ToggleSwitch from './ToggleSwitch/ToggleSwitch';
+import Wizard from './Wizard/Wizard';
 
 const Components = {
   AbstractComponent,
@@ -113,8 +114,9 @@ const Components = {
   Link,
   ShortText,
   Div,
-  ToggleSwitch
+  ToggleSwitch,
+  Wizard
 };
 
-Components.version = '10.4.0';
+Components.version = '10.6.0';
 module.exports = Components;

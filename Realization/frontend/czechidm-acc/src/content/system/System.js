@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { Basic, Advanced } from 'czechidm-core';
+import { Advanced, Basic } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
 const manager = new SystemManager();
@@ -31,10 +31,9 @@ class System extends Basic.AbstractContent {
           back={ (entity && entity.virtual === true) ? '/vs/systems' : '/systems' }>
           { this.i18n('acc:content.system.detail.edit.header', { name: manager.getNiceLabel(entity), escape: false }) }
         </Advanced.DetailHeader>
-
-        <Advanced.TabPanel parentId="sys-systems" match={ this.props.match }>
+         <Advanced.TabPanel parentId="sys-systems" match={ this.props.match }>
           { this.getRoutes() }
-        </Advanced.TabPanel>
+         </Advanced.TabPanel>
       </Basic.Div>
     );
   }

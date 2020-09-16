@@ -36,9 +36,29 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
     if (add) {
       const uuidId = uuid.v1();
       const objectClassId = this.props._schemaObjectClass.id;
-      this.context.history.push(`/system/${systemId}/schema-attributes/${uuidId}/new?new=1&objectClassId=${objectClassId}`);
+      // If is in the wizard, then active step will be change to this attribute.
+      if ( this.isWizard() ) {
+        const activeStep = this.context.wizardContext.activeStep;
+        if (activeStep) {
+          activeStep.id = 'schemaAttributeNew';
+          activeStep.objectClass = this.props._schemaObjectClass;
+          this.context.wizardContext.wizardForceUpdate();
+        }
+      } else {
+        this.context.history.push(`/system/${systemId}/schema-attributes/${uuidId}/new?new=1&objectClassId=${objectClassId}`);
+      }
     } else {
-      this.context.history.push(`/system/${systemId}/schema-attributes/${entity.id}/detail`);
+      // If is in the wizard, then active step will be change to this attribute.
+      if ( this.isWizard() ) {
+        const activeStep = this.context.wizardContext.activeStep;
+        if (activeStep) {
+          activeStep.id = 'schemaAttribute';
+          activeStep.attributeId = entity;
+          this.context.wizardContext.wizardForceUpdate();
+        }
+      } else {
+        this.context.history.push(`/system/${systemId}/schema-attributes/${entity.id}/detail`);
+      }
     }
   }
 
@@ -96,11 +116,40 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
       const systemId = this.props.match.params.entityId;
       this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
       if (this._getIsNew()) {
-        this.context.history.replace(`/system/${systemId}/object-classes/${entity.id}/detail`, {objectClassId: entity.id});
+        // Complete wizard step.
+        // Set new entity to the wizard context and go to next step.
+        if ( this.isWizard() ) {
+          const activeStep = this.context.wizardContext.activeStep;
+          if (activeStep) {
+            activeStep.id = 'schema';
+            activeStep.objectClass = entity;
+            this.context.wizardContext.wizardForceUpdate();
+          }
+        } else {
+          this.context.history.replace(`/system/${systemId}/object-classes/${entity.id}/detail`, {objectClassId: entity.id});
+        }
       }
     } else {
       this.addError(error);
     }
+  }
+
+  goBack() {
+    if ( this.isWizard() ) {
+      // If is component in the wizard, then set new ID (master component)
+      // to the active action and render wizard.
+      const activeStep = this.context.wizardContext.activeStep;
+      if (activeStep) {
+        activeStep.id = 'schemas';
+        this.context.wizardContext.wizardForceUpdate();
+      }
+    } else {
+      this.context.history.goBack();
+    }
+  }
+
+  wizardAddButtons(showLoading) {
+    return this.renderButtons(showLoading);
   }
 
   closeDetail() {
@@ -112,6 +161,26 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
     return (query) ? query.new : null;
   }
 
+  renderButtons(_showLoading) {
+    return <span>
+      <Basic.Button
+        type="button"
+        level="link"
+        onClick={this.goBack.bind(this)}
+        showLoading={_showLoading}>
+        {this.i18n('button.back')}
+      </Basic.Button>
+      <Basic.Button
+        level="success"
+        type={this.isWizard() ? 'button' : 'submit'}
+        onClick={this.isWizard() ? this.save.bind(this) : null}
+        rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+        showLoading={_showLoading}>
+        {this.i18n('button.saveAndContinue')}
+      </Basic.Button>
+    </span>;
+  }
+
   render() {
     const { _showLoading, _schemaObjectClass} = this.props;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : Domain.SearchParameters.BLANK_UUID);
@@ -121,12 +190,12 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-          <Helmet title={this.i18n('title')} />
+          <Helmet title={this.i18n('title')}/>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
           <Basic.ContentHeader>
             <Basic.Icon value="compressed"/>
             {' '}
-            <span dangerouslySetInnerHTML={{ __html: this.i18n('objectClassHeader') }}/>
+            <span dangerouslySetInnerHTML={{__html: this.i18n('objectClassHeader')}}/>
           </Basic.ContentHeader>
           <Basic.Panel className="no-border">
             <Basic.AbstractForm ref="form" data={schemaObjectClass} showLoading={_showLoading}>
@@ -135,40 +204,31 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
                 manager={systemManager}
                 label={this.i18n('acc:entity.SchemaObjectClass.system')}
                 readOnly
+                hidden={this.isWizard()}
                 required/>
               <Basic.TextField
                 ref="objectClassName"
                 label={this.i18n('acc:entity.SchemaObjectClass.objectClassName')}
                 required
                 max={255}/>
-              <Basic.Checkbox hidden
+              <Basic.Checkbox
+                hidden
                 ref="container"
                 label={this.i18n('acc:entity.SchemaObjectClass.container')}/>
-              <Basic.Checkbox hidden
+              <Basic.Checkbox
+                hidden
                 ref="auxiliary"
                 label={this.i18n('acc:entity.SchemaObjectClass.auxiliary')}/>
             </Basic.AbstractForm>
-            <Basic.PanelFooter>
-              <Basic.Button type="button" level="link"
-                onClick={this.context.history.goBack}
-                showLoading={_showLoading}>
-                {this.i18n('button.back')}
-              </Basic.Button>
-              <Basic.Button
-                onClick={this.save.bind(this)}
-                level="success"
-                type="submit"
-                rendered={ Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE']) }
-                showLoading={_showLoading}>
-                {this.i18n('button.saveAndContinue')}
-              </Basic.Button>
+            <Basic.PanelFooter rendered={!this.isWizard()}>
+              {this.renderButtons(_showLoading)}
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-        <Basic.ContentHeader rendered={schemaObjectClass && !isNew} style={{ marginBottom: 0 }}>
+        <Basic.ContentHeader rendered={schemaObjectClass && !isNew} style={{marginBottom: 0}}>
           <Basic.Icon value="list"/>
           {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('schemaAttributesHeader') }}/>
+          <span dangerouslySetInnerHTML={{__html: this.i18n('schemaAttributesHeader')}}/>
         </Basic.ContentHeader>
         <Basic.Panel rendered={schemaObjectClass && !isNew} className="no-border last">
           <Advanced.Table
@@ -179,10 +239,10 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])
-              ?
-              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-              :
-              null
+                ?
+                [{value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false}]
+                :
+                null
             }
             buttons={
               [
@@ -190,7 +250,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
                   level="success"
                   key="add_button"
                   className="btn-xs"
-                  onClick={this.showDetail.bind(this, { }, true)}
+                  onClick={this.showDetail.bind(this, {}, true)}
                   rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
@@ -220,7 +280,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
               header=""
               className="detail-button"
               cell={
-                ({ rowIndex, data }) => {
+                ({rowIndex, data}) => {
                   return (
                     <Advanced.DetailButton
                       title={this.i18n('button.detail')}
@@ -232,7 +292,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
               to={`/system/${systemId}/schema-attributes/:id/detail`}
               property="name"
               header={this.i18n('acc:entity.SchemaAttribute.name')}
-              sort />
+              sort/>
             <Advanced.Column property="classType" header={this.i18n('acc:entity.SchemaAttribute.classType')} sort/>
             <Advanced.Column property="required" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.required')} sort/>
             <Advanced.Column property="multivalued" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.multivalued')} sort/>

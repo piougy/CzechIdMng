@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import { SearchParameters } from '../../../domain';
@@ -132,6 +133,7 @@ class Pagination extends AbstractContextComponent {
    * Jump to page top
    */
   jumpTop() {
+    // FIXME: doesn't work in modals => window  scroll is overidden with modal scroll
     $('html, body').animate({
       scrollTop: 0
     }, 'fast');

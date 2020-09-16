@@ -51,6 +51,11 @@ function getCommonProps(ComponentType) {
       commonProps[typeSpecName] = '2011-01-01';
       continue;
     }
+    if (ComponentType.name === 'Modal' && typeSpecName === 'affixFooter') {
+      // resize feature is not available in tests
+      commonProps[typeSpecName] = false;
+      continue;
+    }
     if (!_.includes(commonPropNames, typeSpecName)) {
       continue;
     }

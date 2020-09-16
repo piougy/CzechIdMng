@@ -375,6 +375,34 @@ public class DefaultIdmRoleRequestServiceIntegrationTest extends AbstractCoreWor
 		}).findAny().orElse(null);
 		assertNotNull(conceptTwo);
 	}
+	
+	@Test
+	public void testCopyRolesByIdentityWithoutTestTransaction() {
+		IdmIdentityDto identity = getHelper().createIdentity((GuardedString) null);
+		IdmRoleDto role = this.getHelper().createRole();
+		for (int i = 0; i < 21; i++) {
+			this.getHelper().createIdentityRole(identity, role);
+		}
+
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findAllByIdentity(identity.getId());
+		Assert.assertEquals(21, assignedRoles.size());
+		List<UUID> identityRolesId = assignedRoles.stream().map(IdmIdentityRoleDto::getId).collect(Collectors.toList());
+
+		IdmIdentityDto identityCopy = this.getHelper().createIdentity((GuardedString) null);
+		IdmIdentityContractDto contractCopy = getHelper().getPrimeContract(identityCopy);
+
+		IdmRoleRequestDto createdRequest = roleRequestService.createRequest(contractCopy);
+
+		IdmRoleRequestByIdentityDto requestByIdentityDto = new IdmRoleRequestByIdentityDto();
+		requestByIdentityDto.setIdentityContract(contractCopy.getId());
+		requestByIdentityDto.setIdentityRoles(identityRolesId);
+		requestByIdentityDto.setRoleRequest(createdRequest.getId());
+		IdmRoleRequestDto copyRolesByIdentity = roleRequestService.copyRolesByIdentity(requestByIdentityDto);
+		Assert.assertNotNull(copyRolesByIdentity);
+		List<IdmConceptRoleRequestDto> concepts = conceptRoleRequestService
+				.findAllByRoleRequest(copyRolesByIdentity.getId());
+		assertEquals(21, concepts.size());
+	}
 
 	@Test
 	@Transactional

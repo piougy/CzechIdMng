@@ -1,18 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import $ from 'jquery';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 /**
  * Loading indicator.
  *
- * Be careful: prevent to use Basic.Div inside => cicrular reference.
+ * ! Be careful: prevent to use Basic.Div inside => cicrular reference.
  *
  * @author Radek Tomiška
  */
 class Loading extends AbstractComponent {
+
+  constructor(props, context) {
+    super(props, context);
+    //
+    this.containerRef = React.createRef();
+  }
 
   _showLoading() {
     const { showLoading, show } = this.props;
@@ -25,21 +31,19 @@ class Loading extends AbstractComponent {
     if (!showLoading) {
       return;
     }
-    if (typeof $ !== 'undefined') {
-      const panel = $(ReactDOM.findDOMNode(this.refs.container));
-      const loading = panel.find('.loading');
-      if (loading.hasClass('global') || loading.hasClass('static')) {
-        // we don't want resize loading container
-        return;
-      }
-      // TODO: offset, scroll
-      loading.css({
-        top: panel.position().top, // TODO: check, if panel contains top header and calculate with header height (now 50 hardcoded)
-        left: panel.position().left,
-        width: panel.width(),
-        height: panel.height()
-      });
+    const panel = $(this.containerRef.current);
+    const loading = panel.find('.loading');
+    if (loading.hasClass('global') || loading.hasClass('static')) {
+      // we don't want resize loading container
+      return;
     }
+    // TODO: offset, scroll
+    loading.css({
+      top: panel.position().top, // TODO: check, if panel contains top header and calculate with header height (now 50 hardcoded)
+      left: panel.position().left,
+      width: panel.width(),
+      height: panel.height()
+    });
   }
 
   componentDidMount() {
@@ -89,7 +93,7 @@ class Loading extends AbstractComponent {
     //
     return (
       <div
-        ref="container"
+        ref={ this.containerRef }
         className={ _containerClassNames }
         style={ style }
         title={ containerTitle }

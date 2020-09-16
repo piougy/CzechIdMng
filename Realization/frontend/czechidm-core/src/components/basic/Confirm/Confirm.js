@@ -79,7 +79,7 @@ class Confirm extends AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, level } = this.props;
+    const { rendered, showLoading, level, affixFooter } = this.props;
     const { title, message, show } = this.state;
     if (!rendered) {
       return null;
@@ -87,7 +87,7 @@ class Confirm extends AbstractContextComponent {
 
     return (
       <span>
-        <Modal show={show} showLoading={showLoading} onHide={this.closeModal.bind(this)}>
+        <Modal show={show} showLoading={showLoading} onHide={this.closeModal.bind(this)} affixFooter={ affixFooter }>
           <Modal.Header text={title} rendered={title !== undefined && title !== null} />
           <Modal.Body>
             <span dangerouslySetInnerHTML={{ __html: message }}/>
@@ -109,13 +109,18 @@ Confirm.propTypes = {
    * if confirm dialog is shown
    */
   show: PropTypes.bool,
-  level: Button.propTypes.level
+  level: Button.propTypes.level,
+  /**
+   * Confirm dialog buttons affix.
+   */
+  affixFooter: PropTypes.bool
 };
 
 Confirm.defaultProps = {
   ...AbstractContextComponent.defaultProps,
   show: false,
-  level: 'success'
+  level: 'success',
+  affixFooter: true
 };
 
 export default Confirm;

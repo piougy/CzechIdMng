@@ -18,6 +18,7 @@ public enum NotificationGroupPermission implements GroupPermission {
 	
 	NOTIFICATION(
 			IdmBasePermission.ADMIN, 
+			IdmBasePermission.COUNT, 
 			IdmBasePermission.READ, 
 			IdmBasePermission.CREATE, 
 			IdmBasePermission.UPDATE,
@@ -39,6 +40,7 @@ public enum NotificationGroupPermission implements GroupPermission {
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
+	public static final String NOTIFICATION_COUNT = "NOTIFICATION" + BasePermission.SEPARATOR + "COUNT";
 	public static final String NOTIFICATION_READ = "NOTIFICATION" + BasePermission.SEPARATOR + "READ";
 	public static final String NOTIFICATION_CREATE = "NOTIFICATION" + BasePermission.SEPARATOR + "CREATE";
 	public static final String NOTIFICATION_UPDATE = "NOTIFICATION" + BasePermission.SEPARATOR + "UPDATE";

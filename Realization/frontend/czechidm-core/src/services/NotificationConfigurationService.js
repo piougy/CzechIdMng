@@ -3,6 +3,11 @@ import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
 
+/**
+ * Configuration for notifications.
+ *
+ * @author Radek Tomiška
+ */
 export default class NotificationService extends AbstractService {
 
   getApiPath() {
@@ -32,11 +37,11 @@ export default class NotificationService extends AbstractService {
   /**
    * Returns supported notification types
    *
-   * @return {[type]} [description]
+   * @return {promise}
    */
   getSupportedNotificationTypes() {
     return RestApiService
-      .get(this.getApiPath() + `/all/notification-types`)
+      .get(`${ this.getApiPath() }/all/notification-types`)
       .then(response => {
         return response.json();
       })

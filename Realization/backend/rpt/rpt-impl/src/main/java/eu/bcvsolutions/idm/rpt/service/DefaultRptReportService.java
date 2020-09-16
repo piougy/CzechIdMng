@@ -88,6 +88,7 @@ public class DefaultRptReportService
 	@Override
 	@Transactional
 	public void deleteInternal(RptReportDto dto) {
+		Assert.notNull(dto, "Dto is required for delete.");
 		// delete filter
 		commonFormService.deleteForms(dto);
 		// delete attachments

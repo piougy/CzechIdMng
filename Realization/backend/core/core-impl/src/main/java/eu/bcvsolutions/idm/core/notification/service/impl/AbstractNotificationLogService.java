@@ -11,16 +11,20 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationAttachmentFilter;
 import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationAttachmentService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage_;
@@ -45,6 +49,9 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 		extends AbstractReadWriteDtoService<DTO, E, F>
 		implements AuthorizableService<IdmNotificationDto> {
 
+	@Autowired private AttachmentManager attachmentManager;
+	@Autowired private IdmNotificationAttachmentService notificationAttachmentService;
+	
     public AbstractNotificationLogService(AbstractEntityRepository<E> repository) {
         super(repository);
     }
@@ -63,6 +70,15 @@ public class AbstractNotificationLogService<DTO extends IdmNotificationDto, E ex
 		try {
 			//
 	    	// delete recipients is done by hiberante mapping - see IdmNotification
+			//
+			// delete notification attachments
+			IdmNotificationAttachmentFilter notificationAttachmentFilter = new IdmNotificationAttachmentFilter();
+			notificationAttachmentService
+				.find(notificationAttachmentFilter, null)
+				.forEach(notificationAttachmentService::delete);
+			//
+			// delete attachments - owned by notification only
+			attachmentManager.deleteAttachments(dto);
 	    	//
 	    	// delete child notifications ... 
 			F filter = getFilterClass().getDeclaredConstructor().newInstance();

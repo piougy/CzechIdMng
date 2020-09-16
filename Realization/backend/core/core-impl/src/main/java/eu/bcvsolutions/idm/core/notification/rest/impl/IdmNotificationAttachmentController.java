@@ -1,15 +1,22 @@
 package eu.bcvsolutions.idm.core.notification.rest.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,13 +27,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.config.swagger.SwaggerConfig;
-import eu.bcvsolutions.idm.core.api.dto.IdmIdentityDto;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.EntityNotFoundException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteDtoController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseDtoController;
-import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationRecipientDto;
-import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationRecipientFilter;
-import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationRecipientService;
+import eu.bcvsolutions.idm.core.ecm.api.dto.IdmAttachmentDto;
+import eu.bcvsolutions.idm.core.ecm.api.service.AttachmentManager;
+import eu.bcvsolutions.idm.core.notification.api.dto.IdmNotificationAttachmentDto;
+import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationAttachmentFilter;
+import eu.bcvsolutions.idm.core.notification.api.service.IdmNotificationAttachmentService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,25 +46,27 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 
 /**
- * Read notification recipients.
+ * Read notification attachments.
  * 
- * @author Peter Sourek
  * @author Radek Tomiška
+ * @since 10.6.0
  */
 @RestController
-@RequestMapping(value = BaseDtoController.BASE_PATH + "/notification-recipients")
+@RequestMapping(value = BaseDtoController.BASE_PATH + "/notification-attachments")
 @Api(
-		value = IdmNotificationRecipientController.TAG, 
-		description = "Read notification recipients", 
-		tags = { IdmNotificationRecipientController.TAG }, 
+		value = IdmNotificationAttachmentController.TAG, 
+		description = "Read notification attachments", 
+		tags = { IdmNotificationAttachmentController.TAG }, 
 		produces = BaseController.APPLICATION_HAL_JSON_VALUE,
 		consumes = MediaType.APPLICATION_JSON_VALUE)
-public class IdmNotificationRecipientController extends AbstractReadWriteDtoController<IdmNotificationRecipientDto, IdmNotificationRecipientFilter> {
+public class IdmNotificationAttachmentController extends AbstractReadWriteDtoController<IdmNotificationAttachmentDto, IdmNotificationAttachmentFilter> {
 
-	protected static final String TAG = "Notification recipients";
+	protected static final String TAG = "Notification attachments";
+	//
+	@Autowired private AttachmentManager attachmentManager;
 	
     @Autowired
-    public IdmNotificationRecipientController(IdmNotificationRecipientService service) {
+    public IdmNotificationAttachmentController(IdmNotificationAttachmentService service) {
         super(service);
     }
 
@@ -62,9 +75,9 @@ public class IdmNotificationRecipientController extends AbstractReadWriteDtoCont
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	@ApiOperation(
-			value = "Search notification recipients (/search/quick alias)", 
-			nickname = "searchNotificationRecipients", 
-			tags = { IdmNotificationRecipientController.TAG }, 
+			value = "Search notification attachments (/search/quick alias)", 
+			nickname = "searchNotificationAttachments", 
+			tags = { IdmNotificationAttachmentController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "") }),
@@ -81,9 +94,9 @@ public class IdmNotificationRecipientController extends AbstractReadWriteDtoCont
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	@ApiOperation(
-			value = "Search notification recipients", 
-			nickname = "searchQuickNotificationRecipients", 
-			tags = { IdmNotificationRecipientController.TAG }, 
+			value = "Search notification attachments", 
+			nickname = "searchQuickNotificationAttachments", 
+			tags = { IdmNotificationAttachmentController.TAG }, 
 			authorizations = {
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "") }),
@@ -102,8 +115,8 @@ public class IdmNotificationRecipientController extends AbstractReadWriteDtoCont
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_COUNT + "')")
 	@ApiOperation(
 			value = "The number of entities that match the filter", 
-			nickname = "countNotificationRecipients", 
-			tags = { IdmNotificationRecipientController.TAG }, 
+			nickname = "countNotificationAttachments", 
+			tags = { IdmNotificationAttachmentController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_COUNT, description = "") }),
@@ -119,10 +132,10 @@ public class IdmNotificationRecipientController extends AbstractReadWriteDtoCont
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	@ApiOperation(
-			value = "Notification recipient detail", 
-			nickname = "getNotificationRecipient", 
-			response = IdmNotificationRecipientDto.class, 
-			tags = { IdmNotificationRecipientController.TAG }, 
+			value = "Notification attachment detail", 
+			nickname = "getNotificationAttachment", 
+			response = IdmNotificationAttachmentDto.class, 
+			tags = { IdmNotificationAttachmentController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "") }),
@@ -130,7 +143,7 @@ public class IdmNotificationRecipientController extends AbstractReadWriteDtoCont
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "") })
 				})
 	public ResponseEntity<?> get(
-			@ApiParam(value = "Recipient's uuid identifier.", required = true)
+			@ApiParam(value = "Notification attachment uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
@@ -141,8 +154,8 @@ public class IdmNotificationRecipientController extends AbstractReadWriteDtoCont
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	@ApiOperation(
 			value = "What logged identity can do with given record", 
-			nickname = "getPermissionsOnNotificationRecipient", 
-			tags = { IdmNotificationRecipientController.TAG }, 
+			nickname = "getPermissionsOnNotificationAttachment", 
+			tags = { IdmNotificationAttachmentController.TAG }, 
 			authorizations = { 
 				@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")}),
@@ -150,20 +163,60 @@ public class IdmNotificationRecipientController extends AbstractReadWriteDtoCont
 						@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "")})
 				})
 	public Set<String> getPermissions(
-			@ApiParam(value = "Notification recipient uuid identifier.", required = true)
+			@ApiParam(value = "Notification attachment uuid identifier.", required = true)
 			@PathVariable @NotNull String backendId) {
 		return super.getPermissions(backendId);
 	}
+	
+	@RequestMapping(value = "/{backendId}/download", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	@ApiOperation(
+			value = "Download notification attachment", 
+			nickname = "downloadNotificationAttachment",
+			tags = { IdmNotificationAttachmentController.TAG },
+			notes = "Returns input stream to notification attachment.",
+			authorizations = {
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_BASIC, scopes = { 
+							@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "") }),
+					@Authorization(value = SwaggerConfig.AUTHENTICATION_CIDMST, scopes = { 
+							@AuthorizationScope(scope = NotificationGroupPermission.NOTIFICATION_READ, description = "") })
+					})
+	public ResponseEntity<InputStreamResource> download(
+			@ApiParam(value = "Notification attachment uuid identifier.", required = true)
+			@PathVariable String backendId) {
+		IdmNotificationAttachmentDto dto = getDto(backendId);
+		if (dto == null) {
+			throw new EntityNotFoundException(getService().getEntityClass(), backendId);
+		}
+		//
+		UUID attachmentId = dto.getAttachment();
+		IdmAttachmentDto attachment = attachmentManager.get(attachmentId);
+		if (attachment == null) {
+			throw new EntityNotFoundException(attachmentManager.getEntityClass(), attachmentId);
+		}
+		//
+		InputStream is = attachmentManager.getAttachmentData(attachment.getId());
+		//
+		try {
+			BodyBuilder response = ResponseEntity
+					.ok()
+					.contentLength(is.available())
+					.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", attachment.getName()));
+			// append media type, if it's filled
+			String mimetype = attachment.getMimetype();
+			if (StringUtils.isNotBlank(mimetype)) {
+				response = response.contentType(MediaType.valueOf(attachment.getMimetype()));
+			}
+			//
+			return response.body(new InputStreamResource(is));
+		} catch (IOException e) {
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
+		}
+	}
 
 	@Override
-	protected IdmNotificationRecipientFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdmNotificationRecipientFilter filter = new IdmNotificationRecipientFilter(parameters, getParameterConverter());
-		filter.setIdentityRecipient(getParameterConverter().toEntityUuid(
-				parameters, 
-				IdmNotificationRecipientFilter.PARAMETER_IDENTITY_RECIPIENT, 
-				IdmIdentityDto.class
-		));
-		//
-		return filter;
+	protected IdmNotificationAttachmentFilter toFilter(MultiValueMap<String, Object> parameters) {
+		return new IdmNotificationAttachmentFilter(parameters, getParameterConverter());
 	}
 }

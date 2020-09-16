@@ -26,13 +26,10 @@ public class IdmMessageDto extends AbstractDto {
 
     @JsonProperty("level")
     private NotificationLevel level = DEFAULT_LEVEL;
-
     @JsonProperty("model")
     private ResultModel model;
-
     @JsonProperty("template")
     private IdmNotificationTemplateDto template;
-
     private String subject;
     private String textMessage;
     private String htmlMessage;

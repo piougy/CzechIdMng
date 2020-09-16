@@ -9,8 +9,7 @@ import eu.bcvsolutions.idm.core.notification.api.dto.filter.IdmNotificationRecip
  *
  * @author Peter Šourek
  */
-public interface IdmNotificationRecipientService extends 
-		ReadWriteDtoService<IdmNotificationRecipientDto, 
-		IdmNotificationRecipientFilter> {
+public interface IdmNotificationRecipientService extends
+		ReadWriteDtoService<IdmNotificationRecipientDto, IdmNotificationRecipientFilter> {
 
 }

@@ -1,9 +1,14 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
-class NotificationRecipientService extends AbstractService {
+/**
+ * Notification recipient service.
+ *
+ * @author Radek Tomiška
+ * @author Peter Šourek
+ */
+export default class NotificationRecipientService extends AbstractService {
 
-  const
   getApiPath() {
     return '/notification-recipients';
   }
@@ -12,10 +17,7 @@ class NotificationRecipientService extends AbstractService {
     if (!entity) {
       return '';
     }
-    if (entity.module) {
-      return `${entity.name} (${entity.module})`;
-    }
-    return entity.name;
+    return entity.realRecipient;
   }
 
   supportsPatch() {
@@ -28,8 +30,6 @@ class NotificationRecipientService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK);
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('realRecipient');
   }
 }
-
-export default NotificationRecipientService;

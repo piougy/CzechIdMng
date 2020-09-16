@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  * @author Radek Tomiška
  *
  */
-public class IdmNotificationLogRestTest extends AbstractReadWriteDtoControllerRestTest<IdmNotificationLogDto> {
+public class IdmNotificationLogControllerRestTest extends AbstractReadWriteDtoControllerRestTest<IdmNotificationLogDto> {
 
 	@Autowired private IdmNotificationLogController controller;
 	

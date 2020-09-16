@@ -3643,6 +3643,9 @@
       },
       "sent": {
         "success": "Odeslání notifikace bylo úspěšné"
+      },
+      "attachments": {
+        "header": "Přílohy"
       }
     },
     "notificationTemplate": {

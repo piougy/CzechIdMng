@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationState;
 
 /**
- * Filter for notifications (notification, email ...)
+ * Filter for notifications (notification, email ...).
  * 
  * TODO: data filter
  * 

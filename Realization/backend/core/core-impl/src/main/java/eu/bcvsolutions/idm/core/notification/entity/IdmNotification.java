@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.ecm.api.entity.AttachableEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.notification.domain.BaseNotification;
 
@@ -43,7 +44,7 @@ import eu.bcvsolutions.idm.core.notification.domain.BaseNotification;
 		@Index(name = "idx_idm_notification_parent", columnList = "parent_notification_id")
 		})
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class IdmNotification extends AbstractEntity implements BaseNotification {
+public abstract class IdmNotification extends AbstractEntity implements BaseNotification, AttachableEntity {
 
 	private static final long serialVersionUID = -2038771692205141212L;
 

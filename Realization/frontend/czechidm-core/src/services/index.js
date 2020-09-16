@@ -88,6 +88,7 @@ import ImportLogService from './ImportLogService';
 import DelegationDefinitionService from './DelegationDefinitionService';
 import DelegationService from './DelegationService';
 import BulkActionService from './BulkActionService';
+import NotificationAttachmentService from './NotificationAttachmentService';
 
 const ServiceRoot = {
   RestApiService,
@@ -137,6 +138,7 @@ const ServiceRoot = {
   ContractGuaranteeService,
   ContractPositionService,
   NotificationRecipientService,
+  NotificationAttachmentService,
   SmsService,
   RecaptchaService,
   LoggingEventService,
@@ -175,5 +177,5 @@ const ServiceRoot = {
   BulkActionService
 };
 
-ServiceRoot.version = '10.4.0';
+ServiceRoot.version = '10.6.0';
 module.exports = ServiceRoot;

@@ -6409,7 +6409,7 @@
         "icon": "component:scheduled-task"
       },
       "core-hr-end-contract-long-running-task": {
-        "label": "HR procss - ukončení pracovně právního vztahu",
+        "label": "HR proces - ukončení pracovně právního vztahu",
         "help": "Úloha zpracuje pracovně právní vztahy, které jsou ukončené (neaktivní).",
         "icon": "component:scheduled-task"
       },

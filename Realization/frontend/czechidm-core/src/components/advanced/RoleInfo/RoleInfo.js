@@ -25,8 +25,9 @@ export class RoleInfo extends AbstractEntityInfo {
 
   getNiceLabel(entity) {
     const { showEnvironment, showCode } = this.props;
+    const _entity = this.getEntity(entity);
     //
-    return this.getManager().getNiceLabel(entity, showEnvironment, showCode);
+    return this.getManager().getNiceLabel(_entity, showEnvironment, showCode);
   }
 
   showLink() {
@@ -81,7 +82,7 @@ export class RoleInfo extends AbstractEntityInfo {
   }
 
   _renderIcon() {
-    const {showTree} = this.props;
+    const { showTree } = this.props;
     if (showTree) {
       return null;
     }

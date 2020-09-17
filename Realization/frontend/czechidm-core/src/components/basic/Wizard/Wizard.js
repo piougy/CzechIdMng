@@ -159,6 +159,7 @@ export default class Wizard extends AbstractContextComponent {
       }
       step.isActive = false;
       step.isDone = !skip;
+      this.setShowLoading(false);
       this.forceUpdate();
     };
 

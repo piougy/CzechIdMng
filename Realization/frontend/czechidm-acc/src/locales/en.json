@@ -2298,7 +2298,7 @@
             }
           }
         },
-        "schemes": {
+        "schemas": {
           "name": "Schema",
           "help": "<strong>The schema represents the structure of the external system.</strong> It is generated based on the connector and configuration you selected. If the connector configuration was completed correctly, all you have to do is press the <strong>'Generate the schema'</strong> button.",
           "validation": {

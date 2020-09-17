@@ -86,7 +86,7 @@ class AbstractContextComponent extends AbstractComponent {
       && context.wizardContext.activeStep.id && this.props.wizardStepId
     ) {
       const wizardContext = this.context.wizardContext;
-      if ( this.state && wizardContext.setShowLoading && wizardContext.componentCallBackNext ) {
+      if ( this.state && wizardContext.setShowLoading ) {
         const {_showLoading, showLoading} = this.state;
         wizardContext.setShowLoading(
           _showLoading

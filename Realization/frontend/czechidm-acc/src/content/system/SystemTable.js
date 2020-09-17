@@ -110,7 +110,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
           key="add_button"
           className="btn-xs"
           onClick={ this.showDetail.bind(this, { }) }
-          rendered={ Managers.SecurityManager.hasAuthority('SYSTEM_CREATE') && showAddButton }
+          rendered={ false }
           icon="fa:plus">
           { this.i18n('button.add') }
         </Basic.Button>

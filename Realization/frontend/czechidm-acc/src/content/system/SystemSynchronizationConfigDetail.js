@@ -556,7 +556,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
     const {_showLoading, _synchronizationConfig} = this.props;
     const {systemMappingId, showLoading, activeKey, entityType, enabled} = this.state;
     const isNew = this._getIsNew();
-    const innerShowLoading = isNew ? showLoading : (_showLoading || showLoading);
+    const innerShowLoading = _showLoading || showLoading;
     const systemId = this.props.match.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters()
       .setFilter('synchronizationConfigId', _synchronizationConfig ? _synchronizationConfig.id : Domain.SearchParameters.BLANK_UUID);
@@ -841,9 +841,14 @@ SystemSynchronizationConfigDetail.defaultProps = {
 
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, synchronizationConfigManager.getEntityType(), component.match.params.configId);
+
+  const {query} = component ? component.location : component.location;
+  const isNew = (query) ? query.new : null;
+  const _showLoading = isNew ? false : !entity;
+
   return {
     _synchronizationConfig: entity,
-    _showLoading: !entity,
+    _showLoading: _showLoading,
   };
 }
 

@@ -1,7 +1,19 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import com.google.common.collect.ImmutableMap;
+import eu.bcvsolutions.idm.acc.dto.SysSchemaAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.SysSystemAttributeMappingDto;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
+import eu.bcvsolutions.idm.acc.event.SystemMappingEvent;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity_;
+import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
@@ -29,16 +41,25 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * Searching entities, using filters
  *
  * @author Petr Hanák
- *
+ * @author Vít Švanda
  */
 @Transactional
 public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest {
 
-	@Autowired private DefaultSysSystemMappingService mappingService;
-	@Autowired private SysSystemService systemService;
-	@Autowired private SysSchemaObjectClassService schemaObjectClassService;
-	@Autowired private IdmTreeTypeService treeTypeService;
-	@Autowired private TestHelper testHelper;
+	@Autowired
+	private SysSystemMappingService mappingService;
+	@Autowired
+	private SysSystemAttributeMappingService mappingAttributeService;
+	@Autowired
+	private SysSystemService systemService;
+	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	private SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	private IdmTreeTypeService treeTypeService;
+	@Autowired
+	private TestHelper testHelper;
 
 	@Test
 	public void textFilterTest() {
@@ -185,6 +206,137 @@ public class DefaultSysSystemMappingServiceTest extends AbstractIntegrationTest 
 		assertEquals(1, result.getTotalElements());
 		assertTrue(result.getContent().contains(mappingSystem1));
 		assertFalse(result.getContent().contains(mappingSystem2));
+	}
+
+	@Test
+	public void testAutomaticGenerateOfMappedAttributesDisabled() {
+		SysSystemDto system = testHelper.createSystem(testHelper.createName());
+		SysSchemaObjectClassDto schema = this.createObjectClass(system);
+
+		createSchemaAttribute("__NAME__", schema);
+		createSchemaAttribute("first_name", schema);
+		createSchemaAttribute("surname", schema); // redundant to lastname
+		createSchemaAttribute("lastname", schema);
+		createSchemaAttribute("__UID__", schema); // redundant to __NAME__
+		createSchemaAttribute("email", schema);
+		createSchemaAttribute("titleBefore", schema);
+		createSchemaAttribute("title_after", schema);
+
+
+		SysSystemMappingDto mappingDto = this.createProvisioningMappingSystem(SystemEntityType.IDENTITY, schema);
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mappingDto.getId());
+
+		List<SysSystemAttributeMappingDto> mappingAttributes = mappingAttributeService.find(attributeMappingFilter, null).getContent();
+		// Automatic attribute generating is disabled by default.
+		assertEquals(0, mappingAttributes.size());
+	}
+
+	@Test
+	public void testAutomaticGenerateOfMappedAttributes() {
+		SysSystemDto system = testHelper.createSystem(testHelper.createName());
+		SysSchemaObjectClassDto schema = this.createObjectClass(system);
+
+		createSchemaAttribute("__NAME__", schema);
+		createSchemaAttribute("first_name", schema);
+		createSchemaAttribute("surname", schema); // redundant to lastname
+		createSchemaAttribute("lastname", schema);
+		createSchemaAttribute("__UID__", schema); // redundant to __NAME__
+		createSchemaAttribute("email", schema);
+		createSchemaAttribute("titleBefore", schema);
+		createSchemaAttribute("title_after", schema);
+		createSchemaAttribute("not_exist", schema);
+
+		SysSystemMappingDto mappingDto = new SysSystemMappingDto();
+		mappingDto.setName(testHelper.createName());
+		mappingDto.setEntityType(SystemEntityType.IDENTITY);
+		mappingDto.setObjectClass(schema.getId());
+		mappingDto.setOperationType(SystemOperationType.PROVISIONING);
+
+		mappingDto = mappingService.publish(
+				new SystemMappingEvent(
+						SystemMappingEvent.SystemMappingEventType.CREATE,
+						mappingDto,
+						ImmutableMap.of(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING, true)))
+				.getContent();
+
+		SysSystemAttributeMappingFilter attributeMappingFilter = new SysSystemAttributeMappingFilter();
+		attributeMappingFilter.setSystemMappingId(mappingDto.getId());
+
+		List<SysSystemAttributeMappingDto> mappingAttributes = mappingAttributeService.find(attributeMappingFilter, null).getContent();
+		// Automatic attribute generating is enabled.
+		assertEquals(6, mappingAttributes.size());
+
+		SysSystemAttributeMappingDto usernameAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("__NAME__"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(usernameAttribute);
+		assertTrue(usernameAttribute.isUid());
+		assertEquals(IdmIdentity_.username.getName(), usernameAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto lastnameAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("lastname"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(lastnameAttribute);
+		assertFalse(lastnameAttribute.isUid());
+		assertEquals(IdmIdentity_.lastName.getName(), lastnameAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto firstNameAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("first_name"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(firstNameAttribute);
+		assertFalse(firstNameAttribute.isUid());
+		assertEquals(IdmIdentity_.firstName.getName(), firstNameAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto titleBeforeAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("titleBefore"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(titleBeforeAttribute);
+		assertFalse(titleBeforeAttribute.isUid());
+		assertEquals(IdmIdentity_.titleBefore.getName(), titleBeforeAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto titleAfterAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("title_after"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(titleAfterAttribute);
+		assertFalse(titleAfterAttribute.isUid());
+		assertEquals(IdmIdentity_.titleAfter.getName(), titleAfterAttribute.getIdmPropertyName());
+
+		SysSystemAttributeMappingDto emailAttribute = mappingAttributes
+				.stream()
+				.filter(attribute -> attribute.getName().equals("email"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(emailAttribute);
+		assertFalse(emailAttribute.isUid());
+		assertEquals(IdmIdentity_.email.getName(), emailAttribute.getIdmPropertyName());
+	}
+
+	private SysSchemaAttributeDto createSchemaAttribute(String name, SysSchemaObjectClassDto schema) {
+		SysSchemaAttributeDto attributeDto = new SysSchemaAttributeDto();
+		attributeDto.setObjectClass(schema.getId());
+		attributeDto.setName(name);
+		attributeDto.setNativeName(name);
+		attributeDto.setClassType(String.class.getCanonicalName());
+		attributeDto.setMultivalued(false);
+
+		return schemaAttributeService.save(attributeDto);
 	}
 
 	private SysSystemDto createSystem() {

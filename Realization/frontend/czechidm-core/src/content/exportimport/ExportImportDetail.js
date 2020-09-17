@@ -126,20 +126,7 @@ export class ExportImportDetail extends Advanced.AbstractTableContent {
                     <Basic.Col lg={ 6 }>
                       <Basic.Div rendered={longRunningTask && longRunningTask.taskStarted}>
                         <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                          <Basic.Tooltip
-                            ref="popover"
-                            placement="bottom"
-                            value={ longRunningTask ? moment.utc(moment.duration(moment(longRunningTask.modified)
-                              .diff(moment(longRunningTask.taskStarted)))
-                              .asMilliseconds())
-                              .format(this.i18n('format.times')) : null}>
-                            <span>
-                              {longRunningTask ? moment.duration(moment(longRunningTask.taskStarted)
-                                .diff(moment(longRunningTask.modified)))
-                                .locale(Services.LocalizationService.getCurrentLanguage())
-                                .humanize() : null}
-                            </span>
-                          </Basic.Tooltip>
+                          <Basic.TimeDuration start={longRunningTask ? longRunningTask.taskStarted : null} end= {longRunningTask ? longRunningTask.modified : null} humanForm/>
                         </Basic.LabelWrapper>
                       </Basic.Div>
                     </Basic.Col>

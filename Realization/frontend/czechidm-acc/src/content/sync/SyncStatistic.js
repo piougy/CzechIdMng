@@ -17,11 +17,6 @@ class SyncStatistic extends Basic.AbstractContent {
     const started = log.started;
     const ended = log.ended ? log.ended : moment().utc().valueOf();
     const timeDiff = moment.utc(moment.duration(moment(ended).diff(moment(started))).asMilliseconds());
-    const timeDiffHumanized = moment
-      .duration(moment(ended)
-        .diff(moment(started)))
-      .locale(Services.LocalizationService.getCurrentLanguage())
-      .humanize();
     let allOperationsCount = 0;
     for (const action of log.syncActionLogs) {
       allOperationsCount += action.operationCount;
@@ -30,11 +25,7 @@ class SyncStatistic extends Basic.AbstractContent {
     if (log.running || log.ended) {
       actions.push(
         <div>
-          <Basic.Label
-            style={{marginRight: '5px'}}
-            level="info"
-            title={timeDiffHumanized}
-            text={timeDiff.format(this.i18n('format.times'))}/>
+          <Basic.TimeDuration start={started} end={ended} style={{marginRight: '5px'}} level="info"/>
           <strong>
             {this.i18n(`acc:entity.SynchronizationLog.statistic.timeDiff`)}
           </strong>

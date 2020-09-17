@@ -49,6 +49,7 @@ import ShortText from './ShortText/ShortText';
 import Div from './Div/Div';
 import ToggleSwitch from './ToggleSwitch/ToggleSwitch';
 import Wizard from './Wizard/Wizard';
+import TimeDuration from './TimeDuration/TimeDuration';
 
 const Components = {
   AbstractComponent,
@@ -115,7 +116,8 @@ const Components = {
   ShortText,
   Div,
   ToggleSwitch,
-  Wizard
+  Wizard,
+  TimeDuration
 };
 
 Components.version = '10.6.0';

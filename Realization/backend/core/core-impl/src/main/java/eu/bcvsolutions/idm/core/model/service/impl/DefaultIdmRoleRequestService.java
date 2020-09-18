@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -397,7 +398,7 @@ public class DefaultIdmRoleRequestService
 			request.getConceptRoles().stream().filter(concept -> {
 				return RoleRequestState.IN_PROGRESS == concept.getState();
 			}).forEach(concept -> {
-				if (!cancelInvalidConcept(concept, request)) {
+				if (!cancelInvalidConcept(null, concept, request)) {
 					concept.setState(RoleRequestState.APPROVED);
 					conceptRoleRequestService.save(concept);
 				} else {
@@ -482,6 +483,12 @@ public class DefaultIdmRoleRequestService
 		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_UPDATED_ROLES, Sets.newHashSet());
 		requestEvent.getProperties().put(IdentityRoleEvent.PROPERTY_ASSIGNED_REMOVED_ROLES, Sets.newHashSet());
 		requestEvent.getProperties().put(IdmAccountDto.IDENTITY_ACCOUNT_FOR_DELAYED_ACM, Sets.newHashSet());
+		
+		// check duplicate assigned automatic role
+		IdmIdentityRoleFilter automaticRoleFilter = new IdmIdentityRoleFilter();
+		automaticRoleFilter.setIdentityId(identity.getId());
+		automaticRoleFilter.setAutomaticRole(Boolean.TRUE);
+		List<IdmIdentityRoleDto> automaticRoles = identityRoleService.find(automaticRoleFilter, null).getContent();
 
 		// Create new identity role
 		concepts.stream().filter(concept -> {
@@ -492,7 +499,7 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			if (!cancelInvalidConcept(concept, request)) {
+			if (!cancelInvalidConcept(automaticRoles, concept, request)) {
 				// assign new role
 				createAssignedRole(concept, request, requestEvent);
 			}
@@ -509,7 +516,7 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			if (!cancelInvalidConcept(concept, request)) {
+			if (!cancelInvalidConcept(automaticRoles, concept, request)) {
 				updateAssignedRole(concept, request, requestEvent);
 			}
 
@@ -525,7 +532,7 @@ public class DefaultIdmRoleRequestService
 			// approval event disabled)
 			return RoleRequestState.APPROVED == concept.getState() || RoleRequestState.CONCEPT == concept.getState();
 		}).forEach(concept -> {
-			if (!cancelInvalidConcept(concept, request)) {
+			if (!cancelInvalidConcept(automaticRoles, concept, request)) {
 				removeAssignedRole(concept, request, requestEvent);
 			}
 
@@ -1461,7 +1468,7 @@ public class DefaultIdmRoleRequestService
 	 * @param request
 	 * @return true, if concept is canceled
 	 */
-	private boolean cancelInvalidConcept(IdmConceptRoleRequestDto concept, IdmRoleRequestDto request) {
+	private boolean cancelInvalidConcept(List<IdmIdentityRoleDto> automaticRoles, IdmConceptRoleRequestDto concept, IdmRoleRequestDto request) {
 		String message = null;
 		if (concept.getIdentityRole() == null
 				&& ConceptRoleRequestOperation.ADD != concept.getOperation()) { // identity role is not given for ADD
@@ -1477,13 +1484,30 @@ public class DefaultIdmRoleRequestService
 			message = MessageFormat.format(
 					"Request change in concept [{0}], was not executed, because requested role was deleted (not from this role request)!",
 					concept.getId());
+		} else if(ConceptRoleRequestOperation.ADD == concept.getOperation()
+				&& concept.getAutomaticRole() != null 
+				&& CollectionUtils.isNotEmpty(automaticRoles)) {
+			// check duplicate assigned automatic role
+			IdmIdentityRoleDto assignedRole = automaticRoles
+				.stream()
+				.filter(ir -> ir.getAutomaticRole() != null)
+				.filter(ir -> Objects.equal(ir.getAutomaticRole(), concept.getAutomaticRole()))
+				.filter(ir -> Objects.equal(ir.getContractPosition(), concept.getContractPosition()))
+				.filter(ir -> Objects.equal(ir.getIdentityContract(), concept.getIdentityContract()))
+				.findFirst()
+				.orElse(null);
+			if (assignedRole != null) {
+				message = MessageFormat.format(
+						"Request change in concept [{0}], was not executed, because requested automatic role was already assigned (not from this role request)!",
+						concept.getId());
+			}
 		}
 
 		if (message != null) {
 			addToLog(request, message);
 			conceptRoleRequestService.addToLog(concept, message);
 			// Cancel concept and WF
-			concept = conceptRoleRequestService.cancel(concept);
+			conceptRoleRequestService.cancel(concept);
 
 			return true;
 		}

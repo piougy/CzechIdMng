@@ -52,52 +52,55 @@
 				<yjs:GradientStop color="{y:GraphMLReference 1}" offset="1"/>
 			</yjs:LinearGradient>
 			<yjs:Stroke x:Key="10" fill="#FF000000" miterLimit="1.45"/>
-			<yjs:Stroke x:Key="11" fill="#FF000000"/>
-			<yjs:Stroke x:Key="12" fill="#FF000000"/>
-			<yjs:Stroke x:Key="13" fill="#FF000000"/>
+			<yjs:SolidColorFill x:Key="11" color="#FFB7C9E3"/>
+			<yjs:LinearGradient x:Key="12" spreadMethod="PAD" startPoint="0,0" endPoint="1,1">
+				<yjs:GradientStop color="{y:GraphMLReference 1}" offset="0"/>
+				<yjs:GradientStop color="{y:GraphMLReference 1}" offset="1"/>
+			</yjs:LinearGradient>
+			<yjs:Stroke x:Key="13" fill="#FF000000" miterLimit="1.45"/>
 			<yjs:Stroke x:Key="14" fill="#FF000000"/>
 			<yjs:Stroke x:Key="15" fill="#FF000000"/>
 			<yjs:Stroke x:Key="16" fill="#FF000000"/>
 			<yjs:Stroke x:Key="17" fill="#FF000000"/>
-			<yjs:SolidColorFill x:Key="18" color="Black"/>
+			<yjs:Stroke x:Key="18" fill="#FF000000"/>
 			<yjs:Stroke x:Key="19" fill="#FF000000"/>
-			<yjs:SolidColorFill x:Key="20" color="Black"/>
-			<yjs:Stroke x:Key="21" fill="{y:GraphMLReference 20}"/>
+			<yjs:Stroke x:Key="20" fill="#FF000000"/>
+			<yjs:SolidColorFill x:Key="21" color="Black"/>
 			<yjs:Stroke x:Key="22" fill="#FF000000"/>
-			<yjs:Stroke x:Key="23" fill="#FF000000"/>
-			<yjs:Stroke x:Key="24" fill="#FF000000"/>
+			<yjs:SolidColorFill x:Key="23" color="Black"/>
+			<yjs:Stroke x:Key="24" fill="{y:GraphMLReference 23}"/>
 			<yjs:Stroke x:Key="25" fill="#FF000000"/>
 			<yjs:Stroke x:Key="26" fill="#FF000000"/>
-			<yjs:SolidColorFill x:Key="27" color="Black"/>
-			<yjs:Arrow x:Key="28" type="NONE"/>
+			<yjs:Stroke x:Key="27" fill="#FF000000"/>
+			<yjs:Stroke x:Key="28" fill="#FF000000"/>
 			<yjs:Stroke x:Key="29" fill="#FF000000"/>
-			<yjs:Stroke x:Key="30" fill="#FF000000"/>
-			<yjs:Stroke x:Key="31" fill="#FF000000"/>
+			<yjs:SolidColorFill x:Key="30" color="Black"/>
+			<yjs:Arrow x:Key="31" type="NONE"/>
 			<yjs:Stroke x:Key="32" fill="#FF000000"/>
 			<yjs:Stroke x:Key="33" fill="#FF000000"/>
 			<yjs:Stroke x:Key="34" fill="#FF000000"/>
 			<yjs:Stroke x:Key="35" fill="#FF000000"/>
 			<yjs:Stroke x:Key="36" fill="#FF000000"/>
-			<yjs:SolidColorFill x:Key="37" color="Black"/>
-			<yjs:Stroke x:Key="38" fill="{y:GraphMLReference 37}" miterLimit="1.45"/>
-			<yjs:SolidColorFill x:Key="39" color="Black"/>
-			<yjs:Stroke x:Key="40" fill="{y:GraphMLReference 39}" miterLimit="1.45"/>
-			<yjs:SolidColorFill x:Key="41" color="Black"/>
-			<yjs:Stroke x:Key="42" fill="{y:GraphMLReference 41}" miterLimit="1.45"/>
-			<yjs:SolidColorFill x:Key="43" color="Black"/>
-			<yjs:Stroke x:Key="44" fill="{y:GraphMLReference 43}" miterLimit="1.45"/>
-			<yjs:SolidColorFill x:Key="45" color="Black"/>
-			<yjs:Stroke x:Key="46" fill="{y:GraphMLReference 45}" miterLimit="1.45"/>
-			<yjs:Stroke x:Key="47" fill="#FF000000"/>
-			<yjs:Stroke x:Key="48" fill="#FF000000"/>
-			<yjs:Stroke x:Key="49" fill="#FF000000"/>
+			<yjs:Stroke x:Key="37" fill="#FF000000"/>
+			<yjs:Stroke x:Key="38" fill="#FF000000"/>
+			<yjs:Stroke x:Key="39" fill="#FF000000"/>
+			<yjs:SolidColorFill x:Key="40" color="Black"/>
+			<yjs:Stroke x:Key="41" fill="{y:GraphMLReference 40}" miterLimit="1.45"/>
+			<yjs:SolidColorFill x:Key="42" color="Black"/>
+			<yjs:Stroke x:Key="43" fill="{y:GraphMLReference 42}" miterLimit="1.45"/>
+			<yjs:SolidColorFill x:Key="44" color="Black"/>
+			<yjs:Stroke x:Key="45" fill="{y:GraphMLReference 44}" miterLimit="1.45"/>
+			<yjs:SolidColorFill x:Key="46" color="Black"/>
+			<yjs:Stroke x:Key="47" fill="{y:GraphMLReference 46}" miterLimit="1.45"/>
+			<yjs:SolidColorFill x:Key="48" color="Black"/>
+			<yjs:Stroke x:Key="49" fill="{y:GraphMLReference 48}" miterLimit="1.45"/>
 			<yjs:Stroke x:Key="50" fill="#FF000000"/>
 			<yjs:Stroke x:Key="51" fill="#FF000000"/>
 			<yjs:Stroke x:Key="52" fill="#FF000000"/>
-			<yjs:DashStyle x:Key="53" dashes="6 2" offset="0"/>
+			<yjs:Stroke x:Key="53" fill="#FF000000"/>
 			<yjs:Stroke x:Key="54" fill="#FF000000"/>
 			<yjs:Stroke x:Key="55" fill="#FF000000"/>
-			<yjs:Stroke x:Key="56" fill="#FF000000"/>
+			<yjs:DashStyle x:Key="56" dashes="6 2" offset="0"/>
 			<yjs:Stroke x:Key="57" fill="#FF000000"/>
 			<yjs:Stroke x:Key="58" fill="#FF000000"/>
 			<yjs:Stroke x:Key="59" fill="#FF000000"/>
@@ -141,11 +144,11 @@
 			<yjs:Stroke x:Key="97" fill="#FF000000"/>
 			<yjs:Stroke x:Key="98" fill="#FF000000"/>
 			<yjs:Stroke x:Key="99" fill="#FF000000"/>
-			<yjs:SolidColorFill x:Key="100" color="Black"/>
-			<yjs:Stroke x:Key="101" fill="{y:GraphMLReference 100}" miterLimit="1.45"/>
+			<yjs:Stroke x:Key="100" fill="#FF000000"/>
+			<yjs:Stroke x:Key="101" fill="#FF000000"/>
 			<yjs:Stroke x:Key="102" fill="#FF000000"/>
-			<yjs:Stroke x:Key="103" fill="#FF000000"/>
-			<yjs:Stroke x:Key="104" fill="#FF000000"/>
+			<yjs:SolidColorFill x:Key="103" color="Black"/>
+			<yjs:Stroke x:Key="104" fill="{y:GraphMLReference 103}" miterLimit="1.45"/>
 			<yjs:Stroke x:Key="105" fill="#FF000000"/>
 			<yjs:Stroke x:Key="106" fill="#FF000000"/>
 			<yjs:Stroke x:Key="107" fill="#FF000000"/>
@@ -167,10 +170,10 @@
 			<yjs:Stroke x:Key="123" fill="#FF000000"/>
 			<yjs:Stroke x:Key="124" fill="#FF000000"/>
 			<yjs:Stroke x:Key="125" fill="#FF000000"/>
-			<yjs:SolidColorFill x:Key="126" color="Black"/>
+			<yjs:Stroke x:Key="126" fill="#FF000000"/>
 			<yjs:Stroke x:Key="127" fill="#FF000000"/>
 			<yjs:Stroke x:Key="128" fill="#FF000000"/>
-			<yjs:Stroke x:Key="129" fill="#FF000000"/>
+			<yjs:SolidColorFill x:Key="129" color="Black"/>
 			<yjs:Stroke x:Key="130" fill="#FF000000"/>
 			<yjs:Stroke x:Key="131" fill="#FF000000"/>
 			<yjs:Stroke x:Key="132" fill="#FF000000"/>
@@ -204,34 +207,45 @@
 			<yjs:Stroke x:Key="160" fill="#FF000000"/>
 			<yjs:Stroke x:Key="161" fill="#FF000000"/>
 			<yjs:Stroke x:Key="162" fill="#FF000000"/>
-			<yjs:SolidColorFill x:Key="163" color="Black"/>
+			<yjs:Stroke x:Key="163" fill="#FF000000"/>
 			<yjs:Stroke x:Key="164" fill="#FF000000"/>
 			<yjs:Stroke x:Key="165" fill="#FF000000"/>
-			<yjs:Stroke x:Key="166" fill="#FF000000"/>
+			<yjs:SolidColorFill x:Key="166" color="Black"/>
 			<yjs:Stroke x:Key="167" fill="#FF000000"/>
-			<yjs:Stroke x:Key="168" fill="#FF000000" miterLimit="1.45"/>
-			<x0:CrowsFootArrow x:Key="169" type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 118}" scale="1"/>
-			<x0:CrowsFootArrow x:Key="170" type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 118}" scale="1"/>
+			<yjs:Stroke x:Key="168" fill="#FF000000"/>
+			<yjs:Stroke x:Key="169" fill="#FF000000"/>
+			<yjs:Stroke x:Key="170" fill="#FF000000"/>
 			<yjs:Stroke x:Key="171" fill="#FF000000" miterLimit="1.45"/>
-			<x0:CrowsFootArrow x:Key="172" type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 164}" scale="1"/>
-			<x0:CrowsFootArrow x:Key="173" type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 164}" scale="1"/>
-			<yjs:PolylineEdgeStyle x:Key="174" stroke="{y:GraphMLReference 168}" targetArrow="{y:GraphMLReference 169}" sourceArrow="{y:GraphMLReference 170}"/>
-			<yjs:Stroke x:Key="175" fill="#FF000000" miterLimit="1.45"/>
-			<x0:CrowsFootArrow x:Key="176" type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 11}" scale="1"/>
-			<yjs:Stroke x:Key="177" fill="#FF000000" miterLimit="1.45"/>
-			<x0:CrowsFootArrow x:Key="178" type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 166}" scale="1"/>
-			<x0:CrowsFootArrow x:Key="179" type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 166}" scale="1"/>
-			<y:SmartEdgeLabelModelParameter x:Key="180" Distance="5">
+			<x0:CrowsFootArrow x:Key="172" type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 121}" scale="1"/>
+			<x0:CrowsFootArrow x:Key="173" type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 121}" scale="1"/>
+			<yjs:Stroke x:Key="174" fill="#FF000000" miterLimit="1.45"/>
+			<x0:CrowsFootArrow x:Key="175" type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 167}" scale="1"/>
+			<x0:CrowsFootArrow x:Key="176" type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 167}" scale="1"/>
+			<yjs:PolylineEdgeStyle x:Key="177" stroke="{y:GraphMLReference 171}" targetArrow="{y:GraphMLReference 172}" sourceArrow="{y:GraphMLReference 173}"/>
+			<yjs:Stroke x:Key="178" fill="#FF000000" miterLimit="1.45"/>
+			<x0:CrowsFootArrow x:Key="179" type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 14}" scale="1"/>
+			<yjs:Stroke x:Key="180" fill="#FF000000" miterLimit="1.45"/>
+			<x0:CrowsFootArrow x:Key="181" type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 169}" scale="1"/>
+			<x0:CrowsFootArrow x:Key="182" type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 169}" scale="1"/>
+			<y:SmartEdgeLabelModelParameter x:Key="183" Distance="5">
 				<y:SmartEdgeLabelModelParameter.Model>
 					<y:SmartEdgeLabelModel/>
 				</y:SmartEdgeLabelModelParameter.Model>
 			</y:SmartEdgeLabelModelParameter>
-			<yjs:DefaultLabelStyle x:Key="181" verticalTextAlignment="BOTTOM" horizontalTextAlignment="CENTER" textFill="BLACK">
+			<yjs:DefaultLabelStyle x:Key="184" verticalTextAlignment="BOTTOM" horizontalTextAlignment="CENTER" textFill="BLACK">
 				<yjs:DefaultLabelStyle.font>
 					<yjs:Font fontSize="12" fontFamily="'Arial'"/>
 				</yjs:DefaultLabelStyle.font>
 			</yjs:DefaultLabelStyle>
-			<x0:CrowsFootArrow x:Key="182" type="CROWS_FOOT_ONE_OPTIONAL" stroke="#FF000000" scale="1"/>
+			<x0:CrowsFootArrow x:Key="185" type="CROWS_FOOT_ONE_OPTIONAL" stroke="#FF000000" scale="1"/>
+			<x0:CrowsFootArrow x:Key="186" type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 14}" scale="1"/>
+			<yjs:PolylineEdgeStyle x:Key="187" stroke="{y:GraphMLReference 178}" targetArrow="{y:GraphMLReference 179}" sourceArrow="{y:GraphMLReference 186}"/>
+			<y:SmartEdgeLabelModel x:Key="188"/>
+			<yjs:DefaultLabelStyle x:Key="189" verticalTextAlignment="BOTTOM" horizontalTextAlignment="CENTER" textFill="BLACK">
+				<yjs:DefaultLabelStyle.font>
+					<yjs:Font fontSize="12" fontFamily="'Arial'"/>
+				</yjs:DefaultLabelStyle.font>
+			</yjs:DefaultLabelStyle>
 		</y:SharedData>
 	</data>
 	<graph id="G" edgedefault="directed">
@@ -293,6 +307,8 @@
 			<port name="p12"/>
 			<port name="p13"/>
 			<port name="p14"/>
+			<port name="p15"/>
+			<port name="p16"/>
 		</node>
 		<node id="n1">
 			<data key="d0">0</data>
@@ -513,6 +529,7 @@ RoleType]]></x0:EntityRelationshipModel.title>
 			<port name="p6"/>
 			<port name="p7"/>
 			<port name="p8"/>
+			<port name="p9"/>
 		</node>
 		<node id="n6">
 			<data key="d0">0</data>
@@ -1253,7 +1270,7 @@ RoleType]]></x0:EntityRelationshipModel.title>
 		<node id="n23">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="1874.2044344998699" Y="-869.8231912867644" Width="286.52457952659734" Height="156.213633651613"/>
+				<y:RectD X="1874.2044344998699" Y="-869.8231912867644" Width="286.52457952659734" Height="248.213633651613"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FF3399FF">
@@ -1279,6 +1296,11 @@ RoleType]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[+ protectionEnabled]]></sys:String>
 									<sys:String><![CDATA[+ protectionInterval]]></sys:String>
 									<sys:String><![CDATA[+ treeType]]></sys:String>
+									<sys:String><![CDATA[+ mappingContextScript]]></sys:String>
+									<sys:String><![CDATA[- addContextContracts]]></sys:String>
+									<sys:String><![CDATA[- addContextIdentityRoles]]></sys:String>
+									<sys:String><![CDATA[- addContextIdentityRolesForSystem]]></sys:String>
+									<sys:String><![CDATA[- addContextConnectorObject]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>
@@ -3610,6 +3632,7 @@ ContractState]]></x0:EntityRelationshipModel.title>
 			</port>
 			<port name="p6"/>
 			<port name="p7"/>
+			<port name="p8"/>
 		</node>
 		<node id="n79">
 			<data key="d0">0</data>
@@ -4105,16 +4128,7 @@ Type]]></x0:EntityRelationshipModel.title>
 				<y:RectD X="-902.9950894680062" Y="538.2914460627769" Width="162.32572716670643" Height="247.2102629441316"/>
 			</data>
 			<data key="d7">
-				<x0:EntityNodeStyle insetFill="#FFB7C9E3">
-					<x0:EntityNodeStyle.fill>
-						<yjs:LinearGradient spreadMethod="PAD" startPoint="0,0" endPoint="1,1">
-							<yjs:GradientStop color="{y:GraphMLReference 1}" offset="0"/>
-							<yjs:GradientStop color="{y:GraphMLReference 1}" offset="1"/>
-						</yjs:LinearGradient>
-					</x0:EntityNodeStyle.fill>
-					<x0:EntityNodeStyle.stroke>
-						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
-					</x0:EntityNodeStyle.stroke>
+				<x0:EntityNodeStyle fill="{y:GraphMLReference 12}" insetFill="{y:GraphMLReference 11}" stroke="{y:GraphMLReference 13}">
 					<x0:EntityNodeStyle.model>
 						<x0:EntityRelationshipModel>
 							<x0:EntityRelationshipModel.title>EntityState</x0:EntityRelationshipModel.title>
@@ -4841,7 +4855,7 @@ Type]]></x0:EntityRelationshipModel.title>
 		<node id="n108">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="-902.9950894680062" Y="927.6712700357393" Width="162.32572716670643" Height="164.3408979489044"/>
+				<y:RectD X="-792.4950894680062" Y="968.9212700357393" Width="162.32572716670643" Height="164.3408979489044"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FFB7C9E3">
@@ -5447,13 +5461,126 @@ Type]]></x0:EntityRelationshipModel.title>
 			</port>
 			<port name="p1"/>
 		</node>
+		<node id="n125">
+			<data key="d0">2</data>
+			<data key="d5">
+				<y:RectD X="-1407.4950894680057" Y="934.7914460627771" Width="162.32572716670643" Height="139.2102629441316"/>
+			</data>
+			<data key="d7">
+				<x0:EntityNodeStyle fill="{y:GraphMLReference 12}" insetFill="{y:GraphMLReference 11}" stroke="{y:GraphMLReference 13}">
+					<x0:EntityNodeStyle.model>
+						<x0:EntityRelationshipModel>
+							<x0:EntityRelationshipModel.title>Delegation</x0:EntityRelationshipModel.title>
+							<x0:EntityRelationshipModel.attributes>
+								<x:Array Type="sys:Object">
+									<sys:String><![CDATA[- ownerType]]></sys:String>
+									<sys:String><![CDATA[- ownerId]]></sys:String>
+									<sys:String><![CDATA[- resultState]]></sys:String>
+									<sys:String><![CDATA[+ resultModel]]></sys:String>
+									<sys:String><![CDATA[+ resultCode]]></sys:String>
+									<sys:String><![CDATA[+ resultCause]]></sys:String>
+								</x:Array>
+							</x0:EntityRelationshipModel.attributes>
+						</x0:EntityRelationshipModel>
+					</x0:EntityNodeStyle.model>
+				</x0:EntityNodeStyle>
+			</data>
+			<port name="p0"/>
+		</node>
+		<node id="n126">
+			<data key="d0">3</data>
+			<data key="d5">
+				<y:RectD X="-1175.4950894680062" Y="878.2914460627769" Width="162.32572716670643" Height="123.46026294413161"/>
+			</data>
+			<data key="d7">
+				<x0:EntityNodeStyle fill="{y:GraphMLReference 12}" insetFill="{y:GraphMLReference 11}" stroke="{y:GraphMLReference 13}">
+					<x0:EntityNodeStyle.model>
+						<x0:EntityRelationshipModel>
+							<x0:EntityRelationshipModel.title>DelegationDefinition</x0:EntityRelationshipModel.title>
+							<x0:EntityRelationshipModel.attributes>
+								<x:Array Type="sys:Object">
+									<sys:String><![CDATA[- type]]></sys:String>
+									<sys:String><![CDATA[+ validFrom]]></sys:String>
+									<sys:String><![CDATA[+ validTill]]></sys:String>
+									<sys:String><![CDATA[+ description]]></sys:String>
+								</x:Array>
+							</x0:EntityRelationshipModel.attributes>
+						</x0:EntityRelationshipModel>
+					</x0:EntityNodeStyle.model>
+				</x0:EntityNodeStyle>
+			</data>
+			<port name="p0"/>
+			<port name="p1"/>
+			<port name="p2">
+				<data key="d16">
+					<y:FreeNodePortLocationModelParameter Ratio="0.9939145256361128,0.5"/>
+				</data>
+			</port>
+			<port name="p3">
+				<data key="d16">
+					<y:FreeNodePortLocationModelParameter Ratio="0.5,0.9959873241647994"/>
+				</data>
+			</port>
+		</node>
+		<node id="n127">
+			<data key="d0">4</data>
+			<data key="d5">
+				<y:RectD X="-1614.9950894680062" Y="408.29144606277737" Width="162.32572716670643" Height="123.46026294413161"/>
+			</data>
+			<data key="d7">
+				<x0:EntityNodeStyle fill="{y:GraphMLReference 12}" insetFill="{y:GraphMLReference 11}" stroke="{y:GraphMLReference 13}">
+					<x0:EntityNodeStyle.model>
+						<x0:EntityRelationshipModel>
+							<x0:EntityRelationshipModel.title>ExportImport</x0:EntityRelationshipModel.title>
+							<x0:EntityRelationshipModel.attributes>
+								<x:Array Type="sys:Object">
+									<sys:String><![CDATA[- type]]></sys:String>
+									<sys:String><![CDATA[- name]]></sys:String>
+									<sys:String><![CDATA[+ executorName]]></sys:String>
+									<sys:String><![CDATA[+ description]]></sys:String>
+									<sys:String><![CDATA[+ longRunningTask]]></sys:String>
+								</x:Array>
+							</x0:EntityRelationshipModel.attributes>
+						</x0:EntityRelationshipModel>
+					</x0:EntityNodeStyle.model>
+				</x0:EntityNodeStyle>
+			</data>
+			<port name="p0"/>
+			<port name="p1"/>
+		</node>
+		<node id="n128">
+			<data key="d0">5</data>
+			<data key="d5">
+				<y:RectD X="-1573.9950894680057" Y="650.2914460627774" Width="162.32572716670643" Height="192.4602629441316"/>
+			</data>
+			<data key="d7">
+				<x0:EntityNodeStyle fill="{y:GraphMLReference 12}" insetFill="{y:GraphMLReference 11}" stroke="{y:GraphMLReference 13}">
+					<x0:EntityNodeStyle.model>
+						<x0:EntityRelationshipModel>
+							<x0:EntityRelationshipModel.title>ImportLog</x0:EntityRelationshipModel.title>
+							<x0:EntityRelationshipModel.attributes>
+								<x:Array Type="sys:Object">
+									<sys:String><![CDATA[+ dto]]></sys:String>
+									<sys:String><![CDATA[+ superParentId]]></sys:String>
+									<sys:String><![CDATA[+ parentId]]></sys:String>
+									<sys:String><![CDATA[- dtoId]]></sys:String>
+									<sys:String><![CDATA[- type]]></sys:String>
+									<sys:String><![CDATA[- operation]]></sys:String>
+									<sys:String><![CDATA[+ resultCause]]></sys:String>
+									<sys:String><![CDATA[+ resultCode]]></sys:String>
+									<sys:String><![CDATA[+ resultModel]]></sys:String>
+									<sys:String><![CDATA[- resultState]]></sys:String>
+								</x:Array>
+							</x0:EntityRelationshipModel.attributes>
+						</x0:EntityRelationshipModel>
+					</x0:EntityNodeStyle.model>
+				</x0:EntityNodeStyle>
+			</data>
+			<port name="p0"/>
+		</node>
 		<edge id="e0" source="n1" target="n4" sourceport="p0" targetport="p0">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 175}" targetArrow="{y:GraphMLReference 176}">
-					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 11}" scale="1"/>
-					</yjs:PolylineEdgeStyle.sourceArrow>
-				</yjs:PolylineEdgeStyle>
+				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 178}" targetArrow="{y:GraphMLReference 179}" sourceArrow="{y:GraphMLReference 186}"/>
 			</data>
 		</edge>
 		<edge id="e1" source="n0" target="n4" sourceport="p0" targetport="p1">
@@ -5480,10 +5607,10 @@ Type]]></x0:EntityRelationshipModel.title>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 12}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 15}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 12}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 15}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5495,10 +5622,10 @@ Type]]></x0:EntityRelationshipModel.title>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 13}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 16}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 13}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 16}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5527,10 +5654,10 @@ Type]]></x0:EntityRelationshipModel.title>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 14}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 17}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 14}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 17}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5562,10 +5689,10 @@ o úroveň výše dle organizační jednotky
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 15}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 18}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 15}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 18}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5577,10 +5704,10 @@ o úroveň výše dle organizační jednotky
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 16}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 19}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 16}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 19}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5610,10 +5737,10 @@ se vždy váže na pozici]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 17}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 20}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 17}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 20}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5642,12 +5769,12 @@ se vždy váže na pozici]]></y:Label.Text>
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 18}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 21}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<yjs:Arrow type="SIMPLE" stroke="#FF000000" fill="{y:GraphMLReference 18}"/>
+						<yjs:Arrow type="SIMPLE" stroke="#FF000000" fill="{y:GraphMLReference 21}"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5677,10 +5804,10 @@ na jednom systému mohu míti více účtů]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 19}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 22}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 19}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 22}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5706,13 +5833,13 @@ na jednom systému mohu míti více účtů]]></y:Label.Text>
 			<data key="d13">
 				<yjs:PolylineEdgeStyle>
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 20}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 23}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<compat:JavaArrow type="T_SHAPE" pen="{y:GraphMLReference 21}" brush="{y:GraphMLReference 20}"/>
+						<compat:JavaArrow type="T_SHAPE" pen="{y:GraphMLReference 24}" brush="{y:GraphMLReference 23}"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 21}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 24}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5741,10 +5868,10 @@ na jednom systému mohu míti více účtů]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 22}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 25}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 22}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 25}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5775,10 +5902,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 23}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 26}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 23}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 26}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5807,10 +5934,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 24}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 27}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 24}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 27}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5844,10 +5971,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 25}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 28}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 25}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 28}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5881,10 +6008,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 26}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 29}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 26}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 29}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5913,19 +6040,19 @@ jedna role mi může přiřadit více účtů
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 27}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 30}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<yjs:Arrow type="SIMPLE" stroke="#FF000000" fill="{y:GraphMLReference 27}"/>
+						<yjs:Arrow type="SIMPLE" stroke="#FF000000" fill="{y:GraphMLReference 30}"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e16" source="n14" target="n15" sourceport="p0" targetport="p2">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -5937,7 +6064,7 @@ jedna role mi může přiřadit více účtů
 		</edge>
 		<edge id="e17" source="n16" target="n15" sourceport="p0" targetport="p3">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -5954,10 +6081,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_MANDATORY" stroke="{y:GraphMLReference 29}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_MANDATORY" stroke="{y:GraphMLReference 32}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 29}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 32}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -5969,10 +6096,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 30}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 33}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 30}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 33}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6001,10 +6128,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 31}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 34}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 31}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 34}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6033,10 +6160,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 32}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 35}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 32}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 35}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6065,10 +6192,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 33}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 36}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 33}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 36}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6097,10 +6224,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 34}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 37}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 34}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 37}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6131,10 +6258,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 35}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 38}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 35}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 38}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6163,7 +6290,7 @@ jedna role mi může přiřadit více účtů
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 28}" sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 31}" sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -6194,10 +6321,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 36}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 39}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 36}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 39}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6224,13 +6351,13 @@ jedna role mi může přiřadit více účtů
 			<data key="d13">
 				<yjs:PolylineEdgeStyle smoothingLength="100">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 37}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 40}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 38}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 41}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 38}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 41}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6256,13 +6383,13 @@ jedna role mi může přiřadit více účtů
 			<data key="d13">
 				<yjs:PolylineEdgeStyle smoothingLength="100">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 39}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 42}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 40}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 43}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 40}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 43}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6288,13 +6415,13 @@ jedna role mi může přiřadit více účtů
 			<data key="d13">
 				<yjs:PolylineEdgeStyle smoothingLength="100">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 41}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 44}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 42}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 45}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 42}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 45}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6320,13 +6447,13 @@ jedna role mi může přiřadit více účtů
 			<data key="d13">
 				<yjs:PolylineEdgeStyle smoothingLength="100">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 43}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 46}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 44}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 47}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 44}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 47}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6357,13 +6484,13 @@ jedna role mi může přiřadit více účtů
 			<data key="d13">
 				<yjs:PolylineEdgeStyle smoothingLength="100">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 45}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 48}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 46}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 49}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 46}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 49}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6392,10 +6519,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 47}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 50}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 47}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 50}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6407,10 +6534,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 48}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 51}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 48}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 51}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6446,10 +6573,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 49}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 52}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 49}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 52}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6477,10 +6604,10 @@ jedna role mi může přiřadit více účtů
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 50}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 53}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 50}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 53}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6510,10 +6637,10 @@ obsahuje atributy]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 51}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 54}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 51}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 54}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6543,28 +6670,28 @@ obsahuje atributy]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 52}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 55}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 52}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 55}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e38" source="n31" target="n27" sourceport="p0" targetport="p2">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 28}" sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 31}" sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="#FF000000" dashStyle="{y:GraphMLReference 53}" miterLimit="1.45"/>
+						<yjs:Stroke fill="#FF000000" dashStyle="{y:GraphMLReference 56}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e39" source="n31" target="n28" sourceport="p1" targetport="p2">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 28}" sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 31}" sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="#FF000000" dashStyle="{y:GraphMLReference 53}" miterLimit="1.45"/>
+						<yjs:Stroke fill="#FF000000" dashStyle="{y:GraphMLReference 56}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6576,10 +6703,10 @@ obsahuje atributy]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 54}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 57}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 54}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 57}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6614,10 +6741,10 @@ pro typ objektu a provisioning (P)]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 55}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 58}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 55}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 58}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6647,10 +6774,10 @@ atributů na teto roli a systému]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 56}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 59}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 56}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 59}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6679,10 +6806,10 @@ atributů na teto roli a systému]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 57}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 60}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 57}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 60}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6712,10 +6839,10 @@ synchronizace, rekonciliace ]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 58}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 61}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 58}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 61}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6727,10 +6854,10 @@ synchronizace, rekonciliace ]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 59}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 62}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 59}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 62}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6742,17 +6869,17 @@ synchronizace, rekonciliace ]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 60}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 63}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 60}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 63}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e47" source="n37" target="n15" sourceport="p0" targetport="p6">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -6764,7 +6891,7 @@ synchronizace, rekonciliace ]]></y:Label.Text>
 		</edge>
 		<edge id="e48" source="n38" target="n15" sourceport="p0" targetport="p7">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -6799,10 +6926,10 @@ synchronizace, rekonciliace ]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 61}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 64}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_MANDATORY" stroke="{y:GraphMLReference 61}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_MANDATORY" stroke="{y:GraphMLReference 64}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6830,10 +6957,10 @@ synchronizace, rekonciliace ]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 62}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 65}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 62}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 65}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6845,10 +6972,10 @@ synchronizace, rekonciliace ]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 63}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 66}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 63}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 66}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6860,10 +6987,10 @@ synchronizace, rekonciliace ]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 64}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 67}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 64}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 67}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6875,10 +7002,10 @@ synchronizace, rekonciliace ]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 65}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 68}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 65}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 68}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6908,10 +7035,10 @@ jedné synchronizace]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 66}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 69}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 66}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 69}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6940,10 +7067,10 @@ jedné synchronizace]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 67}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 70}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 67}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 70}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6955,10 +7082,10 @@ jedné synchronizace]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 68}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 71}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 68}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 71}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6970,10 +7097,10 @@ jedné synchronizace]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 69}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 72}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 69}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 72}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -6985,10 +7112,10 @@ jedné synchronizace]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 70}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 73}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 70}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 73}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7000,10 +7127,10 @@ jedné synchronizace]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 71}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 74}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 71}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 74}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7015,10 +7142,10 @@ jedné synchronizace]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 72}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 75}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 72}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 75}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7048,10 +7175,10 @@ na stromové struktuře]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 73}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 76}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 73}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 76}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7080,10 +7207,10 @@ na stromové struktuře]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 74}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 77}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 74}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 77}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7120,10 +7247,10 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 75}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 78}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 75}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 78}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7152,17 +7279,17 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 76}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 79}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 76}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 79}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e65" source="n58" target="n59" sourceport="p4" targetport="p0">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -7179,10 +7306,10 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 77}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 80}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 77}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 80}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7194,10 +7321,10 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 78}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 81}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 78}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 81}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7209,10 +7336,10 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 79}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 82}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 79}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 82}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7229,10 +7356,10 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 80}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 83}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 80}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 83}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7244,10 +7371,10 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 81}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 84}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 81}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 84}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7281,10 +7408,10 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 82}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 85}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 82}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 85}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7320,10 +7447,10 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 83}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 86}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 83}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 86}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7357,10 +7484,10 @@ na základě  automatické role
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 84}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 87}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 84}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 87}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7390,10 +7517,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 85}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 88}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 85}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 88}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7423,10 +7550,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 86}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 89}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 86}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 89}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7455,10 +7582,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 87}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 90}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 87}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 90}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7487,10 +7614,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 88}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 91}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 88}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 91}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7502,10 +7629,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 89}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 92}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 89}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 92}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7517,10 +7644,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 90}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 93}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 90}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 93}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7532,10 +7659,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 91}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 94}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 91}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 94}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7571,10 +7698,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 92}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 95}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 92}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 95}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7603,10 +7730,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 93}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 96}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 93}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 96}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7618,10 +7745,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 94}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 97}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 94}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 97}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7633,10 +7760,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 95}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 98}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 95}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 98}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7648,10 +7775,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 96}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 99}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 96}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 99}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7663,10 +7790,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 97}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 100}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 97}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 100}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7683,10 +7810,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 98}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 101}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 98}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 101}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7698,10 +7825,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 99}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 102}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 99}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 102}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7727,13 +7854,13 @@ obsah]]></y:Label.Text>
 			<data key="d13">
 				<yjs:PolylineEdgeStyle smoothingLength="100">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 100}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 103}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 101}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 104}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 101}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 104}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7769,10 +7896,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 102}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 105}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 102}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 105}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7807,10 +7934,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 103}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 106}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 103}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 106}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7845,10 +7972,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 104}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 107}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 104}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 107}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7884,10 +8011,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 105}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 108}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 105}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 108}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7924,10 +8051,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 106}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 109}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 106}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 109}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7961,10 +8088,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 107}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 110}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 107}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 110}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -7998,28 +8125,28 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 108}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 111}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 108}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 111}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e97" source="n73" target="n18" sourceport="p0" targetport="p2">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 28}" sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 31}" sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="#FF000000" dashStyle="{y:GraphMLReference 53}" miterLimit="1.45"/>
+						<yjs:Stroke fill="#FF000000" dashStyle="{y:GraphMLReference 56}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e98" source="n73" target="n7" sourceport="p1" targetport="p6">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 28}" sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 31}" sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="#FF000000" dashStyle="{y:GraphMLReference 53}" miterLimit="1.45"/>
+						<yjs:Stroke fill="#FF000000" dashStyle="{y:GraphMLReference 56}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8053,10 +8180,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 109}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 112}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 109}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 112}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8068,10 +8195,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 110}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 113}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 110}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 113}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8083,10 +8210,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 111}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 114}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 111}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 114}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8098,10 +8225,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 112}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 115}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 112}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 115}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8130,10 +8257,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 113}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 116}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 113}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 116}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8145,10 +8272,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 114}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 117}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 114}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 117}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8177,7 +8304,7 @@ obsah]]></y:Label.Text>
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 28}" sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 31}" sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -8208,7 +8335,7 @@ obsah]]></y:Label.Text>
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 28}" sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 31}" sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -8222,10 +8349,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 115}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 118}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 115}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 118}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8242,10 +8369,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 116}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 119}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 116}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 119}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8257,17 +8384,17 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 117}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 120}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 117}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 120}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e110" source="n80" target="n78" sourceport="p1" targetport="p4">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 168}" targetArrow="{y:GraphMLReference 169}" sourceArrow="{y:GraphMLReference 170}"/>
+				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 171}" targetArrow="{y:GraphMLReference 172}" sourceArrow="{y:GraphMLReference 173}"/>
 			</data>
 		</edge>
 		<edge id="e111" source="n40" target="n18" sourceport="p2" targetport="p3">
@@ -8282,17 +8409,17 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 119}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 122}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 119}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 122}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e112" source="n33" target="n82" sourceport="p2" targetport="p0">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -8304,7 +8431,7 @@ obsah]]></y:Label.Text>
 		</edge>
 		<edge id="e113" source="n83" target="n33" sourceport="p0" targetport="p3">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
@@ -8338,10 +8465,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 120}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 123}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 120}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 123}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8353,10 +8480,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 121}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 124}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 121}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 124}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8368,10 +8495,10 @@ obsah]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 122}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 125}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 122}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 125}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8401,10 +8528,10 @@ podle atributu]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 123}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 126}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 123}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 126}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8434,10 +8561,10 @@ porovnání]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 124}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 127}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 124}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 127}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8467,10 +8594,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 125}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 128}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 125}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 128}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8499,12 +8626,12 @@ pravidla]]></y:Label.Text>
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle targetArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 126}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 129}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<yjs:Arrow type="SIMPLE" stroke="#FF000000" fill="{y:GraphMLReference 126}"/>
+						<yjs:Arrow type="SIMPLE" stroke="#FF000000" fill="{y:GraphMLReference 129}"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8516,10 +8643,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 127}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 130}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 127}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 130}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8531,10 +8658,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 128}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 131}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 128}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 131}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8546,10 +8673,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 129}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 132}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 129}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 132}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8561,10 +8688,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 130}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 133}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 130}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 133}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8582,10 +8709,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 131}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 134}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 131}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 134}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8597,10 +8724,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 132}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 135}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 132}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 135}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8619,10 +8746,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 133}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 136}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 133}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 136}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8634,10 +8761,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 134}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 137}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 134}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 137}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8649,10 +8776,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 135}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 138}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 135}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 138}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8681,10 +8808,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 136}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 139}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 136}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 139}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8696,10 +8823,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 137}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 140}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 137}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 140}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8716,10 +8843,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 138}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 141}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 138}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 141}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8731,10 +8858,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 139}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 142}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 139}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 142}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8751,10 +8878,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 140}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 143}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 140}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 143}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8766,10 +8893,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 141}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 144}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 141}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 144}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8781,10 +8908,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 142}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 145}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 142}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 145}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8796,10 +8923,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 143}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 146}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 143}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 146}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8828,10 +8955,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 144}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 147}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 144}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 147}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8865,10 +8992,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 145}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 148}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 145}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 148}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8902,10 +9029,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 146}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 149}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 146}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 149}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8922,10 +9049,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 147}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 150}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 147}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 150}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8937,10 +9064,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 148}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 151}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 148}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 151}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -8969,60 +9096,15 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 149}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 152}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 149}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 152}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
 		<edge id="e144" source="n109" target="n110" sourceport="p0" targetport="p0">
-			<data key="d13">
-				<yjs:PolylineEdgeStyle>
-					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
-					</yjs:PolylineEdgeStyle.stroke>
-					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 150}" scale="1"/>
-					</yjs:PolylineEdgeStyle.targetArrow>
-					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 150}" scale="1"/>
-					</yjs:PolylineEdgeStyle.sourceArrow>
-				</yjs:PolylineEdgeStyle>
-			</data>
-		</edge>
-		<edge id="e145" source="n111" target="n22" sourceport="p0" targetport="p3">
-			<data key="d13">
-				<yjs:PolylineEdgeStyle>
-					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
-					</yjs:PolylineEdgeStyle.stroke>
-					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 151}" scale="1"/>
-					</yjs:PolylineEdgeStyle.targetArrow>
-					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 151}" scale="1"/>
-					</yjs:PolylineEdgeStyle.sourceArrow>
-				</yjs:PolylineEdgeStyle>
-			</data>
-		</edge>
-		<edge id="e146" source="n58" target="n112" sourceport="p6" targetport="p0">
-			<data key="d13">
-				<yjs:PolylineEdgeStyle>
-					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
-					</yjs:PolylineEdgeStyle.stroke>
-					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 152}" scale="1"/>
-					</yjs:PolylineEdgeStyle.targetArrow>
-					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 152}" scale="1"/>
-					</yjs:PolylineEdgeStyle.sourceArrow>
-				</yjs:PolylineEdgeStyle>
-			</data>
-		</edge>
-		<edge id="e147" source="n113" target="n60" sourceport="p0" targetport="p5">
 			<data key="d13">
 				<yjs:PolylineEdgeStyle>
 					<yjs:PolylineEdgeStyle.stroke>
@@ -9037,22 +9119,22 @@ pravidla]]></y:Label.Text>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
-		<edge id="e148" source="n114" target="n115" sourceport="p0" targetport="p0">
+		<edge id="e145" source="n111" target="n22" sourceport="p0" targetport="p3">
 			<data key="d13">
 				<yjs:PolylineEdgeStyle>
 					<yjs:PolylineEdgeStyle.stroke>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 154}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 154}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 154}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 154}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
-		<edge id="e149" source="n115" target="n116" sourceport="p1" targetport="p0">
+		<edge id="e146" source="n58" target="n112" sourceport="p6" targetport="p0">
 			<data key="d13">
 				<yjs:PolylineEdgeStyle>
 					<yjs:PolylineEdgeStyle.stroke>
@@ -9067,7 +9149,7 @@ pravidla]]></y:Label.Text>
 				</yjs:PolylineEdgeStyle>
 			</data>
 		</edge>
-		<edge id="e150" source="n114" target="n26" sourceport="p1" targetport="p2">
+		<edge id="e147" source="n113" target="n60" sourceport="p0" targetport="p5">
 			<data key="d13">
 				<yjs:PolylineEdgeStyle>
 					<yjs:PolylineEdgeStyle.stroke>
@@ -9077,7 +9159,52 @@ pravidla]]></y:Label.Text>
 						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 156}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 156}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 156}" scale="1"/>
+					</yjs:PolylineEdgeStyle.sourceArrow>
+				</yjs:PolylineEdgeStyle>
+			</data>
+		</edge>
+		<edge id="e148" source="n114" target="n115" sourceport="p0" targetport="p0">
+			<data key="d13">
+				<yjs:PolylineEdgeStyle>
+					<yjs:PolylineEdgeStyle.stroke>
+						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
+					</yjs:PolylineEdgeStyle.stroke>
+					<yjs:PolylineEdgeStyle.targetArrow>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 157}" scale="1"/>
+					</yjs:PolylineEdgeStyle.targetArrow>
+					<yjs:PolylineEdgeStyle.sourceArrow>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 157}" scale="1"/>
+					</yjs:PolylineEdgeStyle.sourceArrow>
+				</yjs:PolylineEdgeStyle>
+			</data>
+		</edge>
+		<edge id="e149" source="n115" target="n116" sourceport="p1" targetport="p0">
+			<data key="d13">
+				<yjs:PolylineEdgeStyle>
+					<yjs:PolylineEdgeStyle.stroke>
+						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
+					</yjs:PolylineEdgeStyle.stroke>
+					<yjs:PolylineEdgeStyle.targetArrow>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 158}" scale="1"/>
+					</yjs:PolylineEdgeStyle.targetArrow>
+					<yjs:PolylineEdgeStyle.sourceArrow>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 158}" scale="1"/>
+					</yjs:PolylineEdgeStyle.sourceArrow>
+				</yjs:PolylineEdgeStyle>
+			</data>
+		</edge>
+		<edge id="e150" source="n114" target="n26" sourceport="p1" targetport="p2">
+			<data key="d13">
+				<yjs:PolylineEdgeStyle>
+					<yjs:PolylineEdgeStyle.stroke>
+						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
+					</yjs:PolylineEdgeStyle.stroke>
+					<yjs:PolylineEdgeStyle.targetArrow>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 159}" scale="1"/>
+					</yjs:PolylineEdgeStyle.targetArrow>
+					<yjs:PolylineEdgeStyle.sourceArrow>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 159}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9094,10 +9221,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 157}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 160}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 157}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 160}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9134,10 +9261,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 158}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 161}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 158}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 161}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9157,10 +9284,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 159}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 162}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 159}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 162}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9194,10 +9321,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 160}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 163}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 160}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 163}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9231,10 +9358,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 161}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 164}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 161}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 164}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9252,10 +9379,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 162}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE_OPTIONAL" stroke="{y:GraphMLReference 165}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 162}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 165}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9285,12 +9412,12 @@ pravidla]]></y:Label.Text>
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 28}">
+				<yjs:PolylineEdgeStyle sourceArrow="{y:GraphMLReference 31}">
 					<yjs:PolylineEdgeStyle.stroke>
-						<yjs:Stroke fill="{y:GraphMLReference 163}" miterLimit="1.45"/>
+						<yjs:Stroke fill="{y:GraphMLReference 166}" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<yjs:Arrow stroke="#FF000000" fill="{y:GraphMLReference 163}"/>
+						<yjs:Arrow stroke="#FF000000" fill="{y:GraphMLReference 166}"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9298,7 +9425,7 @@ pravidla]]></y:Label.Text>
 		<edge id="e158" source="n58" target="n12" sourceport="p10" targetport="p2">
 			<data key="d10"><![CDATA[]]></data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 171}" targetArrow="{y:GraphMLReference 172}" sourceArrow="{y:GraphMLReference 173}"/>
+				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 174}" targetArrow="{y:GraphMLReference 175}" sourceArrow="{y:GraphMLReference 176}"/>
 			</data>
 		</edge>
 		<edge id="e159" source="n40" target="n119" sourceport="p3" targetport="p0">
@@ -9309,10 +9436,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 165}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 168}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 165}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 168}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9320,7 +9447,7 @@ pravidla]]></y:Label.Text>
 		<edge id="e160" source="n58" target="n120" sourceport="p11" targetport="p0">
 			<data key="d10"><![CDATA[]]></data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 177}" targetArrow="{y:GraphMLReference 178}" sourceArrow="{y:GraphMLReference 179}"/>
+				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 180}" targetArrow="{y:GraphMLReference 181}" sourceArrow="{y:GraphMLReference 182}"/>
 			</data>
 		</edge>
 		<edge id="e161" source="n7" target="n120" sourceport="p9" targetport="p1">
@@ -9331,10 +9458,10 @@ pravidla]]></y:Label.Text>
 						<yjs:Stroke fill="#FF000000" miterLimit="1.45"/>
 					</yjs:PolylineEdgeStyle.stroke>
 					<yjs:PolylineEdgeStyle.targetArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 167}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_MANY_OPTIONAL" stroke="{y:GraphMLReference 170}" scale="1"/>
 					</yjs:PolylineEdgeStyle.targetArrow>
 					<yjs:PolylineEdgeStyle.sourceArrow>
-						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 167}" scale="1"/>
+						<x0:CrowsFootArrow type="CROWS_FOOT_ONE" stroke="{y:GraphMLReference 170}" scale="1"/>
 					</yjs:PolylineEdgeStyle.sourceArrow>
 				</yjs:PolylineEdgeStyle>
 			</data>
@@ -9347,12 +9474,12 @@ pravidla]]></y:Label.Text>
 				</x:List>
 			</data>
 			<data key="d13">
-				<y:GraphMLReference ResourceKey="174"/>
+				<y:GraphMLReference ResourceKey="177"/>
 			</data>
 		</edge>
 		<edge id="e163" source="n122" target="n121" sourceport="p0" targetport="p1">
 			<data key="d13">
-				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 171}" targetArrow="{y:GraphMLReference 172}" sourceArrow="{y:GraphMLReference 173}"/>
+				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 174}" targetArrow="{y:GraphMLReference 175}" sourceArrow="{y:GraphMLReference 176}"/>
 			</data>
 		</edge>
 		<edge id="e164" source="n121" target="n47" sourceport="p2" targetport="p3">
@@ -9362,7 +9489,7 @@ pravidla]]></y:Label.Text>
 				</x:List>
 			</data>
 			<data key="d13">
-				<y:GraphMLReference ResourceKey="174"/>
+				<y:GraphMLReference ResourceKey="177"/>
 			</data>
 		</edge>
 		<edge id="e165" source="n123" target="n0" sourceport="p0" targetport="p14">
@@ -9375,25 +9502,25 @@ pravidla]]></y:Label.Text>
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 175}" targetArrow="{y:GraphMLReference 176}" sourceArrow="{y:GraphMLReference 182}"/>
+				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 178}" targetArrow="{y:GraphMLReference 179}" sourceArrow="{y:GraphMLReference 185}"/>
 			</data>
 		</edge>
 		<edge id="e166" source="n15" target="n124" sourceport="p9" targetport="p0">
 			<data key="d11">
 				<x:List>
-					<y:Label LayoutParameter="{y:GraphMLReference 180}" Style="{y:GraphMLReference 181}">
+					<y:Label LayoutParameter="{y:GraphMLReference 183}" Style="{y:GraphMLReference 184}">
 						<y:Label.Text>notification</y:Label.Text>
 					</y:Label>
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 177}" targetArrow="{y:GraphMLReference 178}" sourceArrow="{y:GraphMLReference 179}"/>
+				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 180}" targetArrow="{y:GraphMLReference 181}" sourceArrow="{y:GraphMLReference 182}"/>
 			</data>
 		</edge>
 		<edge id="e167" source="n78" target="n124" sourceport="p7" targetport="p1">
 			<data key="d11">
 				<x:List>
-					<y:Label LayoutParameter="{y:GraphMLReference 180}" Style="{y:GraphMLReference 181}">
+					<y:Label LayoutParameter="{y:GraphMLReference 183}" Style="{y:GraphMLReference 184}">
 						<y:Label.Text>attachment</y:Label.Text>
 					</y:Label>
 				</x:List>
@@ -9404,7 +9531,113 @@ pravidla]]></y:Label.Text>
 				</x:List>
 			</data>
 			<data key="d13">
-				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 175}" targetArrow="{y:GraphMLReference 176}" sourceArrow="{y:GraphMLReference 182}"/>
+				<yjs:PolylineEdgeStyle stroke="{y:GraphMLReference 178}" targetArrow="{y:GraphMLReference 179}" sourceArrow="{y:GraphMLReference 185}"/>
+			</data>
+		</edge>
+		<edge id="e168" source="n126" target="n125" sourceport="p0" targetport="p0">
+			<data key="d13">
+				<y:GraphMLReference ResourceKey="187"/>
+			</data>
+		</edge>
+		<edge id="e169" source="n0" target="n126" sourceport="p15" targetport="p1">
+			<data key="d11">
+				<x:List>
+					<y:Label Style="{y:GraphMLReference 189}">
+						<y:Label.Text>delegator</y:Label.Text>
+						<y:Label.LayoutParameter>
+							<y:SmartEdgeLabelModelParameter Model="{y:GraphMLReference 188}" Location="FromTarget" SegmentRatio="0.21338032527022932" Distance="10.079393254372238"/>
+						</y:Label.LayoutParameter>
+					</y:Label>
+				</x:List>
+			</data>
+			<data key="d12">
+				<x:List>
+					<y:Bend Location="-262.5,566.25"/>
+					<y:Bend Location="-543.75,650.25"/>
+					<y:Bend Location="-924,975.5"/>
+				</x:List>
+			</data>
+			<data key="d13">
+				<y:GraphMLReference ResourceKey="187"/>
+			</data>
+		</edge>
+		<edge id="e170" source="n0" target="n126" sourceport="p16" targetport="p2">
+			<data key="d11">
+				<x:List>
+					<y:Label Style="{y:GraphMLReference 189}">
+						<y:Label.Text>delegate</y:Label.Text>
+						<y:Label.LayoutParameter>
+							<y:SmartEdgeLabelModelParameter Model="{y:GraphMLReference 188}" Location="FromTarget" SegmentRatio="0.16274464938666422" Distance="18.39296870796223"/>
+						</y:Label.LayoutParameter>
+					</y:Label>
+				</x:List>
+			</data>
+			<data key="d12">
+				<x:List>
+					<y:Bend Location="-267,550"/>
+					<y:Bend Location="-546.75,629.75"/>
+					<y:Bend Location="-921,949.25"/>
+				</x:List>
+			</data>
+			<data key="d13">
+				<y:GraphMLReference ResourceKey="187"/>
+			</data>
+		</edge>
+		<edge id="e171" source="n5" target="n126" sourceport="p9" targetport="p3">
+			<data key="d11">
+				<x:List>
+					<y:Label Style="{y:GraphMLReference 189}">
+						<y:Label.Text>delegatorContract</y:Label.Text>
+						<y:Label.LayoutParameter>
+							<y:SmartEdgeLabelModelParameter Model="{y:GraphMLReference 188}" Location="FromTarget" SegmentRatio="0.28778456718545853" Distance="16.422756151613342"/>
+						</y:Label.LayoutParameter>
+					</y:Label>
+				</x:List>
+			</data>
+			<data key="d12">
+				<x:List>
+					<y:Bend Location="-264,1163"/>
+					<y:Bend Location="-964,1164.5"/>
+					<y:Bend Location="-968.25,1161.5"/>
+				</x:List>
+			</data>
+			<data key="d13">
+				<y:GraphMLReference ResourceKey="187"/>
+			</data>
+		</edge>
+		<edge id="e172" source="n78" target="n127" sourceport="p8" targetport="p0">
+			<data key="d11">
+				<x:List>
+					<y:Label Style="{y:GraphMLReference 189}">
+						<y:Label.Text>data</y:Label.Text>
+						<y:Label.LayoutParameter>
+							<y:SmartEdgeLabelModelParameter Model="{y:GraphMLReference 188}" Location="FromTarget" SegmentRatio="0.0818570379702036" Distance="7.843996528453388"/>
+						</y:Label.LayoutParameter>
+					</y:Label>
+				</x:List>
+			</data>
+			<data key="d12">
+				<x:List>
+					<y:Bend Location="-1418.5,14"/>
+				</x:List>
+			</data>
+			<data key="d13">
+				<y:GraphMLReference ResourceKey="187"/>
+			</data>
+		</edge>
+		<edge id="e173" source="n127" target="n128" sourceport="p1" targetport="p0">
+			<data key="d11">
+				<x:List>
+					<y:Label Style="{y:GraphMLReference 189}">
+						<y:Label.Text>batch</y:Label.Text>
+						<y:Label.LayoutParameter>
+							<y:SmartEdgeLabelModelParameter Model="{y:GraphMLReference 188}" Distance="5"/>
+						</y:Label.LayoutParameter>
+					</y:Label>
+				</x:List>
+			</data>
+			<data key="d13">
+				<y:GraphMLReference ResourceKey="187"/>
 			</data>
 		</edge>
 	</graph>

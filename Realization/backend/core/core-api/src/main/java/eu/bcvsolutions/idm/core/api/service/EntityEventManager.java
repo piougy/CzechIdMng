@@ -44,6 +44,11 @@ public interface EntityEventManager extends ScriptEnabled {
 	
 	String EVENT_PROPERTY_SKIP_NOTIFY = "idm:skip-notify";
 	String EVENT_PROPERTY_SKIP_NOTIFICATION = "idm:skip-notification"; // skip sending notifications
+	/**
+	 * @deprecated @since 10.6.0 - added to solve backward compatibility, will be removed in future release.
+	 */
+	@Deprecated
+	String EVENT_PROPERTY_SKIP_SUB_ROLES = "idm:skip-sub-roles"; // skip assign subroles by asynchronous event processing
 	
 	/**
 	 * Cancel all previously ran events

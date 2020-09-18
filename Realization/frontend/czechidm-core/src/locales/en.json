@@ -7694,6 +7694,9 @@
     },
     "token-cache": {
       "description": "Cache stores logged user tokens. Cache is evicted automatically after token is changed. Cache expiration is 1 minute  - token expiration id prolonged automatically in one minute window, when token used."
+    },
+    "all-sub-roles": {
+      "description": "Cache for business role sub roles. Cache is cleared automatically, when business role definition is changed."
     }
   }
 }

@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.scheduler.task.impl.RemoveRoleCompositionTaskExe
 @Description("Deletes role composition from repository.")
 public class RoleCompositionDeleteProcessor
 		extends CoreEventProcessor<IdmRoleCompositionDto>
-		implements RoleCompositionProcessor{
+		implements RoleCompositionProcessor {
 	
 	public static final String PROCESSOR_NAME = "core-role-composition-delete-processor";
 	//

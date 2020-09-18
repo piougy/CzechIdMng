@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.config.cache;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.config.cache.DistributedIdMCacheConfiguratio
 import eu.bcvsolutions.idm.core.api.config.cache.IdMCacheConfiguration;
 import eu.bcvsolutions.idm.core.api.config.cache.LocalIdMCacheConfiguration;
 import eu.bcvsolutions.idm.core.api.dto.IdmTokenDto;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.eav.api.domain.FormDefinitionCache;
 import eu.bcvsolutions.idm.core.eav.api.service.FormService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
@@ -120,6 +122,23 @@ public class CoreCacheConfiguration {
 				.withKeyType(UUID.class) // token id
 				.withValueType(IdmTokenDto.class) // code - form definition
 				.withTtl(Duration.ofMinutes(1)) // token expiration is one minute anyway
+				.build();
+	}
+	
+	/**
+	 * Business role cache.
+	 *
+	 * @return all sub roles by superior role
+	 * @since 10.6.0
+	 * @see IdmRoleCompositionService#findAllSubRoles(UUID, eu.bcvsolutions.idm.core.security.api.domain.BasePermission...)
+	 */
+	@Bean
+	@SuppressWarnings("rawtypes")
+	public IdMCacheConfiguration allSubRolesCacheConfiguration() {
+		return DistributedIdMCacheConfiguration.<UUID, ArrayList> builder()
+			.withName(IdmRoleCompositionService.ALL_SUB_ROLES_CACHE_NAME)
+				.withKeyType(UUID.class) // superior role
+				.withValueType(ArrayList.class) // all sub roles
 				.build();
 	}
 }

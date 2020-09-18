@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.event.processor.IdentityRoleProcessor;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
@@ -24,8 +25,10 @@ import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventT
  * 
  * @author Radek Tomiška
  * @since 9.0.0
+ * @deprecated @since 10.6.0 - sub roles are assigned by standard role request. Prevent to assign identity role dirrectly without role request!
  */
-@Component(IdentityRoleAssignSubRolesProcessor.PROCESSOR_NAME)
+@Component
+@Deprecated
 @Description("Assing sub roles of currently assigned identity roles.")
 public class IdentityRoleAssignSubRolesProcessor
 		extends CoreEventProcessor<IdmIdentityRoleDto>
@@ -57,7 +60,8 @@ public class IdentityRoleAssignSubRolesProcessor
 		if (assignedRole.getChildrenCount() == 0) {
 			return false;
 		}
-		return true;
+		// 
+		return !this.getBooleanProperty(EntityEventManager.EVENT_PROPERTY_SKIP_SUB_ROLES, event.getProperties());
 	}
 	
 	@Override

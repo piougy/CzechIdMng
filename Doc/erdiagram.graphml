@@ -2834,7 +2834,7 @@ Permission]]></x0:EntityRelationshipModel.title>
 		<node id="n60">
 			<data key="d0">0</data>
 			<data key="d5">
-				<y:RectD X="444.89637466039625" Y="815.03509473088" Width="162.7888587216495" Height="146.36794539004597"/>
+				<y:RectD X="444.89637466039636" Y="769.41009473088" Width="162.7888587216495" Height="191.99294539004597"/>
 			</data>
 			<data key="d7">
 				<x0:EntityNodeStyle insetFill="#FFB7C9E3">
@@ -2859,6 +2859,9 @@ Permission]]></x0:EntityRelationshipModel.title>
 									<sys:String><![CDATA[+ log]]></sys:String>
 									<sys:String><![CDATA[+ wfProcessId]]></sys:String>
 									<sys:String><![CDATA[+ contractPositionId]]></sys:String>
+									<sys:String><![CDATA[+ directRole]]></sys:String>
+									<sys:String><![CDATA[+ directConcept]]></sys:String>
+									<sys:String><![CDATA[+ roleComposition]]></sys:String>
 								</x:Array>
 							</x0:EntityRelationshipModel.attributes>
 						</x0:EntityRelationshipModel>

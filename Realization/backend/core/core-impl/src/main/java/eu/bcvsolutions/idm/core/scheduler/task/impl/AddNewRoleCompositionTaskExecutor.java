@@ -18,22 +18,30 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
+import eu.bcvsolutions.idm.core.api.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmIdentityRoleFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleCompositionFilter;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.api.service.IdmRoleCompositionService;
+import eu.bcvsolutions.idm.core.api.service.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.api.service.LookupService;
 import eu.bcvsolutions.idm.core.api.utils.DtoUtils;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.dto.IdmFormAttributeDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole_;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition_;
-import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleRequestEvent.RoleRequestEventType;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.filter.IdmLongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.AbstractSchedulableStatefulExecutor;
@@ -54,6 +62,8 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 	//
 	@Autowired private IdmRoleCompositionService roleCompositionService;
 	@Autowired private IdmIdentityRoleService identityRoleService;
+	@Autowired private IdmRoleRequestService roleRequestService;
+	@Autowired private LookupService lookupService;
 	//
 	private UUID roleCompositionId = null;
 	
@@ -127,9 +137,40 @@ public class AddNewRoleCompositionTaskExecutor extends AbstractSchedulableStatef
 			identityRoleService
 				.find(filter, null)
 				.forEach(identityRole -> {
-					// currently processed role composition only
-					roleCompositionService.assignSubRoles(new IdentityRoleEvent(IdentityRoleEventType.NOTIFY, identityRole), roleCompositionId);
+					IdmIdentityContractDto contract = lookupService.lookupEmbeddedDto(identityRole, IdmIdentityRole_.identityContract);
+					// find direct sub roles - other sub roles will be processed by role request automatically
+					IdmRoleCompositionFilter compositionFilter = new IdmRoleCompositionFilter();
+					compositionFilter.setSuperiorId(identityRole.getRole());
+					compositionFilter.setId(roleCompositionId);
+					//
+					List<IdmConceptRoleRequestDto> concepts = roleCompositionService
+							.find(compositionFilter, null)
+							.stream()
+							.map(subRole -> {
+								IdmConceptRoleRequestDto conceptRoleRequest = new IdmConceptRoleRequestDto();
+								conceptRoleRequest.setOperation(ConceptRoleRequestOperation.ADD);
+								// from concept
+								conceptRoleRequest.setValidFrom(identityRole.getValidFrom());
+								conceptRoleRequest.setValidTill(identityRole.getValidTill());
+								conceptRoleRequest.setIdentityContract(identityRole.getIdentityContract());
+								conceptRoleRequest.setContractPosition(identityRole.getContractPosition());
+								// from assigned (~changed) sub role
+								conceptRoleRequest.setRole(subRole.getSub());
+								conceptRoleRequest.setDirectRole(identityRole.getId());
+								conceptRoleRequest.setRoleComposition(subRole.getId());
+								//
+								return conceptRoleRequest;
+							})
+							.collect(Collectors.toList());
+					//
+					if (!concepts.isEmpty()) {
+						IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
+						roleRequest.setConceptRoles(concepts);
+						roleRequest.setApplicant(contract.getIdentity());
+						roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
+					}
 				});
+			//
 			return Optional.of(new OperationResult.Builder(OperationState.EXECUTED).build());
 		} catch (Exception ex) {
 			return Optional.of(new OperationResult

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.core.api.CoreModule;
 import eu.bcvsolutions.idm.core.api.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleCompositionDto;
 import eu.bcvsolutions.idm.core.api.dto.IdmRoleDto;
@@ -22,6 +23,13 @@ import eu.bcvsolutions.idm.core.security.api.service.AuthorizableService;
 public interface IdmRoleCompositionService extends
 	EventableDtoService<IdmRoleCompositionDto, IdmRoleCompositionFilter>,
 	AuthorizableService<IdmRoleCompositionDto> {
+	
+	/**
+	 * Sub roles cache.
+	 * 
+	 * @since 10.6.0
+	 */
+	String ALL_SUB_ROLES_CACHE_NAME = String.format("%s:all-sub-roles", CoreModule.MODULE_ID);
 	
 	/**
 	 * Return list of sub roles (only one level in depth)
@@ -60,7 +68,9 @@ public interface IdmRoleCompositionService extends
 	 * @param directRoleEvent event is needed for skip already processed identity roles (prevent cycles)
 	 * @param permission permissions to evaluate (AND)
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @deprecated @since 10.6.0 business roles are processed by standard role request => prevent to use this method
 	 */
+	@Deprecated
 	void assignSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission);
 	
 	/**
@@ -72,7 +82,9 @@ public interface IdmRoleCompositionService extends
 	 * @param permission permissions to evaluate (AND)
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
 	 * @since 9.7.15
+	 * @deprecated @since 10.6.0 business roles are processed by standard role request => prevent to use this method
 	 */
+	@Deprecated
 	void assignSubRoles(EntityEvent<IdmIdentityRoleDto> event, UUID roleCompositionId, BasePermission... permission);
 	
 	/**
@@ -81,7 +93,9 @@ public interface IdmRoleCompositionService extends
 	 * @param directRole
 	 * @param permission permissions to evaluate (AND)
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @deprecated @since 10.6.0 business roles are processed by standard role request => prevent to use this method
 	 */
+	@Deprecated
 	void removeSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission);
 	
 	/**
@@ -90,7 +104,9 @@ public interface IdmRoleCompositionService extends
 	 * @param event
 	 * @param permission permissions to evaluate (AND)
 	 * @throws ForbiddenEntityException if authorization policies doesn't met
+	 * @deprecated @since 10.6.0 business roles are processed by standard role request => prevent to use this method
 	 */
+	@Deprecated
 	void updateSubRoles(EntityEvent<IdmIdentityRoleDto> event, BasePermission... permission);
 	
 	/**

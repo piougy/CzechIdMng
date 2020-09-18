@@ -291,6 +291,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 
 	@Test
 	public void testRemoveRule() {
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		//
 		IdmRoleDto role = prepareRole();
 		IdmIdentityDto identity = helper.createIdentity();
 		IdmIdentityDto identityTwo = helper.createIdentity();
@@ -507,6 +509,8 @@ public class DefaultIdmAutomaticRoleRequestServiceIntegrationTest extends Abstra
 	
 	@Test
 	public void testAutomaticRoleRequestReferentialIntegrity () {
+		helper.setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		//
 		IdmRoleDto role = prepareRole();
 		IdmTreeNodeDto nodeOne = helper.createTreeNode();
 		IdmIdentityDto guaranteeIdentity = helper.createIdentity();

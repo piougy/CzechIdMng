@@ -7749,6 +7749,9 @@
     },
     "token-cache": {
       "description": "Cache pro ukládání tokenů přihlášených uživatelů. Cache je vyprázdněna automaticky při každé změně tokenu. Platnost cache je 1 minuta - po jedné minutě je prodlužována platnost tokenu, pokud se token používá a cache se vyprázdní."
+    },
+    "all-sub-roles": {
+      "description": "Cache pro ukládání sub rolí dle definice business role. Cache je vyprázdněna automaticky při každé změně business rolí."
     }
   }
 }

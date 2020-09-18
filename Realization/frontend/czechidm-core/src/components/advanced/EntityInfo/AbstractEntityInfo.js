@@ -122,7 +122,11 @@ export default class AbstractEntityInfo extends Basic.AbstractContextComponent {
     return null;
   }
 
-  getEntity() {
+  getEntity(givenEntity = null) {
+    if (givenEntity) {
+      return givenEntity;
+    }
+    // by props
     const { entity, _entity } = this.props;
     //
     if (entity) { // entity is given by props

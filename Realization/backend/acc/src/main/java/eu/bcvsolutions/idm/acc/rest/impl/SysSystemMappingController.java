@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import com.google.common.collect.ImmutableMap;
+import eu.bcvsolutions.idm.acc.event.SystemMappingEvent;
 import java.util.List;
 import java.util.UUID;
 
@@ -144,7 +146,15 @@ public class SysSystemMappingController extends AbstractReadWriteDtoController<S
 						@AuthorizationScope(scope = AccGroupPermission.SYSTEM_UPDATE, description = "")})
 				})
 	public ResponseEntity<?> post(@RequestBody @NotNull SysSystemMappingDto dto) {
-		return super.post(dto);
+		// Automatic creation of mapping have to be enabled here.
+		dto = service.publish(
+				new SystemMappingEvent(
+						getService().isNew(dto) ? SystemMappingEvent.SystemMappingEventType.CREATE : SystemMappingEvent.SystemMappingEventType.UPDATE,
+						dto,
+						ImmutableMap.of(SysSystemMappingService.ENABLE_AUTOMATIC_CREATION_OF_MAPPING, true)))
+				.getContent();
+
+		return new ResponseEntity<>(this.toResource(dto), HttpStatus.CREATED);
 	}
 
 	@Override

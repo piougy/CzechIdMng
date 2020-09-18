@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.domain.MappingContext;
 import eu.bcvsolutions.idm.acc.dto.SysSystemEntityDto;
+import eu.bcvsolutions.idm.core.api.service.EventableDtoService;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +25,9 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * @author Ondrej Husnik
  *
  */
-public interface SysSystemMappingService extends ReadWriteDtoService<SysSystemMappingDto, SysSystemMappingFilter>, CloneableService<SysSystemMappingDto> {
+public interface SysSystemMappingService extends EventableDtoService<SysSystemMappingDto, SysSystemMappingFilter>, CloneableService<SysSystemMappingDto> {
+
+	String ENABLE_AUTOMATIC_CREATION_OF_MAPPING = "enable_automatic_creation_of_mapping";
 
 	/**
 	 * Find system mapping by given attributes

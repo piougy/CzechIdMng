@@ -495,7 +495,6 @@ export default class TreeNodeSelect extends Basic.AbstractFormComponent {
               }
               onChange={ this.onModalSelect.bind(this) }
               onDoubleClick={ (nodeId) => this.onSelect(nodeId) }
-              bodyStyle={{ overflowY: 'auto', maxHeight: 450 }}
               disableable={ disableable }
             />
           </Basic.Modal.Body>

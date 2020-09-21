@@ -141,7 +141,7 @@ public class DefaultIdmRoleServiceUnitTest extends AbstractUnitTest {
 		roleUpdate.setEnvironment("env2");
 		//
 		RoleCodeEnvironmentProcessor roleCodeEnvironmentProcessor = new RoleCodeEnvironmentProcessor(service);
-		CoreEvent<IdmRoleDto> updateEvent = new CoreEvent<IdmRoleDto>(CoreEventType.CREATE, roleUpdate);
+		CoreEvent<IdmRoleDto> updateEvent = new CoreEvent<IdmRoleDto>(CoreEventType.UPDATE, roleUpdate);
 		updateEvent.setOriginalSource(role);
 		roleCodeEnvironmentProcessor.process(updateEvent);
 	}
@@ -188,6 +188,18 @@ public class DefaultIdmRoleServiceUnitTest extends AbstractUnitTest {
 	}
 	
 	@Test
+	public void testCreateSuccessWithNameOnly() {
+		IdmRoleDto role = new IdmRoleDto();
+		role.setName("code");
+		//
+		RoleCodeEnvironmentProcessor roleCodeEnvironmentProcessor = new RoleCodeEnvironmentProcessor(service);
+		IdmRoleDto content = roleCodeEnvironmentProcessor.process(new CoreEvent<IdmRoleDto>(CoreEventType.CREATE, role)).getEvent().getContent();
+		//
+		Assert.assertEquals("code", content.getCode());
+		Assert.assertEquals("code", content.getBaseCode());
+	}
+	
+	@Test
 	public void testCreateSuccessWithCodeOnly() {
 		IdmRoleDto role = new IdmRoleDto();
 		role.setCode("code");
@@ -197,6 +209,14 @@ public class DefaultIdmRoleServiceUnitTest extends AbstractUnitTest {
 		//
 		Assert.assertEquals("code", content.getCode());
 		Assert.assertEquals("code", content.getBaseCode());
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testCreateFaildedWithoutNameAndCode() {
+		IdmRoleDto role = new IdmRoleDto();
+		//
+		RoleCodeEnvironmentProcessor roleCodeEnvironmentProcessor = new RoleCodeEnvironmentProcessor(service);
+		roleCodeEnvironmentProcessor.process(new CoreEvent<IdmRoleDto>(CoreEventType.CREATE, role)).getEvent().getContent();
 	}
 	
 	@Test

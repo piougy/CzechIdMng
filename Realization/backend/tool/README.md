@@ -315,7 +315,7 @@ Build features:
 ./
  ├── tool                           ⟵ [required] Here is idm-tool.jar (+lib or one-fat-jar).
  ├── product                        ⟵ [required] Here is product .war artefact (e.g. idm-9.7.14.war, idm-10.1.0.war or extracted folder idm-10.1.0). Can be downloaded from our nexus.
- ├── modules                        ⟵ [optional] Here are project modules and connectors. Third party module libraries (dependencies) could be here too, but is resolved automatically - see bellow.
+ ├── modules                        ⟵ [optional] Here are project modules (~ IdM modules) and connectors. Third party module libraries (dependencies) could be here too, but they are resolved automatically - see bellow.
  ├── frontend                       ⟵ [optional] Here can be custom frontend files - czechidm-app frontend module, localization can be overriden, e.t.c
  |   ├── config                     ⟵ frontend configuration (by profile, stage - see https://github.com/bcvsolutions/CzechIdMng/blob/develop/Realization/frontend/czechidm-app/config/README.md)
  |   ├── czechidm-modules           ⟵ additional frontend modules (or overriden core module files, e.g. localization)
@@ -351,6 +351,7 @@ Third party module dependencies are inluded in target build automatically:
   - library has to be available in maven repository (local or nexus),
   - library version can be defined by maven property too. Property should be defined directly in module - resolving properties from parent module is not supported.
   - if **more versions of the same library is defined, then the build fails**. Update module dependencies or copy third party library to modules folder to ensure concrete version is used.
+  - **CzechIdM module is not included as maven dependency - place all project CzechIdM modules into ``modules`` forder (e.g. ``crt-api`` + ``crt-impl``)**.
 
 ## Future development
 

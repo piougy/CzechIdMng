@@ -420,6 +420,7 @@ public class ProjectManager {
 		int registeredDependencies = 0;
 		ArrayNode dependencies = xmlMapper.createArrayNode();
 		for (Model module : modules.values()) {
+			Parent parent = module.getParent();
 			for (Dependency dependency : module.getDependencies()) {
 				// group id decorator
 				String groupId = dependency.getGroupId();
@@ -428,7 +429,6 @@ public class ProjectManager {
 				} else if("${project.groupId}".equals(groupId)) {
 					groupId = module.getGroupId();
 					if (StringUtils.isEmpty(groupId)) {
-						Parent parent = module.getParent();
 						if (parent != null) {
 							groupId = parent.getGroupId();
 						}
@@ -440,11 +440,25 @@ public class ProjectManager {
 				// resolve module version as project property
 				if (version != null && version.startsWith("${") && version.endsWith("}")) {
 					String propertyKey = version.substring(2, version.length() - 1);
-					if (module.getProperties().containsKey(propertyKey)) {
+					if ("project.version".equals(propertyKey)) {
+						version = module.getVersion();
+						if (StringUtils.isEmpty(version) && parent != null) {
+							version = parent.getVersion();
+						}
+					} else if (module.getProperties().containsKey(propertyKey)) {
 						version = module.getProperties().getProperty(propertyKey);
 					}
 				}
 				String scope = dependency.getScope();
+				// ignore provided dependencies
+				if ("provided".equals(scope)) { // FIXME:
+					LOG.debug("Module dependency [{}] is provided, skipping.", simpleModuleId);
+					continue;
+				}
+				if (ReleaseManager.MAVEN_GROUP_ID.equals(groupId)) {
+					LOG.debug("CzechIdM module dependency [{}] should be placed in modules folder, skipping from dependencies.", simpleModuleId);
+					continue;
+				}
 				//
 				// simple check dependency is fully specified
 				if (StringUtils.isEmpty(groupId) 

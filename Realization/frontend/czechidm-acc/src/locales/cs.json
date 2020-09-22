@@ -1545,12 +1545,12 @@
           },
           "jdbcdriver": {
             "label": "JDBC Driver",
-            "help": "Zadejte implementaci JDBC driveru (class name). Pro Oracle <strong>oracle.jdbc.driver.OracleDriver</strong>. Pro <strong>MySQL org.gjt.mm.mysql.Driver</strong>. Může být prázdný, pokud je využíván poskytovaný datasource.",
+            "help": "Zadejte implementaci JDBC driveru (class name). Pro Oracle <strong>oracle.jdbc.driver.OracleDriver</strong>. Pro MySQL <strong>org.gjt.mm.mysql.Driver</strong>. Pro PostgreSQL <strong>org.postgresql.Driver</strong>. Může být prázdný, pokud je využíván poskytovaný datasource.",
             "placeholder": ""
           },
           "jdbcurltemplate": {
             "label": "JDBC Connection URL",
-            "help": "Zadejte JDBC Driver Connection URL. Pro Oracle je šablona jdbc:oracle:thin:@[host]:[port(1521)]:[DB]. Pro MySQL je šablona jdbc:mysql://[host]:[port(3306)]/[db], více informací naleznete v dokumentaci dané implementace JDBC driveru. Může být prázdný, pokud je využíván poskytovaný datasource.",
+            "help": "Zadejte JDBC Driver Connection URL. Pro Oracle je šablona <strong>jdbc:oracle:thin:@[host]:[port(1521)]:[db]</strong>. Pro MySQL je šablona <strong>jdbc:mysql://[host]:[port(3306)]/[db]</strong>. Pro PostgreSQL je šablona <strong>jdbc:postgresql://[host]:[port(5432)]/[db]</strong>, více informací naleznete v dokumentaci dané implementace JDBC driveru. Může být prázdný, pokud je využíván poskytovaný datasource.",
             "placeholder": ""
           },
           "enableemptystring": {

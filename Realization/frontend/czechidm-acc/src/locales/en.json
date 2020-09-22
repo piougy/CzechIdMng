@@ -1543,12 +1543,12 @@
           },
           "jdbcdriver": {
             "label": "JDBC Driver",
-            "help": "Specify the JDBC Driver class name. Oracle is oracle.jdbc.driver.OracleDriver. MySQL is org.gjt.mm.mysql.Driver. Could be empty if datasource is provided.",
+            "help": "Specify the JDBC Driver class name. Oracle is <strong>oracle.jdbc.driver.OracleDriver</strong>. MySQL is <strong>org.gjt.mm.mysql.Driver</strong>. PostgreSQL is <strong>org.postgresql.Driver</strong>. Could be empty if datasource is provided.",
             "placeholder": ""
           },
           "jdbcurltemplate": {
             "label": "JDBC Connection URL",
-            "help": "Specify the JDBC Driver Connection URL. Oracle template is jdbc:oracle:thin:@[host]:[port(1521)]:[DB]. MySQL template is jdbc:mysql://[host]:[port(3306)]/[db], for more info, read the JDBC driver documentation. Could be empty if datasource is provided.",
+            "help": "Specify the JDBC Driver Connection URL. Oracle template is <strong>jdbc:oracle:thin:@[host]:[port(1521)]:[DB]</strong>. MySQL template is <strong>jdbc:mysql://[host]:[port(3306)]/[db]</strong>. PostgreSQL template id <strong>jdbc:postgresql://[host]:[port(5432)]/[db]</strong>, for more info, read the JDBC driver documentation. Could be empty if datasource is provided.",
             "placeholder": ""
           },
           "enableemptystring": {

@@ -6,22 +6,19 @@ import ProvisioningOperations from '../provisioning/ProvisioningOperations';
 import { ProvisioningOperationTable } from '../provisioning/ProvisioningOperationTable';
 
 /**
- * Provisioning opretions route
+ * Provisioning opretions route.
  *
  * @author Radek Tomiška
  */
 export default class SystemProvisioningOparationContent extends Basic.AbstractContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getContentKey() {
     return 'acc:content.provisioningOperations';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-provisioning-operations']);
+  getNavigationKey() {
+    return 'system-provisioning-operations';
   }
 
   render() {
@@ -30,7 +27,7 @@ export default class SystemProvisioningOparationContent extends Basic.AbstractCo
     columns = _.difference(columns, ['system']);
     //
     return (
-      <div>
+      <Basic.Div>
         <Basic.ContentHeader>
           { this.i18n('header', { escape: false }) }
         </Basic.ContentHeader>
@@ -39,7 +36,7 @@ export default class SystemProvisioningOparationContent extends Basic.AbstractCo
           uiKey="system-provisioning-operation-table"
           forceSearchParameters={ forceSearchParameters }
           columns={ columns }/>
-      </div>
+      </Basic.Div>
     );
   }
 }

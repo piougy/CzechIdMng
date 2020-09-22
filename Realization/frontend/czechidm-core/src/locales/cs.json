@@ -7442,7 +7442,7 @@
     },
     "ROLE_COMPOSITION_RUN_CONCURRENTLY": {
       "title": "Business role jsou ve zpracování",
-      "message": "Business role bude zpracována asznchronně na pozadí."
+      "message": "Business role bude zpracována asynchronně na pozadí."
     },
     "ROLE_COMPOSITION_REMOVE_TASK_RUN_CONCURRENTLY": {
       "title": "Business role je mazána jiným procesem",

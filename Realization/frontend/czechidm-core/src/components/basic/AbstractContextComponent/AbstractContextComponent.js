@@ -24,6 +24,10 @@ class AbstractContextComponent extends AbstractComponent {
     this._initWizardComponent(props, context);
   }
 
+  componentDidUpdate() {
+    this._initWizardLoading();
+  }
+
   /**
    * We need to register call back method for next and previous wizard action to the wizard context.
    * Method on the component cannot be called directly (redux component ...).
@@ -124,10 +128,6 @@ class AbstractContextComponent extends AbstractComponent {
    */
   getComponentKey() {
     return null;
-  }
-
-  componentDidUpdate() {
-    this._initWizardLoading();
   }
 
   /**

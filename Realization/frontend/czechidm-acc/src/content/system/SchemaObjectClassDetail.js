@@ -15,10 +15,6 @@ const schemaObjectClassManager = new SchemaObjectClassManager();
 
 class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
   getManager() {
     return schemaAttributeManager;
   }
@@ -29,6 +25,10 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
 
   getContentKey() {
     return 'acc:content.system.objectClassDetail';
+  }
+
+  getNavigationKey() {
+    return 'schema-object-classes';
   }
 
   showDetail(entity, add) {
@@ -72,6 +72,8 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
 
   // Did mount only call initComponent method
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._initComponent(this.props);
   }
 
@@ -86,7 +88,6 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
     } else {
       this.context.store.dispatch(schemaObjectClassManager.fetchEntity(objectClassId));
     }
-    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
   }
 
   /**

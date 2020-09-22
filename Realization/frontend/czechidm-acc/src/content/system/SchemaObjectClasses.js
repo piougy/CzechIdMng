@@ -2,20 +2,16 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import uuid from 'uuid';
 //
 import { Advanced, Basic, Domain, Managers, Utils } from 'czechidm-core';
 import { SchemaObjectClassManager, SystemManager } from '../../redux';
-import uuid from 'uuid';
 
 const uiKey = 'schema-object-classes-entities-table';
 const manager = new SchemaObjectClassManager();
 const systemManager = new SystemManager();
 
 class SchemaObjectClasses extends Advanced.AbstractTableContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -29,8 +25,8 @@ class SchemaObjectClasses extends Advanced.AbstractTableContent {
     return 'acc:content.system.schemaObjectClasses';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
+  getNavigationKey() {
+    return 'schema-object-classes';
   }
 
   showDetail(entity, add) {

@@ -35,8 +35,12 @@ class SystemConnectorContent extends Basic.AbstractContent {
     return 'acc:content.system.connector';
   }
 
+  getNavigationKey() {
+    return 'system-connector';
+  }
+
   componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-connector']);
+    super.componentDidMount();
     // load definition and values
     const { entityId } = this.props.match.params;
     this.context.store.dispatch(manager.fetchAvailableFrameworks());

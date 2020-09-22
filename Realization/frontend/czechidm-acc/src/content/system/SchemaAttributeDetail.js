@@ -24,6 +24,10 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
     return 'acc:content.system.attributeDetail';
   }
 
+  getNavigationKey() {
+    return 'schema-object-classes';
+  }
+
   // @Deprecated - since V10 ... replaced by dynamic key in Route
   // UNSAFE_componentWillReceiveProps(nextProps) {
   //   const { attributeId} = nextProps.match.params;
@@ -34,6 +38,8 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
 
   // Did mount only call initComponent method
   componentDidMount() {
+    super.componentDidMount();
+    //
     this._initComponent(this.props);
   }
 
@@ -48,7 +54,6 @@ class SchemaAttributeDetail extends Advanced.AbstractTableContent {
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
-    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
   }
 
   _getIsNew(nextProps) {

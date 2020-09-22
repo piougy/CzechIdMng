@@ -1,9 +1,9 @@
 import React from 'react';
 import Helmet from 'react-helmet';
+import uuid from 'uuid';
 //
 import { Basic, Advanced, Domain, Managers } from 'czechidm-core';
 import { ProvisioningBreakConfigManager } from '../../redux';
-import uuid from 'uuid';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 
 const uiKey = 'provisioning-break-config-table';
@@ -13,10 +13,6 @@ const manager = new ProvisioningBreakConfigManager();
 * @author Ondrej Kopr
 */
 export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTableContent {
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   getManager() {
     return manager;
@@ -30,8 +26,8 @@ export default class SystemProvisioningBreakConfigs extends Advanced.AbstractTab
     return 'acc:content.provisioningBreakConfig';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-provisioning-break-config']);
+  getNavigationKey() {
+    return 'system-provisioning-break-config';
   }
 
   showDetail(entity, add) {

@@ -15,6 +15,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +52,7 @@ import eu.bcvsolutions.idm.core.model.domain.CoreGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Default implementation of form definition service
+ * Default implementation of form definition service.
  * 
  * @author Radek Tomiška
  *
@@ -66,7 +67,7 @@ public class DefaultIdmFormDefinitionService
 	//
 	@Autowired private IdmFormAttributeService formAttributeService;
 	@Autowired private LookupService lookupService;
-	@Autowired private IdmRoleService roleService;
+	@Autowired @Lazy private IdmRoleService roleService;
 
 	@Autowired
 	public DefaultIdmFormDefinitionService(

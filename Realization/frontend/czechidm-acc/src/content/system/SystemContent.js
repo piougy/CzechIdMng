@@ -19,10 +19,15 @@ class SystemContent extends Basic.AbstractContent {
     return 'acc:content.system.detail';
   }
 
-  componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-detail']);
-    const { entityId } = this.props.match.params;
+  getNavigationKey() {
+    return 'system-detail';
+  }
 
+  componentDidMount() {
+    super.componentDidMount();
+    //
+    const { entityId } = this.props.match.params;
+    //
     this.context.store.dispatch(manager.fetchAvailableFrameworks());
     this.context.store.dispatch(manager.fetchAvailableRemoteConnector(entityId));
     if (this._isNew()) {

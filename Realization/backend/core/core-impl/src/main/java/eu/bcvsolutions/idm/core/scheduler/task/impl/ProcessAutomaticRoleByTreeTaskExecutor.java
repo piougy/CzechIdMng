@@ -30,6 +30,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -37,6 +38,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
@@ -398,6 +400,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	}
 	
 	protected void processIdentityRoles(Set<UUID> processedIdentityRoles, UUID automaticRole) {
+		Assert.notNull(automaticRole, "Automatic role is required.");
 		//
 		// remove old assigned roles by automatic role
 		Pageable pageable = PageRequest.of(
@@ -492,7 +495,9 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 			roleRequest.setConceptRoles(Lists.newArrayList(conceptRoleRequest));
 			roleRequest.setApplicant(contract.getIdentity());
-			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
+			RoleRequestEvent roleRequestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+			roleRequestEvent.setPriority(PriorityType.IMMEDIATE);
+			roleRequest = roleRequestService.startConcepts(roleRequestEvent, null);
 			//
 			// load role concepts and add created role to processed
 			if (roleRequest != null) {
@@ -577,7 +582,9 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 			roleRequest.setConceptRoles(Lists.newArrayList(conceptRoleRequest));
 			roleRequest.setApplicant(contract.getIdentity());
-			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
+			RoleRequestEvent roleRequestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+			roleRequestEvent.setPriority(PriorityType.IMMEDIATE);
+			roleRequest = roleRequestService.startConcepts(roleRequestEvent, null);
 			//
 			// load role concepts and add created role to processed
 			if (roleRequest != null) {

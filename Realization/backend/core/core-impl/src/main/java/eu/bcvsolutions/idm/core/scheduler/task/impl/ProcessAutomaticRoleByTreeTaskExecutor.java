@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -110,7 +109,6 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	private Set<UUID> processedIdentityRoles = new HashSet<>(); // all processed identity roles - invalid role removal is solved, after all automatic roles are assigned (prevent drop and create target account)
 	private boolean removeNotProcessedIdentityRoles = true; // true - invalid role removal is solved, after all automatic roles are assigned (prevent drop and create target account)
 	
-	
 	@Override
 	public String getName() {
 		return TASK_NAME;
@@ -190,13 +188,11 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		filter.setTaskType(AutowireHelper.getTargetType(this));
 		filter.setRunning(Boolean.TRUE);
 		//
-		filter.setTaskType(ProcessAutomaticRoleByTreeTaskExecutor.class.getCanonicalName());
-		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
-			List<UUID> taskRoles = getAutomaticRoles(longRunningTask.getTaskProperties());
-			if (!CollectionUtils.isEmpty(taskRoles) && !Collections.disjoint(automaticRoles, taskRoles)) {
-				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
-						ImmutableMap.of("taskId", longRunningTask.getId().toString()));
-			}
+		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
+			throw new ResultCodeException(
+					CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
+					ImmutableMap.of("taskId", longRunningTaskId.toString())
+			);
 		}
 	}
 	

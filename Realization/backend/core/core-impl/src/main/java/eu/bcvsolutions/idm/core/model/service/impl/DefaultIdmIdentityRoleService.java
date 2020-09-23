@@ -65,7 +65,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.core.security.api.dto.AuthorizableType;
 
 /**
- * Operations with identity roles
+ * Operations with identity roles.
  * 
  * @author svanda
  * @author Radek Tomiška

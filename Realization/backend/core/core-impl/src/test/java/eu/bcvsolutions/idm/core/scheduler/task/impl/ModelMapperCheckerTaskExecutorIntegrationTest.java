@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.config.ModelMapperChecker;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
-import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -31,9 +30,8 @@ public class ModelMapperCheckerTaskExecutorIntegrationTest extends AbstractInteg
 	public void testVerify() throws InterruptedException, ExecutionException {
 		ModelMapperCheckerTaskExecutor executor = new ModelMapperCheckerTaskExecutor();
 		AutowireHelper.autowire(executor);
-		LongRunningFutureTask<Boolean> execute = longRunningTaskManager.execute(executor);
 		//
-		Assert.assertTrue(execute.getFutureTask().get());		
+		Assert.assertTrue(longRunningTaskManager.executeSync(executor));		
 	}
 	
 	@Test
@@ -43,9 +41,9 @@ public class ModelMapperCheckerTaskExecutorIntegrationTest extends AbstractInteg
 			//
 			ModelMapperCheckerTaskExecutor executor = new ModelMapperCheckerTaskExecutor();
 			AutowireHelper.autowire(executor);
-			LongRunningFutureTask<Boolean> execute = longRunningTaskManager.execute(executor);
+			longRunningTaskManager.executeSync(executor);
 			//
-			IdmLongRunningTaskDto longRunningTask = longRunningTaskManager.getLongRunningTask(execute.getExecutor().getLongRunningTaskId());
+			IdmLongRunningTaskDto longRunningTask = longRunningTaskManager.getLongRunningTask(executor.getLongRunningTaskId());
 			Assert.assertEquals(CoreResultCode.CONFIGURATION_DISABLED.name(), longRunningTask.getResult().getModel().getStatusEnum());
 		} finally {
 			getHelper().setConfigurationValue(ModelMapperChecker.PROPERTY_ENABLED, ModelMapperChecker.DEFAULT_ENABLED);

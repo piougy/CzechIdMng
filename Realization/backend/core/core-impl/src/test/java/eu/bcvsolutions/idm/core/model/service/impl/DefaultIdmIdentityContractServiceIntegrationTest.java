@@ -68,6 +68,7 @@ import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent;
 import eu.bcvsolutions.idm.core.model.event.ContractPositionEvent.ContractPositionEventType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.scheduler.api.config.SchedulerConfiguration;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.IdmLongRunningTaskDto;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.IdmLongRunningTaskService;
@@ -448,6 +449,55 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 		Assert.assertTrue(identityRoles.stream().anyMatch(ir -> {
 			return roleD.getId().equals(ir.getRole());
 		}));
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleToExistIdentitySync() {
+		IdmIdentityDto identityOne = getHelper().createIdentityOnly();
+		IdmIdentityDto identityTwo = getHelper().createIdentityOnly();
+		IdmIdentityDto identityThree = getHelper().createIdentityOnly();
+		IdmTreeNodeDto treeNode = getHelper().createTreeNode();
+		IdmIdentityContractDto contractOne = getHelper().createContract(identityOne, treeNode);
+		IdmIdentityContractDto contractTwo = getHelper().createContract(identityTwo, treeNode);
+		IdmIdentityContractDto contractThree = getHelper().createContract(identityThree, treeNode);
+		IdmRoleDto role = getHelper().createRole();
+		IdmRoleTreeNodeDto automaticRole = getHelper().createAutomaticRole(role, treeNode);
+		//
+		List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getContent();
+		Assert.assertEquals(3, assignedRoles.size());
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractOne.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractTwo.getId())));
+		Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractThree.getId())));
+	}
+	
+	@Test
+	public void testAssignAutomaticRoleToExistIdentityAsync() {
+		try {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, true);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, true);
+			//
+			IdmIdentityDto identityOne = getHelper().createIdentityOnly();
+			IdmIdentityDto identityTwo = getHelper().createIdentityOnly();
+			IdmIdentityDto identityThree = getHelper().createIdentityOnly();
+			IdmTreeNodeDto treeNode = getHelper().createTreeNode();
+			IdmIdentityContractDto contractOne = getHelper().createContract(identityOne, treeNode);
+			IdmIdentityContractDto contractTwo = getHelper().createContract(identityTwo, treeNode);
+			IdmIdentityContractDto contractThree = getHelper().createContract(identityThree, treeNode);
+			IdmRoleDto role = getHelper().createRole();
+			IdmRoleTreeNodeDto automaticRole = getHelper().createAutomaticRole(role, treeNode);
+			//
+			getHelper().waitForResult(res -> {
+				return identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getTotalElements() != 3;
+			});
+			//
+			List<IdmIdentityRoleDto> assignedRoles = identityRoleService.findByAutomaticRole(automaticRole.getId(), null).getContent();
+			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractOne.getId())));
+			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractTwo.getId())));
+			Assert.assertTrue(assignedRoles.stream().anyMatch(ir -> ir.getIdentityContract().equals(contractThree.getId())));
+		} finally {
+			getHelper().setConfigurationValue(EventConfiguration.PROPERTY_EVENT_ASYNCHRONOUS_ENABLED, false);
+			getHelper().setConfigurationValue(SchedulerConfiguration.PROPERTY_TASK_ASYNCHRONOUS_ENABLED, false);
+		}
 	}
 	
 	@Test

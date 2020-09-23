@@ -131,9 +131,19 @@ public interface TestHelper {
 	 * Creates test identity with random username  and default "password".
 	 * The password is set back to identity after save.
 	 *
-	 * @return
+	 * @return create identity with default "password".
+	 * @see #createIdentityOnly()
 	 */
 	IdmIdentityDto createIdentity();
+	
+	/**
+	 * Creates test identity with random username, WITHOUT default contract and WITHOUT "password" => identity cannot login in tests, 
+	 * but it's quicker (saving password takes ~800ms => bcrypt).
+	 *
+	 * @return create identity without password
+	 * @since 10.6.0
+	 */
+	IdmIdentityDto createIdentityOnly();
 
 	/**
 	 * Creates test identity with given username and default "password".

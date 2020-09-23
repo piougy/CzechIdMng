@@ -59,6 +59,8 @@ import eu.bcvsolutions.idm.core.api.dto.IdmTreeTypeDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.IdmRoleRequestFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.repository.filter.FilterBuilder;
@@ -225,6 +227,18 @@ public class DefaultTestHelper implements TestHelper {
 		identity.setPassword(password);
 		//
 		return identity;
+	}
+	
+	@Override
+	public IdmIdentityDto createIdentityOnly() {
+		IdmIdentityDto identity = new IdmIdentityDto();
+		identity.setUsername(createName());
+		identity.setFirstName("Test");
+		identity.setLastName("Identity");
+		CoreEvent<IdmIdentityDto> event = new CoreEvent<IdmIdentityDto>(CoreEventType.CREATE, identity);
+		event.getProperties().put(IdmIdentityContractService.SKIP_CREATION_OF_DEFAULT_POSITION, Boolean.TRUE);
+		//
+		return identityService.publish(event).getContent();
 	}
 
 	@Override

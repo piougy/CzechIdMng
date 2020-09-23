@@ -127,11 +127,13 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		}
 		//
 		filter.setTaskType(AutowireHelper.getTargetType(ProcessAutomaticRoleByAttributeTaskExecutor.class));
-		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-			throw new ResultCodeException(
-					CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
-					ImmutableMap.of("taskId", longRunningTaskId.toString())
-			);
+		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
+			if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
+				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING,
+						ImmutableMap.of(
+								"automaticRoleId", automaticRole.getId().toString(),
+								"taskId", longRunningTask.getId().toString()));
+			}
 		}
 	}
 	

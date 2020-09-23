@@ -98,9 +98,11 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		super.validate(task);
 		//
 		UUID automaticRoleId = getAutomaticRoleId();
+		boolean byTree = true;
 		AbstractIdmAutomaticRoleDto automaticRole = roleTreeNodeService.get(automaticRoleId);
 		if (automaticRole == null) {
 			// get from automatic role attribute service
+			byTree = false;
 			automaticRole = automaticRoleAttributeService.get(automaticRoleId);
 		}
 		if (automaticRole == null) {
@@ -111,30 +113,41 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 		filter.setTaskType(AutowireHelper.getTargetType(this));
 		filter.setRunning(Boolean.TRUE);
 		//
-		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-			throw new ResultCodeException(
-					CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
-					ImmutableMap.of("taskId", longRunningTaskId.toString())
-			);
-		}
-		//
-		filter.setTaskType(AutowireHelper.getTargetType(ProcessAutomaticRoleByTreeTaskExecutor.class));
-		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
-			throw new ResultCodeException(
-					CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
-					ImmutableMap.of("taskId", longRunningTaskId.toString())
-			);
-		}
-		//
-		filter.setTaskType(AutowireHelper.getTargetType(ProcessAutomaticRoleByAttributeTaskExecutor.class));
-		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
-			if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
-				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING,
-						ImmutableMap.of(
-								"automaticRoleId", automaticRole.getId().toString(),
-								"taskId", longRunningTask.getId().toString()));
+		if (byTree) {
+			for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
+				throw new ResultCodeException(
+						CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
+						ImmutableMap.of("taskId", longRunningTaskId.toString())
+				);
 			}
-		}
+			//
+			filter.setTaskType(AutowireHelper.getTargetType(ProcessAutomaticRoleByTreeTaskExecutor.class));
+			for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
+				throw new ResultCodeException(
+						CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
+						ImmutableMap.of("taskId", longRunningTaskId.toString())
+				);
+			}
+		} else { // by attribute - prevent currently removed role only
+			for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
+				if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
+					throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_RUN_CONCURRENTLY,
+							ImmutableMap.of(
+									"roleTreeNode", automaticRole.getId().toString(),
+									"taskId", longRunningTask.getId().toString()));
+				}
+			}
+			//
+			filter.setTaskType(AutowireHelper.getTargetType(ProcessAutomaticRoleByAttributeTaskExecutor.class));
+			for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
+				if (longRunningTask.getTaskProperties().get(AbstractAutomaticRoleTaskExecutor.PARAMETER_ROLE_TREE_NODE).equals(automaticRole.getId())) {
+					throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_REMOVE_TASK_ADD_RUNNING,
+							ImmutableMap.of(
+									"automaticRoleId", automaticRole.getId().toString(),
+									"taskId", longRunningTask.getId().toString()));
+				}
+			}
+		}	
 	}
 	
 	@Override

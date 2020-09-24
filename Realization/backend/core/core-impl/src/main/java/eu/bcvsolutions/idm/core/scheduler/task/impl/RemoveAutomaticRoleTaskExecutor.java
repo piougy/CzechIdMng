@@ -147,7 +147,7 @@ public class RemoveAutomaticRoleTaskExecutor extends AbstractSchedulableStateful
 									"taskId", longRunningTask.getId().toString()));
 				}
 			}
-		}	
+		}
 	}
 	
 	@Override

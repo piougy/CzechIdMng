@@ -106,6 +106,28 @@ class NotificationDetail extends Basic.AbstractContent {
     }
   }
 
+  renderRecipients(notification, isNew, identityOnly) {
+    if ( !notification.recipients ) {
+      return null;
+    }
+
+    const recipients = notification.recipients.map(recipient => {
+      return (
+        <NotificationRecipient recipient={recipient} identityOnly={identityOnly}/>
+      );
+    });
+
+    return (
+      <Basic.LabelWrapper
+        hidden={isNew}
+        label={this.i18n('entity.Notification.recipients')}>
+        <Basic.Div style={{margin: '7px 0'}}>
+          {recipients}
+        </Basic.Div>
+      </Basic.LabelWrapper>
+    );
+  }
+
   render() {
     const { notification, identityOnly, isNew, userContext, showTopic } = this.props;
     const { showLoading } = this.state;
@@ -196,27 +218,7 @@ class NotificationDetail extends Basic.AbstractContent {
               }
             </Basic.Div>
           </Basic.LabelWrapper>
-
-          <Basic.LabelWrapper
-            hidden={isNew}
-            label={this.i18n('entity.Notification.recipients')}>
-            {
-              notification.recipients
-              ?
-              <Basic.Div style={{ margin: '7px 0' }}>
-                {
-                  [...notification.recipients.map(recipient => {
-                    return (
-                      <NotificationRecipient recipient={recipient} identityOnly={identityOnly}/>
-                    );
-                  }).values]
-                }
-              </Basic.Div>
-              :
-              null
-            }
-          </Basic.LabelWrapper>
-
+          {this.renderRecipients(notification, isNew, identityOnly)}
           <Basic.SelectBox
             hidden={!isNew}
             ref="recipients"

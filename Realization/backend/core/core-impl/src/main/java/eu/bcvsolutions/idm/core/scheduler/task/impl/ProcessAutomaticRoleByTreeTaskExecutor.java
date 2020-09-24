@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -36,6 +36,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.domain.ConceptRoleRequestOperation;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.domain.PriorityType;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.IdmConceptRoleRequestDto;
@@ -107,7 +108,6 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	private boolean continueOnException = true; // change default to true
 	private Set<UUID> processedIdentityRoles = new HashSet<>(); // all processed identity roles - invalid role removal is solved, after all automatic roles are assigned (prevent drop and create target account)
 	private boolean removeNotProcessedIdentityRoles = true; // true - invalid role removal is solved, after all automatic roles are assigned (prevent drop and create target account)
-	
 	
 	@Override
 	public String getName() {
@@ -188,13 +188,11 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 		filter.setTaskType(AutowireHelper.getTargetType(this));
 		filter.setRunning(Boolean.TRUE);
 		//
-		filter.setTaskType(ProcessAutomaticRoleByTreeTaskExecutor.class.getCanonicalName());
-		for (IdmLongRunningTaskDto longRunningTask : getLongRunningTaskService().find(filter, null)) {
-			List<UUID> taskRoles = getAutomaticRoles(longRunningTask.getTaskProperties());
-			if (!CollectionUtils.isEmpty(taskRoles) && !Collections.disjoint(automaticRoles, taskRoles)) {
-				throw new ResultCodeException(CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
-						ImmutableMap.of("taskId", longRunningTask.getId().toString()));
-			}
+		for (UUID longRunningTaskId : getLongRunningTaskService().findIds(filter, PageRequest.of(0, 1))) {
+			throw new ResultCodeException(
+					CoreResultCode.AUTOMATIC_ROLE_TASK_RUNNING,
+					ImmutableMap.of("taskId", longRunningTaskId.toString())
+			);
 		}
 	}
 	
@@ -380,6 +378,7 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 	}
 	
 	protected void processIdentityRoles(Set<UUID> processedIdentityRoles, UUID automaticRole) {
+		Assert.notNull(automaticRole, "Automatic role is required.");
 		//
 		// remove old assigned roles by automatic role
 		Pageable pageable = PageRequest.of(
@@ -474,7 +473,9 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 			roleRequest.setConceptRoles(Lists.newArrayList(conceptRoleRequest));
 			roleRequest.setApplicant(contract.getIdentity());
-			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
+			RoleRequestEvent roleRequestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+			roleRequestEvent.setPriority(PriorityType.IMMEDIATE);
+			roleRequest = roleRequestService.startConcepts(roleRequestEvent, null);
 			//
 			// load role concepts and add created role to processed
 			if (roleRequest != null) {
@@ -559,7 +560,9 @@ public class ProcessAutomaticRoleByTreeTaskExecutor extends AbstractSchedulableS
 			IdmRoleRequestDto roleRequest = new IdmRoleRequestDto();
 			roleRequest.setConceptRoles(Lists.newArrayList(conceptRoleRequest));
 			roleRequest.setApplicant(contract.getIdentity());
-			roleRequest = roleRequestService.startConcepts(new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest), null);
+			RoleRequestEvent roleRequestEvent = new RoleRequestEvent(RoleRequestEventType.EXCECUTE, roleRequest);
+			roleRequestEvent.setPriority(PriorityType.IMMEDIATE);
+			roleRequest = roleRequestService.startConcepts(roleRequestEvent, null);
 			//
 			// load role concepts and add created role to processed
 			if (roleRequest != null) {

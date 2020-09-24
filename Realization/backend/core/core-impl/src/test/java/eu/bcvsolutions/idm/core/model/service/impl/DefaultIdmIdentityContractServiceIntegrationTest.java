@@ -1485,8 +1485,10 @@ public class DefaultIdmIdentityContractServiceIntegrationTest extends AbstractIn
 			taskExecutor.setAutomaticRoleId(automaticRole.getId());
 			//
 			longRunningTaskManager.execute(taskExecutor);
-			longRunningTaskManager.getLongRunningTask(taskExecutor);
 		} finally {
+			lrt.setRunning(false);
+			lrt = longRunningTaskService.save(lrt);
+			//
 			longRunningTaskService.delete(lrt);
 		}
 	}

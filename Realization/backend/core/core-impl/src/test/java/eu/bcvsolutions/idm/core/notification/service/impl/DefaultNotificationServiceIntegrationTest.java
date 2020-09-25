@@ -104,6 +104,14 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 				Lists.newArrayList(identityOne, identityTwo)
 				);
 		Assert.assertEquals(1, notifications.size());
+		List<IdmNotificationLogDto> notificationOthers = notificationManager.send(
+				config.getTopic(),
+				new IdmMessageDto.Builder().setTemplate(template).build(),
+				identitySender,
+				Lists.newArrayList(identityOne, identityTwo)
+				);
+		Assert.assertEquals(1, notificationOthers.size());
+		IdmNotificationLogDto notificationOther = notificationLogService.get(notificationOthers.get(0));
 		//
 		IdmNotificationLogDto notification = notificationLogService.get(notifications.get(0));
 		Assert.assertNotNull(notification);
@@ -154,7 +162,15 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		notificationAttachment = notificationAttachmentService.save(notificationAttachment);
 		Assert.assertNotNull(attachmentManager.get(attachment));
 		Assert.assertNotNull(notificationAttachmentService.get(notificationAttachment));
-		
+		//
+		IdmNotificationAttachmentDto notificationAttachmentOther = new IdmNotificationAttachmentDto();
+		notificationAttachmentOther.setAttachment(attachmentOther.getId());
+		notificationAttachmentOther.setName(attachmentOther.getName());
+		notificationAttachmentOther.setNotification(notificationOther.getId());
+		notificationAttachmentOther = notificationAttachmentService.save(notificationAttachmentOther);
+		Assert.assertNotNull(attachmentManager.get(attachmentOther));
+		Assert.assertNotNull(notificationAttachmentService.get(notificationAttachmentOther));
+		//
 		// delete parent notification
 		notificationLogService.delete(notification);
 		//
@@ -168,6 +184,7 @@ public class DefaultNotificationServiceIntegrationTest extends AbstractIntegrati
 		Assert.assertNull(attachmentManager.get(attachment));
 		Assert.assertNotNull(attachmentManager.get(attachmentOther));
 		Assert.assertNull(notificationAttachmentService.get(notificationAttachment));
+		Assert.assertNotNull(notificationAttachmentService.get(notificationAttachmentOther));
 	}
 
 	@Test

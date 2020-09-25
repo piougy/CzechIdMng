@@ -6,7 +6,6 @@ import _ from 'lodash';
 import { Advanced, Basic, Domain, Managers, Utils } from 'czechidm-core';
 import uuid from 'uuid';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
-import SystemWizard from '../wizard/SystemWizard';
 //
 
 /**
@@ -164,6 +163,7 @@ export class SystemTable extends Advanced.AbstractTableContent {
         </Basic.Div>
       );
     }
+    return null;
   }
 
   render() {

@@ -3,8 +3,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { Link } from 'react-router-dom';
-//
+
 import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
@@ -133,7 +132,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
       showLoading: true,
       error: null
     }, () => {
-      let connector = null;
+      let connector;
       if (entity.remote) {
         connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
       } else {
@@ -185,11 +184,11 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
   wizardNext() {
     if (!this.isWizard()) {
-      return null;
+      return;
     }
     if (!this.refs.eav) {
       // Connector is not selected -> nothing to save.
-      if ( this.context.wizardContext.callBackNext ) {
+      if (this.context.wizardContext.callBackNext) {
         this.context.wizardContext.callBackNext();
       }
     }
@@ -218,7 +217,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
           this.getLogger().debug(`[EavForm]: Form [${this.refs.eav.getFormDefinition().type}|${this.refs.eav.getFormDefinition().name}] saved`);
           // Complete wizard step
           if (this.isWizard()) {
-            if ( this.context.wizardContext.callBackNext ) {
+            if (this.context.wizardContext.callBackNext) {
               this.context.wizardContext.callBackNext();
             }
           }

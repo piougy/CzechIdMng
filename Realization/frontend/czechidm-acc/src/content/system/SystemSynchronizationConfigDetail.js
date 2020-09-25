@@ -82,7 +82,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
 
   /**
    * Method for init component from didMount method and from willReceiveProps method
-   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   * @param props - properties of component - props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
     const {configId} = props.match.params;
@@ -184,7 +184,7 @@ class SystemSynchronizationConfigDetail extends Advanced.AbstractTableContent {
    */
   wizardNext() {
     if (!this.isWizard()) {
-      return null;
+      return;
     }
     this.save(false, false);
   }
@@ -848,7 +848,7 @@ function select(state, component) {
 
   return {
     _synchronizationConfig: entity,
-    _showLoading: _showLoading,
+    _showLoading,
   };
 }
 

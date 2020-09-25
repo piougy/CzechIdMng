@@ -4,8 +4,8 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
-import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
-import { SchemaObjectClassManager, SystemManager, SchemaAttributeManager} from '../../redux';
+import { Advanced, Basic, Domain, Managers, Utils } from 'czechidm-core';
+import { SchemaAttributeManager, SchemaObjectClassManager, SystemManager } from '../../redux';
 
 const uiKey = 'schema-object-classes';
 const uiKeyAttributes = 'schema-attributes';
@@ -37,7 +37,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
       const uuidId = uuid.v1();
       const objectClassId = this.props._schemaObjectClass.id;
       // If is in the wizard, then active step will be change to this attribute.
-      if ( this.isWizard() ) {
+      if (this.isWizard()) {
         const activeStep = this.context.wizardContext.activeStep;
         if (activeStep) {
           activeStep.id = 'schemaAttributeNew';
@@ -47,18 +47,16 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
       } else {
         this.context.history.push(`/system/${systemId}/schema-attributes/${uuidId}/new?new=1&objectClassId=${objectClassId}`);
       }
-    } else {
+    } else if (this.isWizard()) {
       // If is in the wizard, then active step will be change to this attribute.
-      if ( this.isWizard() ) {
-        const activeStep = this.context.wizardContext.activeStep;
-        if (activeStep) {
-          activeStep.id = 'schemaAttribute';
-          activeStep.attributeId = entity;
-          this.context.wizardContext.wizardForceUpdate();
-        }
-      } else {
-        this.context.history.push(`/system/${systemId}/schema-attributes/${entity.id}/detail`);
+      const activeStep = this.context.wizardContext.activeStep;
+      if (activeStep) {
+        activeStep.id = 'schemaAttribute';
+        activeStep.attributeId = entity;
+        this.context.wizardContext.wizardForceUpdate();
       }
+    } else {
+      this.context.history.push(`/system/${systemId}/schema-attributes/${entity.id}/detail`);
     }
   }
 
@@ -79,7 +77,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
 
   /**
    * Method for init component from didMount method and from willReceiveProps method
-   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   * @param props - properties of component - props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
     const { objectClassId} = props.match.params;
@@ -119,7 +117,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
       if (this._getIsNew()) {
         // Complete wizard step.
         // Set new entity to the wizard context and go to next step.
-        if ( this.isWizard() ) {
+        if (this.isWizard()) {
           const activeStep = this.context.wizardContext.activeStep;
           if (activeStep) {
             activeStep.id = 'schema';
@@ -136,7 +134,7 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
   }
 
   goBack() {
-    if ( this.isWizard() ) {
+    if (this.isWizard()) {
       // If is component in the wizard, then set new ID (master component)
       // to the active action and render wizard.
       const activeStep = this.context.wizardContext.activeStep;
@@ -163,28 +161,31 @@ class SchemaObjectClassDetail extends Advanced.AbstractTableContent {
   }
 
   renderButtons(_showLoading) {
-    return <span>
-      <Basic.Button
-        type="button"
-        level="link"
-        onClick={this.goBack.bind(this)}
-        showLoading={_showLoading}>
-        {this.i18n('button.back')}
-      </Basic.Button>
-      <Basic.Button
-        level="success"
-        type={this.isWizard() ? 'button' : 'submit'}
-        onClick={this.isWizard() ? this.save.bind(this) : null}
-        rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
-        showLoading={_showLoading}>
-        {this.i18n('button.saveAndContinue')}
-      </Basic.Button>
-    </span>;
+    return (
+      <span>
+        <Basic.Button
+          type="button"
+          level="link"
+          onClick={this.goBack.bind(this)}
+          showLoading={_showLoading}>
+          {this.i18n('button.back')}
+        </Basic.Button>
+        <Basic.Button
+          level="success"
+          type={this.isWizard() ? 'button' : 'submit'}
+          onClick={this.isWizard() ? this.save.bind(this) : null}
+          rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_UPDATE'])}
+          showLoading={_showLoading}>
+          {this.i18n('button.saveAndContinue')}
+        </Basic.Button>
+      </span>
+    );
   }
 
   render() {
     const { _showLoading, _schemaObjectClass} = this.props;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : Domain.SearchParameters.BLANK_UUID);
+    const forceSearchParameters = new Domain.SearchParameters()
+      .setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const schemaObjectClass = isNew ? this.state.schemaObjectClass : _schemaObjectClass;
     const systemId = this.props.match.params.entityId;
@@ -316,8 +317,7 @@ SchemaObjectClassDetail.defaultProps = {
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, schemaObjectClassManager.getEntityType(), component.match.params.objectClassId);
   if (entity) {
-    const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
-    entity.system = system;
+    entity.system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
   }
   return {
     _schemaObjectClass: entity,
